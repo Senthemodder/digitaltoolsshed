@@ -418,6 +418,145 @@ body {
   text-transform: uppercase;
 }
 
+/* ─── TECH ARTICLES & EDITORIAL STYLING ─── */
+.article-container {
+  max-width: 840px;
+  margin: 0 auto;
+}
+.article-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+.article-header h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.5vw, 2.7rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.article-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.article-body {
+  font-size: 1.08rem;
+  line-height: 1.75;
+  color: var(--fg);
+}
+.article-body h2 {
+  font-family: var(--serif);
+  font-size: 1.65rem;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+.article-body h3 {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.75rem;
+}
+.article-body p {
+  margin-bottom: 1.35rem;
+}
+.article-body ul, .article-body ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+.article-body li {
+  margin-bottom: 0.5rem;
+}
+.article-callout {
+  background: var(--surface-alt);
+  border-left: 4px solid var(--fg);
+  padding: 1.25rem 1.5rem;
+  margin: 1.75rem 0;
+  font-style: italic;
+}
+.code-block-wrapper {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.code-block-wrapper pre {
+  margin: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+.article-cta-box {
+  background: var(--surface);
+  border: 2px solid var(--fg);
+  padding: 1.5rem;
+  margin: 2.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.article-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+.article-journal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s;
+}
+.article-journal-card:hover {
+  border-color: var(--fg);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+.article-journal-tag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.article-journal-card h3 {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+}
+.article-journal-card p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
 .ad-blend-box {
   margin: 2rem 0;
   padding: 0.75rem;
@@ -840,6 +979,32 @@ footer a:hover { text-decoration: underline; }
       </a>
       <a href="/mc/manifest-gen.html" class="nav-link ">
         <div class="nav-link-content"><span>Manifest Generator</span></div>
+      </a>
+
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span>Tech Articles & Guides (6)</span>
+      </div>
+      <a href="/articles/" class="nav-link ">
+        <div class="nav-link-content"><span>Articles Hub</span></div>
+      </a>
+      <a href="/articles/how-to-decompile-esbuild-bundles.html" class="nav-link ">
+        <div class="nav-link-content"><span>Decompile ESBuild</span></div>
+      </a>
+      <a href="/articles/json-obfuscation-and-compression-techniques.html" class="nav-link ">
+        <div class="nav-link-content"><span>JSON Obfuscation</span></div>
+      </a>
+      <a href="/articles/minecraft-bedrock-custom-blocks-guide.html" class="nav-link ">
+        <div class="nav-link-content"><span>Bedrock Custom Blocks</span></div>
+      </a>
+      <a href="/articles/minecraft-bedrock-manifest-uuid-guide.html" class="nav-link ">
+        <div class="nav-link-content"><span>Manifest & UUIDs</span></div>
+      </a>
+      <a href="/articles/zero-upload-client-side-image-processing.html" class="nav-link ">
+        <div class="nav-link-content"><span>In-Browser Images</span></div>
+      </a>
+      <a href="/articles/universal-media-stream-extraction-guide.html" class="nav-link ">
+        <div class="nav-link-content"><span>Media Extraction</span></div>
       </a>
     </nav>
 
