@@ -1352,7 +1352,12 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
     })();
   </script>
   <style>${MASTER_CSS}</style>
+  <!-- POPUNDER: DISABLED — USE THIS ONCE 1K TRAFFIC AND MORE
+       Uncomment the line below to activate Adsterra popunder ads.
+       This opens a sponsor tab on the user's first click per session.
+       High CPM ($2-5) but risky for bounce rate on low-traffic sites.
   <script src="https://manyapostle.com/de/cb/e7/decbe73417353e7a377faccd19c69d3f.js"></script>
+  -->
   ${schemaMarkup}
 </head>
 <body>
