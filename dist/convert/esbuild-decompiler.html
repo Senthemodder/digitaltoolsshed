@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Convert PNG to WebP Online — Free, No Upload | Digital Tools Shed</title>
-  <meta name="description" content="Convert PNG files to WebP format instantly directly in your browser. Fast, free, and secure with no server uploads required.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/convert/png-to-webp.html">
-  <meta property="og:title" content="Convert PNG to WebP Online — Free, No Upload | Digital Tools Shed">
-  <meta property="og:description" content="Convert PNG files to WebP format instantly directly in your browser. Fast, free, and secure with no server uploads required.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/convert/png-to-webp.html">
+  <title>ESBuild & JavaScript Decompiler — Free Reverse Engineering & Unminifier | Digital Tools Shed</title>
+  <meta name="description" content="Decompile, unminify, format, and reverse engineer minified ESBuild and Webpack JavaScript bundles in your browser.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/convert/esbuild-decompiler.html">
+  <meta property="og:title" content="ESBuild & JavaScript Decompiler — Free Reverse Engineering & Unminifier | Digital Tools Shed">
+  <meta property="og:description" content="Decompile, unminify, format, and reverse engineer minified ESBuild and Webpack JavaScript bundles in your browser.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/convert/esbuild-decompiler.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
@@ -569,7 +569,7 @@ footer a:hover { text-decoration: underline; }
         </div>
         <span class="nav-badge">DEV</span>
       </a>
-      <a href="/convert/esbuild-decompiler.html" class="nav-link ">
+      <a href="/convert/esbuild-decompiler.html" class="nav-link active">
         <div class="nav-link-content">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
           <span>ESBuild Decompiler</span>
@@ -591,7 +591,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/convert/json-obfuscator.html" class="nav-link ">
         <div class="nav-link-content"><span>JSON Obfuscator</span></div>
       </a>
-      <a href="/convert/esbuild-decompiler.html" class="nav-link ">
+      <a href="/convert/esbuild-decompiler.html" class="nav-link active">
         <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
       </a>
       <a href="/convert/json-formatter.html" class="nav-link ">
@@ -631,7 +631,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/convert/jpg-to-png.html" class="nav-link ">
         <div class="nav-link-content"><span>JPG to PNG</span></div>
       </a>
-      <a href="/convert/png-to-webp.html" class="nav-link active">
+      <a href="/convert/png-to-webp.html" class="nav-link ">
         <div class="nav-link-content"><span>PNG to WebP</span></div>
       </a>
       <a href="/convert/webp-to-png.html" class="nav-link ">
@@ -707,7 +707,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Convert PNG to WebP Online</span>
+            <span>ESBuild & JavaScript Decompiler</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -723,71 +723,146 @@ footer a:hover { text-decoration: underline; }
         </div>
 
         
-      <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-        
-        <div style="margin-bottom:var(--space-sm);">
-            
+    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+      <h1 style="margin-top: 0.5rem;">ESBuild & JavaScript Decompiler</h1>
+      <p>Reverse-engineer, unminify, unpack bundler IIFEs, expand comma expressions, and restore readable ES6+ JavaScript code.</p>
+    </div>
+
+    <div class="tool-workspace" style="max-width: 950px; margin: 1.5rem 0;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <div>
+          <label style="font-family: var(--serif); font-weight: bold; margin-bottom: 0.5rem; display: block;">Minified JS / ESBuild Bundle</label>
+          <textarea id="jsInput" style="width: 100%; height: 320px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem;" placeholder='(()=>{"use strict";var __defProp=Object.defineProperty;var __getOwnPropDesc=Object.getOwnPropertyDescriptor;var __getOwnPropNames=Object.getOwnPropertyNames;var __export=(target,all)=>{for(var name in all)__defProp(target,name,{get:all[name],enumerable:!0})};var a=1,b=2,c=function(x){return x>0?(console.log("\x44\x6f\x6e\x65"),x*2):0};window.app={compute:c};})();'></textarea>
         </div>
-        
-        <h1 style="font-family:var(--font-serif);font-size:2.5rem;font-weight:700;margin-bottom:var(--space-sm);">PNG to WebP Converter</h1>
-        <p style="color:var(--muted-color);font-size:1.05rem;margin-bottom:var(--space-xl);">Convert your PNG images to WebP format directly in your browser. 100% private, no uploads.</p>
-
-        <!-- Drop Zone -->
-        <div id="drop-zone" style="border:2px dashed var(--border-color);padding:var(--space-2xl);text-align:center;cursor:pointer;background:var(--surface-color);transition:all 0.2s ease;margin-bottom:var(--space-lg);">
-            <div style="font-size:2rem;margin-bottom:var(--space-sm);">📄</div>
-            <p style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;">Drop your PNG file here</p>
-            <p style="color:var(--muted-color);font-size:0.9rem;">or click to browse</p>
-            <input type="file" id="file-input" accept="image/png" hidden>
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <label style="font-family: var(--serif); font-weight: bold;">Decompiled & Formatted JS</label>
+            <span id="jsStats" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Lines: 0</span>
+          </div>
+          <textarea id="jsOutput" style="width: 100%; height: 320px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem;" readonly placeholder="Decompiled and syntax-restored code will appear here..."></textarea>
         </div>
-
-        <!-- Settings Panel (hidden until file loaded) -->
-        <div id="settings-panel" style="display:none;border:2px solid var(--border-color);background:var(--card-color);padding:var(--space-lg);margin-bottom:var(--space-lg);">
-            <p id="file-info" style="font-family:var(--font-mono);font-size:0.85rem;margin-bottom:var(--space-md);color:var(--muted-color);"></p>
-            
-            <div style="margin-bottom:var(--space-md);text-align:center;">
-                <img id="preview-img" style="max-width:100%;max-height:250px;margin:0 auto;border:2px solid var(--border-color);object-fit:contain;" alt="PNG Preview">
-            </div>
-
-            <!-- Settings slider -->
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);padding:var(--space-sm) 0;border-bottom:1px solid var(--border-subtle);">
-                <span style="font-family:var(--font-serif);font-weight:700;">Quality</span>
-                <div style="display:flex;align-items:center;gap:var(--space-sm);">
-                    <input type="range" id="quality-slider" min="1" max="100" value="85" style="width:180px;accent-color:var(--text-color);">
-                    <span id="quality-val" style="font-family:var(--font-mono);font-size:0.9rem;min-width:40px;text-align:right;">85%</span>
-                </div>
-            </div>
-            
-            <button id="convert-btn" style="width:100%;padding:var(--space-md);background:var(--text-color);color:var(--bg-color);font-family:var(--font-serif);font-weight:700;font-size:1.2rem;letter-spacing:0.05em;border:2px solid var(--border-color);box-shadow:4px 4px 0px var(--border-color);text-transform:uppercase;cursor:pointer;">⚡ CONVERT NOW</button>
-        </div>
-
-        <!-- Result Panel (hidden until conversion done) -->
-        <div id="result-panel" style="display:none;border:2px solid var(--border-color);background:var(--card-color);padding:var(--space-lg);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--border-subtle);">
-                <span style="font-family:var(--font-serif);font-size:1.2rem;font-weight:700;">Conversion Complete!</span>
-                <span id="savings-badge" style="font-family:var(--font-mono);font-size:0.85rem;padding:var(--space-xs) var(--space-sm);background:var(--surface-color);border:1px solid var(--border-color);font-weight:700;">-</span>
-            </div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-bottom:var(--space-md);font-family:var(--font-mono);font-size:0.85rem;">
-                <div style="border:1px solid var(--border-subtle);padding:var(--space-sm);background:var(--surface-color);">
-                    <div style="color:var(--muted-color);margin-bottom:4px;">Original PNG</div>
-                    <div id="original-size-val" style="font-weight:700;">-</div>
-                </div>
-                <div style="border:1px solid var(--border-subtle);padding:var(--space-sm);background:var(--surface-color);">
-                    <div style="color:var(--muted-color);margin-bottom:4px;">Converted WebP</div>
-                    <div id="converted-size-val" style="font-weight:700;">-</div>
-                </div>
-            </div>
-
-            <div style="margin-bottom:var(--space-md);text-align:center;">
-                <img id="result-preview-img" style="max-width:100%;max-height:250px;margin:0 auto;border:2px solid var(--border-color);object-fit:contain;" alt="WebP Result Preview">
-            </div>
-
-            <button id="download-btn" style="width:100%;padding:var(--space-md);background:var(--text-color);color:var(--bg-color);font-family:var(--font-serif);font-weight:700;font-size:1.1rem;letter-spacing:0.05em;border:2px solid var(--border-color);box-shadow:4px 4px 0px var(--border-color);text-transform:uppercase;cursor:pointer;">⬇️ DOWNLOAD WEBP</button>
-        </div>
-    
       </div>
-      
-    
+
+      <!-- Decompiler Configuration Options -->
+      <div style="border: 1px solid var(--border); background: var(--surface-alt); padding: 1.25rem; margin-bottom: 1.5rem;">
+        <div style="font-family: var(--serif); font-weight: bold; margin-bottom: 0.75rem;">Decompilation & Unpacking Pipeline:</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;">
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-family: var(--serif); cursor: pointer;">
+            <input type="checkbox" id="optDecodeHexStrings" checked />
+            <span>Decode Hex & Unicode Escapes (\x44 -> "D")</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-family: var(--serif); cursor: pointer;">
+            <input type="checkbox" id="optUnpackBundlers" checked />
+            <span>Unpack Bundler Wrappers (__esm, __export, __toESM)</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-family: var(--serif); cursor: pointer;">
+            <input type="checkbox" id="optExpandCommas" checked />
+            <span>Expand Multi-Variable & Comma Declarations</span>
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-family: var(--serif); cursor: pointer;">
+            <input type="checkbox" id="optExpandShortCircuits" checked />
+            <span>Expand Short-Circuit Conditionals (a && b())</span>
+          </label>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+        <button id="btnDecompile" class="btn-primary">DECOMPILE & UNMINIFY</button>
+        <button id="btnCopyJs" class="btn-secondary">COPY CODE</button>
+        <button id="btnDownloadJs" class="btn-secondary">EXPORT .JS FILE</button>
+      </div>
+    </div>
+
+    <!-- JS-BEAUTIFY CDN FOR ROBUST AST FORMATTING -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-beautify/1.14.9/beautify.min.js"></script>
+    <script>
+      function decodeHexAndUnicode(code) {
+        return code.replace(/\\x([0-9a-fA-F]{2})/g, (match, hex) => {
+          return String.fromCharCode(parseInt(hex, 16));
+        }).replace(/\\u([0-9a-fA-F]{4})/g, (match, hex) => {
+          return String.fromCharCode(parseInt(hex, 16));
+        });
+      }
+
+      function unpackBundlerHelpers(code) {
+        return code
+          .replace(/var __defProp\s*=\s*Object\.defineProperty;/g, '/* ESBuild Property Definition Helper */\nconst defineProperty = Object.defineProperty;')
+          .replace(/var __export\s*=\s*\(target,\s*all\)\s*=>\s*\{[^}]*\};/g, '/* ESBuild Module Export Dispatcher */\nfunction exportModule(target, all) { for (const name in all) Object.defineProperty(target, name, { get: all[name], enumerable: true }); }')
+          .replace(/var __toESM\s*=\s*\([^)]*\)\s*=>\s*\{[^}]*\};/g, '/* ESBuild CommonJS to ESM Interop */\nfunction toESM(mod, isNodeMode, target) { return isNodeMode || !mod || !mod.__esModule ? Object.assign(Object.defineProperty({}, "__esModule", { value: true }), mod) : mod; }')
+          .replace(/var __commonJS\s*=\s*\([^)]*\)\s*=>\s*\{[^}]*\};/g, '/* ESBuild CommonJS Wrapper */\nfunction commonJS(cb, mod) { return function() { return mod || cb((mod = { exports: {} }).exports, mod), mod.exports; }; }');
+      }
+
+      function expandCommaStatements(code) {
+        return code.replace(/;var\s+([a-zA-Z0-9_$]+=[^,;]+),([a-zA-Z0-9_$]+=[^,;]+);/g, ';\nvar $1;\nvar $2;');
+      }
+
+      function decompileJs(code) {
+        let transformed = code;
+
+        if (document.getElementById('optDecodeHexStrings').checked) {
+          transformed = decodeHexAndUnicode(transformed);
+        }
+
+        if (document.getElementById('optUnpackBundlers').checked) {
+          transformed = unpackBundlerHelpers(transformed);
+        }
+
+        if (document.getElementById('optExpandCommas').checked) {
+          transformed = expandCommaStatements(transformed);
+        }
+
+        if (typeof js_beautify === 'function') {
+          transformed = js_beautify(transformed, {
+            indent_size: 2,
+            space_in_empty_paren: false,
+            preserve_newlines: true,
+            max_preserve_newlines: 2,
+            break_chained_methods: false,
+            keep_array_indentation: false,
+            unescape_strings: true,
+            wrap_line_length: 100,
+            e4x: true,
+            comma_first: false,
+            brace_style: "collapse,preserve-inline"
+          });
+        }
+
+        return transformed;
+      }
+
+      document.getElementById('btnDecompile').addEventListener('click', () => {
+        const raw = document.getElementById('jsInput').value.trim();
+        if (!raw) {
+          alert('Please enter or paste minified JavaScript code.');
+          return;
+        }
+
+        const decompiled = decompileJs(raw);
+        document.getElementById('jsOutput').value = decompiled;
+
+        const lines = decompiled.split('\n').length;
+        const bytes = new Blob([decompiled]).size;
+        document.getElementById('jsStats').innerText = lines + ' Lines | ' + (bytes / 1024).toFixed(2) + ' KB';
+      });
+
+      document.getElementById('btnCopyJs').addEventListener('click', () => {
+        const out = document.getElementById('jsOutput').value;
+        if (!out) return;
+        navigator.clipboard.writeText(out);
+        alert('Decompiled JS code copied to clipboard!');
+      });
+
+      document.getElementById('btnDownloadJs').addEventListener('click', () => {
+        const out = document.getElementById('jsOutput').value;
+        if (!out) return;
+        const blob = new Blob([out], { type: 'application/javascript' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'decompiled_bundle.js';
+        a.click();
+      });
+    </script>
+  
 
         <div class="promo-grid">
           <a href="/convert/json-obfuscator.html" class="promo-card">
