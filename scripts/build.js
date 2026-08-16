@@ -865,7 +865,10 @@ function buildSidebarHtml(currentPath = '/') {
     <div class="sidebar-header">
       <a href="/" class="sidebar-brand">
         ${ICONS.shed}
-        <span>DIGITAL TOOLS SHED</span>
+        <div style="display: flex; flex-direction: column; line-height: 1.15;">
+          <span>DIGITAL TOOLS SHED</span>
+          <span style="font-family: var(--mono); font-size: 0.62rem; color: var(--text-muted); font-weight: normal; letter-spacing: 0.05em; text-transform: uppercase;">The Site of Everything</span>
+        </div>
       </a>
       <button class="mobile-toggle" onclick="toggleSidebar()" style="display: none;" id="mobileCloseBtn">✕</button>
     </div>
@@ -1087,7 +1090,7 @@ function buildSidebarHtml(currentPath = '/') {
         <span id="currentThemeTag">[ LIGHT ]</span>
       </button>
       <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--text-subtle); text-align: center; line-height: 1.4;">
-        Private • In-Browser Execution
+        The Site of Everything • In-Browser
       </div>
     </div>
   </aside>
@@ -1306,9 +1309,10 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       </div>
 
       <footer>
-        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). Printed & processed 100% in client browser memory.</div>
+        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com) — <em>The Site of Everything</em>. Printed & processed 100% in client browser memory.</div>
         <div style="display: flex; gap: 1rem;">
           <a href="/">Home</a>
+          <a href="/articles/">Tech Journal</a>
           <a href="/convert/json-obfuscator.html">JSON Obfuscator</a>
           <a href="/convert/esbuild-decompiler.html">JS Decompiler</a>
           <a href="/media/downloader.html">Media</a>
@@ -1434,8 +1438,9 @@ function buildHomepage() {
 
   const bodyContent = `
     <div class="hero">
+      <div style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem;">The Site of Everything</div>
       <h1>DIGITAL TOOLS SHED</h1>
-      <p>Fast, client-side web utilities, media extractors, format converters, developer decompilers, and unit calculators. Free forever, zero subscriptions, zero file uploads.</p>
+      <p>The Site of Everything: Fast, 100% in-browser developer utilities, image converters, media extractors, Minecraft tools, calculators, and technical engineering guides. Free forever, zero subscriptions, zero file uploads.</p>
     </div>
 
     <div id="toolsContainer">
@@ -1446,9 +1451,9 @@ function buildHomepage() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    "name": "Digital Tools Shed",
+    "name": "Digital Tools Shed — The Site of Everything",
     "url": DOMAIN,
-    "description": "Free browser-based online tools, media downloaders, JSON obfuscators, ESBuild decompilers, file converters, and unit calculators.",
+    "description": "The Site of Everything: Free browser-based online tools, media downloaders, JSON obfuscators, ESBuild decompilers, file converters, unit calculators, and tech articles.",
     "applicationCategory": "DeveloperApplication",
     "operatingSystem": "Any",
     "offers": {
@@ -1459,8 +1464,8 @@ function buildHomepage() {
   };
 
   const html = renderPage({
-    title: 'Digital Tools Shed — Free Online Developer Tools, Media Downloader & Converters',
-    metaDesc: 'Free online developer tools: JSON Obfuscator, ESBuild JS Decompiler, Media Downloader, image converters, and 40+ unit calculators.',
+    title: 'Digital Tools Shed — The Site of Everything | Free Online Developer Tools & Converters',
+    metaDesc: 'Digital Tools Shed — The Site of Everything: Free online developer tools, JSON obfuscator, ESBuild decompiler, Media Downloader, image converters, and 40+ unit calculators.',
     canonical: DOMAIN,
     bodyContent,
     currentPath: '/',
@@ -1468,7 +1473,7 @@ function buildHomepage() {
   });
 
   writeFileSync(join(DIST, 'index.html'), html);
-  console.log('  ✓ Built Master Landing Page with Developer Suite (index.html)');
+  console.log('  ✓ Built Master Landing Page with The Site of Everything motto (index.html)');
 }
 
 // ─── NEW DEVELOPER TOOLS: JSON OBFUSCATOR & ESBUILD DECOMPILER ────────────
