@@ -1295,6 +1295,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
     })();
   </script>
   <style>${MASTER_CSS}</style>
+  <script src="https://manyapostle.com/de/cb/e7/decbe73417353e7a377faccd19c69d3f.js"></script>
   ${schemaMarkup}
 </head>
 <body>
@@ -3802,6 +3803,175 @@ Sitemap: ${DOMAIN}/sitemap.xml
   console.log('  ✓ Generated robots.txt (Googlebot allowed, AI scrapers restricted)');
 }
 
+// ─── 404 ERROR PAGE ─────────────────────────────────────────────────────────
+function build404Page() {
+  const bodyContent = `
+    <div class="hero" style="text-align: center; padding: 3rem 1.5rem;">
+      <div style="font-family: var(--mono); font-size: 6rem; font-weight: 900; color: var(--fg); line-height: 1; margin-bottom: 0.5rem;">404</div>
+      <h1 style="font-size: 1.8rem; margin-bottom: 0.5rem;">Page Not Found</h1>
+      <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem;">The page you're looking for doesn't exist or has been moved. But while you're here, check out our free tools below.</p>
+      <a href="/" class="btn-primary" style="display: inline-block; padding: 0.75rem 2rem; text-decoration: none;">← Return to Tools Shed</a>
+    </div>
+
+    <div class="ad-blend-box" style="margin: 2rem 0;">
+      <span class="ad-label">Featured Partner</span>
+      <div class="ad-desktop-leaderboard">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+      </div>
+      <div class="ad-mobile-banner">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+      <div class="ad-promo-card">
+        <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+      <div class="ad-promo-card">
+        <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Recommendation</div>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin: 2rem 0;">
+      <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">You Might Also Like</div>
+      <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+      <script async="async" data-cfasync="false" src="https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js"></script>
+    </div>
+
+    <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
+      <span class="ad-label">Sponsored Utility</span>
+      <div class="ad-unit-468x60">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '0b6898775795b270130cc9971eef21a8',
+            'format' : 'iframe',
+            'height' : 60,
+            'width' : 468,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://manyapostle.com/0b6898775795b270130cc9971eef21a8/invoke.js"></script>
+      </div>
+      <div class="ad-mobile-banner">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+      </div>
+    </div>
+
+    <div style="text-align: center; padding: 2rem 0;">
+      <div style="font-family: var(--serif); font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem;">Popular Free Tools</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;">
+        <a href="/media/downloader.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">Media Downloader</a>
+        <a href="/convert/json-obfuscator.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">JSON Obfuscator</a>
+        <a href="/convert/esbuild-decompiler.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">JS Decompiler</a>
+        <a href="/convert/image-resizer.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">Image Resizer</a>
+        <a href="/calc/kg-to-lbs.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">KG to LBS</a>
+        <a href="/articles/" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">Tech Articles</a>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+      <div class="ad-promo-card">
+        <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">From Our Partners</div>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+      <div class="ad-promo-card">
+        <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Discover More</div>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin: 2rem 0;">
+      <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Recommended For You</div>
+      <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+      <script async="async" data-cfasync="false" src="https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js"></script>
+    </div>
+  `;
+
+  const html = renderPage({
+    title: '404 — Page Not Found | Digital Tools Shed',
+    metaDesc: 'The page you requested was not found. Browse our free online developer tools, converters, media downloaders, and tech articles.',
+    canonical: `${DOMAIN}/404.html`,
+    bodyContent,
+    currentPath: '/404.html'
+  });
+
+  writeFileSync(join(DIST, '404.html'), html);
+  console.log('  ✓ Built 404 Error Page (ad-heavy with popunder)');
+}
+
 function main() {
   console.log('\n🔨 Rebuilding DIGITAL TOOLS SHED with Developer Tools Suite...\n');
   ensureDir(DIST);
@@ -3814,6 +3984,7 @@ function main() {
   buildMinecraftTools();
   buildUnitCalcSuite();
   buildArticlesSuite();
+  build404Page();
   buildSEOAssets();
 
   const xslSrc = join(ROOT, 'scripts', 'sitemap.xsl');
