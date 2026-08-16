@@ -1259,10 +1259,24 @@ function buildSidebarHtml(currentPath = '/') {
         <div class="nav-link-content"><span>Manifest & UUIDs</span></div>
       </a>
       <a href="/articles/zero-upload-client-side-image-processing.html" class="nav-link ${currentPath === '/articles/zero-upload-client-side-image-processing.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>In-Browser Images</span></div>
+        <div class="nav-link-content"><span>Image Processing</span></div>
       </a>
       <a href="/articles/universal-media-stream-extraction-guide.html" class="nav-link ${currentPath === '/articles/universal-media-stream-extraction-guide.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>Media Extraction</span></div>
+      </a>
+
+      <div class="nav-group-title">
+        ${ICONS.lock}
+        <span>Trust & Legal</span>
+      </div>
+      <a href="/about.html" class="nav-link ${currentPath === '/about.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>About Us</span></div>
+      </a>
+      <a href="/privacy.html" class="nav-link ${currentPath === '/privacy.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Privacy Policy</span></div>
+      </a>
+      <a href="/terms.html" class="nav-link ${currentPath === '/terms.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Terms of Service</span></div>
       </a>
     </nav>
 
@@ -1287,7 +1301,7 @@ function buildSidebarHtml(currentPath = '/') {
         <span id="currentThemeTag">[ LIGHT ]</span>
       </button>
       <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--text-subtle); text-align: center; line-height: 1.4;">
-        The Site of Everything • In-Browser
+        The Site of Everything
       </div>
     </div>
   </aside>
@@ -1368,7 +1382,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
         </div>
         <div class="privacy-badge">
           ${ICONS.lock}
-          <span>100% In-Browser Execution</span>
+          <span>Your files never leave your device</span>
         </div>
       </div>
 
@@ -1587,13 +1601,13 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       </div>
 
       <footer>
-        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com) — <em>The Site of Everything</em>. Printed & processed 100% in client browser memory.</div>
-        <div style="display: flex; gap: 1rem;">
+        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). The Site of Everything. Your files never leave your device.</div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
           <a href="/">Home</a>
           <a href="/articles/">Tech Journal</a>
-          <a href="/convert/json-obfuscator.html">JSON Obfuscator</a>
-          <a href="/convert/esbuild-decompiler.html">JS Decompiler</a>
-          <a href="/media/downloader.html">Media</a>
+          <a href="/about.html">About</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/terms.html">Terms</a>
           <a href="/sitemap.xml">Sitemap</a>
         </div>
       </footer>
@@ -1775,7 +1789,7 @@ function buildHomepage() {
     <div class="hero">
       <div style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.5rem;">The Site of Everything</div>
       <h1>DIGITAL TOOLS SHED</h1>
-      <p>The Site of Everything: Fast, 100% in-browser developer utilities, image converters, media extractors, Minecraft tools, calculators, and technical engineering guides. Free forever, zero subscriptions, zero file uploads.</p>
+      <p>The Site of Everything. Fast, free developer utilities, image converters, media extractors, Minecraft tools, calculators, and technical guides. No accounts, no uploads, no subscriptions.</p>
     </div>
 
     <div class="ad-hero-undercard">
@@ -3857,6 +3871,217 @@ Sitemap: ${DOMAIN}/sitemap.xml
   console.log('  ✓ Generated robots.txt (Googlebot allowed, AI scrapers restricted)');
 }
 
+// ─── TRUST & LEGAL PAGES ──────────────────────────────────────────────────
+function buildTrustPages() {
+  // === ABOUT US ===
+  const aboutBody = `
+    <div class="article-container">
+      <header class="article-header">
+        <div class="article-journal-tag">About</div>
+        <h1>About Digital Tools Shed</h1>
+      </header>
+      <div class="article-body">
+        <p>Hi. My name is Mina Lee and I built Digital Tools Shed because I got tired of sketchy tool websites.</p>
+
+        <p>You know the ones. You search for "convert PNG to JPG" and end up on a site that wants you to upload your files to some random server, create an account, and maybe install a browser extension that's definitely not tracking you. Half the time they don't even work.</p>
+
+        <p>I wanted something different. A place where you can just get things done without worrying about where your data is going.</p>
+
+        <h2>How the tools actually work</h2>
+
+        <p>Every single tool on this site runs directly in your web browser. When you drop a file into one of our converters, that file stays on your computer. It never gets uploaded anywhere. The conversion happens using your browser's built-in capabilities like the HTML5 Canvas API, the File API, and JavaScript processing.</p>
+
+        <p>This means a few things:</p>
+        <ul>
+          <li>Your files are private. We literally cannot see them because they never touch our servers.</li>
+          <li>The tools work offline once the page has loaded.</li>
+          <li>There are no file size limits imposed by server storage. The only limit is your own device's memory.</li>
+          <li>Processing is usually faster because there is no upload/download step.</li>
+        </ul>
+
+        <p>We don't run a backend server for file processing. The site is static HTML, CSS, and JavaScript hosted on GitHub Pages. That's it.</p>
+
+        <h2>Why it's free</h2>
+
+        <p>The site is supported by display advertising and sponsor partnerships. The ads you see on the page are what keep the lights on. I know ads can be annoying, but they let me offer all 88+ tools without charging anyone a subscription fee or gating features behind a paywall.</p>
+
+        <p>I try to keep the ads tasteful and clearly labeled. If something feels off, that's on me and I want to fix it.</p>
+
+        <h2>What "The Site of Everything" means</h2>
+
+        <p>It started as a joke. I kept adding tools for things I personally needed and the list got long. Developer tools, image converters, media extractors, unit calculators, Minecraft utilities, PDF tools, and now a tech journal with actual engineering articles. At some point someone said "this is becoming the site of everything" and the name stuck.</p>
+
+        <p>The goal is simple: if you need a quick utility tool, you should be able to find it here, use it for free, and leave without giving up your email or worrying about your data.</p>
+
+        <h2>Contact</h2>
+
+        <p>If you have questions, found a bug, or want to suggest a new tool, you can reach me at:</p>
+        <ul>
+          <li>Email: (coming soon)</li>
+          <li>GitHub: <a href="https://github.com/Senthemodder/digitaltoolsshed">Senthemodder/digitaltoolsshed</a></li>
+        </ul>
+
+        <p>Thanks for using Digital Tools Shed.</p>
+        <p><strong>Mina Lee</strong><br/>Creator, Digital Tools Shed</p>
+      </div>
+    </div>
+  `;
+
+  // === PRIVACY POLICY ===
+  const privacyBody = `
+    <div class="article-container">
+      <header class="article-header">
+        <div class="article-journal-tag">Legal</div>
+        <h1>Privacy Policy</h1>
+        <div class="article-meta">
+          <span>Last updated: August 16, 2026</span>
+        </div>
+      </header>
+      <div class="article-body">
+        <p>This privacy policy explains what data Digital Tools Shed collects, how we use it, and what your rights are. The short version: we collect almost nothing because of how the site is built.</p>
+
+        <h2>Your files and data</h2>
+
+        <p>All tools on Digital Tools Shed run entirely in your web browser. When you use any of our file converters, image tools, PDF processors, or other utilities, your files are processed locally on your device using JavaScript. <strong>Your files are never uploaded to any server.</strong></p>
+
+        <p>We do not have the technical ability to access, read, store, or transmit your files. There is no server-side file processing infrastructure.</p>
+
+        <h2>What we do store</h2>
+
+        <p>The site stores a small number of preferences in your browser's local storage:</p>
+        <ul>
+          <li><strong>Theme preference</strong> (light or dark mode) stored in localStorage under the key "dts-theme"</li>
+          <li><strong>Sponsor notice dismissal</strong> stored in sessionStorage so the notice bar does not reappear during your browsing session</li>
+        </ul>
+        <p>These values stay in your browser and are never sent to us or any third party.</p>
+
+        <h2>Advertising</h2>
+
+        <p>Digital Tools Shed displays advertisements through Adsterra, a third-party advertising network. Adsterra may use cookies, web beacons, and similar tracking technologies to serve ads based on your browsing activity.</p>
+
+        <p>We do not control what data Adsterra collects. For details on their data practices, please review the <a href="https://adsterra.com/privacy-policy/" target="_blank" rel="noopener">Adsterra Privacy Policy</a>.</p>
+
+        <p>The advertising formats used on this site include display banners, native recommendation widgets, and popunder ads. The first time you click anywhere on a page, a sponsor tab may open in a new browser tab. This is clearly disclosed in our on-site sponsor notice.</p>
+
+        <h2>Analytics</h2>
+
+        <p>We do not use Google Analytics, Facebook Pixel, or any first-party tracking scripts. We do not collect personal information, IP addresses, or browsing history.</p>
+
+        <p>Basic traffic statistics may be available through our hosting provider (GitHub Pages) and advertising partner (Adsterra), but we do not actively monitor individual user behavior.</p>
+
+        <h2>Cookies</h2>
+
+        <p>Digital Tools Shed itself does not set any cookies. Third-party advertising scripts from Adsterra may set cookies in your browser. You can manage or block these cookies through your browser settings.</p>
+
+        <h2>Children</h2>
+
+        <p>This site is not directed at children under the age of 13. We do not knowingly collect personal information from children.</p>
+
+        <h2>Changes to this policy</h2>
+
+        <p>If this privacy policy changes, we will update the "last updated" date at the top of this page. We are not going to send you emails about it because we don't have your email.</p>
+
+        <h2>Contact</h2>
+
+        <p>If you have questions about this privacy policy, you can reach us through our <a href="https://github.com/Senthemodder/digitaltoolsshed">GitHub repository</a>.</p>
+      </div>
+    </div>
+  `;
+
+  // === TERMS OF SERVICE ===
+  const termsBody = `
+    <div class="article-container">
+      <header class="article-header">
+        <div class="article-journal-tag">Legal</div>
+        <h1>Terms of Service</h1>
+        <div class="article-meta">
+          <span>Last updated: August 16, 2026</span>
+        </div>
+      </header>
+      <div class="article-body">
+        <p>By using Digital Tools Shed (digitaltoolsshed.com), you agree to the following terms. They are written in plain language because legal jargon helps nobody.</p>
+
+        <h2>What the site does</h2>
+
+        <p>Digital Tools Shed provides free, browser-based utility tools for file conversion, image processing, developer workflows, unit calculations, and other tasks. All processing happens on your device. We do not store, access, or transmit your files.</p>
+
+        <h2>Use at your own risk</h2>
+
+        <p>The tools are provided "as is" without any warranties. While we do our best to make everything work correctly, we cannot guarantee that every tool will produce perfect results in every situation. Always keep backups of your original files before converting or processing them.</p>
+
+        <p>We are not responsible for any data loss, file corruption, or other issues that arise from using the tools on this site.</p>
+
+        <h2>Acceptable use</h2>
+
+        <p>You can use the tools for personal or commercial purposes. There is no restriction on how you use the output files.</p>
+
+        <p>You may not:</p>
+        <ul>
+          <li>Attempt to reverse-engineer, scrape, or redistribute the site's source code for commercial purposes without permission</li>
+          <li>Use automated bots to generate excessive ad impressions</li>
+          <li>Frame or embed the site in a way that removes attribution or advertising</li>
+        </ul>
+
+        <h2>Advertising</h2>
+
+        <p>This site is supported by advertising. By using the site, you acknowledge that ads will be displayed and that your first click on any page may open a sponsor tab in your browser. We disclose this through an on-site notice.</p>
+
+        <h2>Intellectual property</h2>
+
+        <p>The tools, articles, design, and code on Digital Tools Shed are the property of Mina Lee and Digital Tools Shed. The articles in our tech journal are original works and may not be republished without attribution.</p>
+
+        <p>Files you process through the tools remain your property. We claim no ownership over your input or output files.</p>
+
+        <h2>Third-party services</h2>
+
+        <p>The site uses Adsterra for advertising. Your interaction with ads is governed by Adsterra's own terms and privacy policy. We are not responsible for the content of third-party advertisements.</p>
+
+        <h2>Changes</h2>
+
+        <p>These terms may be updated from time to time. Continued use of the site after changes are posted means you accept the updated terms.</p>
+
+        <h2>Contact</h2>
+
+        <p>Questions about these terms can be directed to our <a href="https://github.com/Senthemodder/digitaltoolsshed">GitHub repository</a>.</p>
+      </div>
+    </div>
+  `;
+
+  const pages = [
+    {
+      slug: 'about',
+      title: 'About Us',
+      metaDesc: 'Learn about Digital Tools Shed, how our browser-based tools work, and why everything is free. Built by Mina Lee.',
+      body: aboutBody
+    },
+    {
+      slug: 'privacy',
+      title: 'Privacy Policy',
+      metaDesc: 'Digital Tools Shed privacy policy. Your files never leave your device. No tracking, no accounts, no data collection.',
+      body: privacyBody
+    },
+    {
+      slug: 'terms',
+      title: 'Terms of Service',
+      metaDesc: 'Terms of service for Digital Tools Shed. Free browser-based tools provided as-is with no warranties.',
+      body: termsBody
+    }
+  ];
+
+  for (const page of pages) {
+    const html = renderPage({
+      title: `${page.title} | Digital Tools Shed`,
+      metaDesc: page.metaDesc,
+      canonical: `${DOMAIN}/${page.slug}.html`,
+      bodyContent: page.body,
+      currentPath: `/${page.slug}.html`
+    });
+    writeFileSync(join(DIST, `${page.slug}.html`), html);
+  }
+
+  console.log('  ✓ Built Trust & Legal Pages (about.html, privacy.html, terms.html)');
+}
+
 // ─── 404 ERROR PAGE ─────────────────────────────────────────────────────────
 function build404Page() {
   const bodyContent = `
@@ -4038,6 +4263,7 @@ function main() {
   buildMinecraftTools();
   buildUnitCalcSuite();
   buildArticlesSuite();
+  buildTrustPages();
   build404Page();
   buildSEOAssets();
 
