@@ -369,12 +369,34 @@ body {
   gap: 0.35rem;
 }
 
-.main-body {
-  max-width: 1100px;
+.layout-with-rail {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1400px;
   width: 100%;
   margin: 0 auto;
-  padding: 2.5rem 2rem;
+  padding: 2rem 1.5rem;
   flex: 1;
+}
+.main-body {
+  max-width: 1050px;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+.right-sponsor-rail {
+  width: 170px;
+  flex-shrink: 0;
+  display: none;
+}
+@media (min-width: 1360px) {
+  .right-sponsor-rail {
+    display: block;
+    position: sticky;
+    top: 70px;
+    height: fit-content;
+  }
 }
 
 .hero {
@@ -821,6 +843,20 @@ function buildSidebarHtml(currentPath = '/') {
         <div class="nav-link-content"><span>Bulk Resizer</span></div>
       </a>
 
+      <div class="ad-sidebar-card">
+        <span class="ad-label">Partner Link</span>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'a821eb44059433a28ee72061693e8e63',
+            'format' : 'iframe',
+            'height' : 300,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://manyapostle.com/a821eb44059433a28ee72061693e8e63/invoke.js"></script>
+      </div>
+
       <div class="nav-group-title">
         ${ICONS.docs}
         <span>PDF & Docs (2)</span>
@@ -938,131 +974,169 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
         </div>
       </div>
 
-      <div class="main-body">
-        <div class="ad-blend-box" id="ad-top-banner">
-          <span class="ad-label">Advertisement</span>
-          <div class="ad-desktop-leaderboard">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '567d4e495ec8a8e297b7c7f5170993cb',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
-          </div>
-          <div class="ad-mobile-banner">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '9ec3cbd7674ade5c0cfa745d18664214',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
-          </div>
-        </div>
-
-        ${bodyContent}
-
-        <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
-          <span class="ad-label">Sponsored Utility</span>
-          <div class="ad-unit-468x60">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '0b6898775795b270130cc9971eef21a8',
-                'format' : 'iframe',
-                'height' : 60,
-                'width' : 468,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/0b6898775795b270130cc9971eef21a8/invoke.js"></script>
-          </div>
-          <div class="ad-mobile-banner">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '9ec3cbd7674ade5c0cfa745d18664214',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
-          </div>
-        </div>
-
-        <div style="margin: 2rem 0;">
-          <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Sponsored Recommendations</div>
-          <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
-          <script async="async" data-cfasync="false" src="https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js"></script>
-        </div>
-
-        <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
-          <a href="/convert/json-obfuscator.html" class="promo-card">
-            <span class="promo-badge">Developer Tool</span>
-            <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Obfuscator & Compressor</h4>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Minify payloads and encode keys or unicode string escapes with dictionary mapping.</p>
-          </a>
-          <div class="promo-card ad-promo-card">
-            <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
-            <div class="ad-unit-300x250">
+      <div class="layout-with-rail">
+        <div class="main-body">
+          <div class="ad-blend-box" id="ad-top-banner">
+            <span class="ad-label">Advertisement</span>
+            <div class="ad-desktop-leaderboard">
               <script type="text/javascript">
                 atOptions = {
-                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'key' : '567d4e495ec8a8e297b7c7f5170993cb',
                   'format' : 'iframe',
-                  'height' : 250,
-                  'width' : 300,
+                  'height' : 90,
+                  'width' : 728,
                   'params' : {}
                 };
               </script>
-              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+              <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
             </div>
           </div>
-          <a href="/convert/esbuild-decompiler.html" class="promo-card">
-            <span class="promo-badge">Reverse Engineering</span>
-            <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">ESBuild & JS Decompiler</h4>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Unpack bundled IIFEs, expand minified comma-statements, and restore clean ES6 formatting.</p>
-          </a>
-          <a href="/media/downloader.html" class="promo-card">
-            <span class="promo-badge">Media Engine</span>
-            <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
-          </a>
+
+          ${bodyContent}
+
+          <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
+            <span class="ad-label">Sponsored Utility</span>
+            <div class="ad-unit-468x60">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '0b6898775795b270130cc9971eef21a8',
+                  'format' : 'iframe',
+                  'height' : 60,
+                  'width' : 468,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/0b6898775795b270130cc9971eef21a8/invoke.js"></script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+            </div>
+          </div>
+
+          <div style="margin: 2rem 0;">
+            <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Sponsored Recommendations</div>
+            <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+            <script async="async" data-cfasync="false" src="https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js"></script>
+          </div>
+
+          <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+            <a href="/convert/json-obfuscator.html" class="promo-card">
+              <span class="promo-badge">Developer Tool</span>
+              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Obfuscator & Compressor</h4>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Minify payloads and encode keys or unicode string escapes with dictionary mapping.</p>
+            </a>
+            <div class="promo-card ad-promo-card">
+              <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
+              <div class="ad-unit-300x250">
+                <script type="text/javascript">
+                  atOptions = {
+                    'key' : '335d807d460eaf2491fcca0f635474ce',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                  };
+                </script>
+                <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+              </div>
+            </div>
+            <a href="/convert/esbuild-decompiler.html" class="promo-card">
+              <span class="promo-badge">Reverse Engineering</span>
+              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">ESBuild & JS Decompiler</h4>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Unpack bundled IIFEs, expand minified comma-statements, and restore clean ES6 formatting.</p>
+            </a>
+            <div class="promo-card ad-promo-card">
+              <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Recommendation</div>
+              <div class="ad-unit-300x250">
+                <script type="text/javascript">
+                  atOptions = {
+                    'key' : '335d807d460eaf2491fcca0f635474ce',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                  };
+                </script>
+                <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+              </div>
+            </div>
+            <a href="/media/downloader.html" class="promo-card">
+              <span class="promo-badge">Media Engine</span>
+              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
+            </a>
+            <a href="/convert/image-resizer.html" class="promo-card">
+              <span class="promo-badge">Bulk Image Tool</span>
+              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Bulk Image Resizer</h4>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Scale, resize, and compress entire folders of PNG and JPEG images client-side.</p>
+            </a>
+          </div>
+
+          <div class="ad-blend-box" id="ad-bottom-banner">
+            <span class="ad-label">Advertisement</span>
+            <div class="ad-desktop-leaderboard">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+                  'format' : 'iframe',
+                  'height' : 90,
+                  'width' : 728,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+            </div>
+          </div>
         </div>
 
-        <div class="ad-blend-box" id="ad-bottom-banner">
-          <span class="ad-label">Advertisement</span>
-          <div class="ad-desktop-leaderboard">
+        <aside class="right-sponsor-rail">
+          <div class="ad-sidebar-card" style="margin: 0; min-height: 600px;">
+            <span class="ad-label">Featured Partner</span>
             <script type="text/javascript">
               atOptions = {
-                'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+                'key' : 'bba2ed7e2aff3607f66ff8e410f1fcbe',
                 'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
+                'height' : 600,
+                'width' : 160,
                 'params' : {}
               };
             </script>
-            <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+            <script type="text/javascript" src="https://manyapostle.com/bba2ed7e2aff3607f66ff8e410f1fcbe/invoke.js"></script>
           </div>
-          <div class="ad-mobile-banner">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '9ec3cbd7674ade5c0cfa745d18664214',
-                'format' : 'iframe',
-                'height' : 50,
-                'width' : 320,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
-          </div>
-        </div>
+        </aside>
       </div>
 
       <footer>
