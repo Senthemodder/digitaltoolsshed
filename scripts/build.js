@@ -75,6 +75,23 @@ const MASTER_CSS = `
   --text-muted: #888888;
   --mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  /* Backward compatibility for ConvertFast tool styles */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --border-color: #222222;
+  --border-subtle: #1a1a1a;
+  --card-color: #0a0a0a;
+  --surface-color: #050505;
+  --text-color: #ffffff;
+  --bg-color: #000000;
+  --muted-color: #888888;
+  --font-mono: var(--mono);
+  --font-serif: var(--mono);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -301,19 +318,20 @@ main {
   transition: border-color 0.15s;
 }
 .drop-zone:hover { border-color: var(--border-strong); }
-.btn-primary {
-  background: #ffffff;
-  color: #000000;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  font-family: var(--mono);
-  font-weight: 700;
-  font-size: 0.9rem;
-  cursor: pointer;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+.btn-primary, button[style*="text-transform:uppercase"] {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  padding: 0.8rem 1.5rem !important;
+  font-family: var(--mono) !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: none !important;
 }
-.btn-primary:hover { background: #e0e0e0; }
+.btn-primary:hover, button[style*="text-transform:uppercase"]:hover { background: #e0e0e0 !important; }
 .btn-secondary {
   background: transparent;
   color: #ffffff;
@@ -324,6 +342,16 @@ main {
   cursor: pointer;
 }
 .btn-secondary:hover { border-color: #ffffff; }
+
+textarea, input[type="text"], input[type="number"], select {
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  outline: none !important;
+}
+textarea:focus, input[type="text"]:focus, select:focus {
+  border-color: var(--border-strong) !important;
+}
 
 footer {
   border-top: 1px solid var(--border);
@@ -506,6 +534,68 @@ function buildHomepage() {
   console.log('  ✓ Built Master Landing Page (index.html)');
 }
 
+// ─── CONVERTFAST PORT & RESKIN ─────────────────────────────────────────────
+function buildConvertFastSuite() {
+  const cfSrc = join(ROOT, '..', 'ConvertFast', 'src', 'site', 'converters');
+  const convertDist = join(DIST, 'convert');
+  ensureDir(convertDist);
+
+  if (!existsSync(cfSrc)) {
+    console.log('  ⚠️ ConvertFast source not found');
+    return;
+  }
+
+  const files = readdirSync(cfSrc).filter(f => f.endsWith('.html'));
+
+  for (const file of files) {
+    const rawHtml = readFileSync(join(cfSrc, file), 'utf-8');
+
+    // Extract Title & Meta
+    const titleMatch = rawHtml.match(/<title>(.*?)<\/title>/i);
+    const metaMatch = rawHtml.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
+    const title = titleMatch ? titleMatch[1].replace(/ConvertFast/gi, 'Digital Tools Shed') : 'Converter Tool | Digital Tools Shed';
+    const metaDesc = metaMatch ? metaMatch[1] : 'Free instant browser converter tool.';
+
+    // Extract Main content
+    const mainMatch = rawHtml.match(/<main[\s\S]*?>([\s\S]*?)<\/main>/i);
+    let mainContent = mainMatch ? mainMatch[1] : '';
+
+    // Clean up internal breadcrumbs / nav text
+    mainContent = mainContent.replace(/CONVERTFAST/gi, 'DIGITAL TOOLS SHED');
+    mainContent = mainContent.replace(/<span[^>]*>HOME \/ CONVERTERS[\s\S]*?<\/span>/i, 
+      `<div style="margin-bottom: 1rem;"><a href="/" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a></div>`);
+
+    // Extract script (skip theme-toggle logic)
+    const scriptMatches = rawHtml.match(/<script>([\s\S]*?)<\/script>/gi) || [];
+    let toolScript = '';
+    for (const s of scriptMatches) {
+      if (!s.includes('cf-theme') && !s.includes('instant theme')) {
+        toolScript += s;
+      }
+    }
+
+    const bodyContent = `
+      <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem auto;">
+        ${mainContent}
+      </div>
+      ${toolScript}
+    `;
+
+    const canonical = `${DOMAIN}/convert/${file}`;
+    const pageHtml = renderPage({
+      title,
+      metaDesc,
+      canonical,
+      bodyContent
+    });
+
+    writeFileSync(join(convertDist, file), pageHtml);
+  }
+
+  console.log(`  ✓ Ported & Styled ${files.length} ConvertFast converters in B&W theme (/convert/)`);
+}
+
+// ─── PDF SUITE ─────────────────────────────────────────────────────────────
 function buildPdfTools() {
   const pdfDir = join(DIST, 'pdf');
   ensureDir(pdfDir);
@@ -658,6 +748,7 @@ function buildPdfTools() {
   console.log('  ✓ Built PDF Suite (/pdf/)');
 }
 
+// ─── MINECRAFT BEDROCK SUITE ───────────────────────────────────────────────
 function buildMinecraftTools() {
   const mcDir = join(DIST, 'mc');
   ensureDir(mcDir);
@@ -796,21 +887,8 @@ function buildMinecraftTools() {
   console.log('  ✓ Built Minecraft Suite (/mc/)');
 }
 
-function copyExistingSuites() {
-  // 1. Copy ConvertFast
-  const cfDist = join(ROOT, '..', 'ConvertFast', 'dist');
-  const convertDist = join(DIST, 'convert');
-  ensureDir(convertDist);
-
-  if (existsSync(cfDist)) {
-    copyDirRecursive(cfDist, convertDist);
-    const cfConverters = join(cfDist, 'converters');
-    if (existsSync(cfConverters)) {
-      copyDirRecursive(cfConverters, convertDist);
-    }
-  }
-
-  // 2. Copy UnitCalc
+// ─── UNIT CALCULATOR SUITE ─────────────────────────────────────────────────
+function buildUnitCalcSuite() {
   const ucDist = join(ROOT, '..', 'UnitCalc', 'dist');
   const calcDist = join(DIST, 'calc');
   ensureDir(calcDist);
@@ -819,11 +897,11 @@ function copyExistingSuites() {
     copyDirRecursive(ucDist, calcDist);
   }
 
-  console.log('  ✓ Ported ConvertFast & UnitCalc suites to /convert/ and /calc/');
+  console.log('  ✓ Ported UnitCalc suite to /calc/');
 }
 
+// ─── SITEMAP & ROBOTS.TXT ──────────────────────────────────────────────────
 function buildSEOAssets() {
-  // Discover all HTML files in dist/
   const discoveredUrls = [`${DOMAIN}/`];
 
   function collectUrls(dir, prefix) {
@@ -892,13 +970,14 @@ Sitemap: ${DOMAIN}/sitemap.xml
 }
 
 function main() {
-  console.log('\n🔨 Building DIGITAL TOOLS SHED Master Site...\n');
+  console.log('\n🔨 Building DIGITAL TOOLS SHED Master Site with ConvertFast Reskin...\n');
   ensureDir(DIST);
 
   buildHomepage();
+  buildConvertFastSuite();
   buildPdfTools();
   buildMinecraftTools();
-  copyExistingSuites();
+  buildUnitCalcSuite();
   buildSEOAssets();
 
   console.log('\n' + '═'.repeat(50));
