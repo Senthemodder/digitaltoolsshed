@@ -720,6 +720,99 @@ body {
   .ad-mobile-banner { display: flex !important; }
   .ad-unit-468x60 { display: none !important; }
   .docked-sticky-ad { padding: 0.35rem 0.5rem; }
+  .ad-hero-undercard { display: none; }
+  .ad-category-break { padding: 0.5rem; }
+  .ad-category-break .ad-unit-468x60 { display: none !important; }
+  .mobile-welcome-overlay .ad-unit-300x250 { width: 280px; height: 233px; }
+}
+.ad-hero-undercard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: center;
+  position: relative;
+}
+.ad-hero-undercard::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
+  opacity: 0.75;
+}
+.ad-category-break {
+  margin: 1.5rem 0;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.ad-category-break::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981, #a855f7));
+  opacity: 0.75;
+}
+.ad-pre-footer {
+  margin: 2rem 0 0;
+  padding: 1.5rem;
+  background: var(--surface-alt);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.ad-pre-footer::before {
+  content: "";
+  display: block;
+  height: 2px;
+  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981, #a855f7));
+  opacity: 0.5;
+  margin-bottom: 1rem;
+}
+.mobile-welcome-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  backdrop-filter: blur(4px);
+}
+.mobile-welcome-overlay .close-btn {
+  background: #fff;
+  color: #111;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+.ad-article-mid {
+  margin: 2rem auto;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  text-align: center;
+  position: relative;
+}
+.ad-article-mid::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
+  opacity: 0.75;
 }
 
 .promo-grid {
@@ -904,6 +997,20 @@ footer a:hover { text-decoration: underline; }
         <span class="nav-badge">IMG</span>
       </a>
 
+      <div class="ad-sidebar-card">
+        <span class="ad-label">Premium Sponsor</span>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'a821eb44059433a28ee72061693e8e63',
+            'format' : 'iframe',
+            'height' : 300,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://manyapostle.com/a821eb44059433a28ee72061693e8e63/invoke.js"></script>
+      </div>
+
       <div class="nav-group-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
         <span>Developer & Code (6)</span>
@@ -1022,6 +1129,20 @@ footer a:hover { text-decoration: underline; }
       <a href="/calc/mb-to-gb.html" class="nav-link ">
         <div class="nav-link-content"><span>MB to GB</span></div>
       </a>
+
+      <div class="ad-sidebar-card">
+        <span class="ad-label">Sponsor Slot</span>
+        <script type="text/javascript">
+          atOptions = {
+            'key' : 'a821eb44059433a28ee72061693e8e63',
+            'format' : 'iframe',
+            'height' : 300,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://manyapostle.com/a821eb44059433a28ee72061693e8e63/invoke.js"></script>
+      </div>
 
       <div class="nav-group-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
@@ -1177,7 +1298,23 @@ function convertClientSide(imgElement, format, quality) {
 }</code></pre>
             </div>
 
-            <h2>2. Why WebP is the Modern Standard</h2>
+            
+    <div class="ad-article-mid">
+      <span class="ad-label">Continue Reading — Sponsored</span>
+      <div class="ad-unit-300x250">
+        <script type="text/javascript">
+          atOptions = {
+            'key' : '335d807d460eaf2491fcca0f635474ce',
+            'format' : 'iframe',
+            'height' : 250,
+            'width' : 300,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+      </div>
+    </div>
+  <h2>2. Why WebP is the Modern Standard</h2>
             <p>Google WebP provides <strong>25%–35% smaller file sizes</strong> compared to JPEG at equivalent visual quality scores (SSIM), while supporting alpha transparency and lossless encoding.</p>
 
             <div class="article-cta-box">
@@ -1187,9 +1324,14 @@ function convertClientSide(imgElement, format, quality) {
                 <a href="/convert/png-to-webp.html" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Convert PNG to WebP →</a>
               </div>
             </div>
-          </div>
+          
+    <div style="margin: 2rem 0;">
+      <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Recommended Reading</div>
+      <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+      <script async="async" data-cfasync="false" src="https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js"></script>
+    </div>
+  </div>
         </div>
-      
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>
@@ -1216,6 +1358,22 @@ function convertClientSide(imgElement, format, quality) {
                 };
               </script>
               <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+            </div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 1.5rem 0; padding: 1rem;">
+            <span class="ad-label">While You're Here</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
             </div>
           </div>
 
@@ -1324,6 +1482,39 @@ function convertClientSide(imgElement, format, quality) {
         </aside>
       </div>
 
+      <div class="ad-pre-footer">
+        <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Our Partners Power These Free Tools</div>
+        <div class="ad-desktop-leaderboard">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+        </div>
+        <div class="ad-mobile-banner">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+              'format' : 'iframe',
+              'height' : 50,
+              'width' : 320,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">More From The Web</div>
+          <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+          <script async="async" data-cfasync="false" src="https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js"></script>
+        </div>
+      </div>
+
       <footer>
         <div>© 2026 Digital Tools Shed (digitaltoolsshed.com) — <em>The Site of Everything</em>. Printed & processed 100% in client browser memory.</div>
         <div style="display: flex; gap: 1rem;">
@@ -1400,6 +1591,30 @@ function convertClientSide(imgElement, format, quality) {
         });
       });
     }
+  </script>
+
+  <div class="mobile-welcome-overlay" id="mobileWelcomeAd" style="display:none;">
+    <div style="text-align:center; color:#fff; font-family:var(--mono); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;">Welcome to Digital Tools Shed</div>
+    <div class="ad-unit-300x250">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '335d807d460eaf2491fcca0f635474ce',
+          'format' : 'iframe',
+          'height' : 250,
+          'width' : 300,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+    </div>
+    <button class="close-btn" onclick="document.getElementById('mobileWelcomeAd').style.display='none';sessionStorage.setItem('dts-welcome-seen','1');">Continue to Tools →</button>
+  </div>
+  <script>
+    (function(){
+      if (window.innerWidth <= 768 && !sessionStorage.getItem('dts-welcome-seen')) {
+        setTimeout(function(){ document.getElementById('mobileWelcomeAd').style.display = 'flex'; }, 1500);
+      }
+    })();
   </script>
 </body>
 </html>
