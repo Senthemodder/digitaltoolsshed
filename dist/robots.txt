@@ -10,7 +10,6 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-# Restrict aggressive AI training crawlers from zero-click scraping
 User-agent: Google-Extended
 Disallow: /
 

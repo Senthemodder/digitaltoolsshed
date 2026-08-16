@@ -63,46 +63,74 @@ const TOOLS = [
   { id: 'mc-manifest-gen', name: 'Bedrock Pack Manifest Generator', category: 'Minecraft & Game', path: '/mc/manifest-gen.html', desc: 'Generate complete manifest.json for Behavior and Resource packs.' }
 ];
 
-// ─── MASTER BRUTALIST B&W CSS ──────────────────────────────────────────────
+// ─── MASTER TIMES NEW ROMAN & THEME CSS ────────────────────────────────────
 const MASTER_CSS = `
-:root {
+:root, [data-theme="dark"] {
   --bg: #000000;
   --fg: #ffffff;
   --surface: #0a0a0a;
   --surface-hover: #141414;
-  --border: #222222;
+  --border: #2b2b2b;
   --border-strong: #ffffff;
   --text-muted: #888888;
-  --mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --input-bg: #000000;
+  --btn-bg: #ffffff;
+  --btn-fg: #000000;
+  --btn-hover: #dcdcdc;
 
-  /* Backward compatibility for ConvertFast tool styles */
+  --serif: "Times New Roman", Times, "Liberation Serif", Georgia, serif;
+  --mono: "SF Mono", Monaco, "Cascadia Code", "Courier New", Courier, monospace;
+
+  /* Tool variables */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
   --space-2xl: 2.5rem;
-  --border-color: #222222;
+  --border-color: var(--border);
   --border-subtle: #1a1a1a;
-  --card-color: #0a0a0a;
-  --surface-color: #050505;
-  --text-color: #ffffff;
-  --bg-color: #000000;
-  --muted-color: #888888;
+  --card-color: var(--surface);
+  --surface-color: var(--surface);
+  --text-color: var(--fg);
+  --bg-color: var(--bg);
+  --muted-color: var(--text-muted);
   --font-mono: var(--mono);
-  --font-serif: var(--mono);
+  --font-serif: var(--serif);
+}
+
+[data-theme="light"] {
+  --bg: #ffffff;
+  --fg: #000000;
+  --surface: #f7f7f7;
+  --surface-hover: #efefef;
+  --border: #d0d0d0;
+  --border-strong: #000000;
+  --text-muted: #555555;
+  --input-bg: #ffffff;
+  --btn-bg: #000000;
+  --btn-fg: #ffffff;
+  --btn-hover: #333333;
+
+  --border-color: #d0d0d0;
+  --border-subtle: #e5e5e5;
+  --card-color: #f7f7f7;
+  --surface-color: #f0f0f0;
+  --text-color: #000000;
+  --bg-color: #ffffff;
+  --muted-color: #555555;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   background: var(--bg);
   color: var(--fg);
-  font-family: var(--sans);
-  line-height: 1.5;
+  font-family: var(--serif);
+  line-height: 1.55;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
 header {
@@ -118,10 +146,10 @@ header {
 }
 
 .brand {
-  font-family: var(--mono);
-  font-size: 1.2rem;
+  font-family: var(--serif);
+  font-size: 1.4rem;
   font-weight: 900;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.02em;
   color: var(--fg);
   text-decoration: none;
   display: flex;
@@ -132,22 +160,45 @@ header {
   background: var(--fg);
   color: var(--bg);
   padding: 0.1rem 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 900;
+  font-size: 0.7rem;
+  font-family: var(--mono);
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
 nav a {
   color: var(--text-muted);
   text-decoration: none;
   font-family: var(--mono);
-  font-size: 0.85rem;
-  margin-left: 1.5rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: color 0.15s;
 }
 nav a:hover { color: var(--fg); }
+
+.theme-toggle-btn {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border-strong);
+  padding: 0.35rem 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.15s;
+}
+.theme-toggle-btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
 
 main {
   flex: 1;
@@ -158,23 +209,25 @@ main {
 }
 
 .hero {
-  padding: 2rem 0 3rem;
+  padding: 2rem 0 2.5rem;
   border-bottom: 1px solid var(--border);
   margin-bottom: 2.5rem;
 }
 .hero h1 {
-  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-family: var(--serif);
+  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
   font-weight: 900;
-  letter-spacing: -0.04em;
-  line-height: 1.05;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
   margin-bottom: 1rem;
 }
 .hero p {
   color: var(--text-muted);
-  font-size: 1.15rem;
-  max-width: 700px;
+  font-size: 1.25rem;
+  max-width: 750px;
   margin-bottom: 1.75rem;
-  font-family: var(--sans);
+  font-family: var(--serif);
+  font-style: italic;
 }
 
 .search-wrapper {
@@ -186,8 +239,8 @@ main {
   background: var(--surface);
   border: 1px solid var(--border);
   color: var(--fg);
-  font-family: var(--mono);
-  font-size: 1rem;
+  font-family: var(--serif);
+  font-size: 1.1rem;
   padding: 0.9rem 1.25rem;
   outline: none;
   transition: border-color 0.15s;
@@ -197,11 +250,11 @@ main {
 }
 
 .category-title {
-  font-family: var(--mono);
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--fg);
   margin: 2.5rem 0 1rem;
   display: flex;
   align-items: center;
@@ -223,7 +276,7 @@ main {
 .tool-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 1.25rem;
+  padding: 1.35rem;
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -237,16 +290,17 @@ main {
   transform: translateY(-2px);
 }
 .tool-card h3 {
-  font-family: var(--mono);
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  margin-bottom: 0.4rem;
   font-weight: 700;
   color: var(--fg);
 }
 .tool-card p {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--text-muted);
-  line-height: 1.4;
+  line-height: 1.45;
+  font-family: var(--serif);
 }
 .tool-card .tag {
   font-family: var(--mono);
@@ -254,6 +308,7 @@ main {
   color: var(--text-muted);
   margin-top: 1rem;
   display: inline-block;
+  text-transform: uppercase;
 }
 
 .ad-slot-container {
@@ -285,17 +340,17 @@ main {
 }
 .promo-card {
   border: 1px solid var(--border);
-  background: #000;
+  background: var(--surface);
   padding: 1.25rem;
   text-decoration: none;
   color: inherit;
 }
-.promo-card:hover { border-color: #fff; }
+.promo-card:hover { border-color: var(--border-strong); }
 .promo-badge {
   font-family: var(--mono);
   font-size: 0.65rem;
-  background: #fff;
-  color: #000;
+  background: var(--fg);
+  color: var(--bg);
   padding: 2px 6px;
   font-weight: bold;
   text-transform: uppercase;
@@ -314,38 +369,38 @@ main {
   padding: 3rem 1.5rem;
   text-align: center;
   cursor: pointer;
-  background: #000000;
+  background: var(--bg);
   transition: border-color 0.15s;
 }
 .drop-zone:hover { border-color: var(--border-strong); }
 .btn-primary, button[style*="text-transform:uppercase"] {
-  background: #ffffff !important;
-  color: #000000 !important;
-  border: 1px solid #ffffff !important;
+  background: var(--btn-bg) !important;
+  color: var(--btn-fg) !important;
+  border: 1px solid var(--border-strong) !important;
   padding: 0.8rem 1.5rem !important;
-  font-family: var(--mono) !important;
+  font-family: var(--serif) !important;
   font-weight: 700 !important;
-  font-size: 0.9rem !important;
+  font-size: 1rem !important;
   cursor: pointer !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
   box-shadow: none !important;
 }
-.btn-primary:hover, button[style*="text-transform:uppercase"]:hover { background: #e0e0e0 !important; }
+.btn-primary:hover, button[style*="text-transform:uppercase"]:hover { background: var(--btn-hover) !important; }
 .btn-secondary {
-  background: transparent;
-  color: #ffffff;
-  border: 1px solid var(--border);
-  padding: 0.8rem 1.5rem;
-  font-family: var(--mono);
-  font-size: 0.9rem;
-  cursor: pointer;
+  background: transparent !important;
+  color: var(--fg) !important;
+  border: 1px solid var(--border) !important;
+  padding: 0.8rem 1.5rem !important;
+  font-family: var(--serif) !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
 }
-.btn-secondary:hover { border-color: #ffffff; }
+.btn-secondary:hover { border-color: var(--border-strong) !important; }
 
 textarea, input[type="text"], input[type="number"], select {
-  background: #000000 !important;
-  color: #ffffff !important;
+  background: var(--input-bg) !important;
+  color: var(--fg) !important;
   border: 1px solid var(--border) !important;
   outline: none !important;
 }
@@ -358,8 +413,8 @@ footer {
   padding: 2.5rem 2rem;
   background: var(--bg);
   margin-top: auto;
-  font-family: var(--mono);
-  font-size: 0.85rem;
+  font-family: var(--serif);
+  font-size: 0.95rem;
   color: var(--text-muted);
   display: flex;
   flex-wrap: wrap;
@@ -392,21 +447,27 @@ function renderPage({ title, metaDesc, canonical, bodyContent, schema }) {
   <meta property="og:description" content="${metaDesc}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:type" content="website">
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('dts-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
   <style>${MASTER_CSS}</style>
   ${schemaMarkup}
-  <!-- Adsterra Header Container Slot -->
 </head>
 <body>
   <header>
     <a href="/" class="brand">
       <span>DIGITAL TOOLS SHED</span>
-      <span class="brand-badge">PRO</span>
+      <span class="brand-badge">EDITION</span>
     </a>
     <nav>
       <a href="/#converters">Converters</a>
       <a href="/#calculators">Calculators</a>
       <a href="/#pdf">PDF</a>
       <a href="/#mc">Gaming</a>
+      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()">[ LIGHT / DARK ]</button>
     </nav>
   </header>
 
@@ -420,19 +481,19 @@ function renderPage({ title, metaDesc, canonical, bodyContent, schema }) {
 
     <div class="promo-grid">
       <a href="https://tierspecs.com" target="_blank" class="promo-card">
-        <span class="promo-badge">Hardware & Reviews</span>
-        <h4 style="font-family: var(--mono); margin-bottom: 0.35rem;">TierSpecs — Tech & Laptop Specs</h4>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Compare GPU tiers, CPU benchmarks, and find authentic hardware performance analysis.</p>
+        <span class="promo-badge">Hardware Analysis</span>
+        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">TierSpecs — Tech & Laptop Specs</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Compare GPU tiers, CPU benchmarks, and find authentic hardware performance analysis.</p>
       </a>
       <a href="/convert/json-formatter.html" class="promo-card">
-        <span class="promo-badge">Free Developer Tool</span>
-        <h4 style="font-family: var(--mono); margin-bottom: 0.35rem;">JSON Formatter & Validator</h4>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Beautify, inspect, and parse complex JSON structures directly in client browser memory.</p>
+        <span class="promo-badge">Developer Tool</span>
+        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Formatter & Validator</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Beautify, inspect, and parse complex JSON structures directly in client browser memory.</p>
       </a>
       <a href="/calc/kg-to-lbs.html" class="promo-card">
         <span class="promo-badge">Instant Calculator</span>
-        <h4 style="font-family: var(--mono); margin-bottom: 0.35rem;">Unit & Metric Calculators</h4>
-        <p style="font-size: 0.8rem; color: var(--text-muted);">Convert weight, distance, temperature, and data measurements with zero delay.</p>
+        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Unit & Metric Calculators</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Convert weight, distance, temperature, and data measurements with zero delay.</p>
       </a>
     </div>
 
@@ -443,7 +504,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, schema }) {
   </main>
 
   <footer>
-    <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). 100% In-Browser. Zero Server Uploads.</div>
+    <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). Printed & processed 100% in client browser memory.</div>
     <div style="display: flex; gap: 1rem;">
       <a href="/">Home</a>
       <a href="/#converters">Converters</a>
@@ -451,7 +512,17 @@ function renderPage({ title, metaDesc, canonical, bodyContent, schema }) {
       <a href="/sitemap.xml">Sitemap</a>
     </div>
   </footer>
+
   <div id="adsterra-social-bar-slot"></div>
+
+  <script>
+    function toggleSiteTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('dts-theme', next);
+    }
+  </script>
 </body>
 </html>`;
 }
@@ -534,7 +605,6 @@ function buildHomepage() {
   console.log('  ✓ Built Master Landing Page (index.html)');
 }
 
-// ─── CONVERTFAST PORT & RESKIN ─────────────────────────────────────────────
 function buildConvertFastSuite() {
   const cfSrc = join(ROOT, '..', 'ConvertFast', 'src', 'site', 'converters');
   const convertDist = join(DIST, 'convert');
@@ -550,22 +620,18 @@ function buildConvertFastSuite() {
   for (const file of files) {
     const rawHtml = readFileSync(join(cfSrc, file), 'utf-8');
 
-    // Extract Title & Meta
     const titleMatch = rawHtml.match(/<title>(.*?)<\/title>/i);
     const metaMatch = rawHtml.match(/<meta\s+name=["']description["']\s+content=["'](.*?)["']/i);
     const title = titleMatch ? titleMatch[1].replace(/ConvertFast/gi, 'Digital Tools Shed') : 'Converter Tool | Digital Tools Shed';
     const metaDesc = metaMatch ? metaMatch[1] : 'Free instant browser converter tool.';
 
-    // Extract Main content
     const mainMatch = rawHtml.match(/<main[\s\S]*?>([\s\S]*?)<\/main>/i);
     let mainContent = mainMatch ? mainMatch[1] : '';
 
-    // Clean up internal breadcrumbs / nav text
     mainContent = mainContent.replace(/CONVERTFAST/gi, 'DIGITAL TOOLS SHED');
     mainContent = mainContent.replace(/<span[^>]*>HOME \/ CONVERTERS[\s\S]*?<\/span>/i, 
-      `<div style="margin-bottom: 1rem;"><a href="/" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a></div>`);
+      `<div style="margin-bottom: 1rem;"><a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a></div>`);
 
-    // Extract script (skip theme-toggle logic)
     const scriptMatches = rawHtml.match(/<script>([\s\S]*?)<\/script>/gi) || [];
     let toolScript = '';
     for (const s of scriptMatches) {
@@ -592,34 +658,33 @@ function buildConvertFastSuite() {
     writeFileSync(join(convertDist, file), pageHtml);
   }
 
-  console.log(`  ✓ Ported & Styled ${files.length} ConvertFast converters in B&W theme (/convert/)`);
+  console.log(`  ✓ Ported & Styled ${files.length} ConvertFast converters in Times New Roman + Theme (/convert/)`);
 }
 
-// ─── PDF SUITE ─────────────────────────────────────────────────────────────
 function buildPdfTools() {
   const pdfDir = join(DIST, 'pdf');
   ensureDir(pdfDir);
 
   const pdfTextBody = `
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <a href="/" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
+      <a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
       <h1 style="margin-top: 0.75rem;">PDF to Text & Content Extractor</h1>
       <p>Extract all text content and inspect structure from PDF documents. 100% private, processed in client browser memory.</p>
     </div>
 
     <div class="tool-workspace">
       <div class="drop-zone" id="pdfDropZone">
-        <p style="font-family: var(--mono); font-weight: bold; margin-bottom: 0.5rem;">DRAG & DROP PDF FILE HERE</p>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">or click to select from your device</p>
+        <p style="font-family: var(--serif); font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem;">DRAG & DROP PDF FILE HERE</p>
+        <p style="font-size: 0.95rem; color: var(--text-muted);">or click to select from your device</p>
         <input type="file" id="pdfFileInput" accept=".pdf" style="display: none;" />
       </div>
 
       <div id="pdfResult" style="margin-top: 1.5rem; display: none;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-          <span style="font-family: var(--mono); font-size: 0.9rem; font-weight: bold;" id="pdfMeta">Extracted Text</span>
+          <span style="font-family: var(--serif); font-size: 1.1rem; font-weight: bold;" id="pdfMeta">Extracted Text</span>
           <button class="btn-primary" id="copyBtn">Copy Text</button>
         </div>
-        <textarea id="pdfOutput" style="width: 100%; height: 300px; background: #000; color: #fff; border: 1px solid var(--border); font-family: var(--mono); padding: 1rem; font-size: 0.85rem; outline: none;" readonly></textarea>
+        <textarea id="pdfOutput" style="width: 100%; height: 300px; padding: 1rem; font-family: var(--serif); font-size: 1rem;" readonly></textarea>
       </div>
     </div>
 
@@ -634,7 +699,7 @@ function buildPdfTools() {
       const copyBtn = document.getElementById('copyBtn');
 
       dropZone.addEventListener('click', () => fileInput.click());
-      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#fff'; });
+      dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--border-strong)'; });
       dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'var(--border)'; });
       dropZone.addEventListener('drop', (e) => {
         e.preventDefault();
@@ -686,24 +751,24 @@ function buildPdfTools() {
 
   const pdfInspectorBody = `
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <a href="/" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
+      <a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
       <h1 style="margin-top: 0.75rem;">PDF Page Counter & Metadata Inspector</h1>
       <p>Quickly check page count, PDF version, author, and security properties instantly without installing software.</p>
     </div>
 
     <div class="tool-workspace">
       <div class="drop-zone" id="pdfInspectorDrop">
-        <p style="font-family: var(--mono); font-weight: bold; margin-bottom: 0.5rem;">SELECT PDF FILE TO INSPECT</p>
-        <p style="font-size: 0.85rem; color: var(--text-muted);">Drop file or click here</p>
+        <p style="font-family: var(--serif); font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem;">SELECT PDF FILE TO INSPECT</p>
+        <p style="font-size: 0.95rem; color: var(--text-muted);">Drop file or click here</p>
         <input type="file" id="pdfInspectInput" accept=".pdf" style="display: none;" />
       </div>
 
       <div id="inspectResult" style="margin-top: 1.5rem; display: none;">
-        <div style="font-family: var(--mono); border: 1px solid var(--border); padding: 1.5rem; background: #000;">
+        <div style="font-family: var(--serif); border: 1px solid var(--border); padding: 1.5rem; background: var(--surface);">
           <h3 style="margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">PDF Metadata Overview</h3>
           <p style="margin-bottom: 0.5rem;"><strong>Filename:</strong> <span id="metaFileName" style="color: var(--text-muted);"></span></p>
           <p style="margin-bottom: 0.5rem;"><strong>File Size:</strong> <span id="metaFileSize" style="color: var(--text-muted);"></span></p>
-          <p style="margin-bottom: 0.5rem;"><strong>Total Pages:</strong> <span id="metaPages" style="font-size: 1.2rem; font-weight: bold; color: #fff;"></span></p>
+          <p style="margin-bottom: 0.5rem;"><strong>Total Pages:</strong> <span id="metaPages" style="font-size: 1.3rem; font-weight: bold; color: var(--fg);"></span></p>
           <p style="margin-bottom: 0.5rem;"><strong>PDF Version:</strong> <span id="metaVersion" style="color: var(--text-muted);"></span></p>
           <p style="margin-bottom: 0.5rem;"><strong>Title:</strong> <span id="metaTitle" style="color: var(--text-muted);"></span></p>
           <p><strong>Producer / Creator:</strong> <span id="metaProducer" style="color: var(--text-muted);"></span></p>
@@ -748,14 +813,13 @@ function buildPdfTools() {
   console.log('  ✓ Built PDF Suite (/pdf/)');
 }
 
-// ─── MINECRAFT BEDROCK SUITE ───────────────────────────────────────────────
 function buildMinecraftTools() {
   const mcDir = join(DIST, 'mc');
   ensureDir(mcDir);
 
   const uuidBody = `
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <a href="/" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
+      <a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
       <h1 style="margin-top: 0.75rem;">Minecraft Bedrock UUID Generator</h1>
       <p>Generate RFC4122 v4 UUID pairs specifically formatted for Minecraft Bedrock behavior packs, resource packs, and manifest.json headers.</p>
     </div>
@@ -767,11 +831,11 @@ function buildMinecraftTools() {
       </div>
 
       <div style="font-family: var(--mono); display: grid; gap: 1rem;">
-        <div style="border: 1px solid var(--border); padding: 1rem; background: #000;">
+        <div style="border: 1px solid var(--border); padding: 1rem; background: var(--surface);">
           <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Header UUID (Pack UUID)</div>
           <div id="headerUuid" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem;"></div>
         </div>
-        <div style="border: 1px solid var(--border); padding: 1rem; background: #000;">
+        <div style="border: 1px solid var(--border); padding: 1rem; background: var(--surface);">
           <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Module UUID</div>
           <div id="moduleUuid" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem;"></div>
         </div>
@@ -809,7 +873,7 @@ function buildMinecraftTools() {
 
   const manifestBody = `
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <a href="/" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
+      <a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
       <h1 style="margin-top: 0.75rem;">Bedrock Manifest.json Generator</h1>
       <p>Quickly generate valid, clean manifest.json files for Minecraft Bedrock Resource Packs and Behavior Packs with automatic UUIDs.</p>
     </div>
@@ -817,11 +881,11 @@ function buildMinecraftTools() {
     <div class="tool-workspace">
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
         <div>
-          <label style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Pack Name</label>
+          <label style="font-family: var(--serif); font-size: 1rem; color: var(--fg); display: block; margin-bottom: 0.35rem;">Pack Name</label>
           <input type="text" id="packName" value="My Custom Pack" class="search-input" style="width: 100%;" />
         </div>
         <div>
-          <label style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Pack Type</label>
+          <label style="font-family: var(--serif); font-size: 1rem; color: var(--fg); display: block; margin-bottom: 0.35rem;">Pack Type</label>
           <select id="packType" class="search-input" style="width: 100%;">
             <option value="data">Behavior Pack (data)</option>
             <option value="resources">Resource Pack (resources)</option>
@@ -830,10 +894,10 @@ function buildMinecraftTools() {
       </div>
 
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-        <span style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold;">manifest.json output:</span>
+        <span style="font-family: var(--serif); font-size: 1rem; font-weight: bold;">manifest.json output:</span>
         <button class="btn-primary" id="copyManifest">Copy JSON</button>
       </div>
-      <textarea id="manifestOutput" style="width: 100%; height: 260px; background: #000; color: #fff; border: 1px solid var(--border); font-family: var(--mono); padding: 1rem; font-size: 0.85rem;" readonly></textarea>
+      <textarea id="manifestOutput" style="width: 100%; height: 260px; padding: 1rem; font-family: var(--mono); font-size: 0.85rem;" readonly></textarea>
     </div>
 
     <script>
@@ -887,7 +951,6 @@ function buildMinecraftTools() {
   console.log('  ✓ Built Minecraft Suite (/mc/)');
 }
 
-// ─── UNIT CALCULATOR SUITE ─────────────────────────────────────────────────
 function buildUnitCalcSuite() {
   const ucDist = join(ROOT, '..', 'UnitCalc', 'dist');
   const calcDist = join(DIST, 'calc');
@@ -900,7 +963,6 @@ function buildUnitCalcSuite() {
   console.log('  ✓ Ported UnitCalc suite to /calc/');
 }
 
-// ─── SITEMAP & ROBOTS.TXT ──────────────────────────────────────────────────
 function buildSEOAssets() {
   const discoveredUrls = [`${DOMAIN}/`];
 
@@ -941,7 +1003,6 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-# Restrict aggressive AI training crawlers from zero-click scraping
 User-agent: Google-Extended
 Disallow: /
 
@@ -970,7 +1031,7 @@ Sitemap: ${DOMAIN}/sitemap.xml
 }
 
 function main() {
-  console.log('\n🔨 Building DIGITAL TOOLS SHED Master Site with ConvertFast Reskin...\n');
+  console.log('\n🔨 Rebuilding DIGITAL TOOLS SHED with Times New Roman + Light/Dark Theme...\n');
   ensureDir(DIST);
 
   buildHomepage();
