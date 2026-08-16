@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Base64 Encoder & Decoder Online — Free | ConvertFast</title>
+    <meta name="description" content="Encode text or files into Base64 format, or decode Base64 strings back to original text or downloadable files instantly in your browser.">
+    <link rel="stylesheet" href="../style.css">
+    <script>/* instant theme */
+    (function(){var t=localStorage.getItem('cf-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
+    </script>
+    <style>
+        .mode-toggle-group {
+            display: flex;
+            gap: 0;
+            margin-bottom: var(--space-md);
+        }
+        .mode-tab-btn {
+            flex: 1;
+            padding: var(--space-sm) var(--space-md);
+            font-family: var(--font-serif);
+            font-weight: 700;
+            font-size: 1rem;
+            border: 2px solid var(--border-color);
+            background: var(--surface-color);
+            color: var(--text-color);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.1s ease;
+        }
+        .mode-tab-btn.active {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+        .input-tab-group {
+            display: flex;
+            gap: var(--space-xs);
+            margin-bottom: var(--space-sm);
+        }
+        .sub-tab-btn {
+            padding: var(--space-xs) var(--space-sm);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            border: 1px solid var(--border-color);
+            background: var(--card-color);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+        .sub-tab-btn.active {
+            background: var(--text-color);
+            color: var(--bg-color);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-md) var(--space-lg);">
+            <a href="../index.html" style="font-family:var(--font-serif);font-weight:700;font-size:1.5rem;letter-spacing:0.05em;">CONVERTFAST</a>
+            <div style="display:flex;gap:var(--space-md);align-items:center;">
+                <a href="../index.html" style="font-family:var(--font-mono);font-size:0.85rem;letter-spacing:0.1em;">← ALL TOOLS</a>
+                <button id="theme-toggle" style="font-size:1.2rem;padding:var(--space-xs) var(--space-sm);border:2px solid var(--border-color);background:var(--card-color);color:var(--text-color);">☀️</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container" style="max-width:720px;margin:0 auto;padding:var(--space-2xl) var(--space-lg);">
+        <div style="margin-bottom:var(--space-sm);">
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted-color);letter-spacing:0.15em;">HOME / CONVERTERS / BASE64</span>
+        </div>
+        
+        <h1 style="font-family:var(--font-serif);font-size:2.5rem;font-weight:700;margin-bottom:var(--space-sm);">Base64 Encoder & Decoder</h1>
+        <p style="color:var(--muted-color);font-size:1.05rem;margin-bottom:var(--space-xl);">Encode text or files into Base64 format, or decode Base64 strings back to original text or downloadable binary files.</p>
+
+        <!-- Mode Toggle Header -->
+        <div class="mode-toggle-group">
+            <button id="mode-encode" class="mode-tab-btn active">ENCODE MODE</button>
+            <button id="mode-decode" class="mode-tab-btn">DECODE MODE</button>
+        </div>
+
+        <!-- ENCODE CONTAINER -->
+        <div id="encode-container" style="border:2px solid var(--border-color);background:var(--card-color);padding:var(--space-lg);margin-bottom:var(--space-lg);">
+            <div style="margin-bottom:var(--space-md);">
+                <label style="font-family:var(--font-serif);font-weight:700;display:block;margin-bottom:var(--space-xs);">Select Input Type:</label>
+                <div class="input-tab-group">
+                    <button id="tab-text" class="sub-tab-btn active">TEXT INPUT</button>
+                    <button id="tab-file" class="sub-tab-btn">FILE INPUT</button>
+                </div>
+            </div>
+
+            <!-- Text Input Area -->
+            <div id="text-input-wrap" style="margin-bottom:var(--space-md);">
+                <label for="input-text-encode" style="font-family:var(--font-serif);font-weight:700;display:block;margin-bottom:var(--space-xs);">Text to Encode:</label>
+                <textarea id="input-text-encode" placeholder="Type or paste text to encode..." style="width:100%;min-height:160px;padding:var(--space-md);border:2px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.85rem;resize:vertical;"></textarea>
+            </div>
+
+            <!-- File Input / Drop Zone Area -->
+            <div id="file-input-wrap" style="display:none;margin-bottom:var(--space-md);">
+                <div id="drop-zone" style="border:2px dashed var(--border-color);padding:var(--space-xl);text-align:center;cursor:pointer;background:var(--surface-color);transition:all 0.2s ease;">
+                    <div style="font-size:2rem;margin-bottom:var(--space-sm);">📄</div>
+                    <p style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;">Drop a file here to encode</p>
+                    <p style="color:var(--muted-color);font-size:0.9rem;">or click to browse</p>
+                    <p id="file-name-encode" style="font-family:var(--font-mono);font-size:0.85rem;margin-top:var(--space-sm);font-weight:700;color:var(--text-color);"></p>
+                    <input type="file" id="file-input-encode" hidden>
+                </div>
+            </div>
+
+            <button id="btn-encode-action" style="width:100%;padding:var(--space-md);background:var(--text-color);color:var(--bg-color);font-family:var(--font-serif);font-weight:700;font-size:1.2rem;letter-spacing:0.05em;border:2px solid var(--border-color);box-shadow:4px 4px 0px var(--border-color);text-transform:uppercase;cursor:pointer;margin-bottom:var(--space-md);">⚡ ENCODE TO BASE64</button>
+
+            <div id="status-msg-encode" style="font-family:var(--font-mono);font-size:0.85rem;margin-bottom:var(--space-md);display:none;"></div>
+
+            <!-- Output Base64 -->
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xs);">
+                    <label style="font-family:var(--font-serif);font-weight:700;">Encoded Base64 Output:</label>
+                    <button id="copy-btn-encode" style="padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.75rem;cursor:pointer;">📋 COPY</button>
+                </div>
+                <textarea id="output-base64" readonly placeholder="Base64 output will appear here..." style="width:100%;min-height:160px;padding:var(--space-md);border:2px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.85rem;resize:vertical;"></textarea>
+            </div>
+        </div>
+
+        <!-- DECODE CONTAINER -->
+        <div id="decode-container" style="display:none;border:2px solid var(--border-color);background:var(--card-color);padding:var(--space-lg);margin-bottom:var(--space-lg);">
+            <div style="margin-bottom:var(--space-md);">
+                <label for="input-base64" style="font-family:var(--font-serif);font-weight:700;display:block;margin-bottom:var(--space-xs);">Input Base64 String:</label>
+                <textarea id="input-base64" placeholder="Paste Base64 string or Data URI here..." style="width:100%;min-height:160px;padding:var(--space-md);border:2px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.85rem;resize:vertical;"></textarea>
+            </div>
+
+            <button id="btn-decode-action" style="width:100%;padding:var(--space-md);background:var(--text-color);color:var(--bg-color);font-family:var(--font-serif);font-weight:700;font-size:1.2rem;letter-spacing:0.05em;border:2px solid var(--border-color);box-shadow:4px 4px 0px var(--border-color);text-transform:uppercase;cursor:pointer;margin-bottom:var(--space-md);">⚡ DECODE BASE64</button>
+
+            <div id="status-msg-decode" style="font-family:var(--font-mono);font-size:0.85rem;margin-bottom:var(--space-md);display:none;"></div>
+
+            <!-- Output Text/Binary -->
+            <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xs);">
+                    <label style="font-family:var(--font-serif);font-weight:700;">Decoded Result:</label>
+                    <div style="display:flex;gap:var(--space-xs);">
+                        <button id="copy-btn-decode" style="padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.75rem;cursor:pointer;">📋 COPY TEXT</button>
+                        <button id="download-btn-decode" style="display:none;padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--text-color);color:var(--bg-color);font-family:var(--font-mono);font-size:0.75rem;cursor:pointer;">⬇️ DOWNLOAD FILE</button>
+                    </div>
+                </div>
+                <textarea id="output-text-decode" readonly placeholder="Decoded output will appear here..." style="width:100%;min-height:160px;padding:var(--space-md);border:2px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.85rem;resize:vertical;"></textarea>
+            </div>
+        </div>
+    </main>
+
+    <footer style="text-align:center;padding:var(--space-xl);border-top:1px solid var(--border-subtle);color:var(--muted-color);font-size:0.85rem;">
+        <p>© 2026 ConvertFast — All tools run 100% in your browser.</p>
+    </footer>
+
+    <script>
+        // Theme toggle
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('cf-theme', next);
+            this.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+        (function(){
+            const t = document.documentElement.getAttribute('data-theme');
+            document.getElementById('theme-toggle').textContent = t === 'dark' ? '☀️' : '🌙';
+        })();
+        
+        // Helper functions
+        function formatBytes(b) {
+            if (b === 0) return '0 B';
+            const k = 1024, s = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(b) / Math.log(k));
+            return parseFloat((b / Math.pow(k, i)).toFixed(1)) + ' ' + s[i];
+        }
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        function isPrintableText(str) {
+            for (let i = 0; i < Math.min(str.length, 100); i++) {
+                const code = str.charCodeAt(i);
+                if (code === 0 || code === 8) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // DOM elements
+        const modeEncodeBtn = document.getElementById('mode-encode');
+        const modeDecodeBtn = document.getElementById('mode-decode');
+        const encodeContainer = document.getElementById('encode-container');
+        const decodeContainer = document.getElementById('decode-container');
+
+        const tabTextBtn = document.getElementById('tab-text');
+        const tabFileBtn = document.getElementById('tab-file');
+        const textInputWrap = document.getElementById('text-input-wrap');
+        const fileInputWrap = document.getElementById('file-input-wrap');
+
+        const dropZone = document.getElementById('drop-zone');
+        const fileInputEncode = document.getElementById('file-input-encode');
+        const fileNameEncode = document.getElementById('file-name-encode');
+
+        const btnEncodeAction = document.getElementById('btn-encode-action');
+        const statusMsgEncode = document.getElementById('status-msg-encode');
+        const outputBase64 = document.getElementById('output-base64');
+        const copyBtnEncode = document.getElementById('copy-btn-encode');
+
+        const btnDecodeAction = document.getElementById('btn-decode-action');
+        const inputBase64 = document.getElementById('input-base64');
+        const statusMsgDecode = document.getElementById('status-msg-decode');
+        const outputTextDecode = document.getElementById('output-text-decode');
+        const copyBtnDecode = document.getElementById('copy-btn-decode');
+        const downloadBtnDecode = document.getElementById('download-btn-decode');
+
+        let currentMode = 'encode'; // 'encode' or 'decode'
+        let currentInputType = 'text'; // 'text' or 'file'
+        let selectedFile = null;
+        let decodedBlob = null;
+
+        // Mode toggles
+        modeEncodeBtn.addEventListener('click', () => {
+            currentMode = 'encode';
+            modeEncodeBtn.classList.add('active');
+            modeDecodeBtn.classList.remove('active');
+            encodeContainer.style.display = 'block';
+            decodeContainer.style.display = 'none';
+        });
+
+        modeDecodeBtn.addEventListener('click', () => {
+            currentMode = 'decode';
+            modeDecodeBtn.classList.add('active');
+            modeEncodeBtn.classList.remove('active');
+            decodeContainer.style.display = 'block';
+            encodeContainer.style.display = 'none';
+        });
+
+        // Sub-tab toggles
+        tabTextBtn.addEventListener('click', () => {
+            currentInputType = 'text';
+            tabTextBtn.classList.add('active');
+            tabFileBtn.classList.remove('active');
+            textInputWrap.style.display = 'block';
+            fileInputWrap.style.display = 'none';
+        });
+
+        tabFileBtn.addEventListener('click', () => {
+            currentInputType = 'file';
+            tabFileBtn.classList.add('active');
+            tabTextBtn.classList.remove('active');
+            fileInputWrap.style.display = 'block';
+            textInputWrap.style.display = 'none';
+        });
+
+        // Drop zone file handlers
+        dropZone.addEventListener('click', () => fileInputEncode.click());
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.opacity = '0.7';
+            dropZone.style.borderColor = 'var(--text-color)';
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.opacity = '1';
+            dropZone.style.borderColor = 'var(--border-color)';
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.opacity = '1';
+            dropZone.style.borderColor = 'var(--border-color)';
+            if (e.dataTransfer.files.length) {
+                selectedFile = e.dataTransfer.files[0];
+                fileNameEncode.textContent = `Selected: ${selectedFile.name} (${formatBytes(selectedFile.size)})`;
+            }
+        });
+        fileInputEncode.addEventListener('change', () => {
+            if (fileInputEncode.files.length) {
+                selectedFile = fileInputEncode.files[0];
+                fileNameEncode.textContent = `Selected: ${selectedFile.name} (${formatBytes(selectedFile.size)})`;
+            }
+        });
+
+        // Status message helper
+        function showStatus(elem, msg, isSuccess) {
+            elem.style.display = 'block';
+            elem.style.color = isSuccess ? 'var(--text-color)' : '#e53e3e';
+            elem.style.fontWeight = 'bold';
+            elem.textContent = msg;
+        }
+
+        // Encode logic
+        btnEncodeAction.addEventListener('click', () => {
+            statusMsgEncode.style.display = 'none';
+            statusMsgEncode.textContent = '';
+            
+            if (currentInputType === 'text') {
+                const text = document.getElementById('input-text-encode').value;
+                if (!text) {
+                    showStatus(statusMsgEncode, 'Please enter text to encode.', false);
+                    return;
+                }
+                try {
+                    const encoded = btoa(unescape(encodeURIComponent(text)));
+                    outputBase64.value = encoded;
+                    showStatus(statusMsgEncode, '✓ Encoded text successfully!', true);
+                } catch (e) {
+                    showStatus(statusMsgEncode, '✕ Error encoding text.', false);
+                }
+            } else if (currentInputType === 'file') {
+                if (!selectedFile) {
+                    showStatus(statusMsgEncode, 'Please select or drop a file to encode.', false);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    outputBase64.value = e.target.result;
+                    showStatus(statusMsgEncode, `✓ Encoded file "${selectedFile.name}" successfully!`, true);
+                };
+                reader.onerror = () => {
+                    showStatus(statusMsgEncode, '✕ Error reading file.', false);
+                };
+                reader.readAsDataURL(selectedFile);
+            }
+        });
+
+        // Decode logic
+        btnDecodeAction.addEventListener('click', () => {
+            statusMsgDecode.style.display = 'none';
+            statusMsgDecode.textContent = '';
+            decodedBlob = null;
+            
+            const b64 = inputBase64.value.trim();
+            if (!b64) {
+                showStatus(statusMsgDecode, 'Please paste a Base64 string to decode.', false);
+                return;
+            }
+            
+            try {
+                let base64Data = b64;
+                let mimeType = 'application/octet-stream';
+                let isDataUri = false;
+                
+                const dataUriMatch = b64.match(/^data:([^;]+);base64,(.*)$/);
+                if (dataUriMatch) {
+                    mimeType = dataUriMatch[1];
+                    base64Data = dataUriMatch[2];
+                    isDataUri = true;
+                }
+                
+                const binaryStr = atob(base64Data);
+                
+                if (isDataUri || !isPrintableText(binaryStr)) {
+                    const len = binaryStr.length;
+                    const bytes = new Uint8Array(len);
+                    for (let i = 0; i < len; i++) {
+                        bytes[i] = binaryStr.charCodeAt(i);
+                    }
+                    decodedBlob = new Blob([bytes], { type: mimeType });
+                    
+                    outputTextDecode.value = `[Binary Data Detected]\nMIME Type: ${mimeType}\nSize: ${formatBytes(bytes.length)}\n\nClick "DOWNLOAD FILE" button above to save the file.`;
+                    downloadBtnDecode.style.display = 'inline-block';
+                    copyBtnDecode.style.display = 'none';
+                    
+                    showStatus(statusMsgDecode, '✓ Decoded binary file successfully!', true);
+                } else {
+                    const text = decodeURIComponent(escape(atob(base64Data)));
+                    outputTextDecode.value = text;
+                    downloadBtnDecode.style.display = 'none';
+                    copyBtnDecode.style.display = 'inline-block';
+                    
+                    showStatus(statusMsgDecode, '✓ Decoded text successfully!', true);
+                }
+            } catch (e) {
+                showStatus(statusMsgDecode, '✕ Error: Invalid Base64 string.', false);
+            }
+        });
+
+        // Copy buttons
+        copyBtnEncode.addEventListener('click', () => {
+            if (!outputBase64.value) return;
+            navigator.clipboard.writeText(outputBase64.value).then(() => {
+                const origText = copyBtnEncode.textContent;
+                copyBtnEncode.textContent = '✓ COPIED';
+                setTimeout(() => copyBtnEncode.textContent = origText, 2000);
+            });
+        });
+
+        copyBtnDecode.addEventListener('click', () => {
+            if (!outputTextDecode.value || downloadBtnDecode.style.display !== 'none') return;
+            navigator.clipboard.writeText(outputTextDecode.value).then(() => {
+                const origText = copyBtnDecode.textContent;
+                copyBtnDecode.textContent = '✓ COPIED';
+                setTimeout(() => copyBtnDecode.textContent = origText, 2000);
+            });
+        });
+
+        // Download file button for decoded binary
+        downloadBtnDecode.addEventListener('click', () => {
+            if (!decodedBlob) return;
+            let ext = 'bin';
+            if (decodedBlob.type.includes('image/png')) ext = 'png';
+            else if (decodedBlob.type.includes('image/jpeg')) ext = 'jpg';
+            else if (decodedBlob.type.includes('image/gif')) ext = 'gif';
+            else if (decodedBlob.type.includes('image/webp')) ext = 'webp';
+            else if (decodedBlob.type.includes('application/pdf')) ext = 'pdf';
+            else if (decodedBlob.type.includes('text/plain')) ext = 'txt';
+            else if (decodedBlob.type.includes('application/json')) ext = 'json';
+            
+            downloadFile(decodedBlob, `decoded_file.${ext}`);
+        });
+    </script>
+</body>
+</html>

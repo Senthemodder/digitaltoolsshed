@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Cups to Milliliters — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Cups (cup) to Milliliters (mL). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Volume &gt; Cups to Milliliters
+      </nav>
+
+      <h1>Convert Cups to Milliliters</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Cups (cup)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Milliliters (mL)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert Cups to Milliliters: Multiply by 236.588.</p>
+          <p class="formula">Formula: Milliliters = Cups &times; 236.588</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Cups (cup)</th>
+              <th>Milliliters (mL)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 cup</td><td>236.588 mL</td></tr><tr><td>5 cup</td><td>1182.94 mL</td></tr><tr><td>10 cup</td><td>2365.88 mL</td></tr><tr><td>25 cup</td><td>5914.7 mL</td></tr><tr><td>50 cup</td><td>11829.4 mL</td></tr><tr><td>100 cup</td><td>23658.8 mL</td></tr><tr><td>500 cup</td><td>118294 mL</td></tr><tr><td>1000 cup</td><td>236588 mL</td></tr><tr><td>5000 cup</td><td>1182940 mL</td></tr><tr><td>10000 cup</td><td>2365880 mL</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Volume Conversions</h3>
+        <ul>
+          <li><a href="liters-to-gallons.html">Liters to US Gallons</a></li><li><a href="gallons-to-liters.html">US Gallons to Liters</a></li><li><a href="ml-to-cups.html">Milliliters to Cups</a></li><li><a href="tbsp-to-ml.html">Tablespoons to Milliliters</a></li><li><a href="tsp-to-ml.html">Teaspoons to Milliliters</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 236.588;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

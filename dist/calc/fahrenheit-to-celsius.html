@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Fahrenheit to Celsius — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Fahrenheit (°F) to Celsius (°C). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Temperature &gt; Fahrenheit to Celsius
+      </nav>
+
+      <h1>Convert Fahrenheit to Celsius</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Fahrenheit (°F)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Celsius (°C)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        <p>Uses standard temperature conversion formulas.</p>
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Fahrenheit (°F)</th>
+              <th>Celsius (°C)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 °F</td><td>-17.222222 °C</td></tr><tr><td>5 °F</td><td>-15 °C</td></tr><tr><td>10 °F</td><td>-12.222222 °C</td></tr><tr><td>25 °F</td><td>-3.888889 °C</td></tr><tr><td>50 °F</td><td>10 °C</td></tr><tr><td>100 °F</td><td>37.777778 °C</td></tr><tr><td>500 °F</td><td>260 °C</td></tr><tr><td>1000 °F</td><td>537.777778 °C</td></tr><tr><td>5000 °F</td><td>2760 °C</td></tr><tr><td>10000 °F</td><td>5537.777778 °C</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Temperature Conversions</h3>
+        <ul>
+          <li><a href="celsius-to-fahrenheit.html">Celsius to Fahrenheit</a></li><li><a href="celsius-to-kelvin.html">Celsius to Kelvin</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        function c2f(v) { return v * 9/5 + 32; }
+        function f2c(v) { return (v - 32) * 5/9; }
+        function c2k(v) { return v + 273.15; }
+        function k2c(v) { return v - 273.15; }
+        function f2k(v) { return (v - 32) * 5/9 + 273.15; }
+        function k2f(v) { return (v - 273.15) * 9/5 + 32; }
+
+        let convertForward, convertBackward;
+        if ('fahrenheit_to_celsius' === 'celsius_to_fahrenheit') { convertForward = c2f; convertBackward = f2c; }
+        else if ('fahrenheit_to_celsius' === 'fahrenheit_to_celsius') { convertForward = f2c; convertBackward = c2f; }
+        else if ('fahrenheit_to_celsius' === 'celsius_to_kelvin') { convertForward = c2k; convertBackward = k2c; }
+        else if ('fahrenheit_to_celsius' === 'kelvin_to_celsius') { convertForward = k2c; convertBackward = c2k; }
+        else if ('fahrenheit_to_celsius' === 'fahrenheit_to_kelvin') { convertForward = f2k; convertBackward = k2f; }
+        else if ('fahrenheit_to_celsius' === 'kelvin_to_fahrenheit') { convertForward = k2f; convertBackward = f2k; }
+
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat(convertForward(val).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat(convertBackward(val).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

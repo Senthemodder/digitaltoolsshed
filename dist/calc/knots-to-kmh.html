@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Knots to Kilometers/Hour — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Knots (kn) to Kilometers/Hour (km/h). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Speed &gt; Knots to Kilometers/Hour
+      </nav>
+
+      <h1>Convert Knots to Kilometers/Hour</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Knots (kn)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Kilometers/Hour (km/h)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert Knots to Kilometers/Hour: Multiply by 1.851997.</p>
+          <p class="formula">Formula: Kilometers/Hour = Knots &times; 1.851997</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Knots (kn)</th>
+              <th>Kilometers/Hour (km/h)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 kn</td><td>1.851997 km/h</td></tr><tr><td>5 kn</td><td>9.259985 km/h</td></tr><tr><td>10 kn</td><td>18.519969 km/h</td></tr><tr><td>25 kn</td><td>46.299923 km/h</td></tr><tr><td>50 kn</td><td>92.599846 km/h</td></tr><tr><td>100 kn</td><td>185.199692 km/h</td></tr><tr><td>500 kn</td><td>925.998459 km/h</td></tr><tr><td>1000 kn</td><td>1851.996918 km/h</td></tr><tr><td>5000 kn</td><td>9259.984592 km/h</td></tr><tr><td>10000 kn</td><td>18519.969184 km/h</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Speed Conversions</h3>
+        <ul>
+          <li><a href="kmh-to-mph.html">Kilometers/Hour to Miles/Hour</a></li><li><a href="mph-to-kmh.html">Miles/Hour to Kilometers/Hour</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 1.8519969184024652;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

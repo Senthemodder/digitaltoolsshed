@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UnitCalc — Instant Unit Converter</title>
+  <meta name="description" content="100+ conversion calculators. Free. Fast. No signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+
+  <div class="hero container">
+    <h1>UnitCalc — Instant Unit Converter</h1>
+    <p>100+ conversion calculators. Free. Fast. No signup.</p>
+    <input type="text" id="searchInput" placeholder="Search converters (e.g. kg to lbs)..." class="search-box">
+  </div>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container">
+    <div class="category-grid">
+      <div class="category-card card" data-cat="length">
+        <h2>📏 Length</h2>
+        <ul class="converter-list">
+        <li><a href="cm-to-inches.html" class="conv-link">Centimeters to Inches</a></li>
+      
+        <li><a href="inches-to-cm.html" class="conv-link">Inches to Centimeters</a></li>
+      
+        <li><a href="m-to-feet.html" class="conv-link">Meters to Feet</a></li>
+      
+        <li><a href="feet-to-m.html" class="conv-link">Feet to Meters</a></li>
+      
+        <li><a href="km-to-miles.html" class="conv-link">Kilometers to Miles</a></li>
+      
+        <li><a href="miles-to-km.html" class="conv-link">Miles to Kilometers</a></li>
+      
+        <li><a href="mm-to-inches.html" class="conv-link">Millimeters to Inches</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="weight">
+        <h2>⚖️ Weight</h2>
+        <ul class="converter-list">
+        <li><a href="kg-to-lbs.html" class="conv-link">Kilograms to Pounds</a></li>
+      
+        <li><a href="lbs-to-kg.html" class="conv-link">Pounds to Kilograms</a></li>
+      
+        <li><a href="g-to-oz.html" class="conv-link">Grams to Ounces</a></li>
+      
+        <li><a href="oz-to-g.html" class="conv-link">Ounces to Grams</a></li>
+      
+        <li><a href="stone-to-kg.html" class="conv-link">Stones to Kilograms</a></li>
+      
+        <li><a href="kg-to-stone.html" class="conv-link">Kilograms to Stones</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="temperature">
+        <h2>🌡️ Temperature</h2>
+        <ul class="converter-list">
+        <li><a href="celsius-to-fahrenheit.html" class="conv-link">Celsius to Fahrenheit</a></li>
+      
+        <li><a href="fahrenheit-to-celsius.html" class="conv-link">Fahrenheit to Celsius</a></li>
+      
+        <li><a href="celsius-to-kelvin.html" class="conv-link">Celsius to Kelvin</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="volume">
+        <h2>🧪 Volume</h2>
+        <ul class="converter-list">
+        <li><a href="liters-to-gallons.html" class="conv-link">Liters to US Gallons</a></li>
+      
+        <li><a href="gallons-to-liters.html" class="conv-link">US Gallons to Liters</a></li>
+      
+        <li><a href="ml-to-cups.html" class="conv-link">Milliliters to Cups</a></li>
+      
+        <li><a href="cups-to-ml.html" class="conv-link">Cups to Milliliters</a></li>
+      
+        <li><a href="tbsp-to-ml.html" class="conv-link">Tablespoons to Milliliters</a></li>
+      
+        <li><a href="tsp-to-ml.html" class="conv-link">Teaspoons to Milliliters</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="speed">
+        <h2>💨 Speed</h2>
+        <ul class="converter-list">
+        <li><a href="kmh-to-mph.html" class="conv-link">Kilometers/Hour to Miles/Hour</a></li>
+      
+        <li><a href="mph-to-kmh.html" class="conv-link">Miles/Hour to Kilometers/Hour</a></li>
+      
+        <li><a href="knots-to-kmh.html" class="conv-link">Knots to Kilometers/Hour</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="area">
+        <h2>📐 Area</h2>
+        <ul class="converter-list">
+        <li><a href="m2-to-ft2.html" class="conv-link">Square Meters to Square Feet</a></li>
+      
+        <li><a href="ft2-to-m2.html" class="conv-link">Square Feet to Square Meters</a></li>
+      
+        <li><a href="acres-to-hectares.html" class="conv-link">Acres to Hectares</a></li>
+      
+        <li><a href="hectares-to-acres.html" class="conv-link">Hectares to Acres</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="digital storage">
+        <h2>💾 Digital Storage</h2>
+        <ul class="converter-list">
+        <li><a href="mb-to-gb.html" class="conv-link">Megabytes to Gigabytes</a></li>
+      
+        <li><a href="gb-to-tb.html" class="conv-link">Gigabytes to Terabytes</a></li>
+      
+        <li><a href="bytes-to-kb.html" class="conv-link">Bytes to Kilobytes</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="time">
+        <h2>⏱️ Time</h2>
+        <ul class="converter-list">
+        <li><a href="hours-to-minutes.html" class="conv-link">Hours to Minutes</a></li>
+      
+        <li><a href="days-to-hours.html" class="conv-link">Days to Hours</a></li>
+      
+        <li><a href="weeks-to-days.html" class="conv-link">Weeks to Days</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="energy">
+        <h2>⚡ Energy</h2>
+        <ul class="converter-list">
+        <li><a href="calories-to-joules.html" class="conv-link">Calories to Joules</a></li>
+      
+        <li><a href="kwh-to-joules.html" class="conv-link">Kilowatt Hours to Joules</a></li>
+      
+        <li><a href="kcal-to-kj.html" class="conv-link">Kilocalories to Kilojoules</a></li>
+      
+        </ul>
+      </div>
+      <div class="category-card card" data-cat="pressure">
+        <h2>🔧 Pressure</h2>
+        <ul class="converter-list">
+        <li><a href="bar-to-psi.html" class="conv-link">Bar to PSI</a></li>
+      
+        <li><a href="psi-to-bar.html" class="conv-link">PSI to Bar</a></li>
+      
+        <li><a href="atm-to-psi.html" class="conv-link">Atmospheres to PSI</a></li>
+      
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

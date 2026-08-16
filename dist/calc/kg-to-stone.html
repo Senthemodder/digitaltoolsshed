@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Kilograms to Stones — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Kilograms (kg) to Stones (st). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Weight &gt; Kilograms to Stones
+      </nav>
+
+      <h1>Convert Kilograms to Stones</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Kilograms (kg)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Stones (st)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert Kilograms to Stones: Multiply by 0.157473.</p>
+          <p class="formula">Formula: Stones = Kilograms &times; 0.157473</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Kilograms (kg)</th>
+              <th>Stones (st)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 kg</td><td>0.157473 st</td></tr><tr><td>5 kg</td><td>0.787366 st</td></tr><tr><td>10 kg</td><td>1.574731 st</td></tr><tr><td>25 kg</td><td>3.936828 st</td></tr><tr><td>50 kg</td><td>7.873656 st</td></tr><tr><td>100 kg</td><td>15.747312 st</td></tr><tr><td>500 kg</td><td>78.736562 st</td></tr><tr><td>1000 kg</td><td>157.473123 st</td></tr><tr><td>5000 kg</td><td>787.365616 st</td></tr><tr><td>10000 kg</td><td>1574.731233 st</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Weight Conversions</h3>
+        <ul>
+          <li><a href="kg-to-lbs.html">Kilograms to Pounds</a></li><li><a href="lbs-to-kg.html">Pounds to Kilograms</a></li><li><a href="g-to-oz.html">Grams to Ounces</a></li><li><a href="oz-to-g.html">Ounces to Grams</a></li><li><a href="stone-to-kg.html">Stones to Kilograms</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 0.1574731232746851;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

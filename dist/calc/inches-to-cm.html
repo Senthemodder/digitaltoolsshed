@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Inches to Centimeters — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Inches (in) to Centimeters (cm). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Length &gt; Inches to Centimeters
+      </nav>
+
+      <h1>Convert Inches to Centimeters</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Inches (in)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Centimeters (cm)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert Inches to Centimeters: Multiply by 2.54.</p>
+          <p class="formula">Formula: Centimeters = Inches &times; 2.54</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Inches (in)</th>
+              <th>Centimeters (cm)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 in</td><td>2.54 cm</td></tr><tr><td>5 in</td><td>12.7 cm</td></tr><tr><td>10 in</td><td>25.4 cm</td></tr><tr><td>25 in</td><td>63.5 cm</td></tr><tr><td>50 in</td><td>127 cm</td></tr><tr><td>100 in</td><td>254 cm</td></tr><tr><td>500 in</td><td>1270 cm</td></tr><tr><td>1000 in</td><td>2540 cm</td></tr><tr><td>5000 in</td><td>12700 cm</td></tr><tr><td>10000 in</td><td>25400 cm</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Length Conversions</h3>
+        <ul>
+          <li><a href="cm-to-inches.html">Centimeters to Inches</a></li><li><a href="m-to-feet.html">Meters to Feet</a></li><li><a href="feet-to-m.html">Feet to Meters</a></li><li><a href="km-to-miles.html">Kilometers to Miles</a></li><li><a href="miles-to-km.html">Miles to Kilometers</a></li><li><a href="mm-to-inches.html">Millimeters to Inches</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 2.54;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

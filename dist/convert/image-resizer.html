@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resize Image Online — Free, No Upload | ConvertFast</title>
+    <meta name="description" content="Resize PNG, JPG, WebP images instantly in your browser. Change image dimensions, keep aspect ratio, output to multiple formats.">
+    <link rel="stylesheet" href="../style.css">
+    <script>/* instant theme */
+    (function(){var t=localStorage.getItem('cf-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-md) var(--space-lg);">
+            <a href="../index.html" style="font-family:var(--font-serif);font-weight:700;font-size:1.5rem;letter-spacing:0.05em;">CONVERTFAST</a>
+            <div style="display:flex;gap:var(--space-md);align-items:center;">
+                <a href="../index.html" style="font-family:var(--font-mono);font-size:0.85rem;letter-spacing:0.1em;">← ALL TOOLS</a>
+                <button id="theme-toggle" style="font-size:1.2rem;padding:var(--space-xs) var(--space-sm);border:2px solid var(--border-color);background:var(--card-color);color:var(--text-color);cursor:pointer;">☀️</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container" style="max-width:720px;margin:0 auto;padding:var(--space-2xl) var(--space-lg);">
+        <div style="margin-bottom:var(--space-sm);">
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted-color);letter-spacing:0.15em;">HOME / CONVERTERS / IMAGE RESIZER</span>
+        </div>
+        
+        <h1 style="font-family:var(--font-serif);font-size:2.5rem;font-weight:700;margin-bottom:var(--space-sm);">Image Resizer</h1>
+        <p style="color:var(--muted-color);font-size:1.05rem;margin-bottom:var(--space-xl);">Resize images directly in your browser. Change dimensions and output format with zero server uploads.</p>
+
+        <!-- Drop Zone -->
+        <div id="drop-zone" style="border:2px dashed var(--border-color);padding:var(--space-2xl);text-align:center;cursor:pointer;background:var(--surface-color);transition:all 0.2s ease;margin-bottom:var(--space-lg);">
+            <div style="font-size:2rem;margin-bottom:var(--space-sm);">🖼️</div>
+            <p style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;">Drop your image here</p>
+            <p style="color:var(--muted-color);font-size:0.9rem;">or click to browse (PNG, JPG, WebP, GIF)</p>
+            <input type="file" id="file-input" accept="image/png, image/jpeg, image/webp, image/gif" hidden>
+        </div>
+
+        <!-- Settings Panel -->
+        <div id="settings-panel" style="display:none;border:2px solid var(--border-color);background:var(--card-color);padding:var(--space-lg);margin-bottom:var(--space-lg);">
+            <p id="file-info" style="font-family:var(--font-mono);font-size:0.85rem;margin-bottom:var(--space-xs);color:var(--text-color);font-weight:700;"></p>
+            <p id="original-dims" style="font-family:var(--font-mono);font-size:0.8rem;margin-bottom:var(--space-md);color:var(--muted-color);"></p>
+
+            <!-- Quick Presets -->
+            <div style="margin-bottom:var(--space-md);">
+                <label style="display:block;font-family:var(--font-serif);font-weight:700;font-size:0.85rem;margin-bottom:var(--space-xs);">Quick Resize Presets</label>
+                <div style="display:flex;gap:var(--space-xs);flex-wrap:wrap;">
+                    <button type="button" class="preset-btn" data-scale="0.25" style="padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.8rem;cursor:pointer;">25%</button>
+                    <button type="button" class="preset-btn" data-scale="0.50" style="padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.8rem;cursor:pointer;">50%</button>
+                    <button type="button" class="preset-btn" data-scale="0.75" style="padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.8rem;cursor:pointer;">75%</button>
+                    <button type="button" class="preset-btn" data-scale="1.00" style="padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.8rem;cursor:pointer;">100%</button>
+                    <button type="button" class="preset-btn" data-scale="1.50" style="padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.8rem;cursor:pointer;">150%</button>
+                    <button type="button" class="preset-btn" data-scale="2.00" style="padding:var(--space-xs) var(--space-sm);border:1px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.8rem;cursor:pointer;">200%</button>
+                </div>
+            </div>
+
+            <!-- Width and Height Inputs with Lock -->
+            <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:var(--space-sm);align-items:end;margin-bottom:var(--space-md);">
+                <div>
+                    <label for="width-input" style="display:block;font-family:var(--font-serif);font-weight:700;margin-bottom:var(--space-xs);font-size:0.9rem;">Width (px)</label>
+                    <input type="number" id="width-input" min="1" style="width:100%;padding:var(--space-xs) var(--space-sm);border:2px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.9rem;">
+                </div>
+                <div style="margin-bottom:2px;">
+                    <button type="button" id="lock-aspect" style="padding:var(--space-xs) var(--space-sm);background:var(--text-color);color:var(--bg-color);border:2px solid var(--border-color);font-family:var(--font-mono);font-size:0.85rem;cursor:pointer;height:38px;display:flex;align-items:center;justify-content:center;gap:4px;">🔒 Lock</button>
+                </div>
+                <div>
+                    <label for="height-input" style="display:block;font-family:var(--font-serif);font-weight:700;margin-bottom:var(--space-xs);font-size:0.9rem;">Height (px)</label>
+                    <input type="number" id="height-input" min="1" style="width:100%;padding:var(--space-xs) var(--space-sm);border:2px solid var(--border-color);background:var(--surface-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.9rem;">
+                </div>
+            </div>
+
+            <!-- Format selection -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);padding:var(--space-sm) 0;border-bottom:1px solid var(--border-subtle);">
+                <label for="format-select" style="font-family:var(--font-serif);font-weight:700;">Output Format</label>
+                <select id="format-select" style="padding:var(--space-xs) var(--space-sm);border:2px solid var(--border-color);background:var(--card-color);color:var(--text-color);font-family:var(--font-mono);font-size:0.85rem;">
+                    <option value="image/png">PNG</option>
+                    <option value="image/jpeg">JPG</option>
+                    <option value="image/webp">WebP</option>
+                </select>
+            </div>
+
+            <!-- Quality Slider -->
+            <div id="quality-group" style="display:none;margin-bottom:var(--space-md);padding:var(--space-sm) 0;border-bottom:1px solid var(--border-subtle);">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <span style="font-family:var(--font-serif);font-weight:700;">Quality</span>
+                    <div style="display:flex;align-items:center;gap:var(--space-sm);">
+                        <input type="range" id="quality-slider" min="1" max="100" value="90" style="width:180px;accent-color:var(--text-color);">
+                        <span id="quality-val" style="font-family:var(--font-mono);font-size:0.9rem;min-width:40px;text-align:right;">90%</span>
+                    </div>
+                </div>
+            </div>
+
+            <button id="convert-btn" style="width:100%;padding:var(--space-md);background:var(--text-color);color:var(--bg-color);font-family:var(--font-serif);font-weight:700;font-size:1.2rem;letter-spacing:0.05em;border:2px solid var(--border-color);box-shadow:4px 4px 0px var(--border-color);text-transform:uppercase;cursor:pointer;">⚡ RESIZE IMAGE NOW</button>
+        </div>
+
+        <!-- Result Panel -->
+        <div id="result-panel" style="display:none;border:2px solid var(--border-color);background:var(--card-color);padding:var(--space-lg);">
+            <h3 style="font-family:var(--font-serif);font-size:1.4rem;font-weight:700;margin-bottom:var(--space-md);">Resized Image</h3>
+            
+            <div style="text-align:center;margin-bottom:var(--space-md);background:var(--surface-color);padding:var(--space-md);border:1px solid var(--border-subtle);">
+                <img id="preview-img" style="max-width:100%;max-height:400px;object-fit:contain;border:2px solid var(--border-color);" alt="Resized image preview">
+            </div>
+
+            <div id="result-info" style="font-family:var(--font-mono);font-size:0.85rem;line-height:1.6;margin-bottom:var(--space-lg);padding:var(--space-md);background:var(--surface-color);border:1px solid var(--border-subtle);"></div>
+
+            <button id="download-btn" style="width:100%;padding:var(--space-md);background:var(--text-color);color:var(--bg-color);font-family:var(--font-serif);font-weight:700;font-size:1.1rem;letter-spacing:0.05em;border:2px solid var(--border-color);box-shadow:4px 4px 0px var(--border-color);text-transform:uppercase;cursor:pointer;">⬇️ DOWNLOAD RESIZED IMAGE</button>
+        </div>
+    </main>
+
+    <footer style="text-align:center;padding:var(--space-xl);border-top:1px solid var(--border-subtle);color:var(--muted-color);font-size:0.85rem;">
+        <p>© 2026 ConvertFast — All tools run 100% in your browser.</p>
+    </footer>
+
+    <script>
+        // Theme toggle
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('cf-theme', next);
+            this.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+        (function(){
+            const t = document.documentElement.getAttribute('data-theme');
+            document.getElementById('theme-toggle').textContent = t === 'dark' ? '☀️' : '🌙';
+        })();
+        
+        // Helper functions
+        function formatBytes(b) {
+            if (b === 0) return '0 B';
+            const k = 1024, s = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(b) / Math.log(k));
+            return parseFloat((b / Math.pow(k, i)).toFixed(1)) + ' ' + s[i];
+        }
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Image Resizer Logic
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const settingsPanel = document.getElementById('settings-panel');
+        const fileInfo = document.getElementById('file-info');
+        const originalDims = document.getElementById('original-dims');
+        const widthInput = document.getElementById('width-input');
+        const heightInput = document.getElementById('height-input');
+        const lockAspectBtn = document.getElementById('lock-aspect');
+        const formatSelect = document.getElementById('format-select');
+        const qualityGroup = document.getElementById('quality-group');
+        const qualitySlider = document.getElementById('quality-slider');
+        const qualityVal = document.getElementById('quality-val');
+        const convertBtn = document.getElementById('convert-btn');
+        const resultPanel = document.getElementById('result-panel');
+        const resultInfo = document.getElementById('result-info');
+        const downloadBtn = document.getElementById('download-btn');
+        const previewImg = document.getElementById('preview-img');
+
+        let currentFile = null;
+        let convertedBlob = null;
+        let originalImg = new Image();
+        let aspectRatio = 1;
+        let lockAspect = true;
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.opacity = '0.7';
+        });
+
+        ['dragleave', 'dragend'].forEach(evt => {
+            dropZone.addEventListener(evt, () => {
+                dropZone.style.opacity = '1';
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.opacity = '1';
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            currentFile = file;
+            fileInfo.textContent = `File: ${file.name} (${formatBytes(file.size)})`;
+            
+            if (['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+                formatSelect.value = file.type;
+            } else {
+                formatSelect.value = 'image/png';
+            }
+            updateQualityVisibility();
+
+            const url = URL.createObjectURL(file);
+            originalImg = new Image();
+            originalImg.onload = () => {
+                widthInput.value = originalImg.width;
+                heightInput.value = originalImg.height;
+                originalDims.textContent = `Original: ${originalImg.width} × ${originalImg.height} px`;
+                if (originalImg.height > 0) {
+                    aspectRatio = originalImg.width / originalImg.height;
+                }
+                settingsPanel.style.display = 'block';
+                resultPanel.style.display = 'none';
+            };
+            originalImg.src = url;
+        }
+
+        lockAspectBtn.addEventListener('click', () => {
+            lockAspect = !lockAspect;
+            if (lockAspect) {
+                lockAspectBtn.style.background = 'var(--text-color)';
+                lockAspectBtn.style.color = 'var(--bg-color)';
+                lockAspectBtn.innerHTML = '🔒 Lock';
+                if (widthInput.value && aspectRatio) {
+                    heightInput.value = Math.round(widthInput.value / aspectRatio);
+                }
+            } else {
+                lockAspectBtn.style.background = 'var(--card-color)';
+                lockAspectBtn.style.color = 'var(--text-color)';
+                lockAspectBtn.innerHTML = '🔓 Unlock';
+            }
+        });
+
+        widthInput.addEventListener('input', () => {
+            const w = parseFloat(widthInput.value);
+            if (lockAspect && w && aspectRatio) {
+                heightInput.value = Math.round(w / aspectRatio);
+            }
+        });
+
+        heightInput.addEventListener('input', () => {
+            const h = parseFloat(heightInput.value);
+            if (lockAspect && h && aspectRatio) {
+                widthInput.value = Math.round(h * aspectRatio);
+            }
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!originalImg.width || !originalImg.height) return;
+                const scale = parseFloat(btn.getAttribute('data-scale'));
+                widthInput.value = Math.round(originalImg.width * scale);
+                heightInput.value = Math.round(originalImg.height * scale);
+            });
+        });
+
+        formatSelect.addEventListener('change', updateQualityVisibility);
+
+        function updateQualityVisibility() {
+            if (formatSelect.value === 'image/jpeg' || formatSelect.value === 'image/webp') {
+                qualityGroup.style.display = 'block';
+            } else {
+                qualityGroup.style.display = 'none';
+            }
+        }
+
+        qualitySlider.addEventListener('input', (e) => {
+            qualityVal.textContent = e.target.value + '%';
+        });
+
+        convertBtn.addEventListener('click', () => {
+            if (!currentFile || !originalImg.complete) return;
+            
+            const targetWidth = parseInt(widthInput.value) || originalImg.width;
+            const targetHeight = parseInt(heightInput.value) || originalImg.height;
+            const format = formatSelect.value;
+            const quality = parseInt(qualitySlider.value) / 100;
+            
+            const canvas = document.createElement('canvas');
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+            const ctx = canvas.getContext('2d');
+            
+            if (format === 'image/jpeg') {
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            ctx.drawImage(originalImg, 0, 0, targetWidth, targetHeight);
+            
+            canvas.toBlob((blob) => {
+                convertedBlob = blob;
+                
+                previewImg.src = URL.createObjectURL(blob);
+                
+                const sizeDiff = currentFile.size - blob.size;
+                const percent = ((sizeDiff / currentFile.size) * 100).toFixed(1);
+                let comparison = '';
+                if (percent > 0) {
+                    comparison = `<span style="color:var(--text-color);font-weight:bold;">${percent}% smaller</span>`;
+                } else if (percent < 0) {
+                    comparison = `<span>${Math.abs(percent)}% larger</span>`;
+                } else {
+                    comparison = `<span>Same size</span>`;
+                }
+
+                resultInfo.innerHTML = `
+                    <strong>Original:</strong> ${originalImg.width} × ${originalImg.height} px (${formatBytes(currentFile.size)})<br>
+                    <strong>Resized:</strong> ${targetWidth} × ${targetHeight} px (${formatBytes(blob.size)}) [${comparison}]
+                `;
+                
+                resultPanel.style.display = 'block';
+                resultPanel.scrollIntoView({ behavior: 'smooth' });
+            }, format, quality);
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (convertedBlob && currentFile) {
+                let ext = ".png";
+                if (formatSelect.value === 'image/jpeg') ext = ".jpg";
+                if (formatSelect.value === 'image/webp') ext = ".webp";
+                
+                const newName = currentFile.name.replace(/\.[^/.]+$/, "") + "-resized" + ext;
+                downloadFile(convertedBlob, newName);
+            }
+        });
+    </script>
+</body>
+</html>

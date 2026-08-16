@@ -1,0 +1,21 @@
+{
+  "name": "digitaltoolsshed",
+  "version": "1.0.0",
+  "description": "Digital Tools Shed - Free, fast, browser-based online tools and converters. Zero uploads, zero paywalls.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "dev": "node scripts/dev-server.js"
+  },
+  "keywords": [
+    "tools",
+    "converter",
+    "pdf",
+    "calculator",
+    "units",
+    "image-converter",
+    "digital-tools"
+  ],
+  "author": "DigitalToolsShed",
+  "license": "MIT"
+}

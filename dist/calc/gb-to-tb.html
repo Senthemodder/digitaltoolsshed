@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Gigabytes to Terabytes — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Gigabytes (GB) to Terabytes (TB). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Digital Storage &gt; Gigabytes to Terabytes
+      </nav>
+
+      <h1>Convert Gigabytes to Terabytes</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Gigabytes (GB)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Terabytes (TB)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert Gigabytes to Terabytes: Multiply by 0.000977.</p>
+          <p class="formula">Formula: Terabytes = Gigabytes &times; 0.000977</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Gigabytes (GB)</th>
+              <th>Terabytes (TB)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 GB</td><td>0.000977 TB</td></tr><tr><td>5 GB</td><td>0.004883 TB</td></tr><tr><td>10 GB</td><td>0.009766 TB</td></tr><tr><td>25 GB</td><td>0.024414 TB</td></tr><tr><td>50 GB</td><td>0.048828 TB</td></tr><tr><td>100 GB</td><td>0.097656 TB</td></tr><tr><td>500 GB</td><td>0.488281 TB</td></tr><tr><td>1000 GB</td><td>0.976563 TB</td></tr><tr><td>5000 GB</td><td>4.882813 TB</td></tr><tr><td>10000 GB</td><td>9.765625 TB</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Digital Storage Conversions</h3>
+        <ul>
+          <li><a href="mb-to-gb.html">Megabytes to Gigabytes</a></li><li><a href="bytes-to-kb.html">Bytes to Kilobytes</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 0.0009765625;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

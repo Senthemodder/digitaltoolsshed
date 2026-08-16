@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Miles/Hour to Kilometers/Hour — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Miles/Hour (mph) to Kilometers/Hour (km/h). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Speed &gt; Miles/Hour to Kilometers/Hour
+      </nav>
+
+      <h1>Convert Miles/Hour to Kilometers/Hour</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Miles/Hour (mph)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Kilometers/Hour (km/h)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert Miles/Hour to Kilometers/Hour: Multiply by 1.609343.</p>
+          <p class="formula">Formula: Kilometers/Hour = Miles/Hour &times; 1.609343</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Miles/Hour (mph)</th>
+              <th>Kilometers/Hour (km/h)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 mph</td><td>1.609343 km/h</td></tr><tr><td>5 mph</td><td>8.046714 km/h</td></tr><tr><td>10 mph</td><td>16.093427 km/h</td></tr><tr><td>25 mph</td><td>40.233568 km/h</td></tr><tr><td>50 mph</td><td>80.467136 km/h</td></tr><tr><td>100 mph</td><td>160.934271 km/h</td></tr><tr><td>500 mph</td><td>804.671356 km/h</td></tr><tr><td>1000 mph</td><td>1609.342713 km/h</td></tr><tr><td>5000 mph</td><td>8046.713563 km/h</td></tr><tr><td>10000 mph</td><td>16093.427125 km/h</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Speed Conversions</h3>
+        <ul>
+          <li><a href="kmh-to-mph.html">Kilometers/Hour to Miles/Hour</a></li><li><a href="knots-to-kmh.html">Knots to Kilometers/Hour</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 1.6093427125258297;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

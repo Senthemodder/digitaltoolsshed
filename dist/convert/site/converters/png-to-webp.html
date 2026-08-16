@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert PNG to WebP Online — Free, No Upload | ConvertFast</title>
+    <meta name="description" content="Convert PNG files to WebP format instantly directly in your browser. Fast, free, and secure with no server uploads required.">
+    <link rel="stylesheet" href="../style.css">
+    <script>/* instant theme */
+    (function(){var t=localStorage.getItem('cf-theme')||'light';document.documentElement.setAttribute('data-theme',t);})();
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-md) var(--space-lg);">
+            <a href="../index.html" style="font-family:var(--font-serif);font-weight:700;font-size:1.5rem;letter-spacing:0.05em;">CONVERTFAST</a>
+            <div style="display:flex;gap:var(--space-md);align-items:center;">
+                <a href="../index.html" style="font-family:var(--font-mono);font-size:0.85rem;letter-spacing:0.1em;">← ALL TOOLS</a>
+                <button id="theme-toggle" style="font-size:1.2rem;padding:var(--space-xs) var(--space-sm);border:2px solid var(--border-color);background:var(--card-color);color:var(--text-color);">☀️</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container" style="max-width:720px;margin:0 auto;padding:var(--space-2xl) var(--space-lg);">
+        <div style="margin-bottom:var(--space-sm);">
+            <span style="font-family:var(--font-mono);font-size:0.75rem;color:var(--muted-color);letter-spacing:0.15em;">HOME / CONVERTERS / PNG_TO_WEBP</span>
+        </div>
+        
+        <h1 style="font-family:var(--font-serif);font-size:2.5rem;font-weight:700;margin-bottom:var(--space-sm);">PNG to WebP Converter</h1>
+        <p style="color:var(--muted-color);font-size:1.05rem;margin-bottom:var(--space-xl);">Convert your PNG images to WebP format directly in your browser. 100% private, no uploads.</p>
+
+        <!-- Drop Zone -->
+        <div id="drop-zone" style="border:2px dashed var(--border-color);padding:var(--space-2xl);text-align:center;cursor:pointer;background:var(--surface-color);transition:all 0.2s ease;margin-bottom:var(--space-lg);">
+            <div style="font-size:2rem;margin-bottom:var(--space-sm);">📄</div>
+            <p style="font-family:var(--font-serif);font-size:1.1rem;font-weight:700;">Drop your PNG file here</p>
+            <p style="color:var(--muted-color);font-size:0.9rem;">or click to browse</p>
+            <input type="file" id="file-input" accept="image/png" hidden>
+        </div>
+
+        <!-- Settings Panel (hidden until file loaded) -->
+        <div id="settings-panel" style="display:none;border:2px solid var(--border-color);background:var(--card-color);padding:var(--space-lg);margin-bottom:var(--space-lg);">
+            <p id="file-info" style="font-family:var(--font-mono);font-size:0.85rem;margin-bottom:var(--space-md);color:var(--muted-color);"></p>
+            
+            <div style="margin-bottom:var(--space-md);text-align:center;">
+                <img id="preview-img" style="max-width:100%;max-height:250px;margin:0 auto;border:2px solid var(--border-color);object-fit:contain;" alt="PNG Preview">
+            </div>
+
+            <!-- Settings slider -->
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);padding:var(--space-sm) 0;border-bottom:1px solid var(--border-subtle);">
+                <span style="font-family:var(--font-serif);font-weight:700;">Quality</span>
+                <div style="display:flex;align-items:center;gap:var(--space-sm);">
+                    <input type="range" id="quality-slider" min="1" max="100" value="85" style="width:180px;accent-color:var(--text-color);">
+                    <span id="quality-val" style="font-family:var(--font-mono);font-size:0.9rem;min-width:40px;text-align:right;">85%</span>
+                </div>
+            </div>
+            
+            <button id="convert-btn" style="width:100%;padding:var(--space-md);background:var(--text-color);color:var(--bg-color);font-family:var(--font-serif);font-weight:700;font-size:1.2rem;letter-spacing:0.05em;border:2px solid var(--border-color);box-shadow:4px 4px 0px var(--border-color);text-transform:uppercase;cursor:pointer;">⚡ CONVERT NOW</button>
+        </div>
+
+        <!-- Result Panel (hidden until conversion done) -->
+        <div id="result-panel" style="display:none;border:2px solid var(--border-color);background:var(--card-color);padding:var(--space-lg);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-md);padding-bottom:var(--space-sm);border-bottom:1px solid var(--border-subtle);">
+                <span style="font-family:var(--font-serif);font-size:1.2rem;font-weight:700;">Conversion Complete!</span>
+                <span id="savings-badge" style="font-family:var(--font-mono);font-size:0.85rem;padding:var(--space-xs) var(--space-sm);background:var(--surface-color);border:1px solid var(--border-color);font-weight:700;">-</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-bottom:var(--space-md);font-family:var(--font-mono);font-size:0.85rem;">
+                <div style="border:1px solid var(--border-subtle);padding:var(--space-sm);background:var(--surface-color);">
+                    <div style="color:var(--muted-color);margin-bottom:4px;">Original PNG</div>
+                    <div id="original-size-val" style="font-weight:700;">-</div>
+                </div>
+                <div style="border:1px solid var(--border-subtle);padding:var(--space-sm);background:var(--surface-color);">
+                    <div style="color:var(--muted-color);margin-bottom:4px;">Converted WebP</div>
+                    <div id="converted-size-val" style="font-weight:700;">-</div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:var(--space-md);text-align:center;">
+                <img id="result-preview-img" style="max-width:100%;max-height:250px;margin:0 auto;border:2px solid var(--border-color);object-fit:contain;" alt="WebP Result Preview">
+            </div>
+
+            <button id="download-btn" style="width:100%;padding:var(--space-md);background:var(--text-color);color:var(--bg-color);font-family:var(--font-serif);font-weight:700;font-size:1.1rem;letter-spacing:0.05em;border:2px solid var(--border-color);box-shadow:4px 4px 0px var(--border-color);text-transform:uppercase;cursor:pointer;">⬇️ DOWNLOAD WEBP</button>
+        </div>
+    </main>
+
+    <footer style="text-align:center;padding:var(--space-xl);border-top:1px solid var(--border-subtle);color:var(--muted-color);font-size:0.85rem;">
+        <p>© 2026 ConvertFast — All tools run 100% in your browser.</p>
+    </footer>
+
+    <script>
+        // Theme toggle
+        document.getElementById('theme-toggle').addEventListener('click', function() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('cf-theme', next);
+            this.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+        (function(){
+            const t = document.documentElement.getAttribute('data-theme');
+            document.getElementById('theme-toggle').textContent = t === 'dark' ? '☀️' : '🌙';
+        })();
+        
+        // Helper functions
+        function formatBytes(b) {
+            if (b === 0) return '0 B';
+            const k = 1024, s = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(b) / Math.log(k));
+            return parseFloat((b / Math.pow(k, i)).toFixed(1)) + ' ' + s[i];
+        }
+        function downloadFile(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = filename;
+            document.body.appendChild(a); a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Element references
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const settingsPanel = document.getElementById('settings-panel');
+        const fileInfo = document.getElementById('file-info');
+        const previewImg = document.getElementById('preview-img');
+        const qualitySlider = document.getElementById('quality-slider');
+        const qualityVal = document.getElementById('quality-val');
+        const convertBtn = document.getElementById('convert-btn');
+        const resultPanel = document.getElementById('result-panel');
+        const downloadBtn = document.getElementById('download-btn');
+
+        let currentFile = null;
+        let convertedBlob = null;
+        let originalSize = 0;
+
+        // Drag and drop setup
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.opacity = '0.7';
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.opacity = '1';
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.opacity = '1';
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                alert('Please select a PNG image file.');
+                return;
+            }
+            currentFile = file;
+            originalSize = file.size;
+            fileInfo.textContent = `Selected: ${file.name} (${formatBytes(file.size)})`;
+
+            if (previewImg.src) {
+                URL.revokeObjectURL(previewImg.src);
+            }
+            previewImg.src = URL.createObjectURL(file);
+
+            settingsPanel.style.display = 'block';
+            resultPanel.style.display = 'none';
+        }
+
+        // Quality slider update
+        qualitySlider.addEventListener('input', (e) => {
+            qualityVal.textContent = e.target.value + '%';
+        });
+
+        // Conversion process
+        convertBtn.addEventListener('click', () => {
+            if (!currentFile) return;
+
+            const quality = parseInt(qualitySlider.value, 10) / 100;
+            const img = new Image();
+            const url = URL.createObjectURL(currentFile);
+
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+
+                canvas.toBlob((blob) => {
+                    URL.revokeObjectURL(url);
+                    if (!blob) {
+                        alert('Conversion failed.');
+                        return;
+                    }
+                    convertedBlob = blob;
+                    const savedBytes = originalSize - blob.size;
+                    const percent = ((savedBytes / originalSize) * 100).toFixed(1);
+
+                    document.getElementById('original-size-val').textContent = formatBytes(originalSize);
+                    document.getElementById('converted-size-val').textContent = formatBytes(blob.size);
+
+                    const badge = document.getElementById('savings-badge');
+                    if (savedBytes > 0) {
+                        badge.textContent = `SAVED ${percent}% (${formatBytes(savedBytes)})`;
+                    } else if (savedBytes < 0) {
+                        badge.textContent = `SIZE +${Math.abs(percent)}% (${formatBytes(Math.abs(savedBytes))})`;
+                    } else {
+                        badge.textContent = `SAME SIZE`;
+                    }
+
+                    const resultPreviewImg = document.getElementById('result-preview-img');
+                    if (resultPreviewImg.src) {
+                        URL.revokeObjectURL(resultPreviewImg.src);
+                    }
+                    resultPreviewImg.src = URL.createObjectURL(blob);
+
+                    resultPanel.style.display = 'block';
+                    resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 'image/webp', quality);
+            };
+
+            img.onerror = () => {
+                URL.revokeObjectURL(url);
+                alert('Failed to load image.');
+            };
+
+            img.src = url;
+        });
+
+        // Download processed file
+        downloadBtn.addEventListener('click', () => {
+            if (convertedBlob && currentFile) {
+                const name = currentFile.name;
+                const baseName = name.substring(0, name.lastIndexOf('.')) || name;
+                downloadFile(convertedBlob, baseName + '.webp');
+            }
+        });
+    </script>
+</body>
+</html>

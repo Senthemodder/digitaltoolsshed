@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Square Feet to Square Meters — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Square Feet (ft²) to Square Meters (m²). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Area &gt; Square Feet to Square Meters
+      </nav>
+
+      <h1>Convert Square Feet to Square Meters</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Square Feet (ft²)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Square Meters (m²)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert Square Feet to Square Meters: Multiply by 0.092903.</p>
+          <p class="formula">Formula: Square Meters = Square Feet &times; 0.092903</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Square Feet (ft²)</th>
+              <th>Square Meters (m²)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 ft²</td><td>0.092903 m²</td></tr><tr><td>5 ft²</td><td>0.464515 m²</td></tr><tr><td>10 ft²</td><td>0.92903 m²</td></tr><tr><td>25 ft²</td><td>2.322575 m²</td></tr><tr><td>50 ft²</td><td>4.64515 m²</td></tr><tr><td>100 ft²</td><td>9.2903 m²</td></tr><tr><td>500 ft²</td><td>46.4515 m²</td></tr><tr><td>1000 ft²</td><td>92.903 m²</td></tr><tr><td>5000 ft²</td><td>464.515 m²</td></tr><tr><td>10000 ft²</td><td>929.03 m²</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Area Conversions</h3>
+        <ul>
+          <li><a href="m2-to-ft2.html">Square Meters to Square Feet</a></li><li><a href="acres-to-hectares.html">Acres to Hectares</a></li><li><a href="hectares-to-acres.html">Hectares to Acres</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 0.092903;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

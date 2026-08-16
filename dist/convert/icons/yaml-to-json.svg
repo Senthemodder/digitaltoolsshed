@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="148" height="80" viewBox="0 0 148 80" fill="none">
+  
+  <g transform="translate(0, 7)">
+    <path d="M 1 1 L 40 1 L 51 12 L 51 65 L 1 65 Z" fill="white" stroke="black" stroke-width="2" stroke-linejoin="miter"/>
+    <path d="M 40 1 L 40 12 L 51 12" fill="#e5e5e5" stroke="black" stroke-width="2" stroke-linejoin="miter"/>
+    <rect x="0" y="44" width="52" height="22" fill="black"/>
+    <text x="26" y="60" font-family="'Times New Roman', Times, serif" font-size="15" font-weight="700" fill="white" text-anchor="middle" letter-spacing="1">YAML</text>
+    <line x1="8" y1="18" x2="34" y2="18" stroke="black" stroke-width="1.5" opacity="0.2"/>
+    <line x1="8" y1="25" x2="42" y2="25" stroke="black" stroke-width="1.5" opacity="0.12"/>
+    <line x1="8" y1="32" x2="37" y2="32" stroke="black" stroke-width="1.5" opacity="0.12"/>
+  </g>
+  
+  <!-- Arrow -->
+  <line x1="60" y1="40" x2="82" y2="40" stroke="black" stroke-width="2.5"/>
+  <polygon points="88,40 80,35 80,45" fill="black"/>
+
+  
+  <g transform="translate(96, 7)">
+    <path d="M 1 1 L 40 1 L 51 12 L 51 65 L 1 65 Z" fill="white" stroke="black" stroke-width="2" stroke-linejoin="miter"/>
+    <path d="M 40 1 L 40 12 L 51 12" fill="#e5e5e5" stroke="black" stroke-width="2" stroke-linejoin="miter"/>
+    <rect x="0" y="44" width="52" height="22" fill="black"/>
+    <text x="26" y="60" font-family="'Times New Roman', Times, serif" font-size="15" font-weight="700" fill="white" text-anchor="middle" letter-spacing="1">JSON</text>
+    <line x1="8" y1="18" x2="34" y2="18" stroke="black" stroke-width="1.5" opacity="0.2"/>
+    <line x1="8" y1="25" x2="42" y2="25" stroke="black" stroke-width="1.5" opacity="0.12"/>
+    <line x1="8" y1="32" x2="37" y2="32" stroke="black" stroke-width="1.5" opacity="0.12"/>
+  </g>
+</svg>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Millimeters to Inches — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert Millimeters (mm) to Inches (in). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Length &gt; Millimeters to Inches
+      </nav>
+
+      <h1>Convert Millimeters to Inches</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>Millimeters (mm)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Inches (in)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert Millimeters to Inches: Multiply by 0.03937.</p>
+          <p class="formula">Formula: Inches = Millimeters &times; 0.03937</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Millimeters (mm)</th>
+              <th>Inches (in)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 mm</td><td>0.03937 in</td></tr><tr><td>5 mm</td><td>0.19685 in</td></tr><tr><td>10 mm</td><td>0.393701 in</td></tr><tr><td>25 mm</td><td>0.984252 in</td></tr><tr><td>50 mm</td><td>1.968504 in</td></tr><tr><td>100 mm</td><td>3.937008 in</td></tr><tr><td>500 mm</td><td>19.685039 in</td></tr><tr><td>1000 mm</td><td>39.370079 in</td></tr><tr><td>5000 mm</td><td>196.850394 in</td></tr><tr><td>10000 mm</td><td>393.700787 in</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Length Conversions</h3>
+        <ul>
+          <li><a href="cm-to-inches.html">Centimeters to Inches</a></li><li><a href="inches-to-cm.html">Inches to Centimeters</a></li><li><a href="m-to-feet.html">Meters to Feet</a></li><li><a href="feet-to-m.html">Feet to Meters</a></li><li><a href="km-to-miles.html">Kilometers to Miles</a></li><li><a href="miles-to-km.html">Miles to Kilometers</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 0.03937007874015748;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>

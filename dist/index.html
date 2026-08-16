@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Tools Shed — Free Online Converters, PDF & Calculator Tools</title>
+  <meta name="description" content="Free client-side digital tools. Convert images (PNG, JPG, WebP), format JSON, calculate units (kg to lbs, Celsius to Fahrenheit), and process PDFs in your browser.">
+  <link rel="canonical" href="https://digitaltoolsshed.com">
+  <meta property="og:title" content="Digital Tools Shed — Free Online Converters, PDF & Calculator Tools">
+  <meta property="og:description" content="Free client-side digital tools. Convert images (PNG, JPG, WebP), format JSON, calculate units (kg to lbs, Celsius to Fahrenheit), and process PDFs in your browser.">
+  <meta property="og:url" content="https://digitaltoolsshed.com">
+  <meta property="og:type" content="website">
+  <style>
+:root {
+  --bg: #000000;
+  --fg: #ffffff;
+  --surface: #0a0a0a;
+  --surface-hover: #141414;
+  --border: #222222;
+  --border-strong: #ffffff;
+  --text-muted: #888888;
+  --mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  border-bottom: 2px solid var(--border-strong);
+  padding: 1.25rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  font-family: var(--mono);
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: var(--fg);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.brand-badge {
+  background: var(--fg);
+  color: var(--bg);
+  padding: 0.1rem 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  margin-left: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: color 0.15s;
+}
+nav a:hover { color: var(--fg); }
+
+main {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+}
+
+.hero {
+  padding: 2rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  margin-bottom: 1rem;
+}
+.hero p {
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  max-width: 700px;
+  margin-bottom: 1.75rem;
+  font-family: var(--sans);
+}
+
+.search-wrapper {
+  position: relative;
+  max-width: 650px;
+}
+.search-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--mono);
+  font-size: 1rem;
+  padding: 0.9rem 1.25rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.search-input:focus {
+  border-color: var(--border-strong);
+}
+
+.category-title {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin: 2.5rem 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.category-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.1s, border-color 0.15s, background 0.15s;
+}
+.tool-card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+.tool-card h3 {
+  font-family: var(--mono);
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+.tool-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.tool-card .tag {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  display: inline-block;
+}
+
+.ad-slot-container {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: var(--surface);
+  border: 1px dashed var(--border);
+  text-align: center;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.ad-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+.promo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.promo-card {
+  border: 1px solid var(--border);
+  background: #000;
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+.promo-card:hover { border-color: #fff; }
+.promo-badge {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  background: #fff;
+  color: #000;
+  padding: 2px 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.tool-workspace {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 1.5rem 0 2rem;
+}
+.drop-zone {
+  border: 2px dashed var(--border);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  background: #000000;
+  transition: border-color 0.15s;
+}
+.drop-zone:hover { border-color: var(--border-strong); }
+.btn-primary {
+  background: #ffffff;
+  color: #000000;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.btn-primary:hover { background: #e0e0e0; }
+.btn-secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid var(--border);
+  padding: 0.8rem 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.btn-secondary:hover { border-color: #ffffff; }
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2.5rem 2rem;
+  background: var(--bg);
+  margin-top: auto;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+footer a { color: var(--fg); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media (max-width: 768px) {
+  header { padding: 1rem; }
+  main { padding: 1.5rem 1rem; }
+  .tools-grid { grid-template-columns: 1fr; }
+}
+</style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Digital Tools Shed",
+  "url": "https://digitaltoolsshed.com",
+  "description": "Free browser-based online tools, file converters, unit calculators, and Minecraft Bedrock utilities.",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+  <!-- Adsterra Header Container Slot -->
+</head>
+<body>
+  <header>
+    <a href="/" class="brand">
+      <span>DIGITAL TOOLS SHED</span>
+      <span class="brand-badge">PRO</span>
+    </a>
+    <nav>
+      <a href="/#converters">Converters</a>
+      <a href="/#calculators">Calculators</a>
+      <a href="/#pdf">PDF</a>
+      <a href="/#mc">Gaming</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="ad-slot-container" id="ad-top-banner">
+      <span class="ad-label">Advertisement</span>
+      <div id="ad-slot-728x90"></div>
+    </div>
+
+    
+    <div class="hero">
+      <h1>DIGITAL TOOLS SHED</h1>
+      <p>Fast, client-side web utilities, format converters, and unit calculators. Free forever, zero subscriptions, zero file uploads.</p>
+      <div class="search-wrapper">
+        <input type="text" id="toolSearch" class="search-input" placeholder="Search 60+ tools (e.g. 'png to jpg', 'kg to lbs', 'pdf', 'uuid')..." autofocus />
+      </div>
+    </div>
+
+    <div id="toolsContainer">
+      <h2 class="category-title" id="file-image">File & Image Suite (6)</h2>
+<div class="tools-grid">
+  <a href="/convert/png-to-jpg.html" class="tool-card" data-name="png to jpg converter convert png images to jpg format in your browser. fast, 100% private.">
+    <div>
+      <h3>PNG to JPG Converter</h3>
+      <p>Convert PNG images to JPG format in your browser. Fast, 100% private.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/convert/jpg-to-png.html" class="tool-card" data-name="jpg to png converter convert jpeg/jpg images to lossless png instantly.">
+    <div>
+      <h3>JPG to PNG Converter</h3>
+      <p>Convert JPEG/JPG images to lossless PNG instantly.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/convert/png-to-webp.html" class="tool-card" data-name="png to webp converter compress and convert png images to modern webp format.">
+    <div>
+      <h3>PNG to WebP Converter</h3>
+      <p>Compress and convert PNG images to modern WebP format.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/convert/webp-to-png.html" class="tool-card" data-name="webp to png converter convert google webp images back to transparent png format.">
+    <div>
+      <h3>WebP to PNG Converter</h3>
+      <p>Convert Google WebP images back to transparent PNG format.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/convert/svg-to-png.html" class="tool-card" data-name="svg to png converter rasterize vector svg files into high-resolution png images.">
+    <div>
+      <h3>SVG to PNG Converter</h3>
+      <p>Rasterize vector SVG files into high-resolution PNG images.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/convert/image-resizer.html" class="tool-card" data-name="bulk image resizer resize multiple images simultaneously with custom pixel dimensions.">
+    <div>
+      <h3>Bulk Image Resizer</h3>
+      <p>Resize multiple images simultaneously with custom pixel dimensions.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+</div>
+<h2 class="category-title" id="developer">Developer Suite (4)</h2>
+<div class="tools-grid">
+  <a href="/convert/json-formatter.html" class="tool-card" data-name="json formatter & validator prettify, format, minify, and validate json strings and payloads.">
+    <div>
+      <h3>JSON Formatter & Validator</h3>
+      <p>Prettify, format, minify, and validate JSON strings and payloads.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/convert/json-to-yaml.html" class="tool-card" data-name="json to yaml converter convert structured json configuration data into clean yaml.">
+    <div>
+      <h3>JSON to YAML Converter</h3>
+      <p>Convert structured JSON configuration data into clean YAML.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/convert/yaml-to-json.html" class="tool-card" data-name="yaml to json converter convert yaml configuration documents into standard json.">
+    <div>
+      <h3>YAML to JSON Converter</h3>
+      <p>Convert YAML configuration documents into standard JSON.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/convert/base64.html" class="tool-card" data-name="base64 encoder / decoder encode text & files to base64 or decode base64 data strings.">
+    <div>
+      <h3>Base64 Encoder / Decoder</h3>
+      <p>Encode text & files to Base64 or decode Base64 data strings.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+</div>
+<h2 class="category-title" id="pdf-docs">PDF & Docs Suite (2)</h2>
+<div class="tools-grid">
+  <a href="/pdf/pdf-to-text.html" class="tool-card" data-name="pdf to text / docx extractor extract readable text and document content from pdf files locally.">
+    <div>
+      <h3>PDF to Text / DOCX Extractor</h3>
+      <p>Extract readable text and document content from PDF files locally.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/pdf/page-counter.html" class="tool-card" data-name="pdf page counter & inspector inspect pdf metadata, dimensions, and total page count without uploading.">
+    <div>
+      <h3>PDF Page Counter & Inspector</h3>
+      <p>Inspect PDF metadata, dimensions, and total page count without uploading.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+</div>
+<h2 class="category-title" id="units-calc">Units & Calc Suite (12)</h2>
+<div class="tools-grid">
+  <a href="/calc/kg-to-lbs.html" class="tool-card" data-name="kilograms to pounds (kg to lbs) instant accurate weight conversion from kilograms to pounds.">
+    <div>
+      <h3>Kilograms to Pounds (kg to lbs)</h3>
+      <p>Instant accurate weight conversion from kilograms to pounds.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/lbs-to-kg.html" class="tool-card" data-name="pounds to kilograms (lbs to kg) convert pounds (lbs) to metric kilograms (kg).">
+    <div>
+      <h3>Pounds to Kilograms (lbs to kg)</h3>
+      <p>Convert pounds (lbs) to metric kilograms (kg).</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/celsius-to-fahrenheit.html" class="tool-card" data-name="celsius to fahrenheit (°c to °f) convert temperatures from celsius to fahrenheit scale.">
+    <div>
+      <h3>Celsius to Fahrenheit (°C to °F)</h3>
+      <p>Convert temperatures from Celsius to Fahrenheit scale.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/fahrenheit-to-celsius.html" class="tool-card" data-name="fahrenheit to celsius (°f to °c) convert temperatures from fahrenheit to celsius scale.">
+    <div>
+      <h3>Fahrenheit to Celsius (°F to °C)</h3>
+      <p>Convert temperatures from Fahrenheit to Celsius scale.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/cm-to-inches.html" class="tool-card" data-name="centimeters to inches (cm to in) convert metric centimeters to imperial inches.">
+    <div>
+      <h3>Centimeters to Inches (cm to in)</h3>
+      <p>Convert metric centimeters to imperial inches.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/inches-to-cm.html" class="tool-card" data-name="inches to centimeters (in to cm) convert imperial inches to metric centimeters.">
+    <div>
+      <h3>Inches to Centimeters (in to cm)</h3>
+      <p>Convert imperial inches to metric centimeters.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/km-to-miles.html" class="tool-card" data-name="kilometers to miles (km to mi) convert distance from kilometers to statute miles.">
+    <div>
+      <h3>Kilometers to Miles (km to mi)</h3>
+      <p>Convert distance from kilometers to statute miles.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/miles-to-km.html" class="tool-card" data-name="miles to kilometers (mi to km) convert distance from statute miles to kilometers.">
+    <div>
+      <h3>Miles to Kilometers (mi to km)</h3>
+      <p>Convert distance from statute miles to kilometers.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/mb-to-gb.html" class="tool-card" data-name="megabytes to gigabytes (mb to gb) convert digital file storage size from mb to gb.">
+    <div>
+      <h3>Megabytes to Gigabytes (MB to GB)</h3>
+      <p>Convert digital file storage size from MB to GB.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/gb-to-tb.html" class="tool-card" data-name="gigabytes to terabytes (gb to tb) convert digital storage capacity from gb to tb.">
+    <div>
+      <h3>Gigabytes to Terabytes (GB to TB)</h3>
+      <p>Convert digital storage capacity from GB to TB.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/gallons-to-liters.html" class="tool-card" data-name="gallons to liters convert liquid volume from us gallons to metric liters.">
+    <div>
+      <h3>Gallons to Liters</h3>
+      <p>Convert liquid volume from US gallons to metric liters.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/calc/liters-to-gallons.html" class="tool-card" data-name="liters to gallons convert liquid volume from metric liters to us gallons.">
+    <div>
+      <h3>Liters to Gallons</h3>
+      <p>Convert liquid volume from metric liters to US gallons.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+</div>
+<h2 class="category-title" id="minecraft-game">Minecraft & Game Suite (2)</h2>
+<div class="tools-grid">
+  <a href="/mc/uuid-gen.html" class="tool-card" data-name="minecraft uuid generator generate valid v4 uuid pairs for bedrock manifest.json files.">
+    <div>
+      <h3>Minecraft UUID Generator</h3>
+      <p>Generate valid v4 UUID pairs for Bedrock manifest.json files.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+  <a href="/mc/manifest-gen.html" class="tool-card" data-name="bedrock pack manifest generator generate complete manifest.json for behavior and resource packs.">
+    <div>
+      <h3>Bedrock Pack Manifest Generator</h3>
+      <p>Generate complete manifest.json for Behavior and Resource packs.</p>
+    </div>
+    <span class="tag">→ Open Tool</span>
+  </a>
+</div>
+
+    </div>
+
+    <script>
+      const searchInput = document.getElementById('toolSearch');
+      const cards = document.querySelectorAll('.tool-card');
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase().trim();
+        cards.forEach(card => {
+          const text = card.getAttribute('data-name');
+          if (!query || text.includes(query)) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    </script>
+  
+
+    <div class="promo-grid">
+      <a href="https://tierspecs.com" target="_blank" class="promo-card">
+        <span class="promo-badge">Hardware & Reviews</span>
+        <h4 style="font-family: var(--mono); margin-bottom: 0.35rem;">TierSpecs — Tech & Laptop Specs</h4>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Compare GPU tiers, CPU benchmarks, and find authentic hardware performance analysis.</p>
+      </a>
+      <a href="/convert/json-formatter.html" class="promo-card">
+        <span class="promo-badge">Free Developer Tool</span>
+        <h4 style="font-family: var(--mono); margin-bottom: 0.35rem;">JSON Formatter & Validator</h4>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Beautify, inspect, and parse complex JSON structures directly in client browser memory.</p>
+      </a>
+      <a href="/calc/kg-to-lbs.html" class="promo-card">
+        <span class="promo-badge">Instant Calculator</span>
+        <h4 style="font-family: var(--mono); margin-bottom: 0.35rem;">Unit & Metric Calculators</h4>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">Convert weight, distance, temperature, and data measurements with zero delay.</p>
+      </a>
+    </div>
+
+    <div class="ad-slot-container" id="ad-bottom-banner">
+      <span class="ad-label">Advertisement</span>
+      <div id="ad-slot-bottom"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). 100% In-Browser. Zero Server Uploads.</div>
+    <div style="display: flex; gap: 1rem;">
+      <a href="/">Home</a>
+      <a href="/#converters">Converters</a>
+      <a href="/#calculators">Calculators</a>
+      <a href="/sitemap.xml">Sitemap</a>
+    </div>
+  </footer>
+  <div id="adsterra-social-bar-slot"></div>
+</body>
+</html>

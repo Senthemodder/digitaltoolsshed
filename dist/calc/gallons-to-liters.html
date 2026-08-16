@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert US Gallons to Liters — Free Online Calculator | UnitCalc</title>
+  <meta name="description" content="Instantly convert US Gallons (gal) to Liters (L). Free, fast, no signup.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <a href="index.html" class="logo">UnitCalc</a>
+      <button id="themeToggle" class="btn">Toggle Theme</button>
+    </div>
+  </header>
+  
+  <div class="container ad-slot-header ad-slot">Leaderboard Ad (728x90)</div>
+
+  <main class="container page-layout">
+    <div class="main-content">
+      <nav class="breadcrumb">
+        <a href="index.html">Home</a> &gt; Volume &gt; US Gallons to Liters
+      </nav>
+
+      <h1>Convert US Gallons to Liters</h1>
+      
+      <div class="converter-card">
+        <div class="input-group">
+          <label>US Gallons (gal)</label>
+          <input type="number" id="fromInput" placeholder="0" />
+        </div>
+        <div class="equals">=</div>
+        <div class="input-group">
+          <label>Liters (L)</label>
+          <input type="number" id="toInput" placeholder="0" />
+        </div>
+      </div>
+
+      <div class="ad-slot-content ad-slot">In-Content Ad (336x280)</div>
+
+      <div class="formula-section card">
+        <h2>Formula</h2>
+        
+          <p>How to convert US Gallons to Liters: Multiply by 3.78541.</p>
+          <p class="formula">Formula: Liters = US Gallons &times; 3.78541</p>
+        
+      </div>
+
+      <div class="table-section card">
+        <h2>Quick Reference Table</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>US Gallons (gal)</th>
+              <th>Liters (L)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1 gal</td><td>3.78541 L</td></tr><tr><td>5 gal</td><td>18.92705 L</td></tr><tr><td>10 gal</td><td>37.8541 L</td></tr><tr><td>25 gal</td><td>94.63525 L</td></tr><tr><td>50 gal</td><td>189.2705 L</td></tr><tr><td>100 gal</td><td>378.541 L</td></tr><tr><td>500 gal</td><td>1892.705 L</td></tr><tr><td>1000 gal</td><td>3785.41 L</td></tr><tr><td>5000 gal</td><td>18927.05 L</td></tr><tr><td>10000 gal</td><td>37854.1 L</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="sidebar">
+      <div class="ad-slot-sidebar ad-slot">Sidebar Ad (300x250)</div>
+      
+      <div class="related-card card">
+        <h3>Related Volume Conversions</h3>
+        <ul>
+          <li><a href="liters-to-gallons.html">Liters to US Gallons</a></li><li><a href="ml-to-cups.html">Milliliters to Cups</a></li><li><a href="cups-to-ml.html">Cups to Milliliters</a></li><li><a href="tbsp-to-ml.html">Tablespoons to Milliliters</a></li><li><a href="tsp-to-ml.html">Teaspoons to Milliliters</a></li>
+        </ul>
+      </div>
+    </aside>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 UnitCalc. Free, fast unit converters.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    
+        const factor = 3.78541;
+        const fromInput = document.getElementById('fromInput');
+        const toInput = document.getElementById('toInput');
+        
+        fromInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) toInput.value = '';
+          else toInput.value = parseFloat((val * factor).toFixed(6));
+        });
+        toInput.addEventListener('input', (e) => {
+          const val = parseFloat(e.target.value);
+          if (isNaN(val)) fromInput.value = '';
+          else fromInput.value = parseFloat((val / factor).toFixed(6));
+        });
+      
+  </script>
+</body>
+</html>
