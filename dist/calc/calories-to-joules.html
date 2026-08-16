@@ -469,10 +469,43 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.docked-sticky-ad {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.docked-sticky-ad .close-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.docked-sticky-ad .close-btn:hover {
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+
 @media (max-width: 768px) {
   .ad-desktop-leaderboard { display: none !important; }
   .ad-mobile-banner { display: flex !important; }
   .ad-unit-468x60 { display: none !important; }
+  .docked-sticky-ad { padding: 0.35rem 0.5rem; }
 }
 
 .promo-grid {
@@ -861,6 +894,22 @@ footer a:hover { text-decoration: underline; }
         
         </div>
 
+        <div class="ad-blend-box" style="margin: 2rem 0; max-width: 850px;">
+          <span class="ad-label">Sponsored Resource</span>
+          <div class="ad-unit-300x250">
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '335d807d460eaf2491fcca0f635474ce',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+          </div>
+        </div>
+
         <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
           <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Calories to Joules Quick Reference Table</h3>
           <div style="overflow-x: auto;">
@@ -1082,6 +1131,34 @@ footer a:hover { text-decoration: underline; }
           <a href="/sitemap.xml">Sitemap</a>
         </div>
       </footer>
+    </div>
+  </div>
+
+  <div class="docked-sticky-ad" id="dockedStickyBar">
+    <button class="close-btn" onclick="document.getElementById('dockedStickyBar').style.display='none'">✕ Dismiss</button>
+    <div class="ad-desktop-leaderboard">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+    </div>
+    <div class="ad-mobile-banner">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
     </div>
   </div>
 
