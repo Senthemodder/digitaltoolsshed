@@ -765,8 +765,8 @@ function buildSidebarHtml(currentPath = '/') {
         <span>Theme:</span>
         <span id="currentThemeTag">[ LIGHT ]</span>
       </button>
-      <div style="font-family: var(--mono); font-size: 0.7rem; color: var(--text-subtle); text-align: center;">
-        v2.6 Vector Developer Edition
+      <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--text-subtle); text-align: center; line-height: 1.4;">
+        Private • In-Browser Execution
       </div>
     </div>
   </aside>
