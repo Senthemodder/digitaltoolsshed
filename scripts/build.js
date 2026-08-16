@@ -3923,7 +3923,6 @@ function buildTrustPages() {
         <p>If you have questions, found a bug, or want to suggest a new tool, you can reach me at:</p>
         <ul>
           <li>Email: (coming soon)</li>
-          <li>GitHub: <a href="https://github.com/Senthemodder/digitaltoolsshed">Senthemodder/digitaltoolsshed</a></li>
         </ul>
 
         <p>Thanks for using Digital Tools Shed.</p>
@@ -3988,7 +3987,7 @@ function buildTrustPages() {
 
         <h2>Contact</h2>
 
-        <p>If you have questions about this privacy policy, you can reach us through our <a href="https://github.com/Senthemodder/digitaltoolsshed">GitHub repository</a>.</p>
+        <p>If you have questions about this privacy policy, feel free to reach out via the contact details on our <a href="/about.html">About page</a>.</p>
       </div>
     </div>
   `;
@@ -4047,7 +4046,7 @@ function buildTrustPages() {
 
         <h2>Contact</h2>
 
-        <p>Questions about these terms can be directed to our <a href="https://github.com/Senthemodder/digitaltoolsshed">GitHub repository</a>.</p>
+        <p>Questions about these terms can be directed through our <a href="/about.html">About page</a>.</p>
       </div>
     </div>
   `;
