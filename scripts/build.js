@@ -26,6 +26,22 @@ function copyDirRecursive(src, dest) {
   }
 }
 
+// ─── BESPOKE VECTOR ICON LIBRARY (ZERO EMOJIS) ────────────────────────────
+const ICONS = {
+  shed: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
+  star: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
+  media: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`,
+  files: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`,
+  docs: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`,
+  calc: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>`,
+  cube: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`,
+  download: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
+  theme: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>`,
+  arrowRight: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`,
+  search: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
+  lock: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`
+};
+
 // ─── MASTER TOOL REGISTRY ──────────────────────────────────────────────────
 const TOOLS = [
   // Media & Video Tools
@@ -68,24 +84,24 @@ const TOOLS = [
   { id: 'mc-manifest-gen', name: 'Bedrock Pack Manifest Generator', category: 'Minecraft & Game', path: '/mc/manifest-gen.html', desc: 'Generate complete manifest.json for Behavior and Resource packs.' }
 ];
 
-// ─── MASTER SIDEBAR WORKBENCH CSS ──────────────────────────────────────────
+// ─── MASTER CSS ───────────────────────────────────────────────────────────
 const MASTER_CSS = `
 :root, [data-theme="light"] {
   --bg: #ffffff;
   --fg: #111111;
   --sidebar-bg: #f9f9f9;
-  --sidebar-border: #e0e0e0;
+  --sidebar-border: #e2e2e2;
   --surface: #ffffff;
   --surface-alt: #f5f5f5;
-  --surface-hover: #ececec;
+  --surface-hover: #ebebeb;
   --border: #dcdcdc;
   --border-strong: #000000;
-  --text-muted: #666666;
-  --text-subtle: #888888;
+  --text-muted: #555555;
+  --text-subtle: #777777;
   --input-bg: #ffffff;
   --btn-bg: #000000;
   --btn-fg: #ffffff;
-  --btn-hover: #333333;
+  --btn-hover: #2b2b2b;
   --active-item: #000000;
   --active-item-fg: #ffffff;
 
@@ -110,30 +126,30 @@ const MASTER_CSS = `
 }
 
 [data-theme="dark"] {
-  --bg: #0d0d0d;
-  --fg: #efefef;
-  --sidebar-bg: #080808;
-  --sidebar-border: #222222;
-  --surface: #141414;
-  --surface-alt: #1a1a1a;
-  --surface-hover: #242424;
-  --border: #2c2c2c;
+  --bg: #0b0b0b;
+  --fg: #f0f0f0;
+  --sidebar-bg: #050505;
+  --sidebar-border: #1f1f1f;
+  --surface: #121212;
+  --surface-alt: #171717;
+  --surface-hover: #202020;
+  --border: #282828;
   --border-strong: #ffffff;
   --text-muted: #999999;
   --text-subtle: #666666;
-  --input-bg: #050505;
+  --input-bg: #040404;
   --btn-bg: #ffffff;
   --btn-fg: #000000;
   --btn-hover: #d5d5d5;
   --active-item: #ffffff;
   --active-item-fg: #000000;
 
-  --border-color: #2c2c2c;
-  --border-subtle: #1c1c1c;
-  --card-color: #141414;
-  --surface-color: #141414;
-  --text-color: #efefef;
-  --bg-color: #0d0d0d;
+  --border-color: #282828;
+  --border-subtle: #181818;
+  --card-color: #121212;
+  --surface-color: #121212;
+  --text-color: #f0f0f0;
+  --bg-color: #0b0b0b;
   --muted-color: #999999;
 }
 
@@ -149,14 +165,13 @@ body {
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-/* ─── APP WRAPPER ────────────────────────────────────────────────────────── */
 .app-container {
   display: flex;
   width: 100%;
   min-height: 100vh;
 }
 
-/* ─── LEFT SIDEBAR ───────────────────────────────────────────────────────── */
+/* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
 .sidebar {
   width: 290px;
   min-width: 290px;
@@ -181,14 +196,18 @@ body {
 }
 .sidebar-brand {
   font-family: var(--serif);
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--fg);
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.6rem;
+}
+.sidebar-brand svg {
+  color: var(--fg);
+  flex-shrink: 0;
 }
 .sidebar-badge {
   background: var(--fg);
@@ -203,23 +222,26 @@ body {
 .sidebar-search {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  margin: 0.75rem;
+  border: 1px solid var(--border);
 }
+.sidebar-search svg { color: var(--text-subtle); flex-shrink: 0; }
 .sidebar-search input {
   width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
   font-family: var(--serif);
   font-size: 0.9rem;
   color: var(--fg);
   outline: none;
 }
-.sidebar-search input:focus {
-  border-color: var(--border-strong);
-}
 
 .sidebar-nav {
-  padding: 1rem 0.75rem;
+  padding: 0.5rem 0.75rem 1.5rem;
   flex: 1;
 }
 .nav-group-title {
@@ -230,8 +252,11 @@ body {
   letter-spacing: 0.08em;
   color: var(--text-subtle);
   margin: 1.25rem 0.5rem 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
 }
-.nav-group-title:first-child { margin-top: 0; }
+.nav-group-title:first-child { margin-top: 0.25rem; }
 
 .nav-link {
   display: flex;
@@ -245,6 +270,11 @@ body {
   border-radius: 2px;
   transition: background 0.1s, color 0.1s;
 }
+.nav-link-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 .nav-link:hover {
   background: var(--surface-hover);
 }
@@ -255,7 +285,7 @@ body {
 }
 .nav-badge {
   font-family: var(--mono);
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
 }
 .nav-link.active .nav-badge {
@@ -267,7 +297,7 @@ body {
   border-top: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
   background: var(--sidebar-bg);
 }
 .theme-switch-btn {
@@ -290,7 +320,7 @@ body {
   border-color: var(--border-strong);
 }
 
-/* ─── MAIN CONTENT AREA ──────────────────────────────────────────────────── */
+/* ─── MAIN CONTENT ───────────────────────────────────────────────────────── */
 .content-area {
   flex: 1;
   display: flex;
@@ -334,6 +364,15 @@ body {
 }
 .breadcrumbs a:hover { text-decoration: underline; }
 
+.privacy-badge {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 .main-body {
   max-width: 1100px;
   width: 100%;
@@ -342,7 +381,6 @@ body {
   flex: 1;
 }
 
-/* ─── HERO & TOOLS GRID ──────────────────────────────────────────────────── */
 .hero {
   padding-bottom: 2rem;
   border-bottom: 1px solid var(--border);
@@ -367,7 +405,7 @@ body {
 }
 .category-header {
   font-family: var(--serif);
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--fg);
@@ -377,6 +415,11 @@ body {
   justify-content: space-between;
   border-bottom: 1px solid var(--border);
   padding-bottom: 0.4rem;
+}
+.category-title-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 .category-count {
   font-family: var(--mono);
@@ -424,11 +467,12 @@ body {
   font-size: 0.7rem;
   color: var(--text-muted);
   margin-top: 1rem;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   text-transform: uppercase;
 }
 
-/* ─── PROMO & AD SLOTS ───────────────────────────────────────────────────── */
 .ad-slot-container {
   margin: 2rem 0;
   padding: 1rem;
@@ -476,7 +520,6 @@ body {
   display: inline-block;
 }
 
-/* ─── TOOL WORKSPACE PANELS ──────────────────────────────────────────────── */
 .tool-workspace {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -505,6 +548,10 @@ body {
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
   box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
 }
 .btn-primary:hover, button[style*="text-transform:uppercase"]:hover, #downloadBtn:hover {
   background: var(--btn-hover) !important;
@@ -537,7 +584,6 @@ footer {
 footer a { color: var(--fg); text-decoration: none; }
 footer a:hover { text-decoration: underline; }
 
-/* ─── MOBILE RESPONSIVENESS ──────────────────────────────────────────────── */
 @media (max-width: 900px) {
   .sidebar {
     position: fixed;
@@ -563,122 +609,160 @@ footer a:hover { text-decoration: underline; }
 }
 `;
 
-// ─── SIDEBAR HTML BUILDER ──────────────────────────────────────────────────
+// ─── SIDEBAR BUILDER WITH VECTOR ICONS ─────────────────────────────────────
 function buildSidebarHtml(currentPath = '/') {
   return `
   <aside class="sidebar" id="siteSidebar">
     <div class="sidebar-header">
       <a href="/" class="sidebar-brand">
+        ${ICONS.shed}
         <span>DIGITAL TOOLS SHED</span>
-        <span class="sidebar-badge">PRO</span>
       </a>
       <button class="mobile-toggle" onclick="toggleSidebar()" style="display: none;" id="mobileCloseBtn">✕</button>
     </div>
 
     <div class="sidebar-search">
+      ${ICONS.search}
       <input type="text" id="sidebarSearchInput" placeholder="Quick filter tools..." />
     </div>
 
     <nav class="sidebar-nav">
-      <div class="nav-group-title">⭐ Featured Tools</div>
+      <div class="nav-group-title">
+        ${ICONS.star}
+        <span>Featured Utilities</span>
+      </div>
       <a href="/media/downloader.html" class="nav-link ${currentPath === '/media/downloader.html' ? 'active' : ''}">
-        <span>Media Downloader</span>
+        <div class="nav-link-content">
+          ${ICONS.media}
+          <span>Media Downloader</span>
+        </div>
         <span class="nav-badge">HD</span>
       </a>
       <a href="/convert/image-resizer.html" class="nav-link ${currentPath === '/convert/image-resizer.html' ? 'active' : ''}">
-        <span>Bulk Image Resizer</span>
+        <div class="nav-link-content">
+          ${ICONS.files}
+          <span>Bulk Image Resizer</span>
+        </div>
         <span class="nav-badge">IMG</span>
       </a>
       <a href="/convert/png-to-jpg.html" class="nav-link ${currentPath === '/convert/png-to-jpg.html' ? 'active' : ''}">
-        <span>PNG to JPG</span>
+        <div class="nav-link-content">
+          ${ICONS.files}
+          <span>PNG to JPG</span>
+        </div>
         <span class="nav-badge">FAST</span>
       </a>
       <a href="/pdf/pdf-to-text.html" class="nav-link ${currentPath === '/pdf/pdf-to-text.html' ? 'active' : ''}">
-        <span>PDF Text Extractor</span>
+        <div class="nav-link-content">
+          ${ICONS.docs}
+          <span>PDF Text Extractor</span>
+        </div>
         <span class="nav-badge">DOC</span>
       </a>
 
-      <div class="nav-group-title">🎬 Media & Video (3)</div>
+      <div class="nav-group-title">
+        ${ICONS.media}
+        <span>Media & Video (3)</span>
+      </div>
       <a href="/media/downloader.html" class="nav-link ${currentPath === '/media/downloader.html' ? 'active' : ''}">
-        <span>Universal Downloader</span>
+        <div class="nav-link-content">
+          <span>Universal Downloader</span>
+        </div>
       </a>
       <a href="/media/youtube-to-mp3.html" class="nav-link ${currentPath === '/media/youtube-to-mp3.html' ? 'active' : ''}">
-        <span>YouTube to MP3</span>
+        <div class="nav-link-content">
+          <span>YouTube to MP3</span>
+        </div>
       </a>
       <a href="/media/tiktok-saver.html" class="nav-link ${currentPath === '/media/tiktok-saver.html' ? 'active' : ''}">
-        <span>TikTok Saver</span>
+        <div class="nav-link-content">
+          <span>TikTok Saver</span>
+        </div>
       </a>
 
-      <div class="nav-group-title">📁 File Converters (10)</div>
+      <div class="nav-group-title">
+        ${ICONS.files}
+        <span>File Converters (10)</span>
+      </div>
       <a href="/convert/png-to-jpg.html" class="nav-link ${currentPath === '/convert/png-to-jpg.html' ? 'active' : ''}">
-        <span>PNG to JPG</span>
+        <div class="nav-link-content"><span>PNG to JPG</span></div>
       </a>
       <a href="/convert/jpg-to-png.html" class="nav-link ${currentPath === '/convert/jpg-to-png.html' ? 'active' : ''}">
-        <span>JPG to PNG</span>
+        <div class="nav-link-content"><span>JPG to PNG</span></div>
       </a>
       <a href="/convert/png-to-webp.html" class="nav-link ${currentPath === '/convert/png-to-webp.html' ? 'active' : ''}">
-        <span>PNG to WebP</span>
+        <div class="nav-link-content"><span>PNG to WebP</span></div>
       </a>
       <a href="/convert/webp-to-png.html" class="nav-link ${currentPath === '/convert/webp-to-png.html' ? 'active' : ''}">
-        <span>WebP to PNG</span>
+        <div class="nav-link-content"><span>WebP to PNG</span></div>
       </a>
       <a href="/convert/svg-to-png.html" class="nav-link ${currentPath === '/convert/svg-to-png.html' ? 'active' : ''}">
-        <span>SVG to PNG</span>
+        <div class="nav-link-content"><span>SVG to PNG</span></div>
       </a>
       <a href="/convert/json-formatter.html" class="nav-link ${currentPath === '/convert/json-formatter.html' ? 'active' : ''}">
-        <span>JSON Formatter</span>
+        <div class="nav-link-content"><span>JSON Formatter</span></div>
       </a>
       <a href="/convert/json-to-yaml.html" class="nav-link ${currentPath === '/convert/json-to-yaml.html' ? 'active' : ''}">
-        <span>JSON to YAML</span>
+        <div class="nav-link-content"><span>JSON to YAML</span></div>
       </a>
       <a href="/convert/yaml-to-json.html" class="nav-link ${currentPath === '/convert/yaml-to-json.html' ? 'active' : ''}">
-        <span>YAML to JSON</span>
+        <div class="nav-link-content"><span>YAML to JSON</span></div>
       </a>
       <a href="/convert/base64.html" class="nav-link ${currentPath === '/convert/base64.html' ? 'active' : ''}">
-        <span>Base64 Tool</span>
+        <div class="nav-link-content"><span>Base64 Tool</span></div>
       </a>
 
-      <div class="nav-group-title">📄 PDF & Docs (2)</div>
+      <div class="nav-group-title">
+        ${ICONS.docs}
+        <span>PDF & Docs (2)</span>
+      </div>
       <a href="/pdf/pdf-to-text.html" class="nav-link ${currentPath === '/pdf/pdf-to-text.html' ? 'active' : ''}">
-        <span>PDF Text Extractor</span>
+        <div class="nav-link-content"><span>PDF Text Extractor</span></div>
       </a>
       <a href="/pdf/page-counter.html" class="nav-link ${currentPath === '/pdf/page-counter.html' ? 'active' : ''}">
-        <span>PDF Page Counter</span>
+        <div class="nav-link-content"><span>PDF Page Counter</span></div>
       </a>
 
-      <div class="nav-group-title">🔢 Calculators & Units (44)</div>
+      <div class="nav-group-title">
+        ${ICONS.calc}
+        <span>Calculators (44)</span>
+      </div>
       <a href="/calc/kg-to-lbs.html" class="nav-link ${currentPath === '/calc/kg-to-lbs.html' ? 'active' : ''}">
-        <span>Kilograms to Pounds</span>
+        <div class="nav-link-content"><span>Kilograms to Pounds</span></div>
       </a>
       <a href="/calc/celsius-to-fahrenheit.html" class="nav-link ${currentPath === '/calc/celsius-to-fahrenheit.html' ? 'active' : ''}">
-        <span>Celsius to Fahrenheit</span>
+        <div class="nav-link-content"><span>Celsius to Fahrenheit</span></div>
       </a>
       <a href="/calc/cm-to-inches.html" class="nav-link ${currentPath === '/calc/cm-to-inches.html' ? 'active' : ''}">
-        <span>CM to Inches</span>
+        <div class="nav-link-content"><span>CM to Inches</span></div>
       </a>
       <a href="/calc/km-to-miles.html" class="nav-link ${currentPath === '/calc/km-to-miles.html' ? 'active' : ''}">
-        <span>KM to Miles</span>
+        <div class="nav-link-content"><span>KM to Miles</span></div>
       </a>
       <a href="/calc/mb-to-gb.html" class="nav-link ${currentPath === '/calc/mb-to-gb.html' ? 'active' : ''}">
-        <span>MB to GB</span>
+        <div class="nav-link-content"><span>MB to GB</span></div>
       </a>
 
-      <div class="nav-group-title">🎮 Minecraft & Dev (2)</div>
+      <div class="nav-group-title">
+        ${ICONS.cube}
+        <span>Minecraft & Dev (2)</span>
+      </div>
       <a href="/mc/uuid-gen.html" class="nav-link ${currentPath === '/mc/uuid-gen.html' ? 'active' : ''}">
-        <span>UUID Generator</span>
+        <div class="nav-link-content"><span>UUID Generator</span></div>
       </a>
       <a href="/mc/manifest-gen.html" class="nav-link ${currentPath === '/mc/manifest-gen.html' ? 'active' : ''}">
-        <span>Manifest Generator</span>
+        <div class="nav-link-content"><span>Manifest Generator</span></div>
       </a>
     </nav>
 
     <div class="sidebar-footer">
       <button class="theme-switch-btn" onclick="toggleSiteTheme()">
-        <span>Toggle Theme</span>
+        ${ICONS.theme}
+        <span>Theme:</span>
         <span id="currentThemeTag">[ LIGHT ]</span>
       </button>
       <div style="font-family: var(--mono); font-size: 0.7rem; color: var(--text-subtle); text-align: center;">
-        v2.4 Editorial Workbench
+        v2.5 Vector Edition
       </div>
     </div>
   </aside>
@@ -701,6 +785,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
   <meta property="og:description" content="${metaDesc}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
     (function() {
       const savedTheme = localStorage.getItem('dts-theme') || 'light';
@@ -724,8 +809,9 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
             <span>${title.split('—')[0].trim()}</span>
           </div>
         </div>
-        <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">
-          100% In-Browser Execution
+        <div class="privacy-badge">
+          ${ICONS.lock}
+          <span>100% In-Browser Execution</span>
         </div>
       </div>
 
@@ -797,7 +883,6 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
     }
     updateThemeTag();
 
-    // Sidebar search filter
     const sbInput = document.getElementById('sidebarSearchInput');
     if (sbInput) {
       sbInput.addEventListener('input', (e) => {
@@ -816,16 +901,27 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
 
 // ─── HOMEPAGE GENERATOR ───────────────────────────────────────────────────
 function buildHomepage() {
-  const categories = [...new Set(TOOLS.map(t => t.category))];
+  const categories = [
+    { name: 'Media & Video', icon: ICONS.media },
+    { name: 'File & Image', icon: ICONS.files },
+    { name: 'Developer', icon: ICONS.docs },
+    { name: 'PDF & Docs', icon: ICONS.docs },
+    { name: 'Units & Calc', icon: ICONS.calc },
+    { name: 'Minecraft & Game', icon: ICONS.cube }
+  ];
 
   let gridHtml = '';
-  for (const cat of categories) {
-    const catTools = TOOLS.filter(t => t.category === cat);
-    const catAnchor = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  for (const catObj of categories) {
+    const catTools = TOOLS.filter(t => t.category === catObj.name);
+    if (!catTools.length) continue;
+    const catAnchor = catObj.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
     gridHtml += `
     <div class="category-section" id="${catAnchor}">
       <div class="category-header">
-        <h2>${cat} Suite</h2>
+        <div class="category-title-left">
+          ${catObj.icon}
+          <h2>${catObj.name} Suite</h2>
+        </div>
         <span class="category-count">${catTools.length} Utilities</span>
       </div>
       <div class="tools-grid">
@@ -837,7 +933,10 @@ function buildHomepage() {
             <h3>${tool.name}</h3>
             <p>${tool.desc}</p>
           </div>
-          <span class="tag">→ Launch Tool</span>
+          <span class="tag">
+            <span>Launch Tool</span>
+            ${ICONS.arrowRight}
+          </span>
         </a>
       `;
     }
@@ -883,10 +982,10 @@ function buildHomepage() {
   });
 
   writeFileSync(join(DIST, 'index.html'), html);
-  console.log('  ✓ Built Master Landing Page with Sidebar Workbench (index.html)');
+  console.log('  ✓ Built Master Landing Page with Vector Icons (index.html)');
 }
 
-// ─── MEDIA & VIDEO DOWNLOADER SUITE ────────────────────────────────────────
+// ─── MEDIA SUITE ───────────────────────────────────────────────────────────
 function buildMediaSuite() {
   const mediaDir = join(DIST, 'media');
   ensureDir(mediaDir);
@@ -900,7 +999,10 @@ function buildMediaSuite() {
     <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem 0;">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
         <input type="url" id="mediaUrl" class="search-input" placeholder="Paste YouTube, TikTok, Twitter/X, or Instagram URL here..." style="flex: 1; min-width: 260px; padding: 0.75rem 1rem;" />
-        <button id="downloadBtn" class="btn-primary">EXTRACT MEDIA</button>
+        <button id="downloadBtn" class="btn-primary">
+          ${ICONS.download}
+          <span>EXTRACT MEDIA</span>
+        </button>
       </div>
 
       <div id="mediaStatus" style="display: none; padding: 1rem; border: 1px solid var(--border); background: var(--surface-alt); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
@@ -913,7 +1015,10 @@ function buildMediaSuite() {
       <div id="resultSection" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center;">
         <h3 id="videoTitle" style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Video File Ready</h3>
         <div style="margin-bottom: 1.5rem;">
-          <a href="#" id="finalDownloadLink" class="btn-primary" target="_blank" style="text-decoration: none; display: inline-block;">⬇️ DOWNLOAD HD FILE</a>
+          <a href="#" id="finalDownloadLink" class="btn-primary" target="_blank" style="text-decoration: none;">
+            ${ICONS.download}
+            <span>DOWNLOAD HD FILE</span>
+          </a>
         </div>
         <p style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--serif);">If direct download does not begin, right-click button and select "Save Link As...".</p>
       </div>
@@ -1002,7 +1107,10 @@ function buildMediaSuite() {
     <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem 0;">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
         <input type="url" id="ytUrl" class="search-input" placeholder="Paste YouTube link (e.g. https://www.youtube.com/watch?v=...)..." style="flex: 1; min-width: 260px; padding: 0.75rem 1rem;" />
-        <button id="convertMp3Btn" class="btn-primary">EXTRACT MP3</button>
+        <button id="convertMp3Btn" class="btn-primary">
+          ${ICONS.download}
+          <span>EXTRACT MP3</span>
+        </button>
       </div>
 
       <div id="mp3Status" style="display: none; padding: 1rem; border: 1px solid var(--border); background: var(--surface-alt); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
@@ -1012,7 +1120,10 @@ function buildMediaSuite() {
       <div id="mp3Result" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center;">
         <h3 id="mp3Title" style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Audio Track Ready (320kbps MP3)</h3>
         <div style="margin-bottom: 1.5rem;">
-          <a href="#" id="mp3DownloadLink" class="btn-primary" target="_blank" style="text-decoration: none; display: inline-block;">⬇️ DOWNLOAD MP3 AUDIO</a>
+          <a href="#" id="mp3DownloadLink" class="btn-primary" target="_blank" style="text-decoration: none;">
+            ${ICONS.download}
+            <span>DOWNLOAD MP3 AUDIO</span>
+          </a>
         </div>
       </div>
     </div>
@@ -1077,13 +1188,19 @@ function buildMediaSuite() {
     <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem 0;">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
         <input type="url" id="ttUrl" class="search-input" placeholder="Paste TikTok video URL (https://www.tiktok.com/@...)..." style="flex: 1; min-width: 260px; padding: 0.75rem 1rem;" />
-        <button id="ttBtn" class="btn-primary">GET VIDEO</button>
+        <button id="ttBtn" class="btn-primary">
+          ${ICONS.download}
+          <span>GET VIDEO</span>
+        </button>
       </div>
 
       <div id="ttResult" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center;">
         <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Clean TikTok Video Ready</h3>
         <div style="margin-bottom: 1.5rem;">
-          <a href="#" id="ttDownloadLink" class="btn-primary" target="_blank" style="text-decoration: none; display: inline-block;">⬇️ DOWNLOAD MP4</a>
+          <a href="#" id="ttDownloadLink" class="btn-primary" target="_blank" style="text-decoration: none;">
+            ${ICONS.download}
+            <span>DOWNLOAD MP4</span>
+          </a>
         </div>
       </div>
     </div>
@@ -1114,11 +1231,11 @@ function buildMediaSuite() {
           const data = await res.json();
           if (data.url) {
             ttDownloadLink.href = data.url;
-            ttDownloadLink.innerText = '⬇️ DOWNLOAD MP4';
+            ttDownloadLink.innerText = 'DOWNLOAD MP4';
           }
         } catch (e) {
           ttDownloadLink.href = 'https://co.wuk.sh/api/json?url=' + encodeURIComponent(url);
-          ttDownloadLink.innerText = '⬇️ DOWNLOAD MP4';
+          ttDownloadLink.innerText = 'DOWNLOAD MP4';
         }
       });
     </script>
@@ -1132,7 +1249,7 @@ function buildMediaSuite() {
     currentPath: '/media/tiktok-saver.html'
   }));
 
-  console.log('  ✓ Built Media & Video Suite with Sidebar (/media/)');
+  console.log('  ✓ Built Media & Video Suite (/media/)');
 }
 
 // ─── CONVERTFAST PORT & RESKIN ─────────────────────────────────────────────
@@ -1189,7 +1306,7 @@ function buildConvertFastSuite() {
     writeFileSync(join(convertDist, file), pageHtml);
   }
 
-  console.log(`  ✓ Ported & Styled ${files.length} ConvertFast converters with Sidebar (/convert/)`);
+  console.log(`  ✓ Ported & Styled ${files.length} ConvertFast converters with Vector Icons (/convert/)`);
 }
 
 // ─── PDF SUITE ─────────────────────────────────────────────────────────────
@@ -1342,7 +1459,7 @@ function buildPdfTools() {
     currentPath: '/pdf/page-counter.html'
   }));
 
-  console.log('  ✓ Built PDF Suite with Sidebar (/pdf/)');
+  console.log('  ✓ Built PDF Suite (/pdf/)');
 }
 
 // ─── MINECRAFT BEDROCK SUITE ───────────────────────────────────────────────
@@ -1481,10 +1598,10 @@ function buildMinecraftTools() {
     currentPath: '/mc/manifest-gen.html'
   }));
 
-  console.log('  ✓ Built Minecraft Suite with Sidebar (/mc/)');
+  console.log('  ✓ Built Minecraft Suite (/mc/)');
 }
 
-// ─── UNIT CALCULATOR SUITE ─────────────────────────────────────────────────
+// ─── UNIT CALCULATORS ──────────────────────────────────────────────────────
 function buildUnitCalcSuite() {
   const ucDist = join(ROOT, '..', 'UnitCalc', 'dist');
   const calcDist = join(DIST, 'calc');
@@ -1568,7 +1685,7 @@ Sitemap: ${DOMAIN}/sitemap.xml
 }
 
 function main() {
-  console.log('\n🔨 Rebuilding DIGITAL TOOLS SHED with Left Sidebar Workbench Layout...\n');
+  console.log('\n🔨 Rebuilding DIGITAL TOOLS SHED with Bespoke Vector Iconography (Zero Emojis)...\n');
   ensureDir(DIST);
 
   buildHomepage();
@@ -1579,14 +1696,13 @@ function main() {
   buildUnitCalcSuite();
   buildSEOAssets();
 
-  // Copy sitemap.xsl if exists in scripts
   const xslSrc = join(ROOT, 'scripts', 'sitemap.xsl');
   if (existsSync(xslSrc)) {
     copyFileSync(xslSrc, join(DIST, 'sitemap.xsl'));
   }
 
   console.log('\n' + '═'.repeat(50));
-  console.log('✅ DIGITAL TOOLS SHED WORKBENCH BUILD COMPLETE!');
+  console.log('✅ DIGITAL TOOLS SHED VECTOR BUILD COMPLETE!');
   console.log(`   Location: ${DIST}`);
   console.log(`   Domain: ${DOMAIN}`);
   console.log('═'.repeat(50) + '\n');
