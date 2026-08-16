@@ -162,7 +162,13 @@ const MASTER_CSS = `
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(at 10% 12%, var(--gradient-orb-1, rgba(99, 102, 241, 0.08)) 0px, transparent 55%),
+    radial-gradient(at 90% 18%, var(--gradient-orb-2, rgba(16, 185, 129, 0.07)) 0px, transparent 50%),
+    radial-gradient(at 50% 88%, var(--gradient-orb-3, rgba(168, 85, 247, 0.06)) 0px, transparent 60%);
+  background-attachment: fixed;
+  background-size: 100% 100%;
   color: var(--fg);
   font-family: var(--serif);
   line-height: 1.55;
@@ -642,6 +648,16 @@ body {
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.ad-blend-box::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981, #a855f7));
+  opacity: 0.75;
 }
 .ad-desktop-leaderboard {
   display: flex;
@@ -668,6 +684,14 @@ body {
   border: 1px solid var(--sidebar-border);
   padding: 0.5rem 0;
   background: var(--surface);
+  position: relative;
+}
+.ad-sidebar-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
+  opacity: 0.75;
 }
 .ad-unit-300x250 {
   width: 300px;
@@ -694,6 +718,15 @@ body {
   border: 1px solid var(--border);
   padding: 1.25rem;
   min-height: 320px;
+  position: relative;
+  overflow: hidden;
+}
+.ad-promo-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
+  opacity: 0.75;
 }
 .ad-label {
   font-family: var(--mono);
@@ -1118,6 +1151,26 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
     (function() {
       const savedTheme = localStorage.getItem('dts-theme') || 'light';
       document.documentElement.setAttribute('data-theme', savedTheme);
+
+      const isDark = savedTheme === 'dark';
+      const op1 = isDark ? '0.14' : '0.08';
+      const op2 = isDark ? '0.12' : '0.07';
+      const op3 = isDark ? '0.10' : '0.06';
+
+      const palettes = [
+        { orb1: 'rgba(99, 102, 241, ' + op1 + ')', orb2: 'rgba(16, 185, 129, ' + op2 + ')', orb3: 'rgba(168, 85, 247, ' + op3 + ')', bar: 'linear-gradient(90deg, #6366f1, #10b981, #a855f7)' },
+        { orb1: 'rgba(244, 63, 94, ' + op1 + ')', orb2: 'rgba(245, 158, 11, ' + op2 + ')', orb3: 'rgba(236, 72, 153, ' + op3 + ')', bar: 'linear-gradient(90deg, #f43f5e, #f59e0b, #ec4899)' },
+        { orb1: 'rgba(20, 184, 166, ' + op1 + ')', orb2: 'rgba(14, 165, 233, ' + op2 + ')', orb3: 'rgba(132, 204, 22, ' + op3 + ')', bar: 'linear-gradient(90deg, #14b8a6, #0ea5e9, #84cc16)' },
+        { orb1: 'rgba(139, 92, 246, ' + op1 + ')', orb2: 'rgba(59, 130, 246, ' + op2 + ')', orb3: 'rgba(244, 114, 182, ' + op3 + ')', bar: 'linear-gradient(90deg, #8b5cf6, #3b82f6, #f472b6)' },
+        { orb1: 'rgba(6, 182, 212, ' + op1 + ')', orb2: 'rgba(234, 179, 8, ' + op2 + ')', orb3: 'rgba(99, 102, 241, ' + op3 + ')', bar: 'linear-gradient(90deg, #06b6d4, #eab308, #6366f1)' },
+        { orb1: 'rgba(236, 72, 153, ' + op1 + ')', orb2: 'rgba(99, 102, 241, ' + op2 + ')', orb3: 'rgba(59, 130, 246, ' + op3 + ')', bar: 'linear-gradient(90deg, #ec4899, #6366f1, #3b82f6)' }
+      ];
+      const p = palettes[Math.floor(Math.random() * palettes.length)];
+      const root = document.documentElement;
+      root.style.setProperty('--gradient-orb-1', p.orb1);
+      root.style.setProperty('--gradient-orb-2', p.orb2);
+      root.style.setProperty('--gradient-orb-3', p.orb3);
+      root.style.setProperty('--gradient-bar', p.bar);
     })();
   </script>
   <style>${MASTER_CSS}</style>
