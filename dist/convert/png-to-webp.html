@@ -398,15 +398,24 @@ body {
 
 .ad-slot-container {
   margin: 2rem 0;
-  padding: 1rem;
+  padding: 0.75rem;
   background: var(--surface-alt);
   border: 1px dashed var(--border);
   text-align: center;
-  min-height: 90px;
+  min-height: 275px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+}
+.ad-unit-300x250 {
+  width: 300px;
+  height: 250px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .ad-label {
   font-family: var(--mono);
@@ -719,7 +728,18 @@ footer a:hover { text-decoration: underline; }
       <div class="main-body">
         <div class="ad-slot-container" id="ad-top-banner">
           <span class="ad-label">Advertisement</span>
-          <div id="ad-slot-728x90"></div>
+          <div class="ad-unit-300x250">
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '335d807d460eaf2491fcca0f635474ce',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+          </div>
         </div>
 
         
@@ -809,7 +829,18 @@ footer a:hover { text-decoration: underline; }
 
         <div class="ad-slot-container" id="ad-bottom-banner">
           <span class="ad-label">Advertisement</span>
-          <div id="ad-slot-bottom"></div>
+          <div class="ad-unit-300x250">
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '335d807d460eaf2491fcca0f635474ce',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+          </div>
         </div>
       </div>
 
