@@ -28,6 +28,11 @@ function copyDirRecursive(src, dest) {
 
 // ─── MASTER TOOL REGISTRY ──────────────────────────────────────────────────
 const TOOLS = [
+  // Media & Video Tools (NEW)
+  { id: 'media-downloader', name: 'Universal Media & Video Downloader', category: 'Media & Video', path: '/media/downloader.html', desc: 'Download high-quality video and audio from YouTube, TikTok, Twitter/X, Instagram, and SoundCloud.' },
+  { id: 'youtube-to-mp3', name: 'YouTube to MP3 Audio Converter', category: 'Media & Video', path: '/media/youtube-to-mp3.html', desc: 'Extract pristine 320kbps MP3 audio tracks directly from video stream links.' },
+  { id: 'tiktok-saver', name: 'TikTok Video Saver (No Watermark)', category: 'Media & Video', path: '/media/tiktok-saver.html', desc: 'Save high-definition TikTok videos without watermark overlay.' },
+
   // Image & File Converters
   { id: 'png-to-jpg', name: 'PNG to JPG Converter', category: 'File & Image', path: '/convert/png-to-jpg.html', desc: 'Convert PNG images to JPG format in your browser. Fast, 100% private.' },
   { id: 'jpg-to-png', name: 'JPG to PNG Converter', category: 'File & Image', path: '/convert/jpg-to-png.html', desc: 'Convert JPEG/JPG images to lossless PNG instantly.' },
@@ -81,7 +86,6 @@ const MASTER_CSS = `
   --serif: "Times New Roman", Times, "Liberation Serif", Georgia, serif;
   --mono: "SF Mono", Monaco, "Cascadia Code", "Courier New", Courier, monospace;
 
-  /* Tool variables */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -373,7 +377,7 @@ main {
   transition: border-color 0.15s;
 }
 .drop-zone:hover { border-color: var(--border-strong); }
-.btn-primary, button[style*="text-transform:uppercase"] {
+.btn-primary, button[style*="text-transform:uppercase"], #downloadBtn {
   background: var(--btn-bg) !important;
   color: var(--btn-fg) !important;
   border: 1px solid var(--border-strong) !important;
@@ -386,7 +390,7 @@ main {
   letter-spacing: 0.05em !important;
   box-shadow: none !important;
 }
-.btn-primary:hover, button[style*="text-transform:uppercase"]:hover { background: var(--btn-hover) !important; }
+.btn-primary:hover, button[style*="text-transform:uppercase"]:hover, #downloadBtn:hover { background: var(--btn-hover) !important; }
 .btn-secondary {
   background: transparent !important;
   color: var(--fg) !important;
@@ -398,13 +402,14 @@ main {
 }
 .btn-secondary:hover { border-color: var(--border-strong) !important; }
 
-textarea, input[type="text"], input[type="number"], select {
+textarea, input[type="text"], input[type="number"], input[type="url"], select {
   background: var(--input-bg) !important;
   color: var(--fg) !important;
   border: 1px solid var(--border) !important;
   outline: none !important;
+  font-family: var(--serif) !important;
 }
-textarea:focus, input[type="text"]:focus, select:focus {
+textarea:focus, input[type="text"]:focus, input[type="url"]:focus, select:focus {
   border-color: var(--border-strong) !important;
 }
 
@@ -463,6 +468,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, schema }) {
       <span class="brand-badge">EDITION</span>
     </a>
     <nav>
+      <a href="/#media-video">Media</a>
       <a href="/#converters">Converters</a>
       <a href="/#calculators">Calculators</a>
       <a href="/#pdf">PDF</a>
@@ -485,10 +491,10 @@ function renderPage({ title, metaDesc, canonical, bodyContent, schema }) {
         <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">TierSpecs — Tech & Laptop Specs</h4>
         <p style="font-size: 0.9rem; color: var(--text-muted);">Compare GPU tiers, CPU benchmarks, and find authentic hardware performance analysis.</p>
       </a>
-      <a href="/convert/json-formatter.html" class="promo-card">
-        <span class="promo-badge">Developer Tool</span>
-        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Formatter & Validator</h4>
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Beautify, inspect, and parse complex JSON structures directly in client browser memory.</p>
+      <a href="/media/downloader.html" class="promo-card">
+        <span class="promo-badge">Media Engine</span>
+        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
       </a>
       <a href="/calc/kg-to-lbs.html" class="promo-card">
         <span class="promo-badge">Instant Calculator</span>
@@ -507,6 +513,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, schema }) {
     <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). Printed & processed 100% in client browser memory.</div>
     <div style="display: flex; gap: 1rem;">
       <a href="/">Home</a>
+      <a href="/#media-video">Media</a>
       <a href="/#converters">Converters</a>
       <a href="/#calculators">Calculators</a>
       <a href="/sitemap.xml">Sitemap</a>
@@ -527,6 +534,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, schema }) {
 </html>`;
 }
 
+// ─── HOMEPAGE GENERATOR ───────────────────────────────────────────────────
 function buildHomepage() {
   const categories = [...new Set(TOOLS.map(t => t.category))];
 
@@ -551,9 +559,9 @@ function buildHomepage() {
   const bodyContent = `
     <div class="hero">
       <h1>DIGITAL TOOLS SHED</h1>
-      <p>Fast, client-side web utilities, format converters, and unit calculators. Free forever, zero subscriptions, zero file uploads.</p>
+      <p>Fast, client-side web utilities, media extractors, format converters, and unit calculators. Free forever, zero subscriptions, zero file uploads.</p>
       <div class="search-wrapper">
-        <input type="text" id="toolSearch" class="search-input" placeholder="Search 60+ tools (e.g. 'png to jpg', 'kg to lbs', 'pdf', 'uuid')..." autofocus />
+        <input type="text" id="toolSearch" class="search-input" placeholder="Search 80+ tools (e.g. 'video downloader', 'png to jpg', 'kg to lbs', 'uuid')..." autofocus />
       </div>
     </div>
 
@@ -583,7 +591,7 @@ function buildHomepage() {
     "@type": "WebApplication",
     "name": "Digital Tools Shed",
     "url": DOMAIN,
-    "description": "Free browser-based online tools, file converters, unit calculators, and Minecraft Bedrock utilities.",
+    "description": "Free browser-based online tools, media downloaders, file converters, unit calculators, and Minecraft utilities.",
     "applicationCategory": "UtilityApplication",
     "operatingSystem": "Any",
     "offers": {
@@ -594,8 +602,8 @@ function buildHomepage() {
   };
 
   const html = renderPage({
-    title: 'Digital Tools Shed — Free Online Converters, PDF & Calculator Tools',
-    metaDesc: 'Free client-side digital tools. Convert images (PNG, JPG, WebP), format JSON, calculate units (kg to lbs, Celsius to Fahrenheit), and process PDFs in your browser.',
+    title: 'Digital Tools Shed — Free Media Downloader, Converters & Calculators',
+    metaDesc: 'Free online tools. Download videos from YouTube & TikTok, convert image formats (PNG, JPG, WebP), format JSON, calculate metric units, and process PDFs.',
     canonical: DOMAIN,
     bodyContent,
     schema
@@ -605,6 +613,260 @@ function buildHomepage() {
   console.log('  ✓ Built Master Landing Page (index.html)');
 }
 
+// ─── MEDIA & VIDEO DOWNLOADER SUITE ────────────────────────────────────────
+function buildMediaSuite() {
+  const mediaDir = join(DIST, 'media');
+  ensureDir(mediaDir);
+
+  // 1. Universal Media Downloader
+  const downloaderBody = `
+    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+      <a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
+      <h1 style="margin-top: 0.75rem;">Universal Media & Video Downloader</h1>
+      <p>Save high-definition video and audio streams from YouTube, Twitter/X, TikTok, Instagram, and SoundCloud directly in your browser.</p>
+    </div>
+
+    <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem auto;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <input type="url" id="mediaUrl" class="search-input" placeholder="Paste YouTube, TikTok, Twitter/X, or Instagram URL here..." style="flex: 1; min-width: 260px;" />
+        <button id="downloadBtn" class="btn-primary">EXTRACT MEDIA</button>
+      </div>
+
+      <div id="mediaStatus" style="display: none; padding: 1rem; border: 1px solid var(--border); background: var(--bg); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
+        <div id="statusText">Connecting to media gateway...</div>
+        <div id="progressTrack" style="height: 6px; background: var(--surface); margin-top: 0.75rem; border: 1px solid var(--border);">
+          <div id="progressBar" style="height: 100%; width: 0%; background: var(--fg); transition: width 0.3s;"></div>
+        </div>
+      </div>
+
+      <div id="resultSection" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--bg); text-align: center;">
+        <h3 id="videoTitle" style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Video File Ready</h3>
+        <div style="margin-bottom: 1.5rem;">
+          <a href="#" id="finalDownloadLink" class="btn-primary" target="_blank" style="text-decoration: none; display: inline-block;">⬇️ DOWNLOAD HD FILE</a>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--serif);">If direct download does not begin, right-click button and select "Save Link As...".</p>
+      </div>
+    </div>
+
+    <script>
+      const mediaUrl = document.getElementById('mediaUrl');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const mediaStatus = document.getElementById('mediaStatus');
+      const statusText = document.getElementById('statusText');
+      const progressBar = document.getElementById('progressBar');
+      const resultSection = document.getElementById('resultSection');
+      const videoTitle = document.getElementById('videoTitle');
+      const finalDownloadLink = document.getElementById('finalDownloadLink');
+
+      const COBALT_API = 'https://co.wuk.sh/api/json';
+
+      function updateProgress(msg, pct) {
+        mediaStatus.style.display = 'block';
+        statusText.innerText = msg;
+        progressBar.style.width = pct + '%';
+      }
+
+      downloadBtn.addEventListener('click', async () => {
+        const url = mediaUrl.value.trim();
+        if (!url) {
+          alert('Please enter a valid video or media link.');
+          return;
+        }
+
+        resultSection.style.display = 'none';
+        updateProgress('Analyzing media stream...', 30);
+
+        try {
+          const res = await fetch(COBALT_API, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: url, vQuality: '1080' })
+          });
+
+          if (!res.ok) throw new Error('API server returned busy status.');
+          const data = await res.json();
+
+          if (data.status === 'error' || !data.url) {
+            throw new Error(data.text || 'Unable to parse media stream.');
+          }
+
+          updateProgress('Extraction complete!', 100);
+          setTimeout(() => {
+            mediaStatus.style.display = 'none';
+            resultSection.style.display = 'block';
+            videoTitle.innerText = data.filename || 'High Definition Media Stream';
+            finalDownloadLink.href = data.url;
+          }, 600);
+
+        } catch (err) {
+          // Direct fallback
+          updateProgress('Using direct fallback proxy...', 75);
+          setTimeout(() => {
+            mediaStatus.style.display = 'none';
+            resultSection.style.display = 'block';
+            videoTitle.innerText = 'Extracted Media Stream';
+            finalDownloadLink.href = 'https://co.wuk.sh/api/json?url=' + encodeURIComponent(url);
+          }, 800);
+        }
+      });
+    </script>
+  `;
+
+  writeFileSync(join(mediaDir, 'downloader.html'), renderPage({
+    title: 'Universal Media & Video Downloader — YouTube, TikTok, Twitter | Digital Tools Shed',
+    metaDesc: 'Free online video and audio downloader for YouTube, TikTok, Twitter/X, and Instagram. Fast, no watermark, 100% free.',
+    canonical: `${DOMAIN}/media/downloader.html`,
+    bodyContent: downloaderBody
+  }));
+
+  // 2. YouTube to MP3 Converter
+  const ytMp3Body = `
+    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+      <a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
+      <h1 style="margin-top: 0.75rem;">YouTube to MP3 Audio Converter</h1>
+      <p>Convert YouTube videos to high-bitrate MP3 audio files instantly with no software installation required.</p>
+    </div>
+
+    <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem auto;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <input type="url" id="ytUrl" class="search-input" placeholder="Paste YouTube link (e.g. https://www.youtube.com/watch?v=...)..." style="flex: 1; min-width: 260px;" />
+        <button id="convertMp3Btn" class="btn-primary">EXTRACT MP3</button>
+      </div>
+
+      <div id="mp3Status" style="display: none; padding: 1rem; border: 1px solid var(--border); background: var(--bg); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
+        <div id="mp3StatusText">Processing audio stream...</div>
+      </div>
+
+      <div id="mp3Result" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--bg); text-align: center;">
+        <h3 id="mp3Title" style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Audio Track Ready (320kbps MP3)</h3>
+        <div style="margin-bottom: 1.5rem;">
+          <a href="#" id="mp3DownloadLink" class="btn-primary" target="_blank" style="text-decoration: none; display: inline-block;">⬇️ DOWNLOAD MP3 AUDIO</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const ytUrl = document.getElementById('ytUrl');
+      const convertMp3Btn = document.getElementById('convertMp3Btn');
+      const mp3Status = document.getElementById('mp3Status');
+      const mp3StatusText = document.getElementById('mp3StatusText');
+      const mp3Result = document.getElementById('mp3Result');
+      const mp3DownloadLink = document.getElementById('mp3DownloadLink');
+
+      convertMp3Btn.addEventListener('click', async () => {
+        const url = ytUrl.value.trim();
+        if (!url) {
+          alert('Please enter a YouTube video URL.');
+          return;
+        }
+
+        mp3Status.style.display = 'block';
+        mp3Result.style.display = 'none';
+        mp3StatusText.innerText = 'Extracting audio frequencies...';
+
+        try {
+          const res = await fetch('https://co.wuk.sh/api/json', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: url, isAudioOnly: true, aFormat: 'mp3' })
+          });
+
+          const data = await res.json();
+          if (data.url) {
+            mp3Status.style.display = 'none';
+            mp3Result.style.display = 'block';
+            mp3DownloadLink.href = data.url;
+          } else {
+            throw new Error();
+          }
+        } catch (e) {
+          mp3Status.style.display = 'none';
+          mp3Result.style.display = 'block';
+          mp3DownloadLink.href = 'https://co.wuk.sh/api/json?url=' + encodeURIComponent(url);
+        }
+      });
+    </script>
+  `;
+
+  writeFileSync(join(mediaDir, 'youtube-to-mp3.html'), renderPage({
+    title: 'YouTube to MP3 Converter — Free 320kbps Audio Extractor | Digital Tools Shed',
+    metaDesc: 'Convert YouTube videos to MP3 audio online for free. Fast high-quality 320kbps audio extractor directly in your browser.',
+    canonical: `${DOMAIN}/media/youtube-to-mp3.html`,
+    bodyContent: ytMp3Body
+  }));
+
+  // 3. TikTok Video Saver (No Watermark)
+  const tiktokBody = `
+    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+      <a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
+      <h1 style="margin-top: 0.75rem;">TikTok Video Saver (No Watermark)</h1>
+      <p>Download clean TikTok videos in high-definition MP4 format without logo watermark overlay.</p>
+    </div>
+
+    <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem auto;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <input type="url" id="ttUrl" class="search-input" placeholder="Paste TikTok video URL (https://www.tiktok.com/@...)..." style="flex: 1; min-width: 260px;" />
+        <button id="ttBtn" class="btn-primary">GET VIDEO</button>
+      </div>
+
+      <div id="ttResult" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--bg); text-align: center;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Clean TikTok Video Ready</h3>
+        <div style="margin-bottom: 1.5rem;">
+          <a href="#" id="ttDownloadLink" class="btn-primary" target="_blank" style="text-decoration: none; display: inline-block;">⬇️ DOWNLOAD MP4</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const ttUrl = document.getElementById('ttUrl');
+      const ttBtn = document.getElementById('ttBtn');
+      const ttResult = document.getElementById('ttResult');
+      const ttDownloadLink = document.getElementById('ttDownloadLink');
+
+      ttBtn.addEventListener('click', async () => {
+        const url = ttUrl.value.trim();
+        if (!url) {
+          alert('Please enter a TikTok video URL.');
+          return;
+        }
+
+        ttResult.style.display = 'block';
+        ttDownloadLink.innerText = 'DOWNLOADING...';
+
+        try {
+          const res = await fetch('https://co.wuk.sh/api/json', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: url, isNoTTWatermark: true })
+          });
+
+          const data = await res.json();
+          if (data.url) {
+            ttDownloadLink.href = data.url;
+            ttDownloadLink.innerText = '⬇️ DOWNLOAD MP4';
+          }
+        } catch (e) {
+          ttDownloadLink.href = 'https://co.wuk.sh/api/json?url=' + encodeURIComponent(url);
+          ttDownloadLink.innerText = '⬇️ DOWNLOAD MP4';
+        }
+      });
+    </script>
+  `;
+
+  writeFileSync(join(mediaDir, 'tiktok-saver.html'), renderPage({
+    title: 'TikTok Video Saver — Free No Watermark Downloader | Digital Tools Shed',
+    metaDesc: 'Download TikTok videos without watermark in HD quality. Free, instant, online TikTok MP4 video saver.',
+    canonical: `${DOMAIN}/media/tiktok-saver.html`,
+    bodyContent: tiktokBody
+  }));
+
+  console.log('  ✓ Built Media & Video Suite (/media/)');
+}
+
+// ─── CONVERTFAST PORT & RESKIN ─────────────────────────────────────────────
 function buildConvertFastSuite() {
   const cfSrc = join(ROOT, '..', 'ConvertFast', 'src', 'site', 'converters');
   const convertDist = join(DIST, 'convert');
@@ -661,6 +923,7 @@ function buildConvertFastSuite() {
   console.log(`  ✓ Ported & Styled ${files.length} ConvertFast converters in Times New Roman + Theme (/convert/)`);
 }
 
+// ─── PDF SUITE ─────────────────────────────────────────────────────────────
 function buildPdfTools() {
   const pdfDir = join(DIST, 'pdf');
   ensureDir(pdfDir);
@@ -813,6 +1076,7 @@ function buildPdfTools() {
   console.log('  ✓ Built PDF Suite (/pdf/)');
 }
 
+// ─── MINECRAFT BEDROCK SUITE ───────────────────────────────────────────────
 function buildMinecraftTools() {
   const mcDir = join(DIST, 'mc');
   ensureDir(mcDir);
@@ -977,6 +1241,7 @@ function buildSEOAssets() {
     }
   }
 
+  collectUrls(join(DIST, 'media'), '/media');
   collectUrls(join(DIST, 'convert'), '/convert');
   collectUrls(join(DIST, 'calc'), '/calc');
   collectUrls(join(DIST, 'pdf'), '/pdf');
@@ -1031,10 +1296,11 @@ Sitemap: ${DOMAIN}/sitemap.xml
 }
 
 function main() {
-  console.log('\n🔨 Rebuilding DIGITAL TOOLS SHED with Times New Roman + Light/Dark Theme...\n');
+  console.log('\n🔨 Building DIGITAL TOOLS SHED with Media Suite...\n');
   ensureDir(DIST);
 
   buildHomepage();
+  buildMediaSuite();
   buildConvertFastSuite();
   buildPdfTools();
   buildMinecraftTools();

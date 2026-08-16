@@ -33,7 +33,6 @@
   --serif: "Times New Roman", Times, "Liberation Serif", Georgia, serif;
   --mono: "SF Mono", Monaco, "Cascadia Code", "Courier New", Courier, monospace;
 
-  /* Tool variables */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -325,7 +324,7 @@ main {
   transition: border-color 0.15s;
 }
 .drop-zone:hover { border-color: var(--border-strong); }
-.btn-primary, button[style*="text-transform:uppercase"] {
+.btn-primary, button[style*="text-transform:uppercase"], #downloadBtn {
   background: var(--btn-bg) !important;
   color: var(--btn-fg) !important;
   border: 1px solid var(--border-strong) !important;
@@ -338,7 +337,7 @@ main {
   letter-spacing: 0.05em !important;
   box-shadow: none !important;
 }
-.btn-primary:hover, button[style*="text-transform:uppercase"]:hover { background: var(--btn-hover) !important; }
+.btn-primary:hover, button[style*="text-transform:uppercase"]:hover, #downloadBtn:hover { background: var(--btn-hover) !important; }
 .btn-secondary {
   background: transparent !important;
   color: var(--fg) !important;
@@ -350,13 +349,14 @@ main {
 }
 .btn-secondary:hover { border-color: var(--border-strong) !important; }
 
-textarea, input[type="text"], input[type="number"], select {
+textarea, input[type="text"], input[type="number"], input[type="url"], select {
   background: var(--input-bg) !important;
   color: var(--fg) !important;
   border: 1px solid var(--border) !important;
   outline: none !important;
+  font-family: var(--serif) !important;
 }
-textarea:focus, input[type="text"]:focus, select:focus {
+textarea:focus, input[type="text"]:focus, input[type="url"]:focus, select:focus {
   border-color: var(--border-strong) !important;
 }
 
@@ -392,6 +392,7 @@ footer a:hover { text-decoration: underline; }
       <span class="brand-badge">EDITION</span>
     </a>
     <nav>
+      <a href="/#media-video">Media</a>
       <a href="/#converters">Converters</a>
       <a href="/#calculators">Calculators</a>
       <a href="/#pdf">PDF</a>
@@ -470,10 +471,10 @@ footer a:hover { text-decoration: underline; }
         <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">TierSpecs — Tech & Laptop Specs</h4>
         <p style="font-size: 0.9rem; color: var(--text-muted);">Compare GPU tiers, CPU benchmarks, and find authentic hardware performance analysis.</p>
       </a>
-      <a href="/convert/json-formatter.html" class="promo-card">
-        <span class="promo-badge">Developer Tool</span>
-        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Formatter & Validator</h4>
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Beautify, inspect, and parse complex JSON structures directly in client browser memory.</p>
+      <a href="/media/downloader.html" class="promo-card">
+        <span class="promo-badge">Media Engine</span>
+        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
+        <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
       </a>
       <a href="/calc/kg-to-lbs.html" class="promo-card">
         <span class="promo-badge">Instant Calculator</span>
@@ -492,6 +493,7 @@ footer a:hover { text-decoration: underline; }
     <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). Printed & processed 100% in client browser memory.</div>
     <div style="display: flex; gap: 1rem;">
       <a href="/">Home</a>
+      <a href="/#media-video">Media</a>
       <a href="/#converters">Converters</a>
       <a href="/#calculators">Calculators</a>
       <a href="/sitemap.xml">Sitemap</a>
