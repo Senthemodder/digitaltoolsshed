@@ -814,6 +814,49 @@ body {
   background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
   opacity: 0.75;
 }
+.sponsor-notice {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999998;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 560px;
+  width: calc(100% - 2rem);
+  font-family: var(--serif);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.sponsor-notice::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981, #a855f7));
+  opacity: 0.75;
+}
+.sponsor-notice strong { color: var(--fg); }
+.sponsor-notice .dismiss-btn {
+  background: var(--fg);
+  color: var(--bg);
+  border: none;
+  padding: 0.35rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 
 .promo-grid {
   display: grid;
@@ -945,6 +988,17 @@ footer a:hover { text-decoration: underline; }
 </script>
 </head>
 <body>
+  <div id="sponsorNotice" class="sponsor-notice" style="display:none;">
+    <div><strong>Sponsor-supported site</strong> — Your first click may open a sponsor tab. This keeps all 88+ tools completely free, forever.</div>
+    <button class="dismiss-btn" onclick="document.getElementById('sponsorNotice').style.display='none';sessionStorage.setItem('dts-sponsor-ack','1');">Got it</button>
+  </div>
+  <script>
+    (function(){
+      if (!sessionStorage.getItem('dts-sponsor-ack')) {
+        document.getElementById('sponsorNotice').style.display = 'flex';
+      }
+    })();
+  </script>
   <div class="app-container">
     
   <aside class="sidebar" id="siteSidebar">
