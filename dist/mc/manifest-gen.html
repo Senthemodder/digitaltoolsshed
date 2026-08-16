@@ -19,16 +19,22 @@
   <style>
 :root, [data-theme="light"] {
   --bg: #ffffff;
-  --fg: #000000;
-  --surface: #f7f7f7;
-  --surface-hover: #efefef;
-  --border: #d0d0d0;
+  --fg: #111111;
+  --sidebar-bg: #f9f9f9;
+  --sidebar-border: #e0e0e0;
+  --surface: #ffffff;
+  --surface-alt: #f5f5f5;
+  --surface-hover: #ececec;
+  --border: #dcdcdc;
   --border-strong: #000000;
-  --text-muted: #555555;
+  --text-muted: #666666;
+  --text-subtle: #888888;
   --input-bg: #ffffff;
   --btn-bg: #000000;
   --btn-fg: #ffffff;
   --btn-hover: #333333;
+  --active-item: #000000;
+  --active-item-fg: #ffffff;
 
   --serif: "Times New Roman", Times, "Liberation Serif", Georgia, serif;
   --mono: "SF Mono", Monaco, "Cascadia Code", "Courier New", Courier, monospace;
@@ -40,9 +46,9 @@
   --space-xl: 2rem;
   --space-2xl: 2.5rem;
   --border-color: var(--border);
-  --border-subtle: #e5e5e5;
+  --border-subtle: #eaeaea;
   --card-color: var(--surface);
-  --surface-color: #f0f0f0;
+  --surface-color: #f5f5f5;
   --text-color: var(--fg);
   --bg-color: var(--bg);
   --muted-color: var(--text-muted);
@@ -51,171 +57,279 @@
 }
 
 [data-theme="dark"] {
-  --bg: #000000;
-  --fg: #ffffff;
-  --surface: #0a0a0a;
-  --surface-hover: #141414;
-  --border: #2b2b2b;
+  --bg: #0d0d0d;
+  --fg: #efefef;
+  --sidebar-bg: #080808;
+  --sidebar-border: #222222;
+  --surface: #141414;
+  --surface-alt: #1a1a1a;
+  --surface-hover: #242424;
+  --border: #2c2c2c;
   --border-strong: #ffffff;
-  --text-muted: #888888;
-  --input-bg: #000000;
+  --text-muted: #999999;
+  --text-subtle: #666666;
+  --input-bg: #050505;
   --btn-bg: #ffffff;
   --btn-fg: #000000;
-  --btn-hover: #dcdcdc;
+  --btn-hover: #d5d5d5;
+  --active-item: #ffffff;
+  --active-item-fg: #000000;
 
-  --border-color: #2b2b2b;
-  --border-subtle: #1a1a1a;
-  --card-color: #0a0a0a;
-  --surface-color: #0a0a0a;
-  --text-color: #ffffff;
-  --bg-color: #000000;
-  --muted-color: #888888;
+  --border-color: #2c2c2c;
+  --border-subtle: #1c1c1c;
+  --card-color: #141414;
+  --surface-color: #141414;
+  --text-color: #efefef;
+  --bg-color: #0d0d0d;
+  --muted-color: #999999;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
 body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--serif);
   line-height: 1.55;
-  min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  overflow-x: hidden;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-header {
-  border-bottom: 2px solid var(--border-strong);
-  padding: 1.25rem 2rem;
+/* ─── APP WRAPPER ────────────────────────────────────────────────────────── */
+.app-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--bg);
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  width: 100%;
+  min-height: 100vh;
 }
 
-.brand {
+/* ─── LEFT SIDEBAR ───────────────────────────────────────────────────────── */
+.sidebar {
+  width: 290px;
+  min-width: 290px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 150;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sidebar-header {
+  padding: 1.25rem 1.25rem 1rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-brand {
   font-family: var(--serif);
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--fg);
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
-.brand-badge {
+.sidebar-badge {
   background: var(--fg);
   color: var(--bg);
-  padding: 0.1rem 0.4rem;
-  font-size: 0.7rem;
   font-family: var(--mono);
-  font-weight: 700;
+  font-size: 0.65rem;
+  padding: 1px 5px;
+  font-weight: bold;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-nav {
+.sidebar-search {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+.sidebar-search input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  color: var(--fg);
+  outline: none;
+}
+.sidebar-search input:focus {
+  border-color: var(--border-strong);
+}
+
+.sidebar-nav {
+  padding: 1rem 0.75rem;
+  flex: 1;
+}
+.nav-group-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin: 1.25rem 0.5rem 0.4rem;
+}
+.nav-group-title:first-child { margin-top: 0; }
+
+.nav-link {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-}
-nav a {
-  color: var(--text-muted);
-  text-decoration: none;
-  font-family: var(--mono);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: color 0.15s;
-}
-nav a:hover { color: var(--fg); }
-
-.theme-toggle-btn {
-  background: transparent;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
   color: var(--fg);
-  border: 1px solid var(--border-strong);
-  padding: 0.35rem 0.75rem;
+  text-decoration: none;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  border-radius: 2px;
+  transition: background 0.1s, color 0.1s;
+}
+.nav-link:hover {
+  background: var(--surface-hover);
+}
+.nav-link.active {
+  background: var(--active-item);
+  color: var(--active-item-fg);
+  font-weight: bold;
+}
+.nav-badge {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.nav-link.active .nav-badge {
+  color: var(--active-item-fg);
+}
+
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--sidebar-bg);
+}
+.theme-switch-btn {
+  width: 100%;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 0.5rem;
   font-family: var(--mono);
   font-size: 0.75rem;
   cursor: pointer;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
-.theme-toggle-btn:hover {
-  background: var(--fg);
-  color: var(--bg);
+.theme-switch-btn:hover {
+  border-color: var(--border-strong);
 }
 
-main {
+/* ─── MAIN CONTENT AREA ──────────────────────────────────────────────────── */
+.content-area {
   flex: 1;
-  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-size: 1.1rem;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-family: var(--mono);
+}
+.breadcrumbs {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.breadcrumbs a {
+  color: var(--fg);
+  text-decoration: none;
+}
+.breadcrumbs a:hover { text-decoration: underline; }
+
+.main-body {
+  max-width: 1100px;
   width: 100%;
   margin: 0 auto;
-  padding: 2.5rem 1.5rem;
+  padding: 2.5rem 2rem;
+  flex: 1;
 }
 
+/* ─── HERO & TOOLS GRID ──────────────────────────────────────────────────── */
 .hero {
-  padding: 2rem 0 2.5rem;
+  padding-bottom: 2rem;
   border-bottom: 1px solid var(--border);
   margin-bottom: 2.5rem;
 }
 .hero h1 {
-  font-family: var(--serif);
-  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+  font-size: clamp(2.2rem, 4.5vw, 3.8rem);
   font-weight: 900;
   letter-spacing: -0.03em;
-  line-height: 1.02;
-  margin-bottom: 1rem;
+  line-height: 1.05;
+  margin-bottom: 0.75rem;
 }
 .hero p {
   color: var(--text-muted);
-  font-size: 1.25rem;
-  max-width: 750px;
-  margin-bottom: 1.75rem;
-  font-family: var(--serif);
+  font-size: 1.2rem;
+  max-width: 700px;
   font-style: italic;
 }
 
-.search-wrapper {
-  position: relative;
-  max-width: 650px;
+.category-section {
+  margin-bottom: 3rem;
 }
-.search-input {
-  width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  color: var(--fg);
+.category-header {
   font-family: var(--serif);
-  font-size: 1.1rem;
-  padding: 0.9rem 1.25rem;
-  outline: none;
-  transition: border-color 0.15s;
-}
-.search-input:focus {
-  border-color: var(--border-strong);
-}
-
-.category-title {
-  font-family: var(--serif);
-  font-size: 1.35rem;
+  font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--fg);
-  margin: 2.5rem 0 1rem;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
 }
-.category-title::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--border);
+.category-count {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: normal;
 }
 
 .tools-grid {
@@ -227,7 +341,7 @@ main {
 .tool-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 1.35rem;
+  padding: 1.25rem;
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -242,16 +356,15 @@ main {
 }
 .tool-card h3 {
   font-family: var(--serif);
-  font-size: 1.2rem;
-  margin-bottom: 0.4rem;
+  font-size: 1.15rem;
+  margin-bottom: 0.35rem;
   font-weight: 700;
   color: var(--fg);
 }
 .tool-card p {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
-  line-height: 1.45;
-  font-family: var(--serif);
+  line-height: 1.4;
 }
 .tool-card .tag {
   font-family: var(--mono);
@@ -262,10 +375,11 @@ main {
   text-transform: uppercase;
 }
 
+/* ─── PROMO & AD SLOTS ───────────────────────────────────────────────────── */
 .ad-slot-container {
   margin: 2rem 0;
   padding: 1rem;
-  background: var(--surface);
+  background: var(--surface-alt);
   border: 1px dashed var(--border);
   text-align: center;
   min-height: 90px;
@@ -277,7 +391,7 @@ main {
 .ad-label {
   font-family: var(--mono);
   font-size: 0.65rem;
-  color: var(--text-muted);
+  color: var(--text-subtle);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
@@ -285,7 +399,7 @@ main {
 
 .promo-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
   margin: 2rem 0;
 }
@@ -309,6 +423,7 @@ main {
   display: inline-block;
 }
 
+/* ─── TOOL WORKSPACE PANELS ──────────────────────────────────────────────── */
 .tool-workspace {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -320,10 +435,11 @@ main {
   padding: 3rem 1.5rem;
   text-align: center;
   cursor: pointer;
-  background: var(--bg);
+  background: var(--surface-alt);
   transition: border-color 0.15s;
 }
 .drop-zone:hover { border-color: var(--border-strong); }
+
 .btn-primary, button[style*="text-transform:uppercase"], #downloadBtn {
   background: var(--btn-bg) !important;
   color: var(--btn-fg) !important;
@@ -337,17 +453,9 @@ main {
   letter-spacing: 0.05em !important;
   box-shadow: none !important;
 }
-.btn-primary:hover, button[style*="text-transform:uppercase"]:hover, #downloadBtn:hover { background: var(--btn-hover) !important; }
-.btn-secondary {
-  background: transparent !important;
-  color: var(--fg) !important;
-  border: 1px solid var(--border) !important;
-  padding: 0.8rem 1.5rem !important;
-  font-family: var(--serif) !important;
-  font-size: 1rem !important;
-  cursor: pointer !important;
+.btn-primary:hover, button[style*="text-transform:uppercase"]:hover, #downloadBtn:hover {
+  background: var(--btn-hover) !important;
 }
-.btn-secondary:hover { border-color: var(--border-strong) !important; }
 
 textarea, input[type="text"], input[type="number"], input[type="url"], select {
   background: var(--input-bg) !important;
@@ -362,11 +470,10 @@ textarea:focus, input[type="text"]:focus, input[type="url"]:focus, select:focus 
 
 footer {
   border-top: 1px solid var(--border);
-  padding: 2.5rem 2rem;
+  padding: 2rem;
   background: var(--bg);
-  margin-top: auto;
   font-family: var(--serif);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: var(--text-muted);
   display: flex;
   flex-wrap: wrap;
@@ -377,52 +484,190 @@ footer {
 footer a { color: var(--fg); text-decoration: none; }
 footer a:hover { text-decoration: underline; }
 
-@media (max-width: 768px) {
-  header { padding: 1rem; }
-  main { padding: 1.5rem 1rem; }
-  .tools-grid { grid-template-columns: 1fr; }
+/* ─── MOBILE RESPONSIVENESS ──────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: -300px;
+    transition: left 0.25s ease;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.15);
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .mobile-toggle {
+    display: block;
+  }
+  .topbar {
+    padding: 0.75rem 1rem;
+  }
+  .main-body {
+    padding: 1.5rem 1rem;
+  }
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
   
 </head>
 <body>
-  <header>
-    <a href="/" class="brand">
-      <span>DIGITAL TOOLS SHED</span>
-      <span class="brand-badge">EDITION</span>
-    </a>
-    <nav>
-      <a href="/#media-video">Media</a>
-      <a href="/#converters">Converters</a>
-      <a href="/#calculators">Calculators</a>
-      <a href="/#pdf">PDF</a>
-      <a href="/#mc">Gaming</a>
-      <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleSiteTheme()">[ LIGHT / DARK ]</button>
-    </nav>
-  </header>
-
-  <main>
-    <div class="ad-slot-container" id="ad-top-banner">
-      <span class="ad-label">Advertisement</span>
-      <div id="ad-slot-728x90"></div>
+  <div class="app-container">
+    
+  <aside class="sidebar" id="siteSidebar">
+    <div class="sidebar-header">
+      <a href="/" class="sidebar-brand">
+        <span>DIGITAL TOOLS SHED</span>
+        <span class="sidebar-badge">PRO</span>
+      </a>
+      <button class="mobile-toggle" onclick="toggleSidebar()" style="display: none;" id="mobileCloseBtn">✕</button>
     </div>
 
-    
+    <div class="sidebar-search">
+      <input type="text" id="sidebarSearchInput" placeholder="Quick filter tools..." />
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-group-title">⭐ Featured Tools</div>
+      <a href="/media/downloader.html" class="nav-link ">
+        <span>Media Downloader</span>
+        <span class="nav-badge">HD</span>
+      </a>
+      <a href="/convert/image-resizer.html" class="nav-link ">
+        <span>Bulk Image Resizer</span>
+        <span class="nav-badge">IMG</span>
+      </a>
+      <a href="/convert/png-to-jpg.html" class="nav-link ">
+        <span>PNG to JPG</span>
+        <span class="nav-badge">FAST</span>
+      </a>
+      <a href="/pdf/pdf-to-text.html" class="nav-link ">
+        <span>PDF Text Extractor</span>
+        <span class="nav-badge">DOC</span>
+      </a>
+
+      <div class="nav-group-title">🎬 Media & Video (3)</div>
+      <a href="/media/downloader.html" class="nav-link ">
+        <span>Universal Downloader</span>
+      </a>
+      <a href="/media/youtube-to-mp3.html" class="nav-link ">
+        <span>YouTube to MP3</span>
+      </a>
+      <a href="/media/tiktok-saver.html" class="nav-link ">
+        <span>TikTok Saver</span>
+      </a>
+
+      <div class="nav-group-title">📁 File Converters (10)</div>
+      <a href="/convert/png-to-jpg.html" class="nav-link ">
+        <span>PNG to JPG</span>
+      </a>
+      <a href="/convert/jpg-to-png.html" class="nav-link ">
+        <span>JPG to PNG</span>
+      </a>
+      <a href="/convert/png-to-webp.html" class="nav-link ">
+        <span>PNG to WebP</span>
+      </a>
+      <a href="/convert/webp-to-png.html" class="nav-link ">
+        <span>WebP to PNG</span>
+      </a>
+      <a href="/convert/svg-to-png.html" class="nav-link ">
+        <span>SVG to PNG</span>
+      </a>
+      <a href="/convert/json-formatter.html" class="nav-link ">
+        <span>JSON Formatter</span>
+      </a>
+      <a href="/convert/json-to-yaml.html" class="nav-link ">
+        <span>JSON to YAML</span>
+      </a>
+      <a href="/convert/yaml-to-json.html" class="nav-link ">
+        <span>YAML to JSON</span>
+      </a>
+      <a href="/convert/base64.html" class="nav-link ">
+        <span>Base64 Tool</span>
+      </a>
+
+      <div class="nav-group-title">📄 PDF & Docs (2)</div>
+      <a href="/pdf/pdf-to-text.html" class="nav-link ">
+        <span>PDF Text Extractor</span>
+      </a>
+      <a href="/pdf/page-counter.html" class="nav-link ">
+        <span>PDF Page Counter</span>
+      </a>
+
+      <div class="nav-group-title">🔢 Calculators & Units (44)</div>
+      <a href="/calc/kg-to-lbs.html" class="nav-link ">
+        <span>Kilograms to Pounds</span>
+      </a>
+      <a href="/calc/celsius-to-fahrenheit.html" class="nav-link ">
+        <span>Celsius to Fahrenheit</span>
+      </a>
+      <a href="/calc/cm-to-inches.html" class="nav-link ">
+        <span>CM to Inches</span>
+      </a>
+      <a href="/calc/km-to-miles.html" class="nav-link ">
+        <span>KM to Miles</span>
+      </a>
+      <a href="/calc/mb-to-gb.html" class="nav-link ">
+        <span>MB to GB</span>
+      </a>
+
+      <div class="nav-group-title">🎮 Minecraft & Dev (2)</div>
+      <a href="/mc/uuid-gen.html" class="nav-link ">
+        <span>UUID Generator</span>
+      </a>
+      <a href="/mc/manifest-gen.html" class="nav-link active">
+        <span>Manifest Generator</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="theme-switch-btn" onclick="toggleSiteTheme()">
+        <span>Toggle Theme</span>
+        <span id="currentThemeTag">[ LIGHT ]</span>
+      </button>
+      <div style="font-family: var(--mono); font-size: 0.7rem; color: var(--text-subtle); text-align: center;">
+        v2.4 Editorial Workbench
+      </div>
+    </div>
+  </aside>
+  
+
+    <div class="content-area">
+      <div class="topbar">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+          <div class="breadcrumbs">
+            <a href="/">Tools Shed</a>
+            <span>/</span>
+            <span>Minecraft Bedrock Manifest.json Generator | Digital Tools Shed</span>
+          </div>
+        </div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">
+          100% In-Browser Execution
+        </div>
+      </div>
+
+      <div class="main-body">
+        <div class="ad-slot-container" id="ad-top-banner">
+          <span class="ad-label">Advertisement</span>
+          <div id="ad-slot-728x90"></div>
+        </div>
+
+        
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <a href="/" style="font-family: var(--serif); font-size: 0.95rem; color: var(--text-muted); text-decoration: none;">← Back to Tools Shed</a>
-      <h1 style="margin-top: 0.75rem;">Bedrock Manifest.json Generator</h1>
+      <h1 style="margin-top: 0.5rem;">Bedrock Manifest.json Generator</h1>
       <p>Quickly generate valid, clean manifest.json files for Minecraft Bedrock Resource Packs and Behavior Packs with automatic UUIDs.</p>
     </div>
 
-    <div class="tool-workspace">
+    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
         <div>
           <label style="font-family: var(--serif); font-size: 1rem; color: var(--fg); display: block; margin-bottom: 0.35rem;">Pack Name</label>
-          <input type="text" id="packName" value="My Custom Pack" class="search-input" style="width: 100%;" />
+          <input type="text" id="packName" value="My Custom Pack" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" />
         </div>
         <div>
           <label style="font-family: var(--serif); font-size: 1rem; color: var(--fg); display: block; margin-bottom: 0.35rem;">Pack Type</label>
-          <select id="packType" class="search-input" style="width: 100%;">
+          <select id="packType" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;">
             <option value="data">Behavior Pack (data)</option>
             <option value="resources">Resource Pack (resources)</option>
           </select>
@@ -477,49 +722,77 @@ footer a:hover { text-decoration: underline; }
     </script>
   
 
-    <div class="promo-grid">
-      <a href="/convert/image-resizer.html" class="promo-card">
-        <span class="promo-badge">Image Utility</span>
-        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Bulk Image Resizer & Optimizer</h4>
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Batch resize and compress multiple PNG, JPG, and WebP images simultaneously in your browser.</p>
-      </a>
-      <a href="/media/downloader.html" class="promo-card">
-        <span class="promo-badge">Media Engine</span>
-        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
-      </a>
-      <a href="/calc/kg-to-lbs.html" class="promo-card">
-        <span class="promo-badge">Instant Calculator</span>
-        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Unit & Metric Calculators</h4>
-        <p style="font-size: 0.9rem; color: var(--text-muted);">Convert weight, distance, temperature, and data measurements with zero delay.</p>
-      </a>
-    </div>
+        <div class="promo-grid">
+          <a href="/convert/image-resizer.html" class="promo-card">
+            <span class="promo-badge">Image Utility</span>
+            <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Bulk Image Resizer & Optimizer</h4>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Batch resize and compress multiple PNG, JPG, and WebP images simultaneously in your browser.</p>
+          </a>
+          <a href="/media/downloader.html" class="promo-card">
+            <span class="promo-badge">Media Engine</span>
+            <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
+          </a>
+          <a href="/calc/kg-to-lbs.html" class="promo-card">
+            <span class="promo-badge">Instant Calculator</span>
+            <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Unit & Metric Calculators</h4>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Convert weight, distance, temperature, and data measurements with zero delay.</p>
+          </a>
+        </div>
 
-    <div class="ad-slot-container" id="ad-bottom-banner">
-      <span class="ad-label">Advertisement</span>
-      <div id="ad-slot-bottom"></div>
-    </div>
-  </main>
+        <div class="ad-slot-container" id="ad-bottom-banner">
+          <span class="ad-label">Advertisement</span>
+          <div id="ad-slot-bottom"></div>
+        </div>
+      </div>
 
-  <footer>
-    <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). Printed & processed 100% in client browser memory.</div>
-    <div style="display: flex; gap: 1rem;">
-      <a href="/">Home</a>
-      <a href="/#media-video">Media</a>
-      <a href="/#converters">Converters</a>
-      <a href="/#calculators">Calculators</a>
-      <a href="/sitemap.xml">Sitemap</a>
+      <footer>
+        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). Printed & processed 100% in client browser memory.</div>
+        <div style="display: flex; gap: 1rem;">
+          <a href="/">Home</a>
+          <a href="/media/downloader.html">Media</a>
+          <a href="/convert/png-to-jpg.html">Converters</a>
+          <a href="/calc/kg-to-lbs.html">Calculators</a>
+          <a href="/sitemap.xml">Sitemap</a>
+        </div>
+      </footer>
     </div>
-  </footer>
-
-  <div id="adsterra-social-bar-slot"></div>
+  </div>
 
   <script>
+    function toggleSidebar() {
+      const sb = document.getElementById('siteSidebar');
+      sb.classList.toggle('open');
+      const closeBtn = document.getElementById('mobileCloseBtn');
+      if (closeBtn) closeBtn.style.display = sb.classList.contains('open') ? 'block' : 'none';
+    }
+
     function toggleSiteTheme() {
       const current = document.documentElement.getAttribute('data-theme') || 'light';
       const next = current === 'light' ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem('dts-theme', next);
+      updateThemeTag();
+    }
+
+    function updateThemeTag() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const tag = document.getElementById('currentThemeTag');
+      if (tag) tag.innerText = '[' + current.toUpperCase() + ']';
+    }
+    updateThemeTag();
+
+    // Sidebar search filter
+    const sbInput = document.getElementById('sidebarSearchInput');
+    if (sbInput) {
+      sbInput.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        const links = document.querySelectorAll('.sidebar-nav .nav-link');
+        links.forEach(l => {
+          const txt = l.innerText.toLowerCase();
+          l.style.display = (!q || txt.includes(q)) ? 'flex' : 'none';
+        });
+      });
     }
   </script>
 </body>
