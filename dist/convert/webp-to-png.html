@@ -402,17 +402,56 @@ body {
   background: var(--surface-alt);
   border: 1px dashed var(--border);
   text-align: center;
-  min-height: 275px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   overflow: hidden;
 }
+.ad-desktop-leaderboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90px;
+  width: 100%;
+}
+.ad-mobile-banner {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
+  width: 100%;
+}
+.ad-sidebar-unit {
+  margin: 1rem auto 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 160px;
+  min-height: 300px;
+  overflow: hidden;
+  border: 1px dashed var(--sidebar-border);
+  padding: 0.5rem 0;
+  background: var(--surface);
+}
+.ad-bottom-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  width: 100%;
+}
 .ad-unit-300x250 {
   width: 300px;
   height: 250px;
-  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ad-unit-468x60 {
+  width: 468px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -424,6 +463,12 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .ad-desktop-leaderboard { display: none !important; }
+  .ad-mobile-banner { display: flex !important; }
+  .ad-unit-468x60 { display: none !important; }
 }
 
 .promo-grid {
@@ -696,6 +741,20 @@ footer a:hover { text-decoration: underline; }
       </a>
     </nav>
 
+    <div class="ad-sidebar-unit">
+      <span class="ad-label">Partner</span>
+      <script type="text/javascript">
+        atOptions = {
+          'key' : 'a821eb44059433a28ee72061693e8e63',
+          'format' : 'iframe',
+          'height' : 300,
+          'width' : 160,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://manyapostle.com/a821eb44059433a28ee72061693e8e63/invoke.js"></script>
+    </div>
+
     <div class="sidebar-footer">
       <button class="theme-switch-btn" onclick="toggleSiteTheme()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
@@ -728,17 +787,29 @@ footer a:hover { text-decoration: underline; }
       <div class="main-body">
         <div class="ad-slot-container" id="ad-top-banner">
           <span class="ad-label">Advertisement</span>
-          <div class="ad-unit-300x250">
+          <div class="ad-desktop-leaderboard">
             <script type="text/javascript">
               atOptions = {
-                'key' : '335d807d460eaf2491fcca0f635474ce',
+                'key' : '567d4e495ec8a8e297b7c7f5170993cb',
                 'format' : 'iframe',
-                'height' : 250,
-                'width' : 300,
+                'height' : 90,
+                'width' : 728,
                 'params' : {}
               };
             </script>
-            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+          </div>
+          <div class="ad-mobile-banner">
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
           </div>
         </div>
 
@@ -820,17 +891,31 @@ footer a:hover { text-decoration: underline; }
 
         <div class="ad-slot-container" id="ad-bottom-banner">
           <span class="ad-label">Advertisement</span>
-          <div class="ad-unit-300x250">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '335d807d460eaf2491fcca0f635474ce',
-                'format' : 'iframe',
-                'height' : 250,
-                'width' : 300,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+          <div class="ad-bottom-row">
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            </div>
+            <div class="ad-unit-468x60">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '0b6898775795b270130cc9971eef21a8',
+                  'format' : 'iframe',
+                  'height' : 60,
+                  'width' : 468,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/0b6898775795b270130cc9971eef21a8/invoke.js"></script>
+            </div>
           </div>
         </div>
       </div>
