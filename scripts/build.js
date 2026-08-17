@@ -648,9 +648,9 @@ body {
 
 .ad-blend-box {
   margin: 2rem 0;
-  padding: 0.75rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 40%, var(--surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -658,15 +658,25 @@ body {
   align-items: center;
   overflow: hidden;
   position: relative;
+  border-radius: 6px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.3s ease;
 }
+.ad-blend-box:hover { border-color: var(--border); }
 .ad-blend-box::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981, #a855f7));
-  opacity: 0.75;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border) 30%, var(--border) 70%, transparent 100%);
+  opacity: 0.4;
+}
+.ad-blend-box::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border) 30%, var(--border) 70%, transparent 100%);
+  opacity: 0.25;
 }
 .ad-desktop-leaderboard {
   display: flex;
@@ -690,17 +700,20 @@ body {
   width: 160px;
   min-height: 300px;
   overflow: hidden;
-  border: 1px solid var(--sidebar-border);
+  border: 1px solid color-mix(in srgb, var(--sidebar-border) 50%, transparent);
   padding: 0.5rem 0;
-  background: var(--surface);
+  background: linear-gradient(180deg, var(--surface) 0%, transparent 100%);
   position: relative;
+  border-radius: 4px;
+  transition: border-color 0.3s;
 }
+.ad-sidebar-card:hover { border-color: var(--sidebar-border); }
 .ad-sidebar-card::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
-  opacity: 0.75;
+  top: 0; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.35;
 }
 .ad-unit-300x250 {
   width: 300px;
@@ -723,28 +736,36 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: linear-gradient(160deg, var(--surface) 0%, var(--bg) 50%, var(--surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
   padding: 1.25rem;
   min-height: 320px;
   position: relative;
   overflow: hidden;
+  border-radius: 6px;
+  transition: border-color 0.3s;
 }
+.ad-promo-card:hover { border-color: var(--border); }
 .ad-promo-card::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
-  opacity: 0.75;
+  top: 0; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.35;
 }
 .ad-label {
   font-family: var(--mono);
-  font-size: 0.65rem;
-  color: var(--text-subtle);
+  font-size: 0.55rem;
+  color: color-mix(in srgb, var(--text-subtle) 50%, transparent);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.14em;
   margin-bottom: 0.5rem;
+  opacity: 0.5;
+  transition: opacity 0.3s;
 }
+.ad-blend-box:hover .ad-label,
+.ad-sidebar-card:hover .ad-label,
+.ad-promo-card:hover .ad-label { opacity: 0.3; }
 
 .docked-sticky-ad {
   position: fixed;
@@ -794,50 +815,52 @@ body {
   align-items: center;
   margin: 1.5rem auto;
   padding: 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
   text-align: center;
   position: relative;
+  border-radius: 6px;
 }
 .ad-hero-undercard::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
-  opacity: 0.75;
+  top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.3;
 }
 .ad-category-break {
   margin: 1.5rem 0;
   padding: 0.75rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 60%, var(--surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   position: relative;
+  border-radius: 6px;
 }
 .ad-category-break::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981, #a855f7));
-  opacity: 0.75;
+  top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.3;
 }
 .ad-pre-footer {
   margin: 2rem 0 0;
   padding: 1.5rem;
-  background: var(--surface-alt);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface-alt) 0%, var(--bg) 100%);
+  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
   text-align: center;
 }
 .ad-pre-footer::before {
   content: "";
   display: block;
-  height: 2px;
-  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981, #a855f7));
-  opacity: 0.5;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border) 30%, var(--border) 70%, transparent 100%);
+  opacity: 0.3;
   margin-bottom: 1rem;
 }
 .mobile-welcome-overlay {
@@ -865,17 +888,18 @@ body {
 .ad-article-mid {
   margin: 2rem auto;
   padding: 1rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 50%, var(--surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
   text-align: center;
   position: relative;
+  border-radius: 6px;
 }
 .ad-article-mid::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981));
-  opacity: 0.75;
+  top: 0; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.3;
 }
 .sponsor-notice {
   position: fixed;
@@ -902,9 +926,9 @@ body {
 .sponsor-notice::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; height: 2px;
-  background: var(--gradient-bar, linear-gradient(90deg, #6366f1, #10b981, #a855f7));
-  opacity: 0.75;
+  top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.3;
 }
 .sponsor-notice strong { color: var(--fg); }
 .sponsor-notice .dismiss-btn {
