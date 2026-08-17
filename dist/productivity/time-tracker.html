@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Convert Kilograms to Stones — Free Online Calculator | Digital Tools Shed</title>
-  <meta name="description" content="Instantly convert Kilograms (kg) to Stones (st). Free, fast, real-time formula calculations with zero tracking.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/kg-to-stone.html">
-  <meta property="og:title" content="Convert Kilograms to Stones — Free Online Calculator | Digital Tools Shed">
-  <meta property="og:description" content="Instantly convert Kilograms (kg) to Stones (st). Free, fast, real-time formula calculations with zero tracking.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/kg-to-stone.html">
+  <title>Time Tracker | Digital Tools Shed</title>
+  <meta name="description" content="Free browser-based time tracking for projects and freelance work.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/productivity/time-tracker.html">
+  <meta property="og:title" content="Time Tracker | Digital Tools Shed">
+  <meta property="og:description" content="Free browser-based time tracking for projects and freelance work.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/productivity/time-tracker.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
@@ -1207,7 +1207,7 @@ footer a:hover { text-decoration: underline; }
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
         <span>Productivity (7)</span>
       </div>
-      <a href="/productivity/time-tracker.html" class="nav-link ">
+      <a href="/productivity/time-tracker.html" class="nav-link active">
         <div class="nav-link-content"><span>Time Tracker</span></div>
       </a>
       <a href="/productivity/invoice-generator.html" class="nav-link ">
@@ -1304,7 +1304,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Convert Kilograms to Stones</span>
+            <span>Time Tracker | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1344,175 +1344,293 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-        <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-          <h1 style="margin-top: 0.5rem;">Convert Kilograms to Stones</h1>
-          <p>Instantly calculate Kilograms (kg) to Stones (st) with real-time two-way formula calculation.</p>
-        </div>
-
-        <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-          <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.25rem; align-items: center;">
-            <div>
-              <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">Kilograms (kg)</label>
-              <input type="number" id="fromInput" class="search-input" value="1" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+    
+    <style>
+      @media print {
+        .topbar, .sidebar, .ad-blend-box, .ad-sidebar-card, .ad-promo-card, .ad-hero-undercard,
+        .ad-category-break, .ad-pre-footer, .docked-sticky-ad, .sponsor-notice, .mobile-welcome-overlay,
+        .ad-unit-300x250, .ad-unit-468x60, .ad-desktop-leaderboard, .ad-mobile-banner,
+        .right-rail, footer, .no-print { display: none !important; }
+        .content-area { margin: 0; padding: 0; width: 100%; max-width: 100%; }
+        .main-body { max-width: 100%; margin: 0; padding: 0; }
+        .article-container { border: none !important; padding: 0 !important; max-width: 100% !important; box-shadow: none !important; }
+        body { background: white !important; color: black !important; }
+        * { color: black !important; background: transparent !important; border-color: #ccc !important; }
+        input, textarea, select { border: 1px solid transparent !important; }
+        .print-only { display: block !important; }
+      }
+      .print-only { display: none; }
+    </style>
+  
+    <div class="article-container" style="max-width: 900px;">
+      <div class="no-print">
+        <h1>Time Tracker</h1>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Track time spent on projects. Data is saved locally in your browser.</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 0;">Live Timer</h2>
+            <div style="font-size: 3rem; font-family: var(--mono); text-align: center; margin: 1rem 0;" id="tt-display">00:00:00</div>
+            <div style="margin-bottom: 1rem;">
+              <select id="tt-active-project" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg); margin-bottom: 0.5rem;">
+                <option value="">Select Project...</option>
+              </select>
+              <input type="text" id="tt-active-desc" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" placeholder="What are you working on?">
             </div>
-            <div style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--text-muted); padding-top: 1.5rem;">=</div>
-            <div>
-              <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">Stones (st)</label>
-              <input type="number" id="toInput" class="search-input" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+            <div style="display: flex; gap: 0.5rem; justify-content: center;">
+              <button id="tt-start" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em;">Start</button>
+              <button id="tt-pause" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: #eab308; color: #fff; display: none;">Pause</button>
+              <button id="tt-stop" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: #ef4444; color: #fff; display: none;">Stop & Save</button>
             </div>
           </div>
-        </div>
-
-        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Conversion Formula & Exact Calculation</h3>
           
-          <p style="line-height: 1.6; margin-bottom: 0.5rem;">How to convert Kilograms to Stones: Multiply by <strong>0.157473</strong>.</p>
-          <div style="font-family: var(--mono); background: var(--surface-alt); padding: 0.75rem; border: 1px solid var(--border);">
-            <strong>Formula:</strong> Stones = Kilograms × 0.157473
-          </div>
-        
-        </div>
-
-        <div class="ad-blend-box" style="margin: 2rem 0; max-width: 850px;">
-          <span class="ad-label">Sponsored Resource</span>
-          <div class="ad-unit-300x250">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '335d807d460eaf2491fcca0f635474ce',
-                'format' : 'iframe',
-                'height' : 250,
-                'width' : 300,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-          </div>
-        </div>
-
-        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Kilograms to Stones Quick Reference Table</h3>
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
-              <thead>
-                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
-                  <th style="padding: 0.6rem 0.75rem;">Kilograms (kg)</th>
-                  <th style="padding: 0.6rem 0.75rem;">Stones (st)</th>
-                </tr>
-              </thead>
-              <tbody>
-                
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">1 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.157473 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">2 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.314946 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">5 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.787366 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">10 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">1.574731 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">25 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">3.936828 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">50 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">7.873656 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">100 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">15.747312 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">250 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">39.368281 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">500 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">78.736562 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">1000 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">157.473123 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">5000 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">787.365616 st</td>
-          </tr>
-        
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        
-          <div style="margin: 2rem 0; max-width: 850px;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Related Weight & Mass Converters</h3>
-            <div class="tool-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-              
-          <a href="/calc/kg-to-lbs.html" class="tool-card">
-            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Kilograms to Pounds</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert kg to lbs instantly.</p>
-          </a>
-        
-          <a href="/calc/lbs-to-kg.html" class="tool-card">
-            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Pounds to Kilograms</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert lbs to kg instantly.</p>
-          </a>
-        
-          <a href="/calc/g-to-oz.html" class="tool-card">
-            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Grams to Ounces</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert g to oz instantly.</p>
-          </a>
-        
-          <a href="/calc/oz-to-g.html" class="tool-card">
-            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Ounces to Grams</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert oz to g instantly.</p>
-          </a>
-        
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 0;">Manage Projects</h2>
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+              <input type="text" id="tt-new-proj" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" placeholder="Project Name">
+              <input type="color" id="tt-new-color" style="height: 38px; width: 50px; padding: 0; border: 1px solid var(--border);">
+              <button id="tt-add-proj" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em;">Add</button>
             </div>
+            <div id="tt-proj-list" style="max-height: 150px; overflow-y: auto;"></div>
           </div>
+        </div>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1rem; margin-bottom: 2rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 0;">Manual Entry</h2>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end;">
+            <div style="flex: 1; min-width: 150px;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Project</label>
+              <select id="tt-manual-project" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);"></select>
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Date</label>
+              <input type="date" id="tt-manual-date" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);">
+            </div>
+            <div style="width: 70px;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Hours</label>
+              <input type="number" id="tt-manual-hrs" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" min="0" value="0">
+            </div>
+            <div style="width: 70px;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Mins</label>
+              <input type="number" id="tt-manual-mins" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" min="0" max="59" value="0">
+            </div>
+            <div style="flex: 2; min-width: 200px;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Description</label>
+              <input type="text" id="tt-manual-desc" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);">
+            </div>
+            <button id="tt-add-manual" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em;">Add Entry</button>
+          </div>
+        </div>
         
-
-        <script>
-          
-          const factor = 0.1574731232746851;
-          const fromInput = document.getElementById('fromInput');
-          const toInput = document.getElementById('toInput');
-
-          function updateFrom() {
-            const val = parseFloat(fromInput.value);
-            if (isNaN(val)) toInput.value = '';
-            else toInput.value = parseFloat((val * factor).toFixed(6));
-          }
-          function updateTo() {
-            const val = parseFloat(toInput.value);
-            if (isNaN(val)) fromInput.value = '';
-            else fromInput.value = parseFloat((val / factor).toFixed(6));
-          }
-
-          fromInput.addEventListener('input', updateFrom);
-          toInput.addEventListener('input', updateTo);
-          updateFrom();
-        
-        </script>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 2rem 0 1rem; margin: 0;">Time Entries</h2>
+          <button onclick="window.print()" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: var(--surface); color: var(--fg); border: 1px solid var(--border);">Export Report</button>
+        </div>
+      </div>
       
+      <!-- Print Header -->
+      <div class="print-only" style="margin-bottom: 20px;">
+        <h1 style="border-bottom: 2px solid #000; padding-bottom: 10px;">Time Tracking Report</h1>
+        <p>Generated: <span id="tt-print-date"></span></p>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead style="background: var(--surface);">
+            <tr>
+              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Date</th>
+              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Project</th>
+              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Description</th>
+              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Duration</th>
+              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;" class="no-print">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tt-entries-list"></tbody>
+          <tfoot>
+            <tr style="background: var(--surface); font-weight: bold;">
+              <td colspan="3" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left; text-align: right;">Total Time:</td>
+              <td colspan="2" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;" id="tt-total-time">0h 0m</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <script>
+        document.getElementById('tt-print-date').textContent = new Date().toLocaleDateString();
+        
+        let projects = JSON.parse(localStorage.getItem('dts-time-projects') || '[]');
+        let entries = JSON.parse(localStorage.getItem('dts-time-entries') || '[]');
+        
+        let timerInterval;
+        let timerSeconds = 0;
+        let isRunning = false;
+
+        function save() {
+          localStorage.setItem('dts-time-projects', JSON.stringify(projects));
+          localStorage.setItem('dts-time-entries', JSON.stringify(entries));
+          render();
+        }
+
+        function formatTime(totalSeconds) {
+          const h = Math.floor(totalSeconds / 3600);
+          const m = Math.floor((totalSeconds % 3600) / 60);
+          const s = totalSeconds % 60;
+          return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+        
+        function formatDuration(minutes) {
+          const h = Math.floor(minutes / 60);
+          const m = minutes % 60;
+          return `${h}h ${m}m`;
+        }
+
+        function render() {
+          // Update project selects
+          const selects = [document.getElementById('tt-active-project'), document.getElementById('tt-manual-project')];
+          const projHtml = '<option value="">Select Project...</option>' + projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+          selects.forEach(s => {
+            const val = s.value;
+            s.innerHTML = projHtml;
+            s.value = val;
+          });
+
+          // Update project list
+          document.getElementById('tt-proj-list').innerHTML = projects.map(p => `
+            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0;">
+              <span style="width: 12px; height: 12px; background: ${p.color}; border-radius: 50%;"></span>
+              <span style="flex: 1; font-family: var(--mono); font-size: 0.9rem;">${p.name}</span>
+              <button onclick="deleteProject('${p.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer;">&times;</button>
+            </div>
+          `).join('');
+
+          // Update entries
+          entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+          let totalMins = 0;
+          document.getElementById('tt-entries-list').innerHTML = entries.map((e, idx) => {
+            const p = projects.find(pr => pr.id === e.projectId) || { name: 'Unknown', color: '#ccc' };
+            totalMins += e.durationMins;
+            return `
+              <tr>
+                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">${e.date}</td>
+                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">
+                  <span style="display: inline-block; width: 10px; height: 10px; background: ${p.color}; border-radius: 50%; margin-right: 5px;"></span>
+                  ${p.name}
+                </td>
+                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">${e.description}</td>
+                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">${formatDuration(e.durationMins)}</td>
+                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;" class="no-print">
+                  <button onclick="deleteEntry(${idx})" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; padding: 0.2rem 0.5rem; background: #ef4444;">Del</button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+          document.getElementById('tt-total-time').textContent = formatDuration(totalMins);
+        }
+
+        window.deleteProject = (id) => {
+          projects = projects.filter(p => p.id !== id);
+          save();
+        };
+
+        window.deleteEntry = (idx) => {
+          entries.splice(idx, 1);
+          save();
+        };
+
+        document.getElementById('tt-add-proj').addEventListener('click', () => {
+          const name = document.getElementById('tt-new-proj').value.trim();
+          const color = document.getElementById('tt-new-color').value;
+          if (name) {
+            projects.push({ id: Date.now().toString(), name, color });
+            document.getElementById('tt-new-proj').value = '';
+            save();
+          }
+        });
+
+        // Timer Logic
+        const disp = document.getElementById('tt-display');
+        const btnStart = document.getElementById('tt-start');
+        const btnPause = document.getElementById('tt-pause');
+        const btnStop = document.getElementById('tt-stop');
+
+        btnStart.addEventListener('click', () => {
+          if (!isRunning) {
+            isRunning = true;
+            timerInterval = setInterval(() => {
+              timerSeconds++;
+              disp.textContent = formatTime(timerSeconds);
+            }, 1000);
+            btnStart.style.display = 'none';
+            btnPause.style.display = 'block';
+            btnStop.style.display = 'block';
+          }
+        });
+
+        btnPause.addEventListener('click', () => {
+          isRunning = false;
+          clearInterval(timerInterval);
+          btnStart.style.display = 'block';
+          btnStart.textContent = 'Resume';
+          btnPause.style.display = 'none';
+        });
+
+        btnStop.addEventListener('click', () => {
+          isRunning = false;
+          clearInterval(timerInterval);
+          const durationMins = Math.round(timerSeconds / 60);
+          if (durationMins > 0) {
+            const projectId = document.getElementById('tt-active-project').value;
+            if (!projectId) { alert('Please select a project first!'); return; }
+            entries.push({
+              id: Date.now().toString(),
+              projectId,
+              date: new Date().toISOString().split('T')[0],
+              durationMins,
+              description: document.getElementById('tt-active-desc').value || 'Timer session'
+            });
+            save();
+          }
+          timerSeconds = 0;
+          disp.textContent = '00:00:00';
+          document.getElementById('tt-active-desc').value = '';
+          btnStart.style.display = 'block';
+          btnStart.textContent = 'Start';
+          btnPause.style.display = 'none';
+          btnStop.style.display = 'none';
+        });
+
+        // Manual Logic
+        document.getElementById('tt-manual-date').valueAsDate = new Date();
+        document.getElementById('tt-add-manual').addEventListener('click', () => {
+          const projectId = document.getElementById('tt-manual-project').value;
+          const date = document.getElementById('tt-manual-date').value;
+          const hrs = parseInt(document.getElementById('tt-manual-hrs').value) || 0;
+          const mins = parseInt(document.getElementById('tt-manual-mins').value) || 0;
+          const desc = document.getElementById('tt-manual-desc').value;
+          
+          if (!projectId || !date || (hrs === 0 && mins === 0)) {
+            alert('Please fill project, date, and time duration.');
+            return;
+          }
+          
+          entries.push({
+            id: Date.now().toString(),
+            projectId,
+            date,
+            durationMins: (hrs * 60) + mins,
+            description: desc
+          });
+          
+          document.getElementById('tt-manual-hrs').value = '0';
+          document.getElementById('tt-manual-mins').value = '0';
+          document.getElementById('tt-manual-desc').value = '';
+          save();
+        });
+
+        render();
+      </script>
+    </div>
+  
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>

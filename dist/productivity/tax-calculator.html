@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Convert Kilograms to Stones — Free Online Calculator | Digital Tools Shed</title>
-  <meta name="description" content="Instantly convert Kilograms (kg) to Stones (st). Free, fast, real-time formula calculations with zero tracking.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/kg-to-stone.html">
-  <meta property="og:title" content="Convert Kilograms to Stones — Free Online Calculator | Digital Tools Shed">
-  <meta property="og:description" content="Instantly convert Kilograms (kg) to Stones (st). Free, fast, real-time formula calculations with zero tracking.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/kg-to-stone.html">
+  <title>Tax Calculator | Digital Tools Shed</title>
+  <meta name="description" content="Estimate your income tax and net take-home pay.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/productivity/tax-calculator.html">
+  <meta property="og:title" content="Tax Calculator | Digital Tools Shed">
+  <meta property="og:description" content="Estimate your income tax and net take-home pay.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/productivity/tax-calculator.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
@@ -1216,7 +1216,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/productivity/task-manager.html" class="nav-link ">
         <div class="nav-link-content"><span>Task Manager</span></div>
       </a>
-      <a href="/productivity/tax-calculator.html" class="nav-link ">
+      <a href="/productivity/tax-calculator.html" class="nav-link active">
         <div class="nav-link-content"><span>Tax Calculator</span></div>
       </a>
       <a href="/productivity/timetable.html" class="nav-link ">
@@ -1304,7 +1304,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Convert Kilograms to Stones</span>
+            <span>Tax Calculator | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1344,175 +1344,192 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-        <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-          <h1 style="margin-top: 0.5rem;">Convert Kilograms to Stones</h1>
-          <p>Instantly calculate Kilograms (kg) to Stones (st) with real-time two-way formula calculation.</p>
-        </div>
-
-        <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-          <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.25rem; align-items: center;">
-            <div>
-              <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">Kilograms (kg)</label>
-              <input type="number" id="fromInput" class="search-input" value="1" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
-            </div>
-            <div style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--text-muted); padding-top: 1.5rem;">=</div>
-            <div>
-              <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">Stones (st)</label>
-              <input type="number" id="toInput" class="search-input" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
-            </div>
-          </div>
-        </div>
-
-        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Conversion Formula & Exact Calculation</h3>
+    <div class="article-container" style="max-width: 900px;">
+      <h1>Income Tax Calculator</h1>
+      <p style="color: var(--text-muted); margin-bottom: 2rem;">Estimate your annual taxes. (Disclaimer: For educational purposes only, not tax advice).</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr; gap: 2rem; @media(min-width:768px){grid-template-columns: 1fr 1fr;}">
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 2rem 0 1rem; margin-top: 0;">Income & Profile</h2>
           
-          <p style="line-height: 1.6; margin-bottom: 0.5rem;">How to convert Kilograms to Stones: Multiply by <strong>0.157473</strong>.</p>
-          <div style="font-family: var(--mono); background: var(--surface-alt); padding: 0.75rem; border: 1px solid var(--border);">
-            <strong>Formula:</strong> Stones = Kilograms × 0.157473
-          </div>
-        
-        </div>
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">System</label>
+          <select id="tc-system" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg); margin-bottom: 1rem;">
+            <option value="us2024">US Federal (2024)</option>
+            <option value="flat">Custom Flat Rate</option>
+          </select>
 
-        <div class="ad-blend-box" style="margin: 2rem 0; max-width: 850px;">
-          <span class="ad-label">Sponsored Resource</span>
-          <div class="ad-unit-300x250">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '335d807d460eaf2491fcca0f635474ce',
-                'format' : 'iframe',
-                'height' : 250,
-                'width' : 300,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-          </div>
-        </div>
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Gross Annual Income</label>
+          <input type="number" id="tc-income" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg); margin-bottom: 1rem; font-size: 1.2rem;" value="75000" min="0">
+          
+          <div id="tc-us-fields">
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Filing Status</label>
+            <select id="tc-status" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg); margin-bottom: 1rem;">
+              <option value="single">Single</option>
+              <option value="mfj">Married Filing Jointly</option>
+              <option value="hoh">Head of Household</option>
+            </select>
+            
+            <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 0.5rem;">
+              <input type="checkbox" id="tc-std-deduct" checked> Use Standard Deduction
+            </label>
+            
+            <div id="tc-custom-deduct-wrap" style="display: none; margin-bottom: 1rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Custom Deduction Amount</label>
+              <input type="number" id="tc-deduction" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" value="0" min="0">
+            </div>
 
-        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Kilograms to Stones Quick Reference Table</h3>
-          <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
-              <thead>
-                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
-                  <th style="padding: 0.6rem 0.75rem;">Kilograms (kg)</th>
-                  <th style="padding: 0.6rem 0.75rem;">Stones (st)</th>
-                </tr>
-              </thead>
-              <tbody>
-                
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">1 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.157473 st</td>
-          </tr>
+            <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 1rem;">
+              <input type="checkbox" id="tc-se"> Self-Employed (Add SE Tax ~15.3%)
+            </label>
+          </div>
+
+          <div id="tc-flat-fields" style="display: none;">
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Flat Tax Rate (%)</label>
+            <input type="number" id="tc-flat-rate" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg); margin-bottom: 1rem;" value="20" min="0" max="100">
+          </div>
+
+          <button id="tc-calc" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; width: 100%; font-size: 1rem; padding: 1rem;">Calculate Tax</button>
+        </div>
         
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">2 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.314946 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">5 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.787366 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">10 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">1.574731 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">25 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">3.936828 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">50 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">7.873656 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">100 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">15.747312 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">250 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">39.368281 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">500 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">78.736562 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">1000 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">157.473123 st</td>
-          </tr>
-        
-          <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">5000 kg</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">787.365616 st</td>
-          </tr>
-        
-              </tbody>
+        <div>
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 2rem 0 1rem; margin-top: 0;">Results Summary</h2>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span>Gross Income:</span>
+              <strong id="tc-res-gross">$0.00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #ef4444;">
+              <span>Total Tax:</span>
+              <strong id="tc-res-tax">$0.00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); color: #22c55e;">
+              <span>Net Income:</span>
+              <strong id="tc-res-net" style="font-size: 1.2rem;">$0.00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
+              <span>Effective Tax Rate:</span>
+              <span id="tc-res-rate">0.0%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted);">
+              <span>Taxable Income:</span>
+              <span id="tc-res-taxable">$0.00</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 1rem;">Tax Breakdown</h3>
+            <div style="height: 30px; display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 1rem; background: var(--surface);">
+              <div id="tc-bar-net" style="background: #22c55e; width: 80%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">Net</div>
+              <div id="tc-bar-tax" style="background: #ef4444; width: 20%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">Tax</div>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;" id="tc-bracket-table">
+              <!-- Injected by JS -->
             </table>
           </div>
         </div>
+      </div>
 
-        
-          <div style="margin: 2rem 0; max-width: 850px;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Related Weight & Mass Converters</h3>
-            <div class="tool-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-              
-          <a href="/calc/kg-to-lbs.html" class="tool-card">
-            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Kilograms to Pounds</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert kg to lbs instantly.</p>
-          </a>
-        
-          <a href="/calc/lbs-to-kg.html" class="tool-card">
-            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Pounds to Kilograms</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert lbs to kg instantly.</p>
-          </a>
-        
-          <a href="/calc/g-to-oz.html" class="tool-card">
-            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Grams to Ounces</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert g to oz instantly.</p>
-          </a>
-        
-          <a href="/calc/oz-to-g.html" class="tool-card">
-            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Ounces to Grams</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert oz to g instantly.</p>
-          </a>
-        
-            </div>
-          </div>
-        
+      <script>
+        // 2024 US Brackets (Simplified)
+        const us2024 = {
+          stdDeduction: { single: 14600, mfj: 29200, hoh: 21900 },
+          brackets: {
+            single: [
+              { rate: 0.10, upTo: 11600 }, { rate: 0.12, upTo: 47150 }, { rate: 0.22, upTo: 100525 },
+              { rate: 0.24, upTo: 191950 }, { rate: 0.32, upTo: 243725 }, { rate: 0.35, upTo: 609350 }, { rate: 0.37, upTo: Infinity }
+            ],
+            mfj: [
+              { rate: 0.10, upTo: 23200 }, { rate: 0.12, upTo: 94300 }, { rate: 0.22, upTo: 201050 },
+              { rate: 0.24, upTo: 383900 }, { rate: 0.32, upTo: 487450 }, { rate: 0.35, upTo: 731200 }, { rate: 0.37, upTo: Infinity }
+            ],
+            hoh: [
+              { rate: 0.10, upTo: 16550 }, { rate: 0.12, upTo: 63100 }, { rate: 0.22, upTo: 100500 },
+              { rate: 0.24, upTo: 191950 }, { rate: 0.32, upTo: 243700 }, { rate: 0.35, upTo: 609350 }, { rate: 0.37, upTo: Infinity }
+            ]
+          }
+        };
 
-        <script>
+        const sysSelect = document.getElementById('tc-system');
+        sysSelect.addEventListener('change', () => {
+          document.getElementById('tc-us-fields').style.display = sysSelect.value === 'us2024' ? 'block' : 'none';
+          document.getElementById('tc-flat-fields').style.display = sysSelect.value === 'flat' ? 'block' : 'none';
+        });
+
+        document.getElementById('tc-std-deduct').addEventListener('change', (e) => {
+          document.getElementById('tc-custom-deduct-wrap').style.display = e.target.checked ? 'none' : 'block';
+        });
+
+        function formatC(num) { return '$' + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
+
+        document.getElementById('tc-calc').addEventListener('click', () => {
+          const gross = parseFloat(document.getElementById('tc-income').value) || 0;
+          const system = document.getElementById('tc-system').value;
           
-          const factor = 0.1574731232746851;
-          const fromInput = document.getElementById('fromInput');
-          const toInput = document.getElementById('toInput');
+          let totalTax = 0;
+          let taxable = gross;
+          let breakdownHtml = '';
 
-          function updateFrom() {
-            const val = parseFloat(fromInput.value);
-            if (isNaN(val)) toInput.value = '';
-            else toInput.value = parseFloat((val * factor).toFixed(6));
-          }
-          function updateTo() {
-            const val = parseFloat(toInput.value);
-            if (isNaN(val)) fromInput.value = '';
-            else fromInput.value = parseFloat((val / factor).toFixed(6));
+          if (system === 'us2024') {
+            const status = document.getElementById('tc-status').value;
+            const useStd = document.getElementById('tc-std-deduct').checked;
+            const deduction = useStd ? us2024.stdDeduction[status] : (parseFloat(document.getElementById('tc-deduction').value) || 0);
+            
+            taxable = Math.max(0, gross - deduction);
+            const brackets = us2024.brackets[status];
+            
+            let remaining = taxable;
+            let prevLimit = 0;
+            let incTax = 0;
+            
+            breakdownHtml = `<tr><td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Deduction</td><td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left; text-align:right;">-${formatC(deduction)}</td></tr>`;
+            
+            for (const b of brackets) {
+              if (remaining <= 0) break;
+              const chunk = Math.min(remaining, b.upTo - prevLimit);
+              const taxForChunk = chunk * b.rate;
+              incTax += taxForChunk;
+              breakdownHtml += `<tr><td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">${(b.rate*100).toFixed(0)}% Bracket</td><td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left; text-align:right;">${formatC(taxForChunk)}</td></tr>`;
+              remaining -= chunk;
+              prevLimit = b.upTo;
+            }
+            
+            totalTax += incTax;
+
+            if (document.getElementById('tc-se').checked) {
+              // simplified SE tax: 15.3% on 92.35% of net earnings
+              const seTax = (gross * 0.9235) * 0.153;
+              totalTax += seTax;
+              breakdownHtml += `<tr><td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Self-Employment Tax</td><td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left; text-align:right;">${formatC(seTax)}</td></tr>`;
+            }
+
+          } else if (system === 'flat') {
+            const rate = (parseFloat(document.getElementById('tc-flat-rate').value) || 0) / 100;
+            totalTax = gross * rate;
+            breakdownHtml = `<tr><td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Flat Rate (${(rate*100).toFixed(1)}%)</td><td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left; text-align:right;">${formatC(totalTax)}</td></tr>`;
           }
 
-          fromInput.addEventListener('input', updateFrom);
-          toInput.addEventListener('input', updateTo);
-          updateFrom();
+          const net = gross - totalTax;
+          const effectiveRate = gross > 0 ? (totalTax / gross) * 100 : 0;
+
+          document.getElementById('tc-res-gross').textContent = formatC(gross);
+          document.getElementById('tc-res-taxable').textContent = formatC(taxable);
+          document.getElementById('tc-res-tax').textContent = formatC(totalTax);
+          document.getElementById('tc-res-net').textContent = formatC(net);
+          document.getElementById('tc-res-rate').textContent = effectiveRate.toFixed(1) + '%';
+          
+          document.getElementById('tc-bracket-table').innerHTML = breakdownHtml;
+
+          const taxPct = Math.min(100, Math.max(0, effectiveRate));
+          document.getElementById('tc-bar-tax').style.width = taxPct + '%';
+          document.getElementById('tc-bar-net').style.width = (100 - taxPct) + '%';
+        });
         
-        </script>
-      
+        // Initial calc
+        document.getElementById('tc-calc').click();
+      </script>
+    </div>
+  
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>
