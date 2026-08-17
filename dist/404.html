@@ -717,23 +717,41 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
 }
-.docked-sticky-ad .close-btn {
+.docked-sticky-ad.collapsed {
+  transform: translateY(calc(100% - 26px));
+  box-shadow: none;
+}
+.docked-sticky-ad .toggle-btn {
   position: absolute;
   right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--surface-alt);
+  top: -1px;
+  transform: translateY(-100%);
+  background: var(--surface);
   border: 1px solid var(--border);
+  border-bottom: none;
   color: var(--text-muted);
   font-family: var(--mono);
   font-size: 0.7rem;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 3px 12px;
+  border-radius: 4px 4px 0 0;
+  transition: color 0.2s, background 0.2s;
+  line-height: 1;
+  z-index: 1;
 }
-.docked-sticky-ad .close-btn:hover {
+.docked-sticky-ad .toggle-btn:hover {
   color: var(--fg);
-  border-color: var(--border-strong);
+  background: var(--surface-alt);
+}
+.docked-sticky-ad .toggle-btn .chevron {
+  display: inline-block;
+  transition: transform 0.35s ease;
+  font-size: 0.8rem;
+}
+.docked-sticky-ad.collapsed .toggle-btn .chevron {
+  transform: rotate(180deg);
 }
 
 @media (max-width: 768px) {
@@ -1719,7 +1737,7 @@ footer a:hover { text-decoration: underline; }
   </div>
 
   <div class="docked-sticky-ad" id="dockedStickyBar">
-    <button class="close-btn" onclick="document.getElementById('dockedStickyBar').style.display='none'">✕ Dismiss</button>
+    <button class="toggle-btn" onclick="var bar=document.getElementById('dockedStickyBar');bar.classList.toggle('collapsed')" aria-label="Toggle ad bar"><span class="chevron">▼</span></button>
     <div class="ad-desktop-leaderboard">
       <script type="text/javascript">
         atOptions = {
