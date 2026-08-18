@@ -1479,275 +1479,644 @@ footer a:hover { text-decoration: underline; }
       .print-only { display: none; }
     </style>
   
-    <div class="article-container" style="max-width: 900px;">
-      <div class="no-print">
-        <h1>Time Tracker</h1>
-        <p style="color: var(--text-muted); margin-bottom: 2rem;">Track time spent on projects. Data is saved locally in your browser.</p>
+    <div class="article-container" style="max-width: 1100px;">
+        <style>
+            :root {
+                --tt-header-bg: var(--surface);
+                --tt-cell-border: var(--border);
+                --tt-cell-hover: var(--surface-alt);
+                --tt-active-col: rgba(100, 100, 100, 0.05);
+            }
+            .tt-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .tt-nav {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .tt-nav-btn {
+                background: none;
+                border: 1px solid var(--border);
+                color: var(--fg);
+                cursor: pointer;
+                padding: 4px 8px;
+                border-radius: 4px;
+            }
+            .tt-nav-btn:hover {
+                background: var(--surface-alt);
+            }
+            .tt-date-range {
+                font-weight: bold;
+                font-family: var(--mono);
+            }
+            .tt-filters {
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            .tt-filter-pill {
+                padding: 4px 10px;
+                border: 1px dashed var(--border);
+                border-radius: 20px;
+                font-size: 0.85em;
+                color: var(--text-muted);
+                cursor: pointer;
+            }
+            .tt-filter-pill:hover {
+                background: var(--surface-alt);
+            }
+            .tt-view-toggle {
+                display: flex;
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                overflow: hidden;
+            }
+            .tt-view-btn {
+                background: var(--surface);
+                border: none;
+                padding: 6px 12px;
+                cursor: pointer;
+                color: var(--text-muted);
+            }
+            .tt-view-btn.active {
+                background: var(--btn-bg);
+                color: var(--btn-fg);
+            }
+            .tt-grid {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+            .tt-grid th, .tt-grid td {
+                border: 1px solid var(--tt-cell-border);
+                padding: 8px;
+                text-align: center;
+            }
+            .tt-grid th:first-child, .tt-grid td:first-child {
+                text-align: left;
+                width: 25%;
+            }
+            .tt-grid th {
+                background: var(--tt-header-bg);
+                font-weight: normal;
+                font-size: 0.9em;
+                color: var(--text-muted);
+            }
+            .tt-cell {
+                cursor: pointer;
+                min-height: 30px;
+                position: relative;
+            }
+            .tt-cell:hover {
+                background: var(--tt-cell-hover);
+            }
+            .tt-cell-input {
+                width: 100%;
+                box-sizing: border-box;
+                border: 1px solid var(--border);
+                background: var(--bg);
+                color: var(--fg);
+                text-align: center;
+                display: none;
+            }
+            .tt-cell.editing .tt-cell-input {
+                display: block;
+            }
+            .tt-cell.editing .tt-cell-val {
+                display: none;
+            }
+            .tt-project-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .tt-project-color {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                display: inline-block;
+            }
+            .tt-total-col {
+                font-weight: bold;
+                background: var(--surface);
+            }
+            .tt-add-task {
+                margin-top: 10px;
+                color: var(--text-muted);
+                cursor: pointer;
+                font-size: 0.9em;
+                display: inline-block;
+            }
+            .tt-add-task:hover {
+                text-decoration: underline;
+            }
+            
+            .tt-live-timer {
+                display: flex;
+                gap: 10px;
+                background: var(--surface);
+                padding: 15px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+                margin-bottom: 20px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .tt-timer-input {
+                flex-grow: 1;
+                border: none;
+                background: transparent;
+                color: var(--fg);
+                font-size: 1em;
+                outline: none;
+            }
+            .tt-timer-select {
+                background: transparent;
+                border: 1px solid var(--border);
+                color: var(--fg);
+                padding: 5px;
+                border-radius: 4px;
+            }
+            .tt-timer-display {
+                font-family: var(--mono);
+                font-size: 1.2em;
+                font-weight: bold;
+                min-width: 80px;
+                text-align: right;
+            }
+            .tt-timer-btn {
+                background: var(--btn-bg);
+                color: var(--btn-fg);
+                border: none;
+                border-radius: 50%;
+                width: 36px;
+                height: 36px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .tt-timer-btn.stop {
+                background: #e74c3c;
+            }
+            .tt-timer-btn.start {
+                background: #2ecc71;
+            }
+            
+            #tt-entries-view {
+                display: none;
+            }
+            .tt-entry-row {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px;
+                border-bottom: 1px solid var(--border);
+            }
+            .tt-entry-desc { flex-grow: 1; }
+            .tt-entry-project { color: var(--text-muted); width: 150px; }
+            .tt-entry-dur { font-family: var(--mono); font-weight: bold; width: 80px; text-align: right; }
+            .tt-entry-date { color: var(--text-subtle); width: 100px; text-align: right; }
+            .tt-entry-delete { color: #e74c3c; cursor: pointer; margin-left: 15px; background: none; border: none;}
+        </style>
+
+        <h1 style="font-family: var(--serif); font-size: 1.3rem; margin: 2rem 0 1rem;">Time Tracker</h1>
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1rem;">
-            <h2 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 0;">Live Timer</h2>
-            <div style="font-size: 3rem; font-family: var(--mono); text-align: center; margin: 1rem 0;" id="tt-display">00:00:00</div>
-            <div style="margin-bottom: 1rem;">
-              <select id="tt-active-project" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg); margin-bottom: 0.5rem;">
-                <option value="">Select Project...</option>
-              </select>
-              <input type="text" id="tt-active-desc" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" placeholder="What are you working on?">
-            </div>
-            <div style="display: flex; gap: 0.5rem; justify-content: center;">
-              <button id="tt-start" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em;">Start</button>
-              <button id="tt-pause" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: #eab308; color: #fff; display: none;">Pause</button>
-              <button id="tt-stop" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: #ef4444; color: #fff; display: none;">Stop & Save</button>
-            </div>
-          </div>
-          
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1rem;">
-            <h2 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 0;">Manage Projects</h2>
-            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
-              <input type="text" id="tt-new-proj" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" placeholder="Project Name">
-              <input type="color" id="tt-new-color" style="height: 38px; width: 50px; padding: 0; border: 1px solid var(--border);">
-              <button id="tt-add-proj" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em;">Add</button>
-            </div>
-            <div id="tt-proj-list" style="max-height: 150px; overflow-y: auto;"></div>
-          </div>
+        <div class="tt-live-timer">
+            <input type="text" id="tt-timer-desc" class="tt-timer-input" placeholder="What are you working on?">
+            <select id="tt-timer-project" class="tt-timer-select">
+                <option value="">No Project</option>
+            </select>
+            <div id="tt-timer-display" class="tt-timer-display">00:00:00</div>
+            <button id="tt-timer-toggle" class="tt-timer-btn start">▶</button>
         </div>
 
-        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1rem; margin-bottom: 2rem;">
-          <h2 style="font-family: var(--serif); font-size: 1.1rem; margin-top: 0;">Manual Entry</h2>
-          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: flex-end;">
-            <div style="flex: 1; min-width: 150px;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Project</label>
-              <select id="tt-manual-project" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);"></select>
+        <div class="tt-header">
+            <div class="tt-nav">
+                <button class="tt-nav-btn" id="tt-prev-week">&lt;</button>
+                <button class="tt-nav-btn" id="tt-next-week">&gt;</button>
+                <span class="tt-date-range" id="tt-date-range">...</span>
+                <button class="tt-nav-btn" id="tt-this-week">This week</button>
             </div>
-            <div>
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Date</label>
-              <input type="date" id="tt-manual-date" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);">
+            
+            <div class="tt-filters">
+                <span class="tt-filter-pill">Billable</span>
+                <span class="tt-filter-pill">Tag</span>
+                <span class="tt-filter-pill">Tracked time</span>
+                <span class="tt-filter-pill">Archived tasks</span>
+                <span class="tt-filter-pill">Date added</span>
             </div>
-            <div style="width: 70px;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Hours</label>
-              <input type="number" id="tt-manual-hrs" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" min="0" value="0">
+
+            <div class="tt-view-toggle">
+                <button class="tt-view-btn active" id="tt-btn-timesheet">Timesheet</button>
+                <button class="tt-view-btn" id="tt-btn-entries">Time entries</button>
             </div>
-            <div style="width: 70px;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Mins</label>
-              <input type="number" id="tt-manual-mins" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);" min="0" max="59" value="0">
-            </div>
-            <div style="flex: 2; min-width: 200px;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; display: block;">Description</label>
-              <input type="text" id="tt-manual-desc" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border); background: var(--input-bg, #fff); color: var(--fg);">
-            </div>
-            <button id="tt-add-manual" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em;">Add Entry</button>
-          </div>
         </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 2rem 0 1rem; margin: 0;">Time Entries</h2>
-          <button onclick="window.print()" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; background: var(--surface); color: var(--fg); border: 1px solid var(--border);">Export Report</button>
-        </div>
-      </div>
-      
-      <!-- Print Header -->
-      <div class="print-only" style="margin-bottom: 20px;">
-        <h1 style="border-bottom: 2px solid #000; padding-bottom: 10px;">Time Tracking Report</h1>
-        <p>Generated: <span id="tt-print-date"></span></p>
-      </div>
 
-      <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse;">
-          <thead style="background: var(--surface);">
-            <tr>
-              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Date</th>
-              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Project</th>
-              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Description</th>
-              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">Duration</th>
-              <th style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;" class="no-print">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="tt-entries-list"></tbody>
-          <tfoot>
-            <tr style="background: var(--surface); font-weight: bold;">
-              <td colspan="3" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left; text-align: right;">Total Time:</td>
-              <td colspan="2" style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;" id="tt-total-time">0h 0m</td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      <script>
-        document.getElementById('tt-print-date').textContent = new Date().toLocaleDateString();
-        
-        let projects = JSON.parse(localStorage.getItem('dts-time-projects') || '[]');
-        let entries = JSON.parse(localStorage.getItem('dts-time-entries') || '[]');
-        
-        let timerInterval;
-        let timerSeconds = 0;
-        let isRunning = false;
-
-        function save() {
-          localStorage.setItem('dts-time-projects', JSON.stringify(projects));
-          localStorage.setItem('dts-time-entries', JSON.stringify(entries));
-          render();
-        }
-
-        function formatTime(totalSeconds) {
-          const h = Math.floor(totalSeconds / 3600);
-          const m = Math.floor((totalSeconds % 3600) / 60);
-          const s = totalSeconds % 60;
-          return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-        
-        function formatDuration(minutes) {
-          const h = Math.floor(minutes / 60);
-          const m = minutes % 60;
-          return `${h}h ${m}m`;
-        }
-
-        function render() {
-          // Update project selects
-          const selects = [document.getElementById('tt-active-project'), document.getElementById('tt-manual-project')];
-          const projHtml = '<option value="">Select Project...</option>' + projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-          selects.forEach(s => {
-            const val = s.value;
-            s.innerHTML = projHtml;
-            s.value = val;
-          });
-
-          // Update project list
-          document.getElementById('tt-proj-list').innerHTML = projects.map(p => `
-            <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0;">
-              <span style="width: 12px; height: 12px; background: ${p.color}; border-radius: 50%;"></span>
-              <span style="flex: 1; font-family: var(--mono); font-size: 0.9rem;">${p.name}</span>
-              <button onclick="deleteProject('${p.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer;">&times;</button>
+        <div id="tt-timesheet-view">
+            <div style="overflow-x: auto;">
+                <table class="tt-grid" id="tt-grid">
+                    <thead>
+                        <tr id="tt-grid-header">
+                            <th>Task/Project</th>
+                            <th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th><th>Sun</th>
+                            <th class="tt-total-col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tt-grid-body">
+                    </tbody>
+                </table>
             </div>
-          `).join('');
+            <div class="tt-add-task" id="tt-add-task">+ Add task</div>
+        </div>
 
-          // Update entries
-          entries.sort((a, b) => new Date(b.date) - new Date(a.date));
-          let totalMins = 0;
-          document.getElementById('tt-entries-list').innerHTML = entries.map((e, idx) => {
-            const p = projects.find(pr => pr.id === e.projectId) || { name: 'Unknown', color: '#ccc' };
-            totalMins += e.durationMins;
-            return `
-              <tr>
-                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">${e.date}</td>
-                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">
-                  <span style="display: inline-block; width: 10px; height: 10px; background: ${p.color}; border-radius: 50%; margin-right: 5px;"></span>
-                  ${p.name}
-                </td>
-                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">${e.description}</td>
-                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;">${formatDuration(e.durationMins)}</td>
-                <td style="padding: 0.5rem 0.75rem; border: 1px solid var(--border); font-size: 0.9rem; text-align: left;" class="no-print">
-                  <button onclick="deleteEntry(${idx})" style="background: var(--btn-bg); color: var(--btn-fg); border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; letter-spacing: 0.03em; padding: 0.2rem 0.5rem; background: #ef4444;">Del</button>
-                </td>
-              </tr>
-            `;
-          }).join('');
-          document.getElementById('tt-total-time').textContent = formatDuration(totalMins);
-        }
+        <div id="tt-entries-view">
+            <div id="tt-entries-list"></div>
+        </div>
 
-        window.deleteProject = (id) => {
-          projects = projects.filter(p => p.id !== id);
-          save();
-        };
+        <script>
+            (() => {
+                // State
+                let currentDate = new Date();
+                let projects = JSON.parse(localStorage.getItem('dts-time-projects') || '[]');
+                let entries = JSON.parse(localStorage.getItem('dts-time-entries') || '[]');
+                
+                // Initialize default project if none exists
+                if (projects.length === 0) {
+                    projects.push({ id: 'proj-' + Date.now(), name: 'General', color: '#3498db' });
+                    saveProjects();
+                }
 
-        window.deleteEntry = (idx) => {
-          entries.splice(idx, 1);
-          save();
-        };
+                // Timer state
+                let timerInterval = null;
+                let timerSeconds = 0;
+                let isTimerRunning = false;
+                
+                function saveProjects() { localStorage.setItem('dts-time-projects', JSON.stringify(projects)); }
+                function saveEntries() { localStorage.setItem('dts-time-entries', JSON.stringify(entries)); }
+                
+                function formatDuration(mins) {
+                    if (!mins) return '-';
+                    const h = Math.floor(mins / 60);
+                    const m = mins % 60;
+                    if (h > 0 && m > 0) return `${h}h ${m}m`;
+                    if (h > 0) return `${h}h`;
+                    return `${m}m`;
+                }
 
-        document.getElementById('tt-add-proj').addEventListener('click', () => {
-          const name = document.getElementById('tt-new-proj').value.trim();
-          const color = document.getElementById('tt-new-color').value;
-          if (name) {
-            projects.push({ id: Date.now().toString(), name, color });
-            document.getElementById('tt-new-proj').value = '';
-            save();
-          }
-        });
+                function parseDuration(str) {
+                    if (!str || str.trim() === '') return 0;
+                    let mins = 0;
+                    const hMatch = str.match(/(\d+)\s*h/i);
+                    const mMatch = str.match(/(\d+)\s*m/i);
+                    const numMatch = str.match(/^\d+$/);
+                    
+                    if (hMatch) mins += parseInt(hMatch[1]) * 60;
+                    if (mMatch) mins += parseInt(mMatch[1]);
+                    
+                    if (!hMatch && !mMatch && numMatch) {
+                        // Just a number, assume hours if <=24, else mins
+                        const num = parseInt(numMatch[0]);
+                        mins = num <= 24 ? num * 60 : num;
+                    }
+                    return mins;
+                }
 
-        // Timer Logic
-        const disp = document.getElementById('tt-display');
-        const btnStart = document.getElementById('tt-start');
-        const btnPause = document.getElementById('tt-pause');
-        const btnStop = document.getElementById('tt-stop');
+                function getWeekRange(date) {
+                    const d = new Date(date);
+                    const day = d.getDay() || 7; // Sunday is 7
+                    d.setDate(d.getDate() - day + 1); // Monday
+                    const week = [];
+                    for(let i=0; i<7; i++) {
+                        const sd = new Date(d);
+                        sd.setDate(d.getDate() + i);
+                        week.push(sd);
+                    }
+                    return week;
+                }
 
-        btnStart.addEventListener('click', () => {
-          if (!isRunning) {
-            isRunning = true;
-            timerInterval = setInterval(() => {
-              timerSeconds++;
-              disp.textContent = formatTime(timerSeconds);
-            }, 1000);
-            btnStart.style.display = 'none';
-            btnPause.style.display = 'block';
-            btnStop.style.display = 'block';
-          }
-        });
+                function formatDateForStorage(date) {
+                    const yyyy = date.getFullYear();
+                    const mm = String(date.getMonth() + 1).padStart(2, '0');
+                    const dd = String(date.getDate()).padStart(2, '0');
+                    return `${yyyy}-${mm}-${dd}`;
+                }
 
-        btnPause.addEventListener('click', () => {
-          isRunning = false;
-          clearInterval(timerInterval);
-          btnStart.style.display = 'block';
-          btnStart.textContent = 'Resume';
-          btnPause.style.display = 'none';
-        });
+                function getMonthShortName(monthIndex) {
+                    return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][monthIndex];
+                }
 
-        btnStop.addEventListener('click', () => {
-          isRunning = false;
-          clearInterval(timerInterval);
-          const durationMins = Math.round(timerSeconds / 60);
-          if (durationMins > 0) {
-            const projectId = document.getElementById('tt-active-project').value;
-            if (!projectId) { alert('Please select a project first!'); return; }
-            entries.push({
-              id: Date.now().toString(),
-              projectId,
-              date: new Date().toISOString().split('T')[0],
-              durationMins,
-              description: document.getElementById('tt-active-desc').value || 'Timer session'
-            });
-            save();
-          }
-          timerSeconds = 0;
-          disp.textContent = '00:00:00';
-          document.getElementById('tt-active-desc').value = '';
-          btnStart.style.display = 'block';
-          btnStart.textContent = 'Start';
-          btnPause.style.display = 'none';
-          btnStop.style.display = 'none';
-        });
+                function updateNav() {
+                    const week = getWeekRange(currentDate);
+                    const start = week[0];
+                    const end = week[6];
+                    let text = '';
+                    if (start.getMonth() === end.getMonth()) {
+                        text = `${getMonthShortName(start.getMonth())} ${start.getDate()} - ${end.getDate()}`;
+                    } else {
+                        text = `${getMonthShortName(start.getMonth())} ${start.getDate()} - ${getMonthShortName(end.getMonth())} ${end.getDate()}`;
+                    }
+                    document.getElementById('tt-date-range').textContent = text;
+                }
 
-        // Manual Logic
-        document.getElementById('tt-manual-date').valueAsDate = new Date();
-        document.getElementById('tt-add-manual').addEventListener('click', () => {
-          const projectId = document.getElementById('tt-manual-project').value;
-          const date = document.getElementById('tt-manual-date').value;
-          const hrs = parseInt(document.getElementById('tt-manual-hrs').value) || 0;
-          const mins = parseInt(document.getElementById('tt-manual-mins').value) || 0;
-          const desc = document.getElementById('tt-manual-desc').value;
-          
-          if (!projectId || !date || (hrs === 0 && mins === 0)) {
-            alert('Please fill project, date, and time duration.');
-            return;
-          }
-          
-          entries.push({
-            id: Date.now().toString(),
-            projectId,
-            date,
-            durationMins: (hrs * 60) + mins,
-            description: desc
-          });
-          
-          document.getElementById('tt-manual-hrs').value = '0';
-          document.getElementById('tt-manual-mins').value = '0';
-          document.getElementById('tt-manual-desc').value = '';
-          save();
-        });
+                function getEntriesForDateAndProject(dateStr, projectId) {
+                    return entries.filter(e => e.date === dateStr && e.projectId === projectId);
+                }
 
-        render();
-      </script>
+                function getDailyTotal(dateStr) {
+                    return entries.filter(e => e.date === dateStr).reduce((sum, e) => sum + (e.durationMins || 0), 0);
+                }
+                
+                function getProjectTotal(projectId, weekDates) {
+                    let total = 0;
+                    weekDates.forEach(d => {
+                        const dateStr = formatDateForStorage(d);
+                        total += getEntriesForDateAndProject(dateStr, projectId).reduce((sum, e) => sum + (e.durationMins || 0), 0);
+                    });
+                    return total;
+                }
+
+                function renderTimesheet() {
+                    const weekDates = getWeekRange(currentDate);
+                    const headerRow = document.getElementById('tt-grid-header');
+                    
+                    // Update header
+                    let headerHtml = '<th>Task/Project</th>';
+                    const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    
+                    weekDates.forEach((d, i) => {
+                        const dateStr = formatDateForStorage(d);
+                        const dailyTotal = getDailyTotal(dateStr);
+                        const todayStr = formatDateForStorage(new Date());
+                        const isToday = dateStr === todayStr;
+                        
+                        headerHtml += `<th style="${isToday ? 'background: var(--tt-active-col);' : ''}">
+                            ${dayNames[i]} ${d.getDate()} <br>
+                            <small>${formatDuration(dailyTotal)}</small>
+                        </th>`;
+                    });
+                    headerHtml += '<th class="tt-total-col">Total</th>';
+                    headerRow.innerHTML = headerHtml;
+
+                    // Update body
+                    const tbody = document.getElementById('tt-grid-body');
+                    let bodyHtml = '';
+                    
+                    projects.forEach(p => {
+                        bodyHtml += `<tr>
+                            <td>
+                                <div class="tt-project-label">
+                                    <span class="tt-project-color" style="background-color: ${p.color}"></span>
+                                    ${p.name}
+                                </div>
+                            </td>`;
+                        
+                        weekDates.forEach(d => {
+                            const dateStr = formatDateForStorage(d);
+                            const dayEntries = getEntriesForDateAndProject(dateStr, p.id);
+                            const totalMins = dayEntries.reduce((sum, e) => sum + (e.durationMins || 0), 0);
+                            const todayStr = formatDateForStorage(new Date());
+                            const isToday = dateStr === todayStr;
+                            
+                            bodyHtml += `<td class="tt-cell" data-date="${dateStr}" data-project="${p.id}" style="${isToday ? 'background: var(--tt-active-col);' : ''}">
+                                <span class="tt-cell-val">${formatDuration(totalMins)}</span>
+                                <input type="text" class="tt-cell-input" value="${totalMins ? formatDuration(totalMins) : ''}">
+                            </td>`;
+                        });
+                        
+                        bodyHtml += `<td class="tt-total-col">${formatDuration(getProjectTotal(p.id, weekDates))}</td></tr>`;
+                    });
+                    tbody.innerHTML = bodyHtml;
+                    
+                    bindCellEvents();
+                }
+
+                function bindCellEvents() {
+                    const cells = document.querySelectorAll('.tt-cell');
+                    cells.forEach(cell => {
+                        cell.addEventListener('click', function(e) {
+                            if (this.classList.contains('editing')) return;
+                            
+                            // Close others
+                            document.querySelectorAll('.tt-cell.editing').forEach(c => {
+                                closeCell(c);
+                            });
+                            
+                            this.classList.add('editing');
+                            const input = this.querySelector('.tt-cell-input');
+                            input.focus();
+                            input.select();
+                        });
+                        
+                        const input = cell.querySelector('.tt-cell-input');
+                        input.addEventListener('blur', function() {
+                            closeCell(cell);
+                        });
+                        input.addEventListener('keydown', function(e) {
+                            if (e.key === 'Enter') closeCell(cell);
+                            if (e.key === 'Escape') {
+                                this.value = cell.querySelector('.tt-cell-val').textContent; // revert
+                                cell.classList.remove('editing');
+                            }
+                        });
+                    });
+                }
+                
+                function closeCell(cell) {
+                    if (!cell.classList.contains('editing')) return;
+                    cell.classList.remove('editing');
+                    
+                    const input = cell.querySelector('.tt-cell-input');
+                    const newMins = parseDuration(input.value);
+                    const dateStr = cell.getAttribute('data-date');
+                    const projectId = cell.getAttribute('data-project');
+                    
+                    // Remove old entries for this project+date and add new one if > 0
+                    entries = entries.filter(e => !(e.date === dateStr && e.projectId === projectId));
+                    
+                    if (newMins > 0) {
+                        entries.push({
+                            id: 'entry-' + Date.now(),
+                            projectId: projectId,
+                            date: dateStr,
+                            durationMins: newMins,
+                            description: 'Tracked time'
+                        });
+                    }
+                    saveEntries();
+                    renderTimesheet();
+                    renderEntries();
+                }
+
+                function renderEntries() {
+                    const list = document.getElementById('tt-entries-list');
+                    const weekDates = getWeekRange(currentDate);
+                    const startDate = formatDateForStorage(weekDates[0]);
+                    const endDate = formatDateForStorage(weekDates[6]);
+                    
+                    const weekEntries = entries.filter(e => e.date >= startDate && e.date <= endDate)
+                        .sort((a, b) => b.date.localeCompare(a.date));
+                        
+                    if (weekEntries.length === 0) {
+                        list.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-muted);">No time entries this week.</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    weekEntries.forEach(e => {
+                        const proj = projects.find(p => p.id === e.projectId) || { name: 'Unknown', color: '#ccc' };
+                        html += `
+                            <div class="tt-entry-row">
+                                <div class="tt-entry-desc">${e.description || '(no description)'}</div>
+                                <div class="tt-entry-project">
+                                    <span class="tt-project-color" style="background-color: ${proj.color}"></span>
+                                    ${proj.name}
+                                </div>
+                                <div class="tt-entry-date">${e.date}</div>
+                                <div class="tt-entry-dur">${formatDuration(e.durationMins)}</div>
+                                <button class="tt-entry-delete" data-id="${e.id}">×</button>
+                            </div>
+                        `;
+                    });
+                    list.innerHTML = html;
+                    
+                    list.querySelectorAll('.tt-entry-delete').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const id = this.getAttribute('data-id');
+                            entries = entries.filter(e => e.id !== id);
+                            saveEntries();
+                            renderTimesheet();
+                            renderEntries();
+                        });
+                    });
+                }
+                
+                function updateTimerDisplay() {
+                    const h = Math.floor(timerSeconds / 3600);
+                    const m = Math.floor((timerSeconds % 3600) / 60);
+                    const s = timerSeconds % 60;
+                    document.getElementById('tt-timer-display').textContent = 
+                        `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                }
+
+                function toggleTimer() {
+                    const btn = document.getElementById('tt-timer-toggle');
+                    if (isTimerRunning) {
+                        // Stop
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        btn.textContent = '▶';
+                        btn.classList.remove('stop');
+                        btn.classList.add('start');
+                        
+                        // Save entry
+                        if (timerSeconds > 60) {
+                            const projId = document.getElementById('tt-timer-project').value || projects[0]?.id;
+                            const desc = document.getElementById('tt-timer-desc').value || 'Timer entry';
+                            const mins = Math.round(timerSeconds / 60);
+                            
+                            if (projId) {
+                                entries.push({
+                                    id: 'entry-' + Date.now(),
+                                    projectId: projId,
+                                    date: formatDateForStorage(new Date()),
+                                    durationMins: mins,
+                                    description: desc
+                                });
+                                saveEntries();
+                                renderTimesheet();
+                                renderEntries();
+                            }
+                        }
+                        
+                        timerSeconds = 0;
+                        updateTimerDisplay();
+                        document.getElementById('tt-timer-desc').value = '';
+                    } else {
+                        // Start
+                        isTimerRunning = true;
+                        btn.textContent = '■';
+                        btn.classList.remove('start');
+                        btn.classList.add('stop');
+                        timerInterval = setInterval(() => {
+                            timerSeconds++;
+                            updateTimerDisplay();
+                        }, 1000);
+                    }
+                }
+
+                function init() {
+                    // Populate project select
+                    const projSelect = document.getElementById('tt-timer-project');
+                    projSelect.innerHTML = '<option value="">No Project</option>' + projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+                    document.getElementById('tt-prev-week').addEventListener('click', () => {
+                        currentDate.setDate(currentDate.getDate() - 7);
+                        updateAll();
+                    });
+                    
+                    document.getElementById('tt-next-week').addEventListener('click', () => {
+                        currentDate.setDate(currentDate.getDate() + 7);
+                        updateAll();
+                    });
+                    
+                    document.getElementById('tt-this-week').addEventListener('click', () => {
+                        currentDate = new Date();
+                        updateAll();
+                    });
+                    
+                    document.getElementById('tt-btn-timesheet').addEventListener('click', (e) => {
+                        e.target.classList.add('active');
+                        document.getElementById('tt-btn-entries').classList.remove('active');
+                        document.getElementById('tt-timesheet-view').style.display = 'block';
+                        document.getElementById('tt-entries-view').style.display = 'none';
+                    });
+                    
+                    document.getElementById('tt-btn-entries').addEventListener('click', (e) => {
+                        e.target.classList.add('active');
+                        document.getElementById('tt-btn-timesheet').classList.remove('active');
+                        document.getElementById('tt-timesheet-view').style.display = 'none';
+                        document.getElementById('tt-entries-view').style.display = 'block';
+                    });
+                    
+                    document.getElementById('tt-add-task').addEventListener('click', () => {
+                        const name = prompt('Enter new project/task name:');
+                        if (name) {
+                            const colors = ['#e74c3c', '#8e44ad', '#2980b9', '#27ae60', '#f39c12', '#d35400', '#c0392b', '#16a085'];
+                            projects.push({
+                                id: 'proj-' + Date.now(),
+                                name: name,
+                                color: colors[projects.length % colors.length]
+                            });
+                            saveProjects();
+                            // Update select
+                            projSelect.innerHTML = '<option value="">No Project</option>' + projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+                            renderTimesheet();
+                        }
+                    });
+
+                    document.getElementById('tt-timer-toggle').addEventListener('click', toggleTimer);
+
+                    updateAll();
+                }
+
+                function updateAll() {
+                    updateNav();
+                    renderTimesheet();
+                    renderEntries();
+                }
+
+                // Initial render
+                init();
+            })();
+        </script>
     </div>
-  
+
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>
