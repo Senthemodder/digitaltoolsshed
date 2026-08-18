@@ -1388,9 +1388,84 @@ footer a:hover { text-decoration: underline; }
           
     
     <style>
-      @media print {
+      
+.sponsor-grid {
+  margin: 2rem 0 0;
+  padding: 1.5rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+}
+.sponsor-grid-title {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: color-mix(in srgb, var(--text-subtle) 70%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sponsor-grid-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border), transparent);
+  opacity: 0.3;
+}
+.sponsor-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+@media (max-width: 768px) {
+  .sponsor-cards { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 480px) {
+  .sponsor-cards { grid-template-columns: 1fr; }
+}
+.sponsor-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(145deg, var(--surface) 0%, var(--bg) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 35%, transparent);
+  border-radius: 5px;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.2s;
+  cursor: pointer;
+}
+.sponsor-card:hover {
+  border-color: var(--border);
+  transform: translateY(-1px);
+}
+.sponsor-card-thumb {
+  width: 100%;
+  height: 80px;
+  position: relative;
+  overflow: hidden;
+}
+.sponsor-card-body {
+  padding: 0.6rem 0.7rem;
+}
+.sponsor-card-body h4 {
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0 0 0.4rem;
+  color: var(--fg);
+}
+.sponsor-card-body .sponsor-source {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: color-mix(in srgb, var(--text-muted) 60%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+@media print {
         .topbar, .sidebar, .ad-blend-box, .ad-sidebar-card, .ad-promo-card, .ad-hero-undercard,
-        .ad-category-break, .ad-pre-footer, .docked-sticky-ad, .sponsor-notice, .mobile-welcome-overlay,
+        .ad-category-break, .ad-pre-footer, .docked-sticky-ad, .sponsor-notice, .mobile-welcome-overlay, .sponsor-grid,
         .ad-unit-300x250, .ad-unit-468x60, .ad-desktop-leaderboard, .ad-mobile-banner,
         .right-rail, footer, .no-print { display: none !important; }
         .content-area { margin: 0; padding: 0; width: 100%; max-width: 100%; }
@@ -1821,6 +1896,61 @@ footer a:hover { text-decoration: underline; }
             <script type="text/javascript" src="https://manyapostle.com/bba2ed7e2aff3607f66ff8e410f1fcbe/invoke.js"></script>
           </div>
         </aside>
+      </div>
+
+
+      <div class="sponsor-grid">
+        <div class="sponsor-grid-title">From Our Sponsors</div>
+        <div class="sponsor-cards">
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>Why Smart Users Are Switching to This Free Toolkit</h4>
+                <span class="sponsor-source">TechPartners · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #2d1b36 0%, #1b1329 50%, #0d1117 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>The Browser Feature Most People Never Use</h4>
+                <span class="sponsor-source">DigitalInsider · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a2332 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>Stop Paying for Software You Can Get Free</h4>
+                <span class="sponsor-source">SaveSmart · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a1a1a 50%, #1a0a0a 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>File Conversion Tricks That Save Hours Every Week</h4>
+                <span class="sponsor-source">ProductivityHub · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #0a1628 0%, #132238 50%, #1a3050 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>This Free Tool Replaced 5 Paid Apps for Our Team</h4>
+                <span class="sponsor-source">WorkflowDaily · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>What Your Browser Can Do Without Any Extensions</h4>
+                <span class="sponsor-source">TechRadar Pro · Sponsored</span>
+              </div>
+            </a>
+        </div>
       </div>
 
       <div class="ad-pre-footer">
