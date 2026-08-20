@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, copyFileSync, statSync } from 'fs';
 import { join, dirname } from 'path';
+import { buildLearnSection } from './learn.js';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -96,7 +97,11 @@ const TOOLS = [
   { id: 'invoice-from-time', name: 'Invoice from Time', category: 'Productivity', path: '/productivity/invoice-from-time.html', desc: 'Generate invoices from tracked time entries.' },
   { id: 'tax-calculator', name: 'Tax Calculator', category: 'Productivity', path: '/productivity/tax-calculator.html', desc: 'Calculate income tax with US federal brackets and deductions.' },
   { id: 'task-manager', name: 'Task Manager', category: 'Productivity', path: '/productivity/task-manager.html', desc: 'Create and track tasks with priorities. Export as PDF or DOCX.' },
-  { id: 'timetable', name: 'Weekly Timetable', category: 'Productivity', path: '/productivity/timetable.html', desc: 'Visual weekly schedule planner with color-coded blocks.' }
+  { id: 'timetable', name: 'Weekly Timetable', category: 'Productivity', path: '/productivity/timetable.html', desc: 'Visual weekly schedule planner with color-coded blocks.' },
+
+  // Education & Learning Guides
+  { id: 'learn-hub', name: 'Learning Hub', category: 'Learn & Code', path: '/learn/', desc: 'Master web development with hands-on guides and interactive code playgrounds.' },
+  { id: 'learn-javascript', name: 'JavaScript Guide', category: 'Learn & Code', path: '/learn/javascript/', desc: 'Complete JavaScript guide from syntax basics to practical interactive projects.' },
 ];
 
 // ─── MASTER CSS ───────────────────────────────────────────────────────────
@@ -3959,6 +3964,10 @@ function buildSEOAssets() {
   collectUrls(join(DIST, 'mc'), '/mc');
   collectUrls(join(DIST, 'articles'), '/articles');
   discoveredUrls.push(`${DOMAIN}/articles/`);
+  collectUrls(join(DIST, 'productivity'), '/productivity');
+  collectUrls(join(DIST, 'learn'), '/learn');
+  discoveredUrls.push(`${DOMAIN}/learn/`);
+  discoveredUrls.push(`${DOMAIN}/learn/javascript/`);
 
   const uniqueUrls = [...new Set(discoveredUrls)];
 
@@ -6102,6 +6111,7 @@ function main() {
   buildUnitCalcSuite();
   buildArticlesSuite();
   buildProductivitySuite();
+  buildLearnSection({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildTrustPages();
   build404Page();
   buildSEOAssets();
