@@ -1,6 +1,10 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, copyFileSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { buildLearnSection } from './learn.js';
+import { buildDevToolsSuite } from './dev_tools.js';
+import { buildTextToolsSuite } from './text_tools.js';
+import { buildSecurityToolsSuite } from './security_tools.js';
+import { buildDesignToolsSuite } from './design_tools.js';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -3968,6 +3972,16 @@ function buildSEOAssets() {
   collectUrls(join(DIST, 'learn'), '/learn');
   discoveredUrls.push(`${DOMAIN}/learn/`);
   discoveredUrls.push(`${DOMAIN}/learn/javascript/`);
+  collectUrls(join(DIST, 'dev'), '/dev');
+  discoveredUrls.push(`${DOMAIN}/dev/`);
+  collectUrls(join(DIST, 'text'), '/text');
+  discoveredUrls.push(`${DOMAIN}/text/`);
+  collectUrls(join(DIST, 'security'), '/security');
+  discoveredUrls.push(`${DOMAIN}/security/`);
+  collectUrls(join(DIST, 'design'), '/design');
+  discoveredUrls.push(`${DOMAIN}/design/`);
+  discoveredUrls.push(`${DOMAIN}/learn/`);
+  discoveredUrls.push(`${DOMAIN}/learn/javascript/`);
 
   const uniqueUrls = [...new Set(discoveredUrls)];
 
@@ -6112,6 +6126,10 @@ function main() {
   buildArticlesSuite();
   buildProductivitySuite();
   buildLearnSection({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildDesignToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildTrustPages();
   build404Page();
   buildSEOAssets();
