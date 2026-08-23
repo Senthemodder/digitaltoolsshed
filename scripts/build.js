@@ -1,3 +1,4 @@
+import { buildViralTools } from './viral_tools.js';
 import { buildTradeTools } from './trade_tools.js';
 // scripts/build.js — Master Static Site Generator for Digital Tools Shed
 import { writeFileSync } from 'fs';
@@ -40,6 +41,7 @@ function main() {
   buildPdfTools();
   buildMinecraftTools();
   buildTradeTools();
+  buildViralTools();
   buildUnitCalcSuite();
   buildArticlesSuite();
   buildProductivitySuite();
