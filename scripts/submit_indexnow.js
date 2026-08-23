@@ -2,6 +2,7 @@
 import { readFileSync, existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import https from 'https';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -10,6 +11,36 @@ const SITEMAP_PATH = join(ROOT, 'dist', 'sitemap.xml');
 const HOST = 'digitaltoolsshed.com';
 const INDEXNOW_KEY = 'd03e981bc84f479a9e3a6c2f84b1509b';
 const KEY_LOCATION = `https://${HOST}/${INDEXNOW_KEY}.txt`;
+
+function postJson(hostname, path, data) {
+  return new Promise((resolve, reject) => {
+    const postData = JSON.stringify(data);
+    const req = https.request({
+      hostname,
+      port: 443,
+      path,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Content-Length': Buffer.byteLength(postData)
+      },
+      timeout: 10000
+    }, (res) => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => resolve({ status: res.statusCode, body }));
+    });
+
+    req.on('error', reject);
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Request timed out'));
+    });
+
+    req.write(postData);
+    req.end();
+  });
+}
 
 async function submitToIndexNow() {
   console.log('\n🚀 Submitting Digital Tools Shed to IndexNow Search Engine Network...');
@@ -39,25 +70,20 @@ async function submitToIndexNow() {
   };
 
   const endpoints = [
-    { name: 'IndexNow Global (Bing, Yandex, Naver, Seznam)', url: 'https://api.indexnow.org/indexnow' },
-    { name: 'Microsoft Bing Direct', url: 'https://www.bing.com/indexnow' },
-    { name: 'Yandex Direct', url: 'https://yandex.com/indexnow' }
+    { name: 'IndexNow Global (Bing, Yandex, Naver, Seznam)', host: 'api.indexnow.org', path: '/indexnow' },
+    { name: 'Microsoft Bing Direct', host: 'www.bing.com', path: '/indexnow' },
+    { name: 'Yandex Direct', host: 'yandex.com', path: '/indexnow' }
   ];
 
   for (const ep of endpoints) {
     try {
-      console.log(`\n📡 Pinging ${ep.name} (${ep.url})...`);
-      const res = await fetch(ep.url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json; charset=utf-8' },
-        body: JSON.stringify(payload)
-      });
+      console.log(`\n📡 Pinging ${ep.name} (https://${ep.host}${ep.path})...`);
+      const res = await postJson(ep.host, ep.path, payload);
 
       if (res.status === 200 || res.status === 202) {
         console.log(`   ✅ Success! HTTP ${res.status} (${res.status === 200 ? 'OK' : 'Accepted for crawling'})`);
       } else {
-        const text = await res.text();
-        console.log(`   ⚠️ Response HTTP ${res.status}: ${text || 'No message'}`);
+        console.log(`   ⚠️ Response HTTP ${res.status}: ${res.body || 'No message'}`);
       }
     } catch (e) {
       console.error(`   ❌ Network error pinging ${ep.name}: ${e.message}`);
