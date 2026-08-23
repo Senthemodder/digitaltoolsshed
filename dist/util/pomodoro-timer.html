@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linux Permissions & Chmod Calculator | Digital Tools Shed</title>
-  <meta name="description" content="Calculate Linux octal permissions (755, 644) and symbolic notations.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/dev/chmod-calculator.html">
-  <meta property="og:title" content="Linux Permissions & Chmod Calculator | Digital Tools Shed">
-  <meta property="og:description" content="Calculate Linux octal permissions (755, 644) and symbolic notations.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/dev/chmod-calculator.html">
+  <title>Pomodoro Focus Timer & Productivity Clock | Digital Tools Shed</title>
+  <meta name="description" content="Stay focused with 25-minute Pomodoro study intervals, 5-minute short breaks, and audio alert notifications.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/util/pomodoro-timer.html">
+  <meta property="og:title" content="Pomodoro Focus Timer & Productivity Clock | Digital Tools Shed">
+  <meta property="og:description" content="Stay focused with 25-minute Pomodoro study intervals, 5-minute short breaks, and audio alert notifications.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/util/pomodoro-timer.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
@@ -1346,7 +1346,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Linux Permissions & Chmod Calculator | Digital Tools Shed</span>
+            <span>Pomodoro Focus Timer & Productivity Clock | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1391,38 +1391,99 @@ footer a:hover { text-decoration: underline; }
       .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
       .field-group { margin-bottom: 1.25rem; }
       .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
       .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
       .btn-primary:hover { opacity: 0.9; }
       .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
       .btn-sec:hover { background: var(--surface-alt); }
       .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-      @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
+      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
+      .result-val { font-family: var(--mono); font-size: 2.5rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
     </style>
   
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Chmod Calculator
+            <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Pomodoro Timer
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Linux Chmod Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Pomodoro Focus Timer</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Boost deep work productivity using 25-minute focus intervals and 5-minute restorative breaks.
+          </p>
+
           <div class="tool-box">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-              <div><label class="field-label">User</label><label><input type="checkbox" id="ur" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="uw" checked onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ux" checked onchange="ch()"> Exec (1)</label></div>
-              <div><label class="field-label">Group</label><label><input type="checkbox" id="gr" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="gw" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="gx" checked onchange="ch()"> Exec (1)</label></div>
-              <div><label class="field-label">Others</label><label><input type="checkbox" id="or" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="ow" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ox" checked onchange="ch()"> Exec (1)</label></div>
+            <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem;">
+              <button class="btn-sec" id="mode-work" style="font-weight:bold; background:var(--surface-alt);" onclick="setPomodoroMode(25, 'work')">Focus (25m)</button>
+              <button class="btn-sec" id="mode-short" onclick="setPomodoroMode(5, 'short')">Short Break (5m)</button>
+              <button class="btn-sec" id="mode-long" onclick="setPomodoroMode(15, 'long')">Long Break (15m)</button>
             </div>
-            <div class="field-group" style="margin-top: 1.5rem;"><label class="field-label">Command</label><input type="text" id="ch-cmd" class="code-input" readonly /></div>
+
+            <div class="result-card" style="margin-top:0;">
+              <div id="pomo-display" class="result-val" style="font-size: 4rem;">25:00</div>
+              <div id="pomo-status" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.3rem;">Focus Time</div>
+            </div>
+
+            <div class="action-bar" style="justify-content: center; margin-top: 1.5rem;">
+              <button id="pomo-toggle" class="btn-primary" onclick="togglePomodoro()">&#x25B6; Start Focus</button>
+              <button class="btn-sec" onclick="resetPomodoro()">Reset</button>
+            </div>
           </div>
         </div>
+
         <script>
-          function ch() {
-            const u = (document.getElementById('ur').checked?4:0)+(document.getElementById('uw').checked?2:0)+(document.getElementById('ux').checked?1:0);
-            const g = (document.getElementById('gr').checked?4:0)+(document.getElementById('gw').checked?2:0)+(document.getElementById('gx').checked?1:0);
-            const o = (document.getElementById('or').checked?4:0)+(document.getElementById('ow').checked?2:0)+(document.getElementById('ox').checked?1:0);
-            document.getElementById('ch-cmd').value = 'chmod ' + u + g + o + ' filename';
+          let pomoTotalSec = 25 * 60;
+          let pomoRemaining = pomoTotalSec;
+          let pomoInterval = null;
+          let pomoMode = 'work';
+
+          function formatPomo(s) {
+            const m = Math.floor(s / 60).toString().padStart(2, '0');
+            const sec = (s % 60).toString().padStart(2, '0');
+            return m + ':' + sec;
           }
-          document.addEventListener('DOMContentLoaded', ch);
+
+          function setPomodoroMode(mins, mode) {
+            clearInterval(pomoInterval);
+            pomoInterval = null;
+            pomoMode = mode;
+            pomoTotalSec = mins * 60;
+            pomoRemaining = pomoTotalSec;
+            document.getElementById('pomo-display').textContent = formatPomo(pomoRemaining);
+            document.getElementById('pomo-toggle').textContent = '▶ Start ' + (mode === 'work' ? 'Focus' : 'Break');
+            document.getElementById('pomo-status').textContent = mode === 'work' ? 'Focus Time' : 'Rest Break';
+
+            document.getElementById('mode-work').style.fontWeight = mode === 'work' ? 'bold' : 'normal';
+            document.getElementById('mode-short').style.fontWeight = mode === 'short' ? 'bold' : 'normal';
+            document.getElementById('mode-long').style.fontWeight = mode === 'long' ? 'bold' : 'normal';
+          }
+
+          function togglePomodoro() {
+            const btn = document.getElementById('pomo-toggle');
+            if (pomoInterval) {
+              clearInterval(pomoInterval);
+              pomoInterval = null;
+              btn.textContent = '▶ Resume';
+            } else {
+              btn.textContent = '⏸ Pause';
+              pomoInterval = setInterval(() => {
+                pomoRemaining--;
+                document.getElementById('pomo-display').textContent = formatPomo(pomoRemaining);
+                if (pomoRemaining <= 0) {
+                  clearInterval(pomoInterval);
+                  pomoInterval = null;
+                  alert('⏰ Time is up! Take a well-deserved break.');
+                  setPomodoroMode(5, 'short');
+                }
+              }, 1000);
+            }
+          }
+
+          function resetPomodoro() {
+            clearInterval(pomoInterval);
+            pomoInterval = null;
+            pomoRemaining = pomoTotalSec;
+            document.getElementById('pomo-display').textContent = formatPomo(pomoRemaining);
+            document.getElementById('pomo-toggle').textContent = '▶ Start';
+          }
         </script>
       
 

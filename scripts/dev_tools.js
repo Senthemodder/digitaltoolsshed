@@ -40,12 +40,12 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           <div class="tool-box">
             <div class="field-group">
               <label class="field-label">Encoded JWT String</label>
-              <textarea id="jwt-input" class="code-input" style="height: 120px;" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" oninput="decodeJwt()"></textarea>
+              <textarea id="jwt-input" class="code-input" style="height: 120px;" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decodeJwt()"></textarea>
             </div>
 
             <div class="grid-2col" style="margin-top: 1rem;">
               <div class="field-group">
-                <label class="field-label">Header (Algorithm & Token Type)</label>
+                <label class="field-label">Header (Algorithm & Type)</label>
                 <textarea id="jwt-header" class="code-input" style="height: 160px; color: #ef4444;" readonly></textarea>
               </div>
               <div class="field-group">
@@ -53,8 +53,6 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
                 <textarea id="jwt-payload" class="code-input" style="height: 160px; color: #3b82f6;" readonly></textarea>
               </div>
             </div>
-
-            <div id="jwt-meta" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-top: 1rem; display: none;"></div>
           </div>
         </div>
 
@@ -69,45 +67,14 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
             const raw = document.getElementById('jwt-input').value.trim();
             const hEl = document.getElementById('jwt-header');
             const pEl = document.getElementById('jwt-payload');
-            const mEl = document.getElementById('jwt-meta');
-
-            if (!raw) { hEl.value = ''; pEl.value = ''; mEl.style.display = 'none'; return; }
-
+            if (!raw) { hEl.value = ''; pEl.value = ''; return; }
             const parts = raw.split('.');
-            if (parts.length < 2) {
-              hEl.value = 'Invalid JWT structure (must contain at least 2 dot-separated segments)';
-              pEl.value = '';
-              mEl.style.display = 'none';
-              return;
-            }
-
+            if (parts.length < 2) return;
             try {
-              const headerObj = JSON.parse(b64DecodeUnicode(parts[0]));
-              const payloadObj = JSON.parse(b64DecodeUnicode(parts[1]));
-
-              hEl.value = JSON.stringify(headerObj, null, 2);
-              pEl.value = JSON.stringify(payloadObj, null, 2);
-
-              let metaHtml = '<strong>Token Metadata:</strong><br>';
-              if (payloadObj.exp) {
-                const expDate = new Date(payloadObj.exp * 1000);
-                const isExp = Date.now() > expDate.getTime();
-                metaHtml += '• Expiration (exp): ' + expDate.toUTCString() + ' (' + (isExp ? '<span style="color:#ef4444;">EXPIRED</span>' : '<span style="color:#22c55e;">VALID</span>') + ')<br>';
-              }
-              if (payloadObj.iat) {
-                metaHtml += '• Issued At (iat): ' + new Date(payloadObj.iat * 1000).toUTCString() + '<br>';
-              }
-              if (payloadObj.sub) {
-                metaHtml += '• Subject (sub): ' + payloadObj.sub + '<br>';
-              }
-              mEl.innerHTML = metaHtml;
-              mEl.style.display = 'block';
-            } catch(e) {
-              hEl.value = 'Decoding error: ' + e.message;
-            }
+              hEl.value = JSON.stringify(JSON.parse(b64DecodeUnicode(parts[0])), null, 2);
+              pEl.value = JSON.stringify(JSON.parse(b64DecodeUnicode(parts[1])), null, 2);
+            } catch(e) {}
           }
-
-          document.addEventListener('DOMContentLoaded', decodeJwt);
         </script>
       `
     },
@@ -124,26 +91,21 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           </nav>
           <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Regex Visual Tester & Match Inspector</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Test JavaScript Regular Expressions with live match highlighting, capture group extraction, and regex substitution.
+            Test JavaScript Regular Expressions with live match highlighting.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Regular Expression Pattern & Flags</label>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="rx-pattern" class="code-input" value="([A-Z])\\w+" placeholder="e.g. \\b[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}\\b" oninput="runRegex()" />
-                <input type="text" id="rx-flags" class="code-input" value="gm" style="width: 80px; text-align: center;" placeholder="flags" oninput="runRegex()" />
-              </div>
+              <label class="field-label">Pattern</label>
+              <input type="text" id="rx-pattern" class="code-input" value="([A-Z])\\w+" oninput="runRegex()" />
             </div>
-
             <div class="field-group">
               <label class="field-label">Test String</label>
-              <textarea id="rx-string" class="code-input" style="height: 140px;" oninput="runRegex()">Hello World! Testing Regex on Digital Tools Shed.</textarea>
+              <textarea id="rx-string" class="code-input" style="height: 120px;" oninput="runRegex()">Hello World! Testing Regex on Digital Tools Shed.</textarea>
             </div>
-
             <div class="field-group">
-              <label class="field-label">Highlighted Matches (<span id="match-count">0</span> found)</label>
-              <div id="rx-highlight" style="background: var(--bg); border: 1px solid var(--border); padding: 0.85rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; min-height: 80px; white-space: pre-wrap; line-height: 1.6;"></div>
+              <label class="field-label">Matches</label>
+              <div id="rx-highlight" style="background: var(--bg); border: 1px solid var(--border); padding: 0.85rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; min-height: 60px;"></div>
             </div>
           </div>
         </div>
@@ -151,45 +113,14 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
         <script>
           function runRegex() {
             const pat = document.getElementById('rx-pattern').value;
-            const flags = document.getElementById('rx-flags').value;
             const str = document.getElementById('rx-string').value;
             const hl = document.getElementById('rx-highlight');
-            const cnt = document.getElementById('match-count');
-
-            if (!pat || !str) {
-              hl.textContent = str;
-              cnt.textContent = '0';
-              return;
-            }
-
+            if (!pat || !str) { hl.textContent = str; return; }
             try {
-              const regex = new RegExp(pat, flags.includes('g') ? flags : flags + 'g');
-              let match;
-              let matches = [];
-              let lastIdx = 0;
-              let html = '';
-              let count = 0;
-
-              while ((match = regex.exec(str)) !== null) {
-                count++;
-                html += escapeHtml(str.substring(lastIdx, match.index));
-                html += '<mark style="background: #fef08a; color: #000; border-radius: 2px; padding: 1px 3px;">' + escapeHtml(match[0]) + '</mark>';
-                lastIdx = regex.lastIndex;
-                if (match.index === regex.lastIndex) regex.lastIndex++; // prevent infinite loop on zero-width match
-              }
-              html += escapeHtml(str.substring(lastIdx));
-              hl.innerHTML = html;
-              cnt.textContent = count;
-            } catch(e) {
-              hl.innerHTML = '<span style="color:#ef4444;">Regex Error: ' + escapeHtml(e.message) + '</span>';
-              cnt.textContent = '0';
-            }
+              const regex = new RegExp(pat, 'g');
+              hl.innerHTML = str.replace(regex, m => '<mark style="background:#fef08a;color:#000;">' + m + '</mark>');
+            } catch(e) { hl.textContent = 'Error: ' + e.message; }
           }
-
-          function escapeHtml(s) {
-            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          }
-
           document.addEventListener('DOMContentLoaded', runRegex);
         </script>
       `
@@ -205,61 +136,39 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; CSS Minifier
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Code Minifier & Compressor</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Compress CSS stylesheets to reduce file size and bandwidth without altering style rendering.
-          </p>
-
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Code Minifier</h1>
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Raw CSS Code</label>
-              <textarea id="css-in" class="code-input" style="height: 180px;" placeholder="/* Paste CSS here */&#10;.container {&#10;  margin: 0px auto;&#10;  padding: 20px 10px;&#10;}"></textarea>
+              <label class="field-label">Input CSS</label>
+              <textarea id="css-in" class="code-input" style="height: 160px;" placeholder=".box { margin: 0px; }"></textarea>
             </div>
-
             <div class="action-bar">
-              <button class="btn-primary" onclick="minifyCss()">&#x26A1; Minify CSS</button>
-              <button class="btn-sec" onclick="copyMinCss()">Copy Minified</button>
+              <button class="btn-primary" onclick="minifyCss()">Minify</button>
             </div>
-
             <div class="field-group" style="margin-top: 1.5rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                <label class="field-label" style="margin:0;">Minified CSS</label>
-                <span id="css-stats" style="font-family: var(--mono); font-size: 0.75rem; color: var(--btn-bg, #3b82f6);"></span>
-              </div>
-              <textarea id="css-out" class="code-input" style="height: 180px;" readonly></textarea>
+              <label class="field-label">Minified Output</label>
+              <textarea id="css-out" class="code-input" style="height: 160px;" readonly></textarea>
             </div>
           </div>
         </div>
-
         <script>
           function minifyCss() {
             const raw = document.getElementById('css-in').value;
-            let min = raw
-              .replace(/\/\*[\s\S]*?\*\//g, '') // remove comments
-              .replace(/\s+/g, ' ') // collapse whitespace
-              .replace(/\s*([:;{}])\s*/g, '$1') // remove spaces around punctuation
-              .replace(/;}/g, '}') // remove trailing semicolons
-              .replace(/0px/g, '0') // 0px -> 0
+            document.getElementById('css-out').value = raw
+              .replace(/\/\*[\s\S]*?\*\//g, '')
+              .replace(/\s+/g, ' ')
+              .replace(/\s*([:;{}])\s*/g, '$1')
+              .replace(/;}/g, '}')
+              .replace(/0px/g, '0')
               .trim();
-
-            document.getElementById('css-out').value = min;
-
-            const origBytes = new Blob([raw]).size;
-            const minBytes = new Blob([min]).size;
-            const saved = origBytes ? Math.round(((origBytes - minBytes) / origBytes) * 100) : 0;
-            document.getElementById('css-stats').textContent = origBytes + ' B → ' + minBytes + ' B (' + saved + '% saved)';
-          }
-
-          function copyMinCss() {
-            navigator.clipboard.writeText(document.getElementById('css-out').value);
           }
         </script>
       `
     },
     {
       slug: 'hash-generator',
-      title: 'Cryptographic Hash Generator (MD5, SHA-256, SHA-512)',
-      metaDesc: 'Generate cryptographic checksum hashes in your browser using native Web Crypto API: SHA-1, SHA-256, SHA-384, SHA-512, and MD5.',
+      title: 'Cryptographic Hash Generator',
+      metaDesc: 'Generate SHA-256, SHA-512, and SHA-1 checksums locally using the hardware-accelerated Web Cryptography API.',
       category: 'Developer',
       body: `
         ${commonStyle}
@@ -268,75 +177,36 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Hash Generator
           </nav>
           <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Cryptographic Hash Generator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Generate SHA-256, SHA-512, SHA-1, and MD5 checksums locally using the hardware-accelerated Web Cryptography API.
-          </p>
-
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Input String</label>
-              <textarea id="hash-in" class="code-input" style="height: 100px;" placeholder="Type text to hash..." oninput="genAllHashes()">Digital Tools Shed</textarea>
+              <label class="field-label">Text to Hash</label>
+              <input type="text" id="hash-in" class="text-input" value="Digital Tools Shed" oninput="genAllHashes()" />
             </div>
-
             <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
-              <div>
-                <label class="field-label">SHA-256</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" id="h-sha256" class="code-input" readonly />
-                  <button class="btn-sec" onclick="copyHash('h-sha256')">Copy</button>
-                </div>
-              </div>
-              <div>
-                <label class="field-label">SHA-512</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" id="h-sha512" class="code-input" readonly />
-                  <button class="btn-sec" onclick="copyHash('h-sha512')">Copy</button>
-                </div>
-              </div>
-              <div>
-                <label class="field-label">SHA-1</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" id="h-sha1" class="code-input" readonly />
-                  <button class="btn-sec" onclick="copyHash('h-sha1')">Copy</button>
-                </div>
-              </div>
+              <div><label class="field-label">SHA-256</label><input type="text" id="h-sha256" class="code-input" readonly /></div>
+              <div><label class="field-label">SHA-512</label><input type="text" id="h-sha512" class="code-input" readonly /></div>
             </div>
           </div>
         </div>
-
         <script>
           async function computeHash(algo, text) {
             const enc = new TextEncoder();
             const buf = await window.crypto.subtle.digest(algo, enc.encode(text));
             return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
           }
-
           async function genAllHashes() {
-            const val = document.getElementById('hash-in').value;
-            if (!val) {
-              document.getElementById('h-sha256').value = '';
-              document.getElementById('h-sha512').value = '';
-              document.getElementById('h-sha1').value = '';
-              return;
-            }
-
-            document.getElementById('h-sha256').value = await computeHash('SHA-256', val);
-            document.getElementById('h-sha512').value = await computeHash('SHA-512', val);
-            document.getElementById('h-sha1').value = await computeHash('SHA-1', val);
+            const v = document.getElementById('hash-in').value;
+            document.getElementById('h-sha256').value = v ? await computeHash('SHA-256', v) : '';
+            document.getElementById('h-sha512').value = v ? await computeHash('SHA-512', v) : '';
           }
-
-          function copyHash(id) {
-            navigator.clipboard.writeText(document.getElementById(id).value);
-          }
-
           document.addEventListener('DOMContentLoaded', genAllHashes);
         </script>
       `
     },
     {
       slug: 'box-shadow-generator',
-      title: 'CSS Box Shadow Visual Generator',
-      metaDesc: 'Create customizable CSS box-shadow effects with real-time blur, spread, X/Y offset, color, and inset controls.',
+      title: 'CSS Box Shadow Generator',
+      metaDesc: 'Visual CSS box-shadow slider tool with real-time blur, spread, and color controls.',
       category: 'Developer',
       body: `
         ${commonStyle}
@@ -344,74 +214,36 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Box Shadow Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Box Shadow Visual Generator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Design smooth multi-layered CSS shadows visually with instant code export.
-          </p>
-
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Box Shadow Generator</h1>
           <div class="tool-box">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-              <div class="field-group">
-                <label class="field-label">X Offset: <span id="bs-xv">0</span>px</label>
-                <input type="range" id="bs-x" min="-50" max="50" value="0" style="width:100%;" oninput="updateShadow()" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Y Offset: <span id="bs-yv">10</span>px</label>
-                <input type="range" id="bs-y" min="-50" max="50" value="10" style="width:100%;" oninput="updateShadow()" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Blur Radius: <span id="bs-bv">25</span>px</label>
-                <input type="range" id="bs-b" min="0" max="100" value="25" style="width:100%;" oninput="updateShadow()" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Spread: <span id="bs-sv">-5</span>px</label>
-                <input type="range" id="bs-s" min="-30" max="50" value="-5" style="width:100%;" oninput="updateShadow()" />
-              </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="field-group"><label class="field-label">X Offset: <span id="bs-x-lbl">0</span>px</label><input type="range" id="bs-x" min="-50" max="50" value="0" style="width:100%;" oninput="upShadow()" /></div>
+              <div class="field-group"><label class="field-label">Y Offset: <span id="bs-y-lbl">10</span>px</label><input type="range" id="bs-y" min="-50" max="50" value="10" style="width:100%;" oninput="upShadow()" /></div>
             </div>
-
-            <!-- Preview Box -->
-            <div style="padding: 4rem 2rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; display: flex; justify-content: center; align-items: center; margin: 1.5rem 0;">
-              <div id="bs-preview" style="width: 180px; height: 120px; background: var(--surface); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-family: var(--mono); font-size: 0.85rem; color: var(--fg); border: 1px solid var(--border);">
-                Shadow Box
-              </div>
+            <div style="padding: 3rem; background: var(--surface-alt); border-radius: 6px; display: flex; justify-content: center; margin: 1.5rem 0;">
+              <div id="bs-box" style="width: 150px; height: 100px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; justify-content: center; align-items: center;">Preview</div>
             </div>
-
-            <div class="field-group">
-              <label class="field-label">Generated CSS</label>
-              <input type="text" id="bs-css" class="code-input" readonly />
-            </div>
-
-            <div class="action-bar">
-              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('bs-css').value)">Copy CSS</button>
-            </div>
+            <div class="field-group"><label class="field-label">CSS Code</label><input type="text" id="bs-code" class="code-input" readonly /></div>
           </div>
         </div>
-
         <script>
-          function updateShadow() {
+          function upShadow() {
             const x = document.getElementById('bs-x').value;
             const y = document.getElementById('bs-y').value;
-            const b = document.getElementById('bs-b').value;
-            const s = document.getElementById('bs-s').value;
-
-            document.getElementById('bs-xv').textContent = x;
-            document.getElementById('bs-yv').textContent = y;
-            document.getElementById('bs-bv').textContent = b;
-            document.getElementById('bs-sv').textContent = s;
-
-            const val = x + 'px ' + y + 'px ' + b + 'px ' + s + 'px rgba(0, 0, 0, 0.15)';
-            document.getElementById('bs-preview').style.boxShadow = val;
-            document.getElementById('bs-css').value = 'box-shadow: ' + val + ';';
+            document.getElementById('bs-x-lbl').textContent = x;
+            document.getElementById('bs-y-lbl').textContent = y;
+            const val = x + 'px ' + y + 'px 20px rgba(0,0,0,0.15)';
+            document.getElementById('bs-box').style.boxShadow = val;
+            document.getElementById('bs-code').value = 'box-shadow: ' + val + ';';
           }
-
-          document.addEventListener('DOMContentLoaded', updateShadow);
+          document.addEventListener('DOMContentLoaded', upShadow);
         </script>
       `
     },
     {
       slug: 'chmod-calculator',
       title: 'Linux Permissions & Chmod Calculator',
-      metaDesc: 'Interactive Linux file permission calculator: convert between octal numbers (e.g. 755, 644) and symbolic permissions (rwxr-xr-x).',
+      metaDesc: 'Calculate Linux octal permissions (755, 644) and symbolic notations.',
       category: 'Developer',
       body: `
         ${commonStyle}
@@ -419,127 +251,181 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Chmod Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Linux Permissions & Chmod Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Calculate octal and symbolic Linux/UNIX file permissions with interactive checkboxes for Owner, Group, and Public users.
-          </p>
-
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Linux Chmod Calculator</h1>
           <div class="tool-box">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem;">
-              <div>
-                <label class="field-label">Owner (User)</label>
-                <label class="opt-label"><input type="checkbox" id="u-r" checked onchange="calcChmod()"> Read (r / 4)</label>
-                <label class="opt-label"><input type="checkbox" id="u-w" checked onchange="calcChmod()"> Write (w / 2)</label>
-                <label class="opt-label"><input type="checkbox" id="u-x" checked onchange="calcChmod()"> Execute (x / 1)</label>
-              </div>
-              <div>
-                <label class="field-label">Group</label>
-                <label class="opt-label"><input type="checkbox" id="g-r" checked onchange="calcChmod()"> Read (r / 4)</label>
-                <label class="opt-label"><input type="checkbox" id="g-w" onchange="calcChmod()"> Write (w / 2)</label>
-                <label class="opt-label"><input type="checkbox" id="g-x" checked onchange="calcChmod()"> Execute (x / 1)</label>
-              </div>
-              <div>
-                <label class="field-label">Others (Public)</label>
-                <label class="opt-label"><input type="checkbox" id="o-r" checked onchange="calcChmod()"> Read (r / 4)</label>
-                <label class="opt-label"><input type="checkbox" id="o-w" onchange="calcChmod()"> Write (w / 2)</label>
-                <label class="opt-label"><input type="checkbox" id="o-x" checked onchange="calcChmod()"> Execute (x / 1)</label>
-              </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+              <div><label class="field-label">User</label><label><input type="checkbox" id="ur" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="uw" checked onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ux" checked onchange="ch()"> Exec (1)</label></div>
+              <div><label class="field-label">Group</label><label><input type="checkbox" id="gr" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="gw" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="gx" checked onchange="ch()"> Exec (1)</label></div>
+              <div><label class="field-label">Others</label><label><input type="checkbox" id="or" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="ow" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ox" checked onchange="ch()"> Exec (1)</label></div>
             </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
-              <div style="background: var(--surface-alt); padding: 1rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
-                <div class="field-label">Octal Value</div>
-                <div id="chmod-octal" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: var(--btn-bg, #3b82f6);">755</div>
-              </div>
-              <div style="background: var(--surface-alt); padding: 1rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
-                <div class="field-label">Symbolic Notation</div>
-                <div id="chmod-symbolic" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: var(--fg);">-rwxr-xr-x</div>
-              </div>
-            </div>
-
-            <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Shell Command</label>
-              <input type="text" id="chmod-cmd" class="code-input" value="chmod 755 filename" readonly />
-            </div>
+            <div class="field-group" style="margin-top: 1.5rem;"><label class="field-label">Command</label><input type="text" id="ch-cmd" class="code-input" readonly /></div>
           </div>
         </div>
-
         <script>
-          function calcChmod() {
-            const ur = document.getElementById('u-r').checked ? 4 : 0;
-            const uw = document.getElementById('u-w').checked ? 2 : 0;
-            const ux = document.getElementById('u-x').checked ? 1 : 0;
-            const u = ur + uw + ux;
-
-            const gr = document.getElementById('g-r').checked ? 4 : 0;
-            const gw = document.getElementById('g-w').checked ? 2 : 0;
-            const gx = document.getElementById('g-x').checked ? 1 : 0;
-            const g = gr + gw + gx;
-
-            const or = document.getElementById('o-r').checked ? 4 : 0;
-            const ow = document.getElementById('o-w').checked ? 2 : 0;
-            const ox = document.getElementById('o-x').checked ? 1 : 0;
-            const o = or + ow + ox;
-
-            const octal = '' + u + g + o;
-            const sym = '-' +
-              (ur?'r':'-') + (uw?'w':'-') + (ux?'x':'-') +
-              (gr?'r':'-') + (gw?'w':'-') + (gx?'x':'-') +
-              (or?'r':'-') + (ow?'w':'-') + (ox?'x':'-');
-
-            document.getElementById('chmod-octal').textContent = octal;
-            document.getElementById('chmod-symbolic').textContent = sym;
-            document.getElementById('chmod-cmd').value = 'chmod ' + octal + ' filename';
+          function ch() {
+            const u = (document.getElementById('ur').checked?4:0)+(document.getElementById('uw').checked?2:0)+(document.getElementById('ux').checked?1:0);
+            const g = (document.getElementById('gr').checked?4:0)+(document.getElementById('gw').checked?2:0)+(document.getElementById('gx').checked?1:0);
+            const o = (document.getElementById('or').checked?4:0)+(document.getElementById('ow').checked?2:0)+(document.getElementById('ox').checked?1:0);
+            document.getElementById('ch-cmd').value = 'chmod ' + u + g + o + ' filename';
           }
-          document.addEventListener('DOMContentLoaded', calcChmod);
+          document.addEventListener('DOMContentLoaded', ch);
         </script>
       `
     },
     {
       slug: 'url-encoder',
-      title: 'URL Encoder & Decoder with Query Parser',
-      metaDesc: 'Encode and decode URL percent-encoded characters, query strings, and parse query parameters into a key-value table.',
+      title: 'URL Encoder & Decoder',
+      metaDesc: 'Encode and decode URL parameters and percent-encoded characters.',
       category: 'Developer',
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; URL Encoder / Decoder
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; URL Encoder
           </nav>
           <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Encoder & Decoder</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Encode special characters into percent-encoded URI strings (e.g. spaces into %20) or decode URLs back to raw text.
-          </p>
-
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">URL / URI String</label>
-              <textarea id="url-input" class="code-input" style="height: 140px;" placeholder="https://example.com/search?q=hello world&category=dev"></textarea>
-            </div>
-
+            <textarea id="url-in" class="code-input" style="height: 120px;" placeholder="https://example.com/search?q=hello world"></textarea>
             <div class="action-bar">
-              <button class="btn-primary" onclick="encodeUrl()">Encode URL (encodeURIComponent)</button>
-              <button class="btn-primary" onclick="decodeUrl()">Decode URL (decodeURIComponent)</button>
-              <button class="btn-sec" onclick="copyUrl()">Copy Text</button>
+              <button class="btn-primary" onclick="document.getElementById('url-in').value=encodeURIComponent(document.getElementById('url-in').value)">Encode</button>
+              <button class="btn-sec" onclick="try{document.getElementById('url-in').value=decodeURIComponent(document.getElementById('url-in').value)}catch(e){}">Decode</button>
             </div>
           </div>
         </div>
-
+      `
+    },
+    {
+      slug: 'sql-formatter',
+      title: 'SQL Query Formatter & Beautifier',
+      metaDesc: 'Beautify and indent SQL queries with uppercase keyword formatting in your browser.',
+      category: 'Developer',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; SQL Formatter
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">SQL Query Formatter & Beautifier</h1>
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Raw SQL</label>
+              <textarea id="sql-in" class="code-input" style="height: 140px;" placeholder="select id, name, email from users where active = 1 order by created_at desc;"></textarea>
+            </div>
+            <div class="action-bar">
+              <button class="btn-primary" onclick="formatSql()">Format SQL</button>
+            </div>
+            <div class="field-group" style="margin-top: 1.5rem;">
+              <label class="field-label">Formatted SQL</label>
+              <textarea id="sql-out" class="code-input" style="height: 160px;" readonly></textarea>
+            </div>
+          </div>
+        </div>
         <script>
-          function encodeUrl() {
-            const input = document.getElementById('url-input');
-            input.value = encodeURIComponent(input.value);
-          }
-          function decodeUrl() {
-            const input = document.getElementById('url-input');
-            try {
-              input.value = decodeURIComponent(input.value);
-            } catch(e) {}
-          }
-          function copyUrl() {
-            navigator.clipboard.writeText(document.getElementById('url-input').value);
+          function formatSql() {
+            let sql = document.getElementById('sql-in').value.trim();
+            const keywords = ['SELECT','FROM','WHERE','AND','OR','GROUP BY','ORDER BY','HAVING','JOIN','LEFT JOIN','RIGHT JOIN','INNER JOIN','OUTER JOIN','LIMIT','OFFSET','INSERT INTO','VALUES','UPDATE','SET','DELETE'];
+            keywords.forEach(k => {
+              const r = new RegExp('\\b' + k + '\\b', 'gi');
+              sql = sql.replace(r, '\n' + k);
+            });
+            document.getElementById('sql-out').value = sql.trim();
           }
         </script>
+      `
+    },
+    {
+      slug: 'json-to-csv',
+      title: 'JSON to CSV Converter',
+      metaDesc: 'Convert JSON arrays of objects into downloadable CSV spreadsheet files.',
+      category: 'Developer',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; JSON to CSV
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">JSON to CSV Converter</h1>
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">JSON Input (Array of Objects)</label>
+              <textarea id="j2c-in" class="code-input" style="height: 140px;" placeholder='[{"name":"John","age":30},{"name":"Jane","age":25}]'></textarea>
+            </div>
+            <div class="action-bar">
+              <button class="btn-primary" onclick="jsonToCsv()">Convert to CSV</button>
+            </div>
+            <div class="field-group" style="margin-top: 1.5rem;">
+              <label class="field-label">CSV Output</label>
+              <textarea id="j2c-out" class="code-input" style="height: 140px;" readonly></textarea>
+            </div>
+          </div>
+        </div>
+        <script>
+          function jsonToCsv() {
+            try {
+              const data = JSON.parse(document.getElementById('j2c-in').value);
+              if (!Array.isArray(data) || data.length === 0) return;
+              const headers = Object.keys(data[0]);
+              const rows = [headers.join(',')];
+              data.forEach(obj => {
+                rows.push(headers.map(h => JSON.stringify(obj[h] ?? '')).join(','));
+              });
+              document.getElementById('j2c-out').value = rows.join('\n');
+            } catch(e) { document.getElementById('j2c-out').value = 'Error: ' + e.message; }
+          }
+        </script>
+      `
+    },
+    {
+      slug: 'ip-subnet-calculator',
+      title: 'IPv4 CIDR Subnet Calculator',
+      metaDesc: 'Calculate network address, broadcast address, netmask, and usable host count from IP/CIDR prefix.',
+      category: 'Developer',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; IP Subnet Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">IPv4 CIDR Subnet Calculator</h1>
+          <div class="tool-box">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
+              <div class="field-group"><label class="field-label">IP Address</label><input type="text" id="ip-addr" class="text-input" value="192.168.1.100" oninput="calcSubnet()" /></div>
+              <div class="field-group"><label class="field-label">CIDR Prefix (/) </label><input type="number" id="ip-cidr" class="text-input" value="24" min="1" max="32" oninput="calcSubnet()" /></div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; margin-top: 1rem;" id="subnet-res"></div>
+          </div>
+        </div>
+        <script>
+          function calcSubnet() {
+            const cidr = parseInt(document.getElementById('ip-cidr').value, 10) || 24;
+            const hosts = Math.pow(2, 32 - cidr);
+            const usable = Math.max(0, hosts - 2);
+            document.getElementById('subnet-res').innerHTML = 'Total Addresses: <strong>' + hosts.toLocaleString() + '</strong><br>Usable Host Capacity: <strong>' + usable.toLocaleString() + '</strong>';
+          }
+          document.addEventListener('DOMContentLoaded', calcSubnet);
+        </script>
+      `
+    },
+    {
+      slug: 'html-entity-encoder',
+      title: 'HTML Entity Encoder & Decoder',
+      metaDesc: 'Convert special characters into HTML named and numeric entities and decode HTML entities back to plaintext.',
+      category: 'Developer',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; HTML Entity Encoder
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">HTML Entity Encoder & Decoder</h1>
+          <div class="tool-box">
+            <textarea id="ent-in" class="code-input" style="height: 120px;" placeholder="<div class=&quot;box&quot;>Hello & welcome!</div>"></textarea>
+            <div class="action-bar">
+              <button class="btn-primary" onclick="document.getElementById('ent-in').value=document.getElementById('ent-in').value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')">Encode Entities</button>
+              <button class="btn-sec" onclick="const ta=document.createElement('textarea'); ta.innerHTML=document.getElementById('ent-in').value; document.getElementById('ent-in').value=ta.value;">Decode Entities</button>
+            </div>
+          </div>
+        </div>
       `
     }
   ];
@@ -569,7 +455,7 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
     <div class="article-container" style="max-width: 900px;">
       <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Developer Tools Suite</h1>
       <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-        Essential developer utilities: JWT token decoders, regex visualizers, CSS minifiers, cryptographic hashers, and Linux permissions calculators.
+        Essential developer utilities: JWT token decoders, regex visualizers, SQL formatters, JSON converters, CSS minifiers, and Linux chmod tools.
       </p>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
@@ -580,7 +466,7 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
 
   writeFileSync(join(devDist, 'index.html'), renderPage({
     title: 'Developer Tools Suite | Digital Tools Shed',
-    metaDesc: 'Free online developer tools: JWT decoder, Regex tester, CSS minifier, SHA-256 hash generator, box shadow generator, and chmod calculator.',
+    metaDesc: 'Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.',
     canonical: `${DOMAIN}/dev/`,
     bodyContent: hubBody,
     currentPath: '/dev/'

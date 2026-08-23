@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>URL Encoder & Decoder with Query Parser | Digital Tools Shed</title>
-  <meta name="description" content="Encode and decode URL percent-encoded characters, query strings, and parse query parameters into a key-value table.">
+  <title>URL Encoder & Decoder | Digital Tools Shed</title>
+  <meta name="description" content="Encode and decode URL parameters and percent-encoded characters.">
   <link rel="canonical" href="https://digitaltoolsshed.com/dev/url-encoder.html">
-  <meta property="og:title" content="URL Encoder & Decoder with Query Parser | Digital Tools Shed">
-  <meta property="og:description" content="Encode and decode URL percent-encoded characters, query strings, and parse query parameters into a key-value table.">
+  <meta property="og:title" content="URL Encoder & Decoder | Digital Tools Shed">
+  <meta property="og:description" content="Encode and decode URL parameters and percent-encoded characters.">
   <meta property="og:url" content="https://digitaltoolsshed.com/dev/url-encoder.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -1346,7 +1346,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>URL Encoder & Decoder with Query Parser | Digital Tools Shed</span>
+            <span>URL Encoder & Decoder | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1403,42 +1403,17 @@ footer a:hover { text-decoration: underline; }
   
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; URL Encoder / Decoder
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; URL Encoder
           </nav>
           <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Encoder & Decoder</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Encode special characters into percent-encoded URI strings (e.g. spaces into %20) or decode URLs back to raw text.
-          </p>
-
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">URL / URI String</label>
-              <textarea id="url-input" class="code-input" style="height: 140px;" placeholder="https://example.com/search?q=hello world&category=dev"></textarea>
-            </div>
-
+            <textarea id="url-in" class="code-input" style="height: 120px;" placeholder="https://example.com/search?q=hello world"></textarea>
             <div class="action-bar">
-              <button class="btn-primary" onclick="encodeUrl()">Encode URL (encodeURIComponent)</button>
-              <button class="btn-primary" onclick="decodeUrl()">Decode URL (decodeURIComponent)</button>
-              <button class="btn-sec" onclick="copyUrl()">Copy Text</button>
+              <button class="btn-primary" onclick="document.getElementById('url-in').value=encodeURIComponent(document.getElementById('url-in').value)">Encode</button>
+              <button class="btn-sec" onclick="try{document.getElementById('url-in').value=decodeURIComponent(document.getElementById('url-in').value)}catch(e){}">Decode</button>
             </div>
           </div>
         </div>
-
-        <script>
-          function encodeUrl() {
-            const input = document.getElementById('url-input');
-            input.value = encodeURIComponent(input.value);
-          }
-          function decodeUrl() {
-            const input = document.getElementById('url-input');
-            try {
-              input.value = decodeURIComponent(input.value);
-            } catch(e) {}
-          }
-          function copyUrl() {
-            navigator.clipboard.writeText(document.getElementById('url-input').value);
-          }
-        </script>
       
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">

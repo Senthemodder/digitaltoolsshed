@@ -1,12 +1,14 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, copyFileSync, statSync } from 'fs';
 import { join, dirname } from 'path';
 import { buildLearnSection } from './learn.js';
+import { buildPythonLearnSection } from './learn_python.js';
 import { buildDevToolsSuite } from './dev_tools.js';
 import { buildTextToolsSuite } from './text_tools.js';
 import { buildSecurityToolsSuite } from './security_tools.js';
 import { buildDesignToolsSuite } from './design_tools.js';
 import { buildMathToolsSuite } from './math_tools.js';
 import { buildHealthToolsSuite } from './health_tools.js';
+import { buildUtilToolsSuite } from './util_tools.js';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -3974,6 +3976,8 @@ function buildSEOAssets() {
   collectUrls(join(DIST, 'learn'), '/learn');
   discoveredUrls.push(`${DOMAIN}/learn/`);
   discoveredUrls.push(`${DOMAIN}/learn/javascript/`);
+  collectUrls(join(DIST, 'learn', 'python'), '/learn/python');
+  discoveredUrls.push(`${DOMAIN}/learn/python/`);
   collectUrls(join(DIST, 'dev'), '/dev');
   discoveredUrls.push(`${DOMAIN}/dev/`);
   collectUrls(join(DIST, 'text'), '/text');
@@ -3986,6 +3990,8 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/math/`);
   collectUrls(join(DIST, 'health'), '/health');
   discoveredUrls.push(`${DOMAIN}/health/`);
+  collectUrls(join(DIST, 'util'), '/util');
+  discoveredUrls.push(`${DOMAIN}/util/`);
   discoveredUrls.push(`${DOMAIN}/learn/`);
   discoveredUrls.push(`${DOMAIN}/learn/javascript/`);
 
@@ -6137,12 +6143,14 @@ function main() {
   buildArticlesSuite();
   buildProductivitySuite();
   buildLearnSection({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildPythonLearnSection({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildDesignToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildTrustPages();
   build404Page();
   buildSEOAssets();

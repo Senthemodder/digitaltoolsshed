@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CSS Box Shadow Visual Generator | Digital Tools Shed</title>
-  <meta name="description" content="Create customizable CSS box-shadow effects with real-time blur, spread, X/Y offset, color, and inset controls.">
+  <title>CSS Box Shadow Generator | Digital Tools Shed</title>
+  <meta name="description" content="Visual CSS box-shadow slider tool with real-time blur, spread, and color controls.">
   <link rel="canonical" href="https://digitaltoolsshed.com/dev/box-shadow-generator.html">
-  <meta property="og:title" content="CSS Box Shadow Visual Generator | Digital Tools Shed">
-  <meta property="og:description" content="Create customizable CSS box-shadow effects with real-time blur, spread, X/Y offset, color, and inset controls.">
+  <meta property="og:title" content="CSS Box Shadow Generator | Digital Tools Shed">
+  <meta property="og:description" content="Visual CSS box-shadow slider tool with real-time blur, spread, and color controls.">
   <meta property="og:url" content="https://digitaltoolsshed.com/dev/box-shadow-generator.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -1346,7 +1346,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>CSS Box Shadow Visual Generator | Digital Tools Shed</span>
+            <span>CSS Box Shadow Generator | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1405,67 +1405,29 @@ footer a:hover { text-decoration: underline; }
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Box Shadow Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Box Shadow Visual Generator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Design smooth multi-layered CSS shadows visually with instant code export.
-          </p>
-
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Box Shadow Generator</h1>
           <div class="tool-box">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-              <div class="field-group">
-                <label class="field-label">X Offset: <span id="bs-xv">0</span>px</label>
-                <input type="range" id="bs-x" min="-50" max="50" value="0" style="width:100%;" oninput="updateShadow()" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Y Offset: <span id="bs-yv">10</span>px</label>
-                <input type="range" id="bs-y" min="-50" max="50" value="10" style="width:100%;" oninput="updateShadow()" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Blur Radius: <span id="bs-bv">25</span>px</label>
-                <input type="range" id="bs-b" min="0" max="100" value="25" style="width:100%;" oninput="updateShadow()" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Spread: <span id="bs-sv">-5</span>px</label>
-                <input type="range" id="bs-s" min="-30" max="50" value="-5" style="width:100%;" oninput="updateShadow()" />
-              </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div class="field-group"><label class="field-label">X Offset: <span id="bs-x-lbl">0</span>px</label><input type="range" id="bs-x" min="-50" max="50" value="0" style="width:100%;" oninput="upShadow()" /></div>
+              <div class="field-group"><label class="field-label">Y Offset: <span id="bs-y-lbl">10</span>px</label><input type="range" id="bs-y" min="-50" max="50" value="10" style="width:100%;" oninput="upShadow()" /></div>
             </div>
-
-            <!-- Preview Box -->
-            <div style="padding: 4rem 2rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; display: flex; justify-content: center; align-items: center; margin: 1.5rem 0;">
-              <div id="bs-preview" style="width: 180px; height: 120px; background: var(--surface); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-family: var(--mono); font-size: 0.85rem; color: var(--fg); border: 1px solid var(--border);">
-                Shadow Box
-              </div>
+            <div style="padding: 3rem; background: var(--surface-alt); border-radius: 6px; display: flex; justify-content: center; margin: 1.5rem 0;">
+              <div id="bs-box" style="width: 150px; height: 100px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; justify-content: center; align-items: center;">Preview</div>
             </div>
-
-            <div class="field-group">
-              <label class="field-label">Generated CSS</label>
-              <input type="text" id="bs-css" class="code-input" readonly />
-            </div>
-
-            <div class="action-bar">
-              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('bs-css').value)">Copy CSS</button>
-            </div>
+            <div class="field-group"><label class="field-label">CSS Code</label><input type="text" id="bs-code" class="code-input" readonly /></div>
           </div>
         </div>
-
         <script>
-          function updateShadow() {
+          function upShadow() {
             const x = document.getElementById('bs-x').value;
             const y = document.getElementById('bs-y').value;
-            const b = document.getElementById('bs-b').value;
-            const s = document.getElementById('bs-s').value;
-
-            document.getElementById('bs-xv').textContent = x;
-            document.getElementById('bs-yv').textContent = y;
-            document.getElementById('bs-bv').textContent = b;
-            document.getElementById('bs-sv').textContent = s;
-
-            const val = x + 'px ' + y + 'px ' + b + 'px ' + s + 'px rgba(0, 0, 0, 0.15)';
-            document.getElementById('bs-preview').style.boxShadow = val;
-            document.getElementById('bs-css').value = 'box-shadow: ' + val + ';';
+            document.getElementById('bs-x-lbl').textContent = x;
+            document.getElementById('bs-y-lbl').textContent = y;
+            const val = x + 'px ' + y + 'px 20px rgba(0,0,0,0.15)';
+            document.getElementById('bs-box').style.boxShadow = val;
+            document.getElementById('bs-code').value = 'box-shadow: ' + val + ';';
           }
-
-          document.addEventListener('DOMContentLoaded', updateShadow);
+          document.addEventListener('DOMContentLoaded', upShadow);
         </script>
       
 

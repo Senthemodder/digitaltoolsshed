@@ -1405,53 +1405,31 @@ footer a:hover { text-decoration: underline; }
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; CSS Minifier
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Code Minifier & Compressor</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Compress CSS stylesheets to reduce file size and bandwidth without altering style rendering.
-          </p>
-
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Code Minifier</h1>
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Raw CSS Code</label>
-              <textarea id="css-in" class="code-input" style="height: 180px;" placeholder="/* Paste CSS here */&#10;.container {&#10;  margin: 0px auto;&#10;  padding: 20px 10px;&#10;}"></textarea>
+              <label class="field-label">Input CSS</label>
+              <textarea id="css-in" class="code-input" style="height: 160px;" placeholder=".box { margin: 0px; }"></textarea>
             </div>
-
             <div class="action-bar">
-              <button class="btn-primary" onclick="minifyCss()">&#x26A1; Minify CSS</button>
-              <button class="btn-sec" onclick="copyMinCss()">Copy Minified</button>
+              <button class="btn-primary" onclick="minifyCss()">Minify</button>
             </div>
-
             <div class="field-group" style="margin-top: 1.5rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                <label class="field-label" style="margin:0;">Minified CSS</label>
-                <span id="css-stats" style="font-family: var(--mono); font-size: 0.75rem; color: var(--btn-bg, #3b82f6);"></span>
-              </div>
-              <textarea id="css-out" class="code-input" style="height: 180px;" readonly></textarea>
+              <label class="field-label">Minified Output</label>
+              <textarea id="css-out" class="code-input" style="height: 160px;" readonly></textarea>
             </div>
           </div>
         </div>
-
         <script>
           function minifyCss() {
             const raw = document.getElementById('css-in').value;
-            let min = raw
-              .replace(//*[sS]*?*//g, '') // remove comments
-              .replace(/s+/g, ' ') // collapse whitespace
-              .replace(/s*([:;{}])s*/g, '$1') // remove spaces around punctuation
-              .replace(/;}/g, '}') // remove trailing semicolons
-              .replace(/0px/g, '0') // 0px -> 0
+            document.getElementById('css-out').value = raw
+              .replace(//*[sS]*?*//g, '')
+              .replace(/s+/g, ' ')
+              .replace(/s*([:;{}])s*/g, '$1')
+              .replace(/;}/g, '}')
+              .replace(/0px/g, '0')
               .trim();
-
-            document.getElementById('css-out').value = min;
-
-            const origBytes = new Blob([raw]).size;
-            const minBytes = new Blob([min]).size;
-            const saved = origBytes ? Math.round(((origBytes - minBytes) / origBytes) * 100) : 0;
-            document.getElementById('css-stats').textContent = origBytes + ' B → ' + minBytes + ' B (' + saved + '% saved)';
-          }
-
-          function copyMinCss() {
-            navigator.clipboard.writeText(document.getElementById('css-out').value);
           }
         </script>
       

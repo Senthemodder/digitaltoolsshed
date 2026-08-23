@@ -1407,26 +1407,21 @@ footer a:hover { text-decoration: underline; }
           </nav>
           <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Regex Visual Tester & Match Inspector</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Test JavaScript Regular Expressions with live match highlighting, capture group extraction, and regex substitution.
+            Test JavaScript Regular Expressions with live match highlighting.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Regular Expression Pattern & Flags</label>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="rx-pattern" class="code-input" value="([A-Z])\w+" placeholder="e.g. \b[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}\b" oninput="runRegex()" />
-                <input type="text" id="rx-flags" class="code-input" value="gm" style="width: 80px; text-align: center;" placeholder="flags" oninput="runRegex()" />
-              </div>
+              <label class="field-label">Pattern</label>
+              <input type="text" id="rx-pattern" class="code-input" value="([A-Z])\w+" oninput="runRegex()" />
             </div>
-
             <div class="field-group">
               <label class="field-label">Test String</label>
-              <textarea id="rx-string" class="code-input" style="height: 140px;" oninput="runRegex()">Hello World! Testing Regex on Digital Tools Shed.</textarea>
+              <textarea id="rx-string" class="code-input" style="height: 120px;" oninput="runRegex()">Hello World! Testing Regex on Digital Tools Shed.</textarea>
             </div>
-
             <div class="field-group">
-              <label class="field-label">Highlighted Matches (<span id="match-count">0</span> found)</label>
-              <div id="rx-highlight" style="background: var(--bg); border: 1px solid var(--border); padding: 0.85rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; min-height: 80px; white-space: pre-wrap; line-height: 1.6;"></div>
+              <label class="field-label">Matches</label>
+              <div id="rx-highlight" style="background: var(--bg); border: 1px solid var(--border); padding: 0.85rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; min-height: 60px;"></div>
             </div>
           </div>
         </div>
@@ -1434,45 +1429,14 @@ footer a:hover { text-decoration: underline; }
         <script>
           function runRegex() {
             const pat = document.getElementById('rx-pattern').value;
-            const flags = document.getElementById('rx-flags').value;
             const str = document.getElementById('rx-string').value;
             const hl = document.getElementById('rx-highlight');
-            const cnt = document.getElementById('match-count');
-
-            if (!pat || !str) {
-              hl.textContent = str;
-              cnt.textContent = '0';
-              return;
-            }
-
+            if (!pat || !str) { hl.textContent = str; return; }
             try {
-              const regex = new RegExp(pat, flags.includes('g') ? flags : flags + 'g');
-              let match;
-              let matches = [];
-              let lastIdx = 0;
-              let html = '';
-              let count = 0;
-
-              while ((match = regex.exec(str)) !== null) {
-                count++;
-                html += escapeHtml(str.substring(lastIdx, match.index));
-                html += '<mark style="background: #fef08a; color: #000; border-radius: 2px; padding: 1px 3px;">' + escapeHtml(match[0]) + '</mark>';
-                lastIdx = regex.lastIndex;
-                if (match.index === regex.lastIndex) regex.lastIndex++; // prevent infinite loop on zero-width match
-              }
-              html += escapeHtml(str.substring(lastIdx));
-              hl.innerHTML = html;
-              cnt.textContent = count;
-            } catch(e) {
-              hl.innerHTML = '<span style="color:#ef4444;">Regex Error: ' + escapeHtml(e.message) + '</span>';
-              cnt.textContent = '0';
-            }
+              const regex = new RegExp(pat, 'g');
+              hl.innerHTML = str.replace(regex, m => '<mark style="background:#fef08a;color:#000;">' + m + '</mark>');
+            } catch(e) { hl.textContent = 'Error: ' + e.message; }
           }
-
-          function escapeHtml(s) {
-            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-          }
-
           document.addEventListener('DOMContentLoaded', runRegex);
         </script>
       

@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cryptographic Hash Generator (MD5, SHA-256, SHA-512) | Digital Tools Shed</title>
-  <meta name="description" content="Generate cryptographic checksum hashes in your browser using native Web Crypto API: SHA-1, SHA-256, SHA-384, SHA-512, and MD5.">
+  <title>Cryptographic Hash Generator | Digital Tools Shed</title>
+  <meta name="description" content="Generate SHA-256, SHA-512, and SHA-1 checksums locally using the hardware-accelerated Web Cryptography API.">
   <link rel="canonical" href="https://digitaltoolsshed.com/dev/hash-generator.html">
-  <meta property="og:title" content="Cryptographic Hash Generator (MD5, SHA-256, SHA-512) | Digital Tools Shed">
-  <meta property="og:description" content="Generate cryptographic checksum hashes in your browser using native Web Crypto API: SHA-1, SHA-256, SHA-384, SHA-512, and MD5.">
+  <meta property="og:title" content="Cryptographic Hash Generator | Digital Tools Shed">
+  <meta property="og:description" content="Generate SHA-256, SHA-512, and SHA-1 checksums locally using the hardware-accelerated Web Cryptography API.">
   <meta property="og:url" content="https://digitaltoolsshed.com/dev/hash-generator.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -1346,7 +1346,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Cryptographic Hash Generator (MD5, SHA-256, SHA-512) | Digital Tools Shed</span>
+            <span>Cryptographic Hash Generator | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1406,67 +1406,28 @@ footer a:hover { text-decoration: underline; }
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Hash Generator
           </nav>
           <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Cryptographic Hash Generator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Generate SHA-256, SHA-512, SHA-1, and MD5 checksums locally using the hardware-accelerated Web Cryptography API.
-          </p>
-
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Input String</label>
-              <textarea id="hash-in" class="code-input" style="height: 100px;" placeholder="Type text to hash..." oninput="genAllHashes()">Digital Tools Shed</textarea>
+              <label class="field-label">Text to Hash</label>
+              <input type="text" id="hash-in" class="text-input" value="Digital Tools Shed" oninput="genAllHashes()" />
             </div>
-
             <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1.5rem;">
-              <div>
-                <label class="field-label">SHA-256</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" id="h-sha256" class="code-input" readonly />
-                  <button class="btn-sec" onclick="copyHash('h-sha256')">Copy</button>
-                </div>
-              </div>
-              <div>
-                <label class="field-label">SHA-512</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" id="h-sha512" class="code-input" readonly />
-                  <button class="btn-sec" onclick="copyHash('h-sha512')">Copy</button>
-                </div>
-              </div>
-              <div>
-                <label class="field-label">SHA-1</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" id="h-sha1" class="code-input" readonly />
-                  <button class="btn-sec" onclick="copyHash('h-sha1')">Copy</button>
-                </div>
-              </div>
+              <div><label class="field-label">SHA-256</label><input type="text" id="h-sha256" class="code-input" readonly /></div>
+              <div><label class="field-label">SHA-512</label><input type="text" id="h-sha512" class="code-input" readonly /></div>
             </div>
           </div>
         </div>
-
         <script>
           async function computeHash(algo, text) {
             const enc = new TextEncoder();
             const buf = await window.crypto.subtle.digest(algo, enc.encode(text));
             return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
           }
-
           async function genAllHashes() {
-            const val = document.getElementById('hash-in').value;
-            if (!val) {
-              document.getElementById('h-sha256').value = '';
-              document.getElementById('h-sha512').value = '';
-              document.getElementById('h-sha1').value = '';
-              return;
-            }
-
-            document.getElementById('h-sha256').value = await computeHash('SHA-256', val);
-            document.getElementById('h-sha512').value = await computeHash('SHA-512', val);
-            document.getElementById('h-sha1').value = await computeHash('SHA-1', val);
+            const v = document.getElementById('hash-in').value;
+            document.getElementById('h-sha256').value = v ? await computeHash('SHA-256', v) : '';
+            document.getElementById('h-sha512').value = v ? await computeHash('SHA-512', v) : '';
           }
-
-          function copyHash(id) {
-            navigator.clipboard.writeText(document.getElementById(id).value);
-          }
-
           document.addEventListener('DOMContentLoaded', genAllHashes);
         </script>
       

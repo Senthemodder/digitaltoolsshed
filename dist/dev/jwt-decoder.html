@@ -1413,12 +1413,12 @@ footer a:hover { text-decoration: underline; }
           <div class="tool-box">
             <div class="field-group">
               <label class="field-label">Encoded JWT String</label>
-              <textarea id="jwt-input" class="code-input" style="height: 120px;" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" oninput="decodeJwt()"></textarea>
+              <textarea id="jwt-input" class="code-input" style="height: 120px;" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." oninput="decodeJwt()"></textarea>
             </div>
 
             <div class="grid-2col" style="margin-top: 1rem;">
               <div class="field-group">
-                <label class="field-label">Header (Algorithm & Token Type)</label>
+                <label class="field-label">Header (Algorithm & Type)</label>
                 <textarea id="jwt-header" class="code-input" style="height: 160px; color: #ef4444;" readonly></textarea>
               </div>
               <div class="field-group">
@@ -1426,8 +1426,6 @@ footer a:hover { text-decoration: underline; }
                 <textarea id="jwt-payload" class="code-input" style="height: 160px; color: #3b82f6;" readonly></textarea>
               </div>
             </div>
-
-            <div id="jwt-meta" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-top: 1rem; display: none;"></div>
           </div>
         </div>
 
@@ -1442,45 +1440,14 @@ footer a:hover { text-decoration: underline; }
             const raw = document.getElementById('jwt-input').value.trim();
             const hEl = document.getElementById('jwt-header');
             const pEl = document.getElementById('jwt-payload');
-            const mEl = document.getElementById('jwt-meta');
-
-            if (!raw) { hEl.value = ''; pEl.value = ''; mEl.style.display = 'none'; return; }
-
+            if (!raw) { hEl.value = ''; pEl.value = ''; return; }
             const parts = raw.split('.');
-            if (parts.length < 2) {
-              hEl.value = 'Invalid JWT structure (must contain at least 2 dot-separated segments)';
-              pEl.value = '';
-              mEl.style.display = 'none';
-              return;
-            }
-
+            if (parts.length < 2) return;
             try {
-              const headerObj = JSON.parse(b64DecodeUnicode(parts[0]));
-              const payloadObj = JSON.parse(b64DecodeUnicode(parts[1]));
-
-              hEl.value = JSON.stringify(headerObj, null, 2);
-              pEl.value = JSON.stringify(payloadObj, null, 2);
-
-              let metaHtml = '<strong>Token Metadata:</strong><br>';
-              if (payloadObj.exp) {
-                const expDate = new Date(payloadObj.exp * 1000);
-                const isExp = Date.now() > expDate.getTime();
-                metaHtml += '• Expiration (exp): ' + expDate.toUTCString() + ' (' + (isExp ? '<span style="color:#ef4444;">EXPIRED</span>' : '<span style="color:#22c55e;">VALID</span>') + ')<br>';
-              }
-              if (payloadObj.iat) {
-                metaHtml += '• Issued At (iat): ' + new Date(payloadObj.iat * 1000).toUTCString() + '<br>';
-              }
-              if (payloadObj.sub) {
-                metaHtml += '• Subject (sub): ' + payloadObj.sub + '<br>';
-              }
-              mEl.innerHTML = metaHtml;
-              mEl.style.display = 'block';
-            } catch(e) {
-              hEl.value = 'Decoding error: ' + e.message;
-            }
+              hEl.value = JSON.stringify(JSON.parse(b64DecodeUnicode(parts[0])), null, 2);
+              pEl.value = JSON.stringify(JSON.parse(b64DecodeUnicode(parts[1])), null, 2);
+            } catch(e) {}
           }
-
-          document.addEventListener('DOMContentLoaded', decodeJwt);
         </script>
       
 

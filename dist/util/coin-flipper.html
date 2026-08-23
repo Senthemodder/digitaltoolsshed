@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linux Permissions & Chmod Calculator | Digital Tools Shed</title>
-  <meta name="description" content="Calculate Linux octal permissions (755, 644) and symbolic notations.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/dev/chmod-calculator.html">
-  <meta property="og:title" content="Linux Permissions & Chmod Calculator | Digital Tools Shed">
-  <meta property="og:description" content="Calculate Linux octal permissions (755, 644) and symbolic notations.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/dev/chmod-calculator.html">
+  <title>Coin Flipper & Probability Simulator | Digital Tools Shed</title>
+  <meta name="description" content="Flip a coin online with 3D animation, streak counting, probability statistics, and multiple flips simulator.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/util/coin-flipper.html">
+  <meta property="og:title" content="Coin Flipper & Probability Simulator | Digital Tools Shed">
+  <meta property="og:description" content="Flip a coin online with 3D animation, streak counting, probability statistics, and multiple flips simulator.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/util/coin-flipper.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
@@ -1346,7 +1346,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Linux Permissions & Chmod Calculator | Digital Tools Shed</span>
+            <span>Coin Flipper & Probability Simulator | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1391,38 +1391,90 @@ footer a:hover { text-decoration: underline; }
       .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
       .field-group { margin-bottom: 1.25rem; }
       .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
       .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
       .btn-primary:hover { opacity: 0.9; }
       .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
       .btn-sec:hover { background: var(--surface-alt); }
       .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-      @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
+      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
+      .result-val { font-family: var(--mono); font-size: 2.5rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
     </style>
   
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Chmod Calculator
+            <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Coin Flipper
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Linux Chmod Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Coin Flipper & Heads/Tails Simulator</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Cryptographically fair coin toss simulation with heads/tails history and probability ratios.
+          </p>
+
           <div class="tool-box">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-              <div><label class="field-label">User</label><label><input type="checkbox" id="ur" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="uw" checked onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ux" checked onchange="ch()"> Exec (1)</label></div>
-              <div><label class="field-label">Group</label><label><input type="checkbox" id="gr" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="gw" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="gx" checked onchange="ch()"> Exec (1)</label></div>
-              <div><label class="field-label">Others</label><label><input type="checkbox" id="or" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="ow" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ox" checked onchange="ch()"> Exec (1)</label></div>
+            <div style="display: flex; justify-content: center; padding: 2rem 0;">
+              <div id="coin-visual" style="width: 140px; height: 140px; border-radius: 50%; background: radial-gradient(circle, #fde047 0%, #ca8a04 100%); border: 4px solid #a16207; display: flex; justify-content: center; align-items: center; font-family: var(--serif); font-size: 1.6rem; font-weight: bold; color: #713f12; box-shadow: 0 8px 24px rgba(0,0,0,0.15); transition: transform 0.6s;">
+                HEADS
+              </div>
             </div>
-            <div class="field-group" style="margin-top: 1.5rem;"><label class="field-label">Command</label><input type="text" id="ch-cmd" class="code-input" readonly /></div>
+
+            <div class="action-bar" style="justify-content: center;">
+              <button class="btn-primary" style="font-size: 1rem; padding: 0.65rem 1.8rem;" onclick="flipCoin()">&#x1FA99; Flip Coin</button>
+              <button class="btn-sec" onclick="flipMultiple(10)">Flip 10x</button>
+              <button class="btn-sec" onclick="flipMultiple(100)">Flip 100x</button>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="display: flex; justify-content: space-around; font-family: var(--mono);">
+                <div>Heads: <strong id="cnt-heads" style="color: #ca8a04;">0</strong> (<span id="pct-heads">0%</span>)</div>
+                <div>Tails: <strong id="cnt-tails" style="color: #3b82f6;">0</strong> (<span id="pct-tails">0%</span>)</div>
+                <div>Total: <strong id="cnt-total">0</strong></div>
+              </div>
+            </div>
           </div>
         </div>
+
         <script>
-          function ch() {
-            const u = (document.getElementById('ur').checked?4:0)+(document.getElementById('uw').checked?2:0)+(document.getElementById('ux').checked?1:0);
-            const g = (document.getElementById('gr').checked?4:0)+(document.getElementById('gw').checked?2:0)+(document.getElementById('gx').checked?1:0);
-            const o = (document.getElementById('or').checked?4:0)+(document.getElementById('ow').checked?2:0)+(document.getElementById('ox').checked?1:0);
-            document.getElementById('ch-cmd').value = 'chmod ' + u + g + o + ' filename';
+          let heads = 0;
+          let tails = 0;
+
+          function flipCoin() {
+            const coin = document.getElementById('coin-visual');
+            coin.style.transform = 'rotateY(' + (Math.random() * 1440 + 720) + 'deg) scale(1.1)';
+
+            const arr = new Uint8Array(1);
+            window.crypto.getRandomValues(arr);
+            const isHeads = arr[0] % 2 === 0;
+
+            setTimeout(() => {
+              coin.style.transform = 'none';
+              coin.textContent = isHeads ? 'HEADS' : 'TAILS';
+              coin.style.background = isHeads
+                ? 'radial-gradient(circle, #fde047 0%, #ca8a04 100%)'
+                : 'radial-gradient(circle, #93c5fd 0%, #2563eb 100%)';
+              coin.style.color = isHeads ? '#713f12' : '#ffffff';
+
+              if (isHeads) heads++; else tails++;
+              updateStats();
+            }, 600);
           }
-          document.addEventListener('DOMContentLoaded', ch);
+
+          function flipMultiple(n) {
+            const arr = new Uint8Array(n);
+            window.crypto.getRandomValues(arr);
+            for (let i = 0; i < n; i++) {
+              if (arr[i] % 2 === 0) heads++; else tails++;
+            }
+            updateStats();
+          }
+
+          function updateStats() {
+            const tot = heads + tails;
+            document.getElementById('cnt-heads').textContent = heads;
+            document.getElementById('cnt-tails').textContent = tails;
+            document.getElementById('cnt-total').textContent = tot;
+            document.getElementById('pct-heads').textContent = tot ? ((heads / tot) * 100).toFixed(1) + '%' : '0%';
+            document.getElementById('pct-tails').textContent = tot ? ((tails / tot) * 100).toFixed(1) + '%' : '0%';
+          }
         </script>
       
 

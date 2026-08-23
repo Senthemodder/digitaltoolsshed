@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linux Permissions & Chmod Calculator | Digital Tools Shed</title>
-  <meta name="description" content="Calculate Linux octal permissions (755, 644) and symbolic notations.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/dev/chmod-calculator.html">
-  <meta property="og:title" content="Linux Permissions & Chmod Calculator | Digital Tools Shed">
-  <meta property="og:description" content="Calculate Linux octal permissions (755, 644) and symbolic notations.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/dev/chmod-calculator.html">
+  <title>Python Programming Guide & Tutorials | Digital Tools Shed</title>
+  <meta name="description" content="Complete Python programming tutorial series: variables, data types, lists, dictionaries, OOP, and best practices.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/learn/python/">
+  <meta property="og:title" content="Python Programming Guide & Tutorials | Digital Tools Shed">
+  <meta property="og:description" content="Complete Python programming tutorial series: variables, data types, lists, dictionaries, OOP, and best practices.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/learn/python/">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
@@ -1346,7 +1346,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Linux Permissions & Chmod Calculator | Digital Tools Shed</span>
+            <span>Python Programming Guide & Tutorials | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1386,45 +1386,120 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
+    <div class="article-container" style="max-width: 900px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/learn/">Learn Hub</a> &gt; Python Guides
+      </nav>
+      <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Complete Python Programming Guide</h1>
+      <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
+        Master Python from fundamentals to advanced data structures, OOP, comprehensions, and error handling.
+      </p>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
         
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-      @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
-    </style>
+    <a href="/learn/python/variables.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Variables & Data Types</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Master variable assignment, dynamic typing, integers, floats, booleans, and type conversion in Python.</p>
+    </a>
   
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Chmod Calculator
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Linux Chmod Calculator</h1>
-          <div class="tool-box">
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
-              <div><label class="field-label">User</label><label><input type="checkbox" id="ur" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="uw" checked onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ux" checked onchange="ch()"> Exec (1)</label></div>
-              <div><label class="field-label">Group</label><label><input type="checkbox" id="gr" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="gw" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="gx" checked onchange="ch()"> Exec (1)</label></div>
-              <div><label class="field-label">Others</label><label><input type="checkbox" id="or" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="ow" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ox" checked onchange="ch()"> Exec (1)</label></div>
-            </div>
-            <div class="field-group" style="margin-top: 1.5rem;"><label class="field-label">Command</label><input type="text" id="ch-cmd" class="code-input" readonly /></div>
-          </div>
-        </div>
-        <script>
-          function ch() {
-            const u = (document.getElementById('ur').checked?4:0)+(document.getElementById('uw').checked?2:0)+(document.getElementById('ux').checked?1:0);
-            const g = (document.getElementById('gr').checked?4:0)+(document.getElementById('gw').checked?2:0)+(document.getElementById('gx').checked?1:0);
-            const o = (document.getElementById('or').checked?4:0)+(document.getElementById('ow').checked?2:0)+(document.getElementById('ox').checked?1:0);
-            document.getElementById('ch-cmd').value = 'chmod ' + u + g + o + ' filename';
-          }
-          document.addEventListener('DOMContentLoaded', ch);
-        </script>
-      
+    <a href="/learn/python/strings.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Strings & F-Strings</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">String slicing, indexing, formatting with f-strings, and essential string methods.</p>
+    </a>
+  
+    <a href="/learn/python/numbers.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Numbers & Arithmetic Math</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Integers, floating-point numbers, arithmetic operators, floor division, and the math module.</p>
+    </a>
+  
+    <a href="/learn/python/booleans.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Booleans & Comparisons</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Boolean truthiness, comparison operators, and logical operators (and, or, not).</p>
+    </a>
+  
+    <a href="/learn/python/conditionals.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python If, Elif, Else Conditions</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Conditional execution flow, nested if statements, and inline ternary expressions.</p>
+    </a>
+  
+    <a href="/learn/python/lists.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Lists & List Operations</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Creating lists, indexing, slicing, appending, inserting, sorting, and list manipulation.</p>
+    </a>
+  
+    <a href="/learn/python/tuples.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Tuples & Immutability</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Immutable sequences, tuple unpacking, and using tuples as dictionary keys.</p>
+    </a>
+  
+    <a href="/learn/python/dictionaries.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Dictionaries (Key-Value Maps)</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Creating dictionaries, accessing keys, .get() defaults, iterating, and dict comprehensions.</p>
+    </a>
+  
+    <a href="/learn/python/sets.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Sets & Set Operations</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Unique element collections, union, intersection, difference, and fast membership testing.</p>
+    </a>
+  
+    <a href="/learn/python/for-loops.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python For Loops & Range</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Iterating over sequences, range(), enumerate(), and zip() multi-sequence iteration.</p>
+    </a>
+  
+    <a href="/learn/python/while-loops.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python While Loops & Control Flow</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">While loops, infinite loop safety, break, continue, and while-else syntax.</p>
+    </a>
+  
+    <a href="/learn/python/functions.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Functions & Arguments</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Defining functions with def, return values, default parameters, *args, and **kwargs.</p>
+    </a>
+  
+    <a href="/learn/python/lambda-functions.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Lambda & Anonymous Functions</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Writing compact one-line lambda expressions with map(), filter(), and sorted().</p>
+    </a>
+  
+    <a href="/learn/python/list-comprehensions.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python List & Dict Comprehensions</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Writing elegant, pythonic list, set, and dictionary comprehensions with conditional filtering.</p>
+    </a>
+  
+    <a href="/learn/python/file-handling.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python File I/O & Context Managers</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Reading and writing files safely using open() and with statement context managers.</p>
+    </a>
+  
+    <a href="/learn/python/error-handling.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Error Handling (Try / Except)</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Handling runtime errors with try, except, else, finally, and raising custom exceptions.</p>
+    </a>
+  
+    <a href="/learn/python/modules-packages.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Modules & Imports</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Importing standard libraries, creating custom modules, and __name__ == "__main__".</p>
+    </a>
+  
+    <a href="/learn/python/classes-oop.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Classes & Object-Oriented Programming</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Object-oriented programming in Python: classes, __init__, self, methods, and inheritance.</p>
+    </a>
+  
+    <a href="/learn/python/json-handling.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python JSON Parsing & Serialization</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Working with JSON in Python using json.loads(), json.dumps(), and file loading.</p>
+    </a>
+  
+    <a href="/learn/python/datetime-module.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Python Datetime & Timestamp Formatting</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Working with dates, times, timezones, timedeltas, and strftime formatting in Python.</p>
+    </a>
+  
+      </div>
+    </div>
+  
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>
