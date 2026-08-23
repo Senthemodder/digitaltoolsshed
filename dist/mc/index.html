@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minecraft UUID Generator for Bedrock Add-Ons | Digital Tools Shed</title>
-  <meta name="description" content="Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/mc/uuid-gen.html">
-  <meta property="og:title" content="Minecraft UUID Generator for Bedrock Add-Ons | Digital Tools Shed">
-  <meta property="og:description" content="Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/mc/uuid-gen.html">
+  <title>Minecraft Developer & Modding Tools Online | Digital Tools Shed</title>
+  <meta name="description" content="Free browser-based tools for Minecraft: in-browser NBT editor, Bedrock UUID generator, and manifest.json creator.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/mc/">
+  <meta property="og:title" content="Minecraft Developer & Modding Tools Online | Digital Tools Shed">
+  <meta property="og:description" content="Free browser-based tools for Minecraft: in-browser NBT editor, Bedrock UUID generator, and manifest.json creator.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/mc/">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
@@ -1240,7 +1240,7 @@ footer a:hover { text-decoration: underline; }
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
         <span>Minecraft & Dev (2)</span>
       </div>
-      <a href="/mc/uuid-gen.html" class="nav-link active">
+      <a href="/mc/uuid-gen.html" class="nav-link ">
         <div class="nav-link-content"><span>UUID Generator</span></div>
       </a>
       <a href="/mc/manifest-gen.html" class="nav-link ">
@@ -1348,7 +1348,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Minecraft UUID Generator for Bedrock Add-Ons | Digital Tools Shed</span>
+            <span>Minecraft Developer & Modding Tools Online | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1388,49 +1388,30 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-    <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-      <h1 style="margin-top: 0.5rem;">Minecraft Bedrock UUID Generator</h1>
-      <p>Generate RFC4122 v4 UUID pairs specifically formatted for Minecraft Bedrock behavior packs, resource packs, and manifest.json headers.</p>
+    <div class="hero" style="padding-bottom: 2rem; margin-bottom: 2rem;">
+      <h1 style="font-size: 2.2rem; margin-top: 0.5rem;">Minecraft Developer & Modding Tools</h1>
+      <p>Free, zero-install browser tools for Minecraft Java and Bedrock Edition creators, server admins, and modders.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-      <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
-        <button class="btn-primary" id="genUuidBtn">Generate New UUIDs</button>
-        <button class="btn-secondary" id="copyAllUuid">Copy Header & Module Pair</button>
-      </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
+      <a href="/mc/nbt-editor.html" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📦</div>
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">NBT Editor & Viewer</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Open, view, and edit Minecraft .dat, .nbt, playerdata, and level.dat files in your browser.</p>
+      </a>
 
-      <div style="font-family: var(--mono); display: grid; gap: 1rem;">
-        <div style="border: 1px solid var(--border); padding: 1rem; background: var(--surface-alt);">
-          <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Header UUID (Pack UUID)</div>
-          <div id="headerUuid" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem;"></div>
-        </div>
-        <div style="border: 1px solid var(--border); padding: 1rem; background: var(--surface-alt);">
-          <div style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Module UUID</div>
-          <div id="moduleUuid" style="font-size: 1.1rem; font-weight: bold; margin-top: 0.25rem;"></div>
-        </div>
-      </div>
+      <a href="/mc/uuid-gen.html" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🔑</div>
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">UUID Generator</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate RFC4122 v4 UUID pairs formatted for Minecraft Bedrock behavior and resource packs.</p>
+      </a>
+
+      <a href="/mc/manifest-gen.html" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📄</div>
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">Manifest.json Generator</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate valid manifest.json files for Minecraft Bedrock add-ons with automatic UUIDs.</p>
+      </a>
     </div>
-
-    <script>
-      function genUUID() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-          var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
-      }
-
-      function refresh() {
-        document.getElementById('headerUuid').innerText = genUUID();
-        document.getElementById('moduleUuid').innerText = genUUID();
-      }
-      document.getElementById('genUuidBtn').addEventListener('click', refresh);
-      document.getElementById('copyAllUuid').addEventListener('click', function() {
-        var text = 'Header UUID: ' + document.getElementById('headerUuid').innerText + '\nModule UUID: ' + document.getElementById('moduleUuid').innerText;
-        navigator.clipboard.writeText(text);
-        alert('Copied UUID pair to clipboard!');
-      });
-      refresh();
-    </script>
   
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
