@@ -90,7 +90,8 @@ const TOOLS = [
 
   // Gaming / Minecraft Bedrock Tools
   { id: 'mc-uuid-gen', name: 'Minecraft UUID Generator', category: 'Minecraft & Game', path: '/mc/uuid-gen.html', desc: 'Generate valid v4 UUID pairs for Bedrock manifest.json files.' },
-  { id: 'mc-manifest-gen', name: 'Bedrock Pack Manifest Generator', category: 'Minecraft & Game', path: '/mc/manifest-gen.html', desc: 'Generate complete manifest.json for Behavior and Resource packs.' },
+  { id: 'mc-manifest-gen', name: 'Bedrock Pack Manifest Generator', category: 'Minecraft & Game', path: '/mc/manifest-gen.html', desc: 'Generate complete manifest.json for Behavior and Resource packs.' }
+,
   // Productivity & Business Tools
   { id: 'deduplicator', name: 'Text De-duplicator', category: 'Productivity', path: '/productivity/deduplicator.html', desc: 'Remove duplicate lines from text instantly.' },
   { id: 'time-tracker', name: 'Time Tracker', category: 'Productivity', path: '/productivity/time-tracker.html', desc: 'Track time across projects with start/stop timer and manual entries.' },
@@ -1821,32 +1822,6 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
         });
       });
     }
-  </script>
-
-  <!-- MOBILE WELCOME OVERLAY: DISABLED
-  <div class="mobile-welcome-overlay" id="mobileWelcomeAd" style="display:none;">
-    <div style="text-align:center; color:#fff; font-family:var(--mono); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;">Welcome to Digital Tools Shed</div>
-    <div class="ad-unit-300x250">
-      <script type="text/javascript">
-        atOptions = {
-          'key' : '335d807d460eaf2491fcca0f635474ce',
-          'format' : 'iframe',
-          'height' : 250,
-          'width' : 300,
-          'params' : {}
-        };
-      </script>
-  -->
-      <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-    </div>
-    <button class="close-btn" onclick="document.getElementById('mobileWelcomeAd').style.display='none';sessionStorage.setItem('dts-welcome-seen','1');">Continue to Tools →</button>
-  </div>
-  <script>
-    (function(){
-      if (window.innerWidth <= 768 && !sessionStorage.getItem('dts-welcome-seen')) {
-        setTimeout(function(){ document.getElementById('mobileWelcomeAd').style.display = 'flex'; }, 1500);
-      }
-    })();
   </script>
 </body>
 </html>`;
