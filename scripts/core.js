@@ -1470,7 +1470,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
         </div>
         <div class="privacy-badge">
           ${ICONS.lock}
-          <span>Your files never leave your device</span>
+          <span>Everything, Everywhere</span>
         </div>
       </div>
 
@@ -1744,7 +1744,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       </div>
 
       <footer>
-        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). The Site of Everything. Your files never leave your device.</div>
+        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). The Site of Everything. Everything, Everywhere.</div>
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
           <a href="/">Home</a>
           <a href="/articles/">Tech Journal</a>

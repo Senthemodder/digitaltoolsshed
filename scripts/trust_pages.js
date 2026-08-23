@@ -33,7 +33,7 @@ function buildTrustPages() {
 
         <h2>Why it's free</h2>
 
-        <p>The site is supported by display advertising and sponsor partnerships. The ads you see on the page are what keep the lights on. I know ads can be annoying, but they let me offer all 88+ tools without charging anyone a subscription fee or gating features behind a paywall.</p>
+        <p>The site is supported by display advertising and sponsor partnerships. The ads you see on the page are what keep the lights on. I know ads can be annoying, but they let me offer all tools without charging anyone a subscription fee or gating features behind a paywall.</p>
 
         <p>I try to keep the ads tasteful and clearly labeled. If something feels off, that's on me and I want to fix it.</p>
 
@@ -62,57 +62,60 @@ function buildTrustPages() {
       <header class="article-header">
         <div class="article-journal-tag">Legal</div>
         <h1>Privacy Policy</h1>
-        <div class="article-meta">
-          <span>Last updated: August 16, 2026</span>
-        </div>
       </header>
       <div class="article-body">
-        <p>This privacy policy explains what data Digital Tools Shed collects, how we use it, and what your rights are. The short version: we collect almost nothing because of how the site is built.</p>
+        <p><em>Last updated: February 2026</em></p>
 
-        <h2>Your files and data</h2>
+        <p>Digital Tools Shed ("we," "our," or "the site") operates <a href="https://digitaltoolsshed.com">digitaltoolsshed.com</a>. This page explains our policies regarding the collection, use, and disclosure of personal data when you use our site.</p>
 
-        <p>All tools on Digital Tools Shed run entirely in your web browser. When you use any of our file converters, image tools, PDF processors, or other utilities, your files are processed locally on your device using JavaScript. <strong>Your files are never uploaded to any server.</strong></p>
+        <h2>The Short Version</h2>
 
-        <p>We do not have the technical ability to access, read, store, or transmit your files. There is no server-side file processing infrastructure.</p>
+        <p><strong>Everything, Everywhere.</strong> Our tools process your data entirely in your web browser using client-side JavaScript. We do not upload, store, or view your files, inputs, or generated content on any server.</p>
 
-        <h2>What we do store</h2>
+        <h2>Information We Do NOT Collect</h2>
 
-        <p>The site stores a small number of preferences in your browser's local storage:</p>
         <ul>
-          <li><strong>Theme preference</strong> (light or dark mode) stored in localStorage under the key "dts-theme"</li>
-          <li><strong>Sponsor notice dismissal</strong> stored in sessionStorage so the notice bar does not reappear during your browsing session</li>
+          <li><strong>Files and input data:</strong> When you convert an image, extract audio, format JSON, decode JWT tokens, or use any calculator, that processing happens locally on your device. No file content or tool input is ever transmitted to our servers.</li>
+          <li><strong>Account information:</strong> We do not have user accounts, logins, or registration forms. You cannot create an account on this site even if you wanted to.</li>
+          <li><strong>Payment information:</strong> All tools are 100% free. We do not collect credit card numbers, billing addresses, or payment details.</li>
         </ul>
-        <p>These values stay in your browser and are never sent to us or any third party.</p>
 
-        <h2>Advertising</h2>
+        <h2>Information We DO Collect</h2>
 
-        <p>Digital Tools Shed displays advertisements through Adsterra, a third-party advertising network. Adsterra may use cookies, web beacons, and similar tracking technologies to serve ads based on your browsing activity.</p>
+        <h3>1. Standard Web Analytics</h3>
+        <p>Like almost every website, we use basic analytics to understand how people find and use the site. This may include:</p>
+        <ul>
+          <li>Browser type and version</li>
+          <li>Operating system</li>
+          <li>Referring website URL</li>
+          <li>Pages visited and time spent on pages</li>
+          <li>General geographic location (country/city level, not precise GPS)</li>
+        </ul>
+        <p>This data is aggregated and anonymized. We cannot use it to identify you personally.</p>
 
-        <p>We do not control what data Adsterra collects. For details on their data practices, please review the <a href="https://adsterra.com/privacy-policy/" target="_blank" rel="noopener">Adsterra Privacy Policy</a>.</p>
+        <h3>2. Advertising Partners</h3>
+        <p>We display third-party advertisements to support the free operation of this site. Our advertising partners may use cookies, web beacons, and similar technologies to serve ads based on your prior visits to this site or other websites on the internet.</p>
+        <p>These third-party ad networks include, but are not limited to, Adsterra and other programmatic ad exchanges. These companies may collect information about your visits to this and other websites in order to provide relevant advertisements about goods and services of interest to you.</p>
+        <p>You can opt out of personalized advertising by visiting the Network Advertising Initiative opt-out page at <a href="https://optout.networkadvertising.org" target="_blank" rel="noopener">optout.networkadvertising.org</a> or the Digital Advertising Alliance at <a href="https://optout.aboutads.info" target="_blank" rel="noopener">optout.aboutads.info</a>.</p>
 
-        <p>The advertising formats used on this site include display banners, native recommendation widgets, and popunder ads. The first time you click anywhere on a page, a sponsor tab may open in a new browser tab. This is clearly disclosed in our on-site sponsor notice.</p>
+        <h3>3. Local Storage</h3>
+        <p>Some tools (like our Time Tracker, Task Manager, and Timetable) save your data locally in your browser's <code>localStorage</code> so your work is saved between visits. This data stays entirely in your browser and is never sent to us. You can clear it at any time by clearing your browser data.</p>
 
-        <h2>Analytics</h2>
+        <h2>Third-Party Links</h2>
 
-        <p>We do not use Google Analytics, Facebook Pixel, or any first-party tracking scripts. We do not collect personal information, IP addresses, or browsing history.</p>
+        <p>Our site contains links to other websites — for example, in our technical articles and sponsor notices. If you click on a third-party link, you will be directed to that site. We strongly advise you to review the Privacy Policy of every site you visit. We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.</p>
 
-        <p>Basic traffic statistics may be available through our hosting provider (GitHub Pages) and advertising partner (Adsterra), but we do not actively monitor individual user behavior.</p>
+        <h2>Children's Privacy</h2>
 
-        <h2>Cookies</h2>
+        <p>Our site does not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13.</p>
 
-        <p>Digital Tools Shed itself does not set any cookies. Third-party advertising scripts from Adsterra may set cookies in your browser. You can manage or block these cookies through your browser settings.</p>
+        <h2>Changes to This Privacy Policy</h2>
 
-        <h2>Children</h2>
+        <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date at the top.</p>
 
-        <p>This site is not directed at children under the age of 13. We do not knowingly collect personal information from children.</p>
+        <h2>Contact Us</h2>
 
-        <h2>Changes to this policy</h2>
-
-        <p>If this privacy policy changes, we will update the "last updated" date at the top of this page. We are not going to send you emails about it because we don't have your email.</p>
-
-        <h2>Contact</h2>
-
-        <p>If you have questions about this privacy policy, feel free to reach out via the contact details on our <a href="/about.html">About page</a>.</p>
+        <p>If you have any questions about this Privacy Policy, you can reach out via our <a href="/about.html">About page</a>.</p>
       </div>
     </div>
   `;
@@ -123,49 +126,45 @@ function buildTrustPages() {
       <header class="article-header">
         <div class="article-journal-tag">Legal</div>
         <h1>Terms of Service</h1>
-        <div class="article-meta">
-          <span>Last updated: August 16, 2026</span>
-        </div>
       </header>
       <div class="article-body">
-        <p>By using Digital Tools Shed (digitaltoolsshed.com), you agree to the following terms. They are written in plain language because legal jargon helps nobody.</p>
+        <p><em>Last updated: February 2026</em></p>
 
-        <h2>What the site does</h2>
+        <p>By accessing or using Digital Tools Shed (<a href="https://digitaltoolsshed.com">digitaltoolsshed.com</a>), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the site.</p>
 
-        <p>Digital Tools Shed provides free, browser-based utility tools for file conversion, image processing, developer workflows, unit calculations, and other tasks. All processing happens on your device. We do not store, access, or transmit your files.</p>
+        <h2>Use of Tools</h2>
 
-        <h2>Use at your own risk</h2>
+        <p>All tools on Digital Tools Shed are provided free of charge for personal and commercial use. You may use them as often as you like, for whatever purpose you need, subject to the following conditions:</p>
 
-        <p>The tools are provided "as is" without any warranties. While we do our best to make everything work correctly, we cannot guarantee that every tool will produce perfect results in every situation. Always keep backups of your original files before converting or processing them.</p>
-
-        <p>We are not responsible for any data loss, file corruption, or other issues that arise from using the tools on this site.</p>
-
-        <h2>Acceptable use</h2>
-
-        <p>You can use the tools for personal or commercial purposes. There is no restriction on how you use the output files.</p>
-
-        <p>You may not:</p>
         <ul>
-          <li>Attempt to reverse-engineer, scrape, or redistribute the site's source code for commercial purposes without permission</li>
-          <li>Use automated bots to generate excessive ad impressions</li>
-          <li>Frame or embed the site in a way that removes attribution or advertising</li>
+          <li><strong>No abusive automation:</strong> You may not use automated scripts, bots, or scrapers to overwhelm or disrupt our hosting infrastructure.</li>
+          <li><strong>No illegal use:</strong> You may not use our tools to process, generate, or distribute illegal content.</li>
+          <li><strong>No reverse engineering of the site:</strong> You are welcome to inspect our client-side code (it's in your browser anyway), but you may not scrape the entire site and re-host it under a different domain without permission.</li>
         </ul>
 
-        <h2>Advertising</h2>
+        <h2>Disclaimer of Warranties</h2>
 
-        <p>This site is supported by advertising. By using the site, you acknowledge that ads will be displayed and that your first click on any page may open a sponsor tab in your browser. We disclose this through an on-site notice.</p>
+        <p>ALL TOOLS, CONTENT, AND SERVICES ON THIS SITE ARE PROVIDED "AS IS" AND "AS AVAILABLE," WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED. WE SPECIFICALLY DISCLAIM ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</p>
 
-        <h2>Intellectual property</h2>
+        <p>While we test our tools thoroughly, we cannot guarantee that:</p>
+        <ul>
+          <li>The tools will meet your specific requirements</li>
+          <li>The tools will be uninterrupted, timely, secure, or error-free</li>
+          <li>The results obtained from using the tools will be accurate or reliable</li>
+          <li>Any errors in the tools will be corrected</li>
+        </ul>
 
-        <p>The tools, articles, design, and code on Digital Tools Shed are the property of Mina Lee and Digital Tools Shed. The articles in our tech journal are original works and may not be republished without attribution.</p>
+        <p>Always verify important calculations (especially financial, tax, or legal calculations) with a qualified professional.</p>
 
-        <p>Files you process through the tools remain your property. We claim no ownership over your input or output files.</p>
+        <h2>Limitation of Liability</h2>
 
-        <h2>Third-party services</h2>
+        <p>IN NO EVENT SHALL DIGITAL TOOLS SHED, ITS CREATOR, OR ITS CONTRIBUTORS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO LOSS OF DATA, LOSS OF PROFITS, OR BUSINESS INTERRUPTION, ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF OR INABILITY TO USE THIS SITE.</p>
 
-        <p>The site uses Adsterra for advertising. Your interaction with ads is governed by Adsterra's own terms and privacy policy. We are not responsible for the content of third-party advertisements.</p>
+        <h2>Advertisements and External Links</h2>
 
-        <h2>Changes</h2>
+        <p>This site displays third-party advertisements and may contain links to external websites. We do not endorse, guarantee, or assume responsibility for any product, service, or content advertised on or linked from this site. Any interaction with advertisers or third-party sites is solely between you and the third party.</p>
+
+        <h2>Changes to Terms</h2>
 
         <p>These terms may be updated from time to time. Continued use of the site after changes are posted means you accept the updated terms.</p>
 
@@ -186,7 +185,7 @@ function buildTrustPages() {
     {
       slug: 'privacy',
       title: 'Privacy Policy',
-      metaDesc: 'Digital Tools Shed privacy policy. Your files never leave your device. No tracking, no accounts, no data collection.',
+      metaDesc: 'Digital Tools Shed privacy policy. Everything, Everywhere. No accounts, fast zero-install web utilities.',
       body: privacyBody
     },
     {
