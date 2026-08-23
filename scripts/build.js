@@ -23,6 +23,7 @@ import { buildMathToolsSuite } from './math_tools.js';
 import { buildHealthToolsSuite } from './health_tools.js';
 import { buildUtilToolsSuite } from './util_tools.js';
 import { buildI18nSuites } from './i18n_tools.js';
+import { buildSeniorFinanceSuite } from './senior_finance_tools.js';
 import { buildTrustPages, build404Page } from './trust_pages.js';
 import { buildSEOAssets } from './seo.js';
 
@@ -54,6 +55,7 @@ function main() {
   buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildI18nSuites({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
 
   // Trust, Legal & Error Pages
   buildTrustPages();

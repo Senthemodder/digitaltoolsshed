@@ -39,6 +39,8 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/design/`);
   collectUrls(join(DIST, 'math'), '/math');
   discoveredUrls.push(`${DOMAIN}/math/`);
+  collectUrls(join(DIST, 'finance'), '/finance');
+  discoveredUrls.push(`${DOMAIN}/finance/`);
   collectUrls(join(DIST, 'health'), '/health');
   discoveredUrls.push(`${DOMAIN}/health/`);
   collectUrls(join(DIST, 'util'), '/util');
