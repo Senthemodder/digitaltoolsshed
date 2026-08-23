@@ -4034,6 +4034,11 @@ Sitemap: ${DOMAIN}/sitemap.xml
 
   writeFileSync(join(DIST, 'robots.txt'), robotsTxt);
 
+  // IndexNow verification key file
+  const INDEXNOW_KEY = 'd03e981bc84f479a9e3a6c2f84b1509b';
+  writeFileSync(join(DIST, `${INDEXNOW_KEY}.txt`), INDEXNOW_KEY);
+  console.log(`  ✓ Generated IndexNow key file (${INDEXNOW_KEY}.txt)`);
+
   console.log(`  ✓ Generated sitemap.xml (${uniqueUrls.length} indexable URLs)`);
   console.log('  ✓ Generated robots.txt (Googlebot allowed, AI scrapers restricted)');
 }
