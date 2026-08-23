@@ -787,5 +787,155 @@ export function buildMinecraftTools() {
     currentPath: '/mc/'
   }));
 
+  
+  // ─── 5. BEDROCK /TELLRAW GENERATOR ─────────────────────────────────────────
+  const tellrawBody = `
+    <div class="article-container" style="max-width: 900px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Bedrock Tellraw Generator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock /tellraw Generator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Generate Bedrock-compatible <code>rawtext</code> JSON commands with color codes (§), selector targets (@p, @a), and scoreboards.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Target Selector</label>
+            <select id="tellTarget" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="updateTellraw()">
+              <option value="@a">@a (All Players)</option>
+              <option value="@p" selected>@p (Nearest Player)</option>
+              <option value="@s">@s (Self / Executing Entity)</option>
+              <option value="@e">@e (All Entities)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Text Color</label>
+            <select id="tellColor" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="updateTellraw()">
+              <option value="§f">White (§f)</option>
+              <option value="§a">Green (§a)</option>
+              <option value="§b">Aqua (§b)</option>
+              <option value="§c">Red (§c)</option>
+              <option value="§d">Light Purple (§d)</option>
+              <option value="§e" selected>Yellow (§e)</option>
+              <option value="§6">Gold (§6)</option>
+              <option value="§g">Minecoin Gold (§g)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Message Content</label>
+          <input type="text" id="tellMsg" value="Welcome to the Server!" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 1rem;" oninput="updateTellraw()" />
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span style="font-family: var(--serif); font-size: 1rem; font-weight: bold;">Generated Command:</span>
+          <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('tellOutput').value); alert('Copied tellraw command!');">Copy Command</button>
+        </div>
+        <textarea id="tellOutput" style="width: 100%; height: 120px; padding: 0.75rem; font-family: var(--mono); font-size: 0.85rem;" readonly></textarea>
+      </div>
+    </div>
+
+    <script>
+      function updateTellraw() {
+        var target = document.getElementById('tellTarget').value;
+        var color = document.getElementById('tellColor').value;
+        var msg = document.getElementById('tellMsg').value;
+
+        var payload = {
+          rawtext: [
+            { text: color + msg }
+          ]
+        };
+
+        var cmd = 'tellraw ' + target + ' ' + JSON.stringify(payload);
+        document.getElementById('tellOutput').value = cmd;
+      }
+      updateTellraw();
+    </script>
+  `;
+
+  writeFileSync(join(mcDir, 'tellraw-gen.html'), renderPage({
+    title: 'Minecraft Bedrock /tellraw Generator (Rawtext JSON) | Digital Tools Shed',
+    metaDesc: 'Generate Bedrock rawtext JSON tellraw commands with color formatting and selectors.',
+    canonical: `${DOMAIN}/mc/tellraw-gen.html`,
+    bodyContent: tellrawBody,
+    currentPath: '/mc/tellraw-gen.html'
+  }));
+
+  // ─── 6. BEDROCK /PLAYSOUND PICKER ──────────────────────────────────────────
+  const playsoundBody = `
+    <div class="article-container" style="max-width: 900px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Bedrock Playsound Generator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock /playsound Command Generator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Search official vanilla sound event definitions with interactive pitch, volume, and player selectors.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Sound Event ID</label>
+          <select id="soundId" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem;" onchange="updatePlaysound()">
+            <option value="random.levelup">random.levelup (Experience Level Up Chime)</option>
+            <option value="random.orb">random.orb (XP Orb Pickup)</option>
+            <option value="random.explode">random.explode (Explosion)</option>
+            <option value="random.totem">random.totem (Totem of Undying Activation)</option>
+            <option value="mob.warden.heartbeat">mob.warden.heartbeat (Warden Heartbeat)</option>
+            <option value="mob.enderdragon.growl">mob.enderdragon.growl (Ender Dragon Growl)</option>
+            <option value="block.bell.hit">block.bell.hit (Village Bell Ding)</option>
+            <option value="ui.toast.challenge_complete">ui.toast.challenge_complete (Challenge Fanfare)</option>
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Volume (0.0 to 1.0+)</label>
+            <input type="number" id="soundVol" value="1.0" step="0.1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono);" oninput="updatePlaysound()" />
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Pitch (0.0 to 2.0)</label>
+            <input type="number" id="soundPitch" value="1.0" step="0.1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono);" oninput="updatePlaysound()" />
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <span style="font-family: var(--serif); font-size: 1rem; font-weight: bold;">/playsound Command:</span>
+          <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('playsoundOutput').value); alert('Copied /playsound command!');">Copy Command</button>
+        </div>
+        <textarea id="playsoundOutput" style="width: 100%; height: 80px; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem;" readonly></textarea>
+      </div>
+    </div>
+
+    <script>
+      function updatePlaysound() {
+        var sound = document.getElementById('soundId').value;
+        var vol = document.getElementById('soundVol').value || '1.0';
+        var pitch = document.getElementById('soundPitch').value || '1.0';
+
+        var cmd = 'playsound ' + sound + ' @a ~ ~ ~ ' + vol + ' ' + pitch;
+        document.getElementById('playsoundOutput').value = cmd;
+      }
+      updatePlaysound();
+    </script>
+  `;
+
+  writeFileSync(join(mcDir, 'playsound-gen.html'), renderPage({
+    title: 'Minecraft Bedrock /playsound Generator & Sound List | Digital Tools Shed',
+    metaDesc: 'Generate Bedrock /playsound commands with sound event IDs, pitch, volume, and coordinates.',
+    canonical: `${DOMAIN}/mc/playsound-gen.html`,
+    bodyContent: playsoundBody,
+    currentPath: '/mc/playsound-gen.html'
+  }));
+
   console.log('  ✓ Built Minecraft Suite (NBT Editor, UUID Generator, Manifest Generator in /mc/)');
 }

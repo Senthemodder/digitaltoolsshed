@@ -265,6 +265,90 @@ function buildMediaSuite() {
     currentPath: '/media/tiktok-saver.html'
   }));
 
+  
+  // ─── SUBTITLE SRT/VTT SHIFTER ──────────────────────────────────────────────
+  const subBody = `
+    <div class="article-container" style="max-width: 900px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/media/">Media Tools</a> &gt; Subtitle Time Shifter
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Subtitle Time Shifter (.SRT & .VTT)</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Easily fix out-of-sync movie and video subtitles. Shift all timestamps forward or backward by exact milliseconds with zero file uploads.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Upload .SRT or .VTT File</label>
+          <input type="file" id="subFileInput" accept=".srt,.vtt" class="search-input" style="padding: 0.5rem;" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Time Shift (Milliseconds)</label>
+            <input type="number" id="shiftMs" value="1500" step="100" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono);" />
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Use negative for earlier (e.g. -2000), positive for later (e.g. 1500)</span>
+          </div>
+          <div style="display: flex; align-items: flex-end;">
+            <button class="btn-primary" onclick="shiftSubtitles()" style="width: 100%; padding: 0.65rem;">Sync & Download Subtitles</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var subContent = '';
+      var fileName = 'synced_subtitles.srt';
+
+      document.getElementById('subFileInput').addEventListener('change', function(e) {
+        if (e.target.files.length) {
+          fileName = e.target.files[0].name;
+          var reader = new FileReader();
+          reader.onload = function(evt) { subContent = evt.target.result; };
+          reader.readAsText(e.target.files[0]);
+        }
+      });
+
+      function shiftSubtitles() {
+        if (!subContent) { alert('Please choose an .SRT or .VTT subtitle file first.'); return; }
+        var delta = parseInt(document.getElementById('shiftMs').value, 10) || 0;
+
+        var shifted = subContent.replace(/(\d{2}):(\d{2}):(\d{2})[,.](\d{3})/g, function(match, hh, mm, ss, ms) {
+          var totalMs = parseInt(hh, 10) * 3600000 + parseInt(mm, 10) * 60000 + parseInt(ss, 10) * 1000 + parseInt(ms, 10);
+          totalMs = Math.max(0, totalMs + delta);
+
+          var newH = Math.floor(totalMs / 3600000);
+          var rem = totalMs % 3600000;
+          var newM = Math.floor(rem / 60000);
+          rem = rem % 60000;
+          var newS = Math.floor(rem / 1000);
+          var newMs = rem % 1000;
+
+          var pad = function(n, z) { return String(n).padStart(z, '0'); };
+          var sep = match.includes(',') ? ',' : '.';
+          return pad(newH, 2) + ':' + pad(newM, 2) + ':' + pad(newS, 2) + sep + pad(newMs, 3);
+        });
+
+        var blob = new Blob([shifted], { type: 'text/plain;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'shifted_' + fileName;
+        a.click();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(mediaDir, 'subtitle-shifter.html'), renderPage({
+    title: 'Subtitle Time Shifter & Resync (.SRT & .VTT) | Digital Tools Shed',
+    metaDesc: 'Fix desynced subtitles online. Shift SRT and VTT timestamps forward or backward in milliseconds in your browser.',
+    canonical: `${DOMAIN}/media/subtitle-shifter.html`,
+    bodyContent: subBody,
+    currentPath: '/media/subtitle-shifter.html'
+  }));
+
   console.log('  ✓ Built Media & Video Suite (/media/)');
 }
 

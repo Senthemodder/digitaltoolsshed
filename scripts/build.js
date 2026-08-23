@@ -1,3 +1,4 @@
+import { buildTradeTools } from './trade_tools.js';
 // scripts/build.js — Master Static Site Generator for Digital Tools Shed
 import { writeFileSync } from 'fs';
 import { join } from 'path';
@@ -38,6 +39,7 @@ function main() {
   buildConvertFastSuite();
   buildPdfTools();
   buildMinecraftTools();
+  buildTradeTools();
   buildUnitCalcSuite();
   buildArticlesSuite();
   buildProductivitySuite();
