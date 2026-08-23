@@ -1392,11 +1392,11 @@ function buildSidebarHtml(currentPath = '/') {
 }
 
 // ─── MASTER PAGE RENDERER ──────────────────────────────────────────────────
-function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/', schema }) {
+function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/', schema, lang = 'en' }) {
   const schemaMarkup = schema ? `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n</script>` : '';
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
