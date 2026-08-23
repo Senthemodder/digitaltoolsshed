@@ -5,6 +5,8 @@ import { buildDevToolsSuite } from './dev_tools.js';
 import { buildTextToolsSuite } from './text_tools.js';
 import { buildSecurityToolsSuite } from './security_tools.js';
 import { buildDesignToolsSuite } from './design_tools.js';
+import { buildMathToolsSuite } from './math_tools.js';
+import { buildHealthToolsSuite } from './health_tools.js';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -3980,6 +3982,10 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/security/`);
   collectUrls(join(DIST, 'design'), '/design');
   discoveredUrls.push(`${DOMAIN}/design/`);
+  collectUrls(join(DIST, 'math'), '/math');
+  discoveredUrls.push(`${DOMAIN}/math/`);
+  collectUrls(join(DIST, 'health'), '/health');
+  discoveredUrls.push(`${DOMAIN}/health/`);
   discoveredUrls.push(`${DOMAIN}/learn/`);
   discoveredUrls.push(`${DOMAIN}/learn/javascript/`);
 
@@ -6130,6 +6136,8 @@ function main() {
   buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildDesignToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildTrustPages();
   build404Page();
   buildSEOAssets();
