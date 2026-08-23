@@ -1444,6 +1444,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
   ${schemaMarkup}
 </head>
 <body>
+  <!-- SPONSOR NOTICE: DISABLED
   <div id="sponsorNotice" class="sponsor-notice" style="display:none;">
     <div><strong>Sponsor-supported site</strong> — Your first click may open a sponsor tab. This keeps all 88+ tools completely free, forever.</div>
     <button class="dismiss-btn" onclick="document.getElementById('sponsorNotice').style.display='none';sessionStorage.setItem('dts-sponsor-ack','1');">Got it</button>
@@ -1455,6 +1456,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       }
     })();
   </script>
+  -->
   <div class="app-container">
     ${buildSidebarHtml(currentPath)}
 
@@ -1821,6 +1823,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
     }
   </script>
 
+  <!-- MOBILE WELCOME OVERLAY: DISABLED
   <div class="mobile-welcome-overlay" id="mobileWelcomeAd" style="display:none;">
     <div style="text-align:center; color:#fff; font-family:var(--mono); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.1em;">Welcome to Digital Tools Shed</div>
     <div class="ad-unit-300x250">
@@ -1833,6 +1836,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
           'params' : {}
         };
       </script>
+  -->
       <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
     </div>
     <button class="close-btn" onclick="document.getElementById('mobileWelcomeAd').style.display='none';sessionStorage.setItem('dts-welcome-seen','1');">Continue to Tools →</button>
