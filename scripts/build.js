@@ -1,3 +1,4 @@
+import { buildEpistemicTools } from './epistemic_tools.js';
 import { buildViralTools } from './viral_tools.js';
 import { buildTradeTools } from './trade_tools.js';
 // scripts/build.js — Master Static Site Generator for Digital Tools Shed
@@ -42,6 +43,7 @@ function main() {
   buildMinecraftTools();
   buildTradeTools();
   buildViralTools();
+  buildEpistemicTools();
   buildUnitCalcSuite();
   buildArticlesSuite();
   buildProductivitySuite();
