@@ -1,0 +1,2088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Convert Square Meters to Hectares — Free Online Calculator | Digital Tools Shed</title>
+  <meta name="description" content="Instantly convert Square Meters (m²) to Hectares (ha). Free, fast, real-time formula calculations with zero tracking.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/sq-m-to-hectares.html">
+  <meta property="og:title" content="Convert Square Meters to Hectares — Free Online Calculator | Digital Tools Shed">
+  <meta property="og:description" content="Instantly convert Square Meters (m²) to Hectares (ha). Free, fast, real-time formula calculations with zero tracking.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/sq-m-to-hectares.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Digital Tools Shed">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Convert Square Meters to Hectares — Free Online Calculator | Digital Tools Shed">
+  <meta name="twitter:description" content="Instantly convert Square Meters (m²) to Hectares (ha). Free, fast, real-time formula calculations with zero tracking.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="author" content="Digital Tools Shed">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('dts-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+
+      const isDark = savedTheme === 'dark';
+      const op1 = isDark ? '0.14' : '0.08';
+      const op2 = isDark ? '0.12' : '0.07';
+      const op3 = isDark ? '0.10' : '0.06';
+
+      const palettes = [
+        { orb1: 'rgba(99, 102, 241, ' + op1 + ')', orb2: 'rgba(16, 185, 129, ' + op2 + ')', orb3: 'rgba(168, 85, 247, ' + op3 + ')', bar: 'linear-gradient(90deg, #6366f1, #10b981, #a855f7)' },
+        { orb1: 'rgba(244, 63, 94, ' + op1 + ')', orb2: 'rgba(245, 158, 11, ' + op2 + ')', orb3: 'rgba(236, 72, 153, ' + op3 + ')', bar: 'linear-gradient(90deg, #f43f5e, #f59e0b, #ec4899)' },
+        { orb1: 'rgba(20, 184, 166, ' + op1 + ')', orb2: 'rgba(14, 165, 233, ' + op2 + ')', orb3: 'rgba(132, 204, 22, ' + op3 + ')', bar: 'linear-gradient(90deg, #14b8a6, #0ea5e9, #84cc16)' },
+        { orb1: 'rgba(139, 92, 246, ' + op1 + ')', orb2: 'rgba(59, 130, 246, ' + op2 + ')', orb3: 'rgba(244, 114, 182, ' + op3 + ')', bar: 'linear-gradient(90deg, #8b5cf6, #3b82f6, #f472b6)' },
+        { orb1: 'rgba(6, 182, 212, ' + op1 + ')', orb2: 'rgba(234, 179, 8, ' + op2 + ')', orb3: 'rgba(99, 102, 241, ' + op3 + ')', bar: 'linear-gradient(90deg, #06b6d4, #eab308, #6366f1)' },
+        { orb1: 'rgba(236, 72, 153, ' + op1 + ')', orb2: 'rgba(99, 102, 241, ' + op2 + ')', orb3: 'rgba(59, 130, 246, ' + op3 + ')', bar: 'linear-gradient(90deg, #ec4899, #6366f1, #3b82f6)' }
+      ];
+      const p = palettes[Math.floor(Math.random() * palettes.length)];
+      const root = document.documentElement;
+      root.style.setProperty('--gradient-orb-1', p.orb1);
+      root.style.setProperty('--gradient-orb-2', p.orb2);
+      root.style.setProperty('--gradient-orb-3', p.orb3);
+      root.style.setProperty('--gradient-bar', p.bar);
+    })();
+  </script>
+  <style>
+:root, [data-theme="light"] {
+  --bg: #ffffff;
+  --fg: #111111;
+  --sidebar-bg: #f9f9f9;
+  --sidebar-border: #e2e2e2;
+  --surface: #ffffff;
+  --surface-alt: #f5f5f5;
+  --surface-hover: #ebebeb;
+  --border: #dcdcdc;
+  --border-strong: #000000;
+  --text-muted: #555555;
+  --text-subtle: #777777;
+  --input-bg: #ffffff;
+  --btn-bg: #000000;
+  --btn-fg: #ffffff;
+  --btn-hover: #2b2b2b;
+  --active-item: #000000;
+  --active-item-fg: #ffffff;
+
+  --serif: "Times New Roman", Times, "Liberation Serif", Georgia, serif;
+  --mono: "SF Mono", Monaco, "Cascadia Code", "Courier New", Courier, monospace;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --border-color: var(--border);
+  --border-subtle: #eaeaea;
+  --card-color: var(--surface);
+  --surface-color: #f5f5f5;
+  --text-color: var(--fg);
+  --bg-color: var(--bg);
+  --muted-color: var(--text-muted);
+  --font-mono: var(--mono);
+  --font-serif: var(--serif);
+}
+
+[data-theme="dark"] {
+  --bg: #0b0b0b;
+  --fg: #f0f0f0;
+  --sidebar-bg: #050505;
+  --sidebar-border: #1f1f1f;
+  --surface: #121212;
+  --surface-alt: #171717;
+  --surface-hover: #202020;
+  --border: #282828;
+  --border-strong: #ffffff;
+  --text-muted: #999999;
+  --text-subtle: #666666;
+  --input-bg: #040404;
+  --btn-bg: #ffffff;
+  --btn-fg: #000000;
+  --btn-hover: #d5d5d5;
+  --active-item: #ffffff;
+  --active-item-fg: #000000;
+
+  --border-color: #282828;
+  --border-subtle: #181818;
+  --card-color: #121212;
+  --surface-color: #121212;
+  --text-color: #f0f0f0;
+  --bg-color: #0b0b0b;
+  --muted-color: #999999;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(at 10% 12%, var(--gradient-orb-1, rgba(99, 102, 241, 0.08)) 0px, transparent 55%),
+    radial-gradient(at 90% 18%, var(--gradient-orb-2, rgba(16, 185, 129, 0.07)) 0px, transparent 50%),
+    radial-gradient(at 50% 88%, var(--gradient-orb-3, rgba(168, 85, 247, 0.06)) 0px, transparent 60%);
+  background-attachment: fixed;
+  background-size: 100% 100%;
+  color: var(--fg);
+  font-family: var(--serif);
+  line-height: 1.55;
+  display: flex;
+  overflow-x: hidden;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.app-container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 150;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sidebar-header {
+  padding: 1.15rem 1.15rem 0.85rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-brand {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sidebar-search-box {
+  padding: 0.75rem 0.85rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sidebar-search {
+  padding: 0.55rem 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+  animation: searchGlowPulse 4s infinite ease-in-out;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.sidebar-search:focus-within {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.5) !important;
+  animation: none;
+}
+
+@keyframes searchGlowPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 14px rgba(59, 130, 246, 0.55); border-color: rgba(59, 130, 246, 0.95); }
+}
+
+.sidebar-search svg { color: #3b82f6; flex-shrink: 0; }
+.sidebar-search input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--fg);
+  outline: none;
+}
+
+.search-tooltip {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.2rem;
+}
+.shuffle-btn {
+  background: transparent;
+  border: none;
+  color: #3b82f6;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  text-decoration: underline;
+}
+.shuffle-btn:hover { color: var(--fg); }
+
+/* Shimmer / Shuffle glow animation on items */
+@keyframes itemShuffleGlow {
+  0% { transform: scale(1); background: transparent; }
+  50% { transform: scale(1.02); background: rgba(59, 130, 246, 0.18); border-color: #3b82f6; }
+  100% { transform: scale(1); background: transparent; }
+}
+.shuffle-highlight {
+  animation: itemShuffleGlow 1.8s ease-in-out;
+}
+
+.sidebar-nav {
+
+  padding: 0.5rem 0.75rem 1.5rem;
+  flex: 1;
+}
+.nav-group-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  margin: 1.25rem 0.5rem 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.nav-group-title:first-child { margin-top: 0.25rem; }
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
+  color: var(--fg);
+  text-decoration: none;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  border-radius: 2px;
+  transition: background 0.1s, color 0.1s;
+}
+.nav-link-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.nav-link:hover {
+  background: var(--surface-hover);
+}
+.nav-link.active {
+  background: var(--active-item);
+  color: var(--active-item-fg);
+  font-weight: bold;
+}
+.nav-badge {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+.nav-link.active .nav-badge {
+  color: var(--active-item-fg);
+}
+
+.sidebar-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  background: var(--sidebar-bg);
+}
+.theme-switch-btn {
+  width: 100%;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+.theme-switch-btn:hover {
+  border-color: var(--border-strong);
+}
+
+/* ─── MAIN CONTENT ───────────────────────────────────────────────────────── */
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-size: 1.1rem;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  font-family: var(--mono);
+}
+.breadcrumbs {
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.breadcrumbs a {
+  color: var(--fg);
+  text-decoration: none;
+}
+.breadcrumbs a:hover { text-decoration: underline; }
+
+.privacy-badge {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.layout-with-rail {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  flex: 1;
+}
+.main-body {
+  max-width: 1050px;
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+}
+.right-sponsor-rail {
+  width: 170px;
+  flex-shrink: 0;
+  display: none;
+}
+@media (min-width: 1360px) {
+  .right-sponsor-rail {
+    display: block;
+    position: sticky;
+    top: 70px;
+    height: fit-content;
+  }
+}
+
+.hero {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2.5rem;
+}
+.hero h1 {
+  font-size: clamp(2.2rem, 4.5vw, 3.8rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 0.75rem;
+}
+.hero p {
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  max-width: 700px;
+  font-style: italic;
+}
+
+.category-section {
+  margin-bottom: 3rem;
+}
+.category-header {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+}
+.category-title-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.category-count {
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.1s, border-color 0.15s, background 0.15s;
+}
+.tool-card:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+.tool-card h3 {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+  color: var(--fg);
+}
+.tool-card p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.tool-card .tag {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-transform: uppercase;
+}
+
+/* ─── TECH ARTICLES & EDITORIAL STYLING ─── */
+.article-container {
+  max-width: 840px;
+  margin: 0 auto;
+}
+.article-header {
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 2rem;
+}
+.article-header h1 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 3.5vw, 2.7rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+.article-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+.article-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.article-body {
+  font-size: 1.08rem;
+  line-height: 1.75;
+  color: var(--fg);
+}
+.article-body h2 {
+  font-family: var(--serif);
+  font-size: 1.65rem;
+  font-weight: 700;
+  margin: 2.5rem 0 1rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+.article-body h3 {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 1.75rem 0 0.75rem;
+}
+.article-body p {
+  margin-bottom: 1.35rem;
+}
+.article-body ul, .article-body ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+.article-body li {
+  margin-bottom: 0.5rem;
+}
+.article-callout {
+  background: var(--surface-alt);
+  border-left: 4px solid var(--fg);
+  padding: 1.25rem 1.5rem;
+  margin: 1.75rem 0;
+  font-style: italic;
+}
+.code-block-wrapper {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.code-block-wrapper pre {
+  margin: 0;
+  background: transparent;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+.article-cta-box {
+  background: var(--surface);
+  border: 2px solid var(--fg);
+  padding: 1.5rem;
+  margin: 2.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.article-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+.article-journal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s, border-color 0.15s, background 0.15s;
+}
+.article-journal-card:hover {
+  border-color: var(--fg);
+  background: var(--surface-hover);
+  transform: translateY(-2px);
+}
+.article-journal-tag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+.article-journal-card h3 {
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.75rem;
+}
+.article-journal-card p {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.ad-blend-box {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 40%, var(--surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  border-radius: 6px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.3s ease;
+}
+.ad-blend-box:hover { border-color: var(--border); }
+.ad-blend-box::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border) 30%, var(--border) 70%, transparent 100%);
+  opacity: 0.4;
+}
+.ad-blend-box::after {
+  content: "";
+  position: absolute;
+  bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border) 30%, var(--border) 70%, transparent 100%);
+  opacity: 0.25;
+}
+.ad-desktop-leaderboard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 90px;
+  width: 100%;
+}
+.ad-mobile-banner {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
+  width: 100%;
+}
+.ad-sidebar-card {
+  margin: 1.25rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 160px;
+  min-height: 300px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--sidebar-border) 50%, transparent);
+  padding: 0.5rem 0;
+  background: linear-gradient(180deg, var(--surface) 0%, transparent 100%);
+  position: relative;
+  border-radius: 4px;
+  transition: border-color 0.3s;
+}
+.ad-sidebar-card:hover { border-color: var(--sidebar-border); }
+.ad-sidebar-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.35;
+}
+.ad-unit-300x250 {
+  width: 300px;
+  height: 250px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ad-unit-468x60 {
+  width: 468px;
+  height: 60px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ad-promo-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(160deg, var(--surface) 0%, var(--bg) 50%, var(--surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  padding: 1.25rem;
+  min-height: 320px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  transition: border-color 0.3s;
+}
+.ad-promo-card:hover { border-color: var(--border); }
+.ad-promo-card::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 20%; right: 20%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.35;
+}
+.ad-label {
+  font-family: var(--mono);
+  font-size: 0.55rem;
+  color: color-mix(in srgb, var(--text-subtle) 50%, transparent);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-bottom: 0.5rem;
+  opacity: 0.5;
+  transition: opacity 0.3s;
+}
+.ad-blend-box:hover .ad-label,
+.ad-sidebar-card:hover .ad-label,
+.ad-promo-card:hover .ad-label { opacity: 0.3; }
+
+.docked-sticky-ad {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 99999;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+  padding: 0.5rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
+}
+.docked-sticky-ad.collapsed {
+  transform: translateY(calc(100% - 26px));
+  box-shadow: none;
+}
+.docked-sticky-ad .toggle-btn {
+  position: absolute;
+  right: 12px;
+  top: -1px;
+  transform: translateY(-100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-bottom: none;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+  padding: 3px 12px;
+  border-radius: 4px 4px 0 0;
+  transition: color 0.2s, background 0.2s;
+  line-height: 1;
+  z-index: 1;
+}
+.docked-sticky-ad .toggle-btn:hover {
+  color: var(--fg);
+  background: var(--surface-alt);
+}
+.docked-sticky-ad .toggle-btn .chevron {
+  display: inline-block;
+  transition: transform 0.35s ease;
+  font-size: 0.8rem;
+}
+.docked-sticky-ad.collapsed .toggle-btn .chevron {
+  transform: rotate(180deg);
+}
+
+@media (max-width: 768px) {
+  .ad-desktop-leaderboard { display: none !important; }
+  .ad-mobile-banner { display: flex !important; }
+  .ad-unit-468x60 { display: none !important; }
+  .docked-sticky-ad { padding: 0.35rem 0.5rem; }
+  .ad-hero-undercard { display: none; }
+  .ad-category-break { padding: 0.5rem; }
+  .ad-category-break .ad-unit-468x60 { display: none !important; }
+  .mobile-welcome-overlay .ad-unit-300x250 { width: 280px; height: 233px; }
+}
+.ad-hero-undercard {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  text-align: center;
+  position: relative;
+  border-radius: 6px;
+}
+.ad-hero-undercard::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.3;
+}
+.ad-category-break {
+  margin: 1.5rem 0;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 60%, var(--surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  border-radius: 6px;
+}
+.ad-category-break::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.3;
+}
+.ad-pre-footer {
+  margin: 2rem 0 0;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, var(--surface-alt) 0%, var(--bg) 100%);
+  border-top: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 40%, transparent);
+  text-align: center;
+}
+.ad-pre-footer::before {
+  content: "";
+  display: block;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--border) 30%, var(--border) 70%, transparent 100%);
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+.mobile-welcome-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 999999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  backdrop-filter: blur(4px);
+}
+.mobile-welcome-overlay .close-btn {
+  background: #fff;
+  color: #111;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+}
+.ad-article-mid {
+  margin: 2rem auto;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 50%, var(--surface) 100%);
+  border: 1px solid color-mix(in srgb, var(--border) 50%, transparent);
+  text-align: center;
+  position: relative;
+  border-radius: 6px;
+}
+.ad-article-mid::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 15%; right: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.3;
+}
+.sponsor-notice {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 999998;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 560px;
+  width: calc(100% - 2rem);
+  font-family: var(--serif);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.sponsor-notice::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  opacity: 0.3;
+}
+.sponsor-notice strong { color: var(--fg); }
+.sponsor-notice .dismiss-btn {
+  background: var(--fg);
+  color: var(--bg);
+  border: none;
+  padding: 0.35rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.promo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.promo-card {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+.promo-card:hover { border-color: var(--border-strong); }
+.promo-badge {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 2px 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.tool-workspace {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2rem;
+  margin: 1.5rem 0 2rem;
+}
+.drop-zone {
+  border: 2px dashed var(--border);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  background: var(--surface-alt);
+  transition: border-color 0.15s;
+}
+.drop-zone:hover { border-color: var(--border-strong); }
+
+.btn-primary, button[style*="text-transform:uppercase"], #downloadBtn {
+  background: var(--btn-bg) !important;
+  color: var(--btn-fg) !important;
+  border: 1px solid var(--border-strong) !important;
+  padding: 0.8rem 1.5rem !important;
+  font-family: var(--serif) !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  box-shadow: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+}
+.btn-primary:hover, button[style*="text-transform:uppercase"]:hover, #downloadBtn:hover {
+  background: var(--btn-hover) !important;
+}
+
+textarea, input[type="text"], input[type="number"], input[type="url"], select {
+  background: var(--input-bg) !important;
+  color: var(--fg) !important;
+  border: 1px solid var(--border) !important;
+  outline: none !important;
+  font-family: var(--serif) !important;
+}
+textarea:focus, input[type="text"]:focus, input[type="url"]:focus, select:focus {
+  border-color: var(--border-strong) !important;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  background: var(--bg);
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+footer a { color: var(--fg); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media (max-width: 900px) {
+  .sidebar {
+    position: fixed;
+    left: -300px;
+    transition: left 0.25s ease;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.15);
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .mobile-toggle {
+    display: block;
+  }
+  .topbar {
+    padding: 0.75rem 1rem;
+  }
+  .main-body {
+    padding: 1.5rem 1rem;
+  }
+  .tools-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+  <!-- POPUNDER: DISABLED — USE THIS ONCE 1K TRAFFIC AND MORE
+       Uncomment the line below to activate Adsterra popunder ads.
+       This opens a sponsor tab on the user's first click per session.
+       High CPM ($2-5) but risky for bounce rate on low-traffic sites.
+  <script src="https://manyapostle.com/de/cb/e7/decbe73417353e7a377faccd19c69d3f.js"></script>
+  -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://digitaltoolsshed.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Calc",
+      "item": "https://digitaltoolsshed.com/calc"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Sq M To Hectares",
+      "item": "https://digitaltoolsshed.com/calc/sq-m-to-hectares.html"
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Convert Square Meters to Hectares",
+  "url": "https://digitaltoolsshed.com/calc/sq-m-to-hectares.html",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
+  "description": "Instantly convert Square Meters (m²) to Hectares (ha). Free, fast, real-time formula calculations with zero tracking.",
+  "author": {
+    "@type": "Organization",
+    "name": "Digital Tools Shed",
+    "url": "https://digitaltoolsshed.com"
+  }
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I convert Square Meters to Hectares?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "To convert Square Meters (m²) to Hectares (ha), multiply the value by 0.0001. For example, 10 m² = 0.001 ha."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many Hectares are in 1 Square Meter?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "1 Square Meter (m²) is equal to 0.0001 Hectares (ha)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this m² to ha converter accurate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. This converter uses the exact IEEE 754 conversion factor and performs all calculations client-side in your browser with zero rounding until the final display. No data is sent to any server."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I convert Hectares back to Square Meters?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes! This is a two-way converter. Simply type a value in the Hectares field and the Square Meters result will update instantly."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+  <!-- SPONSOR NOTICE: DISABLED
+  <div id="sponsorNotice" class="sponsor-notice" style="display:none;">
+    <div><strong>Sponsor-supported site</strong> — Your first click may open a sponsor tab. This keeps all 88+ tools completely free, forever.</div>
+    <button class="dismiss-btn" onclick="document.getElementById('sponsorNotice').style.display='none';sessionStorage.setItem('dts-sponsor-ack','1');">Got it</button>
+  </div>
+  <script>
+    (function(){
+      if (!sessionStorage.getItem('dts-sponsor-ack')) {
+        document.getElementById('sponsorNotice').style.display = 'flex';
+      }
+    })();
+  </script>
+  -->
+  <div class="app-container">
+    
+  <aside class="sidebar" id="siteSidebar">
+    <div class="sidebar-header">
+      <a href="/" class="sidebar-brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>DIGITAL TOOLS SHED</span>
+      </a>
+      <button class="mobile-toggle" id="mobileCloseBtn" onclick="toggleSidebar()" style="display:none; padding: 0.2rem 0.5rem; font-size: 0.8rem;">✕</button>
+    </div>
+
+    <div class="sidebar-search-box">
+      <div class="sidebar-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="sidebarSearchInput" placeholder="Filter 258+ tools & guides..." autocomplete="off" />
+      </div>
+      <div class="search-tooltip">
+        <span>💡 Filter 258+ tools live</span>
+        <button class="shuffle-btn" onclick="shuffleRandomTool()">🎲 Random</button>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <!-- FEATURED & VIRAL REALITY TOOLS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span>Featured & Reality Suite</span>
+      </div>
+      <a href="/util/ego-vs-truth.html" class="nav-link ">
+        <div class="nav-link-content"><span>🧠 Ego vs. Truth Auditor</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/text/steelman-engine.html" class="nav-link ">
+        <div class="nav-link-content"><span>🛡️ Steelman Engine</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/calc/ai-water-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>🤖 AI Water Reality Ticker</span></div>
+        <span class="nav-badge">VIRAL</span>
+      </a>
+      <a href="/math/graphing-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>📈 2D Graphing Calculator</span></div>
+        <span class="nav-badge">DESMOS</span>
+      </a>
+      <a href="/math/bayesian-updater.html" class="nav-link ">
+        <div class="nav-link-content"><span>📊 Bayesian Belief Updater</span></div>
+      </a>
+      <a href="/text/fallacy-scanner.html" class="nav-link ">
+        <div class="nav-link-content"><span>🔍 Fallacy & Evasion Scanner</span></div>
+      </a>
+      <a href="/util/scale-visualizer.html" class="nav-link ">
+        <div class="nav-link-content"><span>🌌 1M vs 1B Scale Visualizer</span></div>
+      </a>
+
+      <!-- EDUCATION & LEARNING -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        <span>Learning Hub (60+ Guides)</span>
+      </div>
+      <a href="/learn/java/playground.html" class="nav-link ">
+        <div class="nav-link-content"><span>☕ Java Playground & Auto</span></div>
+        <span class="nav-badge">IDE</span>
+      </a>
+      <a href="/learn/java/" class="nav-link ">
+        <div class="nav-link-content"><span>☕ Java Master Guide (10)</span></div>
+      </a>
+      <a href="/learn/python/" class="nav-link ">
+        <div class="nav-link-content"><span>🐍 Python Guides (20)</span></div>
+      </a>
+      <a href="/learn/javascript/" class="nav-link ">
+        <div class="nav-link-content"><span>⚡ JavaScript Guides (30)</span></div>
+      </a>
+
+      <!-- DEVELOPER & DECOMPILERS -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        <span>Developer Suite (17)</span>
+      </div>
+      <a href="/convert/json-obfuscator.html" class="nav-link ">
+        <div class="nav-link-content"><span>JSON Obfuscator</span></div>
+      </a>
+      <a href="/convert/esbuild-decompiler.html" class="nav-link ">
+        <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
+      </a>
+      <a href="/dev/json-formatter.html" class="nav-link ">
+        <div class="nav-link-content"><span>JSON Formatter & Validator</span></div>
+      </a>
+      <a href="/dev/ai-robots-txt.html" class="nav-link ">
+        <div class="nav-link-content"><span>AI Bot Blocker robots.txt</span></div>
+      </a>
+      <a href="/dev/regex-tester.html" class="nav-link ">
+        <div class="nav-link-content"><span>Regex Visual Tester</span></div>
+      </a>
+      <a href="/dev/jwt-decoder.html" class="nav-link ">
+        <div class="nav-link-content"><span>JWT Token Decoder</span></div>
+      </a>
+      <a href="/dev/cron-generator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Cron Expression Builder</span></div>
+      </a>
+      <a href="/dev/css-minifier.html" class="nav-link ">
+        <div class="nav-link-content"><span>CSS Minifier</span></div>
+      </a>
+      <a href="/dev/js-minifier.html" class="nav-link ">
+        <div class="nav-link-content"><span>JS Minifier</span></div>
+      </a>
+      <a href="/dev/sql-formatter.html" class="nav-link ">
+        <div class="nav-link-content"><span>SQL Formatter</span></div>
+      </a>
+      <a href="/convert/base64.html" class="nav-link ">
+        <div class="nav-link-content"><span>Base64 Encoder/Decoder</span></div>
+      </a>
+
+      <!-- MINECRAFT & GAMING -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        <span>Minecraft Bedrock & Java (5)</span>
+      </div>
+      <a href="/mc/nbt-editor.html" class="nav-link ">
+        <div class="nav-link-content"><span>📦 In-Browser NBT Editor</span></div>
+        <span class="nav-badge">PRO</span>
+      </a>
+      <a href="/mc/tellraw-gen.html" class="nav-link ">
+        <div class="nav-link-content"><span>/tellraw JSON Generator</span></div>
+      </a>
+      <a href="/mc/playsound-gen.html" class="nav-link ">
+        <div class="nav-link-content"><span>/playsound Event Picker</span></div>
+      </a>
+      <a href="/mc/uuid-gen.html" class="nav-link ">
+        <div class="nav-link-content"><span>Pack UUID Generator</span></div>
+      </a>
+      <a href="/mc/manifest-gen.html" class="nav-link ">
+        <div class="nav-link-content"><span>manifest.json Generator</span></div>
+      </a>
+
+      <!-- TRADE & CONSTRUCTION -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        <span>Blue-Collar & Trade Math (4)</span>
+      </div>
+      <a href="/calc/stair-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>📐 Stair Stringer (IRC Code)</span></div>
+      </a>
+      <a href="/calc/concrete-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>🏗️ Concrete Slab & Bags</span></div>
+      </a>
+      <a href="/calc/drywall-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>🧱 Drywall, Mud & Screws</span></div>
+      </a>
+      <a href="/calc/mulch-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>🌱 Mulch, Topsoil & Gravel</span></div>
+      </a>
+
+      <!-- SENIOR & RETIREMENT FINANCE -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+        <span>Senior & Legal Finance (8)</span>
+      </div>
+      <a href="/finance/inherited-ira-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Inherited IRA (10-Yr Rule)</span></div>
+      </a>
+      <a href="/finance/judgment-interest.html" class="nav-link ">
+        <div class="nav-link-content"><span>50-State Judgment Interest</span></div>
+      </a>
+      <a href="/finance/rmd-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>RMD Calculator (SECURE 2.0)</span></div>
+      </a>
+      <a href="/finance/social-security-tax.html" class="nav-link ">
+        <div class="nav-link-content"><span>Social Security Taxability</span></div>
+      </a>
+      <a href="/finance/annuity-payout.html" class="nav-link ">
+        <div class="nav-link-content"><span>Annuity & Pension Payout</span></div>
+      </a>
+      <a href="/math/compound-interest.html" class="nav-link ">
+        <div class="nav-link-content"><span>Compound Interest</span></div>
+      </a>
+      <a href="/math/mortgage-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Mortgage Amortization</span></div>
+      </a>
+
+      <!-- PRIVACY & SECURITY -->
+      <div class="nav-group-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span>Privacy & Security (10)</span>
+      </div>
+      <a href="/security/password-generator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Password Generator</span></div>
+      </a>
+      <a href="/security/encrypted-notes.html" class="nav-link ">
+        <div class="nav-link-content"><span>Client-Side Encrypted Notes</span></div>
+      </a>
+      <a href="/security/totp-generator.html" class="nav-link ">
+        <div class="nav-link-content"><span>2FA TOTP Authenticator</span></div>
+      </a>
+      <a href="/security/passphrase-generator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Diceware Passphrase</span></div>
+      </a>
+      <a href="/security/privacy-policy-generator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Privacy Policy Generator</span></div>
+      </a>
+
+      <!-- DESIGN & MEDIA -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <span>Media, Video & Design (11)</span>
+      </div>
+      <a href="/media/downloader.html" class="nav-link ">
+        <div class="nav-link-content"><span>Universal Media Downloader</span></div>
+      </a>
+      <a href="/design/passport-photo.html" class="nav-link ">
+        <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
+      </a>
+      <a href="/design/qr-generator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
+      </a>
+      <a href="/media/subtitle-shifter.html" class="nav-link ">
+        <div class="nav-link-content"><span>Subtitle Shifter (.SRT/.VTT)</span></div>
+      </a>
+      <a href="/media/youtube-to-mp3.html" class="nav-link ">
+        <div class="nav-link-content"><span>YouTube to MP3 Audio</span></div>
+      </a>
+      <a href="/media/tiktok-saver.html" class="nav-link ">
+        <div class="nav-link-content"><span>TikTok Saver (No Watermark)</span></div>
+      </a>
+      <a href="/convert/image-resizer.html" class="nav-link ">
+        <div class="nav-link-content"><span>Bulk Image Resizer</span></div>
+      </a>
+      <a href="/convert/png-to-webp.html" class="nav-link ">
+        <div class="nav-link-content"><span>PNG to WebP</span></div>
+      </a>
+      <a href="/convert/svg-to-png.html" class="nav-link ">
+        <div class="nav-link-content"><span>SVG to PNG</span></div>
+      </a>
+
+      <!-- TEXT & WRITING -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <span>Text & Writing (10)</span>
+      </div>
+      <a href="/text/word-counter.html" class="nav-link ">
+        <div class="nav-link-content"><span>Word & Character Counter</span></div>
+      </a>
+      <a href="/text/case-converter.html" class="nav-link ">
+        <div class="nav-link-content"><span>Case Converter (Title/Camel)</span></div>
+      </a>
+      <a href="/text/slug-generator.html" class="nav-link ">
+        <div class="nav-link-content"><span>URL Slug Generator</span></div>
+      </a>
+      <a href="/text/morse-code.html" class="nav-link ">
+        <div class="nav-link-content"><span>Morse Code Translator</span></div>
+      </a>
+      <a href="/text/fancy-text.html" class="nav-link ">
+        <div class="nav-link-content"><span>Unicode Fancy Fonts</span></div>
+      </a>
+      <a href="/text/lorem-ipsum.html" class="nav-link ">
+        <div class="nav-link-content"><span>Lorem Ipsum Generator</span></div>
+      </a>
+
+      <!-- PRODUCTIVITY & INVOICING -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+        <span>Productivity Suite (7)</span>
+      </div>
+      <a href="/productivity/time-tracker.html" class="nav-link ">
+        <div class="nav-link-content"><span>Toggl-Style Time Tracker</span></div>
+      </a>
+      <a href="/productivity/invoice-generator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Invoice Generator & PDF</span></div>
+      </a>
+      <a href="/productivity/task-manager.html" class="nav-link ">
+        <div class="nav-link-content"><span>Task Manager & Priorities</span></div>
+      </a>
+      <a href="/productivity/tax-calculator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Income Tax Calculator</span></div>
+      </a>
+      <a href="/productivity/timetable.html" class="nav-link ">
+        <div class="nav-link-content"><span>Weekly Timetable Planner</span></div>
+      </a>
+      <a href="/productivity/deduplicator.html" class="nav-link ">
+        <div class="nav-link-content"><span>Text Line De-duplicator</span></div>
+      </a>
+
+      <!-- TECH ARTICLES -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span>Technical Articles (6)</span>
+      </div>
+      <a href="/articles/" class="nav-link ">
+        <div class="nav-link-content"><span>All Tech Articles Hub</span></div>
+      </a>
+      <a href="/articles/how-to-decompile-esbuild-bundles.html" class="nav-link ">
+        <div class="nav-link-content"><span>Decompile ESBuild</span></div>
+      </a>
+      <a href="/articles/minecraft-bedrock-custom-blocks-guide.html" class="nav-link ">
+        <div class="nav-link-content"><span>Bedrock Custom Blocks</span></div>
+      </a>
+
+      <!-- TRUST & LEGAL -->
+      <div class="nav-group-title">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <span>Trust & Legal</span>
+      </div>
+      <a href="/about.html" class="nav-link ">
+        <div class="nav-link-content"><span>About Digital Tools Shed</span></div>
+      </a>
+      <a href="/privacy.html" class="nav-link ">
+        <div class="nav-link-content"><span>Privacy Policy</span></div>
+      </a>
+      <a href="/terms.html" class="nav-link ">
+        <div class="nav-link-content"><span>Terms of Service</span></div>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="theme-switch-btn" onclick="toggleSiteTheme()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
+        <span>Theme:</span>
+        <span id="currentThemeTag">[ LIGHT ]</span>
+      </button>
+      <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--text-subtle); text-align: center; line-height: 1.4;">
+        The Site of Everything &bull; 397+ Tools
+      </div>
+    </div>
+  </aside>
+  
+
+    <div class="content-area">
+      <div class="topbar">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+          <div class="breadcrumbs">
+            <a href="/">Tools Shed</a>
+            <span>/</span>
+            <span>Convert Square Meters to Hectares</span>
+          </div>
+        </div>
+        <div class="privacy-badge">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span>Everything, Everywhere</span>
+        </div>
+      </div>
+
+      <div class="layout-with-rail">
+        <div class="main-body">
+          <div class="ad-blend-box" id="ad-top-banner">
+            <span class="ad-label">Advertisement</span>
+            <div class="ad-desktop-leaderboard">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+                  'format' : 'iframe',
+                  'height' : 90,
+                  'width' : 728,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+            </div>
+          </div>
+
+          
+        <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <h1 style="margin-top: 0.5rem;">Convert Square Meters to Hectares</h1>
+          <p>Instantly calculate Square Meters (m²) to Hectares (ha) with real-time two-way formula calculation.</p>
+        </div>
+
+        <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
+          <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.25rem; align-items: center;">
+            <div>
+              <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">Square Meters (m²)</label>
+              <input type="number" id="fromInput" class="search-input" value="1" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+            </div>
+            <div style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--text-muted); padding-top: 1.5rem;">=</div>
+            <div>
+              <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">Hectares (ha)</label>
+              <input type="number" id="toInput" class="search-input" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+            </div>
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Conversion Formula & Exact Calculation</h3>
+          
+          <p style="line-height: 1.6; margin-bottom: 0.5rem;">How to convert Square Meters to Hectares: Multiply by <strong>0.0001</strong>.</p>
+          <div style="font-family: var(--mono); background: var(--surface-alt); padding: 0.75rem; border: 1px solid var(--border);">
+            <strong>Formula:</strong> Hectares = Square Meters × 0.0001
+          </div>
+        
+        </div>
+
+        <div class="ad-blend-box" style="margin: 2rem 0; max-width: 850px;">
+          <span class="ad-label">Sponsored Resource</span>
+          <div class="ad-unit-300x250">
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '335d807d460eaf2491fcca0f635474ce',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Square Meters to Hectares Quick Reference Table</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.6rem 0.75rem;">Square Meters (m²)</th>
+                  <th style="padding: 0.6rem 0.75rem;">Hectares (ha)</th>
+                </tr>
+              </thead>
+              <tbody>
+                
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">1 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.0001 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">2 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.0002 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">5 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.0005 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">10 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.001 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">25 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.0025 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">50 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.005 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">100 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.01 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">250 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.025 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">500 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.05 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">1000 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.1 ha</td>
+          </tr>
+        
+          <tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">5000 m²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.5 ha</td>
+          </tr>
+        
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        
+          <div style="margin: 2rem 0; max-width: 850px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Related Area & Surface Converters</h3>
+            <div class="tool-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+              
+          <a href="/calc/m2-to-ft2.html" class="tool-card">
+            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Square Meters to Square Feet</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert m² to ft² instantly.</p>
+          </a>
+        
+          <a href="/calc/ft2-to-m2.html" class="tool-card">
+            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Square Feet to Square Meters</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert ft² to m² instantly.</p>
+          </a>
+        
+          <a href="/calc/acres-to-hectares.html" class="tool-card">
+            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Acres to Hectares</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert ac to ha instantly.</p>
+          </a>
+        
+          <a href="/calc/hectares-to-acres.html" class="tool-card">
+            <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">Hectares to Acres</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">Convert ha to ac instantly.</p>
+          </a>
+        
+            </div>
+          </div>
+        
+
+        <script>
+          
+          const factor = 0.0001;
+          const fromInput = document.getElementById('fromInput');
+          const toInput = document.getElementById('toInput');
+
+          function updateFrom() {
+            const val = parseFloat(fromInput.value);
+            if (isNaN(val)) toInput.value = '';
+            else toInput.value = parseFloat((val * factor).toFixed(6));
+          }
+          function updateTo() {
+            const val = parseFloat(toInput.value);
+            if (isNaN(val)) fromInput.value = '';
+            else fromInput.value = parseFloat((val / factor).toFixed(6));
+          }
+
+          fromInput.addEventListener('input', updateFrom);
+          toInput.addEventListener('input', updateTo);
+          updateFrom();
+        
+        </script>
+      
+        <div style="margin: 2.5rem 0; max-width: 850px;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+          
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How do I convert Square Meters to Hectares?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">To convert Square Meters (m²) to Hectares (ha), multiply the value by 0.0001. For example, 10 m² = 0.001 ha.</div>
+        </details>
+      
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How many Hectares are in 1 Square Meter?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">1 Square Meter (m²) is equal to 0.0001 Hectares (ha).</div>
+        </details>
+      
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is this m² to ha converter accurate?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. This converter uses the exact IEEE 754 conversion factor and performs all calculations client-side in your browser with zero rounding until the final display. No data is sent to any server.</div>
+        </details>
+      
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Can I convert Hectares back to Square Meters?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes! This is a two-way converter. Simply type a value in the Hectares field and the Square Meters result will update instantly.</div>
+        </details>
+      
+        </div>
+      
+
+          <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
+            <span class="ad-label">Sponsored Utility</span>
+            <div class="ad-unit-468x60">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '0b6898775795b270130cc9971eef21a8',
+                  'format' : 'iframe',
+                  'height' : 60,
+                  'width' : 468,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/0b6898775795b270130cc9971eef21a8/invoke.js"></script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+            </div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 1.5rem 0; padding: 1rem;">
+            <span class="ad-label">While You're Here</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            </div>
+          </div>
+
+          <div style="margin: 2rem 0;">
+            <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">Sponsored Recommendations</div>
+            <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+            <script async="async" data-cfasync="false" src="https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js"></script>
+          </div>
+
+          <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+            <a href="/convert/json-obfuscator.html" class="promo-card">
+              <span class="promo-badge">Developer Tool</span>
+              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Obfuscator & Compressor</h4>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Minify payloads and encode keys or unicode string escapes with dictionary mapping.</p>
+            </a>
+            <div class="promo-card ad-promo-card">
+              <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
+              <div class="ad-unit-300x250">
+                <script type="text/javascript">
+                  atOptions = {
+                    'key' : '335d807d460eaf2491fcca0f635474ce',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                  };
+                </script>
+                <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+              </div>
+            </div>
+            <a href="/convert/esbuild-decompiler.html" class="promo-card">
+              <span class="promo-badge">Reverse Engineering</span>
+              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">ESBuild & JS Decompiler</h4>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Unpack bundled IIFEs, expand minified comma-statements, and restore clean ES6 formatting.</p>
+            </a>
+            <div class="promo-card ad-promo-card">
+              <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Recommendation</div>
+              <div class="ad-unit-300x250">
+                <script type="text/javascript">
+                  atOptions = {
+                    'key' : '335d807d460eaf2491fcca0f635474ce',
+                    'format' : 'iframe',
+                    'height' : 250,
+                    'width' : 300,
+                    'params' : {}
+                  };
+                </script>
+                <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+              </div>
+            </div>
+            <a href="/media/downloader.html" class="promo-card">
+              <span class="promo-badge">Media Engine</span>
+              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
+            </a>
+            <a href="/convert/image-resizer.html" class="promo-card">
+              <span class="promo-badge">Bulk Image Tool</span>
+              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Bulk Image Resizer</h4>
+              <p style="font-size: 0.9rem; color: var(--text-muted);">Scale, resize, and compress entire folders of PNG and JPEG images client-side.</p>
+            </a>
+          </div>
+
+          <div class="ad-blend-box" id="ad-bottom-banner">
+            <span class="ad-label">Advertisement</span>
+            <div class="ad-desktop-leaderboard">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+                  'format' : 'iframe',
+                  'height' : 90,
+                  'width' : 728,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+            </div>
+            <div class="ad-mobile-banner">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+                  'format' : 'iframe',
+                  'height' : 50,
+                  'width' : 320,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+            </div>
+          </div>
+        </div>
+
+        <aside class="right-sponsor-rail">
+          <div class="ad-sidebar-card" style="margin: 0; min-height: 600px;">
+            <span class="ad-label">Featured Partner</span>
+            <script type="text/javascript">
+              atOptions = {
+                'key' : 'bba2ed7e2aff3607f66ff8e410f1fcbe',
+                'format' : 'iframe',
+                'height' : 600,
+                'width' : 160,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/bba2ed7e2aff3607f66ff8e410f1fcbe/invoke.js"></script>
+          </div>
+        </aside>
+      </div>
+
+
+      <div class="sponsor-grid">
+        <div class="sponsor-grid-title">From Our Sponsors</div>
+        <div class="sponsor-cards">
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>Why Smart Users Are Switching to This Free Toolkit</h4>
+                <span class="sponsor-source">TechPartners · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #2d1b36 0%, #1b1329 50%, #0d1117 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>The Browser Feature Most People Never Use</h4>
+                <span class="sponsor-source">DigitalInsider · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #1a2332 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>Stop Paying for Software You Can Get Free</h4>
+                <span class="sponsor-source">SaveSmart · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a1a1a 50%, #1a0a0a 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>File Conversion Tricks That Save Hours Every Week</h4>
+                <span class="sponsor-source">ProductivityHub · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #0a1628 0%, #132238 50%, #1a3050 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>This Free Tool Replaced 5 Paid Apps for Our Team</h4>
+                <span class="sponsor-source">WorkflowDaily · Sponsored</span>
+              </div>
+            </a>
+
+            <a href="https://manyapostle.com/jzw75n7ccp?key=a4a5863b69fad31e603ca81022b5fd3a" class="sponsor-card" target="_blank" rel="noopener sponsored">
+              <div class="sponsor-card-thumb" style="background: linear-gradient(135deg, #1c1917 0%, #292524 50%, #1c1917 100%);"></div>
+              <div class="sponsor-card-body">
+                <h4>What Your Browser Can Do Without Any Extensions</h4>
+                <span class="sponsor-source">TechRadar Pro · Sponsored</span>
+              </div>
+            </a>
+        </div>
+      </div>
+
+      <div class="ad-pre-footer">
+        <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.75rem;">Our Partners Power These Free Tools</div>
+        <div class="ad-desktop-leaderboard">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+              'format' : 'iframe',
+              'height' : 90,
+              'width' : 728,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+        </div>
+        <div class="ad-mobile-banner">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+              'format' : 'iframe',
+              'height' : 50,
+              'width' : 320,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+        </div>
+        <div style="margin-top: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">More From The Web</div>
+          <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
+          <script async="async" data-cfasync="false" src="https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js"></script>
+        </div>
+      </div>
+
+      <footer>
+        <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). The Site of Everything. Everything, Everywhere.</div>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+          <a href="/">Home</a>
+          <a href="/articles/">Tech Journal</a>
+          <a href="/about.html">About</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/terms.html">Terms</a>
+          <a href="/sitemap.xml">Sitemap</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="docked-sticky-ad" id="dockedStickyBar">
+    <button class="toggle-btn" onclick="var bar=document.getElementById('dockedStickyBar');bar.classList.toggle('collapsed')" aria-label="Toggle ad bar"><span class="chevron">▼</span></button>
+    <div class="ad-desktop-leaderboard">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '567d4e495ec8a8e297b7c7f5170993cb',
+          'format' : 'iframe',
+          'height' : 90,
+          'width' : 728,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js"></script>
+    </div>
+    <div class="ad-mobile-banner">
+      <script type="text/javascript">
+        atOptions = {
+          'key' : '9ec3cbd7674ade5c0cfa745d18664214',
+          'format' : 'iframe',
+          'height' : 50,
+          'width' : 320,
+          'params' : {}
+        };
+      </script>
+      <script type="text/javascript" src="https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js"></script>
+    </div>
+  </div>
+
+  <script>
+    function toggleSidebar() {
+      const sb = document.getElementById('siteSidebar');
+      sb.classList.toggle('open');
+      const closeBtn = document.getElementById('mobileCloseBtn');
+      if (closeBtn) closeBtn.style.display = sb.classList.contains('open') ? 'block' : 'none';
+    }
+
+    function toggleSiteTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('dts-theme', next);
+      updateThemeTag();
+    }
+
+    function updateThemeTag() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const tag = document.getElementById('currentThemeTag');
+      if (tag) tag.innerText = '[' + current.toUpperCase() + ']';
+    }
+    updateThemeTag();
+
+    function shuffleRandomTool() {
+      const links = Array.from(document.querySelectorAll('.sidebar-nav .nav-link'));
+      if (links.length === 0) return;
+      const rand = links[Math.floor(Math.random() * links.length)];
+      rand.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      rand.classList.add('shuffle-highlight');
+      setTimeout(() => rand.classList.remove('shuffle-highlight'), 2000);
+      window.location.href = rand.getAttribute('href');
+    }
+
+    // Periodic ambient shuffle animation every 10 seconds
+    setInterval(() => {
+      const visibleLinks = Array.from(document.querySelectorAll('.sidebar-nav .nav-link')).filter(l => l.style.display !== 'none');
+      if (visibleLinks.length === 0) return;
+      const target = visibleLinks[Math.floor(Math.random() * visibleLinks.length)];
+      target.classList.add('shuffle-highlight');
+      setTimeout(() => target.classList.remove('shuffle-highlight'), 1900);
+    }, 10000);
+
+    const sbInput = document.getElementById('sidebarSearchInput');
+    if (sbInput) {
+      sbInput.addEventListener('input', (e) => {
+        const q = e.target.value.toLowerCase().trim();
+        const links = document.querySelectorAll('.sidebar-nav .nav-link');
+        links.forEach(l => {
+          const txt = l.innerText.toLowerCase();
+          l.style.display = (!q || txt.includes(q)) ? 'flex' : 'none';
+        });
+      });
+    }
+  </script>
+</body>
+</html>
