@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Learn | Digital Tools Shed</title>
-  <meta name="description" content="Explore our learning hub and master web development.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/learn/">
-  <meta property="og:title" content="Learn | Digital Tools Shed">
-  <meta property="og:description" content="Explore our learning hub and master web development.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/learn/">
+  <title>Java Performance: StringBuilder, GC Tuning & Fast Arrays | Learn Java | Digital Tools Shed</title>
+  <meta name="description" content="Optimize Java performance: StringBuilder vs String concatenation, primitive arrays vs boxed collections, and cache-friendly coding.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/learn/java/06-optimization-and-performance.html">
+  <meta property="og:title" content="Java Performance: StringBuilder, GC Tuning & Fast Arrays | Learn Java | Digital Tools Shed">
+  <meta property="og:description" content="Optimize Java performance: StringBuilder vs String concatenation, primitive arrays vs boxed collections, and cache-friendly coding.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/learn/java/06-optimization-and-performance.html">
   <meta property="og:type" content="website">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
@@ -1348,7 +1348,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Learn | Digital Tools Shed</span>
+            <span>Java Performance: StringBuilder, GC Tuning & Fast Arrays | Learn Java | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1388,32 +1388,201 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-      <div class="article-container" style="max-width: 900px; margin: 0 auto; padding: 2rem 1rem;">
-        <h1 style="font-family: var(--serif); text-align: center; margin-bottom: 0.5rem;">Learning Hub</h1>
-        <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;">Master the tools of the web.</p>
+      <div class="article-container" style="max-width: 850px; margin: 0 auto; padding: 2rem 1rem;">
+        <nav style="margin-bottom: 2rem; font-family: var(--mono); font-size: 0.82rem; color: var(--text-muted);">
+          <a href="/" style="color: inherit; text-decoration: none;">Home</a> &gt; 
+          <a href="/learn/" style="color: inherit; text-decoration: none;">Learn</a> &gt; 
+          <a href="/learn/java/" style="color: inherit; text-decoration: none;">Java</a> &gt; 
+          <span style="color: var(--fg);">Java Performance: StringBuilder, GC Tuning & Fast Arrays</span>
+        </nav>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
-          <a href="/learn/javascript/" style="display: block; padding: 2rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; background: var(--surface); text-align: center; transition: transform 0.2s;">
-            <div style="font-size: 3rem; margin-bottom: 1rem; color: #f7df1e;">&#9889;</div>
-            <h2 style="margin: 0 0 0.5rem 0; font-family: var(--serif);">JavaScript</h2>
-            <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">The programming language of the web. Start from zero and build interactive apps.</p>
-            <div style="margin-top: 1.5rem; font-weight: 600; color: var(--btn-bg, #3b82f6);">Explore 30 Guides &rarr;</div>
-          </a>
+        <article>
+          
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Optimization Methods: Writing Blazing Fast Java</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+          Java is fast, but bad code creates severe Garbage Collector pauses and cache misses. Here are the golden rules of Java optimization.
+        </p>
 
-          <a href="/learn/python/" style="display: block; padding: 2rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; background: var(--surface); text-align: center; transition: transform 0.2s;">
-            <div style="font-size: 3rem; margin-bottom: 1rem; color: #3b82f6;">🐍</div>
-            <h2 style="margin: 0 0 0.5rem 0; font-family: var(--serif);">Python</h2>
-            <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">Clean, readable programming for automation, data processing, algorithms, and scripting.</p>
-            <div style="margin-top: 1.5rem; font-weight: 600; color: var(--btn-bg, #3b82f6);">Explore 20 Guides &rarr;</div>
-          </a>
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin: 2rem 0 0.75rem;">Rule #1: NEVER Concatenate Strings in a Loop (Use <code>StringBuilder</code>)</h2>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg);">
+          In Java, <code>String</code> is immutable. Every time you write <code>str += "a"</code>, Java creates an entirely new String object in the Heap, copying the entire array. Doing this $10,000$ times creates $10,000$ temporary objects!
+        </p>
 
-          <a href="/learn/java/" style="display: block; padding: 2rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; background: var(--surface); text-align: center; transition: transform 0.2s;">
-            <div style="font-size: 3rem; margin-bottom: 1rem; color: #ef4444;">☕</div>
-            <h2 style="margin: 0 0 0.5rem 0; font-family: var(--serif);">Java</h2>
-            <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">From variables to JVM memory, optimization, what NOT to do, and Minecraft modding.</p>
-            <div style="margin-top: 1.5rem; font-weight: 600; color: var(--btn-bg, #3b82f6);">Explore 10 Guides + Playground &rarr;</div>
-          </a>
+        
+    <div style="margin: 1.75rem 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface);">
+      <div style="background: var(--surface-alt); padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);">
+        <span>☕ JAVA INTERACTIVE RUNTIME & SIMULATOR</span>
+        <span style="font-size: 0.7rem; background: rgba(59,130,246,0.15); color: #3b82f6; padding: 0.15rem 0.4rem; border-radius: 3px; font-weight: bold;">JDK 21 Ready</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1.2fr 1fr; min-height: 220px; background: var(--bg); position: relative;" id="pg-opt1">
+        <div style="position: relative; height: 100%;">
+          <textarea id="pg-code-opt1" style="width: 100%; height: 100%; min-height: 220px; padding: 1rem; border: none; border-right: 1px solid var(--border); background: var(--bg); color: var(--fg); font-family: var(--mono); font-size: 0.88rem; line-height: 1.5; resize: vertical; outline: none; box-sizing: border-box;" spellcheck="false" oninput="handleJavaAutocomplete('opt1', this, event)">public class FastString {
+  public static void main(String[] args) {
+    // FAST: Single mutable memory buffer
+    StringBuilder sb = new StringBuilder();
+    for (int i = 1; i &lt;= 5; i++) {
+      sb.append("Item #").append(i).append(", ");
+    }
+
+    System.out.println("Optimized output: " + sb.toString());
+  }
+}</textarea>
+          <div id="ac-popup-opt1" style="display: none; position: absolute; background: var(--surface); border: 1px solid var(--border-strong, #3b82f6); border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); z-index: 100; font-family: var(--mono); font-size: 0.8rem; max-height: 150px; overflow-y: auto;"></div>
         </div>
+        <div style="display: flex; flex-direction: column; background: #0a0e17; color: #38bdf8; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.4rem 0.8rem; background: #111827; color: #94a3b8; font-size: 0.7rem; border-bottom: 1px solid #1e293b;">TERMINAL OUTPUT (stdout)</div>
+          <pre id="pg-out-opt1" style="flex: 1; padding: 1rem; margin: 0; overflow: auto; white-space: pre-wrap; word-break: break-all; color: #a5f3fc;"></pre>
+        </div>
+      </div>
+      <div style="background: var(--surface-alt); padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border);">
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="runJavaPlayground('opt1')" class="btn-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem; cursor: pointer;">&#x25B6; Compile & Run</button>
+          <button onclick="resetJavaPlayground('opt1')" class="btn-sec" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; cursor: pointer;">&#x21BA; Reset</button>
+        </div>
+        <span style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">Type <code>Sys</code>, <code>Math</code>, <code>for</code> for autocomplete</span>
+      </div>
+    </div>
+  
+      
+        </article>
+
+        <!-- RELATED NAV -->
+        <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <a href="/learn/java/" class="btn-sec" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">&larr; Java Hub</a>
+          <a href="/learn/java/playground.html" class="btn-primary" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Open Playground &#x25B6;</a>
+        </div>
+        
+        
+    <script>
+      var AUTOCOMPLETE_SUGGESTIONS = [
+        { trigger: 'sys', insert: 'System.out.println("");', label: 'System.out.println()' },
+        { trigger: 'sout', insert: 'System.out.println("");', label: 'sout -> System.out.println()' },
+        { trigger: 'math.', insert: 'Math.sqrt()', label: 'Math.sqrt(double a)' },
+        { trigger: 'math.p', insert: 'Math.pow(2, 3)', label: 'Math.pow(a, b)' },
+        { trigger: 'for', insert: 'for (int i = 0; i < 5; i++) {\n  System.out.println(i);\n}', label: 'for loop (int i = 0; ...)' },
+        { trigger: 'psvm', insert: 'public static void main(String[] args) {\n  \n}', label: 'public static void main(String[] args)' },
+        { trigger: 'str', insert: 'String text = "Hello";', label: 'String declaration' },
+        { trigger: 'sb', insert: 'StringBuilder sb = new StringBuilder();', label: 'StringBuilder sb = ...' }
+      ];
+
+      function handleJavaAutocomplete(id, textarea, event) {
+        var val = textarea.value;
+        var pos = textarea.selectionStart;
+        var lineStart = val.lastIndexOf('\n', pos - 1) + 1;
+        var currentWord = val.slice(lineStart, pos).trim().toLowerCase();
+
+        var popup = document.getElementById('ac-popup-' + id);
+        if (!popup) return;
+
+        if (currentWord.length < 2) {
+          popup.style.display = 'none';
+          return;
+        }
+
+        var matches = AUTOCOMPLETE_SUGGESTIONS.filter(function(s) {
+          return s.trigger.startsWith(currentWord) || s.label.toLowerCase().includes(currentWord);
+        });
+
+        if (matches.length === 0) {
+          popup.style.display = 'none';
+          return;
+        }
+
+        popup.innerHTML = '';
+        matches.forEach(function(m) {
+          var item = document.createElement('div');
+          item.style.padding = '0.35rem 0.65rem';
+          item.style.cursor = 'pointer';
+          item.style.borderBottom = '1px solid var(--border)';
+          item.textContent = m.label;
+          item.onmouseover = function() { item.style.background = 'var(--surface-hover, #222)'; };
+          item.onmouseout = function() { item.style.background = 'transparent'; };
+          item.onmousedown = function(e) {
+            e.preventDefault();
+            var before = val.slice(0, lineStart);
+            var after = val.slice(pos);
+            textarea.value = before + m.insert + after;
+            popup.style.display = 'none';
+            textarea.focus();
+          };
+          popup.appendChild(item);
+        });
+
+        popup.style.display = 'block';
+        popup.style.top = '40px';
+        popup.style.left = '20px';
+      }
+
+      function runJavaPlayground(id) {
+        var code = document.getElementById('pg-code-' + id).value;
+        var out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+        out.style.color = '#a5f3fc';
+
+        var stdout = [];
+        var System = {
+          out: {
+            println: function(arg) { stdout.push(arg === undefined ? '' : String(arg)); },
+            print: function(arg) {
+              if (stdout.length === 0) stdout.push(String(arg));
+              else stdout[stdout.length - 1] += String(arg);
+            },
+            printf: function(fmt) {
+              var args = Array.prototype.slice.call(arguments, 1);
+              var str = fmt.replace(/%[dsf]/g, function() { return args.shift(); });
+              stdout.push(str);
+            }
+          }
+        };
+
+        var StringBuilder = function(initial) {
+          this.str = initial || '';
+          this.append = function(s) { this.str += String(s); return this; };
+          this.toString = function() { return this.str; };
+          this.length = function() { return this.str.length; };
+        };
+
+        try {
+          // Transpile lightweight Java constructs into browser JS for instant simulation
+          var jsCode = code
+            .replace(/public\s+class\s+\w+\s*\{/g, '{')
+            .replace(/public\s+static\s+void\s+main\s*\([^)]*\)\s*\{/g, '{')
+            .replace(/System\.out\.println/g, 'System.out.println')
+            .replace(/System\.out\.print/g, 'System.out.print')
+            .replace(/System\.out\.printf/g, 'System.out.printf')
+            .replace(/\b(int|double|float|long|short|byte|boolean|char|String)\s+/g, 'var ')
+            .replace(/\bfinal\s+/g, 'const ')
+            .replace(/\bnew\s+StringBuilder/g, 'new StringBuilder');
+
+          var runner = new Function('System', 'StringBuilder', 'Math', jsCode);
+          runner(System, StringBuilder, Math);
+
+          if (stdout.length === 0) {
+            out.textContent = '[Process finished with exit code 0 (No output)]';
+            out.style.color = '#94a3b8';
+          } else {
+            out.textContent = stdout.join('\n');
+          }
+        } catch(e) {
+          out.textContent = 'Exception in thread "main" java.lang.RuntimeException: ' + e.message;
+          out.style.color = '#f87171';
+        }
+      }
+
+      function resetJavaPlayground(id) {
+        var ta = document.getElementById('pg-code-' + id);
+        ta.value = ta.getAttribute('data-original');
+        var out = document.getElementById('pg-out-' + id);
+        out.textContent = '';
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('textarea[id^="pg-code-"]').forEach(function(ta) {
+          ta.setAttribute('data-original', ta.value);
+        });
+      });
+    </script>
+  
       </div>
     
 

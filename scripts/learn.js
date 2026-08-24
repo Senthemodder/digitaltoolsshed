@@ -1339,12 +1339,26 @@ function trickyLogic(x) {
         <h1 style="font-family: var(--serif); text-align: center; margin-bottom: 0.5rem;">Learning Hub</h1>
         <p style="text-align: center; color: var(--text-muted); margin-bottom: 3rem;">Master the tools of the web.</p>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
           <a href="/learn/javascript/" style="display: block; padding: 2rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; background: var(--surface); text-align: center; transition: transform 0.2s;">
             <div style="font-size: 3rem; margin-bottom: 1rem; color: #f7df1e;">&#9889;</div>
-            <h2 style="margin: 0 0 1rem 0; font-family: var(--serif);">JavaScript</h2>
-            <p style="margin: 0; color: var(--text-muted);">The programming language of the web. Start from zero and build interactive apps.</p>
+            <h2 style="margin: 0 0 0.5rem 0; font-family: var(--serif);">JavaScript</h2>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">The programming language of the web. Start from zero and build interactive apps.</p>
             <div style="margin-top: 1.5rem; font-weight: 600; color: var(--btn-bg, #3b82f6);">Explore ${jsGuides.length} Guides &rarr;</div>
+          </a>
+
+          <a href="/learn/python/" style="display: block; padding: 2rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; background: var(--surface); text-align: center; transition: transform 0.2s;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; color: #3b82f6;">🐍</div>
+            <h2 style="margin: 0 0 0.5rem 0; font-family: var(--serif);">Python</h2>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">Clean, readable programming for automation, data processing, algorithms, and scripting.</p>
+            <div style="margin-top: 1.5rem; font-weight: 600; color: var(--btn-bg, #3b82f6);">Explore 20 Guides &rarr;</div>
+          </a>
+
+          <a href="/learn/java/" style="display: block; padding: 2rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; background: var(--surface); text-align: center; transition: transform 0.2s;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; color: #ef4444;">☕</div>
+            <h2 style="margin: 0 0 0.5rem 0; font-family: var(--serif);">Java</h2>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">From variables to JVM memory, optimization, what NOT to do, and Minecraft modding.</p>
+            <div style="margin-top: 1.5rem; font-weight: 600; color: var(--btn-bg, #3b82f6);">Explore 10 Guides + Playground &rarr;</div>
           </a>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { buildJavaLearnSection } from './learn_java.js';
 import { buildEpistemicTools } from './epistemic_tools.js';
 import { buildViralTools } from './viral_tools.js';
 import { buildTradeTools } from './trade_tools.js';
@@ -51,6 +52,7 @@ function main() {
   // Education Suites
   buildLearnSection({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildPythonLearnSection({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildJavaLearnSection({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
 
   // Tool Suites (Modular)
   buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
