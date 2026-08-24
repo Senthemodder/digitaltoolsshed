@@ -1468,8 +1468,99 @@ function buildSidebarHtml(currentPath = '/') {
 }
 
 // ─── MASTER PAGE RENDERER ──────────────────────────────────────────────────
-function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/', schema, lang = 'en' }) {
-  const schemaMarkup = schema ? `<script type="application/ld+json">\n${JSON.stringify(schema, null, 2)}\n</script>` : '';
+function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/', schema, lang = 'en', faq, breadcrumbs }) {
+  // Auto-generate JSON-LD schemas
+  const schemas = [];
+
+  // WebSite schema (homepage only)
+  if (currentPath === '/') {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Digital Tools Shed",
+      "url": "https://digitaltoolsshed.com",
+      "description": "The Site of Everything — 258+ free browser-based tools, calculators, converters, and coding playgrounds.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://digitaltoolsshed.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    });
+  }
+
+  // BreadcrumbList schema
+  if (breadcrumbs && breadcrumbs.length > 0) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": breadcrumbs.map((b, i) => ({
+        "@type": "ListItem",
+        "position": i + 1,
+        "name": b.name,
+        "item": b.url
+      }))
+    });
+  } else if (currentPath !== '/') {
+    // Auto-generate breadcrumbs from path
+    const pathParts = currentPath.split('/').filter(Boolean);
+    const autoBC = [{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://digitaltoolsshed.com/" }];
+    let buildPath = '';
+    pathParts.forEach((part, i) => {
+      buildPath += '/' + part;
+      const cleanName = part.replace('.html', '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      autoBC.push({
+        "@type": "ListItem",
+        "position": i + 2,
+        "name": cleanName,
+        "item": `https://digitaltoolsshed.com${buildPath}`
+      });
+    });
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": autoBC
+    });
+  }
+
+  // WebApplication schema for tool pages
+  if (currentPath.startsWith('/calc/') || currentPath.startsWith('/dev/') ||
+      currentPath.startsWith('/text/') || currentPath.startsWith('/security/') ||
+      currentPath.startsWith('/design/') || currentPath.startsWith('/math/') ||
+      currentPath.startsWith('/util/') || currentPath.startsWith('/health/') ||
+      currentPath.startsWith('/convert/') || currentPath.startsWith('/productivity/') ||
+      currentPath.startsWith('/mc/') || currentPath.startsWith('/media/') ||
+      currentPath.startsWith('/pdf/') || currentPath.startsWith('/finance/')) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": title.split('|')[0].split('—')[0].trim(),
+      "url": canonical,
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "All",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
+      "description": metaDesc,
+      "author": { "@type": "Organization", "name": "Digital Tools Shed", "url": "https://digitaltoolsshed.com" }
+    });
+  }
+
+  // FAQPage schema
+  if (faq && faq.length > 0) {
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": faq.map(q => ({
+        "@type": "Question",
+        "name": q.q,
+        "acceptedAnswer": { "@type": "Answer", "text": q.a }
+      }))
+    });
+  }
+
+  // Custom schema override
+  if (schema) schemas.push(schema);
+
+  const schemaMarkup = schemas.map(s => `<script type="application/ld+json">\n${JSON.stringify(s, null, 2)}\n</script>`).join('\n  ');
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -1483,6 +1574,12 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
   <meta property="og:description" content="${metaDesc}">
   <meta property="og:url" content="${canonical}">
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Digital Tools Shed">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${title}">
+  <meta name="twitter:description" content="${metaDesc}">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
   <script>
     (function() {

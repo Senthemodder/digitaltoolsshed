@@ -413,12 +413,36 @@ function buildUnitCalcSuite() {
         </script>
       `;
 
+      // Auto-generate FAQ for SEO rich snippets
+      const faqData = [
+        { q: `How do I convert ${fromUnit.label} to ${toUnit.label}?`, a: `To convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}), ${cat.custom ? 'use the thermodynamic conversion formula shown above' : `multiply the value by ${parseFloat(factor.toFixed(6))}`}. For example, 10 ${fromUnit.abbr} = ${parseFloat(getConversionValue(catKey, fromKey, toKey, 10, factor).toFixed(4))} ${toUnit.abbr}.` },
+        { q: `How many ${toUnit.label} are in 1 ${fromUnit.label.replace(/s$/, '')}?`, a: `1 ${fromUnit.label.replace(/s$/, '')} (${fromUnit.abbr}) is equal to ${parseFloat(getConversionValue(catKey, fromKey, toKey, 1, factor).toFixed(6))} ${toUnit.label} (${toUnit.abbr}).` },
+        { q: `Is this ${fromUnit.abbr} to ${toUnit.abbr} converter accurate?`, a: `Yes. This converter uses the exact IEEE 754 conversion factor and performs all calculations client-side in your browser with zero rounding until the final display. No data is sent to any server.` },
+        { q: `Can I convert ${toUnit.label} back to ${fromUnit.label}?`, a: `Yes! This is a two-way converter. Simply type a value in the ${toUnit.label} field and the ${fromUnit.label} result will update instantly.` }
+      ];
+
+      // Generate visible FAQ section HTML
+      const faqHtml = faqData.map((item, idx) => `
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">${item.q}</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">${item.a}</div>
+        </details>
+      `).join('');
+
+      const calcBodyWithFaq = calcBody + `
+        <div style="margin: 2.5rem 0; max-width: 850px;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+          ${faqHtml}
+        </div>
+      `;
+
       writeFileSync(join(calcDist, fileName), renderPage({
         title: `Convert ${fromUnit.label} to ${toUnit.label} — Free Online Calculator | Digital Tools Shed`,
         metaDesc: `Instantly convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}). Free, fast, real-time formula calculations with zero tracking.`,
         canonical: `${DOMAIN}/calc/${fileName}`,
-        bodyContent: calcBody,
-        currentPath: `/calc/${fileName}`
+        bodyContent: calcBodyWithFaq,
+        currentPath: `/calc/${fileName}`,
+        faq: faqData
       }));
 
       totalCalcsBuilt++;
