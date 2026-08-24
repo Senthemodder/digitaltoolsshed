@@ -201,8 +201,8 @@ body {
 
 /* ─── SIDEBAR ────────────────────────────────────────────────────────────── */
 .sidebar {
-  width: 290px;
-  min-width: 290px;
+  width: 300px;
+  min-width: 300px;
   background: var(--sidebar-bg);
   border-right: 1px solid var(--sidebar-border);
   display: flex;
@@ -216,7 +216,7 @@ body {
 }
 
 .sidebar-header {
-  padding: 1.25rem 1.25rem 1rem;
+  padding: 1.15rem 1.15rem 0.85rem;
   border-bottom: 1px solid var(--sidebar-border);
   display: flex;
   align-items: center;
@@ -224,7 +224,7 @@ body {
 }
 .sidebar-brand {
   font-family: var(--serif);
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   color: var(--fg);
@@ -233,33 +233,87 @@ body {
   align-items: center;
   gap: 0.6rem;
 }
-.sidebar-brand svg {
-  color: var(--fg);
-  flex-shrink: 0;
+
+.sidebar-search-box {
+  padding: 0.75rem 0.85rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border-bottom: 1px solid var(--sidebar-border);
+  background: var(--sidebar-bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .sidebar-search {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--sidebar-border);
+  padding: 0.55rem 0.75rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
   background: var(--surface);
-  margin: 0.75rem;
-  border: 1px solid var(--border);
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.25);
+  animation: searchGlowPulse 4s infinite ease-in-out;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-.sidebar-search svg { color: var(--text-subtle); flex-shrink: 0; }
+.sidebar-search:focus-within {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.5) !important;
+  animation: none;
+}
+
+@keyframes searchGlowPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(59, 130, 246, 0.2); border-color: rgba(59, 130, 246, 0.5); }
+  50% { box-shadow: 0 0 14px rgba(59, 130, 246, 0.55); border-color: rgba(59, 130, 246, 0.95); }
+}
+
+.sidebar-search svg { color: #3b82f6; flex-shrink: 0; }
 .sidebar-search input {
   width: 100%;
   background: transparent;
   border: none;
-  font-family: var(--serif);
-  font-size: 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
   color: var(--fg);
   outline: none;
 }
 
+.search-tooltip {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.2rem;
+}
+.shuffle-btn {
+  background: transparent;
+  border: none;
+  color: #3b82f6;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+  border-radius: 3px;
+  text-decoration: underline;
+}
+.shuffle-btn:hover { color: var(--fg); }
+
+/* Shimmer / Shuffle glow animation on items */
+@keyframes itemShuffleGlow {
+  0% { transform: scale(1); background: transparent; }
+  50% { transform: scale(1.02); background: rgba(59, 130, 246, 0.18); border-color: #3b82f6; }
+  100% { transform: scale(1); background: transparent; }
+}
+.shuffle-highlight {
+  animation: itemShuffleGlow 1.8s ease-in-out;
+}
+
 .sidebar-nav {
+
   padding: 0.5rem 0.75rem 1.5rem;
   flex: 1;
 }
@@ -1092,70 +1146,78 @@ function buildSidebarHtml(currentPath = '/') {
     <div class="sidebar-header">
       <a href="/" class="sidebar-brand">
         ${ICONS.shed}
-        <div style="display: flex; flex-direction: column; line-height: 1.15;">
-          <span>DIGITAL TOOLS SHED</span>
-          <span style="font-family: var(--mono); font-size: 0.62rem; color: var(--text-muted); font-weight: normal; letter-spacing: 0.05em; text-transform: uppercase;">The Site of Everything</span>
-        </div>
+        <span>DIGITAL TOOLS SHED</span>
       </a>
-      <button class="mobile-toggle" onclick="toggleSidebar()" style="display: none;" id="mobileCloseBtn">✕</button>
+      <button class="mobile-toggle" id="mobileCloseBtn" onclick="toggleSidebar()" style="display:none; padding: 0.2rem 0.5rem; font-size: 0.8rem;">✕</button>
     </div>
 
-    <div class="sidebar-search">
-      ${ICONS.search}
-      <input type="text" id="sidebarSearchInput" placeholder="Quick filter tools..." />
+    <div class="sidebar-search-box">
+      <div class="sidebar-search">
+        ${ICONS.search}
+        <input type="text" id="sidebarSearchInput" placeholder="Filter 258+ tools & guides..." autocomplete="off" />
+      </div>
+      <div class="search-tooltip">
+        <span>💡 Filter 258+ tools live</span>
+        <button class="shuffle-btn" onclick="shuffleRandomTool()">🎲 Random</button>
+      </div>
     </div>
 
     <nav class="sidebar-nav">
+
+      <!-- FEATURED & VIRAL REALITY TOOLS -->
       <div class="nav-group-title">
         ${ICONS.star}
-        <span>Featured Utilities</span>
+        <span>Featured & Reality Suite</span>
       </div>
-      <a href="/media/downloader.html" class="nav-link ${currentPath === '/media/downloader.html' ? 'active' : ''}">
-        <div class="nav-link-content">
-          ${ICONS.media}
-          <span>Media Downloader</span>
-        </div>
-        <span class="nav-badge">HD</span>
+      <a href="/util/ego-vs-truth.html" class="nav-link ${currentPath === '/util/ego-vs-truth.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🧠 Ego vs. Truth Auditor</span></div>
+        <span class="nav-badge">NEW</span>
       </a>
-      <a href="/convert/json-obfuscator.html" class="nav-link ${currentPath === '/convert/json-obfuscator.html' ? 'active' : ''}">
-        <div class="nav-link-content">
-          ${ICONS.code}
-          <span>JSON Obfuscator</span>
-        </div>
-        <span class="nav-badge">DEV</span>
+      <a href="/text/steelman-engine.html" class="nav-link ${currentPath === '/text/steelman-engine.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🛡️ Steelman Engine</span></div>
+        <span class="nav-badge">NEW</span>
       </a>
-      <a href="/convert/esbuild-decompiler.html" class="nav-link ${currentPath === '/convert/esbuild-decompiler.html' ? 'active' : ''}">
-        <div class="nav-link-content">
-          ${ICONS.code}
-          <span>ESBuild Decompiler</span>
-        </div>
-        <span class="nav-badge">JS</span>
+      <a href="/calc/ai-water-calculator.html" class="nav-link ${currentPath === '/calc/ai-water-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🤖 AI Water Reality Ticker</span></div>
+        <span class="nav-badge">VIRAL</span>
       </a>
-      <a href="/convert/image-resizer.html" class="nav-link ${currentPath === '/convert/image-resizer.html' ? 'active' : ''}">
-        <div class="nav-link-content">
-          ${ICONS.files}
-          <span>Bulk Image Resizer</span>
-        </div>
-        <span class="nav-badge">IMG</span>
+      <a href="/math/graphing-calculator.html" class="nav-link ${currentPath === '/math/graphing-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>📈 2D Graphing Calculator</span></div>
+        <span class="nav-badge">DESMOS</span>
+      </a>
+      <a href="/math/bayesian-updater.html" class="nav-link ${currentPath === '/math/bayesian-updater.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>📊 Bayesian Belief Updater</span></div>
+      </a>
+      <a href="/text/fallacy-scanner.html" class="nav-link ${currentPath === '/text/fallacy-scanner.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🔍 Fallacy & Evasion Scanner</span></div>
+      </a>
+      <a href="/util/scale-visualizer.html" class="nav-link ${currentPath === '/util/scale-visualizer.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🌌 1M vs 1B Scale Visualizer</span></div>
       </a>
 
-      <div class="ad-sidebar-card">
-        <span class="ad-label">Premium Sponsor</span>
-        <script type="text/javascript">
-          atOptions = {
-            'key' : 'a821eb44059433a28ee72061693e8e63',
-            'format' : 'iframe',
-            'height' : 300,
-            'width' : 160,
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="https://manyapostle.com/a821eb44059433a28ee72061693e8e63/invoke.js"></script>
-      </div>
-
+      <!-- EDUCATION & LEARNING -->
       <div class="nav-group-title">
         ${ICONS.code}
-        <span>Developer & Code (6)</span>
+        <span>Learning Hub (60+ Guides)</span>
+      </div>
+      <a href="/learn/java/playground.html" class="nav-link ${currentPath === '/learn/java/playground.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>☕ Java Playground & Auto</span></div>
+        <span class="nav-badge">IDE</span>
+      </a>
+      <a href="/learn/java/" class="nav-link ${currentPath === '/learn/java/' || currentPath === '/learn/java/index.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>☕ Java Master Guide (10)</span></div>
+      </a>
+      <a href="/learn/python/" class="nav-link ${currentPath === '/learn/python/' || currentPath === '/learn/python/index.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🐍 Python Guides (20)</span></div>
+      </a>
+      <a href="/learn/javascript/" class="nav-link ${currentPath === '/learn/javascript/' || currentPath === '/learn/javascript/index.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>⚡ JavaScript Guides (30)</span></div>
+      </a>
+
+      <!-- DEVELOPER & DECOMPILERS -->
+      <div class="nav-group-title">
+        ${ICONS.code}
+        <span>Developer Suite (17)</span>
       </div>
       <a href="/convert/json-obfuscator.html" class="nav-link ${currentPath === '/convert/json-obfuscator.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>JSON Obfuscator</span></div>
@@ -1163,198 +1225,225 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/convert/esbuild-decompiler.html" class="nav-link ${currentPath === '/convert/esbuild-decompiler.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
       </a>
-      <a href="/convert/json-formatter.html" class="nav-link ${currentPath === '/convert/json-formatter.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>JSON Formatter</span></div>
+      <a href="/dev/json-formatter.html" class="nav-link ${currentPath === '/dev/json-formatter.html' || currentPath === '/convert/json-formatter.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>JSON Formatter & Validator</span></div>
       </a>
-      <a href="/convert/json-to-yaml.html" class="nav-link ${currentPath === '/convert/json-to-yaml.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>JSON to YAML</span></div>
+      <a href="/dev/ai-robots-txt.html" class="nav-link ${currentPath === '/dev/ai-robots-txt.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>AI Bot Blocker robots.txt</span></div>
       </a>
-      <a href="/convert/yaml-to-json.html" class="nav-link ${currentPath === '/convert/yaml-to-json.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>YAML to JSON</span></div>
+      <a href="/dev/regex-tester.html" class="nav-link ${currentPath === '/dev/regex-tester.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Regex Visual Tester</span></div>
+      </a>
+      <a href="/dev/jwt-decoder.html" class="nav-link ${currentPath === '/dev/jwt-decoder.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>JWT Token Decoder</span></div>
+      </a>
+      <a href="/dev/cron-generator.html" class="nav-link ${currentPath === '/dev/cron-generator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Cron Expression Builder</span></div>
+      </a>
+      <a href="/dev/css-minifier.html" class="nav-link ${currentPath === '/dev/css-minifier.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>CSS Minifier</span></div>
+      </a>
+      <a href="/dev/js-minifier.html" class="nav-link ${currentPath === '/dev/js-minifier.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>JS Minifier</span></div>
+      </a>
+      <a href="/dev/sql-formatter.html" class="nav-link ${currentPath === '/dev/sql-formatter.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>SQL Formatter</span></div>
       </a>
       <a href="/convert/base64.html" class="nav-link ${currentPath === '/convert/base64.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Base64 Tool</span></div>
+        <div class="nav-link-content"><span>Base64 Encoder/Decoder</span></div>
       </a>
 
+      <!-- MINECRAFT & GAMING -->
+      <div class="nav-group-title">
+        ${ICONS.cube}
+        <span>Minecraft Bedrock & Java (5)</span>
+      </div>
+      <a href="/mc/nbt-editor.html" class="nav-link ${currentPath === '/mc/nbt-editor.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>📦 In-Browser NBT Editor</span></div>
+        <span class="nav-badge">PRO</span>
+      </a>
+      <a href="/mc/tellraw-gen.html" class="nav-link ${currentPath === '/mc/tellraw-gen.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>/tellraw JSON Generator</span></div>
+      </a>
+      <a href="/mc/playsound-gen.html" class="nav-link ${currentPath === '/mc/playsound-gen.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>/playsound Event Picker</span></div>
+      </a>
+      <a href="/mc/uuid-gen.html" class="nav-link ${currentPath === '/mc/uuid-gen.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Pack UUID Generator</span></div>
+      </a>
+      <a href="/mc/manifest-gen.html" class="nav-link ${currentPath === '/mc/manifest-gen.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>manifest.json Generator</span></div>
+      </a>
+
+      <!-- TRADE & CONSTRUCTION -->
+      <div class="nav-group-title">
+        ${ICONS.calc}
+        <span>Blue-Collar & Trade Math (4)</span>
+      </div>
+      <a href="/calc/stair-calculator.html" class="nav-link ${currentPath === '/calc/stair-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>📐 Stair Stringer (IRC Code)</span></div>
+      </a>
+      <a href="/calc/concrete-calculator.html" class="nav-link ${currentPath === '/calc/concrete-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🏗️ Concrete Slab & Bags</span></div>
+      </a>
+      <a href="/calc/drywall-calculator.html" class="nav-link ${currentPath === '/calc/drywall-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🧱 Drywall, Mud & Screws</span></div>
+      </a>
+      <a href="/calc/mulch-calculator.html" class="nav-link ${currentPath === '/calc/mulch-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>🌱 Mulch, Topsoil & Gravel</span></div>
+      </a>
+
+      <!-- SENIOR & RETIREMENT FINANCE -->
+      <div class="nav-group-title">
+        ${ICONS.calc}
+        <span>Senior & Legal Finance (8)</span>
+      </div>
+      <a href="/finance/inherited-ira-calculator.html" class="nav-link ${currentPath === '/finance/inherited-ira-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Inherited IRA (10-Yr Rule)</span></div>
+      </a>
+      <a href="/finance/judgment-interest.html" class="nav-link ${currentPath === '/finance/judgment-interest.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>50-State Judgment Interest</span></div>
+      </a>
+      <a href="/finance/rmd-calculator.html" class="nav-link ${currentPath === '/finance/rmd-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>RMD Calculator (SECURE 2.0)</span></div>
+      </a>
+      <a href="/finance/social-security-tax.html" class="nav-link ${currentPath === '/finance/social-security-tax.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Social Security Taxability</span></div>
+      </a>
+      <a href="/finance/annuity-payout.html" class="nav-link ${currentPath === '/finance/annuity-payout.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Annuity & Pension Payout</span></div>
+      </a>
+      <a href="/math/compound-interest.html" class="nav-link ${currentPath === '/math/compound-interest.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Compound Interest</span></div>
+      </a>
+      <a href="/math/mortgage-calculator.html" class="nav-link ${currentPath === '/math/mortgage-calculator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Mortgage Amortization</span></div>
+      </a>
+
+      <!-- PRIVACY & SECURITY -->
+      <div class="nav-group-title">
+        ${ICONS.lock}
+        <span>Privacy & Security (10)</span>
+      </div>
+      <a href="/security/password-generator.html" class="nav-link ${currentPath === '/security/password-generator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Password Generator</span></div>
+      </a>
+      <a href="/security/encrypted-notes.html" class="nav-link ${currentPath === '/security/encrypted-notes.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Client-Side Encrypted Notes</span></div>
+      </a>
+      <a href="/security/totp-generator.html" class="nav-link ${currentPath === '/security/totp-generator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>2FA TOTP Authenticator</span></div>
+      </a>
+      <a href="/security/passphrase-generator.html" class="nav-link ${currentPath === '/security/passphrase-generator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Diceware Passphrase</span></div>
+      </a>
+      <a href="/security/privacy-policy-generator.html" class="nav-link ${currentPath === '/security/privacy-policy-generator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Privacy Policy Generator</span></div>
+      </a>
+
+      <!-- DESIGN & MEDIA -->
       <div class="nav-group-title">
         ${ICONS.media}
-        <span>Media & Video (3)</span>
+        <span>Media, Video & Design (11)</span>
       </div>
       <a href="/media/downloader.html" class="nav-link ${currentPath === '/media/downloader.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Universal Downloader</span></div>
+        <div class="nav-link-content"><span>Universal Media Downloader</span></div>
+      </a>
+      <a href="/design/passport-photo.html" class="nav-link ${currentPath === '/design/passport-photo.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
+      </a>
+      <a href="/design/qr-generator.html" class="nav-link ${currentPath === '/design/qr-generator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
+      </a>
+      <a href="/media/subtitle-shifter.html" class="nav-link ${currentPath === '/media/subtitle-shifter.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Subtitle Shifter (.SRT/.VTT)</span></div>
       </a>
       <a href="/media/youtube-to-mp3.html" class="nav-link ${currentPath === '/media/youtube-to-mp3.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>YouTube to MP3</span></div>
+        <div class="nav-link-content"><span>YouTube to MP3 Audio</span></div>
       </a>
       <a href="/media/tiktok-saver.html" class="nav-link ${currentPath === '/media/tiktok-saver.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>TikTok Saver</span></div>
+        <div class="nav-link-content"><span>TikTok Saver (No Watermark)</span></div>
       </a>
-
-      <div class="ad-sidebar-card">
-        <span class="ad-label">Partner Link</span>
-        <script type="text/javascript">
-          atOptions = {
-            'key' : 'a821eb44059433a28ee72061693e8e63',
-            'format' : 'iframe',
-            'height' : 300,
-            'width' : 160,
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="https://manyapostle.com/a821eb44059433a28ee72061693e8e63/invoke.js"></script>
-      </div>
-
-      <div class="nav-group-title">
-        ${ICONS.files}
-        <span>Image Converters (6)</span>
-      </div>
-      <a href="/convert/png-to-jpg.html" class="nav-link ${currentPath === '/convert/png-to-jpg.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>PNG to JPG</span></div>
-      </a>
-      <a href="/convert/jpg-to-png.html" class="nav-link ${currentPath === '/convert/jpg-to-png.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>JPG to PNG</span></div>
+      <a href="/convert/image-resizer.html" class="nav-link ${currentPath === '/convert/image-resizer.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Bulk Image Resizer</span></div>
       </a>
       <a href="/convert/png-to-webp.html" class="nav-link ${currentPath === '/convert/png-to-webp.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>PNG to WebP</span></div>
       </a>
-      <a href="/convert/webp-to-png.html" class="nav-link ${currentPath === '/convert/webp-to-png.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>WebP to PNG</span></div>
-      </a>
       <a href="/convert/svg-to-png.html" class="nav-link ${currentPath === '/convert/svg-to-png.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>SVG to PNG</span></div>
       </a>
-      <a href="/convert/image-resizer.html" class="nav-link ${currentPath === '/convert/image-resizer.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Bulk Resizer</span></div>
-      </a>
 
-      <div class="ad-sidebar-card">
-        <span class="ad-label">Partner Link</span>
-        <script type="text/javascript">
-          atOptions = {
-            'key' : 'a821eb44059433a28ee72061693e8e63',
-            'format' : 'iframe',
-            'height' : 300,
-            'width' : 160,
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="https://manyapostle.com/a821eb44059433a28ee72061693e8e63/invoke.js"></script>
-      </div>
-
+      <!-- TEXT & WRITING -->
       <div class="nav-group-title">
         ${ICONS.docs}
-        <span>PDF & Docs (2)</span>
+        <span>Text & Writing (10)</span>
       </div>
-      <a href="/pdf/pdf-to-text.html" class="nav-link ${currentPath === '/pdf/pdf-to-text.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>PDF Text Extractor</span></div>
+      <a href="/text/word-counter.html" class="nav-link ${currentPath === '/text/word-counter.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Word & Character Counter</span></div>
       </a>
-      <a href="/pdf/page-counter.html" class="nav-link ${currentPath === '/pdf/page-counter.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>PDF Page Counter</span></div>
+      <a href="/text/case-converter.html" class="nav-link ${currentPath === '/text/case-converter.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Case Converter (Title/Camel)</span></div>
+      </a>
+      <a href="/text/slug-generator.html" class="nav-link ${currentPath === '/text/slug-generator.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>URL Slug Generator</span></div>
+      </a>
+      <a href="/text/morse-code.html" class="nav-link ${currentPath === '/text/morse-code.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Morse Code Translator</span></div>
+      </a>
+      <a href="/text/fancy-text.html" class="nav-link ${currentPath === '/text/fancy-text.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Unicode Fancy Fonts</span></div>
+      </a>
+      <a href="/text/lorem-ipsum.html" class="nav-link ${currentPath === '/text/lorem-ipsum.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Lorem Ipsum Generator</span></div>
       </a>
 
-      <div class="nav-group-title">
-        ${ICONS.calc}
-        <span>Calculators (44)</span>
-      </div>
-      <a href="/calc/kg-to-lbs.html" class="nav-link ${currentPath === '/calc/kg-to-lbs.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Kilograms to Pounds</span></div>
-      </a>
-      <a href="/calc/celsius-to-fahrenheit.html" class="nav-link ${currentPath === '/calc/celsius-to-fahrenheit.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Celsius to Fahrenheit</span></div>
-      </a>
-      <a href="/calc/cm-to-inches.html" class="nav-link ${currentPath === '/calc/cm-to-inches.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>CM to Inches</span></div>
-      </a>
-      <a href="/calc/km-to-miles.html" class="nav-link ${currentPath === '/calc/km-to-miles.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>KM to Miles</span></div>
-      </a>
-      <a href="/calc/mb-to-gb.html" class="nav-link ${currentPath === '/calc/mb-to-gb.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>MB to GB</span></div>
-      </a>
-
-      <div class="ad-sidebar-card">
-        <span class="ad-label">Sponsor Slot</span>
-        <script type="text/javascript">
-          atOptions = {
-            'key' : 'a821eb44059433a28ee72061693e8e63',
-            'format' : 'iframe',
-            'height' : 300,
-            'width' : 160,
-            'params' : {}
-          };
-        </script>
-        <script type="text/javascript" src="https://manyapostle.com/a821eb44059433a28ee72061693e8e63/invoke.js"></script>
-      </div>
-
-      <div class="nav-group-title">
-        ${ICONS.cube}
-        <span>Minecraft & Dev (2)</span>
-      </div>
-      <a href="/mc/uuid-gen.html" class="nav-link ${currentPath === '/mc/uuid-gen.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>UUID Generator</span></div>
-      </a>
-      <a href="/mc/manifest-gen.html" class="nav-link ${currentPath === '/mc/manifest-gen.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Manifest Generator</span></div>
-      </a>
-
+      <!-- PRODUCTIVITY & INVOICING -->
       <div class="nav-group-title">
         ${ICONS.clipboard}
-        <span>Productivity (7)</span>
+        <span>Productivity Suite (7)</span>
       </div>
       <a href="/productivity/time-tracker.html" class="nav-link ${currentPath === '/productivity/time-tracker.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Time Tracker</span></div>
+        <div class="nav-link-content"><span>Toggl-Style Time Tracker</span></div>
       </a>
       <a href="/productivity/invoice-generator.html" class="nav-link ${currentPath === '/productivity/invoice-generator.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Invoice Generator</span></div>
+        <div class="nav-link-content"><span>Invoice Generator & PDF</span></div>
       </a>
       <a href="/productivity/task-manager.html" class="nav-link ${currentPath === '/productivity/task-manager.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Task Manager</span></div>
+        <div class="nav-link-content"><span>Task Manager & Priorities</span></div>
       </a>
       <a href="/productivity/tax-calculator.html" class="nav-link ${currentPath === '/productivity/tax-calculator.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Tax Calculator</span></div>
+        <div class="nav-link-content"><span>Income Tax Calculator</span></div>
       </a>
       <a href="/productivity/timetable.html" class="nav-link ${currentPath === '/productivity/timetable.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Weekly Timetable</span></div>
+        <div class="nav-link-content"><span>Weekly Timetable Planner</span></div>
       </a>
       <a href="/productivity/deduplicator.html" class="nav-link ${currentPath === '/productivity/deduplicator.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>De-duplicator</span></div>
-      </a>
-      <a href="/productivity/invoice-from-time.html" class="nav-link ${currentPath === '/productivity/invoice-from-time.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Invoice from Time</span></div>
+        <div class="nav-link-content"><span>Text Line De-duplicator</span></div>
       </a>
 
+      <!-- TECH ARTICLES -->
       <div class="nav-group-title">
         ${ICONS.article}
-        <span>Tech Articles & Guides (6)</span>
+        <span>Technical Articles (6)</span>
       </div>
       <a href="/articles/" class="nav-link ${currentPath === '/articles/' || currentPath === '/articles/index.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Articles Hub</span></div>
+        <div class="nav-link-content"><span>All Tech Articles Hub</span></div>
       </a>
       <a href="/articles/how-to-decompile-esbuild-bundles.html" class="nav-link ${currentPath === '/articles/how-to-decompile-esbuild-bundles.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>Decompile ESBuild</span></div>
       </a>
-      <a href="/articles/json-obfuscation-and-compression-techniques.html" class="nav-link ${currentPath === '/articles/json-obfuscation-and-compression-techniques.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>JSON Obfuscation</span></div>
-      </a>
       <a href="/articles/minecraft-bedrock-custom-blocks-guide.html" class="nav-link ${currentPath === '/articles/minecraft-bedrock-custom-blocks-guide.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>Bedrock Custom Blocks</span></div>
       </a>
-      <a href="/articles/minecraft-bedrock-manifest-uuid-guide.html" class="nav-link ${currentPath === '/articles/minecraft-bedrock-manifest-uuid-guide.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Manifest & UUIDs</span></div>
-      </a>
-      <a href="/articles/zero-upload-client-side-image-processing.html" class="nav-link ${currentPath === '/articles/zero-upload-client-side-image-processing.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Image Processing</span></div>
-      </a>
-      <a href="/articles/universal-media-stream-extraction-guide.html" class="nav-link ${currentPath === '/articles/universal-media-stream-extraction-guide.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>Media Extraction</span></div>
-      </a>
 
+      <!-- TRUST & LEGAL -->
       <div class="nav-group-title">
         ${ICONS.lock}
         <span>Trust & Legal</span>
       </div>
       <a href="/about.html" class="nav-link ${currentPath === '/about.html' ? 'active' : ''}">
-        <div class="nav-link-content"><span>About Us</span></div>
+        <div class="nav-link-content"><span>About Digital Tools Shed</span></div>
       </a>
       <a href="/privacy.html" class="nav-link ${currentPath === '/privacy.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>Privacy Policy</span></div>
@@ -1364,20 +1453,6 @@ function buildSidebarHtml(currentPath = '/') {
       </a>
     </nav>
 
-    <div class="ad-sidebar-card" style="min-height: 600px;">
-      <span class="ad-label">Featured Partner</span>
-      <script type="text/javascript">
-        atOptions = {
-          'key' : 'bba2ed7e2aff3607f66ff8e410f1fcbe',
-          'format' : 'iframe',
-          'height' : 600,
-          'width' : 160,
-          'params' : {}
-        };
-      </script>
-      <script type="text/javascript" src="https://manyapostle.com/bba2ed7e2aff3607f66ff8e410f1fcbe/invoke.js"></script>
-    </div>
-
     <div class="sidebar-footer">
       <button class="theme-switch-btn" onclick="toggleSiteTheme()">
         ${ICONS.theme}
@@ -1385,7 +1460,7 @@ function buildSidebarHtml(currentPath = '/') {
         <span id="currentThemeTag">[ LIGHT ]</span>
       </button>
       <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--text-subtle); text-align: center; line-height: 1.4;">
-        The Site of Everything
+        The Site of Everything &bull; 258+ Tools
       </div>
     </div>
   </aside>
@@ -1810,6 +1885,25 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       if (tag) tag.innerText = '[' + current.toUpperCase() + ']';
     }
     updateThemeTag();
+
+    function shuffleRandomTool() {
+      const links = Array.from(document.querySelectorAll('.sidebar-nav .nav-link'));
+      if (links.length === 0) return;
+      const rand = links[Math.floor(Math.random() * links.length)];
+      rand.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      rand.classList.add('shuffle-highlight');
+      setTimeout(() => rand.classList.remove('shuffle-highlight'), 2000);
+      window.location.href = rand.getAttribute('href');
+    }
+
+    // Periodic ambient shuffle animation every 10 seconds
+    setInterval(() => {
+      const visibleLinks = Array.from(document.querySelectorAll('.sidebar-nav .nav-link')).filter(l => l.style.display !== 'none');
+      if (visibleLinks.length === 0) return;
+      const target = visibleLinks[Math.floor(Math.random() * visibleLinks.length)];
+      target.classList.add('shuffle-highlight');
+      setTimeout(() => target.classList.remove('shuffle-highlight'), 1900);
+    }, 10000);
 
     const sbInput = document.getElementById('sidebarSearchInput');
     if (sbInput) {
