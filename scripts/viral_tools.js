@@ -34,8 +34,8 @@ export function buildViralTools() {
       </header>
 
       <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.75rem 1.25rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
-        <span style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">⏱️ Tracking live resource consumption for: <strong id="elapsedTimer" style="color: var(--fg);">0.0s</strong></span>
-        <span style="font-size: 0.8rem; background: rgba(34,197,94,0.15); color: #22c55e; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold;">● LIVE REAL-TIME CALCULATION</span>
+        <span style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="13" r="9"/><polyline points="12 9 12 13 15 16"/><path d="M12 4V2"/><path d="M10 2h4"/></svg> Tracking live resource consumption for: <strong id="elapsedTimer" style="color: var(--fg);">0.0s</strong></span>
+        <span style="font-size: 0.8rem; background: rgba(34,197,94,0.15); color: #22c55e; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;margin-right:4px"></span> LIVE REAL-TIME CALCULATION</span>
       </div>
 
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; margin-bottom: 2.5rem;">
@@ -47,21 +47,21 @@ export function buildViralTools() {
         </div>
 
         <div class="ticker-card" style="border-left: 4px solid #ef4444;">
-          <div class="ticker-sub">🥩 Global Beef & Cattle Farming</div>
+          <div class="ticker-sub"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M15 11c0-3-2-5-5-5s-5 2-5 5c0 2.8 2 5 5 7 3-2 5-4.2 5-7z"/><path d="M19 11c0-3-2-5-5-5"/><path d="M19 11c0 2.8-2 5-5 7"/></svg> Global Beef & Cattle Farming</div>
           <div class="ticker-val" id="valCattleWater" style="color: #ef4444;">0.00 L</div>
           <div style="font-size: 0.85rem; color: var(--text-muted);">~58,000,000 Liters/sec (165,000x more water than all global AI)</div>
           <div class="bar-track"><div class="bar-fill" style="width: 100%; background: #ef4444;"></div></div>
         </div>
 
         <div class="ticker-card" style="border-left: 4px solid #22c55e;">
-          <div class="ticker-sub">⛳ Global Golf Course Irrigation</div>
+          <div class="ticker-sub"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M4 22V4l12 5-12 5"/><circle cx="4" cy="22" r="1" fill="currentColor" stroke="none"/></svg> Global Golf Course Irrigation</div>
           <div class="ticker-val" id="valGolfWater" style="color: #22c55e;">0.00 L</div>
           <div style="font-size: 0.85rem; color: var(--text-muted);">~115,000 Liters/sec (328x more water than all global AI)</div>
           <div class="bar-track"><div class="bar-fill" style="width: 25%; background: #22c55e;"></div></div>
         </div>
 
         <div class="ticker-card" style="border-left: 4px solid #f59e0b;">
-          <div class="ticker-sub">👕 Cotton & Fast Fashion Manufacturing</div>
+          <div class="ticker-sub"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M20.4 5.6L16 4l-4 2-4-2-4.4 1.6L5 10h3v12h8V10h3l1.4-4.4z"/></svg> Cotton & Fast Fashion Manufacturing</div>
           <div class="ticker-val" id="valCottonWater" style="color: #f59e0b;">0.00 L</div>
           <div style="font-size: 0.85rem; color: var(--text-muted);">~2,900,000 Liters/sec (8,200x more water than all global AI)</div>
           <div class="bar-track"><div class="bar-fill" style="width: 60%; background: #f59e0b;"></div></div>
@@ -114,17 +114,17 @@ export function buildViralTools() {
               <td style="padding: 0.5rem 0.75rem; color: #22c55e;"><strong>7,368 Queries</strong></td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border);">
-              <td style="padding: 0.5rem 0.75rem;">🚿 1 Standard 8-Minute Shower</td>
+              <td style="padding: 0.5rem 0.75rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M4 4l2.5 2.5"/><path d="M13.5 6.5a4 4 0 0 0-5.7 5.7"/><circle cx="12" cy="15" r="1" fill="currentColor" stroke="none"/><circle cx="10" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="14" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="21" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="21" r="1" fill="currentColor" stroke="none"/><circle cx="8" cy="21" r="1" fill="currentColor" stroke="none"/></svg> 1 Standard 8-Minute Shower</td>
               <td style="padding: 0.5rem 0.75rem;">65 L</td>
               <td style="padding: 0.5rem 0.75rem; color: #22c55e;"><strong>3,421 Queries</strong></td>
             </tr>
             <tr style="border-bottom: 1px solid var(--border);">
-              <td style="padding: 0.5rem 0.75rem;">🍔 1 Quarter-Pound Beef Burger</td>
+              <td style="padding: 0.5rem 0.75rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M4 15h16a2 2 0 0 1 0 4H4a2 2 0 0 1 0-4z"/><path d="M4 11h16c1.1 0 2-.4 2-1s-1.8-3-10-3S2 9.4 2 10s.9 1 2 1z"/><line x1="4" y1="13" x2="20" y2="13"/></svg> 1 Quarter-Pound Beef Burger</td>
               <td style="padding: 0.5rem 0.75rem; color: #ef4444;"><strong>1,750 L</strong></td>
               <td style="padding: 0.5rem 0.75rem; color: #ef4444;"><strong>92,105 Queries</strong></td>
             </tr>
             <tr>
-              <td style="padding: 0.5rem 0.75rem;">👖 1 Pair of Denim Jeans</td>
+              <td style="padding: 0.5rem 0.75rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M6 2h12v6l-3 14H9L6 8V2z"/><line x1="12" y1="8" x2="12" y2="22"/></svg> 1 Pair of Denim Jeans</td>
               <td style="padding: 0.5rem 0.75rem; color: #ef4444;"><strong>7,500 L</strong></td>
               <td style="padding: 0.5rem 0.75rem; color: #ef4444;"><strong>394,736 Queries</strong></td>
             </tr>
@@ -257,8 +257,8 @@ export function buildViralTools() {
             </div>
           </div>
           <div style="display: flex; gap: 0.5rem; margin-top: auto;">
-            <button onclick="zoom(0.8)" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;">🔍 Zoom +</button>
-            <button onclick="zoom(1.25)" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;">🔍 Zoom -</button>
+            <button onclick="zoom(0.8)" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Zoom +</button>
+            <button onclick="zoom(1.25)" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Zoom -</button>
             <button onclick="resetView()" class="btn-secondary" style="flex: 1; padding: 0.4rem; font-size: 0.85rem;">Reset</button>
           </div>
         </div>
@@ -429,17 +429,17 @@ export function buildViralTools() {
 
         document.getElementById("scaleResults").innerHTML = 
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">⏱️ In Seconds of Time</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="13" r="9"/><polyline points="12 9 12 13 15 16"/><path d="M12 4V2"/><path d="M10 2h4"/></svg> In Seconds of Time</span>' +
             '<div style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; margin-top: 0.25rem;">' + timeStr + '</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">1M sec = 11.5 days | 1B sec = 31.7 years | 1T sec = 31,709 years</div>' +
           '</div>' +
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">💵 In $100 Dollar Bills Stack</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/><line x1="12" y1="8" x2="12" y2="16"/><path d="M15 12H10.5a1.5 1.5 0 0 0 0 3H13.5a1.5 1.5 0 0 1 0 3H9"/></svg> In $100 Dollar Bills Stack</span>' +
             '<div style="font-size: 1.4rem; font-weight: bold; color: #22c55e; margin-top: 0.25rem;">' + heightStr + '</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">1B in $100s = 43 miles high into the stratosphere</div>' +
           '</div>' +
           '<div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">' +
-            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">⚡ GPU AI Tokens / Words</span>' +
+            '<span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> GPU AI Tokens / Words</span>' +
             '<div style="font-size: 1.25rem; font-weight: bold; color: #ef4444; margin-top: 0.25rem;">' + (num / 1000000).toLocaleString() + 'M Tokens</div>' +
             '<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">At 100 tokens/sec = ' + (num / 100 / 3600).toFixed(1) + ' hours of continuous reading</div>' +
           '</div>';

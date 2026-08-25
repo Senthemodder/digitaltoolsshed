@@ -135,7 +135,7 @@ export function buildEpistemicTools() {
           <div id="archetypeTitle" style="font-family: var(--serif); font-size: 1.35rem; font-weight: bold; margin-bottom: 0.5rem;">Select answers above to calculate</div>
           <p id="archetypeDesc" style="font-size: 0.95rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 1.25rem; line-height: 1.5;"></p>
 
-          <button onclick="copyAuditResult()" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem;">📋 Copy Epistemic Audit Badge</button>
+          <button onclick="copyAuditResult()" class="btn-primary" style="padding: 0.6rem 1.25rem; font-family: var(--mono); font-size: 0.85rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Copy Epistemic Audit Badge</button>
         </div>
       </div>
     </div>
@@ -168,12 +168,12 @@ export function buildEpistemicTools() {
         var bar = document.getElementById('scoreBar');
 
         if (normalized >= 80) {
-          titleEl.textContent = '🧠 Calibrated Truth-Seeker (Epistemic Mastery)';
+          titleEl.textContent = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M12 2C8.5 2 5 4.5 5 9c0 3.5 2 6 4 7.5V22h6v-5.5c2-1.5 4-4 4-7.5 0-4.5-3.5-7-7-7z"/><path d="M9 22h6"/></svg> Calibrated Truth-Seeker (Epistemic Mastery)';
           descEl.textContent = 'You prioritize accurate mental models over ego protection. You treat opposing evidence as valuable calibration data rather than a personal insult.';
           titleEl.style.color = '#22c55e';
           bar.style.background = '#22c55e';
         } else if (normalized >= 50) {
-          titleEl.textContent = '⚖️ Pragmatic Rationalist (Occasional Ego Defense)';
+          titleEl.textContent = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><path d="M12 3v18"/><path d="M2 12l5-5v3h10v-3l5 5-5 5v-3H7v3L2 12z"/></svg> Pragmatic Rationalist (Occasional Ego Defense)';
           descEl.textContent = 'You value truth and evidence in theory, but occasionally deploy social escape hatches ("agree to disagree") when an argument hits sensitive identity nerves.';
           titleEl.style.color = '#3b82f6';
           bar.style.background = '#3b82f6';
@@ -188,7 +188,7 @@ export function buildEpistemicTools() {
       function copyAuditResult() {
         var score = document.getElementById('scoreDisplay').textContent;
         var title = document.getElementById('archetypeTitle').textContent;
-        var text = '🧠 My Epistemic Humility Score: ' + score + '\\nArchetype: ' + title + '\\nAudit your debate rationality at: ' + window.location.href;
+        var text = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M12 2C8.5 2 5 4.5 5 9c0 3.5 2 6 4 7.5V22h6v-5.5c2-1.5 4-4 4-7.5 0-4.5-3.5-7-7-7z"/><path d="M9 22h6"/></svg> My Epistemic Humility Score: ' + score + '\\nArchetype: ' + title + '\\nAudit your debate rationality at: ' + window.location.href;
         navigator.clipboard.writeText(text).then(function() {
           alert('Copied your Epistemic Audit result to clipboard!');
         });
@@ -235,12 +235,12 @@ export function buildEpistemicTools() {
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center;">
           <span style="font-size: 0.75rem; font-family: var(--mono); color: var(--text-muted);">Try Presets:</span>
           <button class="pill-btn" onclick="setClaim('ai-jobs')">🤖 AI Engineering</button>
-          <button class="pill-btn" onclick="setClaim('remote-work')">🏠 Remote Work</button>
-          <button class="pill-btn" onclick="setClaim('higher-ed')">🎓 Higher Education</button>
-          <button class="pill-btn" onclick="setClaim('social-media')">📱 Social Media</button>
+          <button class="pill-btn" onclick="setClaim('remote-work')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Remote Work</button>
+          <button class="pill-btn" onclick="setClaim('higher-ed')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M22 10l-10-5L2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> Higher Education</button>
+          <button class="pill-btn" onclick="setClaim('social-media')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Social Media</button>
         </div>
 
-        <button onclick="generateSteelman()" class="btn-primary" style="padding: 0.65rem 1.5rem; font-family: var(--mono); font-size: 0.9rem;">⚡ Generate Steelman & Counter-Evidence</button>
+        <button onclick="generateSteelman()" class="btn-primary" style="padding: 0.65rem 1.5rem; font-family: var(--mono); font-size: 0.9rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generate Steelman & Counter-Evidence</button>
       </div>
 
       <div id="steelmanOutput" style="display: none;">
@@ -488,12 +488,12 @@ export function buildEpistemicTools() {
 
         <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center;">
           <span style="font-size: 0.75rem; font-family: var(--mono); color: var(--text-muted);">Load Test Debates:</span>
-          <button class="pill-btn" onclick="loadSample('ad-hominem')">🤬 Personal Attack</button>
-          <button class="pill-btn" onclick="loadSample('agree-to-disagree')">🚪 Evasion & Exit</button>
-          <button class="pill-btn" onclick="loadSample('strawman')">🌾 Strawman</button>
+          <button class="pill-btn" onclick="loadSample('ad-hominem')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg> Personal Attack</button>
+          <button class="pill-btn" onclick="loadSample('agree-to-disagree')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M5 2h11a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H5"/><path d="M5 22V2"/><circle cx="14" cy="12" r="1" fill="currentColor" stroke="none"/></svg> Evasion & Exit</button>
+          <button class="pill-btn" onclick="loadSample('strawman')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M12 22V8"/><path d="M5 12l7-4 7 4"/><path d="M5 16l7-4 7 4"/></svg> Strawman</button>
         </div>
 
-        <button onclick="scanFallacies()" class="btn-primary" style="padding: 0.65rem 1.5rem; font-family: var(--mono); font-size: 0.9rem;">🔍 Scan for Fallacies & Deflections</button>
+        <button onclick="scanFallacies()" class="btn-primary" style="padding: 0.65rem 1.5rem; font-family: var(--mono); font-size: 0.9rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Scan for Fallacies & Deflections</button>
       </div>
 
       <div id="fallacyResults" style="display: none;">

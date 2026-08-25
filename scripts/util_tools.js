@@ -82,7 +82,7 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 swElapsedTime = Date.now() - swStartTime;
                 document.getElementById('sw-display').textContent = formatSW(swElapsedTime);
               }, 10);
-              btn.textContent = '⏸ Pause';
+              btn.textContent = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause';
               lapBtn.disabled = false;
             }
           }
@@ -179,14 +179,14 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               pomoInterval = null;
               btn.textContent = '▶ Resume';
             } else {
-              btn.textContent = '⏸ Pause';
+              btn.textContent = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> Pause';
               pomoInterval = setInterval(() => {
                 pomoRemaining--;
                 document.getElementById('pomo-display').textContent = formatPomo(pomoRemaining);
                 if (pomoRemaining <= 0) {
                   clearInterval(pomoInterval);
                   pomoInterval = null;
-                  alert('⏰ Time is up! Take a well-deserved break.');
+                  alert('<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="13" r="9"/><polyline points="12 9 12 13 16 13"/><path d="M5 3L2 6"/><path d="M19 3l3 3"/></svg> Time is up! Take a well-deserved break.');
                   setPomodoroMode(5, 'short');
                 }
               }, 1000);

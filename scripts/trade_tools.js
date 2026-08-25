@@ -89,7 +89,7 @@ export function buildTradeTools() {
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
             '<span style="color: var(--text-muted); font-size: 0.75rem;">EXACT RISER HEIGHT</span>' +
             '<div style="font-size: 1.25rem; font-weight: bold; color: ' + (isRiserCode ? '#22c55e' : '#ef4444') + ';">' +
-              actualRiser.toFixed(3) + '" (' + toFraction(actualRiser) + ') ' + (isRiserCode ? '✅ Code Compliant' : '❌ Exceeds 7.75\"') +
+              actualRiser.toFixed(3) + '" (' + toFraction(actualRiser) + ') ' + (isRiserCode ? '✅ Code Compliant' : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Exceeds 7.75\"') +
             '</div>' +
           '</div>' +
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
@@ -102,7 +102,7 @@ export function buildTradeTools() {
           '</div>' +
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
             '<span style="color: var(--text-muted); font-size: 0.75rem;">STAIR INCLINE ANGLE & COMFORT</span>' +
-            '<div style="font-size: 0.95rem; color: var(--fg);">' + inclineAngle + '° pitch (Ideal is 30°–37°) | 2R + T = ' + ruleOfThumb + '" ' + (isComfortGood ? '✨ Ideal Comfort' : '') + '</div>' +
+            '<div style="font-size: 0.95rem; color: var(--fg);">' + inclineAngle + '° pitch (Ideal is 30°–37°) | 2R + T = ' + ruleOfThumb + '" ' + (isComfortGood ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2z"/></svg> Ideal Comfort' : '') + '</div>' +
           '</div>';
       }
 
@@ -257,7 +257,7 @@ export function buildTradeTools() {
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
             '<span style="color: var(--text-muted); font-size: 0.75rem;">DELIVERY TRUCK VS BAG RECOMMENDATION</span>' +
             '<div style="font-size: 0.85rem; color: var(--fg); line-height: 1.4;">' +
-              (cuYards >= 1.0 ? '💡 <strong>Ready-Mix Truck Recommended:</strong> Over 1 cubic yard (' + bags80 + ' bags) is usually cheaper and faster to order via cement truck.' : '✅ <strong>Pre-mix Bags Feasible:</strong> Under 1 cubic yard is easy to mix in a wheelbarrow or small mixer.') +
+              (cuYards >= 1.0 ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> <strong>Ready-Mix Truck Recommended:</strong> Over 1 cubic yard (' + bags80 + ' bags) is usually cheaper and faster to order via cement truck.' : '✅ <strong>Pre-mix Bags Feasible:</strong> Under 1 cubic yard is easy to mix in a wheelbarrow or small mixer.') +
             '</div>' +
           '</div>';
       }
@@ -451,7 +451,7 @@ export function buildTradeTools() {
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
             '<span style="color: var(--text-muted); font-size: 0.75rem;">BULK VS BAG RECOMMENDATION</span>' +
             '<div style="font-size: 0.85rem; color: var(--fg); line-height: 1.4;">' +
-              (cuYards >= 3.0 ? '💡 <strong>Bulk Delivery Recommended:</strong> 3+ cubic yards (' + bags2CuFt + ' bags) is significantly cheaper delivered by the truckload from a local landscape supply yard.' : '✅ <strong>Bag Purchase Feasible:</strong> Under 3 cubic yards fits easily in a pickup truck or SUV over a couple of trips.') +
+              (cuYards >= 3.0 ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg> <strong>Bulk Delivery Recommended:</strong> 3+ cubic yards (' + bags2CuFt + ' bags) is significantly cheaper delivered by the truckload from a local landscape supply yard.' : '✅ <strong>Bag Purchase Feasible:</strong> Under 3 cubic yards fits easily in a pickup truck or SUV over a couple of trips.') +
             '</div>' +
           '</div>';
       }

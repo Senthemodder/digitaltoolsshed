@@ -290,7 +290,7 @@ public class CompileDemo {
           In Java, dividing two integers always yields an integer. It completely throws away the decimal remainder without rounding!
         </p>
         <ul style="font-size: 0.95rem; line-height: 1.6; padding-left: 1.5rem;">
-          <li>❌ <code>double result = 5 / 2;</code> &rarr; Evaluates to <code>2.0</code>!</li>
+          <li><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <code>double result = 5 / 2;</code> &rarr; Evaluates to <code>2.0</code>!</li>
           <li>✅ <code>double result = 5.0 / 2;</code> &rarr; Correctly evaluates to <code>2.5</code>.</li>
         </ul>
 
@@ -575,11 +575,11 @@ public class ModernJava {
 
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; align-items: center;">
         <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Load Presets:</span>
-        <button onclick="loadJavaPreset('hello')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">👋 Hello World</button>
-        <button onclick="loadJavaPreset('math')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">📐 Math & Trigonometry</button>
-        <button onclick="loadJavaPreset('oop')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">🚗 OOP Class</button>
-        <button onclick="loadJavaPreset('stringbuilder')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">⚡ StringBuilder Speed</button>
-        <button onclick="loadJavaPreset('mc')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">⛏️ Minecraft Item Registry</button>
+        <button onclick="loadJavaPreset('hello')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M18 8.5c0-.8-.7-1.5-1.5-1.5s-1.5.7-1.5 1.5V10M15 8c0-.8-.7-1.5-1.5-1.5S12 7.2 12 8v2m0-2c0-.8-.7-1.5-1.5-1.5S9 7.2 9 8v5l-2.3-2.3a1.5 1.5 0 0 0-2.1 2.1L9 17.3c1.7 2.1 3.8 2.7 6 2.7 3.3 0 5-2.7 5-6V8.5z"/></svg> Hello World</button>
+        <button onclick="loadJavaPreset('math')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M3 21l9-9L21 3"/><path d="M3 21h18"/><path d="M3 21V3"/></svg> Math & Trigonometry</button>
+        <button onclick="loadJavaPreset('oop')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M5 17h14l1-5H4l1 5z"/><circle cx="7.5" cy="19.5" r="1.5"/><circle cx="16.5" cy="19.5" r="1.5"/><path d="M6 12l2-5h8l2 5"/></svg> OOP Class</button>
+        <button onclick="loadJavaPreset('stringbuilder')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> StringBuilder Speed</button>
+        <button onclick="loadJavaPreset('mc')" class="btn-sec" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M14.5 3.5L20 9l-7 7-5.5-5.5 7-7z"/><path d="M5.5 17.5L2 22l4.5-1.5z"/><path d="M5.5 17.5l5-5"/></svg> Minecraft Item Registry</button>
       </div>
 
       ${javaPlayground(`

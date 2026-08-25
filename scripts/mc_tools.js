@@ -54,12 +54,12 @@ export function buildMinecraftTools() {
         <!-- TOOLBAR -->
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1rem; border-radius: 6px; margin-bottom: 1rem;">
           <div style="display: flex; align-items: center; gap: 0.5rem;">
-            <input type="text" id="nbtSearch" placeholder="🔍 Filter tag names..." class="search-input" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; width: 220px;" oninput="filterNBT()" />
+            <input type="text" id="nbtSearch" placeholder="<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Filter tag names..." class="search-input" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; width: 220px;" oninput="filterNBT()" />
             <button onclick="expandAll(true)" style="background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); padding: 0.4rem 0.75rem; font-size: 0.75rem; border-radius: 3px; cursor: pointer;">Expand All</button>
             <button onclick="expandAll(false)" style="background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); padding: 0.4rem 0.75rem; font-size: 0.75rem; border-radius: 3px; cursor: pointer;">Collapse All</button>
           </div>
           <div style="display: flex; gap: 0.5rem;">
-            <button onclick="downloadNBT(true)" class="btn-primary" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">💾 Download .DAT (Gzipped)</button>
+            <button onclick="downloadNBT(true)" class="btn-primary" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Download .DAT (Gzipped)</button>
             <button onclick="downloadNBT(false)" class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">Download Uncompressed</button>
             <button onclick="downloadJSON()" class="btn-secondary" style="padding: 0.4rem 0.85rem; font-size: 0.85rem;">Export JSON</button>
           </div>
@@ -67,8 +67,8 @@ export function buildMinecraftTools() {
 
         <!-- TABS -->
         <div style="display: flex; gap: 0; margin-bottom: 0;">
-          <button id="tabTreeBtn" class="tab-btn active" onclick="switchTab('tree')">🌳 Tree Inspector</button>
-          <button id="tabSNBTBtn" class="tab-btn" onclick="switchTab('snbt')">📋 Stringified NBT (SNBT)</button>
+          <button id="tabTreeBtn" class="tab-btn active" onclick="switchTab('tree')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M12 22v-7"/><path d="M9 3l-4 7h14L15 3H9z"/><path d="M7 10l-3 5h16l-3-5"/></svg> Tree Inspector</button>
+          <button id="tabSNBTBtn" class="tab-btn" onclick="switchTab('snbt')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg> Stringified NBT (SNBT)</button>
           <button id="tabJSONBtn" class="tab-btn" onclick="switchTab('json')">{ } JSON</button>
         </div>
 
@@ -766,13 +766,13 @@ export function buildMinecraftTools() {
       </a>
 
       <a href="/mc/uuid-gen.html" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
-        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🔑</div>
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 0-7.8 7.8 5.5 5.5 0 0 0 7.8-7.8zm0 0L15.6 7.6m0 0l1.4-1.4m-1.4 1.4l2.8 2.8"/></svg></div>
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">UUID Generator</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate RFC4122 v4 UUID pairs formatted for Minecraft Bedrock behavior and resource packs.</p>
       </a>
 
       <a href="/mc/manifest-gen.html" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
-        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📄</div>
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">Manifest.json Generator</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate valid manifest.json files for Minecraft Bedrock add-ons with automatic UUIDs.</p>
       </a>
