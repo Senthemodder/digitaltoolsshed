@@ -29,6 +29,8 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/learn/javascript/`);
   collectUrls(join(DIST, 'learn', 'python'), '/learn/python');
   discoveredUrls.push(`${DOMAIN}/learn/python/`);
+  collectUrls(join(DIST, 'learn', 'java'), '/learn/java');
+  discoveredUrls.push(`${DOMAIN}/learn/java/`);
   collectUrls(join(DIST, 'dev'), '/dev');
   discoveredUrls.push(`${DOMAIN}/dev/`);
   collectUrls(join(DIST, 'text'), '/text');
@@ -51,8 +53,6 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/fr/`);
   collectUrls(join(DIST, 'ru'), '/ru');
   discoveredUrls.push(`${DOMAIN}/ru/`);
-  discoveredUrls.push(`${DOMAIN}/learn/`);
-  discoveredUrls.push(`${DOMAIN}/learn/javascript/`);
 
   const uniqueUrls = [...new Set(discoveredUrls)];
 
@@ -104,10 +104,13 @@ Sitemap: ${DOMAIN}/sitemap.xml
   writeFileSync(join(DIST, `${INDEXNOW_KEY}.txt`), INDEXNOW_KEY);
   console.log(`  ✓ Generated IndexNow key file (${INDEXNOW_KEY}.txt)`);
 
+  // .nojekyll file to prevent GitHub Pages Jekyll processing
+  // This stops pretty URL rewrites that cause Google "alternate page with canonical" issues
+  writeFileSync(join(DIST, '.nojekyll'), '');
+  console.log('  ✓ Generated .nojekyll (prevents pretty URL redirects)');
+
   console.log(`  ✓ Generated sitemap.xml (${uniqueUrls.length} indexable URLs)`);
   console.log('  ✓ Generated robots.txt (Googlebot allowed, AI scrapers restricted)');
 }
-
-// ─── PRODUCTIVITY & BUSINESS TOOLS ──────────────────────────────────────────
 
 export { buildSEOAssets };
