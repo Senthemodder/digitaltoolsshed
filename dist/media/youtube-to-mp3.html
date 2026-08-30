@@ -1348,10 +1348,13 @@ footer a:hover { text-decoration: underline; }
       <!-- DESIGN & MEDIA -->
       <div class="nav-group-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-        <span>Media, Video & Design (11)</span>
+        <span>Media, Video & Design (12)</span>
       </div>
       <a href="/media/downloader.html" class="nav-link ">
         <div class="nav-link-content"><span>Universal Media Downloader</span></div>
+      </a>
+      <a href="/media/recorder.html" class="nav-link ">
+        <div class="nav-link-content"><span>Screen & Camera Recorder</span></div>
       </a>
       <a href="/design/passport-photo.html" class="nav-link ">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
@@ -1564,14 +1567,14 @@ footer a:hover { text-decoration: underline; }
         mp3StatusText.innerText = 'Extracting audio frequencies...';
 
         try {
-          const res = await fetch('https://co.wuk.sh/api/json', {
+          const res = await fetch('https://api.cobalt.tools/', {
             method: 'POST',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: JSON.stringify({ url: url, isAudioOnly: true, aFormat: 'mp3' })
           });
 
           const data = await res.json();
-          if (data.url) {
+          if (data && data.url) {
             mp3Status.style.display = 'none';
             mp3Result.style.display = 'block';
             mp3DownloadLink.href = data.url;
@@ -1581,7 +1584,7 @@ footer a:hover { text-decoration: underline; }
         } catch (e) {
           mp3Status.style.display = 'none';
           mp3Result.style.display = 'block';
-          mp3DownloadLink.href = 'https://co.wuk.sh/api/json?url=' + encodeURIComponent(url);
+          mp3DownloadLink.href = 'https://cobalt.tools/#' + encodeURIComponent(url);
         }
       });
     </script>

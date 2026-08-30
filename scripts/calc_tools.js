@@ -315,6 +315,9 @@ function buildUnitCalcSuite() {
     energy: [
       ['calorie', 'joule', 'calories-to-joules'],
       ['kilowatt_hour', 'joule', 'kwh-to-joules'],
+      ['joule', 'kilowatt_hour', 'joules-to-kwh'],
+      ['watt_hour', 'kilowatt_hour', 'wh-to-kwh'],
+      ['kilowatt_hour', 'watt_hour', 'kwh-to-wh'],
       ['kilocalorie', 'kilojoule', 'kcal-to-kj'],
       ['joule', 'calorie', 'joules-to-calories'],
       ['kilojoule', 'kilocalorie', 'kj-to-kcal'],
@@ -323,6 +326,7 @@ function buildUnitCalcSuite() {
       ['kilowatt_hour', 'btu', 'kwh-to-btu'],
       ['btu', 'kilowatt_hour', 'btu-to-kwh'],
       ['watt_hour', 'joule', 'wh-to-joules'],
+      ['joule', 'watt_hour', 'joules-to-wh'],
       ['calorie', 'kilocalorie', 'cal-to-kcal'],
       ['kilocalorie', 'calorie', 'kcal-to-cal'],
       ['kilowatt_hour', 'kilojoule', 'kwh-to-kj'],
@@ -346,9 +350,6 @@ function buildUnitCalcSuite() {
     ]
   };
 
-
-  const commonValues = [1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 5000];
-
   function getFactor(catKey, fromKey, toKey) {
     if (unitCategories[catKey].custom) return null;
     const baseFactorFrom = unitCategories[catKey].units[fromKey].factor;
@@ -369,6 +370,18 @@ function buildUnitCalcSuite() {
     return val * factor;
   }
 
+  function formatNumber(num) {
+    if (isNaN(num) || num === null || num === undefined) return '';
+    if (Math.abs(num) >= 1e9 || (Math.abs(num) > 0 && Math.abs(num) < 1e-6)) {
+      return num.toExponential(4);
+    }
+    const fixed = parseFloat(num.toFixed(6));
+    if (Math.abs(fixed) >= 1000) {
+      return fixed.toLocaleString('en-US', { maximumFractionDigits: 6 });
+    }
+    return fixed.toString();
+  }
+
   let totalCalcsBuilt = 0;
 
   for (const catKey of Object.keys(popularPairs)) {
@@ -382,12 +395,66 @@ function buildUnitCalcSuite() {
       const toUnit = cat.units[toKey];
       const factor = getFactor(catKey, fromKey, toKey);
 
-      const tableRows = commonValues.map(v => {
-        const res = getConversionValue(catKey, fromKey, toKey, v, factor);
+      const isKitchen = (catKey === 'volume') ||
+        ['teaspoon', 'tablespoon', 'cup', 'fluid_oz', 'milliliter', 'liter', 'gram', 'ounce', 'pound'].includes(fromKey) ||
+        ['teaspoon', 'tablespoon', 'cup', 'fluid_oz', 'milliliter', 'liter', 'gram', 'ounce', 'pound'].includes(toKey);
+
+      let tableValues = [];
+      let presets = [];
+
+      if (catKey === 'volume' || fromKey === 'teaspoon' || toKey === 'teaspoon' || fromKey === 'cup' || toKey === 'cup' || fromKey === 'tablespoon' || toKey === 'tablespoon') {
+        tableValues = [
+          { label: '1/8 (0.125)', val: 0.125 },
+          { label: '1/4 (0.25)', val: 0.25 },
+          { label: '1/3 (0.333)', val: 1/3 },
+          { label: '1/2 (0.5)', val: 0.5 },
+          { label: '2/3 (0.667)', val: 2/3 },
+          { label: '3/4 (0.75)', val: 0.75 },
+          { label: '1', val: 1 },
+          { label: '1 1/2 (1.5)', val: 1.5 },
+          { label: '2', val: 2 },
+          { label: '2 1/2 (2.5)', val: 2.5 },
+          { label: '3', val: 3 },
+          { label: '4', val: 4 },
+          { label: '5', val: 5 },
+          { label: '10', val: 10 },
+          { label: '25', val: 25 },
+          { label: '50', val: 50 },
+          { label: '100', val: 100 },
+          { label: '250', val: 250 },
+          { label: '500', val: 500 },
+          { label: '1,000', val: 1000 }
+        ];
+        presets = ['1/8', '1/4', '1/3', '1/2', '3/4', '1', '1 1/2', '2', '2 1/2', '5', '10'];
+      } else if (catKey === 'energy') {
+        tableValues = [
+          { label: '0.1', val: 0.1 },
+          { label: '0.5', val: 0.5 },
+          { label: '1', val: 1 },
+          { label: '2', val: 2 },
+          { label: '5', val: 5 },
+          { label: '10', val: 10 },
+          { label: '25', val: 25 },
+          { label: '50', val: 50 },
+          { label: '100', val: 100 },
+          { label: '250', val: 250 },
+          { label: '500', val: 500 },
+          { label: '1,000', val: 1000 },
+          { label: '5,000', val: 5000 },
+          { label: '10,000', val: 10000 }
+        ];
+        presets = ['0.1', '0.5', '1', '5', '10', '50', '100', '500', '1000'];
+      } else {
+        tableValues = [1, 2, 5, 10, 25, 50, 100, 250, 500, 1000, 5000].map(v => ({ label: v.toLocaleString('en-US'), val: v }));
+        presets = ['1', '2', '5', '10', '25', '50', '100'];
+      }
+
+      const tableRows = tableValues.map(item => {
+        const res = getConversionValue(catKey, fromKey, toKey, item.val, factor);
         return `
           <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">${v} ${fromUnit.abbr}</td>
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">${parseFloat(res.toFixed(6))} ${toUnit.abbr}</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">${item.label} ${fromUnit.abbr}</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">${formatNumber(res)} ${toUnit.abbr}</td>
           </tr>
         `;
       }).join('');
@@ -443,16 +510,52 @@ function buildUnitCalcSuite() {
           else if ('${fromKey}_to_${toKey}' === 'fahrenheit_to_kelvin') { convertForward = f2k; convertBackward = k2f; }
           else if ('${fromKey}_to_${toKey}' === 'kelvin_to_fahrenheit') { convertForward = k2f; convertBackward = f2k; }
 
+          function parseFraction(str) {
+            if (!str) return NaN;
+            str = str.toString().trim();
+            if (str.includes('/')) {
+              const parts = str.split(/\\s+/);
+              if (parts.length === 2) {
+                const whole = parseFloat(parts[0]);
+                const fracParts = parts[1].split('/');
+                const num = parseFloat(fracParts[0]);
+                const den = parseFloat(fracParts[1]);
+                return (!isNaN(whole) && !isNaN(num) && den) ? (whole >= 0 ? whole + num/den : whole - num/den) : NaN;
+              }
+              const fracParts = str.split('/');
+              const num = parseFloat(fracParts[0]);
+              const den = parseFloat(fracParts[1]);
+              return (!isNaN(num) && den) ? num / den : NaN;
+            }
+            const spaceParts = str.split(/\\s+/);
+            if (spaceParts.length === 3) {
+              const whole = parseFloat(spaceParts[0]);
+              const num = parseFloat(spaceParts[1]);
+              const den = parseFloat(spaceParts[2]);
+              if (!isNaN(whole) && !isNaN(num) && den) return whole >= 0 ? whole + num/den : whole - num/den;
+            }
+            return parseFloat(str);
+          }
+
+          function formatResult(val) {
+            if (isNaN(val)) return '';
+            return parseFloat(val.toFixed(6));
+          }
+
           function updateFrom() {
-            const val = parseFloat(fromInput.value);
+            const val = parseFraction(fromInput.value);
             if (isNaN(val)) toInput.value = '';
-            else toInput.value = parseFloat(convertForward(val).toFixed(6));
+            else toInput.value = formatResult(convertForward(val));
           }
           function updateTo() {
-            const val = parseFloat(toInput.value);
+            const val = parseFraction(toInput.value);
             if (isNaN(val)) fromInput.value = '';
-            else fromInput.value = parseFloat(convertBackward(val).toFixed(6));
+            else fromInput.value = formatResult(convertBackward(val));
           }
+          window.setPreset = function(val) {
+            fromInput.value = val;
+            updateFrom();
+          };
 
           fromInput.addEventListener('input', updateFrom);
           toInput.addEventListener('input', updateTo);
@@ -464,16 +567,55 @@ function buildUnitCalcSuite() {
           const fromInput = document.getElementById('fromInput');
           const toInput = document.getElementById('toInput');
 
+          function parseFraction(str) {
+            if (!str) return NaN;
+            str = str.toString().trim();
+            if (str.includes('/')) {
+              const parts = str.split(/\\s+/);
+              if (parts.length === 2) {
+                const whole = parseFloat(parts[0]);
+                const fracParts = parts[1].split('/');
+                const num = parseFloat(fracParts[0]);
+                const den = parseFloat(fracParts[1]);
+                return (!isNaN(whole) && !isNaN(num) && den) ? (whole >= 0 ? whole + num/den : whole - num/den) : NaN;
+              }
+              const fracParts = str.split('/');
+              const num = parseFloat(fracParts[0]);
+              const den = parseFloat(fracParts[1]);
+              return (!isNaN(num) && den) ? num / den : NaN;
+            }
+            const spaceParts = str.split(/\\s+/);
+            if (spaceParts.length === 3) {
+              const whole = parseFloat(spaceParts[0]);
+              const num = parseFloat(spaceParts[1]);
+              const den = parseFloat(spaceParts[2]);
+              if (!isNaN(whole) && !isNaN(num) && den) return whole >= 0 ? whole + num/den : whole - num/den;
+            }
+            return parseFloat(str);
+          }
+
+          function formatResult(val) {
+            if (isNaN(val)) return '';
+            if (Math.abs(val) >= 1e9 || (Math.abs(val) > 0 && Math.abs(val) < 1e-6)) {
+              return val.toExponential(4);
+            }
+            return parseFloat(val.toFixed(6));
+          }
+
           function updateFrom() {
-            const val = parseFloat(fromInput.value);
+            const val = parseFraction(fromInput.value);
             if (isNaN(val)) toInput.value = '';
-            else toInput.value = parseFloat((val * factor).toFixed(6));
+            else toInput.value = formatResult(val * factor);
           }
           function updateTo() {
-            const val = parseFloat(toInput.value);
+            const val = parseFraction(toInput.value);
             if (isNaN(val)) fromInput.value = '';
-            else fromInput.value = parseFloat((val / factor).toFixed(6));
+            else fromInput.value = formatResult(val / factor);
           }
+          window.setPreset = function(val) {
+            fromInput.value = val;
+            updateFrom();
+          };
 
           fromInput.addEventListener('input', updateFrom);
           toInput.addEventListener('input', updateTo);
@@ -484,20 +626,26 @@ function buildUnitCalcSuite() {
       const calcBody = `
         <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
           <h1 style="margin-top: 0.5rem;">Convert ${fromUnit.label} to ${toUnit.label}</h1>
-          <p>Instantly calculate ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}) with real-time two-way formula calculation.</p>
+          <p>Instantly calculate ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}) with real-time two-way calculation and recipe fraction support.</p>
         </div>
 
         <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
           <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.25rem; align-items: center;">
             <div>
               <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">${fromUnit.label} (${fromUnit.abbr})</label>
-              <input type="number" id="fromInput" class="search-input" value="1" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+              <input type="text" inputmode="decimal" id="fromInput" class="search-input" value="1" placeholder="e.g. 1, 1/2, 2 1/2" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
             </div>
             <div style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--text-muted); padding-top: 1.5rem;">=</div>
             <div>
               <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">${toUnit.label} (${toUnit.abbr})</label>
-              <input type="number" id="toInput" class="search-input" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+              <input type="text" inputmode="decimal" id="toInput" class="search-input" placeholder="Result" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
             </div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Quick Presets:</span>
+            ${presets.map(p => `
+              <button type="button" onclick="setPreset('${p}')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">${p} ${fromUnit.abbr}</button>
+            `).join('')}
           </div>
         </div>
 
@@ -555,11 +703,18 @@ function buildUnitCalcSuite() {
 
       // Auto-generate FAQ for SEO rich snippets
       const faqData = [
-        { q: `How do I convert ${fromUnit.label} to ${toUnit.label}?`, a: `To convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}), ${cat.custom ? 'use the thermodynamic conversion formula shown above' : `multiply the value by ${parseFloat(factor.toFixed(6))}`}. For example, 10 ${fromUnit.abbr} = ${parseFloat(getConversionValue(catKey, fromKey, toKey, 10, factor).toFixed(4))} ${toUnit.abbr}.` },
-        { q: `How many ${toUnit.label} are in 1 ${fromUnit.label.replace(/s$/, '')}?`, a: `1 ${fromUnit.label.replace(/s$/, '')} (${fromUnit.abbr}) is equal to ${parseFloat(getConversionValue(catKey, fromKey, toKey, 1, factor).toFixed(6))} ${toUnit.label} (${toUnit.abbr}).` },
-        { q: `Is this ${fromUnit.abbr} to ${toUnit.abbr} converter accurate?`, a: `Yes. This converter uses the exact IEEE 754 conversion factor and performs all calculations client-side in your browser with zero rounding until the final display. No data is sent to any server.` },
+        { q: `How do I convert ${fromUnit.label} to ${toUnit.label}?`, a: `To convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}), ${cat.custom ? 'use the thermodynamic conversion formula shown above' : `multiply the value by ${parseFloat(factor.toFixed(6))}`}. For example, 10 ${fromUnit.abbr} = ${formatNumber(getConversionValue(catKey, fromKey, toKey, 10, factor))} ${toUnit.abbr}.` },
+        { q: `How many ${toUnit.label} are in 1 ${fromUnit.label.replace(/s$/, '')}?`, a: `1 ${fromUnit.label.replace(/s$/, '')} (${fromUnit.abbr}) is equal to ${formatNumber(getConversionValue(catKey, fromKey, toKey, 1, factor))} ${toUnit.label} (${toUnit.abbr}).` },
+        { q: `Is this ${fromUnit.abbr} to ${toUnit.abbr} converter accurate?`, a: `Yes. This converter uses exact conversion factors and performs real-time calculations client-side in your browser with zero rounding until display. It also supports cooking fractions (like 1/2, 2 1/2) and decimals.` },
         { q: `Can I convert ${toUnit.label} back to ${fromUnit.label}?`, a: `Yes! This is a two-way converter. Simply type a value in the ${toUnit.label} field and the ${fromUnit.label} result will update instantly.` }
       ];
+
+      if (isKitchen) {
+        faqData.push({
+          q: `How do I convert 2 1/2 ${fromUnit.abbr} to ${toUnit.abbr}?`,
+          a: `2 1/2 (2.5) ${fromUnit.label} equals ${formatNumber(getConversionValue(catKey, fromKey, toKey, 2.5, factor))} ${toUnit.label} (${toUnit.abbr}). You can also type "2 1/2" or "2.5" directly into the calculator above.`
+        });
+      }
 
       // Generate visible FAQ section HTML
       const faqHtml = faqData.map((item, idx) => `
@@ -576,9 +731,20 @@ function buildUnitCalcSuite() {
         </div>
       `;
 
+      let pageTitle = `Convert ${fromUnit.label} to ${toUnit.label} (${fromUnit.abbr} to ${toUnit.abbr}) — Free Online Calculator | Digital Tools Shed`;
+      let pageMetaDesc = `Instantly convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}). Free, fast, real-time formula calculations with zero tracking.`;
+
+      if (catKey === 'volume' || isKitchen) {
+        pageTitle = `Convert ${fromUnit.label} to ${toUnit.label} (${fromUnit.abbr} to ${toUnit.abbr}) — Baking & Cooking Chart | Digital Tools Shed`;
+        pageMetaDesc = `Quickly convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}). Supports cooking fractions (1/2, 2 1/2), liquid measurements, recipe charts, and exact formulas.`;
+      } else if (catKey === 'energy') {
+        pageTitle = `Convert ${fromUnit.label} to ${toUnit.label} (${fromUnit.abbr} to ${toUnit.abbr}) — Formula & Energy Calculator | Digital Tools Shed`;
+        pageMetaDesc = `Convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}) instantly. Exact scientific physics factor, real-time conversion formula, and reference table.`;
+      }
+
       writeFileSync(join(calcDist, fileName), renderPage({
-        title: `Convert ${fromUnit.label} to ${toUnit.label} — Free Online Calculator | Digital Tools Shed`,
-        metaDesc: `Instantly convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}). Free, fast, real-time formula calculations with zero tracking.`,
+        title: pageTitle,
+        metaDesc: pageMetaDesc,
         canonical: `${DOMAIN}/calc/${fileName}`,
         bodyContent: calcBodyWithFaq,
         currentPath: `/calc/${fileName}`,
@@ -595,3 +761,4 @@ function buildUnitCalcSuite() {
 // ─── TECH ARTICLES & BLUEPRINTS SUITE ──────────────────────────────────────
 
 export { buildUnitCalcSuite };
+

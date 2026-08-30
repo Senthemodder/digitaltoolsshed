@@ -55,6 +55,7 @@ const TOOLS = [
 
   // Media & Video Tools
   { id: 'media-downloader', name: 'Universal Media Downloader', category: 'Media & Video', path: '/media/downloader.html', desc: 'Download high-quality video and audio from YouTube, TikTok, Twitter/X, Instagram, and SoundCloud.' },
+  { id: 'screen-recorder', name: 'Screen & Camera Recorder', category: 'Media & Video', path: '/media/recorder.html', desc: 'Record screen, webcam, and microphone directly in your browser with zero uploads.' },
   { id: 'youtube-to-mp3', name: 'YouTube to MP3 Audio', category: 'Media & Video', path: '/media/youtube-to-mp3.html', desc: 'Extract pristine 320kbps MP3 audio tracks directly from video stream links.' },
   { id: 'tiktok-saver', name: 'TikTok Saver (No Watermark)', category: 'Media & Video', path: '/media/tiktok-saver.html', desc: 'Save high-definition TikTok videos without watermark overlay.' },
 
@@ -1344,10 +1345,13 @@ function buildSidebarHtml(currentPath = '/') {
       <!-- DESIGN & MEDIA -->
       <div class="nav-group-title">
         ${ICONS.media}
-        <span>Media, Video & Design (11)</span>
+        <span>Media, Video & Design (12)</span>
       </div>
       <a href="/media/downloader.html" class="nav-link ${currentPath === '/media/downloader.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>Universal Media Downloader</span></div>
+      </a>
+      <a href="/media/recorder.html" class="nav-link ${currentPath === '/media/recorder.html' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Screen & Camera Recorder</span></div>
       </a>
       <a href="/design/passport-photo.html" class="nav-link ${currentPath === '/design/passport-photo.html' ? 'active' : ''}">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>

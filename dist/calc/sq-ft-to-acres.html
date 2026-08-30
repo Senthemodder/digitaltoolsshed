@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Convert Square Feet to Acres — Free Online Calculator | Digital Tools Shed</title>
+  <title>Convert Square Feet to Acres (ft² to ac) — Free Online Calculator | Digital Tools Shed</title>
   <meta name="description" content="Instantly convert Square Feet (ft²) to Acres (ac). Free, fast, real-time formula calculations with zero tracking.">
   <link rel="canonical" href="https://digitaltoolsshed.com/calc/sq-ft-to-acres.html">
-  <meta property="og:title" content="Convert Square Feet to Acres — Free Online Calculator | Digital Tools Shed">
+  <meta property="og:title" content="Convert Square Feet to Acres (ft² to ac) — Free Online Calculator | Digital Tools Shed">
   <meta property="og:description" content="Instantly convert Square Feet (ft²) to Acres (ac). Free, fast, real-time formula calculations with zero tracking.">
   <meta property="og:url" content="https://digitaltoolsshed.com/calc/sq-ft-to-acres.html">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Convert Square Feet to Acres — Free Online Calculator | Digital Tools Shed">
+  <meta name="twitter:title" content="Convert Square Feet to Acres (ft² to ac) — Free Online Calculator | Digital Tools Shed">
   <meta name="twitter:description" content="Instantly convert Square Feet (ft²) to Acres (ac). Free, fast, real-time formula calculations with zero tracking.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -1110,7 +1110,7 @@ footer a:hover { text-decoration: underline; }
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Convert Square Feet to Acres",
+  "name": "Convert Square Feet to Acres (ft² to ac)",
   "url": "https://digitaltoolsshed.com/calc/sq-ft-to-acres.html",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -1138,7 +1138,7 @@ footer a:hover { text-decoration: underline; }
       "name": "How do I convert Square Feet to Acres?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "To convert Square Feet (ft²) to Acres (ac), multiply the value by 0.000023. For example, 10 ft² = 0.0002 ac."
+        "text": "To convert Square Feet (ft²) to Acres (ac), multiply the value by 0.000023. For example, 10 ft² = 0.00023 ac."
       }
     },
     {
@@ -1154,7 +1154,7 @@ footer a:hover { text-decoration: underline; }
       "name": "Is this ft² to ac converter accurate?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. This converter uses the exact IEEE 754 conversion factor and performs all calculations client-side in your browser with zero rounding until the final display. No data is sent to any server."
+        "text": "Yes. This converter uses exact conversion factors and performs real-time calculations client-side in your browser with zero rounding until display. It also supports cooking fractions (like 1/2, 2 1/2) and decimals."
       }
     },
     {
@@ -1388,10 +1388,13 @@ footer a:hover { text-decoration: underline; }
       <!-- DESIGN & MEDIA -->
       <div class="nav-group-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-        <span>Media, Video & Design (11)</span>
+        <span>Media, Video & Design (12)</span>
       </div>
       <a href="/media/downloader.html" class="nav-link ">
         <div class="nav-link-content"><span>Universal Media Downloader</span></div>
+      </a>
+      <a href="/media/recorder.html" class="nav-link ">
+        <div class="nav-link-content"><span>Screen & Camera Recorder</span></div>
       </a>
       <a href="/design/passport-photo.html" class="nav-link ">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
@@ -1517,7 +1520,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Convert Square Feet to Acres</span>
+            <span>Convert Square Feet to Acres (ft² to ac)</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1557,20 +1560,38 @@ footer a:hover { text-decoration: underline; }
           
         <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
           <h1 style="margin-top: 0.5rem;">Convert Square Feet to Acres</h1>
-          <p>Instantly calculate Square Feet (ft²) to Acres (ac) with real-time two-way formula calculation.</p>
+          <p>Instantly calculate Square Feet (ft²) to Acres (ac) with real-time two-way calculation and recipe fraction support.</p>
         </div>
 
         <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
           <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1.25rem; align-items: center;">
             <div>
               <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">Square Feet (ft²)</label>
-              <input type="number" id="fromInput" class="search-input" value="1" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+              <input type="text" inputmode="decimal" id="fromInput" class="search-input" value="1" placeholder="e.g. 1, 1/2, 2 1/2" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
             </div>
             <div style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--text-muted); padding-top: 1.5rem;">=</div>
             <div>
               <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">Acres (ac)</label>
-              <input type="number" id="toInput" class="search-input" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+              <input type="text" inputmode="decimal" id="toInput" class="search-input" placeholder="Result" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
             </div>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Quick Presets:</span>
+            
+              <button type="button" onclick="setPreset('1')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">1 ft²</button>
+            
+              <button type="button" onclick="setPreset('2')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">2 ft²</button>
+            
+              <button type="button" onclick="setPreset('5')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">5 ft²</button>
+            
+              <button type="button" onclick="setPreset('10')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">10 ft²</button>
+            
+              <button type="button" onclick="setPreset('25')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">25 ft²</button>
+            
+              <button type="button" onclick="setPreset('50')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">50 ft²</button>
+            
+              <button type="button" onclick="setPreset('100')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">100 ft²</button>
+            
           </div>
         </div>
 
@@ -1658,12 +1679,12 @@ footer a:hover { text-decoration: underline; }
           </tr>
         
           <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">1000 ft²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">1,000 ft²</td>
             <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.022957 ac</td>
           </tr>
         
           <tr style="border-bottom: 1px solid var(--border);">
-            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">5000 ft²</td>
+            <td style="padding: 0.6rem 0.75rem; font-family: var(--mono);">5,000 ft²</td>
             <td style="padding: 0.6rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.114784 ac</td>
           </tr>
         
@@ -1707,16 +1728,55 @@ footer a:hover { text-decoration: underline; }
           const fromInput = document.getElementById('fromInput');
           const toInput = document.getElementById('toInput');
 
+          function parseFraction(str) {
+            if (!str) return NaN;
+            str = str.toString().trim();
+            if (str.includes('/')) {
+              const parts = str.split(/\s+/);
+              if (parts.length === 2) {
+                const whole = parseFloat(parts[0]);
+                const fracParts = parts[1].split('/');
+                const num = parseFloat(fracParts[0]);
+                const den = parseFloat(fracParts[1]);
+                return (!isNaN(whole) && !isNaN(num) && den) ? (whole >= 0 ? whole + num/den : whole - num/den) : NaN;
+              }
+              const fracParts = str.split('/');
+              const num = parseFloat(fracParts[0]);
+              const den = parseFloat(fracParts[1]);
+              return (!isNaN(num) && den) ? num / den : NaN;
+            }
+            const spaceParts = str.split(/\s+/);
+            if (spaceParts.length === 3) {
+              const whole = parseFloat(spaceParts[0]);
+              const num = parseFloat(spaceParts[1]);
+              const den = parseFloat(spaceParts[2]);
+              if (!isNaN(whole) && !isNaN(num) && den) return whole >= 0 ? whole + num/den : whole - num/den;
+            }
+            return parseFloat(str);
+          }
+
+          function formatResult(val) {
+            if (isNaN(val)) return '';
+            if (Math.abs(val) >= 1e9 || (Math.abs(val) > 0 && Math.abs(val) < 1e-6)) {
+              return val.toExponential(4);
+            }
+            return parseFloat(val.toFixed(6));
+          }
+
           function updateFrom() {
-            const val = parseFloat(fromInput.value);
+            const val = parseFraction(fromInput.value);
             if (isNaN(val)) toInput.value = '';
-            else toInput.value = parseFloat((val * factor).toFixed(6));
+            else toInput.value = formatResult(val * factor);
           }
           function updateTo() {
-            const val = parseFloat(toInput.value);
+            const val = parseFraction(toInput.value);
             if (isNaN(val)) fromInput.value = '';
-            else fromInput.value = parseFloat((val / factor).toFixed(6));
+            else fromInput.value = formatResult(val / factor);
           }
+          window.setPreset = function(val) {
+            fromInput.value = val;
+            updateFrom();
+          };
 
           fromInput.addEventListener('input', updateFrom);
           toInput.addEventListener('input', updateTo);
@@ -1729,7 +1789,7 @@ footer a:hover { text-decoration: underline; }
           
         <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
           <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How do I convert Square Feet to Acres?</summary>
-          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">To convert Square Feet (ft²) to Acres (ac), multiply the value by 0.000023. For example, 10 ft² = 0.0002 ac.</div>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">To convert Square Feet (ft²) to Acres (ac), multiply the value by 0.000023. For example, 10 ft² = 0.00023 ac.</div>
         </details>
       
         <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
@@ -1739,7 +1799,7 @@ footer a:hover { text-decoration: underline; }
       
         <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
           <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is this ft² to ac converter accurate?</summary>
-          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. This converter uses the exact IEEE 754 conversion factor and performs all calculations client-side in your browser with zero rounding until the final display. No data is sent to any server.</div>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. This converter uses exact conversion factors and performs real-time calculations client-side in your browser with zero rounding until display. It also supports cooking fractions (like 1/2, 2 1/2) and decimals.</div>
         </details>
       
         <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
