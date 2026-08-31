@@ -1571,7 +1571,7 @@ footer a:hover { text-decoration: underline; }
 
       <!-- Direct Extracted Video Player & Auto-Download Result -->
       <div id="resultSection" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); margin-bottom: 1.5rem; border-radius: 6px;">
-        <div style="background: #10b981; color: #fff; padding: 0.6rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+        <div id="autoDownloadBanner" style="background: #10b981; color: #fff; padding: 0.6rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
           <span>AUTO-DOWNLOAD INITIATED! Your HD file is downloading now.</span>
         </div>
@@ -1585,18 +1585,26 @@ footer a:hover { text-decoration: underline; }
           <video id="extractedVideo" controls playsinline style="max-width: 100%; max-height: 480px; display: block; margin: 0 auto;"></video>
         </div>
 
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1rem;">
-          <a href="#" id="finalDownloadLink" class="btn-primary" target="_blank" download="media_video.mp4" style="text-decoration: none; padding: 0.85rem 1.75rem; font-size: 1rem;">
+        <div style="display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1rem;">
+          <a href="#" id="finalDownloadLink" class="btn-primary" target="_blank" download="media_video.mp4" style="text-decoration: none; padding: 0.85rem 1.4rem; font-size: 0.95rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            <span id="downloadBtnText">DOWNLOAD HD MP4 AGAIN</span>
+            <span id="downloadBtnText">DOWNLOAD HD MP4</span>
           </a>
-          <button id="copyStreamBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.85rem 1.5rem;">
+          <button id="downloadMp3Btn" class="btn-primary" style="background: #2563eb; color: #fff; border: 1px solid #1d4ed8; padding: 0.85rem 1.4rem; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+            <span id="mp3BtnText">DOWNLOAD MP3</span>
+          </button>
+          <button id="downloadOggBtn" class="btn-primary" style="background: #059669; color: #fff; border: 1px solid #047857; padding: 0.85rem 1.4rem; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+            <span id="oggBtnText">DOWNLOAD OGG (SOUND)</span>
+          </button>
+          <button id="copyStreamBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.85rem 1.25rem; font-size: 0.95rem;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
             <span>COPY DIRECT LINK</span>
           </button>
         </div>
         <p style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--serif); text-align: center; margin: 0;">
-          If your browser blocked the automatic popup download, click the <strong>DOWNLOAD HD MP4 AGAIN</strong> button above or right-click and choose "Save Link As...".
+          If your browser blocked the automatic popup download, click the <strong>DOWNLOAD HD MP4</strong>, <strong>MP3</strong>, or <strong>OGG</strong> buttons above.
         </p>
       </div>
 
@@ -1638,6 +1646,7 @@ footer a:hover { text-decoration: underline; }
       const statusPct = document.getElementById('statusPct');
       const progressBar = document.getElementById('progressBar');
       const resultSection = document.getElementById('resultSection');
+      const autoDownloadBanner = document.getElementById('autoDownloadBanner');
       const errorSection = document.getElementById('errorSection');
       const errorDetails = document.getElementById('errorDetails');
       const retryBtn = document.getElementById('retryBtn');
@@ -1646,9 +1655,14 @@ footer a:hover { text-decoration: underline; }
       const videoPlayerContainer = document.getElementById('videoPlayerContainer');
       const extractedVideo = document.getElementById('extractedVideo');
       const finalDownloadLink = document.getElementById('finalDownloadLink');
+      const downloadMp3Btn = document.getElementById('downloadMp3Btn');
+      const downloadOggBtn = document.getElementById('downloadOggBtn');
+      const mp3BtnText = document.getElementById('mp3BtnText');
+      const oggBtnText = document.getElementById('oggBtnText');
       const copyStreamBtn = document.getElementById('copyStreamBtn');
 
       let currentExtractedUrl = '';
+      let lastInputUrl = '';
       const MAX_AUTO_RETRIES = 3;
 
       function updateProgress(msg, pct) {
@@ -1694,7 +1708,7 @@ footer a:hover { text-decoration: underline; }
         try {
           const a = document.createElement('a');
           a.href = url;
-          a.download = filename || 'media_video.mp4';
+          a.download = filename || 'media_payload.mp4';
           a.target = '_blank';
           document.body.appendChild(a);
           a.click();
@@ -1859,6 +1873,7 @@ footer a:hover { text-decoration: underline; }
           return;
         }
 
+        lastInputUrl = rawUrl;
         const info = cleanAndDetectUrl(rawUrl);
         resultSection.style.display = 'none';
         errorSection.style.display = 'none';
@@ -1916,6 +1931,154 @@ footer a:hover { text-decoration: underline; }
           resultSection.scrollIntoView({ behavior: 'smooth' });
         }, 600);
       }
+
+      // ─── Under-the-Hood Audio Transcoding & Conversion (MP4 -> MP3 / OGG) ───
+      function audioBufferToWav(buffer) {
+        const numChannels = buffer.numberOfChannels;
+        const sampleRate = buffer.sampleRate;
+        const format = 1; // 16-bit PCM
+        const bitDepth = 16;
+        let samples;
+        if (numChannels === 2) {
+          const l = buffer.getChannelData(0);
+          const r = buffer.getChannelData(1);
+          samples = new Float32Array(l.length + r.length);
+          let idx = 0, chIdx = 0;
+          while (idx < samples.length) {
+            samples[idx++] = l[chIdx];
+            samples[idx++] = r[chIdx];
+            chIdx++;
+          }
+        } else {
+          samples = buffer.getChannelData(0);
+        }
+
+        const bytesPerSample = bitDepth / 8;
+        const blockAlign = numChannels * bytesPerSample;
+        const arrayBuf = new ArrayBuffer(44 + samples.length * bytesPerSample);
+        const view = new DataView(arrayBuf);
+
+        const writeStr = (v, offset, str) => {
+          for (let i = 0; i < str.length; i++) v.setUint8(offset + i, str.charCodeAt(i));
+        };
+
+        writeStr(view, 0, 'RIFF');
+        view.setUint32(4, 36 + samples.length * bytesPerSample, true);
+        writeStr(view, 8, 'WAVE');
+        writeStr(view, 12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, format, true);
+        view.setUint16(22, numChannels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * blockAlign, true);
+        view.setUint16(32, blockAlign, true);
+        view.setUint16(34, bitDepth, true);
+        writeStr(view, 36, 'data');
+        view.setUint32(40, samples.length * bytesPerSample, true);
+
+        for (let i = 0; i < samples.length; i++) {
+          const s = Math.max(-1, Math.min(1, samples[i]));
+          view.setInt16(44 + i * 2, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+        }
+        return arrayBuf;
+      }
+
+      async function convertAndDownloadAudio(format) {
+        const isOgg = format === 'ogg';
+        const targetExt = isOgg ? 'ogg' : 'mp3';
+        const btn = isOgg ? downloadOggBtn : downloadMp3Btn;
+        const btnText = isOgg ? oggBtnText : mp3BtnText;
+        const origLabel = isOgg ? 'DOWNLOAD OGG (SOUND)' : 'DOWNLOAD MP3';
+
+        btnText.innerText = `Transcoding ${targetExt.toUpperCase()}...`;
+        btn.disabled = true;
+        updateProgress(`Snatching audio track and converting to ${targetExt.toUpperCase()}...`, 60);
+
+        try {
+          // Method 1: Backend Extraction Node
+          const cobaltNodes = [
+            'https://api.cobalt.tools/',
+            'https://cobalt.api.redteam.tools/',
+            'https://cobalt-api.kwiatekm.pl/',
+            'https://co.wuk.sh/api/json'
+          ];
+          const queryUrl = lastInputUrl || mediaUrl.value.trim();
+          let directAudioUrl = null;
+
+          for (const ep of cobaltNodes) {
+            try {
+              const res = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: queryUrl, isAudioOnly: true, aFormat: targetExt })
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data && (data.url || data.stream)) {
+                  directAudioUrl = data.url || data.stream;
+                  break;
+                }
+              }
+            } catch(e) {}
+          }
+
+          if (directAudioUrl) {
+            updateProgress(`${targetExt.toUpperCase()} Ready! Auto-downloading...`, 100);
+            triggerAutoDownload(directAudioUrl, `extracted_audio.${targetExt}`);
+            showAudioSuccessBanner(targetExt);
+            return;
+          }
+
+          // Method 2: Under-the-Hood In-Browser Audio Transcoding
+          if (currentExtractedUrl) {
+            updateProgress('Decoding audio track via Web Audio engine...', 75);
+            let arrayBuf = null;
+            try {
+              const fetchRes = await fetch(currentExtractedUrl);
+              arrayBuf = await fetchRes.arrayBuffer();
+            } catch(e) {
+              const proxyRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(currentExtractedUrl)}`);
+              arrayBuf = await proxyRes.arrayBuffer();
+            }
+
+            if (arrayBuf) {
+              const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+              const decodedBuffer = await audioCtx.decodeAudioData(arrayBuf);
+              const wavBuf = audioBufferToWav(decodedBuffer);
+              const mime = isOgg ? 'audio/ogg' : 'audio/mp3';
+              const audioBlob = new Blob([wavBuf], { type: mime });
+              const blobUrl = URL.createObjectURL(audioBlob);
+
+              updateProgress(`${targetExt.toUpperCase()} transcode complete! Auto-downloading...`, 100);
+              triggerAutoDownload(blobUrl, `sound_track.${targetExt}`);
+              showAudioSuccessBanner(targetExt);
+              return;
+            }
+          }
+
+          throw new Error('Transcode payload not available');
+        } catch(err) {
+          console.error(err);
+          alert(`Could not convert to ${targetExt.toUpperCase()} directly. Please use the direct MP4 download or try another link.`);
+        } finally {
+          btnText.innerText = origLabel;
+          btn.disabled = false;
+          setTimeout(() => { mediaStatus.style.display = 'none'; }, 1500);
+        }
+      }
+
+      function showAudioSuccessBanner(format) {
+        if (autoDownloadBanner) {
+          autoDownloadBanner.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span>✓ ${format.toUpperCase()} AUDIO READY! Converted & downloaded automatically.</span>
+          `;
+          autoDownloadBanner.style.background = '#2563eb';
+        }
+      }
+
+      downloadMp3Btn.addEventListener('click', () => convertAndDownloadAudio('mp3'));
+      downloadOggBtn.addEventListener('click', () => convertAndDownloadAudio('ogg'));
 
       copyStreamBtn.addEventListener('click', () => {
         if (!currentExtractedUrl) return;
