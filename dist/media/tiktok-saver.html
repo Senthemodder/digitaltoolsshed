@@ -1523,31 +1523,77 @@ footer a:hover { text-decoration: underline; }
       <p>Download clean TikTok videos in high-definition MP4 format without logo watermark overlay.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem 0;">
+    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
         <input type="url" id="ttUrl" class="search-input" placeholder="Paste TikTok video URL (https://www.tiktok.com/@...)..." style="flex: 1; min-width: 260px; padding: 0.75rem 1rem;" />
-        <button id="ttBtn" class="btn-primary">
+        <button id="ttBtn" class="btn-primary" style="padding: 0.75rem 1.75rem; font-weight: bold;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>GET VIDEO</span>
         </button>
       </div>
 
-      <div id="ttResult" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center;">
+      <!-- In-Page Sponsored Ad Unit -->
+      <div class="ad-blend-box" style="margin: 1.5rem 0; max-width: 850px;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+
+      <div id="ttStatus" style="display: none; padding: 1rem; border: 1px solid var(--border); background: var(--surface-alt); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
+        <div id="ttStatusText">Removing TikTok watermark & preparing HD MP4...</div>
+      </div>
+
+      <div id="ttResult" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center; border-radius: 6px; margin-bottom: 1.5rem;">
+        <div style="background: #10b981; color: #fff; padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1rem;">
+          ✓ AUTO-DOWNLOAD STARTED! Watermark-free video ready.
+        </div>
         <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Clean TikTok Video Ready</h3>
-        <div style="margin-bottom: 1.5rem;">
-          <a href="#" id="ttDownloadLink" class="btn-primary" target="_blank" style="text-decoration: none;">
+        <div style="margin-bottom: 1rem;">
+          <a href="#" id="ttDownloadLink" class="btn-primary" target="_blank" download="tiktok_clean.mp4" style="text-decoration: none; padding: 0.75rem 1.5rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            <span>DOWNLOAD MP4</span>
+            <span>DOWNLOAD MP4 AGAIN</span>
           </a>
         </div>
+      </div>
+
+      <div id="ttError" style="display: none; border: 1px solid #ef4444; background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; text-align: center; margin-bottom: 1.5rem;">
+        <p style="color: #ef4444; font-weight: bold; margin: 0 0 0.5rem 0;">⚠️ Could not fetch this TikTok video.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Please check the link and ensure it is a public video.</p>
       </div>
     </div>
 
     <script>
       const ttUrl = document.getElementById('ttUrl');
       const ttBtn = document.getElementById('ttBtn');
+      const ttStatus = document.getElementById('ttStatus');
+      const ttStatusText = document.getElementById('ttStatusText');
       const ttResult = document.getElementById('ttResult');
+      const ttError = document.getElementById('ttError');
       const ttDownloadLink = document.getElementById('ttDownloadLink');
+
+      function triggerAutoDownload(url, filename) {
+        try {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename || 'tiktok_clean.mp4';
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch(e) {}
+      }
+
+      function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
       ttBtn.addEventListener('click', async () => {
         const url = ttUrl.value.trim();
@@ -1556,26 +1602,67 @@ footer a:hover { text-decoration: underline; }
           return;
         }
 
-        ttResult.style.display = 'block';
-        ttDownloadLink.innerText = 'DOWNLOADING...';
+        ttStatus.style.display = 'block';
+        ttResult.style.display = 'none';
+        ttError.style.display = 'none';
+        ttStatusText.innerText = 'Snatching clean watermark-free video...';
 
-        try {
-          const res = await fetch('https://api.cobalt.tools/', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: url, isNoTTWatermark: true })
-          });
+        let foundUrl = null;
 
-          const data = await res.json();
-          if (data && data.url) {
-            ttDownloadLink.href = data.url;
-            ttDownloadLink.innerText = 'DOWNLOAD MP4';
-          } else {
-            throw new Error();
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          if (attempt > 1) {
+            ttStatusText.innerText = `Cluster busy — auto-retrying TikTok snatch (Attempt ${attempt}/3)...`;
+            await sleep(1200);
           }
-        } catch (e) {
-          ttDownloadLink.href = 'https://snaptik.app/';
-          ttDownloadLink.innerText = 'OPEN DOWNLOAD GATEWAY';
+
+          // 1. Direct TikWM Snatch
+          try {
+            const tikRes = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}`);
+            if (tikRes.ok) {
+              const tikData = await tikRes.json();
+              if (tikData && tikData.data && (tikData.data.play || tikData.data.wmplay)) {
+                foundUrl = tikData.data.play || tikData.data.wmplay;
+                break;
+              }
+            }
+          } catch(e) {}
+
+          // 2. Cobalt Nodes
+          const endpoints = [
+            'https://api.cobalt.tools/',
+            'https://cobalt.api.redteam.tools/',
+            'https://cobalt-api.kwiatekm.pl/',
+            'https://co.wuk.sh/api/json'
+          ];
+
+          for (const ep of endpoints) {
+            try {
+              const res = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, isNoTTWatermark: true })
+              });
+
+              if (res.ok) {
+                const data = await res.json();
+                if (data && (data.url || data.stream)) {
+                  foundUrl = data.url || data.stream;
+                  break;
+                }
+              }
+            } catch(e) {}
+          }
+          if (foundUrl) break;
+        }
+
+        if (foundUrl) {
+          ttStatus.style.display = 'none';
+          ttResult.style.display = 'block';
+          ttDownloadLink.href = foundUrl;
+          triggerAutoDownload(foundUrl, 'tiktok_clean.mp4');
+        } else {
+          ttStatus.style.display = 'none';
+          ttError.style.display = 'block';
         }
       });
     </script>

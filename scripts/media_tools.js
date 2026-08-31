@@ -6,7 +6,7 @@ function buildMediaSuite() {
   const mediaDir = join(DIST, 'media');
   ensureDir(mediaDir);
 
-  // ─── 1. UNIVERSAL MEDIA DOWNLOADER (FIXED X.COM / TWITTER SUPPORT) ───────────
+  // ─── 1. UNIVERSAL MEDIA DOWNLOADER (AUTO-DOWNLOAD + IN-PAGE ADS + NO REDIRECTS) ───
   const downloaderBody = `
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
       <h1 style="margin-top: 0.5rem;">Universal Media & Video Downloader</h1>
@@ -14,38 +14,61 @@ function buildMediaSuite() {
     </div>
 
     <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
         <input type="url" id="mediaUrl" class="search-input" placeholder="Paste X.com / Twitter, TikTok, YouTube, or Instagram URL here..." style="flex: 1; min-width: 260px; padding: 0.75rem 1rem; font-family: var(--mono); font-size: 0.95rem;" />
-        <button id="downloadBtn" class="btn-primary" style="padding: 0.75rem 1.5rem;">
+        <button id="downloadBtn" class="btn-primary" style="padding: 0.75rem 1.75rem; font-weight: bold;">
           ${ICONS.download}
-          <span>EXTRACT MEDIA</span>
+          <span>EXTRACT & DOWNLOAD</span>
         </button>
       </div>
 
       <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.5rem; font-size: 0.8rem; color: var(--text-muted); align-items: center;">
-        <span style="font-weight: 600;">Supported:</span>
+        <span style="font-weight: 600;">Supported Platforms:</span>
         <span style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 3px; font-family: var(--mono);">X / Twitter</span>
-        <span style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 3px; font-family: var(--mono);">TikTok</span>
-        <span style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 3px; font-family: var(--mono);">YouTube</span>
-        <span style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 3px; font-family: var(--mono);">Instagram</span>
+        <span style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 3px; font-family: var(--mono);">TikTok (No Watermark)</span>
+        <span style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 3px; font-family: var(--mono);">YouTube HD</span>
+        <span style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 3px; font-family: var(--mono);">Instagram Reels</span>
         <span style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.15rem 0.5rem; border-radius: 3px; font-family: var(--mono);">Reddit</span>
       </div>
 
-      <div id="mediaStatus" style="display: none; padding: 1.25rem; border: 1px solid var(--border); background: var(--surface-alt); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div id="statusText">Analyzing media stream...</div>
-          <div id="statusPct" style="font-weight: bold;">30%</div>
-        </div>
-        <div id="progressTrack" style="height: 6px; background: var(--surface); margin-top: 0.75rem; border: 1px solid var(--border); overflow: hidden;">
-          <div id="progressBar" style="height: 100%; width: 30%; background: var(--fg); transition: width 0.3s ease;"></div>
+      <!-- In-Page Sponsored Ad Unit 1 -->
+      <div class="ad-blend-box" style="margin: 1.5rem 0; max-width: 850px;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
         </div>
       </div>
 
-      <!-- Direct Extracted Video Player Result -->
-      <div id="resultSection" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); margin-bottom: 1.5rem;">
+      <!-- Extraction Progress Bar (Keeps user on page while viewing ads) -->
+      <div id="mediaStatus" style="display: none; padding: 1.25rem; border: 1px solid var(--border); background: var(--surface-alt); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div id="statusText">Connecting to media stream...</div>
+          <div id="statusPct" style="font-weight: bold;">25%</div>
+        </div>
+        <div id="progressTrack" style="height: 8px; background: var(--surface); margin-top: 0.75rem; border: 1px solid var(--border); overflow: hidden; border-radius: 4px;">
+          <div id="progressBar" style="height: 100%; width: 25%; background: var(--fg); transition: width 0.3s ease;"></div>
+        </div>
+      </div>
+
+      <!-- Direct Extracted Video Player & Auto-Download Result -->
+      <div id="resultSection" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); margin-bottom: 1.5rem; border-radius: 6px;">
+        <div style="background: #10b981; color: #fff; padding: 0.6rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>AUTO-DOWNLOAD INITIATED! Your HD file is downloading now.</span>
+        </div>
+
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
           <h3 id="videoTitle" style="font-family: var(--serif); font-size: 1.2rem; font-weight: 700; margin: 0;">Extracted Video Stream</h3>
-          <span id="platformTag" style="font-family: var(--mono); font-size: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.5rem;">HD VIDEO</span>
+          <span id="platformTag" style="font-family: var(--mono); font-size: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 3px;">HD VIDEO</span>
         </div>
 
         <div id="videoPlayerContainer" style="margin-bottom: 1.5rem; background: #000; border: 1px solid var(--border); text-align: center; border-radius: 4px; overflow: hidden; display: none;">
@@ -53,29 +76,46 @@ function buildMediaSuite() {
         </div>
 
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1rem;">
-          <a href="#" id="finalDownloadLink" class="btn-primary" target="_blank" download="media_video.mp4" style="text-decoration: none; padding: 0.75rem 1.5rem; font-size: 1rem;">
+          <a href="#" id="finalDownloadLink" class="btn-primary" target="_blank" download="media_video.mp4" style="text-decoration: none; padding: 0.85rem 1.75rem; font-size: 1rem;">
             ${ICONS.download}
-            <span id="downloadBtnText">DOWNLOAD HD MP4</span>
+            <span id="downloadBtnText">DOWNLOAD HD MP4 AGAIN</span>
           </a>
-          <button id="copyStreamBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.75rem 1.25rem;">
+          <button id="copyStreamBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.85rem 1.5rem;">
             ${ICONS.clipboard}
             <span>COPY DIRECT LINK</span>
           </button>
         </div>
-        <p style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--serif); text-align: center; margin-top: 0.5rem;">Direct MP4 stream extracted. If download does not trigger automatically, right-click and choose "Save Link As...".</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--serif); text-align: center; margin: 0;">
+          If your browser blocked the automatic popup download, click the <strong>DOWNLOAD HD MP4 AGAIN</strong> button above or right-click and choose "Save Link As...".
+        </p>
       </div>
 
-      <!-- Instant 1-Click Fallback Gateways (Always available for 100% success) -->
-      <div id="fallbackGateways" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin-bottom: 1.5rem;">
-        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-          <span style="font-size: 1.1rem; font-weight: bold; font-family: var(--serif);">Instant 1-Click Download Gateways</span>
-        </div>
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;">
-          If direct in-browser extraction is blocked by your browser cross-origin policy, click any verified gateway below to download your HD file instantly:
+      <!-- In-Page Error Message (NO EXTERNAL REDIRECTS) -->
+      <div id="errorSection" style="display: none; border: 1px solid #ef4444; background: var(--surface-alt); padding: 1.5rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: center;">
+        <div style="color: #ef4444; font-size: 1.5rem; margin-bottom: 0.5rem;">⚠️</div>
+        <h4 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.5rem 0;">Media Stream Unavailable</h4>
+        <p id="errorDetails" style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          We couldn't extract a direct stream from this link. Please ensure the post is public and contains a valid video, then try again.
         </p>
+        <button id="retryBtn" class="btn-primary" style="padding: 0.65rem 1.5rem;">
+          <span>TRY ANOTHER LINK</span>
+        </button>
+      </div>
 
-        <div id="gatewayButtons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
-          <!-- Dynamically populated based on URL platform -->
+      <!-- In-Page Sponsored Ad Unit 2 -->
+      <div class="ad-blend-box" style="margin: 2rem 0; max-width: 850px;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
         </div>
       </div>
     </div>
@@ -88,16 +128,18 @@ function buildMediaSuite() {
       const statusPct = document.getElementById('statusPct');
       const progressBar = document.getElementById('progressBar');
       const resultSection = document.getElementById('resultSection');
+      const errorSection = document.getElementById('errorSection');
+      const errorDetails = document.getElementById('errorDetails');
+      const retryBtn = document.getElementById('retryBtn');
       const videoTitle = document.getElementById('videoTitle');
       const platformTag = document.getElementById('platformTag');
       const videoPlayerContainer = document.getElementById('videoPlayerContainer');
       const extractedVideo = document.getElementById('extractedVideo');
       const finalDownloadLink = document.getElementById('finalDownloadLink');
       const copyStreamBtn = document.getElementById('copyStreamBtn');
-      const fallbackGateways = document.getElementById('fallbackGateways');
-      const gatewayButtons = document.getElementById('gatewayButtons');
 
       let currentExtractedUrl = '';
+      const MAX_AUTO_RETRIES = 3;
 
       function updateProgress(msg, pct) {
         mediaStatus.style.display = 'block';
@@ -108,8 +150,8 @@ function buildMediaSuite() {
 
       function cleanAndDetectUrl(rawUrl) {
         rawUrl = rawUrl.trim();
-        let isTwitter = false, isTikTok = false, isYouTube = false, isInstagram = false;
-        let tweetId = '', twitterUser = 'i';
+        let isTwitter = false, isTikTok = false, isYouTube = false, isInstagram = false, isReddit = false;
+        let tweetId = '', twitterUser = 'i', ytId = '';
 
         // Normalize X.com and Twitter.com
         if (/https?:\\/\\/(?:www\\.|mobile\\.)?(?:twitter\\.com|x\\.com|fxtwitter\\.com|vxtwitter\\.com|fixupx\\.com)/i.test(rawUrl)) {
@@ -127,90 +169,43 @@ function buildMediaSuite() {
           isTikTok = true;
         } else if (/youtu(?:\\.be|be\\.com)/i.test(rawUrl)) {
           isYouTube = true;
+          const yMatch = rawUrl.match(/(?:youtu\\.be\\/|v\\/|u\\/\\w\\/|embed\\/|watch\\?v=|&v=)([^#&?]*)/);
+          if (yMatch && yMatch[1].length === 11) ytId = yMatch[1];
         } else if (/instagram\\.com/i.test(rawUrl)) {
           isInstagram = true;
+        } else if (/reddit\\.com|redd\\.it/i.test(rawUrl)) {
+          isReddit = true;
         }
 
-        return { cleanUrl: rawUrl, isTwitter, tweetId, twitterUser, isTikTok, isYouTube, isInstagram };
+        return { cleanUrl: rawUrl, isTwitter, tweetId, twitterUser, isTikTok, isYouTube, ytId, isInstagram, isReddit };
       }
 
-      function renderGateways(info) {
-        fallbackGateways.style.display = 'block';
-        gatewayButtons.innerHTML = '';
-
-        if (info.isTwitter) {
-          const twitSaveUrl = 'https://twitsave.com/info?url=' + encodeURIComponent(info.cleanUrl);
-          const cobaltUrl = 'https://cobalt.tools/#' + encodeURIComponent(info.cleanUrl);
-          const sssTwitterUrl = 'https://ssstwitter.com/';
-          const twitterVidUrl = 'https://twittervid.com/';
-
-          gatewayButtons.innerHTML = \`
-            <a href="\${twitSaveUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>Download on TwitSave</span>
-            </a>
-            <a href="\${cobaltUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>Download on Cobalt</span>
-            </a>
-            <a href="\${sssTwitterUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>SSSTwitter Gateway</span>
-            </a>
-            <a href="\${twitterVidUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>TwitterVid Gateway</span>
-            </a>
-          \`;
-        } else if (info.isTikTok) {
-          const cobaltUrl = 'https://cobalt.tools/#' + encodeURIComponent(info.cleanUrl);
-          const snaptikUrl = 'https://snaptik.app/';
-          gatewayButtons.innerHTML = \`
-            <a href="\${cobaltUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>Download via Cobalt (No Watermark)</span>
-            </a>
-            <a href="\${snaptikUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>SnapTik Gateway</span>
-            </a>
-          \`;
-        } else if (info.isYouTube) {
-          const cobaltUrl = 'https://cobalt.tools/#' + encodeURIComponent(info.cleanUrl);
-          const ytmp3Url = '/media/youtube-to-mp3.html';
-          gatewayButtons.innerHTML = \`
-            <a href="\${cobaltUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>Download 1080p MP4 (Cobalt)</span>
-            </a>
-            <a href="\${ytmp3Url}" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>Extract 320kbps MP3 Audio</span>
-            </a>
-          \`;
-        } else {
-          const cobaltUrl = 'https://cobalt.tools/#' + encodeURIComponent(info.cleanUrl);
-          gatewayButtons.innerHTML = \`
-            <a href="\${cobaltUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary" style="text-align: center; text-decoration: none; padding: 0.75rem 1rem;">
-              <span>Extract Stream on Cobalt</span>
-            </a>
-          \`;
+      function triggerAutoDownload(url, filename) {
+        try {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename || 'media_video.mp4';
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch(e) {
+          console.warn('Auto-download popup blocked', e);
         }
       }
 
-      downloadBtn.addEventListener('click', async () => {
-        const rawUrl = mediaUrl.value.trim();
-        if (!rawUrl) {
-          alert('Please enter a valid video, Twitter/X, or media link.');
-          return;
-        }
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
 
-        const info = cleanAndDetectUrl(rawUrl);
-        resultSection.style.display = 'none';
-        videoPlayerContainer.style.display = 'none';
-        extractedVideo.pause();
-        extractedVideo.src = '';
-        renderGateways(info);
+      async function attemptSnatch(info, attemptNumber) {
+        const attemptPrefix = attemptNumber > 1 ? \`[Retry \${attemptNumber}/\${MAX_AUTO_RETRIES}] \` : '';
 
-        updateProgress('Connecting to media extraction stream...', 25);
-
-        let directStreamFound = false;
-
-        // TIER 1: If Twitter/X, query FxTwitter / VxTwitter direct API
+        // ── STRATEGY 1: Dedicated Platform Resolvers ──
         if (info.isTwitter && info.tweetId) {
-          updateProgress('Resolving X.com video metadata...', 45);
+          updateProgress(attemptPrefix + 'Snatching X.com video stream...', 35);
+          
+          // 1A. FxTwitter API
           try {
             const fxRes = await fetch(\`https://api.fxtwitter.com/\${info.twitterUser || 'i'}/status/\${info.tweetId}\`);
             if (fxRes.ok) {
@@ -218,29 +213,92 @@ function buildMediaSuite() {
               if (fxData && fxData.tweet && fxData.tweet.media_extended && fxData.tweet.media_extended.length > 0) {
                 const vidObj = fxData.tweet.media_extended.find(m => m.type === 'video' || m.type === 'gif');
                 if (vidObj && vidObj.url) {
-                  currentExtractedUrl = vidObj.url;
-                  directStreamFound = true;
-                  showDirectResult(vidObj.url, fxData.tweet.text || 'X.com Video Tweet', 'X / TWITTER MP4');
-                  return;
+                  return { streamUrl: vidObj.url, title: fxData.tweet.text || 'X.com Video Tweet', tag: 'X / TWITTER HD' };
                 }
               }
             }
-          } catch(e) {
-            console.log('FxTwitter query skipped, falling back to Cobalt cascade.');
+          } catch(e) {}
+
+          // 1B. VxTwitter API
+          try {
+            const vxRes = await fetch(\`https://api.vxtwitter.com/Twitter/status/\${info.tweetId}\`);
+            if (vxRes.ok) {
+              const vxData = await vxRes.json();
+              if (vxData && vxData.media_extended && vxData.media_extended.length > 0) {
+                const vidObj = vxData.media_extended.find(m => m.type === 'video' || m.type === 'gif');
+                if (vidObj && vidObj.url) {
+                  return { streamUrl: vidObj.url, title: vxData.text || 'X.com Video Tweet', tag: 'X / TWITTER HD' };
+                }
+              }
+            }
+          } catch(e) {}
+
+          // 1C. FixupX API
+          try {
+            const fixRes = await fetch(\`https://api.fixupx.com/Twitter/status/\${info.tweetId}\`);
+            if (fixRes.ok) {
+              const fixData = await fixRes.json();
+              if (fixData && fixData.media_extended && fixData.media_extended.length > 0) {
+                const vidObj = fixData.media_extended.find(m => m.type === 'video' || m.type === 'gif');
+                if (vidObj && vidObj.url) {
+                  return { streamUrl: vidObj.url, title: fixData.text || 'X.com Video Tweet', tag: 'X / TWITTER HD' };
+                }
+              }
+            }
+          } catch(e) {}
+        }
+
+        if (info.isTikTok) {
+          updateProgress(attemptPrefix + 'Snatching TikTok video without watermark...', 40);
+          try {
+            const tikRes = await fetch(\`https://www.tikwm.com/api/?url=\${encodeURIComponent(info.cleanUrl)}\`);
+            if (tikRes.ok) {
+              const tikData = await tikRes.json();
+              if (tikData && tikData.data && (tikData.data.play || tikData.data.wmplay)) {
+                return {
+                  streamUrl: tikData.data.play || tikData.data.wmplay,
+                  title: tikData.data.title || 'TikTok Clean Video',
+                  tag: 'TIKTOK NO WATERMARK'
+                };
+              }
+            }
+          } catch(e) {}
+        }
+
+        if (info.isYouTube && info.ytId) {
+          updateProgress(attemptPrefix + 'Resolving YouTube HD stream headers...', 45);
+          const invidiousNodes = [
+            'https://invidious.nerdvpn.de',
+            'https://inv.tux.pizza',
+            'https://invidious.projectsegfau.lt'
+          ];
+          for (const node of invidiousNodes) {
+            try {
+              const invRes = await fetch(\`\${node}/api/v1/videos/\${info.ytId}\`);
+              if (invRes.ok) {
+                const invData = await invRes.json();
+                if (invData && invData.formatStreams && invData.formatStreams.length > 0) {
+                  const sorted = invData.formatStreams.sort((a,b) => (parseInt(b.resolution) || 0) - (parseInt(a.resolution) || 0));
+                  if (sorted[0] && sorted[0].url) {
+                    return { streamUrl: sorted[0].url, title: invData.title || 'YouTube HD Video', tag: 'YOUTUBE HD' };
+                  }
+                }
+              }
+            } catch(e) {}
           }
         }
 
-        // TIER 2: Cobalt Multi-Instance API Cascade
-        const cobaltEndpoints = [
+        // ── STRATEGY 2: Multi-Cluster Extraction Nodes ──
+        const cobaltNodes = [
           'https://api.cobalt.tools/',
           'https://cobalt.api.redteam.tools/',
-          'https://cobalt-api.kwiatekm.pl/'
+          'https://cobalt-api.kwiatekm.pl/',
+          'https://co.wuk.sh/api/json'
         ];
 
-        for (const ep of cobaltEndpoints) {
-          if (directStreamFound) break;
+        for (const ep of cobaltNodes) {
           try {
-            updateProgress('Extracting HD video stream from ' + new URL(ep).hostname + '...', 65);
+            updateProgress(attemptPrefix + 'Bypassing restriction on cluster ' + new URL(ep).hostname + '...', 65);
             const res = await fetch(ep, {
               method: 'POST',
               headers: {
@@ -253,28 +311,86 @@ function buildMediaSuite() {
             if (res.ok) {
               const data = await res.json();
               if (data && (data.url || data.stream)) {
-                const streamUrl = data.url || data.stream;
-                currentExtractedUrl = streamUrl;
-                directStreamFound = true;
-                showDirectResult(streamUrl, data.filename || 'Extracted HD Video File', 'HD MP4 STREAM');
-                return;
+                return {
+                  streamUrl: data.url || data.stream,
+                  title: data.filename || 'Extracted HD Video Payload',
+                  tag: 'HD MP4 STREAM'
+                };
               }
             }
-          } catch(err) {
-            console.warn('Endpoint', ep, 'busy, attempting next node...');
+          } catch(err) {}
+        }
+
+        // ── STRATEGY 3: OpenGraph Stream Scraping via Proxy ──
+        if (info.isTwitter && info.tweetId) {
+          try {
+            updateProgress(attemptPrefix + 'Scraping direct media headers via auxiliary proxy...', 80);
+            const proxyRes = await fetch(\`https://api.allorigins.win/get?url=\${encodeURIComponent('https://fxtwitter.com/' + (info.twitterUser || 'i') + '/status/' + info.tweetId)}\`);
+            if (proxyRes.ok) {
+              const pData = await proxyRes.json();
+              if (pData && pData.contents) {
+                const match = pData.contents.match(/<meta\\s+property="og:video"\\s+content="([^"]+)"/i) ||
+                              pData.contents.match(/<meta\\s+property="twitter:player:stream"\\s+content="([^"]+)"/i);
+                if (match && match[1]) {
+                  return { streamUrl: match[1], title: 'X.com Video Stream', tag: 'X / TWITTER MP4' };
+                }
+              }
+            }
+          } catch(e) {}
+        }
+
+        return null;
+      }
+
+      downloadBtn.addEventListener('click', async () => {
+        const rawUrl = mediaUrl.value.trim();
+        if (!rawUrl) {
+          alert('Please enter a valid video, Twitter/X, TikTok, or YouTube link.');
+          return;
+        }
+
+        const info = cleanAndDetectUrl(rawUrl);
+        resultSection.style.display = 'none';
+        errorSection.style.display = 'none';
+        videoPlayerContainer.style.display = 'none';
+        extractedVideo.pause();
+        extractedVideo.src = '';
+
+        updateProgress('Connecting to media network...', 15);
+
+        let result = null;
+
+        // UNDER-THE-HOOD AUTOMATIC RETRY LOOP
+        for (let attempt = 1; attempt <= MAX_AUTO_RETRIES; attempt++) {
+          result = await attemptSnatch(info, attempt);
+          if (result) break;
+
+          if (attempt < MAX_AUTO_RETRIES) {
+            updateProgress(\`Primary nodes busy — auto-retrying auxiliary snatch (Attempt \${attempt + 1}/\${MAX_AUTO_RETRIES})...\`, 50);
+            await sleep(1400);
           }
         }
 
-        // TIER 3: If direct browser CORS is restricted, direct user to instant pre-filled gateways
-        updateProgress('Direct CORS restricted — Instant Download Gateways ready below!', 100);
-        setTimeout(() => {
-          mediaStatus.style.display = 'none';
-          fallbackGateways.scrollIntoView({ behavior: 'smooth' });
-        }, 400);
+        if (result && result.streamUrl) {
+          currentExtractedUrl = result.streamUrl;
+          showDirectResult(result.streamUrl, result.title, result.tag);
+        } else {
+          updateProgress('Snatch failed after auto-retries', 100);
+          setTimeout(() => {
+            mediaStatus.style.display = 'none';
+            errorSection.style.display = 'block';
+            errorDetails.innerText = 'We automatically retried across multiple nodes, but could not extract a direct video stream. Please ensure the post is public and contains a video, then try again.';
+            errorSection.scrollIntoView({ behavior: 'smooth' });
+          }, 500);
+        }
       });
 
       function showDirectResult(streamUrl, title, tag) {
-        updateProgress('Extraction complete!', 100);
+        updateProgress('Payload Snatched! Auto-downloading HD file...', 100);
+        
+        // Auto trigger download immediately
+        triggerAutoDownload(streamUrl, 'snatched_video.mp4');
+
         setTimeout(() => {
           mediaStatus.style.display = 'none';
           resultSection.style.display = 'block';
@@ -288,7 +404,7 @@ function buildMediaSuite() {
           } catch(e) {}
 
           resultSection.scrollIntoView({ behavior: 'smooth' });
-        }, 500);
+        }, 600);
       }
 
       copyStreamBtn.addEventListener('click', () => {
@@ -296,6 +412,12 @@ function buildMediaSuite() {
         navigator.clipboard.writeText(currentExtractedUrl).then(() => {
           alert('Direct stream link copied to clipboard!');
         });
+      });
+
+      retryBtn.addEventListener('click', () => {
+        errorSection.style.display = 'none';
+        mediaUrl.value = '';
+        mediaUrl.focus();
       });
     </script>
   `;
@@ -713,34 +835,59 @@ function buildMediaSuite() {
     currentPath: '/media/recorder.html'
   }));
 
-  // ─── 3. YOUTUBE TO MP3 AUDIO CONVERTER ──────────────────────────────────────
+  // ─── 3. YOUTUBE TO MP3 AUDIO CONVERTER (IN-PAGE + AUTO DOWNLOAD) ────────────
   const ytMp3Body = `
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
       <h1 style="margin-top: 0.5rem;">YouTube to MP3 Audio Converter</h1>
-      <p>Convert YouTube videos to high-bitrate MP3 audio files instantly with no software installation required.</p>
+      <p>Convert YouTube videos to high-bitrate MP3 audio files instantly with zero uploads and auto-download.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem 0;">
+    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
         <input type="url" id="ytUrl" class="search-input" placeholder="Paste YouTube link (e.g. https://www.youtube.com/watch?v=...)..." style="flex: 1; min-width: 260px; padding: 0.75rem 1rem;" />
-        <button id="convertMp3Btn" class="btn-primary">
+        <button id="convertMp3Btn" class="btn-primary" style="padding: 0.75rem 1.75rem; font-weight: bold;">
           ${ICONS.download}
           <span>EXTRACT MP3</span>
         </button>
+      </div>
+
+      <!-- In-Page Sponsored Ad Unit -->
+      <div class="ad-blend-box" style="margin: 1.5rem 0; max-width: 850px;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
       </div>
 
       <div id="mp3Status" style="display: none; padding: 1rem; border: 1px solid var(--border); background: var(--surface-alt); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
         <div id="mp3StatusText">Processing audio stream...</div>
       </div>
 
-      <div id="mp3Result" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center;">
+      <div id="mp3Result" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center; border-radius: 6px; margin-bottom: 1.5rem;">
+        <div style="background: #10b981; color: #fff; padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1rem;">
+          ✓ AUTO-DOWNLOAD STARTED! 320kbps MP3 track ready.
+        </div>
         <h3 id="mp3Title" style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Audio Track Ready (320kbps MP3)</h3>
-        <div style="margin-bottom: 1.5rem;">
-          <a href="#" id="mp3DownloadLink" class="btn-primary" target="_blank" style="text-decoration: none;">
+        <div style="margin-bottom: 1rem;">
+          <a href="#" id="mp3DownloadLink" class="btn-primary" target="_blank" download="youtube_audio.mp3" style="text-decoration: none; padding: 0.75rem 1.5rem;">
             ${ICONS.download}
-            <span>DOWNLOAD MP3 AUDIO</span>
+            <span>DOWNLOAD MP3 AUDIO AGAIN</span>
           </a>
         </div>
+      </div>
+
+      <div id="mp3Error" style="display: none; border: 1px solid #ef4444; background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; text-align: center; margin-bottom: 1.5rem;">
+        <p style="color: #ef4444; font-weight: bold; margin: 0 0 0.5rem 0;">⚠️ Could not extract MP3 from this YouTube URL.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Please check the link and try again.</p>
       </div>
     </div>
 
@@ -750,7 +897,22 @@ function buildMediaSuite() {
       const mp3Status = document.getElementById('mp3Status');
       const mp3StatusText = document.getElementById('mp3StatusText');
       const mp3Result = document.getElementById('mp3Result');
+      const mp3Error = document.getElementById('mp3Error');
       const mp3DownloadLink = document.getElementById('mp3DownloadLink');
+
+      function triggerAutoDownload(url, filename) {
+        try {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename || 'youtube_audio.mp3';
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch(e) {}
+      }
+
+      function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
       convertMp3Btn.addEventListener('click', async () => {
         const url = ytUrl.value.trim();
@@ -761,27 +923,51 @@ function buildMediaSuite() {
 
         mp3Status.style.display = 'block';
         mp3Result.style.display = 'none';
-        mp3StatusText.innerText = 'Extracting audio frequencies...';
+        mp3Error.style.display = 'none';
+        mp3StatusText.innerText = 'Extracting audio frequencies (320kbps)...';
 
-        try {
-          const res = await fetch('https://api.cobalt.tools/', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: url, isAudioOnly: true, aFormat: 'mp3' })
-          });
+        const endpoints = [
+          'https://api.cobalt.tools/',
+          'https://cobalt.api.redteam.tools/',
+          'https://cobalt-api.kwiatekm.pl/',
+          'https://co.wuk.sh/api/json'
+        ];
 
-          const data = await res.json();
-          if (data && data.url) {
-            mp3Status.style.display = 'none';
-            mp3Result.style.display = 'block';
-            mp3DownloadLink.href = data.url;
-          } else {
-            throw new Error();
+        let foundUrl = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          if (attempt > 1) {
+            mp3StatusText.innerText = \`Node busy — auto-retrying audio snatch (Attempt \${attempt}/3)...\`;
+            await sleep(1200);
           }
-        } catch (e) {
+
+          for (const ep of endpoints) {
+            try {
+              const res = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, isAudioOnly: true, aFormat: 'mp3' })
+              });
+
+              if (res.ok) {
+                const data = await res.json();
+                if (data && (data.url || data.stream)) {
+                  foundUrl = data.url || data.stream;
+                  break;
+                }
+              }
+            } catch (e) {}
+          }
+          if (foundUrl) break;
+        }
+
+        if (foundUrl) {
           mp3Status.style.display = 'none';
           mp3Result.style.display = 'block';
-          mp3DownloadLink.href = 'https://cobalt.tools/#' + encodeURIComponent(url);
+          mp3DownloadLink.href = foundUrl;
+          triggerAutoDownload(foundUrl, 'youtube_audio.mp3');
+        } else {
+          mp3Status.style.display = 'none';
+          mp3Error.style.display = 'block';
         }
       });
     </script>
@@ -795,38 +981,84 @@ function buildMediaSuite() {
     currentPath: '/media/youtube-to-mp3.html'
   }));
 
-  // ─── 4. TIKTOK VIDEO SAVER ──────────────────────────────────────────────────
+  // ─── 4. TIKTOK VIDEO SAVER (IN-PAGE + AUTO DOWNLOAD) ────────────────────────
   const tiktokBody = `
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
       <h1 style="margin-top: 0.5rem;">TikTok Video Saver (No Watermark)</h1>
       <p>Download clean TikTok videos in high-definition MP4 format without logo watermark overlay.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem 0;">
+    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
         <input type="url" id="ttUrl" class="search-input" placeholder="Paste TikTok video URL (https://www.tiktok.com/@...)..." style="flex: 1; min-width: 260px; padding: 0.75rem 1rem;" />
-        <button id="ttBtn" class="btn-primary">
+        <button id="ttBtn" class="btn-primary" style="padding: 0.75rem 1.75rem; font-weight: bold;">
           ${ICONS.download}
           <span>GET VIDEO</span>
         </button>
       </div>
 
-      <div id="ttResult" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center;">
+      <!-- In-Page Sponsored Ad Unit -->
+      <div class="ad-blend-box" style="margin: 1.5rem 0; max-width: 850px;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+
+      <div id="ttStatus" style="display: none; padding: 1rem; border: 1px solid var(--border); background: var(--surface-alt); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
+        <div id="ttStatusText">Removing TikTok watermark & preparing HD MP4...</div>
+      </div>
+
+      <div id="ttResult" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center; border-radius: 6px; margin-bottom: 1.5rem;">
+        <div style="background: #10b981; color: #fff; padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1rem;">
+          ✓ AUTO-DOWNLOAD STARTED! Watermark-free video ready.
+        </div>
         <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Clean TikTok Video Ready</h3>
-        <div style="margin-bottom: 1.5rem;">
-          <a href="#" id="ttDownloadLink" class="btn-primary" target="_blank" style="text-decoration: none;">
+        <div style="margin-bottom: 1rem;">
+          <a href="#" id="ttDownloadLink" class="btn-primary" target="_blank" download="tiktok_clean.mp4" style="text-decoration: none; padding: 0.75rem 1.5rem;">
             ${ICONS.download}
-            <span>DOWNLOAD MP4</span>
+            <span>DOWNLOAD MP4 AGAIN</span>
           </a>
         </div>
+      </div>
+
+      <div id="ttError" style="display: none; border: 1px solid #ef4444; background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; text-align: center; margin-bottom: 1.5rem;">
+        <p style="color: #ef4444; font-weight: bold; margin: 0 0 0.5rem 0;">⚠️ Could not fetch this TikTok video.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Please check the link and ensure it is a public video.</p>
       </div>
     </div>
 
     <script>
       const ttUrl = document.getElementById('ttUrl');
       const ttBtn = document.getElementById('ttBtn');
+      const ttStatus = document.getElementById('ttStatus');
+      const ttStatusText = document.getElementById('ttStatusText');
       const ttResult = document.getElementById('ttResult');
+      const ttError = document.getElementById('ttError');
       const ttDownloadLink = document.getElementById('ttDownloadLink');
+
+      function triggerAutoDownload(url, filename) {
+        try {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename || 'tiktok_clean.mp4';
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch(e) {}
+      }
+
+      function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
       ttBtn.addEventListener('click', async () => {
         const url = ttUrl.value.trim();
@@ -835,26 +1067,67 @@ function buildMediaSuite() {
           return;
         }
 
-        ttResult.style.display = 'block';
-        ttDownloadLink.innerText = 'DOWNLOADING...';
+        ttStatus.style.display = 'block';
+        ttResult.style.display = 'none';
+        ttError.style.display = 'none';
+        ttStatusText.innerText = 'Snatching clean watermark-free video...';
 
-        try {
-          const res = await fetch('https://api.cobalt.tools/', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: url, isNoTTWatermark: true })
-          });
+        let foundUrl = null;
 
-          const data = await res.json();
-          if (data && data.url) {
-            ttDownloadLink.href = data.url;
-            ttDownloadLink.innerText = 'DOWNLOAD MP4';
-          } else {
-            throw new Error();
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          if (attempt > 1) {
+            ttStatusText.innerText = \`Cluster busy — auto-retrying TikTok snatch (Attempt \${attempt}/3)...\`;
+            await sleep(1200);
           }
-        } catch (e) {
-          ttDownloadLink.href = 'https://snaptik.app/';
-          ttDownloadLink.innerText = 'OPEN DOWNLOAD GATEWAY';
+
+          // 1. Direct TikWM Snatch
+          try {
+            const tikRes = await fetch(\`https://www.tikwm.com/api/?url=\${encodeURIComponent(url)}\`);
+            if (tikRes.ok) {
+              const tikData = await tikRes.json();
+              if (tikData && tikData.data && (tikData.data.play || tikData.data.wmplay)) {
+                foundUrl = tikData.data.play || tikData.data.wmplay;
+                break;
+              }
+            }
+          } catch(e) {}
+
+          // 2. Cobalt Nodes
+          const endpoints = [
+            'https://api.cobalt.tools/',
+            'https://cobalt.api.redteam.tools/',
+            'https://cobalt-api.kwiatekm.pl/',
+            'https://co.wuk.sh/api/json'
+          ];
+
+          for (const ep of endpoints) {
+            try {
+              const res = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, isNoTTWatermark: true })
+              });
+
+              if (res.ok) {
+                const data = await res.json();
+                if (data && (data.url || data.stream)) {
+                  foundUrl = data.url || data.stream;
+                  break;
+                }
+              }
+            } catch(e) {}
+          }
+          if (foundUrl) break;
+        }
+
+        if (foundUrl) {
+          ttStatus.style.display = 'none';
+          ttResult.style.display = 'block';
+          ttDownloadLink.href = foundUrl;
+          triggerAutoDownload(foundUrl, 'tiktok_clean.mp4');
+        } else {
+          ttStatus.style.display = 'none';
+          ttError.style.display = 'block';
         }
       });
     </script>
@@ -918,7 +1191,7 @@ function buildMediaSuite() {
         if (!subContent) { alert('Please choose an .SRT or .VTT subtitle file first.'); return; }
         var delta = parseInt(document.getElementById('shiftMs').value, 10) || 0;
 
-        var shifted = subContent.replace(/(\d{2}):(\d{2}):(\d{2})[,.](\d{3})/g, function(match, hh, mm, ss, ms) {
+        var shifted = subContent.replace(/(\\d{2}):(\\d{2}):(\\d{2})[,.](\\d{3})/g, function(match, hh, mm, ss, ms) {
           var totalMs = parseInt(hh, 10) * 3600000 + parseInt(mm, 10) * 60000 + parseInt(ss, 10) * 1000 + parseInt(ms, 10);
           totalMs = Math.max(0, totalMs + delta);
 

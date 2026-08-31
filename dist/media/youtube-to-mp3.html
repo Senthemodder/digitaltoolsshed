@@ -1520,30 +1520,55 @@ footer a:hover { text-decoration: underline; }
           
     <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
       <h1 style="margin-top: 0.5rem;">YouTube to MP3 Audio Converter</h1>
-      <p>Convert YouTube videos to high-bitrate MP3 audio files instantly with no software installation required.</p>
+      <p>Convert YouTube videos to high-bitrate MP3 audio files instantly with zero uploads and auto-download.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 800px; margin: 1.5rem 0;">
+    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
       <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
         <input type="url" id="ytUrl" class="search-input" placeholder="Paste YouTube link (e.g. https://www.youtube.com/watch?v=...)..." style="flex: 1; min-width: 260px; padding: 0.75rem 1rem;" />
-        <button id="convertMp3Btn" class="btn-primary">
+        <button id="convertMp3Btn" class="btn-primary" style="padding: 0.75rem 1.75rem; font-weight: bold;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>EXTRACT MP3</span>
         </button>
+      </div>
+
+      <!-- In-Page Sponsored Ad Unit -->
+      <div class="ad-blend-box" style="margin: 1.5rem 0; max-width: 850px;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
       </div>
 
       <div id="mp3Status" style="display: none; padding: 1rem; border: 1px solid var(--border); background: var(--surface-alt); margin-bottom: 1.5rem; font-family: var(--mono); font-size: 0.9rem;">
         <div id="mp3StatusText">Processing audio stream...</div>
       </div>
 
-      <div id="mp3Result" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center;">
+      <div id="mp3Result" style="display: none; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); text-align: center; border-radius: 6px; margin-bottom: 1.5rem;">
+        <div style="background: #10b981; color: #fff; padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1rem;">
+          ✓ AUTO-DOWNLOAD STARTED! 320kbps MP3 track ready.
+        </div>
         <h3 id="mp3Title" style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Audio Track Ready (320kbps MP3)</h3>
-        <div style="margin-bottom: 1.5rem;">
-          <a href="#" id="mp3DownloadLink" class="btn-primary" target="_blank" style="text-decoration: none;">
+        <div style="margin-bottom: 1rem;">
+          <a href="#" id="mp3DownloadLink" class="btn-primary" target="_blank" download="youtube_audio.mp3" style="text-decoration: none; padding: 0.75rem 1.5rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            <span>DOWNLOAD MP3 AUDIO</span>
+            <span>DOWNLOAD MP3 AUDIO AGAIN</span>
           </a>
         </div>
+      </div>
+
+      <div id="mp3Error" style="display: none; border: 1px solid #ef4444; background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; text-align: center; margin-bottom: 1.5rem;">
+        <p style="color: #ef4444; font-weight: bold; margin: 0 0 0.5rem 0;">⚠️ Could not extract MP3 from this YouTube URL.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Please check the link and try again.</p>
       </div>
     </div>
 
@@ -1553,7 +1578,22 @@ footer a:hover { text-decoration: underline; }
       const mp3Status = document.getElementById('mp3Status');
       const mp3StatusText = document.getElementById('mp3StatusText');
       const mp3Result = document.getElementById('mp3Result');
+      const mp3Error = document.getElementById('mp3Error');
       const mp3DownloadLink = document.getElementById('mp3DownloadLink');
+
+      function triggerAutoDownload(url, filename) {
+        try {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename || 'youtube_audio.mp3';
+          a.target = '_blank';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } catch(e) {}
+      }
+
+      function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
       convertMp3Btn.addEventListener('click', async () => {
         const url = ytUrl.value.trim();
@@ -1564,27 +1604,51 @@ footer a:hover { text-decoration: underline; }
 
         mp3Status.style.display = 'block';
         mp3Result.style.display = 'none';
-        mp3StatusText.innerText = 'Extracting audio frequencies...';
+        mp3Error.style.display = 'none';
+        mp3StatusText.innerText = 'Extracting audio frequencies (320kbps)...';
 
-        try {
-          const res = await fetch('https://api.cobalt.tools/', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: url, isAudioOnly: true, aFormat: 'mp3' })
-          });
+        const endpoints = [
+          'https://api.cobalt.tools/',
+          'https://cobalt.api.redteam.tools/',
+          'https://cobalt-api.kwiatekm.pl/',
+          'https://co.wuk.sh/api/json'
+        ];
 
-          const data = await res.json();
-          if (data && data.url) {
-            mp3Status.style.display = 'none';
-            mp3Result.style.display = 'block';
-            mp3DownloadLink.href = data.url;
-          } else {
-            throw new Error();
+        let foundUrl = null;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          if (attempt > 1) {
+            mp3StatusText.innerText = `Node busy — auto-retrying audio snatch (Attempt ${attempt}/3)...`;
+            await sleep(1200);
           }
-        } catch (e) {
+
+          for (const ep of endpoints) {
+            try {
+              const res = await fetch(ep, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url, isAudioOnly: true, aFormat: 'mp3' })
+              });
+
+              if (res.ok) {
+                const data = await res.json();
+                if (data && (data.url || data.stream)) {
+                  foundUrl = data.url || data.stream;
+                  break;
+                }
+              }
+            } catch (e) {}
+          }
+          if (foundUrl) break;
+        }
+
+        if (foundUrl) {
           mp3Status.style.display = 'none';
           mp3Result.style.display = 'block';
-          mp3DownloadLink.href = 'https://cobalt.tools/#' + encodeURIComponent(url);
+          mp3DownloadLink.href = foundUrl;
+          triggerAutoDownload(foundUrl, 'youtube_audio.mp3');
+        } else {
+          mp3Status.style.display = 'none';
+          mp3Error.style.display = 'block';
         }
       });
     </script>

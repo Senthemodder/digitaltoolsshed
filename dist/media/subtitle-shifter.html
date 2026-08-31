@@ -1566,7 +1566,7 @@ footer a:hover { text-decoration: underline; }
         if (!subContent) { alert('Please choose an .SRT or .VTT subtitle file first.'); return; }
         var delta = parseInt(document.getElementById('shiftMs').value, 10) || 0;
 
-        var shifted = subContent.replace(/(d{2}):(d{2}):(d{2})[,.](d{3})/g, function(match, hh, mm, ss, ms) {
+        var shifted = subContent.replace(/(\d{2}):(\d{2}):(\d{2})[,.](\d{3})/g, function(match, hh, mm, ss, ms) {
           var totalMs = parseInt(hh, 10) * 3600000 + parseInt(mm, 10) * 60000 + parseInt(ss, 10) * 1000 + parseInt(ms, 10);
           totalMs = Math.max(0, totalMs + delta);
 
