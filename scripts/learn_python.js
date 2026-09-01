@@ -152,9 +152,9 @@ if __name__ == "__main__":
     const html = renderPage({
       title: `${g.title} | Python Guide | Digital Tools Shed`,
       metaDesc: g.desc,
-      canonical: `${DOMAIN}/learn/python/${g.slug}.html`,
+      canonical: `${DOMAIN}/learn/python/${g.slug}`,
       bodyContent: body,
-      currentPath: `/learn/python/${g.slug}.html`
+      currentPath: `/learn/python/${g.slug}`
     });
 
     writeFileSync(join(pyDist, `${g.slug}.html`), html);
@@ -162,7 +162,7 @@ if __name__ == "__main__":
 
   // Hub Page
   const hubCards = guides.map(g => `
-    <a href="/learn/python/${g.slug}.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+    <a href="/learn/python/${g.slug}" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
       <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">${g.title}</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${g.desc}</p>
     </a>

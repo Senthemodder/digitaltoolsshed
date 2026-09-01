@@ -111,16 +111,16 @@ export function buildI18nSuites({ DIST, DOMAIN, renderPage, writeFileSync, join,
     const html = renderPage({
       title: `${t.title} | Digital Tools Shed DE`,
       metaDesc: t.metaDesc,
-      canonical: `${DOMAIN}/de/${t.slug}.html`,
+      canonical: `${DOMAIN}/de/${t.slug}`,
       bodyContent: t.body,
-      currentPath: `/de/${t.slug}.html`,
+      currentPath: `/de/${t.slug}`,
       lang: 'de'
     });
     writeFileSync(join(deDist, `${t.slug}.html`), html);
   }
 
   const deHubCards = deTools.map(t => `
-    <a href="/de/${t.slug}.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit;">
+    <a href="/de/${t.slug}" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit;">
       <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">${t.title}</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${t.metaDesc}</p>
     </a>
@@ -157,16 +157,16 @@ export function buildI18nSuites({ DIST, DOMAIN, renderPage, writeFileSync, join,
     const html = renderPage({
       title: `${t.title} | Digital Tools Shed FR`,
       metaDesc: t.metaDesc,
-      canonical: `${DOMAIN}/fr/${t.slug}.html`,
+      canonical: `${DOMAIN}/fr/${t.slug}`,
       bodyContent: t.body,
-      currentPath: `/fr/${t.slug}.html`,
+      currentPath: `/fr/${t.slug}`,
       lang: 'fr'
     });
     writeFileSync(join(frDist, `${t.slug}.html`), html);
   }
 
   const frHubCards = frTools.map(t => `
-    <a href="/fr/${t.slug}.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit;">
+    <a href="/fr/${t.slug}" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit;">
       <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">${t.title}</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${t.metaDesc}</p>
     </a>
@@ -203,16 +203,16 @@ export function buildI18nSuites({ DIST, DOMAIN, renderPage, writeFileSync, join,
     const html = renderPage({
       title: `${t.title} | Digital Tools Shed RU`,
       metaDesc: t.metaDesc,
-      canonical: `${DOMAIN}/ru/${t.slug}.html`,
+      canonical: `${DOMAIN}/ru/${t.slug}`,
       bodyContent: t.body,
-      currentPath: `/ru/${t.slug}.html`,
+      currentPath: `/ru/${t.slug}`,
       lang: 'ru'
     });
     writeFileSync(join(ruDist, `${t.slug}.html`), html);
   }
 
   const ruHubCards = ruTools.map(t => `
-    <a href="/ru/${t.slug}.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit;">
+    <a href="/ru/${t.slug}" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit;">
       <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">${t.title}</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${t.metaDesc}</p>
     </a>

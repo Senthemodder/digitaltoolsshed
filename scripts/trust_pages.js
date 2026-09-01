@@ -115,7 +115,7 @@ function buildTrustPages() {
 
         <h2>Contact Us</h2>
 
-        <p>If you have any questions about this Privacy Policy, you can reach out via our <a href="/about.html">About page</a>.</p>
+        <p>If you have any questions about this Privacy Policy, you can reach out via our <a href="/about">About page</a>.</p>
       </div>
     </div>
   `;
@@ -170,7 +170,7 @@ function buildTrustPages() {
 
         <h2>Contact</h2>
 
-        <p>Questions about these terms can be directed through our <a href="/about.html">About page</a>.</p>
+        <p>Questions about these terms can be directed through our <a href="/about">About page</a>.</p>
       </div>
     </div>
   `;
@@ -200,9 +200,9 @@ function buildTrustPages() {
     const html = renderPage({
       title: `${page.title} | Digital Tools Shed`,
       metaDesc: page.metaDesc,
-      canonical: `${DOMAIN}/${page.slug}.html`,
+      canonical: `${DOMAIN}/${page.slug}`,
       bodyContent: page.body,
-      currentPath: `/${page.slug}.html`
+      currentPath: `/${page.slug}`
     });
     writeFileSync(join(DIST, `${page.slug}.html`), html);
   }
@@ -318,11 +318,11 @@ function build404Page() {
     <div style="text-align: center; padding: 2rem 0;">
       <div style="font-family: var(--serif); font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem;">Popular Free Tools</div>
       <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;">
-        <a href="/media/downloader.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">Media Downloader</a>
-        <a href="/convert/json-obfuscator.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">JSON Obfuscator</a>
-        <a href="/convert/esbuild-decompiler.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">JS Decompiler</a>
-        <a href="/convert/image-resizer.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">Image Resizer</a>
-        <a href="/calc/kg-to-lbs.html" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">KG to LBS</a>
+        <a href="/media/downloader" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">Media Downloader</a>
+        <a href="/convert/json-obfuscator" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">JSON Obfuscator</a>
+        <a href="/convert/esbuild-decompiler" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">JS Decompiler</a>
+        <a href="/convert/image-resizer" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">Image Resizer</a>
+        <a href="/calc/kg-to-lbs" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">KG to LBS</a>
         <a href="/articles/" style="padding: 0.5rem 1rem; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--fg); font-family: var(--mono); font-size: 0.8rem;">Tech Articles</a>
       </div>
     </div>
@@ -370,9 +370,9 @@ function build404Page() {
   const html = renderPage({
     title: '404 — Page Not Found | Digital Tools Shed',
     metaDesc: 'The page you requested was not found. Browse our free online developer tools, converters, media downloaders, and tech articles.',
-    canonical: `${DOMAIN}/404.html`,
+    canonical: `${DOMAIN}/404`,
     bodyContent,
-    currentPath: '/404.html'
+    currentPath: '/404'
   });
 
   writeFileSync(join(DIST, '404.html'), html);

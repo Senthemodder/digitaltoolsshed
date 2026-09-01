@@ -199,9 +199,9 @@ export function buildEpistemicTools() {
   writeFileSync(join(utilDir, 'ego-vs-truth.html'), renderPage({
     title: 'The 7-Step Ego vs. Truth Argument Auditor | Digital Tools Shed',
     metaDesc: 'Interactive diagnostic testing whether you seek truth or defend ego in arguments based on the 7-step cognitive calcification loop.',
-    canonical: `${DOMAIN}/util/ego-vs-truth.html`,
+    canonical: `${DOMAIN}/util/ego-vs-truth`,
     bodyContent: egoVsTruthHtml,
-    currentPath: '/util/ego-vs-truth.html'
+    currentPath: '/util/ego-vs-truth'
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -340,9 +340,9 @@ export function buildEpistemicTools() {
   writeFileSync(join(textDir, 'steelman-engine.html'), renderPage({
     title: 'The Steelman & Counter-Argument Engine | Digital Tools Shed',
     metaDesc: 'Generate the strongest opposing arguments and break confirmation bias with empirical falsification tests and de-biased search prompts.',
-    canonical: `${DOMAIN}/text/steelman-engine.html`,
+    canonical: `${DOMAIN}/text/steelman-engine`,
     bodyContent: steelmanHtml,
-    currentPath: '/text/steelman-engine.html'
+    currentPath: '/text/steelman-engine'
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -455,9 +455,9 @@ export function buildEpistemicTools() {
   writeFileSync(join(mathDir, 'bayesian-updater.html'), renderPage({
     title: 'Bayesian Belief Updating & Cognitive Inertia Calculator | Digital Tools Shed',
     metaDesc: 'Calculate rational belief probability shifts using Bayes Theorem versus psychological cognitive inertia.',
-    canonical: `${DOMAIN}/math/bayesian-updater.html`,
+    canonical: `${DOMAIN}/math/bayesian-updater`,
     bodyContent: bayesHtml,
-    currentPath: '/math/bayesian-updater.html'
+    currentPath: '/math/bayesian-updater'
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -587,9 +587,9 @@ export function buildEpistemicTools() {
   writeFileSync(join(textDir, 'fallacy-scanner.html'), renderPage({
     title: 'Logical Fallacy & Rhetorical Evasion Scanner | Digital Tools Shed',
     metaDesc: 'Analyze debate text and social media arguments to detect Ad Hominem, Strawman, and rhetorical evasion maneuvers in real-time.',
-    canonical: `${DOMAIN}/text/fallacy-scanner.html`,
+    canonical: `${DOMAIN}/text/fallacy-scanner`,
     bodyContent: fallacyHtml,
-    currentPath: '/text/fallacy-scanner.html'
+    currentPath: '/text/fallacy-scanner'
   }));
 
   console.log('  ✓ Built Epistemic & Truth-Testing Suite (Ego vs Truth Auditor, Steelman Engine, Bayesian Updater, Fallacy Scanner)');

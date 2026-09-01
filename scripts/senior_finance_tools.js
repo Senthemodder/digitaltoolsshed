@@ -58,16 +58,16 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
     const html = renderPage({
       title: `${t.title} | Digital Tools Shed`,
       metaDesc: t.metaDesc,
-      canonical: `${DOMAIN}/finance/${t.slug}.html`,
+      canonical: `${DOMAIN}/finance/${t.slug}`,
       bodyContent: t.body,
-      currentPath: `/finance/${t.slug}.html`
+      currentPath: `/finance/${t.slug}`
     });
     writeFileSync(join(finDist, `${t.slug}.html`), html);
   }
 
   // 2. Build Finance Hub
   const finCards = financeTools.map(t => `
-    <a href="/finance/${t.slug}.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
+    <a href="/finance/${t.slug}" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
       <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">${t.title}</h3>
       <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${t.metaDesc}</p>
     </a>
@@ -98,9 +98,9 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
     const html = renderPage({
       title: `${t.title} | Digital Tools Shed`,
       metaDesc: t.metaDesc,
-      canonical: `${DOMAIN}/health/${t.slug}.html`,
+      canonical: `${DOMAIN}/health/${t.slug}`,
       bodyContent: t.body,
-      currentPath: `/health/${t.slug}.html`
+      currentPath: `/health/${t.slug}`
     });
     writeFileSync(join(healthDist, `${t.slug}.html`), html);
   }

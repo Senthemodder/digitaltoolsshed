@@ -50,57 +50,57 @@ const ICONS = {
 // ─── MASTER TOOL REGISTRY ──────────────────────────────────────────────────
 const TOOLS = [
   // Developer & Decompiler Tools (NEW)
-  { id: 'json-obfuscator', name: 'JSON Obfuscator & Compressor', category: 'Developer', path: '/convert/json-obfuscator.html', desc: 'Minify, compress, hex-escape, and obfuscate JSON payloads with reversible dictionaries.' },
-  { id: 'esbuild-decompiler', name: 'ESBuild / JS Decompiler & Beautifier', category: 'Developer', path: '/convert/esbuild-decompiler.html', desc: 'Decompile, unminify, unpack IIFEs, and restore readable syntax from minified ESBuild and Webpack bundles.' },
+  { id: 'json-obfuscator', name: 'JSON Obfuscator & Compressor', category: 'Developer', path: '/convert/json-obfuscator', desc: 'Minify, compress, hex-escape, and obfuscate JSON payloads with reversible dictionaries.' },
+  { id: 'esbuild-decompiler', name: 'ESBuild / JS Decompiler & Beautifier', category: 'Developer', path: '/convert/esbuild-decompiler', desc: 'Decompile, unminify, unpack IIFEs, and restore readable syntax from minified ESBuild and Webpack bundles.' },
 
   // Media & Video Tools
-  { id: 'media-downloader', name: 'Universal Media Downloader', category: 'Media & Video', path: '/media/downloader.html', desc: 'Download high-quality video and audio from YouTube, TikTok, Twitter/X, Instagram, and SoundCloud.' },
-  { id: 'screen-recorder', name: 'Screen & Camera Recorder', category: 'Media & Video', path: '/media/recorder.html', desc: 'Record screen, webcam, and microphone directly in your browser with zero uploads.' },
-  { id: 'youtube-to-mp3', name: 'YouTube to MP3 Audio', category: 'Media & Video', path: '/media/youtube-to-mp3.html', desc: 'Extract pristine 320kbps MP3 audio tracks directly from video stream links.' },
-  { id: 'tiktok-saver', name: 'TikTok Saver (No Watermark)', category: 'Media & Video', path: '/media/tiktok-saver.html', desc: 'Save high-definition TikTok videos without watermark overlay.' },
+  { id: 'media-downloader', name: 'Universal Media Downloader', category: 'Media & Video', path: '/media/downloader', desc: 'Download high-quality video and audio from YouTube, TikTok, Twitter/X, Instagram, and SoundCloud.' },
+  { id: 'screen-recorder', name: 'Screen & Camera Recorder', category: 'Media & Video', path: '/media/recorder', desc: 'Record screen, webcam, and microphone directly in your browser with zero uploads.' },
+  { id: 'youtube-to-mp3', name: 'YouTube to MP3 Audio', category: 'Media & Video', path: '/media/youtube-to-mp3', desc: 'Extract pristine 320kbps MP3 audio tracks directly from video stream links.' },
+  { id: 'tiktok-saver', name: 'TikTok Saver (No Watermark)', category: 'Media & Video', path: '/media/tiktok-saver', desc: 'Save high-definition TikTok videos without watermark overlay.' },
 
   // Image & File Converters
-  { id: 'png-to-jpg', name: 'PNG to JPG Converter', category: 'File & Image', path: '/convert/png-to-jpg.html', desc: 'Convert PNG images to JPG format in your browser. Fast, 100% private.' },
-  { id: 'jpg-to-png', name: 'JPG to PNG Converter', category: 'File & Image', path: '/convert/jpg-to-png.html', desc: 'Convert JPEG/JPG images to lossless PNG instantly.' },
-  { id: 'png-to-webp', name: 'PNG to WebP Converter', category: 'File & Image', path: '/convert/png-to-webp.html', desc: 'Compress and convert PNG images to modern WebP format.' },
-  { id: 'webp-to-png', name: 'WebP to PNG Converter', category: 'File & Image', path: '/convert/webp-to-png.html', desc: 'Convert Google WebP images back to transparent PNG format.' },
-  { id: 'svg-to-png', name: 'SVG to PNG Converter', category: 'File & Image', path: '/convert/svg-to-png.html', desc: 'Rasterize vector SVG files into high-resolution PNG images.' },
-  { id: 'image-resizer', name: 'Bulk Image Resizer', category: 'File & Image', path: '/convert/image-resizer.html', desc: 'Resize multiple images simultaneously with custom pixel dimensions.' },
-  { id: 'json-formatter', name: 'JSON Formatter & Validator', category: 'Developer', path: '/convert/json-formatter.html', desc: 'Prettify, format, minify, and validate JSON strings and payloads.' },
-  { id: 'json-to-yaml', name: 'JSON to YAML Converter', category: 'Developer', path: '/convert/json-to-yaml.html', desc: 'Convert structured JSON configuration data into clean YAML.' },
-  { id: 'yaml-to-json', name: 'YAML to JSON Converter', category: 'Developer', path: '/convert/yaml-to-json.html', desc: 'Convert YAML configuration documents into standard JSON.' },
-  { id: 'base64', name: 'Base64 Encoder / Decoder', category: 'Developer', path: '/convert/base64.html', desc: 'Encode text & files to Base64 or decode Base64 data strings.' },
+  { id: 'png-to-jpg', name: 'PNG to JPG Converter', category: 'File & Image', path: '/convert/png-to-jpg', desc: 'Convert PNG images to JPG format in your browser. Fast, 100% private.' },
+  { id: 'jpg-to-png', name: 'JPG to PNG Converter', category: 'File & Image', path: '/convert/jpg-to-png', desc: 'Convert JPEG/JPG images to lossless PNG instantly.' },
+  { id: 'png-to-webp', name: 'PNG to WebP Converter', category: 'File & Image', path: '/convert/png-to-webp', desc: 'Compress and convert PNG images to modern WebP format.' },
+  { id: 'webp-to-png', name: 'WebP to PNG Converter', category: 'File & Image', path: '/convert/webp-to-png', desc: 'Convert Google WebP images back to transparent PNG format.' },
+  { id: 'svg-to-png', name: 'SVG to PNG Converter', category: 'File & Image', path: '/convert/svg-to-png', desc: 'Rasterize vector SVG files into high-resolution PNG images.' },
+  { id: 'image-resizer', name: 'Bulk Image Resizer', category: 'File & Image', path: '/convert/image-resizer', desc: 'Resize multiple images simultaneously with custom pixel dimensions.' },
+  { id: 'json-formatter', name: 'JSON Formatter & Validator', category: 'Developer', path: '/convert/json-formatter', desc: 'Prettify, format, minify, and validate JSON strings and payloads.' },
+  { id: 'json-to-yaml', name: 'JSON to YAML Converter', category: 'Developer', path: '/convert/json-to-yaml', desc: 'Convert structured JSON configuration data into clean YAML.' },
+  { id: 'yaml-to-json', name: 'YAML to JSON Converter', category: 'Developer', path: '/convert/yaml-to-json', desc: 'Convert YAML configuration documents into standard JSON.' },
+  { id: 'base64', name: 'Base64 Encoder / Decoder', category: 'Developer', path: '/convert/base64', desc: 'Encode text & files to Base64 or decode Base64 data strings.' },
 
   // PDF Tools
-  { id: 'pdf-to-text', name: 'PDF to Text Extractor', category: 'PDF & Docs', path: '/pdf/pdf-to-text.html', desc: 'Extract readable text and document content from PDF files locally.' },
-  { id: 'pdf-page-counter', name: 'PDF Page Counter', category: 'PDF & Docs', path: '/pdf/page-counter.html', desc: 'Inspect PDF metadata, dimensions, and total page count without uploading.' },
+  { id: 'pdf-to-text', name: 'PDF to Text Extractor', category: 'PDF & Docs', path: '/pdf/pdf-to-text', desc: 'Extract readable text and document content from PDF files locally.' },
+  { id: 'pdf-page-counter', name: 'PDF Page Counter', category: 'PDF & Docs', path: '/pdf/page-counter', desc: 'Inspect PDF metadata, dimensions, and total page count without uploading.' },
 
   // Unit & Math Calculators
-  { id: 'kg-to-lbs', name: 'Kilograms to Pounds (kg to lbs)', category: 'Units & Calc', path: '/calc/kg-to-lbs.html', desc: 'Instant accurate weight conversion from kilograms to pounds.' },
-  { id: 'lbs-to-kg', name: 'Pounds to Kilograms (lbs to kg)', category: 'Units & Calc', path: '/calc/lbs-to-kg.html', desc: 'Convert pounds (lbs) to metric kilograms (kg).' },
-  { id: 'celsius-to-fahrenheit', name: 'Celsius to Fahrenheit (°C to °F)', category: 'Units & Calc', path: '/calc/celsius-to-fahrenheit.html', desc: 'Convert temperatures from Celsius to Fahrenheit scale.' },
-  { id: 'fahrenheit-to-celsius', name: 'Fahrenheit to Celsius (°F to °C)', category: 'Units & Calc', path: '/calc/fahrenheit-to-celsius.html', desc: 'Convert temperatures from Fahrenheit to Celsius scale.' },
-  { id: 'cm-to-inches', name: 'Centimeters to Inches (cm to in)', category: 'Units & Calc', path: '/calc/cm-to-inches.html', desc: 'Convert metric centimeters to imperial inches.' },
-  { id: 'inches-to-cm', name: 'Inches to Centimeters (in to cm)', category: 'Units & Calc', path: '/calc/inches-to-cm.html', desc: 'Convert imperial inches to metric centimeters.' },
-  { id: 'km-to-miles', name: 'Kilometers to Miles (km to mi)', category: 'Units & Calc', path: '/calc/km-to-miles.html', desc: 'Convert distance from kilometers to statute miles.' },
-  { id: 'miles-to-km', name: 'Miles to Kilometers (mi to km)', category: 'Units & Calc', path: '/calc/miles-to-km.html', desc: 'Convert distance from statute miles to kilometers.' },
-  { id: 'mb-to-gb', name: 'Megabytes to Gigabytes (MB to GB)', category: 'Units & Calc', path: '/calc/mb-to-gb.html', desc: 'Convert digital file storage size from MB to GB.' },
-  { id: 'gb-to-tb', name: 'Gigabytes to Terabytes (GB to TB)', category: 'Units & Calc', path: '/calc/gb-to-tb.html', desc: 'Convert digital storage capacity from GB to TB.' },
-  { id: 'gallons-to-liters', name: 'Gallons to Liters', category: 'Units & Calc', path: '/calc/gallons-to-liters.html', desc: 'Convert liquid volume from US gallons to metric liters.' },
-  { id: 'liters-to-gallons', name: 'Liters to Gallons', category: 'Units & Calc', path: '/calc/liters-to-gallons.html', desc: 'Convert liquid volume from metric liters to US gallons.' },
+  { id: 'kg-to-lbs', name: 'Kilograms to Pounds (kg to lbs)', category: 'Units & Calc', path: '/calc/kg-to-lbs', desc: 'Instant accurate weight conversion from kilograms to pounds.' },
+  { id: 'lbs-to-kg', name: 'Pounds to Kilograms (lbs to kg)', category: 'Units & Calc', path: '/calc/lbs-to-kg', desc: 'Convert pounds (lbs) to metric kilograms (kg).' },
+  { id: 'celsius-to-fahrenheit', name: 'Celsius to Fahrenheit (°C to °F)', category: 'Units & Calc', path: '/calc/celsius-to-fahrenheit', desc: 'Convert temperatures from Celsius to Fahrenheit scale.' },
+  { id: 'fahrenheit-to-celsius', name: 'Fahrenheit to Celsius (°F to °C)', category: 'Units & Calc', path: '/calc/fahrenheit-to-celsius', desc: 'Convert temperatures from Fahrenheit to Celsius scale.' },
+  { id: 'cm-to-inches', name: 'Centimeters to Inches (cm to in)', category: 'Units & Calc', path: '/calc/cm-to-inches', desc: 'Convert metric centimeters to imperial inches.' },
+  { id: 'inches-to-cm', name: 'Inches to Centimeters (in to cm)', category: 'Units & Calc', path: '/calc/inches-to-cm', desc: 'Convert imperial inches to metric centimeters.' },
+  { id: 'km-to-miles', name: 'Kilometers to Miles (km to mi)', category: 'Units & Calc', path: '/calc/km-to-miles', desc: 'Convert distance from kilometers to statute miles.' },
+  { id: 'miles-to-km', name: 'Miles to Kilometers (mi to km)', category: 'Units & Calc', path: '/calc/miles-to-km', desc: 'Convert distance from statute miles to kilometers.' },
+  { id: 'mb-to-gb', name: 'Megabytes to Gigabytes (MB to GB)', category: 'Units & Calc', path: '/calc/mb-to-gb', desc: 'Convert digital file storage size from MB to GB.' },
+  { id: 'gb-to-tb', name: 'Gigabytes to Terabytes (GB to TB)', category: 'Units & Calc', path: '/calc/gb-to-tb', desc: 'Convert digital storage capacity from GB to TB.' },
+  { id: 'gallons-to-liters', name: 'Gallons to Liters', category: 'Units & Calc', path: '/calc/gallons-to-liters', desc: 'Convert liquid volume from US gallons to metric liters.' },
+  { id: 'liters-to-gallons', name: 'Liters to Gallons', category: 'Units & Calc', path: '/calc/liters-to-gallons', desc: 'Convert liquid volume from metric liters to US gallons.' },
 
   // Gaming / Minecraft Bedrock Tools
-  { id: 'mc-uuid-gen', name: 'Minecraft UUID Generator', category: 'Minecraft & Game', path: '/mc/uuid-gen.html', desc: 'Generate valid v4 UUID pairs for Bedrock manifest.json files.' },
-  { id: 'mc-manifest-gen', name: 'Bedrock Pack Manifest Generator', category: 'Minecraft & Game', path: '/mc/manifest-gen.html', desc: 'Generate complete manifest.json for Behavior and Resource packs.' }
+  { id: 'mc-uuid-gen', name: 'Minecraft UUID Generator', category: 'Minecraft & Game', path: '/mc/uuid-gen', desc: 'Generate valid v4 UUID pairs for Bedrock manifest.json files.' },
+  { id: 'mc-manifest-gen', name: 'Bedrock Pack Manifest Generator', category: 'Minecraft & Game', path: '/mc/manifest-gen', desc: 'Generate complete manifest.json for Behavior and Resource packs.' }
 ,
   // Productivity & Business Tools
-  { id: 'deduplicator', name: 'Text De-duplicator', category: 'Productivity', path: '/productivity/deduplicator.html', desc: 'Remove duplicate lines from text instantly.' },
-  { id: 'time-tracker', name: 'Time Tracker', category: 'Productivity', path: '/productivity/time-tracker.html', desc: 'Track time across projects with start/stop timer and manual entries.' },
-  { id: 'invoice-generator', name: 'Invoice Generator', category: 'Productivity', path: '/productivity/invoice-generator.html', desc: 'Create professional invoices with line items, tax, and PDF export.' },
-  { id: 'invoice-from-time', name: 'Invoice from Time', category: 'Productivity', path: '/productivity/invoice-from-time.html', desc: 'Generate invoices from tracked time entries.' },
-  { id: 'tax-calculator', name: 'Tax Calculator', category: 'Productivity', path: '/productivity/tax-calculator.html', desc: 'Calculate income tax with US federal brackets and deductions.' },
-  { id: 'task-manager', name: 'Task Manager', category: 'Productivity', path: '/productivity/task-manager.html', desc: 'Create and track tasks with priorities. Export as PDF or DOCX.' },
-  { id: 'timetable', name: 'Weekly Timetable', category: 'Productivity', path: '/productivity/timetable.html', desc: 'Visual weekly schedule planner with color-coded blocks.' },
+  { id: 'deduplicator', name: 'Text De-duplicator', category: 'Productivity', path: '/productivity/deduplicator', desc: 'Remove duplicate lines from text instantly.' },
+  { id: 'time-tracker', name: 'Time Tracker', category: 'Productivity', path: '/productivity/time-tracker', desc: 'Track time across projects with start/stop timer and manual entries.' },
+  { id: 'invoice-generator', name: 'Invoice Generator', category: 'Productivity', path: '/productivity/invoice-generator', desc: 'Create professional invoices with line items, tax, and PDF export.' },
+  { id: 'invoice-from-time', name: 'Invoice from Time', category: 'Productivity', path: '/productivity/invoice-from-time', desc: 'Generate invoices from tracked time entries.' },
+  { id: 'tax-calculator', name: 'Tax Calculator', category: 'Productivity', path: '/productivity/tax-calculator', desc: 'Calculate income tax with US federal brackets and deductions.' },
+  { id: 'task-manager', name: 'Task Manager', category: 'Productivity', path: '/productivity/task-manager', desc: 'Create and track tasks with priorities. Export as PDF or DOCX.' },
+  { id: 'timetable', name: 'Weekly Timetable', category: 'Productivity', path: '/productivity/timetable', desc: 'Visual weekly schedule planner with color-coded blocks.' },
 
   // Education & Learning Guides
   { id: 'learn-hub', name: 'Learning Hub', category: 'Learn & Code', path: '/learn/', desc: 'Master web development with hands-on guides and interactive code playgrounds.' },
@@ -1170,29 +1170,29 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.star}
         <span>Featured & Reality Suite</span>
       </div>
-      <a href="/util/ego-vs-truth.html" class="nav-link ${currentPath === '/util/ego-vs-truth.html' ? 'active' : ''}">
+      <a href="/util/ego-vs-truth" class="nav-link ${currentPath.startsWith('/util/ego-vs-truth') ? 'active' : ''}">
         <div class="nav-link-content"><span>Ego vs. Truth Auditor</span></div>
         <span class="nav-badge">NEW</span>
       </a>
-      <a href="/text/steelman-engine.html" class="nav-link ${currentPath === '/text/steelman-engine.html' ? 'active' : ''}">
+      <a href="/text/steelman-engine" class="nav-link ${currentPath.startsWith('/text/steelman-engine') ? 'active' : ''}">
         <div class="nav-link-content"><span>Steelman Engine</span></div>
         <span class="nav-badge">NEW</span>
       </a>
-      <a href="/calc/ai-water-calculator.html" class="nav-link ${currentPath === '/calc/ai-water-calculator.html' ? 'active' : ''}">
+      <a href="/calc/ai-water-calculator" class="nav-link ${currentPath.startsWith('/calc/ai-water-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>AI Water Reality Ticker</span></div>
         <span class="nav-badge">VIRAL</span>
       </a>
-      <a href="/math/graphing-calculator.html" class="nav-link ${currentPath === '/math/graphing-calculator.html' ? 'active' : ''}">
+      <a href="/math/graphing-calculator" class="nav-link ${currentPath.startsWith('/math/graphing-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>2D Graphing Calculator</span></div>
         <span class="nav-badge">DESMOS</span>
       </a>
-      <a href="/math/bayesian-updater.html" class="nav-link ${currentPath === '/math/bayesian-updater.html' ? 'active' : ''}">
+      <a href="/math/bayesian-updater" class="nav-link ${currentPath.startsWith('/math/bayesian-updater') ? 'active' : ''}">
         <div class="nav-link-content"><span>Bayesian Belief Updater</span></div>
       </a>
-      <a href="/text/fallacy-scanner.html" class="nav-link ${currentPath === '/text/fallacy-scanner.html' ? 'active' : ''}">
+      <a href="/text/fallacy-scanner" class="nav-link ${currentPath.startsWith('/text/fallacy-scanner') ? 'active' : ''}">
         <div class="nav-link-content"><span>Fallacy & Evasion Scanner</span></div>
       </a>
-      <a href="/util/scale-visualizer.html" class="nav-link ${currentPath === '/util/scale-visualizer.html' ? 'active' : ''}">
+      <a href="/util/scale-visualizer" class="nav-link ${currentPath.startsWith('/util/scale-visualizer') ? 'active' : ''}">
         <div class="nav-link-content"><span>1M vs 1B Scale Visualizer</span></div>
       </a>
 
@@ -1201,17 +1201,17 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.code}
         <span>Learning Hub (60+ Guides)</span>
       </div>
-      <a href="/learn/java/playground.html" class="nav-link ${currentPath === '/learn/java/playground.html' ? 'active' : ''}">
+      <a href="/learn/java/playground" class="nav-link ${currentPath.startsWith('/learn/java/playground') ? 'active' : ''}">
         <div class="nav-link-content"><span>Java Playground & Auto</span></div>
         <span class="nav-badge">IDE</span>
       </a>
-      <a href="/learn/java/" class="nav-link ${currentPath === '/learn/java/' || currentPath === '/learn/java/index.html' ? 'active' : ''}">
+      <a href="/learn/java/" class="nav-link ${currentPath === '/learn/java/' || currentPath === '/learn/java/index.html' || currentPath === '/learn/java' ? 'active' : ''}">
         <div class="nav-link-content"><span>Java Master Guide (10)</span></div>
       </a>
-      <a href="/learn/python/" class="nav-link ${currentPath === '/learn/python/' || currentPath === '/learn/python/index.html' ? 'active' : ''}">
+      <a href="/learn/python/" class="nav-link ${currentPath === '/learn/python/' || currentPath === '/learn/python/index.html' || currentPath === '/learn/python' ? 'active' : ''}">
         <div class="nav-link-content"><span>Python Guides (20)</span></div>
       </a>
-      <a href="/learn/javascript/" class="nav-link ${currentPath === '/learn/javascript/' || currentPath === '/learn/javascript/index.html' ? 'active' : ''}">
+      <a href="/learn/javascript/" class="nav-link ${currentPath === '/learn/javascript/' || currentPath === '/learn/javascript/index.html' || currentPath === '/learn/javascript' ? 'active' : ''}">
         <div class="nav-link-content"><span>JavaScript Guides (30)</span></div>
       </a>
 
@@ -1220,37 +1220,37 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.code}
         <span>Developer Suite (17)</span>
       </div>
-      <a href="/convert/json-obfuscator.html" class="nav-link ${currentPath === '/convert/json-obfuscator.html' ? 'active' : ''}">
+      <a href="/convert/json-obfuscator" class="nav-link ${currentPath.startsWith('/convert/json-obfuscator') ? 'active' : ''}">
         <div class="nav-link-content"><span>JSON Obfuscator</span></div>
       </a>
-      <a href="/convert/esbuild-decompiler.html" class="nav-link ${currentPath === '/convert/esbuild-decompiler.html' ? 'active' : ''}">
+      <a href="/convert/esbuild-decompiler" class="nav-link ${currentPath.startsWith('/convert/esbuild-decompiler') ? 'active' : ''}">
         <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
       </a>
-      <a href="/dev/json-formatter.html" class="nav-link ${currentPath === '/dev/json-formatter.html' || currentPath === '/convert/json-formatter.html' ? 'active' : ''}">
+      <a href="/dev/json-formatter" class="nav-link ${currentPath.startsWith('/dev/json-formatter') || currentPath.startsWith('/convert/json-formatter') ? 'active' : ''}">
         <div class="nav-link-content"><span>JSON Formatter & Validator</span></div>
       </a>
-      <a href="/dev/ai-robots-txt.html" class="nav-link ${currentPath === '/dev/ai-robots-txt.html' ? 'active' : ''}">
+      <a href="/dev/ai-robots-txt" class="nav-link ${currentPath.startsWith('/dev/ai-robots-txt') ? 'active' : ''}">
         <div class="nav-link-content"><span>AI Bot Blocker robots.txt</span></div>
       </a>
-      <a href="/dev/regex-tester.html" class="nav-link ${currentPath === '/dev/regex-tester.html' ? 'active' : ''}">
+      <a href="/dev/regex-tester" class="nav-link ${currentPath.startsWith('/dev/regex-tester') ? 'active' : ''}">
         <div class="nav-link-content"><span>Regex Visual Tester</span></div>
       </a>
-      <a href="/dev/jwt-decoder.html" class="nav-link ${currentPath === '/dev/jwt-decoder.html' ? 'active' : ''}">
+      <a href="/dev/jwt-decoder" class="nav-link ${currentPath.startsWith('/dev/jwt-decoder') ? 'active' : ''}">
         <div class="nav-link-content"><span>JWT Token Decoder</span></div>
       </a>
-      <a href="/dev/cron-generator.html" class="nav-link ${currentPath === '/dev/cron-generator.html' ? 'active' : ''}">
+      <a href="/dev/cron-generator" class="nav-link ${currentPath.startsWith('/dev/cron-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Cron Expression Builder</span></div>
       </a>
-      <a href="/dev/css-minifier.html" class="nav-link ${currentPath === '/dev/css-minifier.html' ? 'active' : ''}">
+      <a href="/dev/css-minifier" class="nav-link ${currentPath.startsWith('/dev/css-minifier') ? 'active' : ''}">
         <div class="nav-link-content"><span>CSS Minifier</span></div>
       </a>
-      <a href="/dev/js-minifier.html" class="nav-link ${currentPath === '/dev/js-minifier.html' ? 'active' : ''}">
+      <a href="/dev/js-minifier" class="nav-link ${currentPath.startsWith('/dev/js-minifier') ? 'active' : ''}">
         <div class="nav-link-content"><span>JS Minifier</span></div>
       </a>
-      <a href="/dev/sql-formatter.html" class="nav-link ${currentPath === '/dev/sql-formatter.html' ? 'active' : ''}">
+      <a href="/dev/sql-formatter" class="nav-link ${currentPath.startsWith('/dev/sql-formatter') ? 'active' : ''}">
         <div class="nav-link-content"><span>SQL Formatter</span></div>
       </a>
-      <a href="/convert/base64.html" class="nav-link ${currentPath === '/convert/base64.html' ? 'active' : ''}">
+      <a href="/convert/base64" class="nav-link ${currentPath.startsWith('/convert/base64') ? 'active' : ''}">
         <div class="nav-link-content"><span>Base64 Encoder/Decoder</span></div>
       </a>
 
@@ -1259,20 +1259,20 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.cube}
         <span>Minecraft Bedrock & Java (5)</span>
       </div>
-      <a href="/mc/nbt-editor.html" class="nav-link ${currentPath === '/mc/nbt-editor.html' ? 'active' : ''}">
+      <a href="/mc/nbt-editor" class="nav-link ${currentPath.startsWith('/mc/nbt-editor') ? 'active' : ''}">
         <div class="nav-link-content"><span>In-Browser NBT Editor</span></div>
         <span class="nav-badge">PRO</span>
       </a>
-      <a href="/mc/tellraw-gen.html" class="nav-link ${currentPath === '/mc/tellraw-gen.html' ? 'active' : ''}">
+      <a href="/mc/tellraw-gen" class="nav-link ${currentPath.startsWith('/mc/tellraw-gen') ? 'active' : ''}">
         <div class="nav-link-content"><span>/tellraw JSON Generator</span></div>
       </a>
-      <a href="/mc/playsound-gen.html" class="nav-link ${currentPath === '/mc/playsound-gen.html' ? 'active' : ''}">
+      <a href="/mc/playsound-gen" class="nav-link ${currentPath.startsWith('/mc/playsound-gen') ? 'active' : ''}">
         <div class="nav-link-content"><span>/playsound Event Picker</span></div>
       </a>
-      <a href="/mc/uuid-gen.html" class="nav-link ${currentPath === '/mc/uuid-gen.html' ? 'active' : ''}">
+      <a href="/mc/uuid-gen" class="nav-link ${currentPath.startsWith('/mc/uuid-gen') ? 'active' : ''}">
         <div class="nav-link-content"><span>Pack UUID Generator</span></div>
       </a>
-      <a href="/mc/manifest-gen.html" class="nav-link ${currentPath === '/mc/manifest-gen.html' ? 'active' : ''}">
+      <a href="/mc/manifest-gen" class="nav-link ${currentPath.startsWith('/mc/manifest-gen') ? 'active' : ''}">
         <div class="nav-link-content"><span>manifest.json Generator</span></div>
       </a>
 
@@ -1281,16 +1281,16 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.calc}
         <span>Blue-Collar & Trade Math (4)</span>
       </div>
-      <a href="/calc/stair-calculator.html" class="nav-link ${currentPath === '/calc/stair-calculator.html' ? 'active' : ''}">
+      <a href="/calc/stair-calculator" class="nav-link ${currentPath.startsWith('/calc/stair-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Stair Stringer (IRC Code)</span></div>
       </a>
-      <a href="/calc/concrete-calculator.html" class="nav-link ${currentPath === '/calc/concrete-calculator.html' ? 'active' : ''}">
+      <a href="/calc/concrete-calculator" class="nav-link ${currentPath.startsWith('/calc/concrete-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Concrete Slab & Bags</span></div>
       </a>
-      <a href="/calc/drywall-calculator.html" class="nav-link ${currentPath === '/calc/drywall-calculator.html' ? 'active' : ''}">
+      <a href="/calc/drywall-calculator" class="nav-link ${currentPath.startsWith('/calc/drywall-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Drywall, Mud & Screws</span></div>
       </a>
-      <a href="/calc/mulch-calculator.html" class="nav-link ${currentPath === '/calc/mulch-calculator.html' ? 'active' : ''}">
+      <a href="/calc/mulch-calculator" class="nav-link ${currentPath.startsWith('/calc/mulch-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Mulch, Topsoil & Gravel</span></div>
       </a>
 
@@ -1299,25 +1299,25 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.calc}
         <span>Senior & Legal Finance (8)</span>
       </div>
-      <a href="/finance/inherited-ira-calculator.html" class="nav-link ${currentPath === '/finance/inherited-ira-calculator.html' ? 'active' : ''}">
+      <a href="/finance/inherited-ira-calculator" class="nav-link ${currentPath.startsWith('/finance/inherited-ira-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Inherited IRA (10-Yr Rule)</span></div>
       </a>
-      <a href="/finance/judgment-interest.html" class="nav-link ${currentPath === '/finance/judgment-interest.html' ? 'active' : ''}">
+      <a href="/finance/judgment-interest" class="nav-link ${currentPath.startsWith('/finance/judgment-interest') ? 'active' : ''}">
         <div class="nav-link-content"><span>50-State Judgment Interest</span></div>
       </a>
-      <a href="/finance/rmd-calculator.html" class="nav-link ${currentPath === '/finance/rmd-calculator.html' ? 'active' : ''}">
+      <a href="/finance/rmd-calculator" class="nav-link ${currentPath.startsWith('/finance/rmd-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>RMD Calculator (SECURE 2.0)</span></div>
       </a>
-      <a href="/finance/social-security-tax.html" class="nav-link ${currentPath === '/finance/social-security-tax.html' ? 'active' : ''}">
+      <a href="/finance/social-security-tax" class="nav-link ${currentPath.startsWith('/finance/social-security-tax') ? 'active' : ''}">
         <div class="nav-link-content"><span>Social Security Taxability</span></div>
       </a>
-      <a href="/finance/annuity-payout.html" class="nav-link ${currentPath === '/finance/annuity-payout.html' ? 'active' : ''}">
+      <a href="/finance/annuity-payout" class="nav-link ${currentPath.startsWith('/finance/annuity-payout') ? 'active' : ''}">
         <div class="nav-link-content"><span>Annuity & Pension Payout</span></div>
       </a>
-      <a href="/math/compound-interest.html" class="nav-link ${currentPath === '/math/compound-interest.html' ? 'active' : ''}">
+      <a href="/math/compound-interest" class="nav-link ${currentPath.startsWith('/math/compound-interest') ? 'active' : ''}">
         <div class="nav-link-content"><span>Compound Interest</span></div>
       </a>
-      <a href="/math/mortgage-calculator.html" class="nav-link ${currentPath === '/math/mortgage-calculator.html' ? 'active' : ''}">
+      <a href="/math/mortgage-calculator" class="nav-link ${currentPath.startsWith('/math/mortgage-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Mortgage Amortization</span></div>
       </a>
 
@@ -1326,19 +1326,19 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.lock}
         <span>Privacy & Security (10)</span>
       </div>
-      <a href="/security/password-generator.html" class="nav-link ${currentPath === '/security/password-generator.html' ? 'active' : ''}">
+      <a href="/security/password-generator" class="nav-link ${currentPath.startsWith('/security/password-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Password Generator</span></div>
       </a>
-      <a href="/security/encrypted-notes.html" class="nav-link ${currentPath === '/security/encrypted-notes.html' ? 'active' : ''}">
+      <a href="/security/encrypted-notes" class="nav-link ${currentPath.startsWith('/security/encrypted-notes') ? 'active' : ''}">
         <div class="nav-link-content"><span>Client-Side Encrypted Notes</span></div>
       </a>
-      <a href="/security/totp-generator.html" class="nav-link ${currentPath === '/security/totp-generator.html' ? 'active' : ''}">
+      <a href="/security/totp-generator" class="nav-link ${currentPath.startsWith('/security/totp-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>2FA TOTP Authenticator</span></div>
       </a>
-      <a href="/security/passphrase-generator.html" class="nav-link ${currentPath === '/security/passphrase-generator.html' ? 'active' : ''}">
+      <a href="/security/passphrase-generator" class="nav-link ${currentPath.startsWith('/security/passphrase-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Diceware Passphrase</span></div>
       </a>
-      <a href="/security/privacy-policy-generator.html" class="nav-link ${currentPath === '/security/privacy-policy-generator.html' ? 'active' : ''}">
+      <a href="/security/privacy-policy-generator" class="nav-link ${currentPath.startsWith('/security/privacy-policy-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Privacy Policy Generator</span></div>
       </a>
 
@@ -1347,34 +1347,34 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.media}
         <span>Media, Video & Design (12)</span>
       </div>
-      <a href="/media/downloader.html" class="nav-link ${currentPath === '/media/downloader.html' ? 'active' : ''}">
+      <a href="/media/downloader" class="nav-link ${currentPath.startsWith('/media/downloader') ? 'active' : ''}">
         <div class="nav-link-content"><span>Universal Media Downloader</span></div>
       </a>
-      <a href="/media/recorder.html" class="nav-link ${currentPath === '/media/recorder.html' ? 'active' : ''}">
+      <a href="/media/recorder" class="nav-link ${currentPath.startsWith('/media/recorder') ? 'active' : ''}">
         <div class="nav-link-content"><span>Screen & Camera Recorder</span></div>
       </a>
-      <a href="/design/passport-photo.html" class="nav-link ${currentPath === '/design/passport-photo.html' ? 'active' : ''}">
+      <a href="/design/passport-photo" class="nav-link ${currentPath.startsWith('/design/passport-photo') ? 'active' : ''}">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
       </a>
-      <a href="/design/qr-generator.html" class="nav-link ${currentPath === '/design/qr-generator.html' ? 'active' : ''}">
+      <a href="/design/qr-generator" class="nav-link ${currentPath.startsWith('/design/qr-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
       </a>
-      <a href="/media/subtitle-shifter.html" class="nav-link ${currentPath === '/media/subtitle-shifter.html' ? 'active' : ''}">
+      <a href="/media/subtitle-shifter" class="nav-link ${currentPath.startsWith('/media/subtitle-shifter') ? 'active' : ''}">
         <div class="nav-link-content"><span>Subtitle Shifter (.SRT/.VTT)</span></div>
       </a>
-      <a href="/media/youtube-to-mp3.html" class="nav-link ${currentPath === '/media/youtube-to-mp3.html' ? 'active' : ''}">
+      <a href="/media/youtube-to-mp3" class="nav-link ${currentPath.startsWith('/media/youtube-to-mp3') ? 'active' : ''}">
         <div class="nav-link-content"><span>YouTube to MP3 Audio</span></div>
       </a>
-      <a href="/media/tiktok-saver.html" class="nav-link ${currentPath === '/media/tiktok-saver.html' ? 'active' : ''}">
+      <a href="/media/tiktok-saver" class="nav-link ${currentPath.startsWith('/media/tiktok-saver') ? 'active' : ''}">
         <div class="nav-link-content"><span>TikTok Saver (No Watermark)</span></div>
       </a>
-      <a href="/convert/image-resizer.html" class="nav-link ${currentPath === '/convert/image-resizer.html' ? 'active' : ''}">
+      <a href="/convert/image-resizer" class="nav-link ${currentPath.startsWith('/convert/image-resizer') ? 'active' : ''}">
         <div class="nav-link-content"><span>Bulk Image Resizer</span></div>
       </a>
-      <a href="/convert/png-to-webp.html" class="nav-link ${currentPath === '/convert/png-to-webp.html' ? 'active' : ''}">
+      <a href="/convert/png-to-webp" class="nav-link ${currentPath.startsWith('/convert/png-to-webp') ? 'active' : ''}">
         <div class="nav-link-content"><span>PNG to WebP</span></div>
       </a>
-      <a href="/convert/svg-to-png.html" class="nav-link ${currentPath === '/convert/svg-to-png.html' ? 'active' : ''}">
+      <a href="/convert/svg-to-png" class="nav-link ${currentPath.startsWith('/convert/svg-to-png') ? 'active' : ''}">
         <div class="nav-link-content"><span>SVG to PNG</span></div>
       </a>
 
@@ -1383,22 +1383,22 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.docs}
         <span>Text & Writing (10)</span>
       </div>
-      <a href="/text/word-counter.html" class="nav-link ${currentPath === '/text/word-counter.html' ? 'active' : ''}">
+      <a href="/text/word-counter" class="nav-link ${currentPath.startsWith('/text/word-counter') ? 'active' : ''}">
         <div class="nav-link-content"><span>Word & Character Counter</span></div>
       </a>
-      <a href="/text/case-converter.html" class="nav-link ${currentPath === '/text/case-converter.html' ? 'active' : ''}">
+      <a href="/text/case-converter" class="nav-link ${currentPath.startsWith('/text/case-converter') ? 'active' : ''}">
         <div class="nav-link-content"><span>Case Converter (Title/Camel)</span></div>
       </a>
-      <a href="/text/slug-generator.html" class="nav-link ${currentPath === '/text/slug-generator.html' ? 'active' : ''}">
+      <a href="/text/slug-generator" class="nav-link ${currentPath.startsWith('/text/slug-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>URL Slug Generator</span></div>
       </a>
-      <a href="/text/morse-code.html" class="nav-link ${currentPath === '/text/morse-code.html' ? 'active' : ''}">
+      <a href="/text/morse-code" class="nav-link ${currentPath.startsWith('/text/morse-code') ? 'active' : ''}">
         <div class="nav-link-content"><span>Morse Code Translator</span></div>
       </a>
-      <a href="/text/fancy-text.html" class="nav-link ${currentPath === '/text/fancy-text.html' ? 'active' : ''}">
+      <a href="/text/fancy-text" class="nav-link ${currentPath.startsWith('/text/fancy-text') ? 'active' : ''}">
         <div class="nav-link-content"><span>Unicode Fancy Fonts</span></div>
       </a>
-      <a href="/text/lorem-ipsum.html" class="nav-link ${currentPath === '/text/lorem-ipsum.html' ? 'active' : ''}">
+      <a href="/text/lorem-ipsum" class="nav-link ${currentPath.startsWith('/text/lorem-ipsum') ? 'active' : ''}">
         <div class="nav-link-content"><span>Lorem Ipsum Generator</span></div>
       </a>
 
@@ -1407,22 +1407,22 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.clipboard}
         <span>Productivity Suite (7)</span>
       </div>
-      <a href="/productivity/time-tracker.html" class="nav-link ${currentPath === '/productivity/time-tracker.html' ? 'active' : ''}">
+      <a href="/productivity/time-tracker" class="nav-link ${currentPath.startsWith('/productivity/time-tracker') ? 'active' : ''}">
         <div class="nav-link-content"><span>Toggl-Style Time Tracker</span></div>
       </a>
-      <a href="/productivity/invoice-generator.html" class="nav-link ${currentPath === '/productivity/invoice-generator.html' ? 'active' : ''}">
+      <a href="/productivity/invoice-generator" class="nav-link ${currentPath.startsWith('/productivity/invoice-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Invoice Generator & PDF</span></div>
       </a>
-      <a href="/productivity/task-manager.html" class="nav-link ${currentPath === '/productivity/task-manager.html' ? 'active' : ''}">
+      <a href="/productivity/task-manager" class="nav-link ${currentPath.startsWith('/productivity/task-manager') ? 'active' : ''}">
         <div class="nav-link-content"><span>Task Manager & Priorities</span></div>
       </a>
-      <a href="/productivity/tax-calculator.html" class="nav-link ${currentPath === '/productivity/tax-calculator.html' ? 'active' : ''}">
+      <a href="/productivity/tax-calculator" class="nav-link ${currentPath.startsWith('/productivity/tax-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Income Tax Calculator</span></div>
       </a>
-      <a href="/productivity/timetable.html" class="nav-link ${currentPath === '/productivity/timetable.html' ? 'active' : ''}">
+      <a href="/productivity/timetable" class="nav-link ${currentPath.startsWith('/productivity/timetable') ? 'active' : ''}">
         <div class="nav-link-content"><span>Weekly Timetable Planner</span></div>
       </a>
-      <a href="/productivity/deduplicator.html" class="nav-link ${currentPath === '/productivity/deduplicator.html' ? 'active' : ''}">
+      <a href="/productivity/deduplicator" class="nav-link ${currentPath.startsWith('/productivity/deduplicator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Text Line De-duplicator</span></div>
       </a>
 
@@ -1431,13 +1431,13 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.article}
         <span>Technical Articles (6)</span>
       </div>
-      <a href="/articles/" class="nav-link ${currentPath === '/articles/' || currentPath === '/articles/index.html' ? 'active' : ''}">
+      <a href="/articles/" class="nav-link ${currentPath === '/articles/' || currentPath === '/articles/index.html' || currentPath === '/articles' ? 'active' : ''}">
         <div class="nav-link-content"><span>All Tech Articles Hub</span></div>
       </a>
-      <a href="/articles/how-to-decompile-esbuild-bundles.html" class="nav-link ${currentPath === '/articles/how-to-decompile-esbuild-bundles.html' ? 'active' : ''}">
+      <a href="/articles/how-to-decompile-esbuild-bundles" class="nav-link ${currentPath.startsWith('/articles/how-to-decompile-esbuild-bundles') ? 'active' : ''}">
         <div class="nav-link-content"><span>Decompile ESBuild</span></div>
       </a>
-      <a href="/articles/minecraft-bedrock-custom-blocks-guide.html" class="nav-link ${currentPath === '/articles/minecraft-bedrock-custom-blocks-guide.html' ? 'active' : ''}">
+      <a href="/articles/minecraft-bedrock-custom-blocks-guide" class="nav-link ${currentPath.startsWith('/articles/minecraft-bedrock-custom-blocks-guide') ? 'active' : ''}">
         <div class="nav-link-content"><span>Bedrock Custom Blocks</span></div>
       </a>
 
@@ -1446,13 +1446,13 @@ function buildSidebarHtml(currentPath = '/') {
         ${ICONS.lock}
         <span>Trust & Legal</span>
       </div>
-      <a href="/about.html" class="nav-link ${currentPath === '/about.html' ? 'active' : ''}">
+      <a href="/about" class="nav-link ${currentPath.startsWith('/about') ? 'active' : ''}">
         <div class="nav-link-content"><span>About Digital Tools Shed</span></div>
       </a>
-      <a href="/privacy.html" class="nav-link ${currentPath === '/privacy.html' ? 'active' : ''}">
+      <a href="/privacy" class="nav-link ${currentPath.startsWith('/privacy') ? 'active' : ''}">
         <div class="nav-link-content"><span>Privacy Policy</span></div>
       </a>
-      <a href="/terms.html" class="nav-link ${currentPath === '/terms.html' ? 'active' : ''}">
+      <a href="/terms" class="nav-link ${currentPath.startsWith('/terms') ? 'active' : ''}">
         <div class="nav-link-content"><span>Terms of Service</span></div>
       </a>
     </nav>
@@ -1473,17 +1473,28 @@ function buildSidebarHtml(currentPath = '/') {
 
 // ─── MASTER PAGE RENDERER ──────────────────────────────────────────────────
 function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/', schema, lang = 'en', faq, breadcrumbs }) {
+  // Normalize canonical to clean URL (no .html, no /index trailing)
+  let cleanCanonical = canonical;
+  if (cleanCanonical) {
+    cleanCanonical = cleanCanonical.replace(/\.html$/, '');
+    if (cleanCanonical.endsWith('/index')) cleanCanonical = cleanCanonical.replace(/\/index$/, '/');
+  } else {
+    let p = currentPath.replace(/\.html$/, '');
+    if (p.endsWith('/index')) p = p.replace(/\/index$/, '/');
+    cleanCanonical = `${DOMAIN}${p}`;
+  }
+
   // Auto-generate JSON-LD schemas
   const schemas = [];
 
   // WebSite schema (homepage only)
-  if (currentPath === '/') {
+  if (currentPath === '/' || currentPath === '/index.html' || currentPath === '') {
     schemas.push({
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "Digital Tools Shed",
-      "url": "https://digitaltoolsshed.com",
-      "description": "The Site of Everything — 258+ free browser-based tools, calculators, converters, and coding playgrounds.",
+      "url": "https://digitaltoolsshed.com/",
+      "description": "The Site of Everything — 397+ free browser-based tools, calculators, converters, and coding playgrounds.",
       "potentialAction": {
         "@type": "SearchAction",
         "target": "https://digitaltoolsshed.com/?q={search_term_string}",
@@ -1501,17 +1512,17 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
         "@type": "ListItem",
         "position": i + 1,
         "name": b.name,
-        "item": b.url
+        "item": b.url.replace(/\.html$/, '')
       }))
     });
-  } else if (currentPath !== '/') {
+  } else if (currentPath !== '/' && currentPath !== '/index.html') {
     // Auto-generate breadcrumbs from path
-    const pathParts = currentPath.split('/').filter(Boolean);
+    const pathParts = currentPath.replace(/\.html$/, '').split('/').filter(Boolean);
     const autoBC = [{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://digitaltoolsshed.com/" }];
     let buildPath = '';
     pathParts.forEach((part, i) => {
       buildPath += '/' + part;
-      const cleanName = part.replace('.html', '').replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const cleanName = part.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
       autoBC.push({
         "@type": "ListItem",
         "position": i + 2,
@@ -1538,7 +1549,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       "@context": "https://schema.org",
       "@type": "WebApplication",
       "name": title.split('|')[0].split('—')[0].trim(),
-      "url": canonical,
+      "url": cleanCanonical,
       "applicationCategory": "UtilityApplication",
       "operatingSystem": "All",
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
@@ -1573,10 +1584,10 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <meta name="description" content="${metaDesc}">
-  <link rel="canonical" href="${canonical}">
+  <link rel="canonical" href="${cleanCanonical}">
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${metaDesc}">
-  <meta property="og:url" content="${canonical}">
+  <meta property="og:url" content="${cleanCanonical}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
@@ -1612,29 +1623,10 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
     })();
   </script>
   <style>${MASTER_CSS}</style>
-  <!-- POPUNDER: DISABLED — USE THIS ONCE 1K TRAFFIC AND MORE
-       Uncomment the line below to activate Adsterra popunder ads.
-       This opens a sponsor tab on the user's first click per session.
-       High CPM ($2-5) but risky for bounce rate on low-traffic sites.
-  <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/de/cb/e7/decbe73417353e7a377faccd19c69d3f.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
-  -->
   ${schemaMarkup}
 </head>
 <body>
   <script>window.__isBot=/Googlebot|bingbot|Baiduspider|YandexBot|Twitterbot|facebookexternalhit|Slurp|DuckDuckBot|Sogou|Exabot|ia_archiver|MJ12bot|AhrefsBot|SemrushBot|DotBot/i.test(navigator.userAgent);</script>
-  <!-- SPONSOR NOTICE: DISABLED
-  <div id="sponsorNotice" class="sponsor-notice" style="display:none;">
-    <div><strong>Sponsor-supported site</strong> — Your first click may open a sponsor tab. This keeps all 88+ tools completely free, forever.</div>
-    <button class="dismiss-btn" onclick="document.getElementById('sponsorNotice').style.display='none';sessionStorage.setItem('dts-sponsor-ack','1');">Got it</button>
-  </div>
-  <script>
-    (function(){
-      if (!sessionStorage.getItem('dts-sponsor-ack')) {
-        document.getElementById('sponsorNotice').style.display = 'flex';
-      }
-    })();
-  </script>
-  -->
   <div class="app-container">
     ${buildSidebarHtml(currentPath)}
 
@@ -1732,7 +1724,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
           </div>
 
           <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
-            <a href="/convert/json-obfuscator.html" class="promo-card">
+            <a href="/convert/json-obfuscator" class="promo-card">
               <span class="promo-badge">Developer Tool</span>
               <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Obfuscator & Compressor</h4>
               <p style="font-size: 0.9rem; color: var(--text-muted);">Minify payloads and encode keys or unicode string escapes with dictionary mapping.</p>
@@ -1751,7 +1743,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                 <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
               </div>
             </div>
-            <a href="/convert/esbuild-decompiler.html" class="promo-card">
+            <a href="/convert/esbuild-decompiler" class="promo-card">
               <span class="promo-badge">Reverse Engineering</span>
               <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">ESBuild & JS Decompiler</h4>
               <p style="font-size: 0.9rem; color: var(--text-muted);">Unpack bundled IIFEs, expand minified comma-statements, and restore clean ES6 formatting.</p>
@@ -1770,12 +1762,12 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                 <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
               </div>
             </div>
-            <a href="/media/downloader.html" class="promo-card">
+            <a href="/media/downloader" class="promo-card">
               <span class="promo-badge">Media Engine</span>
               <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
               <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
             </a>
-            <a href="/convert/image-resizer.html" class="promo-card">
+            <a href="/convert/image-resizer" class="promo-card">
               <span class="promo-badge">Bulk Image Tool</span>
               <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Bulk Image Resizer</h4>
               <p style="font-size: 0.9rem; color: var(--text-muted);">Scale, resize, and compress entire folders of PNG and JPEG images client-side.</p>
@@ -1916,9 +1908,9 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
           <a href="/">Home</a>
           <a href="/articles/">Tech Journal</a>
-          <a href="/about.html">About</a>
-          <a href="/privacy.html">Privacy</a>
-          <a href="/terms.html">Terms</a>
+          <a href="/about">About</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
           <a href="/sitemap.xml">Sitemap</a>
         </div>
       </footer>

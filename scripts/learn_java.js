@@ -617,14 +617,14 @@ public class Main {
   writeFileSync(join(javaDist, 'playground.html'), renderPage({
     title: 'Interactive Java Online Playground & Autocomplete | Digital Tools Shed',
     metaDesc: 'Free in-browser Java simulator & playground with instant compilation, live terminal output, and autocomplete.',
-    canonical: `${DOMAIN}/learn/java/playground.html`,
+    canonical: `${DOMAIN}/learn/java/playground`,
     bodyContent: standalonePlaygroundHtml,
-    currentPath: '/learn/java/playground.html'
+    currentPath: '/learn/java/playground'
   }));
 
   // ─── JAVA HUB PAGE (/learn/java/index.html) ───────────────────────────────
   const javaCards = javaGuides.map((g, idx) => `
-    <a href="/learn/java/${g.slug}.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;">
+    <a href="/learn/java/${g.slug}" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s;">
       <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; text-transform: uppercase; font-weight: bold;">Guide 0${idx + 1}</span>
       <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.35rem 0 0.5rem; color: var(--fg);">${g.title}</h3>
       <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${g.metaDesc}</p>
@@ -660,7 +660,7 @@ public class Main {
           <h2 style="font-family: var(--serif); font-size: 1.35rem; margin: 0 0 0.25rem;">Interactive Java Playground</h2>
           <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0;">Compile and test Java code directly in your browser with real-time autocompletion.</p>
         </div>
-        <a href="/learn/java/playground.html" class="btn-primary" style="padding: 0.6rem 1.25rem; font-size: 0.9rem; text-decoration: none; font-weight: bold;">Launch Playground &#x25B6;</a>
+        <a href="/learn/java/playground" class="btn-primary" style="padding: 0.6rem 1.25rem; font-size: 0.9rem; text-decoration: none; font-weight: bold;">Launch Playground &#x25B6;</a>
       </div>
 
       <!-- GUIDES GRID -->
@@ -696,7 +696,7 @@ public class Main {
         <!-- RELATED NAV -->
         <div style="border-top: 1px solid var(--border); margin-top: 3rem; padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
           <a href="/learn/java/" class="btn-sec" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">&larr; Java Hub</a>
-          <a href="/learn/java/playground.html" class="btn-primary" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Open Playground &#x25B6;</a>
+          <a href="/learn/java/playground" class="btn-primary" style="text-decoration: none; padding: 0.4rem 0.8rem; font-size: 0.85rem;">Open Playground &#x25B6;</a>
         </div>
         
         ${playgroundScript}
@@ -706,9 +706,9 @@ public class Main {
     writeFileSync(join(javaDist, `${guide.slug}.html`), renderPage({
       title: `${guide.title} | Learn Java | Digital Tools Shed`,
       metaDesc: guide.metaDesc,
-      canonical: `${DOMAIN}/learn/java/${guide.slug}.html`,
+      canonical: `${DOMAIN}/learn/java/${guide.slug}`,
       bodyContent: guideBody,
-      currentPath: `/learn/java/${guide.slug}.html`
+      currentPath: `/learn/java/${guide.slug}`
     }));
   }
 

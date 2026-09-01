@@ -95,8 +95,8 @@ console.log(typeof isCool);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/strings.html">Strings & String Methods</a></li>
-            <li><a href="/learn/javascript/numbers.html">Numbers & Math</a></li>
+            <li><a href="/learn/javascript/strings">Strings & String Methods</a></li>
+            <li><a href="/learn/javascript/numbers">Numbers & Math</a></li>
           </ul>
         `
       },
@@ -137,8 +137,8 @@ console.log(msg.replace("World", "Friend"));
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/template-literals.html">Template Literals</a></li>
-            <li><a href="/learn/javascript/variables.html">Variables</a></li>
+            <li><a href="/learn/javascript/template-literals">Template Literals</a></li>
+            <li><a href="/learn/javascript/variables">Variables</a></li>
           </ul>
         `
       },
@@ -178,7 +178,7 @@ console.log(Math.random()); // Random between 0 and 1
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/booleans.html">Booleans</a></li>
+            <li><a href="/learn/javascript/booleans">Booleans</a></li>
           </ul>
         `
       },
@@ -219,7 +219,7 @@ console.log("Is NOT sunny?", !isSunny);          // NOT
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/conditionals.html">Conditionals</a></li>
+            <li><a href="/learn/javascript/conditionals">Conditionals</a></li>
           </ul>
         `
       },
@@ -261,8 +261,8 @@ console.log(status);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/booleans.html">Booleans</a></li>
-            <li><a href="/learn/javascript/for-loops.html">For Loops</a></li>
+            <li><a href="/learn/javascript/booleans">Booleans</a></li>
+            <li><a href="/learn/javascript/for-loops">For Loops</a></li>
           </ul>
         `
       },
@@ -300,8 +300,8 @@ for (const color of colors) {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/while-loops.html">While Loops</a></li>
-            <li><a href="/learn/javascript/arrays.html">Arrays</a></li>
+            <li><a href="/learn/javascript/while-loops">While Loops</a></li>
+            <li><a href="/learn/javascript/arrays">Arrays</a></li>
           </ul>
         `
       },
@@ -343,7 +343,7 @@ do {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/for-loops.html">For Loops</a></li>
+            <li><a href="/learn/javascript/for-loops">For Loops</a></li>
           </ul>
         `
       },
@@ -388,8 +388,8 @@ console.log(square(6));
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/arrays.html">Arrays</a></li>
-            <li><a href="/learn/javascript/map-filter-reduce.html">Map, Filter, Reduce</a></li>
+            <li><a href="/learn/javascript/arrays">Arrays</a></li>
+            <li><a href="/learn/javascript/map-filter-reduce">Map, Filter, Reduce</a></li>
           </ul>
         `
       },
@@ -429,8 +429,8 @@ console.log(tasks);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/objects.html">Objects</a></li>
-            <li><a href="/learn/javascript/map-filter-reduce.html">Map, Filter, Reduce</a></li>
+            <li><a href="/learn/javascript/objects">Objects</a></li>
+            <li><a href="/learn/javascript/map-filter-reduce">Map, Filter, Reduce</a></li>
           </ul>
         `
       },
@@ -472,8 +472,8 @@ console.log(car);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/destructuring.html">Destructuring</a></li>
-            <li><a href="/learn/javascript/json.html">JSON</a></li>
+            <li><a href="/learn/javascript/destructuring">Destructuring</a></li>
+            <li><a href="/learn/javascript/json">JSON</a></li>
           </ul>
         `
       },
@@ -510,7 +510,7 @@ box.classList.add('active');
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/events.html">Event Listeners</a></li>
+            <li><a href="/learn/javascript/events">Event Listeners</a></li>
           </ul>
         `
       },
@@ -550,7 +550,7 @@ input.addEventListener('input', (e) => {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/dom.html">DOM Manipulation</a></li>
+            <li><a href="/learn/javascript/dom">DOM Manipulation</a></li>
           </ul>
         `
       },
@@ -581,8 +581,8 @@ fetch('https://jsonplaceholder.typicode.com/posts/1')
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/async-await.html">Promises & Async/Await</a></li>
-            <li><a href="/learn/javascript/json.html">JSON</a></li>
+            <li><a href="/learn/javascript/async-await">Promises & Async/Await</a></li>
+            <li><a href="/learn/javascript/json">JSON</a></li>
           </ul>
         `
       },
@@ -615,8 +615,8 @@ getUser();
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/fetch.html">Fetch API</a></li>
-            <li><a href="/learn/javascript/error-handling.html">Error Handling</a></li>
+            <li><a href="/learn/javascript/fetch">Fetch API</a></li>
+            <li><a href="/learn/javascript/error-handling">Error Handling</a></li>
           </ul>
         `
       },
@@ -650,7 +650,7 @@ localStorage.removeItem('theme');
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/json.html">JSON</a></li>
+            <li><a href="/learn/javascript/json">JSON</a></li>
           </ul>
         `
       },
@@ -689,7 +689,7 @@ console.log(html);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/strings.html">Strings</a></li>
+            <li><a href="/learn/javascript/strings">Strings</a></li>
           </ul>
         `
       },
@@ -727,8 +727,8 @@ console.log("Green value:", green);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/objects.html">Objects</a></li>
-            <li><a href="/learn/javascript/spread-rest.html">Spread & Rest</a></li>
+            <li><a href="/learn/javascript/objects">Objects</a></li>
+            <li><a href="/learn/javascript/spread-rest">Spread & Rest</a></li>
           </ul>
         `
       },
@@ -772,7 +772,7 @@ console.log(sumAll(1, 2, 3, 4));
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/destructuring.html">Destructuring</a></li>
+            <li><a href="/learn/javascript/destructuring">Destructuring</a></li>
           </ul>
         `
       },
@@ -816,7 +816,7 @@ console.log("Reduce:", total);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/arrays.html">Arrays</a></li>
+            <li><a href="/learn/javascript/arrays">Arrays</a></li>
           </ul>
         `
       },
@@ -863,7 +863,7 @@ try {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/async-await.html">Async/Await</a></li>
+            <li><a href="/learn/javascript/async-await">Async/Await</a></li>
           </ul>
         `
       },
@@ -910,8 +910,8 @@ function render() {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/dom.html">DOM Manipulation</a></li>
-            <li><a href="/learn/javascript/arrays.html">Arrays</a></li>
+            <li><a href="/learn/javascript/dom">DOM Manipulation</a></li>
+            <li><a href="/learn/javascript/arrays">Arrays</a></li>
           </ul>
         `
       },
@@ -951,7 +951,7 @@ function handleOperator(op) {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/numbers.html">Numbers & Math</a></li>
+            <li><a href="/learn/javascript/numbers">Numbers & Math</a></li>
           </ul>
         `
       },
@@ -989,8 +989,8 @@ form.addEventListener('submit', (e) => {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/events.html">Events</a></li>
-            <li><a href="/learn/javascript/regex.html">Regex</a></li>
+            <li><a href="/learn/javascript/events">Events</a></li>
+            <li><a href="/learn/javascript/regex">Regex</a></li>
           </ul>
         `
       },
@@ -1031,7 +1031,7 @@ console.log(formatted);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/timers.html">Timers</a></li>
+            <li><a href="/learn/javascript/timers">Timers</a></li>
           </ul>
         `
       },
@@ -1068,8 +1068,8 @@ console.log(newText);
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/strings.html">Strings</a></li>
-            <li><a href="/learn/javascript/form-validation.html">Form Validation</a></li>
+            <li><a href="/learn/javascript/strings">Strings</a></li>
+            <li><a href="/learn/javascript/form-validation">Form Validation</a></li>
           </ul>
         `
       },
@@ -1108,8 +1108,8 @@ console.log(obj.score); // 100
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/objects.html">Objects</a></li>
-            <li><a href="/learn/javascript/fetch.html">Fetch API</a></li>
+            <li><a href="/learn/javascript/objects">Objects</a></li>
+            <li><a href="/learn/javascript/fetch">Fetch API</a></li>
           </ul>
         `
       },
@@ -1150,7 +1150,7 @@ const intervalId = setInterval(() => {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/dates.html">Dates</a></li>
+            <li><a href="/learn/javascript/dates">Dates</a></li>
           </ul>
         `
       },
@@ -1201,7 +1201,7 @@ console.log(fluffy.speak());
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/objects.html">Objects</a></li>
+            <li><a href="/learn/javascript/objects">Objects</a></li>
           </ul>
         `
       },
@@ -1247,7 +1247,7 @@ console.log(multiply(4, 5));
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/classes.html">Classes</a></li>
+            <li><a href="/learn/javascript/classes">Classes</a></li>
           </ul>
         `
       },
@@ -1287,7 +1287,7 @@ function trickyLogic(x) {
 
           <h2 style="font-family: var(--serif); margin-top: 2rem;">Related Guides</h2>
           <ul>
-            <li><a href="/learn/javascript/error-handling.html">Error Handling</a></li>
+            <li><a href="/learn/javascript/error-handling">Error Handling</a></li>
           </ul>
         `
       }
@@ -1298,7 +1298,7 @@ function trickyLogic(x) {
     const practical = jsGuides.filter(g => g.category === 'Practical');
 
     const renderCard = (g) => `
-      <a href="/learn/javascript/${g.slug}.html" style="display: block; padding: 1.5rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; background: var(--surface); transition: transform 0.2s, border-color 0.2s;">
+      <a href="/learn/javascript/${g.slug}" style="display: block; padding: 1.5rem; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: inherit; background: var(--surface); transition: transform 0.2s, border-color 0.2s;">
         <h3 style="margin: 0 0 0.5rem 0; font-family: var(--serif); color: var(--btn-bg, #3b82f6);">${g.title}</h3>
         <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">${g.metaDesc}</p>
       </a>
@@ -1393,9 +1393,9 @@ function trickyLogic(x) {
       writeFileSync(join(jsDist, `${guide.slug}.html`), renderPage({
         title: `${guide.title} | Digital Tools Shed`,
         metaDesc: guide.metaDesc,
-        canonical: `${DOMAIN}/learn/javascript/${guide.slug}.html`,
+        canonical: `${DOMAIN}/learn/javascript/${guide.slug}`,
         bodyContent: guideBody,
-        currentPath: `/learn/javascript/${guide.slug}.html`
+        currentPath: `/learn/javascript/${guide.slug}`
       }));
     }
 

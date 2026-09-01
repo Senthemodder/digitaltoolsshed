@@ -125,9 +125,9 @@ export function buildTradeTools() {
   writeFileSync(join(calcDir, 'stair-calculator.html'), renderPage({
     title: 'Stair Stringer Calculator & IRC Code Checker | Digital Tools Shed',
     metaDesc: 'Free stair stringer calculator: calculate rise, run, number of steps, stringer board length, and verify IRC building code compliance.',
-    canonical: `${DOMAIN}/calc/stair-calculator.html`,
+    canonical: `${DOMAIN}/calc/stair-calculator`,
     bodyContent: stairBody,
-    currentPath: '/calc/stair-calculator.html'
+    currentPath: '/calc/stair-calculator'
   }));
 
   // 2. CONCRETE SLAB & BAG CALCULATOR
@@ -269,9 +269,9 @@ export function buildTradeTools() {
   writeFileSync(join(calcDir, 'concrete-calculator.html'), renderPage({
     title: 'Concrete Slab & Bag Calculator (Cubic Yards & 80lb Bags) | Digital Tools Shed',
     metaDesc: 'Calculate concrete cubic yards and pre-mix 80lb/60lb bags for slabs, patios, and post holes with automatic spillage buffer.',
-    canonical: `${DOMAIN}/calc/concrete-calculator.html`,
+    canonical: `${DOMAIN}/calc/concrete-calculator`,
     bodyContent: concreteBody,
-    currentPath: '/calc/concrete-calculator.html'
+    currentPath: '/calc/concrete-calculator'
   }));
 
   // 3. DRYWALL & SCREW ESTIMATOR
@@ -375,9 +375,9 @@ export function buildTradeTools() {
   writeFileSync(join(calcDir, 'drywall-calculator.html'), renderPage({
     title: 'Drywall Calculator: Sheets, Mud, Tape & Screws | Digital Tools Shed',
     metaDesc: 'Calculate 4x8 and 4x12 drywall sheets, joint compound buckets, screws, and tape rolls for any room size.',
-    canonical: `${DOMAIN}/calc/drywall-calculator.html`,
+    canonical: `${DOMAIN}/calc/drywall-calculator`,
     bodyContent: drywallBody,
-    currentPath: '/calc/drywall-calculator.html'
+    currentPath: '/calc/drywall-calculator'
   }));
 
   // 4. MULCH & TOPSOIL YARDAGE CALCULATOR
@@ -463,9 +463,9 @@ export function buildTradeTools() {
   writeFileSync(join(calcDir, 'mulch-calculator.html'), renderPage({
     title: 'Mulch & Topsoil Yardage Calculator (Cubic Yards & Bags) | Digital Tools Shed',
     metaDesc: 'Calculate cubic yards and 2 cu ft bag counts for mulch, topsoil, gravel, and garden bed landscaping.',
-    canonical: `${DOMAIN}/calc/mulch-calculator.html`,
+    canonical: `${DOMAIN}/calc/mulch-calculator`,
     bodyContent: mulchBody,
-    currentPath: '/calc/mulch-calculator.html'
+    currentPath: '/calc/mulch-calculator'
   }));
 
   console.log('  ✓ Built Trade & Construction Suite (Stair, Concrete, Drywall, Mulch calculators in /calc/)');

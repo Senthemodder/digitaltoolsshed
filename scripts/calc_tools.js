@@ -483,7 +483,7 @@ function buildUnitCalcSuite() {
         const rTo = cat.units[p[1]];
         const rSlug = p[2].replace(/\//g, '');
         return `
-          <a href="/calc/${rSlug}.html" class="tool-card">
+          <a href="/calc/${rSlug}" class="tool-card">
             <h4 style="font-family: var(--serif); font-size: 1.05rem; margin-bottom: 0.25rem;">${rFrom.label} to ${rTo.label}</h4>
             <p style="font-size: 0.85rem; color: var(--text-muted);">Convert ${rFrom.abbr} to ${rTo.abbr} instantly.</p>
           </a>

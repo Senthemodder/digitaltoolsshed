@@ -588,9 +588,9 @@ function buildMediaSuite() {
   writeFileSync(join(mediaDir, 'downloader.html'), renderPage({
     title: 'Universal Media & Video Downloader — X/Twitter, TikTok, YouTube | Digital Tools Shed',
     metaDesc: 'Download videos and audio from Twitter/X, TikTok, YouTube, Instagram, and Reddit for free. Instant HD MP4 extractions with zero uploads.',
-    canonical: `${DOMAIN}/media/downloader.html`,
+    canonical: `${DOMAIN}/media/downloader`,
     bodyContent: downloaderBody,
-    currentPath: '/media/downloader.html'
+    currentPath: '/media/downloader'
   }));
 
   // ─── 2. UNIVERSAL SCREEN, CAMERA & VOICE RECORDER ───────────────────────────
@@ -993,9 +993,9 @@ function buildMediaSuite() {
   writeFileSync(join(mediaDir, 'recorder.html'), renderPage({
     title: 'Free Screen, Webcam & Voice Recorder — No Watermark | Digital Tools Shed',
     metaDesc: 'Free online screen recorder, webcam video capturer, and voice microphone recorder. 100% private in-browser recording with zero uploads.',
-    canonical: `${DOMAIN}/media/recorder.html`,
+    canonical: `${DOMAIN}/media/recorder`,
     bodyContent: recorderBody,
-    currentPath: '/media/recorder.html'
+    currentPath: '/media/recorder'
   }));
 
   // ─── 3. YOUTUBE TO MP3 AUDIO CONVERTER (IN-PAGE + AUTO DOWNLOAD) ────────────
@@ -1139,9 +1139,9 @@ function buildMediaSuite() {
   writeFileSync(join(mediaDir, 'youtube-to-mp3.html'), renderPage({
     title: 'YouTube to MP3 Converter — Free 320kbps Audio Extractor | Digital Tools Shed',
     metaDesc: 'Convert YouTube videos to MP3 audio online for free. Fast high-quality 320kbps audio extractor directly in your browser.',
-    canonical: `${DOMAIN}/media/youtube-to-mp3.html`,
+    canonical: `${DOMAIN}/media/youtube-to-mp3`,
     bodyContent: ytMp3Body,
-    currentPath: '/media/youtube-to-mp3.html'
+    currentPath: '/media/youtube-to-mp3'
   }));
 
   // ─── 4. TIKTOK VIDEO SAVER (IN-PAGE + AUTO DOWNLOAD) ────────────────────────
@@ -1299,9 +1299,9 @@ function buildMediaSuite() {
   writeFileSync(join(mediaDir, 'tiktok-saver.html'), renderPage({
     title: 'TikTok Video Saver — Free No Watermark Downloader | Digital Tools Shed',
     metaDesc: 'Download TikTok videos without watermark in HD quality. Free, instant, online TikTok MP4 video saver.',
-    canonical: `${DOMAIN}/media/tiktok-saver.html`,
+    canonical: `${DOMAIN}/media/tiktok-saver`,
     bodyContent: tiktokBody,
-    currentPath: '/media/tiktok-saver.html'
+    currentPath: '/media/tiktok-saver'
   }));
 
   // ─── 5. SUBTITLE SRT/VTT SHIFTER ───────────────────────────────────────────
@@ -1382,9 +1382,9 @@ function buildMediaSuite() {
   writeFileSync(join(mediaDir, 'subtitle-shifter.html'), renderPage({
     title: 'Subtitle Time Shifter & Resync (.SRT & .VTT) | Digital Tools Shed',
     metaDesc: 'Fix desynced subtitles online. Shift SRT and VTT timestamps forward or backward in milliseconds in your browser.',
-    canonical: `${DOMAIN}/media/subtitle-shifter.html`,
+    canonical: `${DOMAIN}/media/subtitle-shifter`,
     bodyContent: subBody,
-    currentPath: '/media/subtitle-shifter.html'
+    currentPath: '/media/subtitle-shifter'
   }));
 
   console.log('  ✓ Built Media & Video Suite (/media/ — Downloader, Recorder, YouTube MP3, TikTok, Subtitles)');

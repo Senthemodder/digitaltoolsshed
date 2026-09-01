@@ -10,8 +10,8 @@ function buildSEOAssets() {
     for (const item of readdirSync(dir, { withFileTypes: true })) {
       if (item.isDirectory()) {
         collectUrls(join(dir, item.name), `${prefix}/${item.name}`);
-      } else if (item.name.endsWith('.html') && item.name !== 'index.html') {
-        discoveredUrls.push(`${DOMAIN}${prefix}/${item.name}`);
+      } else if (item.name.endsWith('.html') && item.name !== 'index.html' && item.name !== '404.html') {
+        discoveredUrls.push(`${DOMAIN}${prefix}/${item.name.replace(/\.html$/, '')}`);
       }
     }
   }

@@ -435,16 +435,16 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
     const html = renderPage({
       title: `${tool.title} | Digital Tools Shed`,
       metaDesc: tool.metaDesc,
-      canonical: `${DOMAIN}/dev/${tool.slug}.html`,
+      canonical: `${DOMAIN}/dev/${tool.slug}`,
       bodyContent: tool.body,
-      currentPath: `/dev/${tool.slug}.html`
+      currentPath: `/dev/${tool.slug}`
     });
     writeFileSync(join(devDist, `${tool.slug}.html`), html);
   }
 
   // Render Hub Page
   const hubCards = tools.map(t => `
-    <a href="/dev/${t.slug}.html" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+    <a href="/dev/${t.slug}" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
       <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">${t.title}</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">${t.metaDesc}</p>
     </a>

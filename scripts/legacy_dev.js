@@ -233,9 +233,9 @@ function buildDeveloperTools() {
   writeFileSync(join(convertDist, 'json-obfuscator.html'), renderPage({
     title: 'JSON Obfuscator & Compressor — Protect & Minify Payloads | Digital Tools Shed',
     metaDesc: 'Free online JSON obfuscator and compressor. Mangle JSON keys, encode unicode hex string escapes, minify payloads, and reduce file size.',
-    canonical: `${DOMAIN}/convert/json-obfuscator.html`,
+    canonical: `${DOMAIN}/convert/json-obfuscator`,
     bodyContent: jsonObfuscatorBody,
-    currentPath: '/convert/json-obfuscator.html'
+    currentPath: '/convert/json-obfuscator'
   }));
 
   // 2. ESBuild & JavaScript Decompiler & Beautifier
@@ -384,9 +384,9 @@ function buildDeveloperTools() {
   writeFileSync(join(convertDist, 'esbuild-decompiler.html'), renderPage({
     title: 'ESBuild & JavaScript Decompiler — Free Reverse Engineering & Unminifier | Digital Tools Shed',
     metaDesc: 'Decompile, unminify, format, and reverse engineer minified ESBuild and Webpack JavaScript bundles in your browser.',
-    canonical: `${DOMAIN}/convert/esbuild-decompiler.html`,
+    canonical: `${DOMAIN}/convert/esbuild-decompiler`,
     bodyContent: esbuildDecompilerBody,
-    currentPath: '/convert/esbuild-decompiler.html'
+    currentPath: '/convert/esbuild-decompiler'
   }));
 
   console.log('  ✓ Built Developer Suite (json-obfuscator.html, esbuild-decompiler.html)');

@@ -613,9 +613,9 @@ export function buildMinecraftTools() {
   writeFileSync(join(mcDir, 'nbt-editor.html'), renderPage({
     title: 'Minecraft NBT Editor & Viewer Online (Java & Bedrock) | Digital Tools Shed',
     metaDesc: 'Free in-browser Minecraft NBT editor: view and edit level.dat, playerdata, .nbt, .schematic, and .mcstructure files with Gzip support and SNBT export.',
-    canonical: `${DOMAIN}/mc/nbt-editor.html`,
+    canonical: `${DOMAIN}/mc/nbt-editor`,
     bodyContent: nbtBody,
-    currentPath: '/mc/nbt-editor.html'
+    currentPath: '/mc/nbt-editor'
   }));
 
   // ─── 2. UUID GENERATOR ─────────────────────────────────────────────────────
@@ -668,9 +668,9 @@ export function buildMinecraftTools() {
   writeFileSync(join(mcDir, 'uuid-gen.html'), renderPage({
     title: 'Minecraft UUID Generator for Bedrock Add-Ons | Digital Tools Shed',
     metaDesc: 'Generate random UUID v4 strings for Minecraft Bedrock behavior pack and resource pack manifest.json files.',
-    canonical: `${DOMAIN}/mc/uuid-gen.html`,
+    canonical: `${DOMAIN}/mc/uuid-gen`,
     bodyContent: uuidBody,
-    currentPath: '/mc/uuid-gen.html'
+    currentPath: '/mc/uuid-gen'
   }));
 
   // ─── 3. MANIFEST GENERATOR ─────────────────────────────────────────────────
@@ -746,9 +746,9 @@ export function buildMinecraftTools() {
   writeFileSync(join(mcDir, 'manifest-gen.html'), renderPage({
     title: 'Minecraft Bedrock Manifest Generator | Digital Tools Shed',
     metaDesc: 'Generate valid manifest.json files for Minecraft Bedrock behavior and resource packs.',
-    canonical: `${DOMAIN}/mc/manifest-gen.html`,
+    canonical: `${DOMAIN}/mc/manifest-gen`,
     bodyContent: manifestBody,
-    currentPath: '/mc/manifest-gen.html'
+    currentPath: '/mc/manifest-gen'
   }));
 
   // ─── 4. MINECRAFT HUB PAGE ─────────────────────────────────────────────────
@@ -759,19 +759,19 @@ export function buildMinecraftTools() {
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
-      <a href="/mc/nbt-editor.html" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+      <a href="/mc/nbt-editor" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
         <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📦</div>
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">NBT Editor & Viewer</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Open, view, and edit Minecraft .dat, .nbt, playerdata, and level.dat files in your browser.</p>
       </a>
 
-      <a href="/mc/uuid-gen.html" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+      <a href="/mc/uuid-gen" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
         <div style="font-size: 1.75rem; margin-bottom: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 0-7.8 7.8 5.5 5.5 0 0 0 7.8-7.8zm0 0L15.6 7.6m0 0l1.4-1.4m-1.4 1.4l2.8 2.8"/></svg></div>
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">UUID Generator</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate RFC4122 v4 UUID pairs formatted for Minecraft Bedrock behavior and resource packs.</p>
       </a>
 
-      <a href="/mc/manifest-gen.html" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+      <a href="/mc/manifest-gen" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
         <div style="font-size: 1.75rem; margin-bottom: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">Manifest.json Generator</h3>
         <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate valid manifest.json files for Minecraft Bedrock add-ons with automatic UUIDs.</p>
@@ -863,9 +863,9 @@ export function buildMinecraftTools() {
   writeFileSync(join(mcDir, 'tellraw-gen.html'), renderPage({
     title: 'Minecraft Bedrock /tellraw Generator (Rawtext JSON) | Digital Tools Shed',
     metaDesc: 'Generate Bedrock rawtext JSON tellraw commands with color formatting and selectors.',
-    canonical: `${DOMAIN}/mc/tellraw-gen.html`,
+    canonical: `${DOMAIN}/mc/tellraw-gen`,
     bodyContent: tellrawBody,
-    currentPath: '/mc/tellraw-gen.html'
+    currentPath: '/mc/tellraw-gen'
   }));
 
   // ─── 6. BEDROCK /PLAYSOUND PICKER ──────────────────────────────────────────
@@ -932,9 +932,9 @@ export function buildMinecraftTools() {
   writeFileSync(join(mcDir, 'playsound-gen.html'), renderPage({
     title: 'Minecraft Bedrock /playsound Generator & Sound List | Digital Tools Shed',
     metaDesc: 'Generate Bedrock /playsound commands with sound event IDs, pitch, volume, and coordinates.',
-    canonical: `${DOMAIN}/mc/playsound-gen.html`,
+    canonical: `${DOMAIN}/mc/playsound-gen`,
     bodyContent: playsoundBody,
-    currentPath: '/mc/playsound-gen.html'
+    currentPath: '/mc/playsound-gen'
   }));
 
   console.log('  ✓ Built Minecraft Suite (NBT Editor, UUID Generator, Manifest Generator in /mc/)');

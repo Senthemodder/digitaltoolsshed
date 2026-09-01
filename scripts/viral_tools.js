@@ -207,9 +207,9 @@ export function buildViralTools() {
   writeFileSync(join(calcDir, 'ai-water-calculator.html'), renderPage({
     title: 'How Much Water Does AI Use? Live Real-Time Reality Checker | Digital Tools Shed',
     metaDesc: 'Interactive live ticker comparing AI water consumption (ChatGPT, Claude, LLMs) vs cattle, golf courses, and coffee with personal footprint calculator.',
-    canonical: `${DOMAIN}/calc/ai-water-calculator.html`,
+    canonical: `${DOMAIN}/calc/ai-water-calculator`,
     bodyContent: aiWaterHtml,
-    currentPath: '/calc/ai-water-calculator.html'
+    currentPath: '/calc/ai-water-calculator'
   }));
 
   // 2. GRAPHING CALCULATOR (DESMOS CLONE)
@@ -370,9 +370,9 @@ export function buildViralTools() {
   writeFileSync(join(mathDir, 'graphing-calculator.html'), renderPage({
     title: 'Free 2D Graphing Calculator Online (Desmos Alternative) | Digital Tools Shed',
     metaDesc: 'Interactive in-browser 2D graphing calculator: plot math functions, derivatives, trigonometric curves, and polynomials in real-time.',
-    canonical: `${DOMAIN}/math/graphing-calculator.html`,
+    canonical: `${DOMAIN}/math/graphing-calculator`,
     bodyContent: graphHtml,
-    currentPath: '/math/graphing-calculator.html'
+    currentPath: '/math/graphing-calculator'
   }));
 
   // 3. SCALE VISUALIZER
@@ -452,9 +452,9 @@ export function buildViralTools() {
   writeFileSync(join(utilDir, 'scale-visualizer.html'), renderPage({
     title: 'Million vs Billion vs Trillion Number & Speed Scale Visualizer | Digital Tools Shed',
     metaDesc: 'Interactive scale visualizer comparing 1 million, 1 billion, and 1 trillion in time, height, and computing tokens.',
-    canonical: `${DOMAIN}/util/scale-visualizer.html`,
+    canonical: `${DOMAIN}/util/scale-visualizer`,
     bodyContent: scaleHtml,
-    currentPath: '/util/scale-visualizer.html'
+    currentPath: '/util/scale-visualizer'
   }));
 
   console.log('  ✓ Built Viral & Reality Suite (AI Water Counter, Desmos Graphing Calculator, Scale Visualizer)');

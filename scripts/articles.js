@@ -77,7 +77,7 @@ var d=t=>m(s({},"__esModule",{value:!0}),t);</code></pre>
               <h3 style="margin: 0; font-family: var(--serif);">Try the In-Browser Decompiler</h3>
               <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Paste your minified ESBuild or Webpack JavaScript payload into our client-side decompiler to instantly unpack IIFEs, expand comma-statements, and format readable code.</p>
               <div style="margin-top: 0.5rem;">
-                <a href="/convert/esbuild-decompiler.html" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Open ESBuild Decompiler →</a>
+                <a href="/convert/esbuild-decompiler" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Open ESBuild Decompiler →</a>
               </div>
             </div>
           </div>
@@ -148,7 +148,7 @@ var d=t=>m(s({},"__esModule",{value:!0}),t);</code></pre>
               <h3 style="margin: 0; font-family: var(--serif);">Interactive JSON Obfuscator & Compressor</h3>
               <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Use our browser-based utility to minify, dictionary-encode, and hex-escape JSON payloads with 100% reversible decompression.</p>
               <div style="margin-top: 0.5rem;">
-                <a href="/convert/json-obfuscator.html" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Open JSON Obfuscator →</a>
+                <a href="/convert/json-obfuscator" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Open JSON Obfuscator →</a>
               </div>
             </div>
           </div>
@@ -251,7 +251,7 @@ var d=t=>m(s({},"__esModule",{value:!0}),t);</code></pre>
               <h3 style="margin: 0; font-family: var(--serif);">Generate Bedrock Manifests & UUIDs</h3>
               <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Use our generator to create valid manifest.json files with matching UUID v4 pairs and module headers for your Behavior and Resource packs.</p>
               <div style="margin-top: 0.5rem;">
-                <a href="/mc/manifest-gen.html" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Manifest Generator →</a>
+                <a href="/mc/manifest-gen" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Manifest Generator →</a>
               </div>
             </div>
           </div>
@@ -311,7 +311,7 @@ var d=t=>m(s({},"__esModule",{value:!0}),t);</code></pre>
               <h3 style="margin: 0; font-family: var(--serif);">Instant Minecraft UUID Generator</h3>
               <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Generate cryptographically secure RFC-4122 v4 UUIDs for Minecraft Bedrock packs with 1-click clipboard copying.</p>
               <div style="margin-top: 0.5rem;">
-                <a href="/mc/uuid-gen.html" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">UUID Generator →</a>
+                <a href="/mc/uuid-gen" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">UUID Generator →</a>
               </div>
             </div>
           </div>
@@ -375,7 +375,7 @@ function convertClientSide(imgElement, format, quality) {
               <h3 style="margin: 0; font-family: var(--serif);">Convert Images Client-Side</h3>
               <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Convert PNG, JPG, and WebP images instantly in your browser with zero file uploads and complete privacy.</p>
               <div style="margin-top: 0.5rem;">
-                <a href="/convert/png-to-webp.html" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Convert PNG to WebP →</a>
+                <a href="/convert/png-to-webp" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Convert PNG to WebP →</a>
               </div>
             </div>
           </div>
@@ -416,7 +416,7 @@ function convertClientSide(imgElement, format, quality) {
               <h3 style="margin: 0; font-family: var(--serif);">Try Universal Media Downloader</h3>
               <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Download clean video and audio streams from YouTube, TikTok, Twitter/X, and Instagram.</p>
               <div style="margin-top: 0.5rem;">
-                <a href="/media/downloader.html" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Open Media Downloader →</a>
+                <a href="/media/downloader" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Open Media Downloader →</a>
               </div>
             </div>
           </div>
@@ -466,9 +466,9 @@ function convertClientSide(imgElement, format, quality) {
     const html = renderPage({
       title: `${art.title} — Digital Tools Shed Journal`,
       metaDesc: art.desc,
-      canonical: `${DOMAIN}/articles/${art.slug}.html`,
+      canonical: `${DOMAIN}/articles/${art.slug}`,
       bodyContent: articleBody,
-      currentPath: `/articles/${art.slug}.html`,
+      currentPath: `/articles/${art.slug}`,
       schema: {
         "@context": "https://schema.org",
         "@type": "TechArticle",
@@ -487,7 +487,7 @@ function convertClientSide(imgElement, format, quality) {
 
   // 2. Render Articles Hub /articles/index.html
   const hubCards = ARTICLES.map(art => `
-    <a href="/articles/${art.slug}.html" class="article-journal-card">
+    <a href="/articles/${art.slug}" class="article-journal-card">
       <div>
         <div class="article-journal-tag">${art.category}</div>
         <h3>${art.title}</h3>

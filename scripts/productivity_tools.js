@@ -1692,9 +1692,9 @@ function buildProductivitySuite() {
     const html = renderPage({
       title: `${page.title} | Digital Tools Shed`,
       metaDesc: page.metaDesc,
-      canonical: `${DOMAIN}/productivity/${page.slug}.html`,
+      canonical: `${DOMAIN}/productivity/${page.slug}`,
       bodyContent: page.body,
-      currentPath: `/productivity/${page.slug}.html`
+      currentPath: `/productivity/${page.slug}`
     });
     writeFileSync(join(prodDist, `${page.slug}.html`), html);
   }

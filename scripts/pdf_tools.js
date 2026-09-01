@@ -85,9 +85,9 @@ function buildPdfTools() {
   writeFileSync(join(pdfDir, 'pdf-to-text.html'), renderPage({
     title: 'PDF to Text Extractor — Free Online PDF Parser | Digital Tools Shed',
     metaDesc: 'Extract clean text from PDF documents for free. 100% private in-browser document parsing without uploading to external servers.',
-    canonical: `${DOMAIN}/pdf/pdf-to-text.html`,
+    canonical: `${DOMAIN}/pdf/pdf-to-text`,
     bodyContent: pdfTextBody,
-    currentPath: '/pdf/pdf-to-text.html'
+    currentPath: '/pdf/pdf-to-text'
   }));
 
   const pdfInspectorBody = `
@@ -146,9 +146,9 @@ function buildPdfTools() {
   writeFileSync(join(pdfDir, 'page-counter.html'), renderPage({
     title: 'Free PDF Page Counter & Metadata Inspector | Digital Tools Shed',
     metaDesc: 'Check PDF page count, metadata, file size, and attributes instantly in your web browser. Free, fast, zero installation.',
-    canonical: `${DOMAIN}/pdf/page-counter.html`,
+    canonical: `${DOMAIN}/pdf/page-counter`,
     bodyContent: pdfInspectorBody,
-    currentPath: '/pdf/page-counter.html'
+    currentPath: '/pdf/page-counter'
   }));
 
   console.log('  ✓ Built PDF Suite (/pdf/)');
