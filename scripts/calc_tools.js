@@ -623,10 +623,16 @@ function buildUnitCalcSuite() {
         `;
       }
 
+      const oneUnitValue = formatNumber(getConversionValue(catKey, fromKey, toKey, 1, factor));
+
       const calcBody = `
-        <div class="hero" style="padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
-          <h1 style="margin-top: 0.5rem;">Convert ${fromUnit.label} to ${toUnit.label}</h1>
+        <div class="hero" style="padding-bottom: 1rem; margin-bottom: 1rem;">
+          <h1 style="margin-top: 0.5rem;">${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label}</h1>
           <p>Instantly calculate ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}) with real-time two-way calculation and recipe fraction support.</p>
+        </div>
+
+        <div style="background: var(--surface-alt); border-left: 4px solid var(--border-strong); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem; font-size: 1.05rem; font-family: var(--serif); max-width: 850px;">
+          <strong>Quick Answer:</strong> 1 ${fromUnit.abbr} = <strong>${oneUnitValue} ${toUnit.abbr}</strong> (1 ${fromUnit.label.replace(/s$/, '')} = ${oneUnitValue} ${toUnit.label})
         </div>
 
         <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
@@ -638,7 +644,7 @@ function buildUnitCalcSuite() {
             <div style="font-size: 2rem; font-weight: bold; text-align: center; color: var(--text-muted); padding-top: 1.5rem;">=</div>
             <div>
               <label style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; display: block; margin-bottom: 0.5rem;">${toUnit.label} (${toUnit.abbr})</label>
-              <input type="text" inputmode="decimal" id="toInput" class="search-input" placeholder="Result" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
+              <input type="text" inputmode="decimal" id="toInput" class="search-input" value="${oneUnitValue}" placeholder="Result" style="width: 100%; font-size: 1.3rem; padding: 0.75rem 1rem; font-family: var(--mono);" />
             </div>
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1.25rem; align-items: center;">
@@ -731,15 +737,15 @@ function buildUnitCalcSuite() {
         </div>
       `;
 
-      let pageTitle = `Convert ${fromUnit.label} to ${toUnit.label} (${fromUnit.abbr} to ${toUnit.abbr}) — Free Online Calculator | Digital Tools Shed`;
-      let pageMetaDesc = `Instantly convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}). Free, fast, real-time formula calculations with zero tracking.`;
+      let pageTitle = `${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label} | Digital Tools Shed`;
+      let pageMetaDesc = `Fast ${fromUnit.abbr} to ${toUnit.abbr} converter. 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Real-time two-way calculation, formulas, and conversion chart.`;
 
       if (catKey === 'volume' || isKitchen) {
-        pageTitle = `Convert ${fromUnit.label} to ${toUnit.label} (${fromUnit.abbr} to ${toUnit.abbr}) — Baking & Cooking Chart | Digital Tools Shed`;
-        pageMetaDesc = `Quickly convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}). Supports cooking fractions (1/2, 2 1/2), liquid measurements, recipe charts, and exact formulas.`;
+        pageTitle = `${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label} (Fraction Chart) | Digital Tools Shed`;
+        pageMetaDesc = `Convert ${fromUnit.abbr} to ${toUnit.abbr} with cooking fractions (1/8, 1/4, 1/3, 1/2, 2 1/2). 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Free baking reference chart.`;
       } else if (catKey === 'energy') {
-        pageTitle = `Convert ${fromUnit.label} to ${toUnit.label} (${fromUnit.abbr} to ${toUnit.abbr}) — Formula & Energy Calculator | Digital Tools Shed`;
-        pageMetaDesc = `Convert ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}) instantly. Exact scientific physics factor, real-time conversion formula, and reference table.`;
+        pageTitle = `${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label} (Formula) | Digital Tools Shed`;
+        pageMetaDesc = `Convert ${fromUnit.abbr} to ${toUnit.abbr} instantly. 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Exact physics factor, conversion formula, and reference table.`;
       }
 
       writeFileSync(join(calcDist, fileName), renderPage({

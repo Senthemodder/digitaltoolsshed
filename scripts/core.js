@@ -1575,7 +1575,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
   // Custom schema override
   if (schema) schemas.push(schema);
 
-  const schemaMarkup = schemas.map(s => `<script>if(!window.__isBot){\n${JSON.stringify(s, null, 2)}\n</script>`).join('\n  ');
+  const schemaMarkup = schemas.map(s => `<script type="application/ld+json">\n${JSON.stringify(s, null, 2)}\n</script>`).join('\n  ');
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
