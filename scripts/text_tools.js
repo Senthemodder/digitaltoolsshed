@@ -749,6 +749,141 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           document.addEventListener('DOMContentLoaded', checkPal);
         </script>
       `
+    },
+    {
+      slug: 'markdown-preview',
+      title: 'Markdown Live Preview & HTML Converter',
+      metaDesc: 'Interactive side-by-side GitHub Flavored Markdown editor with real-time HTML preview, table formatting, and 1-click HTML export.',
+      category: 'Text & Writing',
+      faq: [
+        { q: 'What is Markdown and why is it used?', a: 'Markdown is a lightweight markup language with plain-text formatting syntax. It is designed to be converted into HTML and is widely used for blogging, documentation, GitHub READMEs, and technical writing.' },
+        { q: 'How do you create tables in GitHub Flavored Markdown?', a: 'Create tables using pipes (|) to separate columns and hyphens (-) on the second line to separate the header from data rows: | Header 1 | Header 2 | followed by | --- | --- |.' },
+        { q: 'Is my markdown text processed locally or stored on a server?', a: 'Everything is processed 100% locally in your web browser. None of your text, notes, or documentation is ever transmitted over the network.' }
+      ],
+      body: `
+        ${commonStyle}
+        <style>
+          .md-preview-pane { background: var(--bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 4px; min-height: 350px; line-height: 1.6; color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+          .md-preview-pane h1 { font-size: 1.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-top: 1rem; }
+          .md-preview-pane h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; margin-top: 1rem; }
+          .md-preview-pane h3 { font-size: 1.15rem; margin-top: 0.8rem; }
+          .md-preview-pane pre { background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; overflow-x: auto; font-family: var(--mono); font-size: 0.85rem; border: 1px solid var(--border); }
+          .md-preview-pane code { background: var(--surface-alt); padding: 0.15rem 0.35rem; border-radius: 3px; font-family: var(--mono); font-size: 0.85rem; }
+          .md-preview-pane blockquote { border-left: 4px solid var(--border); margin: 0; padding-left: 1rem; color: var(--text-muted); font-style: italic; }
+          .md-preview-pane table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+          .md-preview-pane th, .md-preview-pane td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
+          .md-preview-pane th { background: var(--surface-alt); font-weight: bold; }
+        </style>
+
+        <div class="article-container" style="max-width: 1000px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Markdown Preview
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Markdown Live Preview & HTML Converter</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Write, edit, and preview GitHub Flavored Markdown (GFM) with real-time HTML rendering, word metrics, and instant HTML export.
+          </p>
+
+          <div class="tool-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">
+                <span id="md-words">0</span> words | <span id="md-chars">0</span> characters | ~<span id="md-read">0</span> min read
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="btn-sec" onclick="loadSampleMd()" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Load Sample</button>
+                <button class="btn-sec" onclick="copyHtmlOutput()" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Copy HTML</button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" id="md-editor-grid">
+              <div>
+                <label class="field-label">Markdown Input</label>
+                <textarea id="md-input" class="code-input" style="height: 450px; font-family: var(--mono); font-size: 0.85rem; resize: vertical;" oninput="renderMarkdown()"></textarea>
+              </div>
+              <div>
+                <label class="field-label">Live Rendered Preview</label>
+                <div id="md-preview" class="md-preview-pane" style="height: 450px; overflow-y: auto;"></div>
+              </div>
+            </div>
+
+            <div class="action-bar" style="margin-top: 1.25rem;">
+              <button class="btn-primary" onclick="copyHtmlOutput()">Copy Generated HTML</button>
+              <button class="btn-sec" onclick="downloadFile('document.html', getConvertedHtml())">Download HTML</button>
+              <button class="btn-sec" onclick="downloadFile('document.md', document.getElementById('md-input').value)">Download Markdown</button>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var B = String.fromCharCode(96);
+          var sampleMarkdown = '# Markdown Cheatsheet\\n\\nWelcome to the **Digital Tools Shed** Markdown Previewer!\\n\\n## Formatting Styles\\n- **Bold text** with ' + B + '**double asterisks**' + B + '\\n- *Italic text* with ' + B + '*single asterisks*' + B + '\\n- ~~Strikethrough~~ with ' + B + '~~tildes~~' + B + '\\n\\n### Blockquote Example\\n> \\"Simplicity is prerequisite for reliability.\\" — Edsger W. Dijkstra\\n\\n### Code Block\\n' + B + B + B + 'javascript\\nfunction greet(name) {\\n  console.log(\"Hello, \" + name + \"!\");\\n}\\n' + B + B + B + '\\n\\n### Data Table\\n| Feature | Status | Performance |\\n| :--- | :--- | :--- |\\n| Real-time Parser | Active | 60 FPS |\\n| Zero Uploads | Enabled | 100% Private |\\n| Export to HTML | Ready | Instant |\\n';
+
+          function parseMarkdownSimple(md) {
+            var B = String.fromCharCode(96);
+            var reCodeBlock = new RegExp(B + B + B + '([a-z]*)\\\\n([\\\\s\\\\S]*?)' + B + B + B, 'g');
+            var reInlineCode = new RegExp(B + '([^' + B + ']+)' + B, 'g');
+            var html = md
+              .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+              .replace(reCodeBlock, '<pre><code>$2</code></pre>')
+              .replace(reInlineCode, '<code>$1</code>')
+              .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+              .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+              .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+              .replace(/^\\> (.*$)/gim, '<blockquote>$1</blockquote>')
+              .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
+              .replace(/\\*(.*?)\\*/g, '<em>$1</em>')
+              .replace(/~~(.*?)~~/g, '<del>$1</del>')
+              .replace(/\\|(.+)\\|\\n\\|[-| :]+\\|\\n((?:\\|.+\\|\\n?)+)/g, function(match, header, rows) {
+                var ths = header.split('|').filter(Boolean).map(function(h) { return '<th>' + h.trim() + '</th>'; }).join('');
+                var trs = rows.trim().split('\\n').map(function(r) {
+                  var tds = r.split('|').filter(Boolean).map(function(d) { return '<td>' + d.trim() + '</td>'; }).join('');
+                  return '<tr>' + tds + '</tr>';
+                }).join('');
+                return '<table><thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table>';
+              })
+              .replace(/^\\- (.*$)/gim, '<li>$1</li>')
+              .replace(/\\n\\n+/g, '</p><p>');
+
+            return '<p>' + html + '</p>';
+          }
+
+          function renderMarkdown() {
+            var raw = document.getElementById('md-input').value;
+            var html = parseMarkdownSimple(raw);
+            document.getElementById('md-preview').innerHTML = html;
+
+            var words = raw.trim() ? raw.trim().split(/\\s+/).length : 0;
+            document.getElementById('md-words').textContent = words;
+            document.getElementById('md-chars').textContent = raw.length;
+            document.getElementById('md-read').textContent = Math.ceil(words / 200);
+          }
+
+          function loadSampleMd() {
+            document.getElementById('md-input').value = sampleMarkdown;
+            renderMarkdown();
+          }
+
+          function getConvertedHtml() {
+            return document.getElementById('md-preview').innerHTML;
+          }
+
+          function copyHtmlOutput() {
+            navigator.clipboard.writeText(getConvertedHtml());
+            alert('Copied HTML output to clipboard!');
+          }
+
+          function downloadFile(filename, content) {
+            var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = filename;
+            a.click();
+          }
+
+          document.addEventListener('DOMContentLoaded', loadSampleMd);
+          loadSampleMd();
+        </script>
+      `
     }
   ];
 
@@ -759,7 +894,8 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       metaDesc: tool.metaDesc,
       canonical: `${DOMAIN}/text/${tool.slug}`,
       bodyContent: tool.body,
-      currentPath: `/text/${tool.slug}`
+      currentPath: `/text/${tool.slug}`,
+      faq: tool.faq
     });
     writeFileSync(join(textDist, `${tool.slug}.html`), html);
   }

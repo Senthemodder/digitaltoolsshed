@@ -1250,6 +1250,9 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/dev/sql-formatter" class="nav-link ${currentPath.startsWith('/dev/sql-formatter') ? 'active' : ''}">
         <div class="nav-link-content"><span>SQL Formatter</span></div>
       </a>
+      <a href="/dev/url-parser" class="nav-link ${currentPath.startsWith('/dev/url-parser') ? 'active' : ''}">
+        <div class="nav-link-content"><span>URL Parser & Query Inspector</span></div>
+      </a>
       <a href="/convert/base64" class="nav-link ${currentPath.startsWith('/convert/base64') ? 'active' : ''}">
         <div class="nav-link-content"><span>Base64 Encoder/Decoder</span></div>
       </a>
@@ -1335,6 +1338,9 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/math/mortgage-calculator" class="nav-link ${currentPath.startsWith('/math/mortgage-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Mortgage Amortization</span></div>
       </a>
+      <a href="/math/gpa-calculator" class="nav-link ${currentPath.startsWith('/math/gpa-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>College & High School GPA</span></div>
+      </a>
 
       <!-- PRIVACY & SECURITY -->
       <div class="nav-group-title">
@@ -1415,6 +1421,9 @@ function buildSidebarHtml(currentPath = '/') {
       </a>
       <a href="/text/lorem-ipsum" class="nav-link ${currentPath.startsWith('/text/lorem-ipsum') ? 'active' : ''}">
         <div class="nav-link-content"><span>Lorem Ipsum Generator</span></div>
+      </a>
+      <a href="/text/markdown-preview" class="nav-link ${currentPath.startsWith('/text/markdown-preview') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Markdown Live Preview</span></div>
       </a>
 
       <!-- PRODUCTIVITY & INVOICING -->
@@ -1673,8 +1682,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                   'height' : 90,
                   'width' : 728,
                   'params' : {}
-                };}</script>
-              <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
             <div class="ad-mobile-banner">
               <script type="text/javascript">
@@ -1684,8 +1693,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                   'height' : 50,
                   'width' : 320,
                   'params' : {}
-                };}</script>
-              <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
           </div>
 
@@ -1701,8 +1710,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                   'height' : 60,
                   'width' : 468,
                   'params' : {}
-                };}</script>
-              <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/0b6898775795b270130cc9971eef21a8/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/0b6898775795b270130cc9971eef21a8/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
             <div class="ad-mobile-banner">
               <script type="text/javascript">
@@ -1712,8 +1721,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                   'height' : 50,
                   'width' : 320,
                   'params' : {}
-                };}</script>
-              <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
           </div>
 
@@ -1727,8 +1736,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                   'height' : 250,
                   'width' : 300,
                   'params' : {}
-                };}</script>
-              <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
           </div>
 
@@ -1754,8 +1763,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                     'height' : 250,
                     'width' : 300,
                     'params' : {}
-                  };}</script>
-                <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                  };</script>
+                <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
               </div>
             </div>
             <a href="/convert/esbuild-decompiler" class="promo-card">
@@ -1773,8 +1782,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                     'height' : 250,
                     'width' : 300,
                     'params' : {}
-                  };}</script>
-                <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                  };</script>
+                <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
               </div>
             </div>
             <a href="/media/downloader" class="promo-card">
@@ -1799,8 +1808,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                   'height' : 90,
                   'width' : 728,
                   'params' : {}
-                };}</script>
-              <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
             <div class="ad-mobile-banner">
               <script type="text/javascript">
@@ -1810,8 +1819,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                   'height' : 50,
                   'width' : 320,
                   'params' : {}
-                };}</script>
-              <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                };</script>
+              <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
           </div>
         </div>
@@ -1826,8 +1835,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                 'height' : 600,
                 'width' : 160,
                 'params' : {}
-              };}</script>
-            <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/bba2ed7e2aff3607f66ff8e410f1fcbe/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+              };</script>
+            <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/bba2ed7e2aff3607f66ff8e410f1fcbe/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
           </div>
         </aside>
       </div>
@@ -1897,8 +1906,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
               'height' : 90,
               'width' : 728,
               'params' : {}
-            };}</script>
-          <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            };</script>
+          <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
         </div>
         <div class="ad-mobile-banner">
           <script type="text/javascript">
@@ -1908,8 +1917,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
               'height' : 50,
               'width' : 320,
               'params' : {}
-            };}</script>
-          <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+            };</script>
+          <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
         </div>
         <div style="margin-top: 1.5rem;">
           <div style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-subtle); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem;">More From The Web</div>
@@ -1942,8 +1951,8 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
           'height' : 90,
           'width' : 728,
           'params' : {}
-        };}</script>
-      <script>if(!window.__isBot){if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+        };</script>
+      <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/567d4e495ec8a8e297b7c7f5170993cb/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
     </div>
     <div class="ad-mobile-banner">
       <script type="text/javascript">
@@ -1953,7 +1962,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
           'height' : 50,
           'width' : 320,
           'params' : {}
-        };}</script>
+        };</script>
       <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
     </div>
   </div>

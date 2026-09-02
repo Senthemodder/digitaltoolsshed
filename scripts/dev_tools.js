@@ -710,6 +710,166 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           }
         </script>
       `
+    },
+    {
+      slug: 'url-parser',
+      title: 'URL Parser & Query String Parameter Inspector',
+      metaDesc: 'Deconstruct and parse any URL into protocol, origin, host, path segments, query parameters table, hash, and JSON object.',
+      category: 'Developer',
+      faq: [
+        { q: 'What are the core components of a standard URL?', a: 'A standard URL consists of a protocol/scheme (e.g., https:), credentials (username/password), hostname (domain), port, pathname, query parameters (?key=val), and fragment hash (#section).' },
+        { q: 'How do query string parameters work in a URL?', a: 'Query strings begin after the question mark (?) and consist of key=value pairs separated by ampersands (&). Values containing spaces or special characters are percent-encoded.' },
+        { q: 'Is my URL sent to any remote server when using this tool?', a: 'No. All URL parsing and query string decoding is performed 100% locally inside your browser using the native browser URL and URLSearchParams APIs.' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 950px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; URL Parser
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Parser & Query Parameter Inspector</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Break down, analyze, and inspect any URL. View individual query string parameters, path segments, and export structured JSON.
+          </p>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Enter Full URL to Parse</label>
+              <input type="text" id="url-input" class="code-input" value="https://api.example.com:8443/v2/products/search?category=electronics&brand=apple&sort=price_desc&page=1&discount=true#reviews" oninput="parseUrl()" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.75rem; border-radius: 4px;">
+                <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Protocol</span>
+                <div id="u-protocol" style="font-family: var(--mono); font-weight: bold; color: #3b82f6;">--</div>
+              </div>
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.75rem; border-radius: 4px;">
+                <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Hostname</span>
+                <div id="u-hostname" style="font-family: var(--mono); font-weight: bold; color: var(--fg);">--</div>
+              </div>
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.75rem; border-radius: 4px;">
+                <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Port</span>
+                <div id="u-port" style="font-family: var(--mono); font-weight: bold; color: var(--fg);">--</div>
+              </div>
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.75rem; border-radius: 4px;">
+                <span style="font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">Hash / Fragment</span>
+                <div id="u-hash" style="font-family: var(--mono); font-weight: bold; color: #eab308;">--</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Pathname & Segments</span>
+              <div id="u-pathname" style="font-family: var(--mono); font-size: 0.95rem; background: var(--bg); padding: 0.6rem; border: 1px solid var(--border); border-radius: 4px; color: var(--fg); margin-bottom: 0.4rem;">--</div>
+              <div id="u-segments" style="display: flex; gap: 0.4rem; flex-wrap: wrap;"></div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Query Parameters (<span id="param-count">0</span>)</span>
+                <button class="btn-sec" onclick="copyParamsJson()" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Copy Query as JSON</button>
+              </div>
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem;" id="paramsTable">
+                  <thead>
+                    <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-muted);">
+                      <th style="padding: 0.5rem;">Parameter Key</th>
+                      <th style="padding: 0.5rem;">Decoded Value</th>
+                      <th style="padding: 0.5rem; width: 60px;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="paramsRows"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="action-bar" style="margin-top: 1.5rem;">
+              <button class="btn-primary" onclick="copyParsedJson()">Copy All as JSON</button>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var parsedObj = {};
+
+          function parseUrl() {
+            var raw = document.getElementById('url-input').value.trim();
+            if (!raw) return;
+
+            try {
+              var u = new URL(raw.match(/^[a-zA-Z]+:\\/\\//) ? raw : 'https://' + raw);
+              document.getElementById('u-protocol').textContent = u.protocol;
+              document.getElementById('u-hostname').textContent = u.hostname;
+              document.getElementById('u-port').textContent = u.port || '(default ' + (u.protocol === 'https:' ? '443' : '80') + ')';
+              document.getElementById('u-hash').textContent = u.hash || '(none)';
+              document.getElementById('u-pathname').textContent = u.pathname;
+
+              var segments = u.pathname.split('/').filter(Boolean);
+              document.getElementById('u-segments').innerHTML = segments.map(function(s, idx) {
+                return '<span style=\"background:var(--surface-alt); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:3px; font-family:var(--mono); font-size:0.75rem;\">[' + idx + '] ' + s + '</span>';
+              }).join('') || '<span style=\"font-size:0.8rem; color:var(--text-muted);\">No sub-paths</span>';
+
+              var tbody = document.getElementById('paramsRows');
+              tbody.innerHTML = '';
+              var count = 0;
+              var qObj = {};
+
+              u.searchParams.forEach(function(val, key) {
+                count++;
+                qObj[key] = val;
+                var tr = document.createElement('tr');
+                tr.style.borderBottom = '1px solid var(--border)';
+                tr.innerHTML = 
+                  '<td style=\"padding:0.5rem; font-weight:bold; color:var(--fg);\">' + escapeHtml(key) + '</td>' +
+                  '<td style=\"padding:0.5rem; color:#22c55e;\">' + escapeHtml(val) + '</td>' +
+                  '<td style=\"padding:0.5rem;\"><button class=\"btn-sec\" style=\"font-size:0.7rem; padding:0.2rem 0.4rem;\" onclick=\"copyText(\\'' + escapeHtml(val).replace(/'/g, \"\\\\'\") + '\\')\">Copy</button></td>';
+                tbody.appendChild(tr);
+              });
+
+              document.getElementById('param-count').textContent = count;
+              if (count === 0) {
+                tbody.innerHTML = '<tr><td colspan=\"3\" style=\"padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.85rem;\">No query parameters found</td></tr>';
+              }
+
+              parsedObj = {
+                href: u.href,
+                protocol: u.protocol,
+                origin: u.origin,
+                hostname: u.hostname,
+                port: u.port,
+                pathname: u.pathname,
+                pathSegments: segments,
+                queryParams: qObj,
+                hash: u.hash
+              };
+            } catch (e) {
+              document.getElementById('u-protocol').textContent = 'Invalid URL';
+            }
+          }
+
+          function escapeHtml(str) {
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');
+          }
+
+          function copyText(val) {
+            navigator.clipboard.writeText(val);
+          }
+
+          function copyParamsJson() {
+            if (parsedObj.queryParams) {
+              navigator.clipboard.writeText(JSON.stringify(parsedObj.queryParams, null, 2));
+              alert('Copied query params as JSON!');
+            }
+          }
+
+          function copyParsedJson() {
+            navigator.clipboard.writeText(JSON.stringify(parsedObj, null, 2));
+            alert('Copied parsed URL breakdown as JSON!');
+          }
+
+          document.addEventListener('DOMContentLoaded', parseUrl);
+          parseUrl();
+        </script>
+      `
     }
   ];
 
@@ -720,7 +880,8 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
       metaDesc: tool.metaDesc,
       canonical: `${DOMAIN}/dev/${tool.slug}`,
       bodyContent: tool.body,
-      currentPath: `/dev/${tool.slug}`
+      currentPath: `/dev/${tool.slug}`,
+      faq: tool.faq
     });
     writeFileSync(join(devDist, `${tool.slug}.html`), html);
   }

@@ -436,6 +436,246 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           document.addEventListener('DOMContentLoaded', calcAge);
         </script>
       `
+    },
+    {
+      slug: 'gpa-calculator',
+      title: 'College & High School GPA Calculator (Weighted & Unweighted)',
+      metaDesc: 'Calculate your semester and cumulative GPA on a 4.0 scale with weighted Honors (+0.5) and AP/IB (+1.0) credit support.',
+      category: 'Math & Education',
+      faq: [
+        { q: 'How is cumulative GPA calculated?', a: 'Cumulative GPA is calculated by multiplying the grade point value of each letter grade by the course credit hours to get quality points, summing all quality points across semesters, and dividing by total credit hours completed.' },
+        { q: 'What is the difference between weighted and unweighted GPA?', a: 'An unweighted GPA measures academic achievement on a standard 4.0 scale regardless of course rigor. A weighted GPA provides extra points for advanced coursework (typically +0.5 points for Honors and +1.0 points for AP or IB courses).' },
+        { q: 'What grade point does an A- or B+ equal on a 4.0 scale?', a: 'On standard 4.0 scales, A = 4.0, A- = 3.7, B+ = 3.3, B = 3.0, B- = 2.7, C+ = 2.3, C = 2.0, D = 1.0, and F = 0.0.' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 950px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; GPA Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">College & High School GPA Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Calculate your semester and cumulative Grade Point Average on a 4.0 scale with weighted course support (Honors, AP, IB, and College courses).
+          </p>
+
+          <div class="tool-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0;">Current Semester Courses</h3>
+              <button class="btn-sec" onclick="addGpaRow()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">+ Add Course</button>
+            </div>
+
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem;" id="gpaTable">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-muted);">
+                    <th style="padding: 0.5rem;">Course Name</th>
+                    <th style="padding: 0.5rem;">Grade</th>
+                    <th style="padding: 0.5rem;">Credits</th>
+                    <th style="padding: 0.5rem;">Level / Weight</th>
+                    <th style="padding: 0.5rem; width: 40px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="gpaRows">
+                  <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 0.5rem;"><input type="text" value="English 101" class="text-input" style="padding: 0.4rem;" /></td>
+                    <td style="padding: 0.5rem;">
+                      <select class="text-input grade-select" onchange="calcGpa()" style="padding: 0.4rem;">
+                        <option value="4.0" selected>A (4.0)</option>
+                        <option value="3.7">A- (3.7)</option>
+                        <option value="3.3">B+ (3.3)</option>
+                        <option value="3.0">B (3.0)</option>
+                        <option value="2.7">B- (2.7)</option>
+                        <option value="2.3">C+ (2.3)</option>
+                        <option value="2.0">C (2.0)</option>
+                        <option value="1.7">C- (1.7)</option>
+                        <option value="1.0">D (1.0)</option>
+                        <option value="0.0">F (0.0)</option>
+                      </select>
+                    </td>
+                    <td style="padding: 0.5rem;"><input type="number" value="3" min="0.5" step="0.5" class="text-input credit-input" oninput="calcGpa()" style="padding: 0.4rem; width: 60px;" /></td>
+                    <td style="padding: 0.5rem;">
+                      <select class="text-input weight-select" onchange="calcGpa()" style="padding: 0.4rem;">
+                        <option value="0" selected>Standard (Regular)</option>
+                        <option value="0.5">Honors (+0.5)</option>
+                        <option value="1.0">AP / IB / College (+1.0)</option>
+                      </select>
+                    </td>
+                    <td style="padding: 0.5rem;"><button onclick="removeGpaRow(this)" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 0.5rem;"><input type="text" value="Calculus BC" class="text-input" style="padding: 0.4rem;" /></td>
+                    <td style="padding: 0.5rem;">
+                      <select class="text-input grade-select" onchange="calcGpa()" style="padding: 0.4rem;">
+                        <option value="4.0">A (4.0)</option>
+                        <option value="3.7" selected>A- (3.7)</option>
+                        <option value="3.3">B+ (3.3)</option>
+                        <option value="3.0">B (3.0)</option>
+                        <option value="2.7">B- (2.7)</option>
+                        <option value="2.3">C+ (2.3)</option>
+                        <option value="2.0">C (2.0)</option>
+                        <option value="1.7">C- (1.7)</option>
+                        <option value="1.0">D (1.0)</option>
+                        <option value="0.0">F (0.0)</option>
+                      </select>
+                    </td>
+                    <td style="padding: 0.5rem;"><input type="number" value="4" min="0.5" step="0.5" class="text-input credit-input" oninput="calcGpa()" style="padding: 0.4rem; width: 60px;" /></td>
+                    <td style="padding: 0.5rem;">
+                      <select class="text-input weight-select" onchange="calcGpa()" style="padding: 0.4rem;">
+                        <option value="0">Standard (Regular)</option>
+                        <option value="0.5">Honors (+0.5)</option>
+                        <option value="1.0" selected>AP / IB / College (+1.0)</option>
+                      </select>
+                    </td>
+                    <td style="padding: 0.5rem;"><button onclick="removeGpaRow(this)" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button></td>
+                  </tr>
+                  <tr style="border-bottom: 1px solid var(--border);">
+                    <td style="padding: 0.5rem;"><input type="text" value="Biology Lab" class="text-input" style="padding: 0.4rem;" /></td>
+                    <td style="padding: 0.5rem;">
+                      <select class="text-input grade-select" onchange="calcGpa()" style="padding: 0.4rem;">
+                        <option value="4.0">A (4.0)</option>
+                        <option value="3.7">A- (3.7)</option>
+                        <option value="3.3" selected>B+ (3.3)</option>
+                        <option value="3.0">B (3.0)</option>
+                        <option value="2.7">B- (2.7)</option>
+                        <option value="2.3">C+ (2.3)</option>
+                        <option value="2.0">C (2.0)</option>
+                        <option value="1.7">C- (1.7)</option>
+                        <option value="1.0">D (1.0)</option>
+                        <option value="0.0">F (0.0)</option>
+                      </select>
+                    </td>
+                    <td style="padding: 0.5rem;"><input type="number" value="4" min="0.5" step="0.5" class="text-input credit-input" oninput="calcGpa()" style="padding: 0.4rem; width: 60px;" /></td>
+                    <td style="padding: 0.5rem;">
+                      <select class="text-input weight-select" onchange="calcGpa()" style="padding: 0.4rem;">
+                        <option value="0">Standard (Regular)</option>
+                        <option value="0.5" selected>Honors (+0.5)</option>
+                        <option value="1.0">AP / IB / College (+1.0)</option>
+                      </select>
+                    </td>
+                    <td style="padding: 0.5rem;"><button onclick="removeGpaRow(this)" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div class="result-card" style="margin:0;">
+                <div class="field-label">Unweighted Semester GPA</div>
+                <div id="unweightedGpa" class="result-val">3.64</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Standard 4.00 Max</div>
+              </div>
+              <div class="result-card" style="margin:0;">
+                <div class="field-label">Weighted Semester GPA</div>
+                <div id="weightedGpa" class="result-val" style="color:#22c55e;">4.18</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Honors/AP Weighted Scale</div>
+              </div>
+              <div class="result-card" style="margin:0;">
+                <div class="field-label">Total Credit Hours</div>
+                <div id="totalCredits" class="result-val" style="color:var(--fg); font-size:1.8rem;">11.0</div>
+                <div id="totalPoints" style="font-size:0.75rem; color:var(--text-muted);">46.0 Quality Points</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+              <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.75rem;">Cumulative GPA (Optional)</h4>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 500px;">
+                <div>
+                  <label class="field-label">Prior Cumulative GPA</label>
+                  <input type="number" id="priorGpa" value="3.50" step="0.01" min="0" max="5" class="text-input" oninput="calcGpa()" />
+                </div>
+                <div>
+                  <label class="field-label">Prior Completed Credits</label>
+                  <input type="number" id="priorCredits" value="30" step="1" min="0" class="text-input" oninput="calcGpa()" />
+                </div>
+              </div>
+              <div id="cumulResult" style="margin-top: 0.75rem; font-family: var(--mono); font-size: 0.95rem; color: #3b82f6;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function addGpaRow() {
+            var tbody = document.getElementById('gpaRows');
+            var tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid var(--border)';
+            tr.innerHTML = 
+              '<td style="padding: 0.5rem;"><input type="text" placeholder="Course Name" class="text-input" style="padding: 0.4rem;" /></td>' +
+              '<td style="padding: 0.5rem;">' +
+                '<select class="text-input grade-select" onchange="calcGpa()" style="padding: 0.4rem;">' +
+                  '<option value="4.0" selected>A (4.0)</option>' +
+                  '<option value="3.7">A- (3.7)</option>' +
+                  '<option value="3.3">B+ (3.3)</option>' +
+                  '<option value="3.0">B (3.0)</option>' +
+                  '<option value="2.7">B- (2.7)</option>' +
+                  '<option value="2.3">C+ (2.3)</option>' +
+                  '<option value="2.0">C (2.0)</option>' +
+                  '<option value="1.7">C- (1.7)</option>' +
+                  '<option value="1.0">D (1.0)</option>' +
+                  '<option value="0.0">F (0.0)</option>' +
+                '</select>' +
+              '</td>' +
+              '<td style="padding: 0.5rem;"><input type="number" value="3" min="0.5" step="0.5" class="text-input credit-input" oninput="calcGpa()" style="padding: 0.4rem; width: 60px;" /></td>' +
+              '<td style="padding: 0.5rem;">' +
+                '<select class="text-input weight-select" onchange="calcGpa()" style="padding: 0.4rem;">' +
+                  '<option value="0" selected>Standard (Regular)</option>' +
+                  '<option value="0.5">Honors (+0.5)</option>' +
+                  '<option value="1.0">AP / IB / College (+1.0)</option>' +
+                '</select>' +
+              '</td>' +
+              '<td style="padding: 0.5rem;"><button onclick="removeGpaRow(this)" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button></td>';
+            tbody.appendChild(tr);
+            calcGpa();
+          }
+
+          function removeGpaRow(btn) {
+            var row = btn.closest('tr');
+            if (document.querySelectorAll('#gpaRows tr').length > 1) {
+              row.remove();
+              calcGpa();
+            }
+          }
+
+          function calcGpa() {
+            var rows = document.querySelectorAll('#gpaRows tr');
+            var totalCreds = 0;
+            var unweightedPoints = 0;
+            var weightedPoints = 0;
+
+            rows.forEach(function(r) {
+              var g = parseFloat(r.querySelector('.grade-select').value) || 0;
+              var c = parseFloat(r.querySelector('.credit-input').value) || 0;
+              var w = parseFloat(r.querySelector('.weight-select').value) || 0;
+              if (c > 0) {
+                totalCreds += c;
+                unweightedPoints += (g * c);
+                var weightedGrade = g > 0 ? (g + w) : 0;
+                weightedPoints += (weightedGrade * c);
+              }
+            });
+
+            var unweightedGpa = totalCreds > 0 ? (unweightedPoints / totalCreds) : 0;
+            var weightedGpa = totalCreds > 0 ? (weightedPoints / totalCreds) : 0;
+
+            document.getElementById('unweightedGpa').textContent = unweightedGpa.toFixed(2);
+            document.getElementById('weightedGpa').textContent = weightedGpa.toFixed(2);
+            document.getElementById('totalCredits').textContent = totalCreds.toFixed(1);
+            document.getElementById('totalPoints').textContent = weightedPoints.toFixed(1) + ' Quality Points';
+
+            var priorGpa = parseFloat(document.getElementById('priorGpa').value);
+            var priorCreds = parseFloat(document.getElementById('priorCredits').value);
+            if (!isNaN(priorGpa) && !isNaN(priorCreds) && priorCreds > 0) {
+              var newTotalCreds = priorCreds + totalCreds;
+              var newCumulGpa = ((priorGpa * priorCreds) + unweightedPoints) / newTotalCreds;
+              document.getElementById('cumulResult').textContent = 'Updated Cumulative GPA: ' + newCumulGpa.toFixed(2) + ' across ' + newTotalCreds.toFixed(1) + ' total credits';
+            } else {
+              document.getElementById('cumulResult').textContent = '';
+            }
+          }
+
+          document.addEventListener('DOMContentLoaded', calcGpa);
+          calcGpa();
+        </script>
+      `
     }
   ];
 
@@ -446,7 +686,8 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       metaDesc: tool.metaDesc,
       canonical: `${DOMAIN}/math/${tool.slug}`,
       bodyContent: tool.body,
-      currentPath: `/math/${tool.slug}`
+      currentPath: `/math/${tool.slug}`,
+      faq: tool.faq
     });
     writeFileSync(join(mathDist, `${tool.slug}.html`), html);
   }
