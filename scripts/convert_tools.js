@@ -3,7 +3,10 @@ import { join } from 'path';
 import { DIST, DOMAIN, renderPage, ROOT, ensureDir, ICONS, TOOLS } from './core.js';
 
 function buildConvertFastSuite() {
-  const cfSrc = join(ROOT, '..', 'ConvertFast', 'src', 'site', 'converters');
+  let cfSrc = join(ROOT, 'src', 'convertfast', 'converters');
+  if (!existsSync(cfSrc)) {
+    cfSrc = join(ROOT, '..', 'ConvertFast', 'src', 'site', 'converters');
+  }
   const convertDist = join(DIST, 'convert');
   ensureDir(convertDist);
 

@@ -502,6 +502,164 @@ export function buildDesignToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           }
         </script>
       `
+    },
+    {
+      slug: 'passport-photo',
+      title: 'US Passport Photo 2x2" Maker & 4x6 Printable Grid',
+      metaDesc: 'Crop and format your photo into an official US 2x2 inch (600x600 px) passport photo with a printable 4x6 inch (6-photo grid) template. 100% free and private.',
+      category: 'Design',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/design/">Design & Image</a> &gt; US Passport Photo
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">US Passport Photo 2x2" Maker & Printable 4x6 Grid</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Format your portrait photo to meet official US Department of State 2x2 inch (51x51 mm) biometric requirements. Generate a single 600x600 px image or a printable 4x6 inch sheet with 6 photos.
+          </p>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Upload Portrait Photo</label>
+              <input type="file" id="pp-file" accept="image/*" class="text-input" onchange="loadPhoto(event)" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; align-items: start; margin-top: 1.5rem;">
+              <div>
+                <div class="field-label">Alignment Guide (Drag to pan, slider to zoom)</div>
+                <div style="position: relative; width: 300px; height: 300px; margin: 0 auto; border: 2px solid var(--border); overflow: hidden; background: #f0f0f0; border-radius: 4px;">
+                  <canvas id="cropCanvas" width="600" height="600" style="width: 100%; height: 100%; cursor: grab;"></canvas>
+                  <!-- Biometric Oval Overlay -->
+                  <div style="position: absolute; top: 15%; left: 22%; width: 56%; height: 65%; border: 2px dashed rgba(59, 130, 246, 0.75); border-radius: 50%; pointer-events: none;"></div>
+                  <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; border-top: 1px dashed rgba(59, 130, 246, 0.4); pointer-events: none;"></div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                  <label class="field-label">Zoom Scale</label>
+                  <input type="range" id="pp-zoom" min="0.5" max="3" step="0.05" value="1" style="width: 100%;" oninput="renderCrop()" />
+                </div>
+              </div>
+
+              <div>
+                <div class="field-label">Official Requirements Checklist</div>
+                <ul style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; padding-left: 1.25rem; margin-bottom: 1.5rem;">
+                  <li>Head height must be between 1" and 1 3/8" (50% to 69% of image height).</li>
+                  <li>Eyes positioned between 1 1/8" and 1 3/8" from bottom of photo.</li>
+                  <li>Plain white or off-white background with neutral expression.</li>
+                  <li>No eyeglasses, headphones, or head coverings (unless religious/medical).</li>
+                </ul>
+
+                <div class="action-bar" style="flex-direction: column; align-items: stretch;">
+                  <button class="btn-primary" onclick="downloadSingle()">Download 2x2" Photo (600x600 px)</button>
+                  <button class="btn-sec" onclick="downloadSheet()">Download 4x6" Printable Sheet (6 Photos)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var img = null;
+          var panX = 0, panY = 0;
+          var isDragging = false, startX = 0, startY = 0;
+          var canvas = document.getElementById('cropCanvas');
+          var ctx = canvas.getContext('2d');
+
+          function loadPhoto(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+              img = new Image();
+              img.onload = function() {
+                panX = 0; panY = 0;
+                document.getElementById('pp-zoom').value = 1;
+                renderCrop();
+              };
+              img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+
+          canvas.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+            canvas.style.cursor = 'grabbing';
+          });
+          window.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            renderCrop();
+          });
+          window.addEventListener('mouseup', function() {
+            isDragging = false;
+            canvas.style.cursor = 'grab';
+          });
+
+          function renderCrop() {
+            if (!img) {
+              ctx.fillStyle = '#ffffff';
+              ctx.fillRect(0, 0, 600, 600);
+              ctx.fillStyle = '#888888';
+              ctx.font = '24px sans-serif';
+              ctx.textAlign = 'center';
+              ctx.fillText('Select a portrait photo above', 300, 310);
+              return;
+            }
+
+            var zoom = parseFloat(document.getElementById('pp-zoom').value) || 1;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 600, 600);
+
+            var w = img.width * zoom;
+            var h = img.height * zoom;
+            var x = (600 - w) / 2 + panX;
+            var y = (600 - h) / 2 + panY;
+
+            ctx.drawImage(img, x, y, w, h);
+          }
+
+          renderCrop();
+
+          function downloadSingle() {
+            var a = document.createElement('a');
+            a.href = canvas.toDataURL('image/jpeg', 0.95);
+            a.download = 'us_passport_photo_2x2.jpg';
+            a.click();
+          }
+
+          function downloadSheet() {
+            // 4x6 inches at 300 DPI = 1200 x 1800 px (or 1800 x 1200 landscape)
+            var sheet = document.createElement('canvas');
+            sheet.width = 1800;
+            sheet.height = 1200;
+            var sctx = sheet.getContext('2d');
+            sctx.fillStyle = '#ffffff';
+            sctx.fillRect(0, 0, 1800, 1200);
+
+            // 6 photos in 2 rows of 3 columns
+            for (var row = 0; row < 2; row++) {
+              for (var col = 0; col < 3; col++) {
+                var dx = col * 600;
+                var dy = row * 600;
+                sctx.drawImage(canvas, dx, dy, 600, 600);
+                // Thin guide line
+                sctx.strokeStyle = '#cccccc';
+                sctx.lineWidth = 1;
+                sctx.strokeRect(dx, dy, 600, 600);
+              }
+            }
+
+            var a = document.createElement('a');
+            a.href = sheet.toDataURL('image/jpeg', 0.95);
+            a.download = 'us_passport_4x6_sheet.jpg';
+            a.click();
+          }
+        </script>
+      `
     }
   ];
 

@@ -755,33 +755,51 @@ export function buildMinecraftTools() {
   const mcHubBody = `
     <div class="hero" style="padding-bottom: 2rem; margin-bottom: 2rem;">
       <h1 style="font-size: 2.2rem; margin-top: 0.5rem;">Minecraft Developer & Modding Tools</h1>
-      <p>Free, zero-install browser tools for Minecraft Java and Bedrock Edition creators, server admins, and modders.</p>
+      <p>Free, zero-install browser tools for Minecraft Java and Bedrock Edition creators, server admins, and add-on developers.</p>
     </div>
 
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
       <a href="/mc/nbt-editor" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
         <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">📦</div>
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">NBT Editor & Viewer</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Open, view, and edit Minecraft .dat, .nbt, playerdata, and level.dat files in your browser.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Open, inspect, and edit Minecraft .dat, .nbt, playerdata, and level.dat files in your browser.</p>
       </a>
 
-      <a href="/mc/uuid-gen" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
-        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 1 0-7.8 7.8 5.5 5.5 0 0 0 7.8-7.8zm0 0L15.6 7.6m0 0l1.4-1.4m-1.4 1.4l2.8 2.8"/></svg></div>
-        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">UUID Generator</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate RFC4122 v4 UUID pairs formatted for Minecraft Bedrock behavior and resource packs.</p>
+      <a href="/mc/color-codes" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🎨</div>
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">Formatting & Color Codes (§)</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Interactive Bedrock section sign (§0-§u) and Java formatting code picker with live chat preview.</p>
+      </a>
+
+      <a href="/mc/tellraw-gen" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">💬</div>
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">/tellraw JSON Generator</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate raw JSON text components, formatted messages, and score selector tags for Bedrock.</p>
+      </a>
+
+      <a href="/mc/playsound-gen" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🔊</div>
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">/playsound Event Picker</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Browse 800+ authentic Bedrock sound events with volume, pitch, and command generation.</p>
       </a>
 
       <a href="/mc/manifest-gen" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
-        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">Manifest.json Generator</h3>
-        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate valid manifest.json files for Minecraft Bedrock add-ons with automatic UUIDs.</p>
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">⚙️</div>
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">manifest.json Generator</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate valid manifest.json files for Minecraft Bedrock behavior and resource pack add-ons.</p>
+      </a>
+
+      <a href="/mc/uuid-gen" class="tool-card" style="text-decoration: none; color: inherit; display: block; border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); border-radius: 6px;">
+        <div style="font-size: 1.75rem; margin-bottom: 0.5rem;">🔑</div>
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.4rem;">Pack UUID Generator</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate RFC4122 v4 UUID pairs formatted for Minecraft Bedrock manifest headers and modules.</p>
       </a>
     </div>
   `;
 
   writeFileSync(join(mcDir, 'index.html'), renderPage({
     title: 'Minecraft Developer & Modding Tools Online | Digital Tools Shed',
-    metaDesc: 'Free browser-based tools for Minecraft: in-browser NBT editor, Bedrock UUID generator, and manifest.json creator.',
+    metaDesc: 'Free browser-based tools for Minecraft: NBT editor, color code picker, /tellraw generator, /playsound picker, and Bedrock manifest creator.',
     canonical: `${DOMAIN}/mc/`,
     bodyContent: mcHubBody,
     currentPath: '/mc/'
@@ -937,5 +955,186 @@ export function buildMinecraftTools() {
     currentPath: '/mc/playsound-gen'
   }));
 
-  console.log('  ✓ Built Minecraft Suite (NBT Editor, UUID Generator, Manifest Generator in /mc/)');
+  // ─── 7. MINECRAFT COLOR & FORMATTING CODES (§) ─────────────────────────────
+  const colorCodesBody = `
+    <style>
+      .color-swatch-btn { border: 1px solid var(--border); padding: 0.4rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; font-weight: bold; background: var(--surface); transition: transform 0.1s, border-color 0.2s; }
+      .color-swatch-btn:hover { transform: translateY(-1px); border-color: var(--fg); }
+      .color-dot { width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid rgba(0,0,0,0.2); }
+      .mc-preview-box { background: rgba(0, 0, 0, 0.82); border: 2px solid #555; padding: 1.25rem; border-radius: 4px; font-family: monospace, 'Courier New', sans-serif; font-size: 1.15rem; min-height: 70px; display: flex; align-items: center; word-break: break-word; line-height: 1.4; text-shadow: 2px 2px 0px rgba(0,0,0,0.7); }
+    </style>
+
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/mc/">Minecraft Tools</a> &gt; Color Codes & Formatting
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Minecraft Bedrock & Java Color Codes (§)</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Interactive Minecraft section sign (§) formatting cheat sheet, live chat box simulator, and multi-format text exporter.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Standard Palette (Click to insert code):</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;">
+          <button class="color-swatch-btn" onclick="insertCode('§0')"><span class="color-dot" style="background: #000000;"></span>§0 Black</button>
+          <button class="color-swatch-btn" onclick="insertCode('§1')"><span class="color-dot" style="background: #0000AA;"></span>§1 Dark Blue</button>
+          <button class="color-swatch-btn" onclick="insertCode('§2')"><span class="color-dot" style="background: #00AA00;"></span>§2 Dark Green</button>
+          <button class="color-swatch-btn" onclick="insertCode('§3')"><span class="color-dot" style="background: #00AAAA;"></span>§3 Dark Aqua</button>
+          <button class="color-swatch-btn" onclick="insertCode('§4')"><span class="color-dot" style="background: #AA0000;"></span>§4 Dark Red</button>
+          <button class="color-swatch-btn" onclick="insertCode('§5')"><span class="color-dot" style="background: #AA00AA;"></span>§5 Dark Purple</button>
+          <button class="color-swatch-btn" onclick="insertCode('§6')"><span class="color-dot" style="background: #FFAA00;"></span>§6 Gold</button>
+          <button class="color-swatch-btn" onclick="insertCode('§7')"><span class="color-dot" style="background: #AAAAAA;"></span>§7 Gray</button>
+          <button class="color-swatch-btn" onclick="insertCode('§8')"><span class="color-dot" style="background: #555555;"></span>§8 Dark Gray</button>
+          <button class="color-swatch-btn" onclick="insertCode('§9')"><span class="color-dot" style="background: #5555FF;"></span>§9 Blue</button>
+          <button class="color-swatch-btn" onclick="insertCode('§a')"><span class="color-dot" style="background: #55FF55;"></span>§a Green</button>
+          <button class="color-swatch-btn" onclick="insertCode('§b')"><span class="color-dot" style="background: #55FFFF;"></span>§b Aqua</button>
+          <button class="color-swatch-btn" onclick="insertCode('§c')"><span class="color-dot" style="background: #FF5555;"></span>§c Red</button>
+          <button class="color-swatch-btn" onclick="insertCode('§d')"><span class="color-dot" style="background: #FF55FF;"></span>§d Light Purple</button>
+          <button class="color-swatch-btn" onclick="insertCode('§e')"><span class="color-dot" style="background: #FFFF55;"></span>§e Yellow</button>
+          <button class="color-swatch-btn" onclick="insertCode('§f')"><span class="color-dot" style="background: #FFFFFF;"></span>§f White</button>
+        </div>
+
+        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Bedrock Material Colors:</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;">
+          <button class="color-swatch-btn" onclick="insertCode('§g')"><span class="color-dot" style="background: #DDD605;"></span>§g Minecoin Gold</button>
+          <button class="color-swatch-btn" onclick="insertCode('§h')"><span class="color-dot" style="background: #E3D4D1;"></span>§h Quartz</button>
+          <button class="color-swatch-btn" onclick="insertCode('§i')"><span class="color-dot" style="background: #CECACA;"></span>§i Iron</button>
+          <button class="color-swatch-btn" onclick="insertCode('§j')"><span class="color-dot" style="background: #443A3B;"></span>§j Netherite</button>
+          <button class="color-swatch-btn" onclick="insertCode('§m')"><span class="color-dot" style="background: #971607;"></span>§m Redstone</button>
+          <button class="color-swatch-btn" onclick="insertCode('§n')"><span class="color-dot" style="background: #B4684D;"></span>§n Copper</button>
+          <button class="color-swatch-btn" onclick="insertCode('§p')"><span class="color-dot" style="background: #DEB12D;"></span>§p Gold</button>
+          <button class="color-swatch-btn" onclick="insertCode('§q')"><span class="color-dot" style="background: #47A036;"></span>§q Emerald</button>
+          <button class="color-swatch-btn" onclick="insertCode('§s')"><span class="color-dot" style="background: #2CBAA8;"></span>§s Diamond</button>
+          <button class="color-swatch-btn" onclick="insertCode('§t')"><span class="color-dot" style="background: #21497B;"></span>§t Lapis</button>
+          <button class="color-swatch-btn" onclick="insertCode('§u')"><span class="color-dot" style="background: #9A5CC6;"></span>§u Amethyst</button>
+        </div>
+
+        <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.75rem;">Text Formatting:</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+          <button class="color-swatch-btn" onclick="insertCode('§l')"><strong>§l Bold</strong></button>
+          <button class="color-swatch-btn" onclick="insertCode('§o')"><em>§o Italic</em></button>
+          <button class="color-swatch-btn" onclick="insertCode('§k')">§k Obfuscated</button>
+          <button class="color-swatch-btn" onclick="insertCode('§r')" style="color: #ef4444;">§r Reset</button>
+        </div>
+      </div>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 1.5rem;">
+        <label style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.5rem; text-transform: uppercase;">Type with § codes or click swatches above:</label>
+        <textarea id="mcTextInput" style="width: 100%; height: 90px; padding: 0.75rem; font-family: var(--mono); font-size: 1rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box;" oninput="renderMCPreview()">§l§c[ADMIN] §r§eWelcome to the server! §bEnjoy §3your §aquester.</textarea>
+
+        <div style="margin-top: 1.5rem;">
+          <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.4rem;">Live In-Game Chat / Sign Preview:</span>
+          <div id="mcPreview" class="mc-preview-box"></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 1.5rem;">
+          <button class="btn-primary" onclick="copyBedrock()">Copy Bedrock Raw (§)</button>
+          <button class="btn-sec" onclick="copyJava()">Copy Java Escaped (\\u00A7)</button>
+          <button class="btn-sec" onclick="copyTellraw()">Copy /tellraw Command</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var mcColorMap = {
+        '0': '#000000', '1': '#0000AA', '2': '#00AA00', '3': '#00AAAA',
+        '4': '#AA0000', '5': '#AA00AA', '6': '#FFAA00', '7': '#AAAAAA',
+        '8': '#555555', '9': '#5555FF', 'a': '#55FF55', 'b': '#55FFFF',
+        'c': '#FF5555', 'd': '#FF55FF', 'e': '#FFFF55', 'f': '#FFFFFF',
+        'g': '#DDD605', 'h': '#E3D4D1', 'i': '#CECACA', 'j': '#443A3B',
+        'm': '#971607', 'n': '#B4684D', 'p': '#DEB12D', 'q': '#47A036',
+        's': '#2CBAA8', 't': '#21497B', 'u': '#9A5CC6'
+      };
+
+      function insertCode(code) {
+        var ta = document.getElementById('mcTextInput');
+        var start = ta.selectionStart;
+        var end = ta.selectionEnd;
+        var text = ta.value;
+        ta.value = text.substring(0, start) + code + text.substring(end);
+        ta.focus();
+        ta.selectionStart = ta.selectionEnd = start + code.length;
+        renderMCPreview();
+      }
+
+      function renderMCPreview() {
+        var raw = document.getElementById('mcTextInput').value;
+        var outHtml = '';
+        var curColor = '#FFFFFF';
+        var isBold = false;
+        var isItalic = false;
+
+        var i = 0;
+        while (i < raw.length) {
+          if (raw[i] === '§' && i + 1 < raw.length) {
+            var code = raw[i + 1].toLowerCase();
+            i += 2;
+            if (mcColorMap[code]) {
+              curColor = mcColorMap[code];
+              isBold = false;
+              isItalic = false;
+            } else if (code === 'l') {
+              isBold = true;
+            } else if (code === 'o') {
+              isItalic = true;
+            } else if (code === 'r') {
+              curColor = '#FFFFFF';
+              isBold = false;
+              isItalic = false;
+            }
+            continue;
+          }
+
+          var ch = raw[i];
+          var style = 'color: ' + curColor + ';';
+          if (isBold) style += ' font-weight: bold;';
+          if (isItalic) style += ' font-style: italic;';
+          outHtml += '<span style=\"' + style + '\">' + (ch === ' ' ? '&nbsp;' : ch.replace(/</g, '&lt;').replace(/>/g, '&gt;')) + '</span>';
+          i++;
+        }
+
+        document.getElementById('mcPreview').innerHTML = outHtml || '<span style=\"color:#888;\">Empty preview</span>';
+      }
+
+      function copyBedrock() {
+        navigator.clipboard.writeText(document.getElementById('mcTextInput').value);
+        alert('Copied Bedrock formatted string (§)!');
+      }
+
+      function copyJava() {
+        var s = document.getElementById('mcTextInput').value.replace(/§/g, '\\\\u00A7');
+        navigator.clipboard.writeText(s);
+        alert('Copied Java escaped string (\\\\u00A7)!');
+      }
+
+      function copyTellraw() {
+        var raw = document.getElementById('mcTextInput').value;
+        var escaped = raw.replace(/\"/g, '\\\\\"');
+        var cmd = 'tellraw @a {\"rawtext\":[{\"text\":\"' + escaped + '\"}]}';
+        navigator.clipboard.writeText(cmd);
+        alert('Copied /tellraw command!');
+      }
+
+      document.addEventListener('DOMContentLoaded', renderMCPreview);
+      renderMCPreview();
+    </script>
+  `;
+
+  writeFileSync(join(mcDir, 'color-codes.html'), renderPage({
+    title: 'Minecraft Color Codes & Formatting (§ Codes) | Digital Tools Shed',
+    metaDesc: 'Complete Minecraft section sign (§0-§u) color codes and formatting cheat sheet with live chat simulator and multi-platform text exporter.',
+    canonical: `${DOMAIN}/mc/color-codes`,
+    bodyContent: colorCodesBody,
+    currentPath: '/mc/color-codes',
+    faq: [
+      { q: 'How do you type the section sign (§) on a keyboard?', a: 'On Windows, hold Alt and type 0167 on the number pad. On Mac, press Option + 6. On iOS and Android keyboards, tap and hold the & key.' },
+      { q: 'What are the Bedrock-exclusive material color codes?', a: 'Bedrock Edition includes §g (Minecoin Gold), §h (Quartz), §i (Iron), §j (Netherite), §m (Redstone), §n (Copper), §p (Gold), §q (Emerald), §s (Diamond), §t (Lapis), and §u (Amethyst).' },
+      { q: 'How do I reset text formatting back to default in Minecraft?', a: 'Use the §r code to reset all previous colors and styles (bold, italic, obfuscated) back to the standard white chat color.' }
+    ]
+  }));
+
+  console.log('  ✓ Built Minecraft Suite (NBT Editor, Color Codes, Manifest, Tellraw, Playsound, UUID in /mc/)');
 }

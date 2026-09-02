@@ -1204,7 +1204,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/convert/esbuild-decompiler" class="nav-link ">
         <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
       </a>
-      <a href="/dev/json-formatter" class="nav-link ">
+      <a href="/convert/json-formatter" class="nav-link ">
         <div class="nav-link-content"><span>JSON Formatter & Validator</span></div>
       </a>
       <a href="/dev/ai-robots-txt" class="nav-link ">
@@ -1235,11 +1235,14 @@ footer a:hover { text-decoration: underline; }
       <!-- MINECRAFT & GAMING -->
       <div class="nav-group-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        <span>Minecraft Bedrock & Java (5)</span>
+        <span>Minecraft Bedrock & Java (6)</span>
       </div>
       <a href="/mc/nbt-editor" class="nav-link ">
         <div class="nav-link-content"><span>In-Browser NBT Editor</span></div>
         <span class="nav-badge">PRO</span>
+      </a>
+      <a href="/mc/color-codes" class="nav-link ">
+        <div class="nav-link-content"><span>Formatting & Color Codes (§)</span></div>
       </a>
       <a href="/mc/tellraw-gen" class="nav-link ">
         <div class="nav-link-content"><span>/tellraw JSON Generator</span></div>
@@ -1257,7 +1260,7 @@ footer a:hover { text-decoration: underline; }
       <!-- TRADE & CONSTRUCTION -->
       <div class="nav-group-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
-        <span>Blue-Collar & Trade Math (4)</span>
+        <span>Blue-Collar & Trade Math (8)</span>
       </div>
       <a href="/calc/stair-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Stair Stringer (IRC Code)</span></div>
@@ -1265,11 +1268,23 @@ footer a:hover { text-decoration: underline; }
       <a href="/calc/concrete-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Concrete Slab & Bags</span></div>
       </a>
+      <a href="/calc/framing-stud-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Wall Stud Framing (16"/24")</span></div>
+      </a>
       <a href="/calc/drywall-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Drywall, Mud & Screws</span></div>
       </a>
+      <a href="/calc/paint-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Paint Gallons Estimator</span></div>
+      </a>
+      <a href="/calc/tile-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Floor & Wall Tile Boxes</span></div>
+      </a>
       <a href="/calc/mulch-calculator" class="nav-link ">
-        <div class="nav-link-content"><span>Mulch, Topsoil & Gravel</span></div>
+        <div class="nav-link-content"><span>Mulch, Topsoil & Compost</span></div>
+      </a>
+      <a href="/calc/gravel-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Gravel & Crushed Stone</span></div>
       </a>
 
       <!-- SENIOR & RETIREMENT FINANCE -->
@@ -1289,7 +1304,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/finance/social-security-tax" class="nav-link ">
         <div class="nav-link-content"><span>Social Security Taxability</span></div>
       </a>
-      <a href="/finance/annuity-payout" class="nav-link ">
+      <a href="/finance/annuity-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Annuity & Pension Payout</span></div>
       </a>
       <a href="/math/compound-interest" class="nav-link ">
@@ -1334,7 +1349,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/design/passport-photo" class="nav-link ">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
       </a>
-      <a href="/design/qr-generator" class="nav-link ">
+      <a href="/design/qr-code-generator" class="nav-link ">
         <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
       </a>
       <a href="/media/subtitle-shifter" class="nav-link ">
@@ -1569,6 +1584,21 @@ footer a:hover { text-decoration: underline; }
     <a href="/dev/html-entity-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
       <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">HTML Entity Encoder & Decoder</h3>
       <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert special characters into HTML named and numeric entities and decode HTML entities back to plaintext.</p>
+    </a>
+  
+    <a href="/dev/ai-robots-txt" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">AI Bot Blocker robots.txt Generator</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate a robots.txt file to block AI web scrapers and LLM training crawlers (GPTBot, Claude-Web, CCBot, Google-Extended, Bytespider) while keeping Googlebot allowed.</p>
+    </a>
+  
+    <a href="/dev/cron-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cron Expression Generator & Schedule Explainer</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate and test crontab schedule expressions in human-readable English. Includes live preview of next scheduled execution dates.</p>
+    </a>
+  
+    <a href="/dev/js-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JavaScript Minifier & Code Compressor</h3>
+      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify and compress JavaScript source code in your browser with zero network uploads. Remove comments, whitespace, and optimize syntax.</p>
     </a>
   
       </div>

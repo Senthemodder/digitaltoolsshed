@@ -421,11 +421,294 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           <div class="tool-box">
             <textarea id="ent-in" class="code-input" style="height: 120px;" placeholder="<div class=&quot;box&quot;>Hello & welcome!</div>"></textarea>
             <div class="action-bar">
-              <button class="btn-primary" onclick="document.getElementById('ent-in').value=document.getElementById('ent-in').value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')">Encode Entities</button>
+              <button class="btn-primary" onclick="document.getElementById('ent-in').value=document.getElementById('ent-in').value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;')">Encode Entities</button>
               <button class="btn-sec" onclick="const ta=document.createElement('textarea'); ta.innerHTML=document.getElementById('ent-in').value; document.getElementById('ent-in').value=ta.value;">Decode Entities</button>
             </div>
           </div>
         </div>
+      `
+    },
+    {
+      slug: 'ai-robots-txt',
+      title: 'AI Bot Blocker robots.txt Generator',
+      metaDesc: 'Generate a robots.txt file to block AI web scrapers and LLM training crawlers (GPTBot, Claude-Web, CCBot, Google-Extended, Bytespider) while keeping Googlebot allowed.',
+      category: 'Developer',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; AI Bot Blocker robots.txt
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">AI Bot Blocker robots.txt Generator</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Protect your website content, articles, and codebase from unauthorized AI training scrapers while allowing search engines like Google and Bing to index your pages normally.
+          </p>
+
+          <div class="tool-box">
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">Select AI Bots to Block:</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem;" id="botToggles">
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" id="bot-gpt" checked onchange="buildRobots()" /> OpenAI (GPTBot, ChatGPT-User)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" id="bot-anthropic" checked onchange="buildRobots()" /> Anthropic (Claude-Web, anthropic-ai)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" id="bot-google" checked onchange="buildRobots()" /> Google AI (Google-Extended)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" id="bot-cc" checked onchange="buildRobots()" /> Common Crawl (CCBot)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" id="bot-meta" checked onchange="buildRobots()" /> Meta AI (Meta-ExternalAgent, FacebookBot)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" id="bot-bytedance" checked onchange="buildRobots()" /> ByteDance / TikTok (Bytespider)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" id="bot-perplexity" checked onchange="buildRobots()" /> Perplexity (PerplexityBot)
+              </label>
+              <label style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+                <input type="checkbox" id="bot-apple" checked onchange="buildRobots()" /> Apple Intelligence (Applebot-Extended)
+              </label>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Sitemap URL (Optional):</label>
+              <input type="url" id="robots-sitemap" class="text-input" placeholder="https://example.com/sitemap.xml" oninput="buildRobots()" />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Generated robots.txt Preview</label>
+              <textarea id="robots-out" class="code-input" style="height: 260px;" readonly></textarea>
+            </div>
+
+            <div class="action-bar">
+              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('robots-out').value); alert('robots.txt copied to clipboard!');">Copy robots.txt</button>
+              <button class="btn-sec" onclick="downloadRobots()">Download robots.txt</button>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function buildRobots() {
+            var lines = [];
+            lines.push('# Standard Search Engines (Allowed for SEO ranking)');
+            lines.push('User-agent: Googlebot');
+            lines.push('Allow: /');
+            lines.push('');
+            lines.push('User-agent: Bingbot');
+            lines.push('Allow: /');
+            lines.push('');
+
+            var bots = [];
+            if (document.getElementById('bot-gpt').checked) bots.push('GPTBot', 'ChatGPT-User', 'OAI-SearchBot');
+            if (document.getElementById('bot-anthropic').checked) bots.push('Claude-Web', 'anthropic-ai');
+            if (document.getElementById('bot-google').checked) bots.push('Google-Extended');
+            if (document.getElementById('bot-cc').checked) bots.push('CCBot');
+            if (document.getElementById('bot-meta').checked) bots.push('Meta-ExternalAgent', 'FacebookBot');
+            if (document.getElementById('bot-bytedance').checked) bots.push('Bytespider');
+            if (document.getElementById('bot-perplexity').checked) bots.push('PerplexityBot');
+            if (document.getElementById('bot-apple').checked) bots.push('Applebot-Extended');
+
+            if (bots.length > 0) {
+              lines.push('# AI Scrapers & Data Harvesters (Blocked)');
+              bots.forEach(function(b) {
+                lines.push('User-agent: ' + b);
+                lines.push('Disallow: /');
+                lines.push('');
+              });
+            }
+
+            lines.push('# Default Catch-All');
+            lines.push('User-agent: *');
+            lines.push('Allow: /');
+
+            var sm = document.getElementById('robots-sitemap').value.trim();
+            if (sm) {
+              lines.push('');
+              lines.push('Sitemap: ' + sm);
+            }
+
+            document.getElementById('robots-out').value = lines.join('\\n');
+          }
+
+          function downloadRobots() {
+            var blob = new Blob([document.getElementById('robots-out').value], { type: 'text/plain' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'robots.txt';
+            a.click();
+          }
+
+          document.addEventListener('DOMContentLoaded', buildRobots);
+        </script>
+      `
+    },
+    {
+      slug: 'cron-generator',
+      title: 'Cron Expression Generator & Schedule Explainer',
+      metaDesc: 'Generate and test crontab schedule expressions in human-readable English. Includes live preview of next scheduled execution dates.',
+      category: 'Developer',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Cron Generator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Cron Expression Generator & Schedule Builder</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Construct Linux and Unix crontab expressions with live human-readable translation and next execution calculations.
+          </p>
+
+          <div class="tool-box">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+              <span style="font-size: 0.85rem; font-weight: bold; color: var(--text-muted); line-height: 2;">Quick Presets:</span>
+              <button class="btn-sec" onclick="setCron('* * * * *')">Every Minute</button>
+              <button class="btn-sec" onclick="setCron('*/5 * * * *')">Every 5 Min</button>
+              <button class="btn-sec" onclick="setCron('0 * * * *')">Hourly</button>
+              <button class="btn-sec" onclick="setCron('0 0 * * *')">Daily (Midnight)</button>
+              <button class="btn-sec" onclick="setCron('0 0 * * 0')">Weekly (Sunday)</button>
+              <button class="btn-sec" onclick="setCron('0 0 1 * *')">Monthly (1st)</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-bottom: 1.25rem;">
+              <div>
+                <label class="field-label">Minute (0-59)</label>
+                <input type="text" id="cron-m" class="text-input" value="*" oninput="updateFromFields()" />
+              </div>
+              <div>
+                <label class="field-label">Hour (0-23)</label>
+                <input type="text" id="cron-h" class="text-input" value="*" oninput="updateFromFields()" />
+              </div>
+              <div>
+                <label class="field-label">Day Month (1-31)</label>
+                <input type="text" id="cron-dom" class="text-input" value="*" oninput="updateFromFields()" />
+              </div>
+              <div>
+                <label class="field-label">Month (1-12)</label>
+                <input type="text" id="cron-mon" class="text-input" value="*" oninput="updateFromFields()" />
+              </div>
+              <div>
+                <label class="field-label">Day Week (0-6 Sun-Sat)</label>
+                <input type="text" id="cron-dow" class="text-input" value="*" oninput="updateFromFields()" />
+              </div>
+            </div>
+
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin: 1.5rem 0; text-align: center;">
+              <div class="field-label">CRON EXPRESSION</div>
+              <div id="cron-result" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; margin: 0.5rem 0; color: var(--btn-bg, #3b82f6);">* * * * *</div>
+              <div id="cron-desc" style="font-size: 1.05rem; color: var(--fg); font-weight: 500;">Runs every minute of every hour, every day.</div>
+            </div>
+
+            <div class="action-bar">
+              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('cron-result').textContent); alert('Cron expression copied!');">Copy Expression</button>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function setCron(expr) {
+            var p = expr.split(' ');
+            document.getElementById('cron-m').value = p[0];
+            document.getElementById('cron-h').value = p[1];
+            document.getElementById('cron-dom').value = p[2];
+            document.getElementById('cron-mon').value = p[3];
+            document.getElementById('cron-dow').value = p[4];
+            updateFromFields();
+          }
+
+          function updateFromFields() {
+            var m = document.getElementById('cron-m').value.trim() || '*';
+            var h = document.getElementById('cron-h').value.trim() || '*';
+            var dom = document.getElementById('cron-dom').value.trim() || '*';
+            var mon = document.getElementById('cron-mon').value.trim() || '*';
+            var dow = document.getElementById('cron-dow').value.trim() || '*';
+            var full = m + ' ' + h + ' ' + dom + ' ' + mon + ' ' + dow;
+            document.getElementById('cron-result').textContent = full;
+
+            var desc = 'Runs ';
+            if (m === '*' && h === '*') desc += 'every minute of every hour';
+            else if (m.startsWith('*/')) desc += 'every ' + m.slice(2) + ' minutes';
+            else if (m === '0' && h === '*') desc += 'at the start of every hour';
+            else if (m === '0' && h === '0') desc += 'every day at midnight (00:00)';
+            else desc += 'at minute ' + m + ', hour ' + h;
+
+            if (dom !== '*') desc += ' on day ' + dom + ' of the month';
+            if (mon !== '*') desc += ' in month ' + mon;
+            if (dow !== '*') {
+              var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+              desc += ' on ' + (days[parseInt(dow, 10)] || ('day-of-week ' + dow));
+            }
+            desc += '.';
+            document.getElementById('cron-desc').textContent = desc;
+          }
+
+          document.addEventListener('DOMContentLoaded', updateFromFields);
+        </script>
+      `
+    },
+    {
+      slug: 'js-minifier',
+      title: 'JavaScript Minifier & Code Compressor',
+      metaDesc: 'Minify and compress JavaScript source code in your browser with zero network uploads. Remove comments, whitespace, and optimize syntax.',
+      category: 'Developer',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; JS Minifier
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">JavaScript Minifier & Compressor</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Compress and minify JS files instantly in browser memory. Strips comments and compacts whitespace without altering logic.
+          </p>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Original JavaScript Code</label>
+              <textarea id="js-in" class="code-input" style="height: 180px;" placeholder="// Paste unminified JavaScript here...\\nfunction greet(name) {\\n    // say hello\\n    console.log('Hello, ' + name);\\n}"></textarea>
+            </div>
+
+            <div class="action-bar" style="margin-bottom: 1.5rem;">
+              <button class="btn-primary" onclick="minifyJs()">Minify JavaScript</button>
+              <button class="btn-sec" onclick="document.getElementById('js-in').value=''; document.getElementById('js-out').value='';">Clear</button>
+            </div>
+
+            <div class="field-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <label class="field-label" style="margin-bottom: 0;">Minified Output</label>
+                <span id="js-stats" style="font-family: var(--mono); font-size: 0.75rem; color: #22c55e; font-weight: bold;"></span>
+              </div>
+              <textarea id="js-out" class="code-input" style="height: 180px;" readonly></textarea>
+            </div>
+
+            <div class="action-bar">
+              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('js-out').value); alert('Minified JS copied!');">Copy Minified JS</button>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function minifyJs() {
+            var src = document.getElementById('js-in').value;
+            if (!src) return;
+
+            var origLen = src.length;
+            // 1. Remove single-line comments (ignoring urls like http://)
+            var min = src.replace(/(?:^|[\\s;{}()])\\/\\/[^\\r\\n]*/g, '');
+            // 2. Remove multi-line comments
+            min = min.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');
+            // 3. Normalize multiple whitespace and newlines
+            min = min.replace(/\\s*([{}();,=+\\-*\\/<>?:&|!])\\s*/g, '$1');
+            min = min.replace(/\\s+/g, ' ').trim();
+
+            document.getElementById('js-out').value = min;
+            var newLen = min.length;
+            var savings = origLen > 0 ? (((origLen - newLen) / origLen) * 100).toFixed(1) : 0;
+            document.getElementById('js-stats').textContent = origLen + ' B -> ' + newLen + ' B (' + savings + '% reduction)';
+          }
+        </script>
       `
     }
   ];

@@ -1122,6 +1122,46 @@ footer a:hover { text-decoration: underline; }
   }
 }
 </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the maximum stair riser height according to IRC code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Under Section R311.7.5.1 of the International Residential Code (IRC), the maximum riser height for residential stairs is 7 3/4 inches (197 mm)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the minimum stair tread depth required by building code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The IRC requires a minimum tread depth of 10 inches (254 mm) with nosing, or 11 inches without nosing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the standard stair comfort rule of thumb?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The standard architectural formula for comfortable stairs is 2 × Riser + Tread = 24 to 25.5 inches."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long of a 2x12 board do I need for a stair stringer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Stringer length is calculated using the Pythagorean theorem: Stringer Length = √(Total Rise² + Total Run²). Always round up to the next available standard lumber length."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <script>window.__isBot=/Googlebot|bingbot|Baiduspider|YandexBot|Twitterbot|facebookexternalhit|Slurp|DuckDuckBot|Sogou|Exabot|ia_archiver|MJ12bot|AhrefsBot|SemrushBot|DotBot/i.test(navigator.userAgent);</script>
@@ -1210,7 +1250,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/convert/esbuild-decompiler" class="nav-link ">
         <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
       </a>
-      <a href="/dev/json-formatter" class="nav-link ">
+      <a href="/convert/json-formatter" class="nav-link ">
         <div class="nav-link-content"><span>JSON Formatter & Validator</span></div>
       </a>
       <a href="/dev/ai-robots-txt" class="nav-link ">
@@ -1241,11 +1281,14 @@ footer a:hover { text-decoration: underline; }
       <!-- MINECRAFT & GAMING -->
       <div class="nav-group-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        <span>Minecraft Bedrock & Java (5)</span>
+        <span>Minecraft Bedrock & Java (6)</span>
       </div>
       <a href="/mc/nbt-editor" class="nav-link ">
         <div class="nav-link-content"><span>In-Browser NBT Editor</span></div>
         <span class="nav-badge">PRO</span>
+      </a>
+      <a href="/mc/color-codes" class="nav-link ">
+        <div class="nav-link-content"><span>Formatting & Color Codes (§)</span></div>
       </a>
       <a href="/mc/tellraw-gen" class="nav-link ">
         <div class="nav-link-content"><span>/tellraw JSON Generator</span></div>
@@ -1263,7 +1306,7 @@ footer a:hover { text-decoration: underline; }
       <!-- TRADE & CONSTRUCTION -->
       <div class="nav-group-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
-        <span>Blue-Collar & Trade Math (4)</span>
+        <span>Blue-Collar & Trade Math (8)</span>
       </div>
       <a href="/calc/stair-calculator" class="nav-link active">
         <div class="nav-link-content"><span>Stair Stringer (IRC Code)</span></div>
@@ -1271,11 +1314,23 @@ footer a:hover { text-decoration: underline; }
       <a href="/calc/concrete-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Concrete Slab & Bags</span></div>
       </a>
+      <a href="/calc/framing-stud-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Wall Stud Framing (16"/24")</span></div>
+      </a>
       <a href="/calc/drywall-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Drywall, Mud & Screws</span></div>
       </a>
+      <a href="/calc/paint-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Paint Gallons Estimator</span></div>
+      </a>
+      <a href="/calc/tile-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Floor & Wall Tile Boxes</span></div>
+      </a>
       <a href="/calc/mulch-calculator" class="nav-link ">
-        <div class="nav-link-content"><span>Mulch, Topsoil & Gravel</span></div>
+        <div class="nav-link-content"><span>Mulch, Topsoil & Compost</span></div>
+      </a>
+      <a href="/calc/gravel-calculator" class="nav-link ">
+        <div class="nav-link-content"><span>Gravel & Crushed Stone</span></div>
       </a>
 
       <!-- SENIOR & RETIREMENT FINANCE -->
@@ -1295,7 +1350,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/finance/social-security-tax" class="nav-link ">
         <div class="nav-link-content"><span>Social Security Taxability</span></div>
       </a>
-      <a href="/finance/annuity-payout" class="nav-link ">
+      <a href="/finance/annuity-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Annuity & Pension Payout</span></div>
       </a>
       <a href="/math/compound-interest" class="nav-link ">
@@ -1340,7 +1395,7 @@ footer a:hover { text-decoration: underline; }
       <a href="/design/passport-photo" class="nav-link ">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
       </a>
-      <a href="/design/qr-generator" class="nav-link ">
+      <a href="/design/qr-code-generator" class="nav-link ">
         <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
       </a>
       <a href="/media/subtitle-shifter" class="nav-link ">
@@ -1507,7 +1562,7 @@ footer a:hover { text-decoration: underline; }
       <header style="margin-bottom: 2rem;">
         <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Stair Stringer & Rise/Run Calculator</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Calculate exact step riser heights, tread depths, stringer cut lengths, and verify International Residential Code (IRC) building compliance.
+          Calculate step riser heights, tread depths, stringer cut lengths, and verify International Residential Code (IRC) building compliance.
         </p>
       </header>
 
@@ -1580,7 +1635,7 @@ footer a:hover { text-decoration: underline; }
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
             '<span style="color: var(--text-muted); font-size: 0.75rem;">EXACT RISER HEIGHT</span>' +
             '<div style="font-size: 1.25rem; font-weight: bold; color: ' + (isRiserCode ? '#22c55e' : '#ef4444') + ';">' +
-              actualRiser.toFixed(3) + '" (' + toFraction(actualRiser) + ') ' + (isRiserCode ? '✅ Code Compliant' : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Exceeds 7.75"') +
+              actualRiser.toFixed(3) + '" (' + toFraction(actualRiser) + ') ' + (isRiserCode ? '✅ Code Compliant' : '⚠️ Exceeds 7.75"') +
             '</div>' +
           '</div>' +
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
@@ -1589,11 +1644,17 @@ footer a:hover { text-decoration: underline; }
           '</div>' +
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
             '<span style="color: var(--text-muted); font-size: 0.75rem;">MINIMUM STRINGER BOARD LENGTH</span>' +
-            '<div style="font-size: 1.1rem; font-weight: bold; color: #3b82f6;">Buy 2x12 × ' + stringerFeet + ' ft Lumber (Diagonal: ' + (stringerLenInches / 12).toFixed(2) + ' ft)</div>' +
+            '<div style="font-size: 1.25rem; font-weight: bold; color: #3b82f6;">' + stringerFeet + ' Foot 2x12 Board (' + stringerLenInches.toFixed(1) + '" diagonal)</div>' +
           '</div>' +
           '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">STAIR INCLINE ANGLE & COMFORT</span>' +
-            '<div style="font-size: 0.95rem; color: var(--fg);">' + inclineAngle + '° pitch (Ideal is 30°–37°) | 2R + T = ' + ruleOfThumb + '" ' + (isComfortGood ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2z"/></svg> Ideal Comfort' : '') + '</div>' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">STAIRWAY INCLINE ANGLE</span>' +
+            '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">' + inclineAngle + '° (Comfort zone: 30° - 37°)</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">COMFORT RULE (2R + T)</span>' +
+            '<div style="font-size: 1.1rem; font-weight: bold; color: ' + (isComfortGood ? '#22c55e' : '#f59e0b') + ';">' +
+              ruleOfThumb + '" ' + (isComfortGood ? '✅ Ideal Proportions' : 'ℹ️ Standard is 24" to 25.5"') +
+            '</div>' +
           '</div>';
       }
 

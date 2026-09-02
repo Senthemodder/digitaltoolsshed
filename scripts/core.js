@@ -1226,7 +1226,7 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/convert/esbuild-decompiler" class="nav-link ${currentPath.startsWith('/convert/esbuild-decompiler') ? 'active' : ''}">
         <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
       </a>
-      <a href="/dev/json-formatter" class="nav-link ${currentPath.startsWith('/dev/json-formatter') || currentPath.startsWith('/convert/json-formatter') ? 'active' : ''}">
+      <a href="/convert/json-formatter" class="nav-link ${currentPath.startsWith('/convert/json-formatter') ? 'active' : ''}">
         <div class="nav-link-content"><span>JSON Formatter & Validator</span></div>
       </a>
       <a href="/dev/ai-robots-txt" class="nav-link ${currentPath.startsWith('/dev/ai-robots-txt') ? 'active' : ''}">
@@ -1257,11 +1257,14 @@ function buildSidebarHtml(currentPath = '/') {
       <!-- MINECRAFT & GAMING -->
       <div class="nav-group-title">
         ${ICONS.cube}
-        <span>Minecraft Bedrock & Java (5)</span>
+        <span>Minecraft Bedrock & Java (6)</span>
       </div>
       <a href="/mc/nbt-editor" class="nav-link ${currentPath.startsWith('/mc/nbt-editor') ? 'active' : ''}">
         <div class="nav-link-content"><span>In-Browser NBT Editor</span></div>
         <span class="nav-badge">PRO</span>
+      </a>
+      <a href="/mc/color-codes" class="nav-link ${currentPath.startsWith('/mc/color-codes') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Formatting & Color Codes (§)</span></div>
       </a>
       <a href="/mc/tellraw-gen" class="nav-link ${currentPath.startsWith('/mc/tellraw-gen') ? 'active' : ''}">
         <div class="nav-link-content"><span>/tellraw JSON Generator</span></div>
@@ -1279,7 +1282,7 @@ function buildSidebarHtml(currentPath = '/') {
       <!-- TRADE & CONSTRUCTION -->
       <div class="nav-group-title">
         ${ICONS.calc}
-        <span>Blue-Collar & Trade Math (4)</span>
+        <span>Blue-Collar & Trade Math (8)</span>
       </div>
       <a href="/calc/stair-calculator" class="nav-link ${currentPath.startsWith('/calc/stair-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Stair Stringer (IRC Code)</span></div>
@@ -1287,11 +1290,23 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/calc/concrete-calculator" class="nav-link ${currentPath.startsWith('/calc/concrete-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Concrete Slab & Bags</span></div>
       </a>
+      <a href="/calc/framing-stud-calculator" class="nav-link ${currentPath.startsWith('/calc/framing-stud-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Wall Stud Framing (16"/24")</span></div>
+      </a>
       <a href="/calc/drywall-calculator" class="nav-link ${currentPath.startsWith('/calc/drywall-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Drywall, Mud & Screws</span></div>
       </a>
+      <a href="/calc/paint-calculator" class="nav-link ${currentPath.startsWith('/calc/paint-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Paint Gallons Estimator</span></div>
+      </a>
+      <a href="/calc/tile-calculator" class="nav-link ${currentPath.startsWith('/calc/tile-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Floor & Wall Tile Boxes</span></div>
+      </a>
       <a href="/calc/mulch-calculator" class="nav-link ${currentPath.startsWith('/calc/mulch-calculator') ? 'active' : ''}">
-        <div class="nav-link-content"><span>Mulch, Topsoil & Gravel</span></div>
+        <div class="nav-link-content"><span>Mulch, Topsoil & Compost</span></div>
+      </a>
+      <a href="/calc/gravel-calculator" class="nav-link ${currentPath.startsWith('/calc/gravel-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Gravel & Crushed Stone</span></div>
       </a>
 
       <!-- SENIOR & RETIREMENT FINANCE -->
@@ -1311,7 +1326,7 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/finance/social-security-tax" class="nav-link ${currentPath.startsWith('/finance/social-security-tax') ? 'active' : ''}">
         <div class="nav-link-content"><span>Social Security Taxability</span></div>
       </a>
-      <a href="/finance/annuity-payout" class="nav-link ${currentPath.startsWith('/finance/annuity-payout') ? 'active' : ''}">
+      <a href="/finance/annuity-calculator" class="nav-link ${currentPath.startsWith('/finance/annuity-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Annuity & Pension Payout</span></div>
       </a>
       <a href="/math/compound-interest" class="nav-link ${currentPath.startsWith('/math/compound-interest') ? 'active' : ''}">
@@ -1356,7 +1371,7 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/design/passport-photo" class="nav-link ${currentPath.startsWith('/design/passport-photo') ? 'active' : ''}">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
       </a>
-      <a href="/design/qr-generator" class="nav-link ${currentPath.startsWith('/design/qr-generator') ? 'active' : ''}">
+      <a href="/design/qr-code-generator" class="nav-link ${currentPath.startsWith('/design/qr-code-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
       </a>
       <a href="/media/subtitle-shifter" class="nav-link ${currentPath.startsWith('/media/subtitle-shifter') ? 'active' : ''}">

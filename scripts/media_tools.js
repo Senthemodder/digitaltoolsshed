@@ -1387,7 +1387,54 @@ function buildMediaSuite() {
     currentPath: '/media/subtitle-shifter'
   }));
 
-  console.log('  ✓ Built Media & Video Suite (/media/ — Downloader, Recorder, YouTube MP3, TikTok, Subtitles)');
+  // Render Media & Video Hub (/media/index.html)
+  const mediaHubBody = `
+    <div class="article-container" style="max-width: 950px;">
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Media, Video & Audio Suite</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Browser-based video and audio processing tools: universal media downloaders, screen and microphone recording, subtitle synchronization, and audio extractors with zero cloud uploads.
+        </p>
+      </header>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+        <a href="/media/downloader" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Universal Media Downloader</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Save high-definition video and audio from Twitter/X, TikTok, YouTube, Instagram, and Reddit without watermarks.</p>
+        </a>
+
+        <a href="/media/recorder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Screen & Camera Recorder</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Record your desktop screen, camera, and microphone directly in your browser with zero file size limits or watermarks.</p>
+        </a>
+
+        <a href="/media/youtube-to-mp3" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">YouTube to MP3 Audio</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Extract 320kbps MP3 audio tracks directly from video links in seconds.</p>
+        </a>
+
+        <a href="/media/tiktok-saver" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">TikTok Saver (No Watermark)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Download full HD TikTok videos without the bouncing watermark overlay.</p>
+        </a>
+
+        <a href="/media/subtitle-shifter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Subtitle Time Shifter (.SRT & .VTT)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Resync delayed or early subtitles by shifting timestamps forward or backward in milliseconds.</p>
+        </a>
+      </div>
+    </div>
+  `;
+
+  writeFileSync(join(mediaDir, 'index.html'), renderPage({
+    title: 'Free Media, Video & Audio Tools | Digital Tools Shed',
+    metaDesc: 'Browser-based video and audio tools: universal downloader, screen recorder, TikTok saver without watermark, YouTube to MP3, and subtitle shifter.',
+    canonical: `${DOMAIN}/media/`,
+    bodyContent: mediaHubBody,
+    currentPath: '/media/'
+  }));
+
+  console.log('  ✓ Built Media & Video Suite (/media/ — Downloader, Recorder, YouTube MP3, TikTok, Subtitles, and Hub)');
 }
 
 export { buildMediaSuite };
