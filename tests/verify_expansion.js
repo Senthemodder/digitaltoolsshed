@@ -16,6 +16,7 @@
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import vm from 'vm';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -549,6 +550,13 @@ export function runSuite() {
                 body.includes('change') ||
                 body.includes('function')) {
               hasInlineLogic = true;
+            }
+
+            // AST Syntax Verification via Node vm.Script
+            try {
+              new vm.Script(body, { filename: `${cat.id}/${file}` });
+            } catch (syntaxErr) {
+              violations.push(`${file}: Client-side JavaScript SyntaxError -> ${syntaxErr.message}`);
             }
           }
         }

@@ -1815,7 +1815,7 @@ footer a:hover { text-decoration: underline; }
         var stripPass = strPct >= 70;
         var ptPass = strPct >= 75;
 
-        document.getElementById('outEstPsi').textContent = estPsi.toLocaleString() + ' PSI (' + strPct.toFixed(1) + '% f'c)';
+        document.getElementById('outEstPsi').textContent = estPsi.toLocaleString() + ' PSI (' + strPct.toFixed(1) + '% f\'c)';
         document.getElementById('outMaturity').textContent = Math.round(maturity) + ' °C-hours (Maturity Index)';
         document.getElementById('outPercentStr').textContent = strPct.toFixed(1) + '% of design strength reached';
         document.getElementById('outFormStrip').textContent = stripPass ? '✅ SAFE to Strip Formwork (≥ 70%)' : '⏳ DO NOT Strip: Wait until 2,800 PSI reached';

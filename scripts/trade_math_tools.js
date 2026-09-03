@@ -2649,7 +2649,7 @@ const CONCRETE_TOOLS = [
         var stripPass = strPct >= 70;
         var ptPass = strPct >= 75;
 
-        document.getElementById('outEstPsi').textContent = estPsi.toLocaleString() + ' PSI (' + strPct.toFixed(1) + '% f\'c)';
+        document.getElementById('outEstPsi').textContent = estPsi.toLocaleString() + ' PSI (' + strPct.toFixed(1) + '% f\\\'c)';
         document.getElementById('outMaturity').textContent = Math.round(maturity) + ' °C-hours (Maturity Index)';
         document.getElementById('outPercentStr').textContent = strPct.toFixed(1) + '% of design strength reached';
         document.getElementById('outFormStrip').textContent = stripPass ? '✅ SAFE to Strip Formwork (≥ 70%)' : '⏳ DO NOT Strip: Wait until 2,800 PSI reached';
@@ -6507,7 +6507,7 @@ const FRAMING_TOOLS = [
         var openIn = Math.ceil(openFromTopStep);
 
         document.getElementById('outRoughOpening').textContent = openIn + '" (' + (openIn / 12).toFixed(1) + ' ft) Minimum Opening Length';
-        document.getElementById('outActualClearance').textContent = '80.0" (6\'8") Minimum Continuous Headroom Guaranteed';
+        document.getElementById('outActualClearance').textContent = '80.0" (6\\\'8") Minimum Continuous Headroom Guaranteed';
         document.getElementById('outStepsUnderHdr').textContent = 'Header can extend over step #' + (maxNBelowHeader + 1) + ' from bottom';
         document.getElementById('outTotalSteps').textContent = numRisers + ' Risers at ' + actualRiser.toFixed(2) + '" & ' + numTreads + ' Treads at ' + tread + '"';
         document.getElementById('outIrcHeadPass').textContent = '✅ IRC R311.7.2 Compliant (Meets 80" minimum)';
