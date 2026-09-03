@@ -1645,6 +1645,370 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           }
         </script>
       `
+    },
+    {
+      slug: 'stand-on-your-own-feet',
+      title: 'Stand On Your Own Feet: The Radical Self-Reliance & Motivation Engine',
+      metaDesc: 'A no-bullshit motivational bombardment engine and self-reliance diagnostic. Hard-hitting stoic truths, continuous quote barrage, and 4 pillars of independence. 100% Ad-Free.',
+      category: 'Self-Reliance & Motivation',
+      noAds: true,
+      body: `
+        ${commonStyle}
+        <style>
+          .bombard-box { background: radial-gradient(circle at center, rgba(59,130,246,0.12), transparent 75%), var(--surface); border: 2px solid var(--border-strong, #000); border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; margin: 1.5rem 0; min-height: 240px; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; }
+          .quote-text { font-family: var(--serif); font-size: 1.8rem; font-weight: bold; line-height: 1.35; color: var(--fg); max-width: 750px; margin-bottom: 1rem; transition: opacity 0.25s ease-in-out; }
+          .quote-author { font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; font-weight: bold; }
+          .pillar-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
+          .ad-free-badge { display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(16,185,129,0.1); border: 1px solid #10b981; color: #10b981; padding: 0.25rem 0.6rem; border-radius: 20px; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; font-weight: bold; }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Stand On Your Own Feet
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+              <span class="ad-free-badge">✓ 100% Ad-Free Sanctuary</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Radical Accountability</span>
+            </div>
+            <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem;">Stand On Your Own Feet: The Motivation Bombardment Engine</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+              Nobody is coming to rescue you. No guru, no politician, no magic pill. The cavalry isn't coming because <strong>you are the cavalry</strong>. Bombard your brain with hard truths and build unbreakable self-reliance.
+            </p>
+          </header>
+
+          <!-- THE MOTIVATION BOMBARDMENT ENGINE -->
+          <div class="bombard-box" id="bombardCard">
+            <div id="quoteDisplay" class="quote-text">
+              "Waste no more time arguing about what a good man should be. Be one."
+            </div>
+            <div id="authorDisplay" class="quote-author">
+              — Marcus Aurelius, Meditations
+            </div>
+
+            <!-- Auto-Advance Bar -->
+            <div id="autoBarWrap" style="display: none; width: 100%; max-width: 300px; height: 4px; background: var(--surface-alt); border-radius: 2px; margin-top: 1.5rem; overflow: hidden;">
+              <div id="autoProgress" style="width: 0%; height: 100%; background: #3b82f6; transition: width 0.1s linear;"></div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2.5rem;">
+            <button type="button" class="btn-primary" onclick="nextHardTruth()" style="padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer;">
+              ⚡ Slap in the Face (New Hard Truth)
+            </button>
+            <button type="button" class="btn-sec" id="btnAutoBarrage" onclick="toggleBarrage()" style="padding: 0.75rem 1.25rem; font-size: 0.95rem; cursor: pointer;">
+              🚀 Start Continuous Bombardment (Every 4s)
+            </button>
+          </div>
+
+          <!-- THE 4 PILLARS OF SELF-RELIANCE DIAGNOSTIC -->
+          <div class="tool-box">
+            <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 0.5rem;">The 4 Pillars of Standing On Your Own Feet</h2>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5;">
+              Rate your independence across the 4 core dimensions of personal sovereignty (1 to 10):
+            </p>
+
+            <div class="pillar-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label style="font-weight: bold; font-size: 0.95rem;">1. Physical Sovereignty</label>
+                <span id="p1-val" style="font-family: var(--mono); color: #3b82f6; font-weight: bold;">7 / 10</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Sleep hygiene, strength training, sunlight, high-protein nutrition, and zero dependency on crutches.</p>
+              <input type="range" id="p1" min="1" max="10" value="7" oninput="calcPillars()" style="width: 100%; cursor: pointer;" />
+            </div>
+
+            <div class="pillar-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label style="font-weight: bold; font-size: 0.95rem;">2. Financial Autonomy</label>
+                <span id="p2-val" style="font-family: var(--mono); color: #10b981; font-weight: bold;">6 / 10</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Living below your means, building emergency savings, having multiple income skills, and zero reliance on parents or handouts.</p>
+              <input type="range" id="p2" min="1" max="10" value="6" oninput="calcPillars()" style="width: 100%; cursor: pointer;" />
+            </div>
+
+            <div class="pillar-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label style="font-weight: bold; font-size: 0.95rem;">3. Emotional Locus of Control</label>
+                <span id="p3-val" style="font-family: var(--mono); color: #f59e0b; font-weight: bold;">5 / 10</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Refusing the victim mindset. Taking 100% ownership of your reactions, emotions, and life conditions.</p>
+              <input type="range" id="p3" min="1" max="10" value="5" oninput="calcPillars()" style="width: 100%; cursor: pointer;" />
+            </div>
+
+            <div class="pillar-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label style="font-weight: bold; font-size: 0.95rem;">4. Execution Velocity</label>
+                <span id="p4-val" style="font-family: var(--mono); color: #8b5cf6; font-weight: bold;">5 / 10</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.5rem;">Closing the latency between having an idea and executing. Killing procrastination through immediate action.</p>
+              <input type="range" id="p4" min="1" max="10" value="5" oninput="calcPillars()" style="width: 100%; cursor: pointer;" />
+            </div>
+
+            <div class="result-card" style="border-top: 4px solid #3b82f6;">
+              <div class="field-label">Your Personal Sovereignty Index</div>
+              <div id="sovereigntyScore" class="result-val">58%</div>
+              <div id="sovereigntyFeedback" style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-top: 0.5rem;"></div>
+            </div>
+          </div>
+
+          <!-- 10-MINUTE ACTION LOCK-IN PAD -->
+          <div class="tool-box" style="background: rgba(59,130,246,0.04); border-color: #3b82f6;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.5rem;">The 10-Minute Action Lock-In</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Motivation without action is mental masturbation. Commit to <strong>one physical action</strong> you will complete right now on your own two feet within 10 minutes:
+            </p>
+            <input type="text" id="lockinAction" class="text-input" placeholder="e.g. Put on running shoes and run 1 mile, Wash the sink dishes, Open bank account..." style="margin-bottom: 1rem;" />
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+              <button type="button" class="btn-primary" onclick="startLockinTimer()">🔒 Lock In & Start 10-Min Timer</button>
+              <span id="lockinTimerDisplay" style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: #ef4444; display: none;">10:00</span>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var hardTruths = [
+            { q: "Waste no more time arguing about what a good man should be. Be one.", a: "Marcus Aurelius, Meditations" },
+            { q: "Nobody is coming to save you. Nobody is coming to help you. Get your ass up and do the work.", a: "David Goggins, Can't Hurt Me" },
+            { q: "Trust thyself: every heart vibrates to that iron string. Insist on yourself; never imitate.", a: "Ralph Waldo Emerson, Self-Reliance" },
+            { q: "He who has a why to live can bear almost any how.", a: "Friedrich Nietzsche, Twilight of the Idols" },
+            { q: "We suffer more often in imagination than in reality.", a: "Seneca, Letters from a Stoic" },
+            { q: "When we are no longer able to change a situation, we are challenged to change ourselves.", a: "Viktor Frankl, Man's Search for Meaning" },
+            { q: "How long are you going to wait before you demand the best for yourself?", a: "Epictetus, Enchiridion" },
+            { q: "Discipline equals freedom. Stop negotiating with weakness in your own mind.", a: "Jocko Willink, Extreme Ownership" },
+            { q: "You do not rise to the level of your goals. You fall to the level of your systems.", a: "James Clear, Atomic Habits" },
+            { q: "I am not what happened to me, I am what I choose to become.", a: "Carl Jung" },
+            { q: "The impediment to action advances action. What stands in the way becomes the way.", a: "Marcus Aurelius" },
+            { q: "If you are depressed you are living in the past. If you are anxious you are living in the future. If you are at peace you are living in the present.", a: "Lao Tzu" },
+            { q: "The cave you fear to enter holds the treasure you seek.", a: "Joseph Campbell" },
+            { q: "You can have excuses or you can have results, but you cannot have both.", a: "Arnold Schwarzenegger" },
+            { q: "It is not death that a man should fear, but he should fear never beginning to live.", a: "Marcus Aurelius" },
+            { q: "A man who suffers before it is necessary, suffers more than is necessary.", a: "Seneca" },
+            { q: "Everything can be taken from a man but one thing: the last of the human freedoms—to choose one's attitude in any given set of circumstances.", a: "Viktor Frankl" },
+            { q: "Do what you have to do until you can do what you want to do.", a: "James Baldwin" },
+            { q: "The chief task in life is simply this: to identify and separate matters so that I can say clearly to myself which are externals not under my control, and which have to do with the choices I actually control.", a: "Epictetus" }
+          ];
+
+          var barrageActive = false;
+          var barrageTimer = null;
+          var barrageProgressTimer = null;
+          var progressVal = 0;
+
+          function nextHardTruth() {
+            var card = document.getElementById('quoteDisplay');
+            card.style.opacity = '0';
+            setTimeout(function() {
+              var r = hardTruths[Math.floor(Math.random() * hardTruths.length)];
+              card.textContent = '"' + r.q + '"';
+              document.getElementById('authorDisplay').textContent = '— ' + r.a;
+              card.style.opacity = '1';
+            }, 200);
+          }
+
+          function toggleBarrage() {
+            barrageActive = !barrageActive;
+            var btn = document.getElementById('btnAutoBarrage');
+            var pWrap = document.getElementById('autoBarWrap');
+
+            if (barrageActive) {
+              btn.textContent = '⏹ Stop Bombardment';
+              btn.style.background = '#ef4444';
+              btn.style.color = '#fff';
+              pWrap.style.display = 'block';
+              runBarrageLoop();
+            } else {
+              btn.textContent = '🚀 Start Continuous Bombardment (Every 4s)';
+              btn.style.background = 'transparent';
+              btn.style.color = 'var(--fg)';
+              pWrap.style.display = 'none';
+              clearTimeout(barrageTimer);
+              clearInterval(barrageProgressTimer);
+            }
+          }
+
+          function runBarrageLoop() {
+            if (!barrageActive) return;
+            nextHardTruth();
+            progressVal = 0;
+            clearInterval(barrageProgressTimer);
+            barrageProgressTimer = setInterval(function() {
+              progressVal += 2.5;
+              document.getElementById('autoProgress').style.width = progressVal + '%';
+              if (progressVal >= 100) {
+                clearInterval(barrageProgressTimer);
+              }
+            }, 100);
+
+            barrageTimer = setTimeout(function() {
+              runBarrageLoop();
+            }, 4000);
+          }
+
+          function calcPillars() {
+            var p1 = parseInt(document.getElementById('p1').value, 10);
+            var p2 = parseInt(document.getElementById('p2').value, 10);
+            var p3 = parseInt(document.getElementById('p3').value, 10);
+            var p4 = parseInt(document.getElementById('p4').value, 10);
+
+            document.getElementById('p1-val').textContent = p1 + ' / 10';
+            document.getElementById('p2-val').textContent = p2 + ' / 10';
+            document.getElementById('p3-val').textContent = p3 + ' / 10';
+            document.getElementById('p4-val').textContent = p4 + ' / 10';
+
+            var total = p1 + p2 + p3 + p4;
+            var pct = Math.round((total / 40) * 100);
+            document.getElementById('sovereigntyScore').textContent = pct + '%';
+
+            var fb = '';
+            if (pct >= 80) {
+              fb = '<strong>High Sovereignty:</strong> You operate as an autonomous, self-directed individual. You take responsibility for outcomes and don\\'t wait for external validation. Keep sharpening the blade.';
+            } else if (pct >= 50) {
+              fb = '<strong>Developing Autonomy:</strong> You have strong foundations in some areas, but leaks in others (often execution latency or emotional reactivity). Focus on the lowest-scoring pillar this week.';
+            } else {
+              fb = '<strong>External Dependency Warning:</strong> You are currently outsourcing your well-being or motivation to circumstances and other people. Start with Physical Sovereignty: get 8 hours of sleep, drink water, and complete 1 task today without complaining.';
+            }
+            document.getElementById('sovereigntyFeedback').innerHTML = fb;
+          }
+
+          var lockinSeconds = 600;
+          var lockinInterval = null;
+
+          function startLockinTimer() {
+            var act = document.getElementById('lockinAction').value.trim();
+            if (!act) { alert('Please enter your 10-minute action commitment first!'); return; }
+            var disp = document.getElementById('lockinTimerDisplay');
+            disp.style.display = 'inline-block';
+            lockinSeconds = 600;
+
+            clearInterval(lockinInterval);
+            lockinInterval = setInterval(function() {
+              lockinSeconds--;
+              if (lockinSeconds <= 0) {
+                clearInterval(lockinInterval);
+                disp.textContent = 'TIME IS UP — ACTION COMPLETE!';
+                disp.style.color = '#10b981';
+                alert('10 MINUTES EXPIRED! If you took action, congratulations on standing on your own feet.');
+              } else {
+                var m = Math.floor(lockinSeconds / 60);
+                var s = lockinSeconds % 60;
+                disp.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+              }
+            }, 1000);
+          }
+
+          document.addEventListener('DOMContentLoaded', calcPillars);
+        </script>
+      `
+    },
+    {
+      slug: 'therapy-recommendation-engine',
+      title: 'Evidence-Based Therapy Matcher & Clinical Self-Help Guide',
+      metaDesc: 'Interactive clinical psychotherapy recommendation engine. Compare CBT, DBT, ACT, EMDR, and Somatic Experiencing to match your psychological needs. 100% Ad-Free.',
+      category: 'Therapy & Guidance',
+      noAds: true,
+      body: `
+        ${commonStyle}
+        <style>
+          .modality-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; }
+          .ad-free-badge { display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(16,185,129,0.1); border: 1px solid #10b981; color: #10b981; padding: 0.25rem 0.6rem; border-radius: 20px; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; font-weight: bold; }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Therapy Recommendation Matcher
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+              <span class="ad-free-badge">✓ 100% Ad-Free Clinical Guide</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Psychotherapeutic Triage</span>
+            </div>
+            <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Evidence-Based Therapy Matcher & Guidance</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+              Therapy is not one-size-fits-all. Taking CBT when you have somatic trauma can feel invalidating; taking psychoanalysis when you need acute crisis regulation can be ineffective. Match your symptoms to the right modality.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Select Your Primary Psychological Obstacle:</h2>
+
+            <div style="display: grid; gap: 0.75rem; margin-bottom: 1.5rem;">
+              <label class="q-opt"><input type="radio" name="tm" value="cbt" onchange="showTherapyMatch('cbt')"> 🧠 <strong>Intrusive Thoughts & Negative Loops:</strong> Constant rumination, catastrophic spirals, perfectionism, health anxiety.</label>
+              <label class="q-opt"><input type="radio" name="tm" value="dbt" onchange="showTherapyMatch('dbt')"> 🌊 <strong>Emotional Dysregulation & Crisis Swings:</strong> Severe rejection sensitivity (RSD), explosive anger, intense abandonment fear, self-harm urges.</label>
+              <label class="q-opt"><input type="radio" name="tm" value="act" onchange="showTherapyMatch('act')"> 🧭 <strong>Existential Dread & Experiential Avoidance:</strong> Struggling to accept painful feelings, chronic procrastination, lack of life direction.</label>
+              <label class="q-opt"><input type="radio" name="tm" value="emdr" onchange="showTherapyMatch('emdr')"> ⚡ <strong>Trauma, Flashbacks & PTSD:</strong> Traumatic memories that feel like they are happening right now, nervous system hypervigilance.</label>
+              <label class="q-opt"><input type="radio" name="tm" value="somatic" onchange="showTherapyMatch('somatic')"> 🫀 <strong>Physical Body Tension & Freeze State:</strong> Chronic tightness, numbness, nervous system shutdown, disassociation from the neck down.</label>
+            </div>
+
+            <!-- RESULT CARD -->
+            <div id="therapyResultBox" style="display: none; background: var(--surface-alt); border-left: 4px solid #3b82f6; padding: 1.5rem; border-radius: 0 8px 8px 0;">
+              <div id="therapyBadge" style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; font-weight: bold; color: #3b82f6; margin-bottom: 0.25rem;">Recommended Modality</div>
+              <h3 id="therapyTitle" style="font-family: var(--serif); font-size: 1.5rem; margin: 0.25rem 0 0.5rem;"></h3>
+              <p id="therapySummary" style="font-size: 0.95rem; line-height: 1.6; color: var(--fg);"></p>
+              
+              <div style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Core Therapy Tools to Practice:</div>
+                <div id="therapyTools" style="font-size: 0.9rem; line-height: 1.6; color: var(--fg);"></div>
+              </div>
+
+              <div style="margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Recommended Reading:</div>
+                <div id="therapyBook" style="font-size: 0.9rem; line-height: 1.6; color: var(--fg);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var therapyData = {
+            'cbt': {
+              title: 'Cognitive Behavioral Therapy (CBT)',
+              color: '#3b82f6',
+              summary: 'CBT operates on the principle that psychological distress is caused not by events themselves, but by our cognitive interpretations of those events. By examining and systematically testing automatic negative thoughts (ANTs), you short-circuit catastrophic loops.',
+              tools: '• Thought Records (Evidence for vs against)<br>• Behavioral Experiments (testing your fears in real life)<br>• Cognitive Restructuring & Decatastrophizing',
+              book: '📖 <em>Feeling Good: The New Mood Therapy</em> by Dr. David D. Burns, MD.'
+            },
+            'dbt': {
+              title: 'Dialectical Behavior Therapy (DBT)',
+              color: '#10b981',
+              summary: 'Developed by Dr. Marsha Linehan, DBT combines behavioral science with Zen mindfulness. It teaches you how to hold two conflicting truths at once: accepting who you are while aggressively committing to change.',
+              tools: '• TIPP Skills (Temperature, Intense exercise, Paced breathing, Paired muscle relaxation)<br>• Distress Tolerance & Radical Acceptance<br>• DEAR MAN interpersonal effectiveness for boundaries',
+              book: '📖 <em>The Dialectical Behavior Therapy Skills Workbook</em> by Matthew McKay, PhD.'
+            },
+            'act': {
+              title: 'Acceptance and Commitment Therapy (ACT)',
+              color: '#f59e0b',
+              summary: 'ACT teaches that fighting uncomfortable thoughts or trying to suppress anxiety only amplifies it. Instead of arguing with your thoughts (like CBT), you learn to defuse from them, accept their presence, and commit to actions aligned with your core values.',
+              tools: '• Cognitive Defusion ("I notice I am having the thought that...")<br>• The Observing Self (You are the sky, thoughts are just weather)<br>• Values Clarification & Committed Action',
+              book: '📖 <em>The Happiness Trap: How to Stop Struggling and Start Living</em> by Dr. Russ Harris.'
+            },
+            'emdr': {
+              title: 'Eye Movement Desensitization and Reprocessing (EMDR)',
+              color: '#8b5cf6',
+              summary: 'Trauma causes memories to become "frozen" in the limbic system with raw somatic intensity. EMDR uses bilateral stimulation (visual tracking, auditory tones, or physical taps) to help the brain reprocess traumatic events from emotional agony into integrated biographical memory.',
+              tools: '• Bilateral eye movement protocols<br>• Resource tapping & Calm Place visualization<br>• SUDS (Subjective Units of Disturbance) desensitization',
+              book: '📖 <em>Getting Past Your Past</em> by Dr. Francine Shapiro (Creator of EMDR).'
+            },
+            'somatic': {
+              title: 'Somatic Experiencing & Polyvagal Regulation',
+              color: '#ec4899',
+              summary: 'Dr. Peter Levine\\'s Somatic Experiencing posits that trauma lives in the autonomic nervous system, not just the prefrontal cortex. Talking about trauma often keeps people trapped in their heads; somatic therapy safely discharges stored fight-or-flight energy through the physical body.',
+              tools: '• Pendulation (moving attention between safe physical sensation and distress)<br>• Physiological Sighs & Vagus Nerve Stimulation<br>• Grounding into somatic proprioception',
+              book: '📖 <em>The Body Keeps the Score</em> by Dr. Bessel van der Kolk, MD.'
+            }
+          };
+
+          function showTherapyMatch(key) {
+            var data = therapyData[key];
+            if (!data) return;
+
+            var box = document.getElementById('therapyResultBox');
+            box.style.display = 'block';
+            box.style.borderLeftColor = data.color;
+            document.getElementById('therapyBadge').style.color = data.color;
+            document.getElementById('therapyTitle').textContent = data.title;
+            document.getElementById('therapySummary').textContent = data.summary;
+            document.getElementById('therapyTools').innerHTML = data.tools;
+            document.getElementById('therapyBook').innerHTML = data.book;
+          }
+        </script>
+      `
     }
   ];
 
@@ -1655,7 +2019,8 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
       metaDesc: tool.metaDesc,
       canonical: `${DOMAIN}/health/${tool.slug}`,
       bodyContent: tool.body,
-      currentPath: `/health/${tool.slug}`
+      currentPath: `/health/${tool.slug}`,
+      noAds: tool.noAds || false
     });
     writeFileSync(join(healthDist, `${tool.slug}.html`), html);
   }

@@ -126,6 +126,8 @@ const TOOLS = [
   { id: 'adhd-dopamine-menu', name: 'ADHD Dopamine Menu & Paralysis Unsticker', category: 'Health', path: '/health/adhd-dopamine-menu', desc: 'Curate appetizers, entrees, sides, and desserts to intentionally stimulate prefrontal dopamine.' },
   { id: 'sensory-grounding-decompressor', name: 'Sensory Overload & 5-4-3-2-1 Grounding Tool', category: 'Health', path: '/health/sensory-grounding-decompressor', desc: 'Somatic 5-4-3-2-1 sensory grounding sequence and burnout decompression guide.' },
   { id: 'adhd-screener', name: 'Adult ADHD Symptom Screener (WHO ASRS-v1.1)', category: 'Health', path: '/health/adhd-screener', desc: 'Official World Health Organization 6-question adult ADHD symptom screener with printable clinical report.' },
+  { id: 'stand-on-your-own-feet', name: 'Stand On Your Own Feet: Self-Reliance & Motivation Engine', category: 'Health', path: '/health/stand-on-your-own-feet', desc: 'No-bullshit stoic motivation bombardment engine and 4-pillar self-reliance diagnostic. 100% Ad-Free.' },
+  { id: 'therapy-recommendation-engine', name: 'Evidence-Based Therapy Matcher & Guidance', category: 'Health', path: '/health/therapy-recommendation-engine', desc: 'Clinical psychotherapy triage matching symptoms to CBT, DBT, ACT, EMDR, and Somatic regulation. 100% Ad-Free.' },
   { id: 'fermi-paradox-calculator', name: 'Drake Equation & Fermi Paradox Alien Calculator', category: 'Productivity', path: '/util/fermi-paradox-calculator', desc: 'Calculate communicating alien civilizations in the Milky Way and distance to nearest life.' },
   { id: 'cosmic-calendar-calculator', name: 'Cosmic Calendar: 13.8B Years in 24 Hours', category: 'Productivity', path: '/util/cosmic-calendar-calculator', desc: 'Compress the lifespan of the universe into 24 hours to see your lifetime in milliseconds.' },
   { id: 'life-in-weeks', name: 'Your Life in Weeks (4,680-Box Memento Mori)', category: 'Productivity', path: '/util/life-in-weeks', desc: 'Interactive 90-year life matrix visualizing lived weeks versus time remaining.' },
@@ -1573,7 +1575,7 @@ function buildSidebarHtml(currentPath = '/') {
 }
 
 // ─── MASTER PAGE RENDERER ──────────────────────────────────────────────────
-function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/', schema, lang = 'en', faq, breadcrumbs }) {
+function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/', schema, lang = 'en', faq, breadcrumbs, noAds = false }) {
   // Normalize canonical to clean URL (no .html, no /index trailing)
   let cleanCanonical = canonical;
   if (cleanCanonical) {
@@ -1747,8 +1749,9 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
         </div>
       </div>
 
-      <div class="layout-with-rail">
-        <div class="main-body">
+      <div class="layout-with-rail"${noAds ? ' style="display: block;"' : ''}>
+        <div class="main-body"${noAds ? ' style="max-width: 100%;"' : ''}>
+          ${noAds ? '' : `
           <div class="ad-blend-box" id="ad-top-banner">
             <span class="ad-label">Advertisement</span>
             <div class="ad-desktop-leaderboard">
@@ -1774,9 +1777,11 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
               <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
           </div>
+          `}
 
           ${bodyContent}
 
+          ${noAds ? '' : `
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>
             <div class="ad-unit-468x60">
@@ -1823,6 +1828,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
             <div id="container-cd881b59407c303a0b391e7998dd6cb9"></div>
             <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
           </div>
+          `}
 
           <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
             <a href="/convert/json-obfuscator" class="promo-card">
@@ -1830,6 +1836,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
               <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Obfuscator & Compressor</h4>
               <p style="font-size: 0.9rem; color: var(--text-muted);">Minify payloads and encode keys or unicode string escapes with dictionary mapping.</p>
             </a>
+            ${noAds ? '' : `
             <div class="promo-card ad-promo-card">
               <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
               <div class="ad-unit-300x250">
@@ -1844,11 +1851,13 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                 <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
               </div>
             </div>
+            `}
             <a href="/convert/esbuild-decompiler" class="promo-card">
               <span class="promo-badge">Reverse Engineering</span>
               <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">ESBuild & JS Decompiler</h4>
               <p style="font-size: 0.9rem; color: var(--text-muted);">Unpack bundled IIFEs, expand minified comma-statements, and restore clean ES6 formatting.</p>
             </a>
+            ${noAds ? '' : `
             <div class="promo-card ad-promo-card">
               <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Recommendation</div>
               <div class="ad-unit-300x250">
@@ -1863,6 +1872,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
                 <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
               </div>
             </div>
+            `}
             <a href="/media/downloader" class="promo-card">
               <span class="promo-badge">Media Engine</span>
               <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
@@ -1875,6 +1885,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
             </a>
           </div>
 
+          ${noAds ? '' : `
           <div class="ad-blend-box" id="ad-bottom-banner">
             <span class="ad-label">Advertisement</span>
             <div class="ad-desktop-leaderboard">
@@ -1900,8 +1911,10 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
               <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
             </div>
           </div>
+          `}
         </div>
 
+        ${noAds ? '' : `
         <aside class="right-sponsor-rail">
           <div class="ad-sidebar-card" style="margin: 0; min-height: 600px;">
             <span class="ad-label">Featured Partner</span>
@@ -1916,9 +1929,11 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
             <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/bba2ed7e2aff3607f66ff8e410f1fcbe/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
           </div>
         </aside>
+        `}
       </div>
 
 
+      ${noAds ? '' : `
       <div class="sponsor-grid">
         <div class="sponsor-grid-title">From Our Sponsors</div>
         <div class="sponsor-cards">
@@ -2003,6 +2018,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
           <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/cd881b59407c303a0b391e7998dd6cb9/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
         </div>
       </div>
+      `}
 
       <footer>
         <div>© 2026 Digital Tools Shed (digitaltoolsshed.com). The Site of Everything. Everything, Everywhere.</div>
@@ -2018,6 +2034,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
     </div>
   </div>
 
+  ${noAds ? '' : `
   <div class="docked-sticky-ad" id="dockedStickyBar">
     <button class="toggle-btn" onclick="var bar=document.getElementById('dockedStickyBar');bar.classList.toggle('collapsed')" aria-label="Toggle ad bar"><span class="chevron">▼</span></button>
     <div class="ad-desktop-leaderboard">
@@ -2043,6 +2060,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/9ec3cbd7674ade5c0cfa745d18664214/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
     </div>
   </div>
+  `}
 
   <script>
     function toggleSidebar() {
