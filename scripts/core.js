@@ -1537,6 +1537,106 @@ function buildSidebarHtml(currentPath = '/') {
         <div class="nav-link-content"><span>IBM Punched Card Capacity</span></div>
       </a>
 
+      <!-- MIND & PSYCHOLOGICAL ARCHETYPES -->
+      <div class="nav-group-title">
+        ${ICONS.health}
+        <span>Mind & Intelligence (500)</span>
+      </div>
+      <a href="/mind/" class="nav-link ${currentPath === '/mind/' || currentPath === '/mind/index.html' || currentPath === '/mind' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Mind & Archetypes Hub</span></div>
+        <span class="nav-badge">500</span>
+      </a>
+      <a href="/mind/spatial-visual-reasoning" class="nav-link ${currentPath.startsWith('/mind/spatial-visual-reasoning') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Spatial Intelligence IQ</span></div>
+      </a>
+      <a href="/mind/adhd-executive-function-reserve" class="nav-link ${currentPath.startsWith('/mind/adhd-executive-function-reserve') ? 'active' : ''}">
+        <div class="nav-link-content"><span>ADHD Executive Reserve</span></div>
+      </a>
+      <a href="/mind/machiavellian-pragmatism" class="nav-link ${currentPath.startsWith('/mind/machiavellian-pragmatism') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Machiavellian Pragmatism</span></div>
+      </a>
+      <a href="/mind/anxious-preoccupied-attachment" class="nav-link ${currentPath.startsWith('/mind/anxious-preoccupied-attachment') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Attachment Style Matrix</span></div>
+      </a>
+      <a href="/mind/dunning-kruger-self-perception-index" class="nav-link ${currentPath.startsWith('/mind/dunning-kruger-self-perception-index') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Dunning-Kruger Self-Audit</span></div>
+      </a>
+
+      <!-- BOOMER WEALTH & SENIOR CARE -->
+      <div class="nav-group-title">
+        ${ICONS.calc}
+        <span>Boomer Wealth & Care (500)</span>
+      </div>
+      <a href="/wealth/" class="nav-link ${currentPath === '/wealth/' || currentPath === '/wealth/index.html' || currentPath === '/wealth' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Boomer Wealth Hub</span></div>
+        <span class="nav-badge">500</span>
+      </a>
+      <a href="/wealth/social-security-break-even-age" class="nav-link ${currentPath.startsWith('/wealth/social-security-break-even-age') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Social Security Break-Even</span></div>
+      </a>
+      <a href="/wealth/irs-rmd-uniform-lifetime-table" class="nav-link ${currentPath.startsWith('/wealth/irs-rmd-uniform-lifetime-table') ? 'active' : ''}">
+        <div class="nav-link-content"><span>IRS RMD Table (73+)</span></div>
+      </a>
+      <a href="/wealth/hecm-reverse-mortgage-borrowing-limit" class="nav-link ${currentPath.startsWith('/wealth/hecm-reverse-mortgage-borrowing-limit') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Reverse Mortgage Proceeds</span></div>
+      </a>
+      <a href="/wealth/long-term-care-insurance-roi" class="nav-link ${currentPath.startsWith('/wealth/long-term-care-insurance-roi') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Nursing Home vs LTC ROI</span></div>
+      </a>
+      <a href="/wealth/asphalt-shingle-vs-metal-roof-cost" class="nav-link ${currentPath.startsWith('/wealth/asphalt-shingle-vs-metal-roof-cost') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Roof Replacement Estimator</span></div>
+      </a>
+
+      <!-- GEN Z DOPAMINE & REALITY CHECKS -->
+      <div class="nav-group-title">
+        ${ICONS.clock}
+        <span>Dopamine & Reality (500)</span>
+      </div>
+      <a href="/dopamine/" class="nav-link ${currentPath === '/dopamine/' || currentPath === '/dopamine/index.html' || currentPath === '/dopamine' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Dopamine & Reality Hub</span></div>
+        <span class="nav-badge">500</span>
+      </a>
+      <a href="/dopamine/screen-time-to-lifetime-years-lost" class="nav-link ${currentPath.startsWith('/dopamine/screen-time-to-lifetime-years-lost') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Screen Time Lifetime Cost</span></div>
+      </a>
+      <a href="/dopamine/dopamine-fasting-receptor-reset" class="nav-link ${currentPath.startsWith('/dopamine/dopamine-fasting-receptor-reset') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Dopamine Fasting Reset</span></div>
+      </a>
+      <a href="/dopamine/am-i-delulu-reality-distortion-index" class="nav-link ${currentPath.startsWith('/dopamine/am-i-delulu-reality-distortion-index') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Am I Delulu Reality Check</span></div>
+      </a>
+      <a href="/dopamine/90-minute-rem-cycle-alarm-optimizer" class="nav-link ${currentPath.startsWith('/dopamine/90-minute-rem-cycle-alarm-optimizer') ? 'active' : ''}">
+        <div class="nav-link-content"><span>90-Min REM Sleep Alarm</span></div>
+      </a>
+      <a href="/dopamine/minecraft-obsidian-blast-resistance" class="nav-link ${currentPath.startsWith('/dopamine/minecraft-obsidian-blast-resistance') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Minecraft Obsidian Physics</span></div>
+      </a>
+
+      <!-- CURIOUS SCIENCE & BIZARRE PHYSICS -->
+      <div class="nav-group-title">
+        ${ICONS.convert}
+        <span>Curious Physics (500)</span>
+      </div>
+      <a href="/curious/" class="nav-link ${currentPath === '/curious/' || currentPath === '/curious/index.html' || currentPath === '/curious' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Curious Physics Hub</span></div>
+        <span class="nav-badge">500</span>
+      </a>
+      <a href="/curious/kleiber-law-metabolic-scaling" class="nav-link ${currentPath.startsWith('/curious/kleiber-law-metabolic-scaling') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Kleiber's Law Scaling</span></div>
+      </a>
+      <a href="/curious/mammalian-heartbeat-lifespan-rule" class="nav-link ${currentPath.startsWith('/curious/mammalian-heartbeat-lifespan-rule') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Heartbeat Lifespan Limit</span></div>
+      </a>
+      <a href="/curious/roche-limit-tidal-disruption-radius" class="nav-link ${currentPath.startsWith('/curious/roche-limit-tidal-disruption-radius') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Roche Limit Moon Breakup</span></div>
+      </a>
+      <a href="/curious/venturi-tube-pressure-drop-flow-speed" class="nav-link ${currentPath.startsWith('/curious/venturi-tube-pressure-drop-flow-speed') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Venturi Fluid Dynamics</span></div>
+      </a>
+      <a href="/curious/benford-law-first-digit-fraud-audit" class="nav-link ${currentPath.startsWith('/curious/benford-law-first-digit-fraud-audit') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Benford's Law Fraud Audit</span></div>
+      </a>
+
       <!-- SENIOR & RETIREMENT FINANCE -->
       <div class="nav-group-title">
         ${ICONS.calc}

@@ -61,6 +61,14 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/trade/`);
   collectUrls(join(DIST, 'units'), '/units');
   discoveredUrls.push(`${DOMAIN}/units/`);
+  collectUrls(join(DIST, 'mind'), '/mind');
+  discoveredUrls.push(`${DOMAIN}/mind/`);
+  collectUrls(join(DIST, 'wealth'), '/wealth');
+  discoveredUrls.push(`${DOMAIN}/wealth/`);
+  collectUrls(join(DIST, 'dopamine'), '/dopamine');
+  discoveredUrls.push(`${DOMAIN}/dopamine/`);
+  collectUrls(join(DIST, 'curious'), '/curious');
+  discoveredUrls.push(`${DOMAIN}/curious/`);
 
   const uniqueUrls = [...new Set(discoveredUrls)];
 

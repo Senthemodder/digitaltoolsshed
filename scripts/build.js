@@ -36,6 +36,10 @@ import { buildScienceTools } from './science_tools.js';
 import { buildPsychologyTools } from './psychology_tools.js';
 import { buildTradeMathTools } from './trade_math_tools.js';
 import { buildHistoryUnitsTools } from './history_units_tools.js';
+import { buildMindTools } from './mind_tools.js';
+import { buildWealthTools } from './wealth_tools.js';
+import { buildDopamineTools } from './dopamine_tools.js';
+import { buildCuriousTools } from './curious_tools.js';
 import { buildTrustPages, build404Page } from './trust_pages.js';
 import { buildSEOAssets } from './seo.js';
 
@@ -80,6 +84,10 @@ function main() {
   buildPsychologyTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildTradeMathTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildHistoryUnitsTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildWealthTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildDopamineTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildCuriousTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
 
   // Trust, Legal & Error Pages
   buildTrustPages();
