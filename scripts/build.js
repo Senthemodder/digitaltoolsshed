@@ -41,6 +41,7 @@ import { buildWealthTools } from './wealth_tools.js';
 import { buildDopamineTools } from './dopamine_tools.js';
 import { buildCuriousTools } from './curious_tools.js';
 import { buildLaptopTools } from './laptop_tools.js';
+import { buildLaptopComparisons } from './laptop_comparisons.js';
 import { buildTrustPages, build404Page } from './trust_pages.js';
 import { buildSEOAssets } from './seo.js';
 
@@ -90,6 +91,7 @@ function main() {
   buildDopamineTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildCuriousTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildLaptopTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildLaptopComparisons({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
 
   // Trust, Legal & Error Pages
   buildTrustPages();

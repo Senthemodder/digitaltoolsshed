@@ -1646,6 +1646,10 @@ function buildSidebarHtml(currentPath = '/') {
         <div class="nav-link-content"><span>Laptops Directory Hub</span></div>
         <span class="nav-badge">1,000</span>
       </a>
+      <a href="/laptops/compare/" class="nav-link ${currentPath.startsWith('/laptops/compare') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Laptop Comparisons (1,000)</span></div>
+        <span class="nav-badge">Showdowns</span>
+      </a>
       <a href="/laptops/lenovo-thinkpad-x1-carbon-2021-intel-amd-radeon-780m-890m-igpu-16gb-ram-512gb-ssd" class="nav-link ${currentPath.includes('thinkpad-x1-carbon') ? 'active' : ''}">
         <div class="nav-link-content"><span>ThinkPad X1 Carbon</span></div>
       </a>
