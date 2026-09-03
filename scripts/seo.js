@@ -72,6 +72,12 @@ function buildSEOAssets() {
   collectUrls(join(DIST, 'laptops'), '/laptops');
   discoveredUrls.push(`${DOMAIN}/laptops/`);
   discoveredUrls.push(`${DOMAIN}/laptops/compare/`);
+  discoveredUrls.push(`${DOMAIN}/laptops/board/`);
+  discoveredUrls.push(`${DOMAIN}/laptops/upgrades/`);
+  discoveredUrls.push(`${DOMAIN}/laptops/pwm/`);
+  collectUrls(join(DIST, 'hardware'), '/hardware');
+  discoveredUrls.push(`${DOMAIN}/hardware/cpus/`);
+  discoveredUrls.push(`${DOMAIN}/hardware/gpus/`);
 
   const uniqueUrls = [...new Set(discoveredUrls)];
 

@@ -42,6 +42,11 @@ import { buildDopamineTools } from './dopamine_tools.js';
 import { buildCuriousTools } from './curious_tools.js';
 import { buildLaptopTools } from './laptop_tools.js';
 import { buildLaptopComparisons } from './laptop_comparisons.js';
+import { buildHardwareBoard } from './hardware_board.js';
+import { buildCpuBenchmarks } from './cpu_benchmarks.js';
+import { buildGpuBenchmarks } from './gpu_benchmarks.js';
+import { buildLaptopUpgrades } from './laptop_upgrades.js';
+import { buildLaptopPwm } from './laptop_pwm.js';
 import { buildTrustPages, build404Page } from './trust_pages.js';
 import { buildSEOAssets } from './seo.js';
 
@@ -92,6 +97,11 @@ function main() {
   buildCuriousTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildLaptopTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildLaptopComparisons({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildHardwareBoard({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildCpuBenchmarks({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildGpuBenchmarks({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildLaptopUpgrades({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildLaptopPwm({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
 
   // Trust, Legal & Error Pages
   buildTrustPages();

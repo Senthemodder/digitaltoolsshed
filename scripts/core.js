@@ -1650,6 +1650,22 @@ function buildSidebarHtml(currentPath = '/') {
         <div class="nav-link-content"><span>Laptop Comparisons (1,000)</span></div>
         <span class="nav-badge">Showdowns</span>
       </a>
+      <a href="/laptops/board/" class="nav-link ${currentPath.startsWith('/laptops/board') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Hardware Comparison Board</span></div>
+        <span class="nav-badge">Interactive</span>
+      </a>
+      <a href="/hardware/cpus/" class="nav-link ${currentPath.startsWith('/hardware/cpus') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Mobile CPU Benchmarks</span></div>
+      </a>
+      <a href="/hardware/gpus/" class="nav-link ${currentPath.startsWith('/hardware/gpus') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Mobile GPU Benchmarks</span></div>
+      </a>
+      <a href="/laptops/upgrades/" class="nav-link ${currentPath.startsWith('/laptops/upgrades') ? 'active' : ''}">
+        <div class="nav-link-content"><span>RAM & SSD Upgrades</span></div>
+      </a>
+      <a href="/laptops/pwm/" class="nav-link ${currentPath.startsWith('/laptops/pwm') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Display PWM Eye Safety</span></div>
+      </a>
       <a href="/laptops/lenovo-thinkpad-x1-carbon-2021-intel-amd-radeon-780m-890m-igpu-16gb-ram-512gb-ssd" class="nav-link ${currentPath.includes('thinkpad-x1-carbon') ? 'active' : ''}">
         <div class="nav-link-content"><span>ThinkPad X1 Carbon</span></div>
       </a>
