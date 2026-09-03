@@ -1,6 +1,7 @@
 import { buildJavaLearnSection } from './learn_java.js';
 import { buildEpistemicTools } from './epistemic_tools.js';
 import { buildViralTools } from './viral_tools.js';
+import { buildExistentialSuite } from './existential_tools.js';
 import { buildTradeTools } from './trade_tools.js';
 import { buildBodyTools } from './body_tools.js';
 import { buildKitchenTools } from './kitchen_tools.js';
@@ -47,6 +48,7 @@ function main() {
   buildMinecraftTools();
   buildTradeTools();
   buildViralTools();
+  buildExistentialSuite();
   buildEpistemicTools();
   buildUnitCalcSuite();
   buildBodyTools();
