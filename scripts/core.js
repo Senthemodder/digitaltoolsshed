@@ -1637,6 +1637,31 @@ function buildSidebarHtml(currentPath = '/') {
         <div class="nav-link-content"><span>Benford's Law Fraud Audit</span></div>
       </a>
 
+      <!-- LAPTOPS & HARDWARE DIRECTORY -->
+      <div class="nav-group-title">
+        ${ICONS.calc}
+        <span>Laptops & Specs (1,000)</span>
+      </div>
+      <a href="/laptops/" class="nav-link ${currentPath === '/laptops/' || currentPath === '/laptops/index.html' || currentPath === '/laptops' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Laptops Directory Hub</span></div>
+        <span class="nav-badge">1,000</span>
+      </a>
+      <a href="/laptops/lenovo-thinkpad-x1-carbon-2021-intel-amd-radeon-780m-890m-igpu-16gb-ram-512gb-ssd" class="nav-link ${currentPath.includes('thinkpad-x1-carbon') ? 'active' : ''}">
+        <div class="nav-link-content"><span>ThinkPad X1 Carbon</span></div>
+      </a>
+      <a href="/laptops/dell-xps-16-2025-amd-amd-radeon-780m-890m-igpu-128gb-ram-512gb-ssd" class="nav-link ${currentPath.includes('xps-16') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Dell XPS 16 Flagship</span></div>
+      </a>
+      <a href="/laptops/macbook-pro-16-m1-pro-max-2022-apple-m3-max-16gb-unified-2tb-nvme" class="nav-link ${currentPath.includes('macbook-pro-16') ? 'active' : ''}">
+        <div class="nav-link-content"><span>MacBook Pro 16 M3 Max</span></div>
+      </a>
+      <a href="/laptops/asus-rog-zephyrus-g14-2021-intel-rtx-4090-16gb-ram-512gb-ssd" class="nav-link ${currentPath.includes('zephyrus-g14') ? 'active' : ''}">
+        <div class="nav-link-content"><span>ROG Zephyrus G14 OLED</span></div>
+      </a>
+      <a href="/laptops/framework-lg-microsoft-samsung-framework-laptop-16-2022-intel-rtx-4080-32gb-ram-1tb-nvme" class="nav-link ${currentPath.includes('framework-laptop-16') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Framework 16 Modular</span></div>
+      </a>
+
       <!-- SENIOR & RETIREMENT FINANCE -->
       <div class="nav-group-title">
         ${ICONS.calc}
