@@ -20,7 +20,8 @@ function buildUnitCalcSuite() {
         yard:           { label: 'Yards',          abbr: 'yd',   factor: 0.9144 },
         mile:           { label: 'Miles',          abbr: 'mi',   factor: 1609.344 },
         nautical_mile:  { label: 'Nautical Miles', abbr: 'nmi',  factor: 1852 },
-        micrometer:     { label: 'Micrometers',    abbr: 'μm',   factor: 0.000001 }
+        micrometer:     { label: 'Micrometers',    abbr: 'μm',   factor: 0.000001 },
+        nanometer:      { label: 'Nanometers',     abbr: 'nm',   factor: 0.000000001 }
       }
     },
     weight: {
@@ -214,7 +215,13 @@ function buildUnitCalcSuite() {
       ['yard', 'inch', 'yards-to-inches'],
       ['inch', 'yard', 'inches-to-yards'],
       ['mile', 'yard', 'miles-to-yards'],
-      ['yard', 'mile', 'yards-to-miles']
+      ['yard', 'mile', 'yards-to-miles'],
+      ['nanometer', 'kilometer', 'nm-to-km'],
+      ['kilometer', 'nanometer', 'km-to-nm'],
+      ['nanometer', 'meter', 'nm-to-m'],
+      ['meter', 'nanometer', 'm-to-nm'],
+      ['nanometer', 'millimeter', 'nm-to-mm'],
+      ['millimeter', 'nanometer', 'mm-to-nm']
     ],
     weight: [
       ['kilogram', 'pound', 'kg-to-lbs'],
@@ -923,12 +930,205 @@ function buildUnitCalcSuite() {
           </div>
         </div>
         `;
+      } else if (fromKey === 'inch' && toKey === 'millimeter') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Fractional Inches to Millimeters (1/64" to 1" Engineering Chart)</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+            Exact decimal inches and metric millimeter equivalents for all standard imperial fractions. Critical for CNC machining, 3D printing tolerance, carpentry, and drill bit selection:
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.45rem 0.75rem;">Fractional Inch</th>
+                  <th style="padding: 0.45rem 0.75rem;">Decimal Inch</th>
+                  <th style="padding: 0.45rem 0.75rem;">Millimeters (mm)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Typical Application</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1/64"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.0156"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">0.3969 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">Micro drill bits / sheet metal shim</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1/32"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.0313"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">0.7938 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">PCB trace spacing, fine gaskets</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1/16"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.0625"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">1.5875 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">Standard cotter pins, 1.6mm PCB board</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1/8"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.1250"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">3.1750 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">1/8" audio jacks (3.5mm nominal), 3mm screws</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">3/16"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.1875"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">4.7625 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">Automotive brake lines, 5mm bolts</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1/4"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.2500"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">6.3500 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">1/4" hex driver bits, tripod camera mount</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">5/16"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.3125"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">7.9375 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">Standard M8 bolt equivalent</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">3/8"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.3750"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">9.5250 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">3/8" socket drive ratchet, 10mm wrench near-fit</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">7/16"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.4375"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">11.1125 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">11mm hex nut sizing</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1/2"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.5000"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">12.7000 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">1/2" plumbing copper pipe, 1/2" drive sockets</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">5/8"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.6250"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">15.8750 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">16mm spark plug sockets</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">3/4"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.7500"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">19.0500 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">3/4" garden hose fittings, 19mm lug nuts</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">7/8"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.8750"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">22.2250 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">Motorcycle/bicycle handlebar diameter</td></tr>
+                <tr><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">1.0000"</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">25.4000 mm</td><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">International exact definition: 1 inch = 25.4 mm</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'kilobyte' && toKey === 'megabyte') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Binary (1024) vs. Decimal (1000) KB to MB Conversion</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+            In computing, file sizes and memory can be measured in two standards: <strong>Binary (IEC 1024)</strong> used by Windows OS, and <strong>Decimal (SI 1000)</strong> used by macOS, Linux, and hard drive manufacturers:
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.45rem 0.75rem;">Kilobytes (KB)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Binary MB (1 MB = 1024 KB)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Decimal MB (1 MB = 1000 KB)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Common File Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">512 KB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.50 MB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.512 MB</td><td style="padding: 0.4rem 0.75rem;">Word document, web SVG icon</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1,000 KB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.9765 MB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">1.00 MB</td><td style="padding: 0.4rem 0.75rem;">Compressed web image</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">1,024 KB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">1.00 MB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">1.024 MB</td><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Exact Binary Megabyte (1 MiB)</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">2,048 KB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">2.00 MB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">2.048 MB</td><td style="padding: 0.4rem 0.75rem;">High-res smartphone photo</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">5,120 KB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">5.00 MB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">5.12 MB</td><td style="padding: 0.4rem 0.75rem;">320kbps MP3 audio song</td></tr>
+                <tr><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">10,240 KB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">10.00 MB</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">10.24 MB</td><td style="padding: 0.4rem 0.75rem;">1-minute HD video clip</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'kelvin' && toKey === 'celsius') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Thermodynamic Scale & Scientific Benchmarks</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+            The Kelvin scale begins at <strong>Absolute Zero</strong> (the theoretical point where all molecular motion ceases). Because one Kelvin has the exact same magnitude as one degree Celsius, simply subtract <strong>273.15</strong>:
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.45rem 0.75rem;">Kelvin (K)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Celsius (°C)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Physical Benchmark</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">0 K</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">-273.15 °C</td><td style="padding: 0.4rem 0.75rem;">Absolute Zero (Lowest possible temperature)</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">77.36 K</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">-195.79 °C</td><td style="padding: 0.4rem 0.75rem;">Liquid Nitrogen Boiling Point</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">194.65 K</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">-78.50 °C</td><td style="padding: 0.4rem 0.75rem;">Dry Ice (Solid CO₂) Sublimation Point</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">273.15 K</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">0.00 °C</td><td style="padding: 0.4rem 0.75rem;">Freezing / Melting Point of Pure Water</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">293.15 K</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">20.00 °C</td><td style="padding: 0.4rem 0.75rem;">Standard Ambient Room Temperature</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">310.15 K</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">37.00 °C</td><td style="padding: 0.4rem 0.75rem;">Normal Human Core Body Temperature</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #ef4444;">373.15 K</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #ef4444;">100.00 °C</td><td style="padding: 0.4rem 0.75rem;">Boiling Point of Water at Sea Level</td></tr>
+                <tr><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #f59e0b;">5,778 K</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #f59e0b;">5,504.85 °C</td><td style="padding: 0.4rem 0.75rem;">Surface Temperature of the Sun</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'nautical_mile' && toKey === 'kilometer') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Aviation & Maritime Navigation Equivalents</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+            One international nautical mile is defined as exactly <strong>1,852 meters (1.852 km)</strong>, which historically corresponded to one minute of latitude on Earth:
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.45rem 0.75rem;">Nautical Miles (nmi)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Kilometers (km)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Statute Miles (mi)</th>
+                  <th style="padding: 0.45rem 0.75rem;">Navigation Context</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1 nmi</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">1.852 km</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">1.1508 mi</td><td style="padding: 0.4rem 0.75rem;">Distance travelled in 1 hr at 1 Knot speed</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">3 nmi</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">5.556 km</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">3.452 mi</td><td style="padding: 0.4rem 0.75rem;">Historical territorial waters boundary limit</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">12 nmi</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">22.224 km</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">13.809 mi</td><td style="padding: 0.4rem 0.75rem;">UNCLOS Modern Sovereign Territorial Sea Limit</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">24 nmi</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">44.448 km</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">27.619 mi</td><td style="padding: 0.4rem 0.75rem;">Contiguous customs & immigration enforcement zone</td></tr>
+                <tr><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #f59e0b;">200 nmi</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #f59e0b;">370.400 km</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">230.156 mi</td><td style="padding: 0.4rem 0.75rem;">Exclusive Economic Zone (EEZ fishing/drilling rights)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'minute' && toKey === 'second') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Minutes to Seconds Conversion Chart</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.45rem 0.75rem;">Minutes</th>
+                  <th style="padding: 0.45rem 0.75rem;">Seconds</th>
+                  <th style="padding: 0.45rem 0.75rem;">Context</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.25 min (15 sec)</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">15 seconds</td><td style="padding: 0.4rem 0.75rem;">Short video clip / Instagram story</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.5 min (30 sec)</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">30 seconds</td><td style="padding: 0.4rem 0.75rem;">TV commercial / HIIT sprint interval</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">1 minute</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">60 seconds</td><td style="padding: 0.4rem 0.75rem;">60-second boxing rest / microwave timer</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">2 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">120 seconds</td><td style="padding: 0.4rem 0.75rem;">Recommended tooth brushing time</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">3 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">180 seconds</td><td style="padding: 0.4rem 0.75rem;">Average pop song duration</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">5 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">300 seconds</td><td style="padding: 0.4rem 0.75rem;">Tea steeping / Pomodoro short break</td></tr>
+                <tr><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">10 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">600 seconds</td><td style="padding: 0.4rem 0.75rem;">Standard office coffee break</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'minute' && toKey === 'hour') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Payroll Time Card Decimal Hours Chart</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+            Employers and payroll software calculate hourly wages in decimal hours rather than minutes. Use this reference table to convert timesheet minutes:
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.45rem 0.75rem;">Minutes Worked</th>
+                  <th style="padding: 0.45rem 0.75rem;">Fraction of Hour</th>
+                  <th style="padding: 0.45rem 0.75rem;">Decimal Hours (Payroll)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">6 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">1/10 hr</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.10 hr</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">12 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">2/10 hr</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">0.20 hr</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">15 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">1/4 hr</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">0.25 hr</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold;">20 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">1/3 hr</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.33 hr</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">30 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">1/2 hr</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">0.50 hr</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">45 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">3/4 hr</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">0.75 hr</td></tr>
+                <tr><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">60 minutes</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">1 full hr</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">1.00 hr</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'nanometer' && toKey === 'kilometer') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Scientific Notation: Nanometers to Kilometers</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+            A nanometer is one-billionth of a meter (10⁻⁹ m), while a kilometer is one thousand meters (10³ m). Converting nanometers to kilometers spans <strong>12 orders of magnitude</strong>:
+          </p>
+          <div style="font-family: var(--mono); background: var(--surface-alt); padding: 0.75rem; border: 1px solid var(--border); margin-bottom: 1rem; line-height: 1.6;">
+            1 Nanometer (nm) = 1 × 10⁻¹² Kilometers (km)<br>
+            1 nm = 0.000000000001 km (1 trillionth of a kilometer)<br>
+            1 Kilometer (km) = 1 × 10¹² Nanometers (1,000,000,000,000 nm)
+          </div>
+        </div>
+        `;
       }
 
       const calcBody = `
         <div class="hero" style="padding-bottom: 1rem; margin-bottom: 1rem;">
-          <h1 style="margin-top: 0.5rem;">${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label}</h1>
-          <p>Instantly calculate ${fromUnit.label} (${fromUnit.abbr}) to ${toUnit.label} (${toUnit.abbr}) with real-time two-way calculation and recipe fraction support.</p>
+          <h1 style="margin-top: 0.5rem;">${fromUnit.label} to ${toUnit.label} Converter (${fromUnit.abbr} to ${toUnit.abbr})</h1>
+          <p>Convert ${fromUnit.label.toLowerCase()} (${fromUnit.abbr}) to ${toUnit.label.toLowerCase()} (${toUnit.abbr}) instantly with real-time two-way calculation, exact formulas, and comprehensive reference tables.</p>
         </div>
 
         <div style="background: var(--surface-alt); border-left: 4px solid var(--border-strong); padding: 0.85rem 1.15rem; margin-bottom: 1.25rem; font-size: 1.05rem; font-family: var(--serif); max-width: 850px;">
@@ -1055,12 +1255,57 @@ function buildUnitCalcSuite() {
         </div>
       `;
 
-      let pageTitle = `${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label} | Digital Tools Shed`;
-      let pageMetaDesc = `Fast ${fromUnit.abbr} to ${toUnit.abbr} converter. 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Real-time two-way calculation, formulas, and conversion chart.`;
+      let pageTitle = `${fromUnit.label} to ${toUnit.label} Converter (${fromUnit.abbr} to ${toUnit.abbr}) [Instant] | Digital Tools Shed`;
+      let pageMetaDesc = `Convert ${fromUnit.label.toLowerCase()} to ${toUnit.label.toLowerCase()} (${fromUnit.abbr} to ${toUnit.abbr}) instantly. 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Free online calculator with step-by-step formula and reference table.`;
 
-      if (fromKey === 'meter' && toKey === 'inch') {
-        pageTitle = 'Meters to Inches (m to in) Converter & Height Chart | Digital Tools Shed';
+      if (fromKey === 'inch' && toKey === 'millimeter') {
+        pageTitle = 'Inch to MM Converter: Convert Inches to Millimeters [Free & Instant Chart] | Digital Tools Shed';
+        pageMetaDesc = 'Convert inches to millimeters (in to mm) instantly. 1 inch = 25.4 mm. Free online calculator with fractional chart (1/64" to 1"), exact formula, and two-way conversion.';
+      } else if (fromKey === 'millimeter' && toKey === 'inch') {
+        pageTitle = 'MM to Inches (mm to in) Converter & Fractions Chart [Instant] | Digital Tools Shed';
+        pageMetaDesc = 'Convert millimeters to inches (mm to in) instantly. 1 mm = 0.03937 in (divide by 25.4). Free calculator with fractional inches table and exact formula.';
+      } else if (fromKey === 'kilobyte' && toKey === 'megabyte') {
+        pageTitle = 'KB to MB Converter: Kilobytes to Megabytes (1024 vs 1000) [Instant] | Digital Tools Shed';
+        pageMetaDesc = 'Convert KB to MB instantly. 1 KB = 0.0009765625 MB (1 MB = 1,024 KB binary / 1,000 KB decimal). Free online data calculator, formula, and reference table.';
+      } else if (fromKey === 'megabyte' && toKey === 'kilobyte') {
+        pageTitle = 'MB to KB Converter: Megabytes to Kilobytes (1 MB = 1024 KB) | Digital Tools Shed';
+        pageMetaDesc = 'Convert MB to KB instantly. 1 MB = 1,024 KB in binary (1,000 KB in decimal). Free online data calculator with formula and complete file size chart.';
+      } else if (fromKey === 'kelvin' && toKey === 'celsius') {
+        pageTitle = 'Kelvin to Celsius Converter (K to °C) — Formula & Table [Instant] | Digital Tools Shed';
+        pageMetaDesc = 'Convert Kelvin to Celsius instantly. Exact thermodynamic formula: °C = K - 273.15. Free temperature calculator with step-by-step math and reference benchmarks.';
+      } else if (fromKey === 'celsius' && toKey === 'kelvin') {
+        pageTitle = 'Celsius to Kelvin Converter (°C to K) — Formula: K = °C + 273.15 | Digital Tools Shed';
+        pageMetaDesc = 'Convert Celsius to Kelvin instantly. Formula: K = °C + 273.15. Free scientific temperature calculator with thermodynamic benchmarks and reference table.';
+      } else if (fromKey === 'nautical_mile' && toKey === 'kilometer') {
+        pageTitle = 'Nautical Miles to KM (nmi to km) Converter — 1 nmi = 1.852 km Exact | Digital Tools Shed';
+        pageMetaDesc = 'Convert nautical miles to kilometers instantly. 1 nautical mile = exactly 1.852 km (1,852 meters). International maritime and aviation navigation calculator and chart.';
+      } else if (fromKey === 'kilometer' && toKey === 'nautical_mile') {
+        pageTitle = 'KM to Nautical Miles (km to nmi) Converter [1 km = 0.539957 nmi] | Digital Tools Shed';
+        pageMetaDesc = 'Convert kilometers to nautical miles instantly. 1 km = 0.539957 nmi. Free maritime and aeronautical calculator with distance formula and reference chart.';
+      } else if (fromKey === 'inch' && toKey === 'meter') {
+        pageTitle = 'Inches to Meters (in to m) Converter — Instant Calculation & Chart | Digital Tools Shed';
+        pageMetaDesc = 'Convert inches to meters (in to m) instantly. 1 inch = 0.0254 meters (1 m = 39.37 inches). Free length calculator with exact formula and conversion reference table.';
+      } else if (fromKey === 'meter' && toKey === 'inch') {
+        pageTitle = 'Meters to Inches (m to in) Converter & Height Chart [Instant] | Digital Tools Shed';
         pageMetaDesc = 'Convert meters to inches instantly. 1 m = 39.370079 in. Free human height conversion chart (m to ft/in), exact formula, and two-way calculator.';
+      } else if (fromKey === 'minute' && toKey === 'second') {
+        pageTitle = 'Minutes to Seconds Converter (min to sec) — Instant Math & Chart | Digital Tools Shed';
+        pageMetaDesc = 'Convert minutes to seconds instantly. 1 minute = 60 seconds. Free online time calculator with decimal minutes breakdown, math formula, and reference table.';
+      } else if (fromKey === 'second' && toKey === 'minute') {
+        pageTitle = 'Seconds to Minutes (sec to min) Converter — Math & Decimal Table | Digital Tools Shed';
+        pageMetaDesc = 'Convert seconds to minutes instantly. 60 seconds = 1 minute. Free online time calculator with decimal time breakdown and conversion chart.';
+      } else if (fromKey === 'minute' && toKey === 'hour') {
+        pageTitle = 'Minutes to Hours Converter (min to hr) — Decimals & Payroll Chart | Digital Tools Shed';
+        pageMetaDesc = 'Convert minutes to hours instantly. 1 minute = 0.016667 hours (60 minutes = 1 hour). Free time conversion calculator with payroll decimal chart (e.g. 15 min = 0.25 hr).';
+      } else if (fromKey === 'hour' && toKey === 'minute') {
+        pageTitle = 'Hours to Minutes (hr to min) Converter — Instant Calculation & Chart | Digital Tools Shed';
+        pageMetaDesc = 'Convert hours to minutes instantly. 1 hour = 60 minutes. Free online time calculator with decimal hours breakdown and full reference chart.';
+      } else if (fromKey === 'nanometer' && toKey === 'kilometer') {
+        pageTitle = 'Nanometers to Kilometers (nm to km) Converter [Scientific Notation] | Digital Tools Shed';
+        pageMetaDesc = 'Convert nanometers to kilometers instantly. 1 nm = 1e-12 km (0.000000000001 km). Free physics and optics distance calculator with scientific notation.';
+      } else if (fromKey === 'kilometer' && toKey === 'nanometer') {
+        pageTitle = 'Kilometers to Nanometers (km to nm) Converter | Digital Tools Shed';
+        pageMetaDesc = 'Convert kilometers to nanometers instantly. 1 km = 1,000,000,000,000 nm (1e12 nm). Free online distance calculator and scientific chart.';
       } else if (fromKey === 'square_centimeter' && toKey === 'square_meter') {
         pageTitle = 'Square Centimeters to Square Meters (cm² to m²) | Digital Tools Shed';
         pageMetaDesc = 'Convert cm² to m² instantly. 1 cm² = 0.0001 m² (divide by 10,000). Real-time area calculation, step-by-step formula, and reference table.';
@@ -1074,11 +1319,11 @@ function buildUnitCalcSuite() {
         pageTitle = 'mL to Cups: Convert Milliliters to Cups (Baking Chart) | Digital Tools Shed';
         pageMetaDesc = 'Convert mL to US cups. 1 mL = 0.004227 cups (236.59 mL per cup). Real-time baking fraction chart (1/4, 1/3, 1/2, 1 cup) and calculator.';
       } else if (catKey === 'volume' || isKitchen) {
-        pageTitle = `${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label} (Fraction Chart) | Digital Tools Shed`;
-        pageMetaDesc = `Convert ${fromUnit.abbr} to ${toUnit.abbr} with cooking fractions (1/8, 1/4, 1/3, 1/2, 2 1/2). 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Free baking reference chart.`;
+        pageTitle = `${fromUnit.label} to ${toUnit.label} Converter (${fromUnit.abbr} to ${toUnit.abbr}) [Fraction Chart] | Digital Tools Shed`;
+        pageMetaDesc = `Convert ${fromUnit.label.toLowerCase()} to ${toUnit.label.toLowerCase()} (${fromUnit.abbr} to ${toUnit.abbr}) with cooking fractions (1/8, 1/4, 1/3, 1/2, 2 1/2). 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Free reference chart.`;
       } else if (catKey === 'energy') {
-        pageTitle = `${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label} (Formula) | Digital Tools Shed`;
-        pageMetaDesc = `Convert ${fromUnit.abbr} to ${toUnit.abbr} instantly. 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Exact physics factor, conversion formula, and reference table.`;
+        pageTitle = `${fromUnit.label} to ${toUnit.label} Converter (${fromUnit.abbr} to ${toUnit.abbr}) [Exact Formula] | Digital Tools Shed`;
+        pageMetaDesc = `Convert ${fromUnit.label.toLowerCase()} to ${toUnit.label.toLowerCase()} (${fromUnit.abbr} to ${toUnit.abbr}) instantly. 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Exact physics factor, conversion formula, and reference table.`;
       }
 
       const cleanSlug = fileName.replace(/\.html$/, '');

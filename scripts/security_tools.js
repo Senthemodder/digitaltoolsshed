@@ -654,57 +654,224 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
     },
     {
       slug: 'cookie-policy-generator',
-      title: 'Cookie Policy & Banner Generator',
-      metaDesc: 'Generate a GDPR and ePrivacy compliant cookie policy and drop-in vanilla JavaScript cookie consent banner.',
+      title: 'Free Cookie Policy Generator (GDPR & CCPA Compliant) + Cookie Banner Code',
+      metaDesc: '100% Free Cookie Policy Generator. Create GDPR, CCPA, and ePrivacy compliant cookie policies with customizable consent banner code in seconds. No signup or fees.',
       category: 'Security',
+      faq: [
+        { q: 'Is this cookie policy generator 100% free with no signup?', a: 'Yes! This tool is completely free, client-side, and requires no registration, email submission, or recurring subscription fees. You can generate unlimited cookie policies and export clean Markdown or HTML instantly.' },
+        { q: 'Does this generated cookie policy comply with GDPR and CCPA?', a: 'Yes. It adheres to European Union GDPR Article 6 & 7 (explicit consent, cookie categorization) and California Privacy Rights Act (CCPA/CPRA) disclosure requirements, including "Do Not Sell My Personal Information" notices.' },
+        { q: 'Do I legally need a cookie consent banner on my website?', a: 'If your website serves visitors from the EU, UK, or California and uses any non-essential cookies (such as Google Analytics, Meta Pixel, advertising scripts, or session recording tools), privacy regulations strictly require you to display a cookie consent banner before setting those cookies.' },
+        { q: 'How do I install the generated cookie consent banner on my site?', a: 'Simply copy the generated Vanilla JavaScript/HTML snippet and paste it right before the closing </body> tag of your website. It works universally on WordPress, Shopify, Webflow, Squarespace, Ghost, and custom static sites with zero dependencies.' },
+        { q: 'What is the difference between Essential and Marketing cookies?', a: 'Essential cookies are strictly necessary for core functionality (user login state, cart checkout, security, load balancing) and do not require prior consent. Marketing and Analytics cookies track user behavior across sites for targeted advertising and traffic measurement, requiring explicit opt-in consent.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; Cookie Policy Generator
+            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; Free Cookie Policy Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Cookie Policy & Banner Generator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Generate ready-to-use cookie policy documentation and lightweight, zero-dependency cookie banner code.
+          <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+            <span class="badge badge-green">100% Free & No Sign-Up</span>
+            <span class="badge badge-amber">GDPR & CCPA Ready</span>
+          </div>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Free Cookie Policy Generator & Consent Banner</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Create legally compliant cookie policy documentation and lightweight, zero-dependency cookie consent banner code for your website. Completely free, customizable, and ready to deploy in 30 seconds.
           </p>
 
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Website Name</label>
-              <input type="text" id="cp-name" class="text-input" value="Digital Tools Shed" />
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">1. Website & Organization Details</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label">Website / Company Name</label>
+                <input type="text" id="cp-name" class="text-input" value="My Website" oninput="genCookiePolicy()" />
+              </div>
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label">Website URL</label>
+                <input type="text" id="cp-url" class="text-input" value="https://example.com" oninput="genCookiePolicy()" />
+              </div>
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label">Privacy Contact Email</label>
+                <input type="email" id="cp-email" class="text-input" value="privacy@example.com" oninput="genCookiePolicy()" />
+              </div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="genCookiePolicy()">Generate Policy & Banner Code</button>
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 1.5rem 0 0.75rem;">2. Cookies & Trackers Used</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem;">
+              <label class="opt-label"><input type="checkbox" id="cp-opt-essential" checked disabled> <strong>Essential Cookies</strong> (Required)</label>
+              <label class="opt-label"><input type="checkbox" id="cp-opt-analytics" checked onchange="genCookiePolicy()"> <strong>Analytics</strong> (Google, Plausible)</label>
+              <label class="opt-label"><input type="checkbox" id="cp-opt-marketing" checked onchange="genCookiePolicy()"> <strong>Advertising</strong> (AdSense, Meta)</label>
+              <label class="opt-label"><input type="checkbox" id="cp-opt-prefs" checked onchange="genCookiePolicy()"> <strong>Preferences</strong> (Theme, Language)</label>
+            </div>
+
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 1.5rem 0 0.75rem;">3. Cookie Consent Banner Customizer</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label">Banner Position</label>
+                <select id="cp-pos" class="text-input" onchange="genCookiePolicy()">
+                  <option value="bottom">Fixed Bottom Bar</option>
+                  <option value="corner">Floating Bottom-Right Card</option>
+                  <option value="top">Fixed Top Ribbon</option>
+                </select>
+              </div>
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label">Color Theme</label>
+                <select id="cp-theme" class="text-input" onchange="genCookiePolicy()">
+                  <option value="dark">Dark Minimalist (#18181b)</option>
+                  <option value="light">Clean Light (#ffffff)</option>
+                  <option value="slate">Deep Navy Slate (#0f172a)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="action-bar" style="margin-top: 1.25rem;">
+              <button class="btn-primary" onclick="copyPolicyMd()">📋 Copy Markdown Policy</button>
+              <button class="btn-sec" onclick="copyBannerCode()">📋 Copy Banner HTML/JS Code</button>
+              <button class="btn-sec" onclick="downloadPolicy()">💾 Download Policy (.md)</button>
             </div>
 
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Cookie Policy Text</label>
-              <textarea id="cp-policy" class="code-input" style="height: 180px;" readonly></textarea>
+              <label class="field-label">Generated Cookie Policy (Markdown / Plaintext)</label>
+              <textarea id="cp-policy" class="code-input" style="height: 240px;" readonly></textarea>
             </div>
 
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Embeddable Cookie Consent Banner (HTML/JS)</label>
-              <textarea id="cp-banner" class="code-input" style="height: 180px;" readonly></textarea>
+              <label class="field-label">Embeddable Cookie Consent Banner (Drop-in HTML + Vanilla JS, Zero Dependencies)</label>
+              <textarea id="cp-banner" class="code-input" style="height: 200px;" readonly></textarea>
             </div>
+          </div>
+
+          <div style="margin: 2.5rem 0;">
+            <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is this cookie policy generator 100% free with no signup?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes! This tool is completely free, client-side, and requires no registration, email submission, or recurring subscription fees. You can generate unlimited cookie policies and export clean Markdown or HTML instantly.</div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Does this generated cookie policy comply with GDPR and CCPA?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. It adheres to European Union GDPR Article 6 & 7 (explicit consent, cookie categorization) and California Privacy Rights Act (CCPA/CPRA) disclosure requirements, including "Do Not Sell My Personal Information" notices.</div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Do I legally need a cookie consent banner on my website?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">If your website serves visitors from the EU, UK, or California and uses any non-essential cookies (such as Google Analytics, Meta Pixel, advertising scripts, or session recording tools), privacy regulations strictly require you to display a cookie consent banner before setting those cookies.</div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How do I install the generated cookie consent banner on my site?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Simply copy the generated Vanilla JavaScript/HTML snippet and paste it right before the closing &lt;/body&gt; tag of your website. It works universally on WordPress, Shopify, Webflow, Squarespace, Ghost, and custom static sites with zero dependencies.</div>
+            </details>
           </div>
         </div>
 
         <script>
           function genCookiePolicy() {
-            const name = document.getElementById('cp-name').value || 'This Website';
-            document.getElementById('cp-policy').value =
-              '# Cookie Policy\\n\\n' +
-              name + ' uses cookies to improve your experience, remember preferences, and analyze web traffic.\\n\\n' +
-              '### 1. Essential Cookies\\nNecessary for core website functionality, security, and remembering user session state.\\n\\n' +
-              '### 2. Analytics & Performance Cookies\\nUsed to understand how visitors interact with our pages to optimize load times and UI layout.';
+            const name = document.getElementById('cp-name').value.trim() || 'Our Website';
+            const url = document.getElementById('cp-url').value.trim() || 'https://example.com';
+            const email = document.getElementById('cp-email').value.trim() || 'privacy@example.com';
+            const hasAnalytics = document.getElementById('cp-opt-analytics').checked;
+            const hasMarketing = document.getElementById('cp-opt-marketing').checked;
+            const hasPrefs = document.getElementById('cp-opt-prefs').checked;
+            const pos = document.getElementById('cp-pos').value;
+            const theme = document.getElementById('cp-theme').value;
 
-            document.getElementById('cp-banner').value =
-              '<div id="cookie-banner" style="position:fixed;bottom:0;left:0;right:0;background:#18181b;color:#fff;padding:1rem;display:flex;justify-content:space-between;align-items:center;z-index:9999;font-family:sans-serif;font-size:0.9rem;">\\n' +
-              '  <span>We use cookies to enhance your experience. By continuing, you agree to our cookie policy.</span>\\n' +
-              '  <button onclick="document.getElementById(\\'cookie-banner\\').style.display=\\'none\\';localStorage.setItem(\\'cookie-ok\\',\\'1\\')" style="background:#3b82f6;color:#fff;border:none;padding:0.5rem 1rem;border-radius:4px;cursor:pointer;font-weight:bold;">Got it</button>\\n' +
-              '</div>';
+            const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            let p = '# Cookie Policy for ' + name + '\\n\\n';
+            p += '**Last updated:** ' + date + '\\n\\n';
+            p += 'This Cookie Policy explains how ' + name + ' ("we", "us", or "our") uses cookies and similar tracking technologies when you visit our website at [' + url + '](' + url + ').\\n\\n';
+            p += '## 1. What Are Cookies?\\n';
+            p += 'Cookies are small data files that are placed on your computer or mobile device when you visit a website. Cookies are widely used by website owners in order to make their websites work efficiently, provide personalized experiences, and gather reporting data.\\n\\n';
+            p += '## 2. Categories of Cookies We Use\\n\\n';
+            p += '### A. Strictly Necessary / Essential Cookies\\n';
+            p += 'These cookies are strictly necessary to provide you with services available through our website and to use some of its features, such as access to secure areas, session authentication, and load balancing. Because these cookies are strictly necessary to deliver the site, you cannot refuse them without impacting website operation.\\n\\n';
+
+            if (hasAnalytics) {
+              p += '### B. Analytics and Performance Cookies\\n';
+              p += 'These cookies collect information that is used either in aggregate form to help us understand how our website is being used, how effective our marketing campaigns are, or to help us customize our website for you (e.g. Google Analytics, Plausible Analytics, Cloudflare Web Analytics).\\n\\n';
+            }
+
+            if (hasMarketing) {
+              p += '### C. Advertising and Marketing Cookies\\n';
+              p += 'These cookies are used to make advertising messages more relevant to you. They perform functions like preventing the same ad from continuously reappearing, ensuring that ads are properly displayed, and in some cases selecting advertisements that are based on your interests (e.g. Google AdSense, Meta Pixel).\\n\\n';
+            }
+
+            if (hasPrefs) {
+              p += '### D. Functional and Preference Cookies\\n';
+              p += 'These cookies enable the website to remember choices you make (such as your user name, language, or dark/light mode UI theme) and provide enhanced, more personal features.\\n\\n';
+            }
+
+            p += '## 3. How Can You Control Cookies?\\n';
+            p += 'You have the right to decide whether to accept or reject non-essential cookies. You can exercise your cookie preferences by clicking on the settings button in our cookie consent banner. In addition, most web browsers allow you to modify your cookie settings in your browser preferences.\\n\\n';
+            p += '## 4. California Consumer Privacy Act (CCPA/CPRA)\\n';
+            p += 'If you are a California resident, you have the right to request disclosure of categories of personal information collected via cookies, and to request that we do not sell or share your personal data.\\n\\n';
+            p += '## 5. Contact Us\\n';
+            p += 'If you have any questions about our use of cookies or other technologies, please email us at: ' + email + '.\\n';
+
+            document.getElementById('cp-policy').value = p;
+
+            // Generate Embed Banner Code
+            let bgCol = '#18181b', textCol = '#ffffff', btnBg = '#3b82f6', btnText = '#ffffff';
+            if (theme === 'light') {
+              bgCol = '#ffffff'; textCol = '#18181b'; btnBg = '#18181b'; btnText = '#ffffff';
+            } else if (theme === 'slate') {
+              bgCol = '#0f172a'; textCol = '#f8fafc'; btnBg = '#0284c7'; btnText = '#ffffff';
+            }
+
+            let posStyle = 'position:fixed;bottom:0;left:0;right:0;z-index:99999;';
+            if (pos === 'corner') {
+              posStyle = 'position:fixed;bottom:20px;right:20px;max-width:380px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.3);z-index:99999;';
+            } else if (pos === 'top') {
+              posStyle = 'position:fixed;top:0;left:0;right:0;z-index:99999;';
+            }
+
+            let banner = '<!-- Digital Tools Shed Free GDPR/CCPA Cookie Consent Banner -->\\n' +
+              '<div id="dts-cookie-banner" style="' + posStyle + 'background:' + bgCol + ';color:' + textCol + ';padding:1rem 1.25rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;font-family:system-ui,-apple-system,sans-serif;font-size:0.9rem;border-top:1px solid rgba(255,255,255,0.1);">\\n' +
+              '  <div style="flex:1;min-width:260px;line-height:1.5;">\\n' +
+              '    <span>We use cookies to enhance your browsing experience, serve personalized ads, and analyze traffic. By clicking &quot;Accept All&quot;, you consent to our use of cookies.</span>\\n' +
+              '  </div>\\n' +
+              '  <div style="display:flex;gap:0.5rem;align-items:center;">\\n' +
+              '    <button id="dts-cookie-decline" style="background:transparent;color:' + textCol + ';border:1px solid rgba(150,150,150,0.5);padding:0.45rem 0.9rem;border-radius:4px;cursor:pointer;font-size:0.85rem;">Decline</button>\\n' +
+              '    <button id="dts-cookie-accept" style="background:' + btnBg + ';color:' + btnText + ';border:none;padding:0.45rem 1rem;border-radius:4px;cursor:pointer;font-weight:600;font-size:0.85rem;">Accept All</button>\\n' +
+              '  </div>\\n' +
+              '</div>\\n' +
+              '<script>\\n' +
+              '  (function() {\\n' +
+              '    var b = document.getElementById("dts-cookie-banner");\\n' +
+              '    if (!b) return;\\n' +
+              '    if (localStorage.getItem("cookie_consent") !== null) {\\n' +
+              '      b.style.display = "none";\\n' +
+              '    }\\n' +
+              '    document.getElementById("dts-cookie-accept").onclick = function() {\\n' +
+              '      localStorage.setItem("cookie_consent", "accepted");\\n' +
+              '      b.style.display = "none";\\n' +
+              '    };\\n' +
+              '    document.getElementById("dts-cookie-decline").onclick = function() {\\n' +
+              '      localStorage.setItem("cookie_consent", "declined");\\n' +
+              '      b.style.display = "none";\\n' +
+              '    };\\n' +
+              '  })();\\n' +
+              '<\\/script>';
+
+            document.getElementById('cp-banner').value = banner;
           }
+
+          function copyPolicyMd() {
+            navigator.clipboard.writeText(document.getElementById('cp-policy').value);
+            alert('Cookie policy copied to clipboard!');
+          }
+
+          function copyBannerCode() {
+            navigator.clipboard.writeText(document.getElementById('cp-banner').value);
+            alert('Cookie banner code copied to clipboard!');
+          }
+
+          function downloadPolicy() {
+            const blob = new Blob([document.getElementById('cp-policy').value], { type: 'text/markdown' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'cookie-policy.md';
+            a.click();
+          }
+
           document.addEventListener('DOMContentLoaded', genCookiePolicy);
         </script>
       `
@@ -942,7 +1109,8 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       metaDesc: tool.metaDesc,
       canonical: `${DOMAIN}/security/${tool.slug}`,
       bodyContent: tool.body,
-      currentPath: `/security/${tool.slug}`
+      currentPath: `/security/${tool.slug}`,
+      faq: tool.faq
     });
     writeFileSync(join(secDist, `${tool.slug}.html`), html);
   }
