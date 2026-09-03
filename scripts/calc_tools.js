@@ -704,6 +704,129 @@ function buildUnitCalcSuite() {
           </div>
         </div>
         `;
+      } else if (fromKey === 'fahrenheit' && toKey === 'celsius') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Common Cooking & Weather Temperature Benchmarks</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+            Quick reference conversions for oven temperatures, body fever thresholds, and ambient room temperatures:
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.75rem;">Fahrenheit (°F)</th>
+                  <th style="padding: 0.5rem 0.75rem;">Celsius (°C)</th>
+                  <th style="padding: 0.5rem 0.75rem;">Typical Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">32 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">0 °C</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Freezing Point of Water</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">68 °F – 72 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">20 °C – 22.2 °C</td><td style="padding: 0.45rem 0.75rem;">Standard Room Temperature</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">98.6 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">37.0 °C</td><td style="padding: 0.45rem 0.75rem;">Normal Human Body Temperature</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">100.4 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); color: #ef4444;">38.0 °C</td><td style="padding: 0.45rem 0.75rem; color: #ef4444;">Fever Threshold (Medical)</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">350 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">177 °C (~175 °C)</td><td style="padding: 0.45rem 0.75rem;">Standard Baking (Gas Mark 4)</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">375 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">190 °C</td><td style="padding: 0.45rem 0.75rem;">Roasting / Crisp Baking (Gas Mark 5)</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">400 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">204 °C (~200 °C)</td><td style="padding: 0.45rem 0.75rem;">High Heat Roasting (Gas Mark 6)</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">425 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">218 °C (~220 °C)</td><td style="padding: 0.45rem 0.75rem;">Pizza & Crust Browning (Gas Mark 7)</td></tr>
+                <tr><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">212 °F</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">100 °C</td><td style="padding: 0.45rem 0.75rem; color: #f97316;">Boiling Point of Water</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'celsius' && toKey === 'fahrenheit') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Mental Math Shortcut (°C to °F)</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+            When you don't have a calculator handy, use this quick mental estimation trick:
+          </p>
+          <div style="font-family: var(--mono); background: var(--surface-alt); padding: 0.75rem; border: 1px solid var(--border); margin-bottom: 1rem; line-height: 1.6;">
+            <strong>Step 1:</strong> Multiply Celsius by 2<br>
+            <strong>Step 2:</strong> Add 30<br>
+            <em>Example: 20 °C × 2 = 40 + 30 = <strong>70 °F</strong> (Exact is 68 °F)</em>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+            For the exact scientific result: <code>°F = (°C × 9/5) + 32</code>.
+          </p>
+        </div>
+        `;
+      } else if (fromKey === 'pound' && toKey === 'kilogram') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Body Weight & Gym Lifting Chart (lbs to kg)</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.75rem;">Pounds (lbs)</th>
+                  <th style="padding: 0.5rem 0.75rem;">Kilograms (kg)</th>
+                  <th style="padding: 0.5rem 0.75rem;">Common Context</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">45 lbs</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">20.41 kg</td><td style="padding: 0.45rem 0.75rem;">Standard Olympic Barbell / Plate</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">50 lbs</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">22.68 kg</td><td style="padding: 0.45rem 0.75rem;">Airline Checked Bag Weight Limit</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">135 lbs</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">61.23 kg</td><td style="padding: 0.45rem 0.75rem;">Bar + 1 Plate per side</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">150 lbs</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">68.04 kg</td><td style="padding: 0.45rem 0.75rem;">Adult Average Weight</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">180 lbs</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">81.65 kg</td><td style="padding: 0.45rem 0.75rem;">Adult Male Average Weight</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">200 lbs</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">90.72 kg</td><td style="padding: 0.45rem 0.75rem;">Heavyweight Threshold</td></tr>
+                <tr><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">225 lbs</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">102.06 kg</td><td style="padding: 0.45rem 0.75rem;">Bar + 2 Plates per side</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'kilogram' && toKey === 'pound') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">International Airline Baggage Chart (kg to lbs)</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.75rem;">Kilograms (kg)</th>
+                  <th style="padding: 0.5rem 0.75rem;">Pounds (lbs)</th>
+                  <th style="padding: 0.5rem 0.75rem;">Luggage Class</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">7 kg</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">15.43 lbs</td><td style="padding: 0.45rem 0.75rem;">Carry-On Cabin Bag (Budget Airlines)</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">10 kg</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">22.05 lbs</td><td style="padding: 0.45rem 0.75rem;">Standard Carry-On Roller</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">20 kg</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">44.09 lbs</td><td style="padding: 0.45rem 0.75rem;">Economy Checked Bag (European Airlines)</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">23 kg</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">50.71 lbs (~50 lbs)</td><td style="padding: 0.45rem 0.75rem;">Standard Transatlantic Checked Bag Limit</td></tr>
+                <tr><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">32 kg</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">70.55 lbs (~70 lbs)</td><td style="padding: 0.45rem 0.75rem;">Business / First Class Checked Bag Limit</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'kilometer_per_hour' && toKey === 'mile_per_hour') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Highway & City Speed Limit Equivalents</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.75rem;">Speed in km/h</th>
+                  <th style="padding: 0.5rem 0.75rem;">Speed in mph</th>
+                  <th style="padding: 0.5rem 0.75rem;">Driving Zone</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">30 km/h</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">18.6 mph</td><td style="padding: 0.45rem 0.75rem;">School zone / Residential streets</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">50 km/h</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">31.1 mph</td><td style="padding: 0.45rem 0.75rem;">Standard European/Australian urban limit</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">80 km/h</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold;">49.7 mph (~50 mph)</td><td style="padding: 0.45rem 0.75rem;">Rural 2-lane highway</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">100 km/h</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">62.1 mph (~60 mph)</td><td style="padding: 0.45rem 0.75rem;">Interurban expressway</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">120 km/h</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">74.6 mph (~75 mph)</td><td style="padding: 0.45rem 0.75rem;">Freeway / Motorway speed limit</td></tr>
+                <tr><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">130 km/h</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #3b82f6;">80.8 mph (~80 mph)</td><td style="padding: 0.45rem 0.75rem;">French Autoroute / German Autobahn advisory</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
       }
 
       const calcBody = `
