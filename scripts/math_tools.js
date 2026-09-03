@@ -1569,6 +1569,113 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           calcPC();
         </script>
       `
+    },
+    {
+      slug: 'birthday-paradox-calculator',
+      title: 'Birthday Paradox Calculator & Collision Simulator',
+      metaDesc: 'Why does a room of 23 people have a 50.7% chance of two sharing a birthday? Calculate probability and run live Monte Carlo collision simulations.',
+      category: 'Math & Probability',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Birthday Paradox
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">The Birthday Paradox & Coincidence Simulator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            One of the most famous counter-intuitive probability problems: How many people must be in a room before there is at least a 50% chance two share the exact same birthday? (The answer is only <strong>23 people</strong>).
+          </p>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Number of People in Room (n): <span id="bp-n-val" style="color: #3b82f6; font-weight: bold;">23</span></label>
+              <input type="range" id="bp-range" min="2" max="100" value="23" oninput="updateBPSlider(this.value)" style="width: 100%; cursor: pointer;" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Probability of Shared Birthday</div>
+                <div id="bp-prob" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">50.73%</div>
+                <div id="bp-odds" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Odds: 1.03 to 1 in favor</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Comparison Pairs</div>
+                <div id="bp-pairs" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">253 Pairs</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">n × (n - 1) / 2 unique pairings</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: center;">
+              <button type="button" class="btn-primary" onclick="runBPSimulation()" style="padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer;">
+                🎲 Run Live Random Monte Carlo Simulation
+              </button>
+              <div id="bp-sim-result" style="margin-top: 0.75rem; font-family: var(--mono); font-size: 0.95rem; min-height: 24px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function updateBPSlider(val) {
+            document.getElementById('bp-n-val').textContent = val;
+            calcBP(parseInt(val, 10));
+          }
+
+          function calcBP(n) {
+            var pairs = (n * (n - 1)) / 2;
+            document.getElementById('bp-pairs').textContent = pairs.toLocaleString('en-US') + ' Pairs';
+
+            if (n >= 365) {
+              document.getElementById('bp-prob').textContent = '100.00%';
+              document.getElementById('bp-odds').textContent = 'Pigeonhole principle guaranteed';
+              return;
+            }
+
+            // Complement probability: P(all unique) = product_{i=0}^{n-1} (365 - i) / 365
+            var pUnique = 1.0;
+            for (var i = 0; i < n; i++) {
+              pUnique *= (365 - i) / 365;
+            }
+
+            var pShared = (1 - pUnique) * 100;
+            var probEl = document.getElementById('bp-prob');
+            probEl.textContent = pShared.toFixed(2) + '%';
+            probEl.style.color = pShared >= 50 ? '#10b981' : '#f59e0b';
+
+            var odds = pUnique > 0 ? ((1 - pUnique) / pUnique) : 999;
+            document.getElementById('bp-odds').textContent = pShared >= 50 ? 
+              ('Odds: ' + odds.toFixed(2) + ' to 1 in favor') : 
+              ('Odds: ' + (1 / odds).toFixed(2) + ' to 1 against');
+          }
+
+          function runBPSimulation() {
+            var n = parseInt(document.getElementById('bp-range').value, 10);
+            var seen = {};
+            var collision = false;
+            var collisionDay = null;
+
+            for (var i = 0; i < n; i++) {
+              var day = Math.floor(Math.random() * 365) + 1;
+              if (seen[day]) {
+                collision = true;
+                collisionDay = day;
+                break;
+              }
+              seen[day] = true;
+            }
+
+            var resEl = document.getElementById('bp-sim-result');
+            if (collision) {
+              resEl.innerHTML = '<span style="color: #10b981; font-weight: bold;">✓ MATCH FOUND!</span> Two people shared day #' + collisionDay + ' of 365.';
+            } else {
+              resEl.innerHTML = '<span style="color: #ef4444; font-weight: bold;">✗ NO MATCH!</span> All ' + n + ' people had completely distinct birthdays.';
+            }
+          }
+
+          document.addEventListener('DOMContentLoaded', function() { calcBP(23); });
+          calcBP(23);
+        </script>
+      `
     }
   ];
 
