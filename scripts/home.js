@@ -10,7 +10,11 @@ function buildHomepage() {
     { name: 'PDF & Docs', icon: ICONS.docs },
     { name: 'Units & Calc', icon: ICONS.calc },
     { name: 'Minecraft & Game', icon: ICONS.cube },
-    { name: 'Productivity', icon: ICONS.clipboard }
+    { name: 'Productivity', icon: ICONS.clipboard },
+    { name: 'Science', icon: ICONS.science },
+    { name: 'Psychology', icon: ICONS.psychology },
+    { name: 'Trade Math', icon: ICONS.trade },
+    { name: 'Historical Units', icon: ICONS.units }
   ];
 
   let gridHtml = '';

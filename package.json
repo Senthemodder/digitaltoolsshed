@@ -6,7 +6,8 @@
   "scripts": {
     "build": "node scripts/build.js",
     "dev": "node scripts/dev-server.js",
-    "indexnow": "node scripts/submit_indexnow.js"
+    "indexnow": "node scripts/submit_indexnow.js",
+    "test": "node tests/m1_core_test.js"
   },
   "keywords": [
     "tools",

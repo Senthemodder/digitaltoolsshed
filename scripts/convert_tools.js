@@ -58,6 +58,14 @@ function buildConvertFastSuite() {
     writeFileSync(join(convertDist, file), pageHtml);
   }
 
+  // Sync ConvertFast Hub index.html to dist/convert/index.html with clean links
+  const cfIndexSrc = join(ROOT, 'src', 'convertfast', 'index.html');
+  if (existsSync(cfIndexSrc)) {
+    let indexHtml = readFileSync(cfIndexSrc, 'utf-8');
+    indexHtml = indexHtml.replace(/href=["']converters\/([^"']+)["']/g, 'href="/convert/$1"');
+    writeFileSync(join(convertDist, 'index.html'), indexHtml);
+  }
+
   console.log(`  ✓ Ported & Styled ${files.length} ConvertFast converters with Vector Icons (/convert/)`);
 }
 

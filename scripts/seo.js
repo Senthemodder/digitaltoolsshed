@@ -53,6 +53,14 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/fr/`);
   collectUrls(join(DIST, 'ru'), '/ru');
   discoveredUrls.push(`${DOMAIN}/ru/`);
+  collectUrls(join(DIST, 'science'), '/science');
+  discoveredUrls.push(`${DOMAIN}/science/`);
+  collectUrls(join(DIST, 'psychology'), '/psychology');
+  discoveredUrls.push(`${DOMAIN}/psychology/`);
+  collectUrls(join(DIST, 'trade'), '/trade');
+  discoveredUrls.push(`${DOMAIN}/trade/`);
+  collectUrls(join(DIST, 'units'), '/units');
+  discoveredUrls.push(`${DOMAIN}/units/`);
 
   const uniqueUrls = [...new Set(discoveredUrls)];
 

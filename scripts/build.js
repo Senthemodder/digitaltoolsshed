@@ -32,6 +32,10 @@ import { buildHealthToolsSuite } from './health_tools.js';
 import { buildUtilToolsSuite } from './util_tools.js';
 import { buildI18nSuites } from './i18n_tools.js';
 import { buildSeniorFinanceSuite } from './senior_finance_tools.js';
+import { buildScienceTools } from './science_tools.js';
+import { buildPsychologyTools } from './psychology_tools.js';
+import { buildTradeMathTools } from './trade_math_tools.js';
+import { buildHistoryUnitsTools } from './history_units_tools.js';
 import { buildTrustPages, build404Page } from './trust_pages.js';
 import { buildSEOAssets } from './seo.js';
 
@@ -72,6 +76,10 @@ function main() {
   buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildI18nSuites({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildScienceTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildPsychologyTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildTradeMathTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildHistoryUnitsTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
 
   // Trust, Legal & Error Pages
   buildTrustPages();

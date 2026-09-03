@@ -44,7 +44,11 @@ const ICONS = {
   lock: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
   code: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`,
   clipboard: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`,
-  article: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
+  article: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`,
+  science: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12a15.3 15.3 0 0 1 10-4 15.3 15.3 0 0 1 10 4 15.3 15.3 0 0 1-10 4 15.3 15.3 0 0 1-10-4z"/></svg>`,
+  psychology: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+  trade: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.5 8.5c-.83.83-2.17.83-3 0 0 0 0 0 0 0a2.12 2.12 0 0 1 0-3L12 9"/><path d="M17.64 15 22 10.64"/><path d="m20.91 3.26-4.66 4.66a2 2 0 0 0 0 2.83l1.42 1.42a2 2 0 0 0 2.83 0l4.66-4.66a1.65 1.65 0 0 0-2.34-2.33Z"/><path d="m15.5 8.5 3 3"/></svg>`,
+  units: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`
 };
 
 // ─── MASTER TOOL REGISTRY ──────────────────────────────────────────────────
@@ -192,6 +196,40 @@ const TOOLS = [
   // Education & Learning Guides
   { id: 'learn-hub', name: 'Learning Hub', category: 'Learn & Code', path: '/learn/', desc: 'Master web development with hands-on guides and interactive code playgrounds.' },
   { id: 'learn-javascript', name: 'JavaScript Guide', category: 'Learn & Code', path: '/learn/javascript/', desc: 'Complete JavaScript guide from syntax basics to practical interactive projects.' },
+
+  // Obscure Science & Astrophysics (115 tools)
+  { id: 'science-hub', name: 'Obscure Science & Astrophysics Hub', category: 'Science', path: '/science/', desc: '115 interactive astrophysics, quantum mechanics, and cosmology calculators.' },
+  { id: 'planck-length-converter', name: 'Planck Length to Subatomic Scales Converter', category: 'Science', path: '/science/planck-length-converter', desc: 'Convert quantum Planck lengths to meters, attometers, and astronomical scales.' },
+  { id: 'schwarzschild-radius-calculator', name: 'Black Hole Schwarzschild Radius Calculator', category: 'Science', path: '/science/schwarzschild-radius-calculator', desc: 'Calculate event horizon radius for any mass from subatomic to supermassive black holes.' },
+  { id: 'relativistic-time-dilation', name: 'Relativistic Time Dilation & Lorentz Factor', category: 'Science', path: '/science/relativistic-time-dilation', desc: 'Calculate relativistic velocity, time dilation, and length contraction via Lorentz factor.' },
+  { id: 'stellar-mass-luminosity', name: 'Stellar Mass-Luminosity Relation Calculator', category: 'Science', path: '/science/stellar-mass-luminosity-calculator', desc: 'Compute star luminosity, surface temperature, and lifetime from solar masses.' },
+  { id: 'hawking-radiation-calculator', name: 'Black Hole Hawking Radiation & Power Loss', category: 'Science', path: '/science/hawking-radiation-calculator', desc: 'Calculate Hawking temperature, surface gravity, and evaporation timescale.' },
+
+  // 2 AM Existential Dilemmas & Psychology (115 tools)
+  { id: 'psychology-hub', name: '2 AM Existential & Psychology Hub', category: 'Psychology', path: '/psychology/', desc: '115 interactive cognitive models, thought experiments, and executive function tools.' },
+  { id: 'adhd-micro-step-decomposer', name: 'ADHD 2-Minute Micro-Step Decomposer', category: 'Psychology', path: '/psychology/adhd-micro-step-decomposer', desc: 'Break down overwhelming executive paralysis into micro-executable single steps.' },
+  { id: 'catastrophizing-severity-meter', name: 'Catastrophic Thinking Scale & Severity Meter', category: 'Psychology', path: '/psychology/catastrophizing-severity-meter', desc: 'Step down anxiety spirals from worst-case disaster to realistic mathematical probability.' },
+  { id: 'swampman-identity-paradox', name: 'Donald Davidson Swampman Identity Paradox', category: 'Psychology', path: '/psychology/swampman-identity-paradox', desc: 'Explore Donald Davidson’s philosophical thought experiment on consciousness and identity.' },
+  { id: 'cognitive-dissonance-meter', name: 'Cognitive Dissonance Resolution Engine', category: 'Psychology', path: '/psychology/cognitive-dissonance-resolution-meter', desc: 'Cross-examine automatic negative thoughts and belief shifts with structured CBT evidence.' },
+  { id: 'revenge-bedtime-tax', name: 'Revenge Bedtime Procrastination Cost Calculator', category: 'Psychology', path: '/psychology/revenge-bedtime-procrastination-tax', desc: 'Quantify next-day cognitive penalty and circadian sleep debt from late-night revenge scrolling.' },
+
+  // Niche Construction & Trade Math (114 tools)
+  { id: 'trade-hub', name: 'Niche Construction & Trade Math Hub', category: 'Trade Math', path: '/trade/', desc: '114 code-compliant trade calculators across roofing, electrical, plumbing, and framing.' },
+  { id: 'common-rafter-length-calc', name: 'Common Rafter Length & Pitch Cut Calculator', category: 'Trade Math', path: '/trade/common-rafter-length-calculator', desc: 'Calculate precise rafter lengths, plumb cuts, seat cuts, and birdsmouth dimensions.' },
+  { id: 'wire-gauge-voltage-drop', name: 'Wire Gauge & Voltage Drop Calculator (NEC 3%)', category: 'Trade Math', path: '/trade/wire-gauge-voltage-drop-calculator', desc: 'Calculate single and 3-phase AC/DC voltage drop by conductor wire gauge and length.' },
+  { id: 'conduit-fill-capacity-nec', name: 'Conduit Fill Percentage Calculator (NEC Table 1)', category: 'Trade Math', path: '/trade/conduit-fill-capacity-nec', desc: 'Check EMT, PVC, and RMC conduit fill percentages against 40% NEC safety limits.' },
+  { id: 'board-foot-lumber-pricing', name: 'Board Feet Lumber Calculator & Hardwood Pricing', category: 'Trade Math', path: '/trade/board-foot-lumber-pricing', desc: 'Calculate true hardwood board footage and total order cost from dimensional lumber.' },
+  { id: 'concrete-curing-maturity-index', name: 'Concrete Curing Maturity Index (Nurse-Saul)', category: 'Trade Math', path: '/trade/concrete-curing-maturity-index', desc: 'Predict compressive strength gain from in-place curing temperature history.' },
+  { id: 'hydraulic-cylinder-force-speed', name: 'Hydraulic Cylinder Force & Speed Calculator', category: 'Trade Math', path: '/trade/hydraulic-cylinder-force-speed', desc: 'Calculate push/pull tonnage, flow requirement (GPM), and cycle time.' },
+
+  // Esoteric & Historical Unit Systems (114 tools)
+  { id: 'units-hub', name: 'Esoteric & Historical Unit Systems Hub', category: 'Historical Units', path: '/units/', desc: '114 converters across Roman, Greek, Biblical, Apothecary, and obsolete computing units.' },
+  { id: 'ancient-roman-amphora', name: 'Ancient Roman Amphora Liquid Volume Converter', category: 'Historical Units', path: '/units/ancient-roman-amphora-converter', desc: 'Convert Roman amphora, urna, congius, sextarius, and hemina to liters and gallons.' },
+  { id: 'ancient-roman-pes-foot', name: 'Roman Foot (Pes Monetalis) Distance Converter', category: 'Historical Units', path: '/units/ancient-roman-pes-foot-converter', desc: 'Convert Roman pes, cubitus, passus, actus, and mille passus to modern units.' },
+  { id: 'biblical-cor-homer', name: 'Biblical Cor and Chomer Volume Converter', category: 'Historical Units', path: '/units/biblical-cor-homer-volume-converter', desc: 'Convert ancient Hebrew dry and liquid temple measures to metric liters.' },
+  { id: 'apothecary-grain-milligrams', name: 'Apothecary Grain (gr) to Metric Milligrams', category: 'Historical Units', path: '/units/apothecary-grain-to-milligrams', desc: 'Convert historical apothecary prescription weights to grams and grains.' },
+  { id: 'nautical-cable-length', name: 'Maritime Cable Length & Fathom Converter', category: 'Historical Units', path: '/units/nautical-cable-length-converter', desc: 'Convert historical British and US naval cable lengths and leagues to nautical miles.' },
+  { id: 'ibm-punch-card-bytes', name: 'IBM 80-Column Punch Card Character Capacity', category: 'Historical Units', path: '/units/ibm-80-column-punch-card-bytes', desc: 'Calculate byte capacities, deck heights, and weights of Hollerith punch cards.' },
 ];
 
 // ─── MASTER CSS ───────────────────────────────────────────────────────────
@@ -1242,10 +1280,10 @@ function buildSidebarHtml(currentPath = '/') {
     <div class="sidebar-search-box">
       <div class="sidebar-search">
         ${ICONS.search}
-        <input type="text" id="sidebarSearchInput" placeholder="Filter 397+ tools & guides..." autocomplete="off" />
+        <input type="text" id="sidebarSearchInput" placeholder="Filter 1,000+ tools & guides..." autocomplete="off" />
       </div>
       <div class="search-tooltip">
-        <span>Filter 397+ tools live</span>
+        <span>Filter 1,000+ tools live</span>
         <button class="shuffle-btn" onclick="shuffleRandomTool()"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="8.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="8.5" r="1" fill="currentColor" stroke="none"/><circle cx="8.5" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg> Random</button>
       </div>
     </div>
@@ -1369,11 +1407,83 @@ function buildSidebarHtml(currentPath = '/') {
         <div class="nav-link-content"><span>manifest.json Generator</span></div>
       </a>
 
-      <!-- TRADE & CONSTRUCTION -->
+      <!-- OBSCURE SCIENCE & ASTROPHYSICS -->
       <div class="nav-group-title">
-        ${ICONS.calc}
-        <span>Blue-Collar & Trade Math (8)</span>
+        ${ICONS.science}
+        <span>Obscure Science & Astro (115)</span>
       </div>
+      <a href="/science/" class="nav-link ${currentPath === '/science/' || currentPath === '/science/index.html' || currentPath === '/science' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Science & Astrophysics Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/science/planck-length-converter" class="nav-link ${currentPath.startsWith('/science/planck-length-converter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Planck Length Converter</span></div>
+      </a>
+      <a href="/science/schwarzschild-radius-calculator" class="nav-link ${currentPath.startsWith('/science/schwarzschild-radius-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Schwarzschild Radius</span></div>
+      </a>
+      <a href="/science/relativistic-time-dilation" class="nav-link ${currentPath.startsWith('/science/relativistic-time-dilation') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Time Dilation & Lorentz</span></div>
+      </a>
+      <a href="/science/stellar-mass-luminosity-calculator" class="nav-link ${currentPath.startsWith('/science/stellar-mass-luminosity-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Stellar Mass & Luminosity</span></div>
+      </a>
+      <a href="/science/hawking-radiation-calculator" class="nav-link ${currentPath.startsWith('/science/hawking-radiation-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Hawking Radiation Power</span></div>
+      </a>
+
+      <!-- 2 AM EXISTENTIAL & PSYCHOLOGY -->
+      <div class="nav-group-title">
+        ${ICONS.psychology}
+        <span>2 AM Psychology & Mind (115)</span>
+      </div>
+      <a href="/psychology/" class="nav-link ${currentPath === '/psychology/' || currentPath === '/psychology/index.html' || currentPath === '/psychology' ? 'active' : ''}">
+        <div class="nav-link-content"><span>2 AM Psychology Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/psychology/adhd-micro-step-decomposer" class="nav-link ${currentPath.startsWith('/psychology/adhd-micro-step-decomposer') ? 'active' : ''}">
+        <div class="nav-link-content"><span>ADHD Micro-Step Decomposer</span></div>
+      </a>
+      <a href="/psychology/catastrophizing-severity-meter" class="nav-link ${currentPath.startsWith('/psychology/catastrophizing-severity-meter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Catastrophizing Severity</span></div>
+      </a>
+      <a href="/psychology/swampman-identity-paradox" class="nav-link ${currentPath.startsWith('/psychology/swampman-identity-paradox') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Swampman Identity Paradox</span></div>
+      </a>
+      <a href="/psychology/cognitive-dissonance-resolution-meter" class="nav-link ${currentPath.startsWith('/psychology/cognitive-dissonance-resolution-meter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Cognitive Dissonance Meter</span></div>
+      </a>
+      <a href="/psychology/revenge-bedtime-procrastination-tax" class="nav-link ${currentPath.startsWith('/psychology/revenge-bedtime-procrastination-tax') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Revenge Bedtime Tax</span></div>
+      </a>
+
+      <!-- BLUE-COLLAR & NICHE TRADE MATH -->
+      <div class="nav-group-title">
+        ${ICONS.trade}
+        <span>Niche Trade Math (114)</span>
+      </div>
+      <a href="/trade/" class="nav-link ${currentPath === '/trade/' || currentPath === '/trade/index.html' || currentPath === '/trade' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Niche Trade Math Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/trade/common-rafter-length-calculator" class="nav-link ${currentPath.startsWith('/trade/common-rafter-length-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Common Rafter Length & Pitch</span></div>
+      </a>
+      <a href="/trade/wire-gauge-voltage-drop-calculator" class="nav-link ${currentPath.startsWith('/trade/wire-gauge-voltage-drop-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Voltage Drop (NEC 3%)</span></div>
+      </a>
+      <a href="/trade/conduit-fill-capacity-nec" class="nav-link ${currentPath.startsWith('/trade/conduit-fill-capacity-nec') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Conduit Fill (NEC Table 1)</span></div>
+      </a>
+      <a href="/trade/board-foot-lumber-pricing" class="nav-link ${currentPath.startsWith('/trade/board-foot-lumber-pricing') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Board Foot Lumber Pricing</span></div>
+      </a>
+      <a href="/trade/concrete-curing-maturity-index" class="nav-link ${currentPath.startsWith('/trade/concrete-curing-maturity-index') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Concrete Curing Maturity</span></div>
+      </a>
+      <a href="/trade/hydraulic-cylinder-force-speed" class="nav-link ${currentPath.startsWith('/trade/hydraulic-cylinder-force-speed') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Hydraulic Cylinder Force</span></div>
+      </a>
       <a href="/calc/stair-calculator" class="nav-link ${currentPath.startsWith('/calc/stair-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Stair Stringer (IRC Code)</span></div>
       </a>
@@ -1397,6 +1507,34 @@ function buildSidebarHtml(currentPath = '/') {
       </a>
       <a href="/calc/gravel-calculator" class="nav-link ${currentPath.startsWith('/calc/gravel-calculator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Gravel & Crushed Stone</span></div>
+      </a>
+
+      <!-- ESOTERIC & HISTORICAL UNIT SYSTEMS -->
+      <div class="nav-group-title">
+        ${ICONS.units}
+        <span>Historical Unit Systems (114)</span>
+      </div>
+      <a href="/units/" class="nav-link ${currentPath === '/units/' || currentPath === '/units/index.html' || currentPath === '/units' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Historical Units Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/units/ancient-roman-amphora-converter" class="nav-link ${currentPath.startsWith('/units/ancient-roman-amphora-converter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Roman Amphora & Volume</span></div>
+      </a>
+      <a href="/units/ancient-roman-pes-foot-converter" class="nav-link ${currentPath.startsWith('/units/ancient-roman-pes-foot-converter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Roman Pes (Foot) & Passus</span></div>
+      </a>
+      <a href="/units/biblical-cor-homer-volume-converter" class="nav-link ${currentPath.startsWith('/units/biblical-cor-homer-volume-converter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Biblical Cor & Homer</span></div>
+      </a>
+      <a href="/units/apothecary-grain-to-milligrams" class="nav-link ${currentPath.startsWith('/units/apothecary-grain-to-milligrams') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Apothecary Grain (gr)</span></div>
+      </a>
+      <a href="/units/nautical-cable-length-converter" class="nav-link ${currentPath.startsWith('/units/nautical-cable-length-converter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Maritime Cable & Fathom</span></div>
+      </a>
+      <a href="/units/ibm-80-column-punch-card-bytes" class="nav-link ${currentPath.startsWith('/units/ibm-80-column-punch-card-bytes') ? 'active' : ''}">
+        <div class="nav-link-content"><span>IBM Punched Card Capacity</span></div>
       </a>
 
       <!-- SENIOR & RETIREMENT FINANCE -->
@@ -1581,7 +1719,7 @@ function buildSidebarHtml(currentPath = '/') {
         <span id="currentThemeTag">[ LIGHT ]</span>
       </button>
       <div style="font-family: var(--mono); font-size: 0.68rem; color: var(--text-subtle); text-align: center; line-height: 1.4;">
-        The Site of Everything &bull; 397+ Tools
+        The Site of Everything &bull; 1,000+ Tools
       </div>
     </div>
   </aside>
@@ -1611,7 +1749,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       "@type": "WebSite",
       "name": "Digital Tools Shed",
       "url": "https://digitaltoolsshed.com/",
-      "description": "The Site of Everything — 397+ free browser-based tools, calculators, converters, and coding playgrounds.",
+      "description": "The Site of Everything — 1,000+ free browser-based tools, calculators, converters, and coding playgrounds.",
       "potentialAction": {
         "@type": "SearchAction",
         "target": "https://digitaltoolsshed.com/?q={search_term_string}",
@@ -1661,7 +1799,9 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       currentPath.startsWith('/util/') || currentPath.startsWith('/health/') ||
       currentPath.startsWith('/convert/') || currentPath.startsWith('/productivity/') ||
       currentPath.startsWith('/mc/') || currentPath.startsWith('/media/') ||
-      currentPath.startsWith('/pdf/') || currentPath.startsWith('/finance/')) {
+      currentPath.startsWith('/pdf/') || currentPath.startsWith('/finance/') ||
+      currentPath.startsWith('/science/') || currentPath.startsWith('/psychology/') ||
+      currentPath.startsWith('/trade/') || currentPath.startsWith('/units/')) {
     schemas.push({
       "@context": "https://schema.org",
       "@type": "WebApplication",
