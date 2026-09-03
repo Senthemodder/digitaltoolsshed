@@ -724,20 +724,71 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
               </div>
             </div>
 
+            <!-- Live Banner Preview Mockup -->
+            <div style="margin: 1.5rem 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <label class="field-label" style="margin:0;">Live Banner Visual Preview</label>
+                <button type="button" class="btn-sec" onclick="testBannerOnPage()" style="padding: 0.35rem 0.75rem; font-size: 0.8rem;">⚡ Test Live on This Screen</button>
+              </div>
+              <div id="banner-preview-box" style="border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; background: #18181b; color: #fff; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; font-family: system-ui, -apple-system, sans-serif; font-size: 0.9rem;">
+                <div style="flex: 1; min-width: 240px; line-height: 1.5;">
+                  <span>We use cookies to enhance your browsing experience, serve personalized ads, and analyze traffic. By clicking &quot;Accept All&quot;, you consent to our use of cookies.</span>
+                </div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <button type="button" style="background: transparent; color: #fff; border: 1px solid rgba(150,150,150,0.5); padding: 0.45rem 0.9rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">Decline</button>
+                  <button type="button" style="background: #3b82f6; color: #fff; border: none; padding: 0.45rem 1rem; border-radius: 4px; font-weight: 600; font-size: 0.85rem; cursor: pointer;">Accept All</button>
+                </div>
+              </div>
+            </div>
+
             <div class="action-bar" style="margin-top: 1.25rem;">
               <button class="btn-primary" onclick="copyPolicyMd()">📋 Copy Markdown Policy</button>
+              <button class="btn-sec" onclick="copyPolicyHtml()">📋 Copy HTML Policy</button>
               <button class="btn-sec" onclick="copyBannerCode()">📋 Copy Banner HTML/JS Code</button>
               <button class="btn-sec" onclick="downloadPolicy()">💾 Download Policy (.md)</button>
             </div>
 
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Generated Cookie Policy (Markdown / Plaintext)</label>
-              <textarea id="cp-policy" class="code-input" style="height: 240px;" readonly></textarea>
+              <label class="field-label">Generated Cookie Policy (Markdown)</label>
+              <textarea id="cp-policy" class="code-input" style="height: 220px;" readonly></textarea>
+            </div>
+
+            <div class="field-group" style="margin-top: 1.5rem;">
+              <label class="field-label">Generated Cookie Policy (Clean HTML)</label>
+              <textarea id="cp-policy-html" class="code-input" style="height: 180px;" readonly></textarea>
             </div>
 
             <div class="field-group" style="margin-top: 1.5rem;">
               <label class="field-label">Embeddable Cookie Consent Banner (Drop-in HTML + Vanilla JS, Zero Dependencies)</label>
               <textarea id="cp-banner" class="code-input" style="height: 200px;" readonly></textarea>
+            </div>
+
+            <!-- GA4 Developer Integration Snippet -->
+            <div style="border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; background: var(--surface-alt); margin-top: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0;">How to Block Google Analytics 4 Until Consent (GDPR Compliance)</h4>
+                <button type="button" class="btn-sec" onclick="copyGa4Snippet()" style="padding: 0.3rem 0.65rem; font-size: 0.75rem;">Copy GA4 Snippet</button>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 0.75rem;">
+                Under GDPR, you must not fire tracking scripts until user clicks "Accept". Wrap your Google tag with this one-line listener:
+              </p>
+              <pre style="background: var(--bg); border: 1px solid var(--border); padding: 0.75rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; overflow-x: auto; margin: 0; color: var(--fg);"><code id="ga4-snippet">&lt;!-- Only load GA4 if consent granted --&gt;
+&lt;script&gt;
+  function loadAnalytics() {
+    var s = document.createElement('script');
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-YOUR_MEASUREMENT_ID';
+    s.async = true;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YOUR_MEASUREMENT_ID');
+  }
+  if (localStorage.getItem('cookie_consent') === 'accepted') {
+    loadAnalytics();
+  }
+  window.addEventListener('cookie_consent_accepted', loadAnalytics);
+&lt;/script&gt;</code></pre>
             </div>
           </div>
 
@@ -784,19 +835,27 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             p += '### A. Strictly Necessary / Essential Cookies\\n';
             p += 'These cookies are strictly necessary to provide you with services available through our website and to use some of its features, such as access to secure areas, session authentication, and load balancing. Because these cookies are strictly necessary to deliver the site, you cannot refuse them without impacting website operation.\\n\\n';
 
+            let pHtml = '<h1>Cookie Policy for ' + name + '</h1>\\n<p><strong>Last updated:</strong> ' + date + '</p>\\n';
+            pHtml += '<p>This Cookie Policy explains how ' + name + ' ("we", "us", or "our") uses cookies and similar tracking technologies when you visit our website at <a href="' + url + '">' + url + '</a>.</p>\\n';
+            pHtml += '<h2>1. What Are Cookies?</h2>\\n<p>Cookies are small data files placed on your device to ensure website functionality, improve user experience, and analyze site performance.</p>\\n';
+            pHtml += '<h2>2. Categories of Cookies We Use</h2>\\n<h3>A. Strictly Necessary / Essential Cookies</h3>\\n<p>Essential for basic site operations, login states, and security. Cannot be disabled.</p>\\n';
+
             if (hasAnalytics) {
               p += '### B. Analytics and Performance Cookies\\n';
               p += 'These cookies collect information that is used either in aggregate form to help us understand how our website is being used, how effective our marketing campaigns are, or to help us customize our website for you (e.g. Google Analytics, Plausible Analytics, Cloudflare Web Analytics).\\n\\n';
+              pHtml += '<h3>B. Analytics & Performance Cookies</h3>\\n<p>Used to measure visitor interactions and optimize load speeds (e.g. Google Analytics, Cloudflare).</p>\\n';
             }
 
             if (hasMarketing) {
               p += '### C. Advertising and Marketing Cookies\\n';
               p += 'These cookies are used to make advertising messages more relevant to you. They perform functions like preventing the same ad from continuously reappearing, ensuring that ads are properly displayed, and in some cases selecting advertisements that are based on your interests (e.g. Google AdSense, Meta Pixel).\\n\\n';
+              pHtml += '<h3>C. Advertising & Marketing Cookies</h3>\\n<p>Used to deliver tailored promotions and prevent repetitive advertisements (e.g. Google AdSense, Meta Pixel).</p>\\n';
             }
 
             if (hasPrefs) {
               p += '### D. Functional and Preference Cookies\\n';
               p += 'These cookies enable the website to remember choices you make (such as your user name, language, or dark/light mode UI theme) and provide enhanced, more personal features.\\n\\n';
+              pHtml += '<h3>D. Functional & Preference Cookies</h3>\\n<p>Enables memory of UI settings such as dark/light mode or language preference.</p>\\n';
             }
 
             p += '## 3. How Can You Control Cookies?\\n';
@@ -806,14 +865,33 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             p += '## 5. Contact Us\\n';
             p += 'If you have any questions about our use of cookies or other technologies, please email us at: ' + email + '.\\n';
 
-            document.getElementById('cp-policy').value = p;
+            pHtml += '<h2>3. How Can You Control Cookies?</h2>\\n<p>You can accept or decline optional cookies using our consent banner or via your browser privacy settings.</p>\\n';
+            pHtml += '<h2>4. Contact Us</h2>\\n<p>Questions? Contact us at: <a href="mailto:' + email + '">' + email + '</a></p>';
 
-            // Generate Embed Banner Code
-            let bgCol = '#18181b', textCol = '#ffffff', btnBg = '#3b82f6', btnText = '#ffffff';
+            document.getElementById('cp-policy').value = p;
+            document.getElementById('cp-policy-html').value = pHtml;
+
+            // Generate Embed Banner Code & Update Visual Preview
+            let bgCol = '#18181b', textCol = '#ffffff', btnBg = '#3b82f6', btnText = '#ffffff', borderCol = 'rgba(255,255,255,0.1)';
             if (theme === 'light') {
-              bgCol = '#ffffff'; textCol = '#18181b'; btnBg = '#18181b'; btnText = '#ffffff';
+              bgCol = '#ffffff'; textCol = '#18181b'; btnBg = '#18181b'; btnText = '#ffffff'; borderCol = 'rgba(0,0,0,0.15)';
             } else if (theme === 'slate') {
-              bgCol = '#0f172a'; textCol = '#f8fafc'; btnBg = '#0284c7'; btnText = '#ffffff';
+              bgCol = '#0f172a'; textCol = '#f8fafc'; btnBg = '#0284c7'; btnText = '#ffffff'; borderCol = 'rgba(255,255,255,0.15)';
+            }
+
+            // Update on-page visual preview box
+            const prevBox = document.getElementById('banner-preview-box');
+            if (prevBox) {
+              prevBox.style.background = bgCol;
+              prevBox.style.color = textCol;
+              prevBox.style.borderColor = borderCol;
+              const btns = prevBox.querySelectorAll('button');
+              if (btns.length >= 2) {
+                btns[0].style.color = textCol;
+                btns[0].style.borderColor = borderCol;
+                btns[1].style.background = btnBg;
+                btns[1].style.color = btnText;
+              }
             }
 
             let posStyle = 'position:fixed;bottom:0;left:0;right:0;z-index:99999;';
@@ -824,12 +902,12 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             }
 
             let banner = '<!-- Digital Tools Shed Free GDPR/CCPA Cookie Consent Banner -->\\n' +
-              '<div id="dts-cookie-banner" style="' + posStyle + 'background:' + bgCol + ';color:' + textCol + ';padding:1rem 1.25rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;font-family:system-ui,-apple-system,sans-serif;font-size:0.9rem;border-top:1px solid rgba(255,255,255,0.1);">\\n' +
+              '<div id="dts-cookie-banner" style="' + posStyle + 'background:' + bgCol + ';color:' + textCol + ';padding:1rem 1.25rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;font-family:system-ui,-apple-system,sans-serif;font-size:0.9rem;border-top:1px solid ' + borderCol + ';box-sizing:border-box;">\\n' +
               '  <div style="flex:1;min-width:260px;line-height:1.5;">\\n' +
               '    <span>We use cookies to enhance your browsing experience, serve personalized ads, and analyze traffic. By clicking &quot;Accept All&quot;, you consent to our use of cookies.</span>\\n' +
               '  </div>\\n' +
               '  <div style="display:flex;gap:0.5rem;align-items:center;">\\n' +
-              '    <button id="dts-cookie-decline" style="background:transparent;color:' + textCol + ';border:1px solid rgba(150,150,150,0.5);padding:0.45rem 0.9rem;border-radius:4px;cursor:pointer;font-size:0.85rem;">Decline</button>\\n' +
+              '    <button id="dts-cookie-decline" style="background:transparent;color:' + textCol + ';border:1px solid ' + borderCol + ';padding:0.45rem 0.9rem;border-radius:4px;cursor:pointer;font-size:0.85rem;">Decline</button>\\n' +
               '    <button id="dts-cookie-accept" style="background:' + btnBg + ';color:' + btnText + ';border:none;padding:0.45rem 1rem;border-radius:4px;cursor:pointer;font-weight:600;font-size:0.85rem;">Accept All</button>\\n' +
               '  </div>\\n' +
               '</div>\\n' +
@@ -843,10 +921,12 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
               '    document.getElementById("dts-cookie-accept").onclick = function() {\\n' +
               '      localStorage.setItem("cookie_consent", "accepted");\\n' +
               '      b.style.display = "none";\\n' +
+              '      window.dispatchEvent(new CustomEvent("cookie_consent_accepted"));\\n' +
               '    };\\n' +
               '    document.getElementById("dts-cookie-decline").onclick = function() {\\n' +
               '      localStorage.setItem("cookie_consent", "declined");\\n' +
               '      b.style.display = "none";\\n' +
+              '      window.dispatchEvent(new CustomEvent("cookie_consent_declined"));\\n' +
               '    };\\n' +
               '  })();\\n' +
               '<\\/script>';
@@ -856,12 +936,22 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 
           function copyPolicyMd() {
             navigator.clipboard.writeText(document.getElementById('cp-policy').value);
-            alert('Cookie policy copied to clipboard!');
+            alert('Markdown policy copied to clipboard!');
+          }
+
+          function copyPolicyHtml() {
+            navigator.clipboard.writeText(document.getElementById('cp-policy-html').value);
+            alert('HTML policy copied to clipboard!');
           }
 
           function copyBannerCode() {
             navigator.clipboard.writeText(document.getElementById('cp-banner').value);
             alert('Cookie banner code copied to clipboard!');
+          }
+
+          function copyGa4Snippet() {
+            navigator.clipboard.writeText(document.getElementById('ga4-snippet').textContent);
+            alert('GA4 consent wrapper snippet copied to clipboard!');
           }
 
           function downloadPolicy() {
@@ -870,6 +960,16 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             a.href = URL.createObjectURL(blob);
             a.download = 'cookie-policy.md';
             a.click();
+          }
+
+          function testBannerOnPage() {
+            const old = document.getElementById('dts-cookie-banner');
+            if (old) old.remove();
+            const temp = document.createElement('div');
+            temp.innerHTML = document.getElementById('cp-banner').value;
+            document.body.appendChild(temp);
+            const scripts = temp.getElementsByTagName('script');
+            for (let s of scripts) { eval(s.innerText); }
           }
 
           document.addEventListener('DOMContentLoaded', genCookiePolicy);
