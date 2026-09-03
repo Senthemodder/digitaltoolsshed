@@ -105,6 +105,64 @@ function buildHomepage() {
           <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
         </div>
       </div>
+    <div style="margin: 2rem 0; padding: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span style="display: inline-block; width: 8px; height: 8px; background: #10b981; border-radius: 50%;"></span>
+          <h2 style="font-family: var(--serif); font-size: 1.25rem; margin: 0;">Featured & Trending Tools</h2>
+        </div>
+        <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">High Demand Utilities</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.85rem;">
+        <a href="/calc/meters-to-inches" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Meters to Inches</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Height & length chart (m to in/ft)</span>
+        </a>
+        <a href="/calc/sq-cm-to-sq-m" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">cm² to m² Converter</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Area conversion & calculation</span>
+        </a>
+        <a href="/calc/tsp-to-ml" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Teaspoons to mL</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Cooking & medicine spoon doses</span>
+        </a>
+        <a href="/calc/ml-to-cups" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">mL to Cups (Baking)</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Liquid & dry cup fraction chart</span>
+        </a>
+        <a href="/calc/kwh-to-joules" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">kWh to Joules</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Energy physics derivation & math</span>
+        </a>
+        <a href="/convert/image-resizer" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Bulk Image Resizer</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Batch resize PNG, JPG & WebP</span>
+        </a>
+        <a href="/design/passport-photo" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">US Passport Photo 2x2"</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Biometric crop & 4x6" printable sheet</span>
+        </a>
+        <a href="/calc/framing-stud-calculator" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Wall Stud Calculator</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">16" & 24" O.C. lumber framing</span>
+        </a>
+        <a href="/calc/gravel-calculator" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Gravel & Stone Tonnage</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Tons & cubic yards estimator</span>
+        </a>
+        <a href="/math/gpa-calculator" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">GPA Calculator (4.0 Scale)</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Weighted & unweighted grade points</span>
+        </a>
+        <a href="/dev/url-parser" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">URL Parser & Inspector</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Query parameters & breakdown</span>
+        </a>
+        <a href="/text/markdown-preview" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Markdown Live Preview</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Side-by-side GFM editor & HTML</span>
+        </a>
+      </div>
     </div>
 
     <div id="toolsContainer">

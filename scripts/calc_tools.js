@@ -625,6 +625,87 @@ function buildUnitCalcSuite() {
 
       const oneUnitValue = formatNumber(getConversionValue(catKey, fromKey, toKey, 1, factor));
 
+      let extraDeepContent = '';
+      if (fromKey === 'meter' && toKey === 'inch') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Human Height in Meters to Feet and Inches</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem;">
+            When measuring personal height, meters are commonly converted to total inches and traditional feet and inches notation:
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.75rem;">Height (Meters)</th>
+                  <th style="padding: 0.5rem 0.75rem;">Total Inches</th>
+                  <th style="padding: 0.5rem 0.75rem;">Feet & Inches</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.50 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">59.06 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">4' 11.06"</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.55 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">61.02 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">5' 1.02"</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.60 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">62.99 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">5' 2.99" (~5' 3")</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.65 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">64.96 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">5' 4.96" (~5' 5")</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.70 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">66.93 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">5' 6.93" (~5' 7")</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.75 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">68.90 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">5' 8.90" (~5' 9")</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.80 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">70.87 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">5' 10.87" (~5' 11")</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.85 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">72.83 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">6' 0.83" (~6' 1")</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.90 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">74.80 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">6' 2.80" (~6' 3")</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">1.95 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">76.77 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">6' 4.77" (~6' 5")</td></tr>
+                <tr><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">2.00 m</td><td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">78.74 in</td><td style="padding: 0.5rem 0.75rem; font-weight: bold;">6' 6.74" (~6' 7")</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        `;
+      } else if (fromKey === 'square_centimeter' && toKey === 'square_meter') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Why is 1 m² Equal to 10,000 cm²?</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+            A common mistake when converting area is using the linear factor of 100 instead of 10,000. Because area involves two dimensions (length × width):
+          </p>
+          <div style="font-family: var(--mono); background: var(--surface-alt); padding: 0.75rem; border: 1px solid var(--border); margin-bottom: 1rem; line-height: 1.6;">
+            1 Meter = 100 Centimeters<br>
+            1 Square Meter = 100 cm × 100 cm = <strong>10,000 cm²</strong><br>
+            Therefore, 1 cm² = 1 / 10,000 = <strong>0.0001 m²</strong>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+            To convert any area from square centimeters to square meters, simply divide the value by <strong>10,000</strong> (or move the decimal point 4 places to the left).
+          </p>
+        </div>
+        `;
+      } else if (fromKey === 'teaspoon' && toKey === 'milliliter') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">US Teaspoons vs. Metric & Medical Spoons</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+            In cooking and pharmacology, spoon volumes can vary slightly depending on whether US customary or metric standards are used:
+          </p>
+          <ul style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; padding-left: 1.25rem;">
+            <li><strong>US Customary Teaspoon:</strong> Exactly 4.92892 mL (used for American recipe books).</li>
+            <li><strong>Metric Teaspoon / Medicine Dosing:</strong> Rounded to exactly <strong>5.0 mL</strong> by the FDA and pharmaceutical industry for safe liquid medication dosing.</li>
+            <li><strong>3 Teaspoons = 1 Tablespoon:</strong> 1 tbsp = 14.79 mL (or 15 mL metric).</li>
+          </ul>
+        </div>
+        `;
+      } else if (fromKey === 'kilowatt_hour' && toKey === 'joule') {
+        extraDeepContent = `
+        <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Physics Derivation: From Watts to Joules</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.75rem;">
+            A Watt is defined in physics as 1 Joule per second (1 W = 1 J/s). A Kilowatt-hour is the amount of energy consumed by a 1,000-Watt device running continuously for one full hour (3,600 seconds):
+          </p>
+          <div style="font-family: var(--mono); background: var(--surface-alt); padding: 0.75rem; border: 1px solid var(--border); margin-bottom: 1rem; line-height: 1.6;">
+            1 kWh = 1,000 Watts × 1 Hour<br>
+            1 kWh = 1,000 Joules/second × 3,600 seconds<br>
+            1 kWh = <strong>3,600,000 Joules</strong> (3.6 Megajoules / 3.6 × 10⁶ J)
+          </div>
+        </div>
+        `;
+      }
+
       const calcBody = `
         <div class="hero" style="padding-bottom: 1rem; margin-bottom: 1rem;">
           <h1 style="margin-top: 0.5rem;">${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label}</h1>
@@ -659,6 +740,8 @@ function buildUnitCalcSuite() {
           <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">Conversion Formula & Exact Calculation</h3>
           ${formulaHtml}
         </div>
+
+        ${extraDeepContent}
 
         <div class="ad-blend-box" style="margin: 2rem 0; max-width: 850px;">
           <span class="ad-label">Sponsored Resource</span>
@@ -722,6 +805,22 @@ function buildUnitCalcSuite() {
         });
       }
 
+      if (fromKey === 'meter' && toKey === 'inch') {
+        faqData.push({
+          q: 'What is 1.8 meters in feet and inches?',
+          a: '1.80 meters is equal to 70.87 inches, which is approximately 5 feet 10.87 inches (often rounded to 5 feet 11 inches).'
+        });
+        faqData.push({
+          q: 'How many inches are in a 2-meter door?',
+          a: '2 meters is equal to 78.74 inches, which is approximately 6 feet 6.74 inches.'
+        });
+      } else if (fromKey === 'square_centimeter' && toKey === 'square_meter') {
+        faqData.push({
+          q: 'How do you convert cm² to m² quickly?',
+          a: 'To convert square centimeters to square meters, divide by 10,000 (or multiply by 0.0001). For example, 50,000 cm² = 5 m².'
+        });
+      }
+
       // Generate visible FAQ section HTML
       const faqHtml = faqData.map((item, idx) => `
         <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
@@ -740,7 +839,22 @@ function buildUnitCalcSuite() {
       let pageTitle = `${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label} | Digital Tools Shed`;
       let pageMetaDesc = `Fast ${fromUnit.abbr} to ${toUnit.abbr} converter. 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Real-time two-way calculation, formulas, and conversion chart.`;
 
-      if (catKey === 'volume' || isKitchen) {
+      if (fromKey === 'meter' && toKey === 'inch') {
+        pageTitle = 'Meters to Inches (m to in) Converter & Height Chart | Digital Tools Shed';
+        pageMetaDesc = 'Convert meters to inches instantly. 1 m = 39.370079 in. Free human height conversion chart (m to ft/in), exact formula, and two-way calculator.';
+      } else if (fromKey === 'square_centimeter' && toKey === 'square_meter') {
+        pageTitle = 'Square Centimeters to Square Meters (cm² to m²) | Digital Tools Shed';
+        pageMetaDesc = 'Convert cm² to m² instantly. 1 cm² = 0.0001 m² (divide by 10,000). Real-time area calculation, step-by-step formula, and reference table.';
+      } else if (fromKey === 'teaspoon' && toKey === 'milliliter') {
+        pageTitle = 'Teaspoons to Milliliters (tsp to mL) Converter | Digital Tools Shed';
+        pageMetaDesc = 'Convert tsp to mL. 1 tsp = 4.92892 mL (5 mL metric/medical). Instant two-way cooking and medicine dose calculator with fraction support.';
+      } else if (fromKey === 'kilowatt_hour' && toKey === 'joule') {
+        pageTitle = 'kWh to Joules (kWh to J) Energy Converter | Digital Tools Shed';
+        pageMetaDesc = 'Convert kilowatt-hours to joules. 1 kWh = 3,600,000 J (3.6 MJ). Step-by-step physics formula, derivation, and energy comparison chart.';
+      } else if (fromKey === 'milliliter' && toKey === 'cup') {
+        pageTitle = 'mL to Cups: Convert Milliliters to Cups (Baking Chart) | Digital Tools Shed';
+        pageMetaDesc = 'Convert mL to US cups. 1 mL = 0.004227 cups (236.59 mL per cup). Real-time baking fraction chart (1/4, 1/3, 1/2, 1 cup) and calculator.';
+      } else if (catKey === 'volume' || isKitchen) {
         pageTitle = `${fromUnit.abbr} to ${toUnit.abbr}: Convert ${fromUnit.label} to ${toUnit.label} (Fraction Chart) | Digital Tools Shed`;
         pageMetaDesc = `Convert ${fromUnit.abbr} to ${toUnit.abbr} with cooking fractions (1/8, 1/4, 1/3, 1/2, 2 1/2). 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Free baking reference chart.`;
       } else if (catKey === 'energy') {
@@ -748,12 +862,14 @@ function buildUnitCalcSuite() {
         pageMetaDesc = `Convert ${fromUnit.abbr} to ${toUnit.abbr} instantly. 1 ${fromUnit.abbr} = ${oneUnitValue} ${toUnit.abbr}. Exact physics factor, conversion formula, and reference table.`;
       }
 
+      const cleanSlug = fileName.replace(/\.html$/, '');
+
       writeFileSync(join(calcDist, fileName), renderPage({
         title: pageTitle,
         metaDesc: pageMetaDesc,
-        canonical: `${DOMAIN}/calc/${fileName}`,
+        canonical: `${DOMAIN}/calc/${cleanSlug}`,
         bodyContent: calcBodyWithFaq,
-        currentPath: `/calc/${fileName}`,
+        currentPath: `/calc/${cleanSlug}`,
         faq: faqData
       }));
 

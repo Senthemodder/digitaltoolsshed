@@ -76,6 +76,18 @@ const TOOLS = [
   { id: 'pdf-page-counter', name: 'PDF Page Counter', category: 'PDF & Docs', path: '/pdf/page-counter', desc: 'Inspect PDF metadata, dimensions, and total page count without uploading.' },
 
   // Unit & Math Calculators
+  { id: 'meters-to-inches', name: 'Meters to Inches (m to in)', category: 'Units & Calc', path: '/calc/meters-to-inches', desc: 'Convert meters to inches instantly with human height chart (m to ft/in) and recipe fraction support.' },
+  { id: 'sq-cm-to-sq-m', name: 'Square Centimeters to Square Meters (cm² to m²)', category: 'Units & Calc', path: '/calc/sq-cm-to-sq-m', desc: 'Convert square centimeters to square meters (divide by 10,000) with area reference chart.' },
+  { id: 'tsp-to-ml', name: 'Teaspoons to Milliliters (tsp to mL)', category: 'Units & Calc', path: '/calc/tsp-to-ml', desc: 'Convert cooking teaspoons to metric milliliters with fraction and medical dose support.' },
+  { id: 'ml-to-cups', name: 'Milliliters to Cups (mL to cup)', category: 'Units & Calc', path: '/calc/ml-to-cups', desc: 'Convert liquid milliliters to US cups with baking fraction table.' },
+  { id: 'kwh-to-joules', name: 'kWh to Joules (kWh to J)', category: 'Units & Calc', path: '/calc/kwh-to-joules', desc: 'Convert kilowatt-hours to joules with physics derivation and household energy benchmarks.' },
+  { id: 'framing-stud-calculator', name: 'Framing Stud Calculator', category: 'Units & Calc', path: '/calc/framing-stud-calculator', desc: 'Calculate 16" and 24" on-center wall studs, plates, corners, and window framing lumber.' },
+  { id: 'gravel-calculator', name: 'Gravel & Stone Calculator', category: 'Units & Calc', path: '/calc/gravel-calculator', desc: 'Estimate tons, cubic yards, and 50 lb bags for driveways, pea gravel, and road base.' },
+  { id: 'paint-calculator', name: 'Paint Gallon Calculator', category: 'Units & Calc', path: '/calc/paint-calculator', desc: 'Calculate paint gallons for walls, ceilings, and trim with door/window deductions.' },
+  { id: 'tile-calculator', name: 'Tile & Grout Calculator', category: 'Units & Calc', path: '/calc/tile-calculator', desc: 'Calculate floor and wall tile boxes, square footage, and grout bags with cut waste.' },
+  { id: 'gpa-calculator', name: 'GPA Calculator', category: 'Units & Calc', path: '/math/gpa-calculator', desc: 'Calculate college and high school weighted and unweighted GPA on a 4.0 scale.' },
+  { id: 'url-parser', name: 'URL Parser & Query Inspector', category: 'Developer', path: '/dev/url-parser', desc: 'Parse URLs into protocol, host, port, path segments, and query parameters table.' },
+  { id: 'markdown-preview', name: 'Markdown Live Preview', category: 'Developer', path: '/text/markdown-preview', desc: 'Side-by-side GitHub Flavored Markdown editor with real-time HTML rendering.' },
   { id: 'kg-to-lbs', name: 'Kilograms to Pounds (kg to lbs)', category: 'Units & Calc', path: '/calc/kg-to-lbs', desc: 'Instant accurate weight conversion from kilograms to pounds.' },
   { id: 'lbs-to-kg', name: 'Pounds to Kilograms (lbs to kg)', category: 'Units & Calc', path: '/calc/lbs-to-kg', desc: 'Convert pounds (lbs) to metric kilograms (kg).' },
   { id: 'celsius-to-fahrenheit', name: 'Celsius to Fahrenheit (°C to °F)', category: 'Units & Calc', path: '/calc/celsius-to-fahrenheit', desc: 'Convert temperatures from Celsius to Fahrenheit scale.' },
