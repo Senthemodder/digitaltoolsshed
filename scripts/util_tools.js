@@ -479,6 +479,299 @@ export function buildUtilToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           });
         </script>
       `
+    },
+    {
+      slug: 'date-calculator',
+      title: 'Date Calculator: Days Between Dates & Add Days',
+      metaDesc: 'Calculate exact calendar days, business days, and weeks between two dates. Add or subtract days, weeks, months, or years from any date.',
+      category: 'Utility',
+      faq: [
+        { q: 'How many business days are between two dates?', a: 'Business days count only weekdays (Monday through Friday), excluding Saturdays and Sundays. In a standard calendar month of 30 days, there are typically 20 to 22 business days.' },
+        { q: 'How do you add days to a date?', a: 'To add days, convert the starting date to milliseconds (or epoch timestamp), add (Number of Days × 86,400,000 ms), and format the resulting timestamp back into a calendar date.' },
+        { q: 'Does this date calculator take leap years into account?', a: 'Yes. All calculations use native standard astronomical calendar math which accounts for leap years (including February 29th).' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Date Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Date Calculator (Days Between & Add Days)</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Calculate exact calendar days and business days between dates, or project future deadlines.
+          </p>
+
+          <div class="tool-box">
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">1. Days Between Two Dates</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label class="field-label">Start Date</label>
+                <input type="date" id="dateStart" class="text-input" oninput="calcDaysBetween()" />
+              </div>
+              <div>
+                <label class="field-label">End Date</label>
+                <input type="date" id="dateEnd" class="text-input" oninput="calcDaysBetween()" />
+              </div>
+            </div>
+
+            <div id="daysBetweenResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;"></div>
+          </div>
+
+          <div class="tool-box">
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">2. Add or Subtract Days from a Date</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label class="field-label">Start Date</label>
+                <input type="date" id="dateAddStart" class="text-input" oninput="calcDateAdd()" />
+              </div>
+              <div>
+                <label class="field-label">Operation</label>
+                <select id="dateAddOp" class="text-input" onchange="calcDateAdd()">
+                  <option value="add">Add (+)</option>
+                  <option value="sub">Subtract (-)</option>
+                </select>
+              </div>
+              <div>
+                <label class="field-label">Quantity</label>
+                <input type="number" id="dateAddQty" class="text-input" value="30" min="1" step="1" oninput="calcDateAdd()" />
+              </div>
+              <div>
+                <label class="field-label">Unit</label>
+                <select id="dateAddUnit" class="text-input" onchange="calcDateAdd()">
+                  <option value="days" selected>Days</option>
+                  <option value="weeks">Weeks</option>
+                  <option value="months">Months</option>
+                  <option value="years">Years</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="dateAddResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;"></div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 2rem 0;">
+            <span class="ad-label">Sponsored Resource</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcDaysBetween() {
+            var sVal = document.getElementById('dateStart').value;
+            var eVal = document.getElementById('dateEnd').value;
+            if (!sVal || !eVal) return;
+
+            var d1 = new Date(sVal + 'T00:00:00');
+            var d2 = new Date(eVal + 'T00:00:00');
+            var diffMs = d2.getTime() - d1.getTime();
+            var totalDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+            var absDays = Math.abs(totalDays);
+            var weeks = Math.floor(absDays / 7);
+            var remDays = absDays % 7;
+
+            // Business days calculation
+            var bDays = 0;
+            var cur = new Date(Math.min(d1.getTime(), d2.getTime()));
+            var end = new Date(Math.max(d1.getTime(), d2.getTime()));
+            while (cur < end) {
+              cur.setDate(cur.getDate() + 1);
+              var dayOfWeek = cur.getDay();
+              if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                bDays++;
+              }
+            }
+
+            document.getElementById('daysBetweenResults').innerHTML = 
+              '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">TOTAL CALENDAR DAYS</span>' +
+                '<div style="font-size:1.8rem; font-weight:bold; color:#10b981;">' + absDays + ' Days ' + (totalDays < 0 ? '(in the past)' : '') + '</div>' +
+                '<div style="font-size:0.8rem; color:var(--text-muted);">' + weeks + ' weeks and ' + remDays + ' days</div>' +
+              '</div>' +
+              '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">BUSINESS / WORKING DAYS (MON-FRI)</span>' +
+                '<div style="font-size:1.3rem; font-weight:bold; color:var(--fg);">' + bDays + ' Working Days</div>' +
+                '<div style="font-size:0.8rem; color:var(--text-muted);">Excludes Saturdays & Sundays</div>' +
+              '</div>';
+          }
+
+          function calcDateAdd() {
+            var sVal = document.getElementById('dateAddStart').value;
+            if (!sVal) return;
+            var op = document.getElementById('dateAddOp').value;
+            var qty = parseInt(document.getElementById('dateAddQty').value, 10) || 0;
+            var unit = document.getElementById('dateAddUnit').value;
+
+            var sign = op === 'add' ? 1 : -1;
+            var d = new Date(sVal + 'T00:00:00');
+
+            if (unit === 'days') d.setDate(d.getDate() + (sign * qty));
+            else if (unit === 'weeks') d.setDate(d.getDate() + (sign * qty * 7));
+            else if (unit === 'months') d.setMonth(d.getMonth() + (sign * qty));
+            else if (unit === 'years') d.setFullYear(d.getFullYear() + (sign * qty));
+
+            var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            var resultStr = d.toLocaleDateString('en-US', options);
+
+            document.getElementById('dateAddResults').innerHTML = 
+              '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">CALCULATED TARGET DATE</span>' +
+                '<div style="font-size:1.6rem; font-weight:bold; color:#3b82f6;">' + resultStr + '</div>' +
+                '<div style="font-size:0.8rem; color:var(--text-muted);">' + (op === 'add' ? '+' : '-') + qty + ' ' + unit + ' from ' + sVal + '</div>' +
+              '</div>';
+          }
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date().toISOString().slice(0, 10);
+            var in30 = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+            document.getElementById('dateStart').value = today;
+            document.getElementById('dateEnd').value = in30;
+            document.getElementById('dateAddStart').value = today;
+            calcDaysBetween();
+            calcDateAdd();
+          });
+        </script>
+      `
+    },
+    {
+      slug: 'age-calculator',
+      title: 'Exact Age Calculator (Years, Months, Days & Next Birthday)',
+      metaDesc: 'Calculate your exact age down to years, months, days, total hours, and weekday of birth. Includes live countdown to your next birthday.',
+      category: 'Utility',
+      faq: [
+        { q: 'How is exact chronological age calculated?', a: 'Chronological age is calculated by finding the difference between your date of birth and the target date, adjusting for variable month lengths (28 to 31 days) and leap years.' },
+        { q: 'What day of the week was I born on?', a: 'Enter your date of birth into our calculator and look at the "Born On" card to instantly see the exact day of the week you were born (e.g., Friday).' },
+        { q: 'How many days have I been alive?', a: 'Our calculator computes your total days alive by converting your lifespan into milliseconds and dividing by 86,400,000.' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Age Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Exact Age Calculator & Birthday Countdown</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Discover your exact chronological age in years, months, days, hours, and minutes with next birthday milestones.
+          </p>
+
+          <div class="tool-box">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label class="field-label">Date of Birth</label>
+                <input type="date" id="dobInput" class="text-input" value="1995-06-15" oninput="calcAge()" />
+              </div>
+              <div>
+                <label class="field-label">Age at the Date of</label>
+                <input type="date" id="ageAtDate" class="text-input" oninput="calcAge()" />
+              </div>
+            </div>
+
+            <div id="ageResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 2rem 0;">
+            <span class="ad-label">Sponsored Resource</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcAge() {
+            var dobVal = document.getElementById('dobInput').value;
+            var atVal = document.getElementById('ageAtDate').value;
+            if (!dobVal || !atVal) return;
+
+            var dob = new Date(dobVal + 'T00:00:00');
+            var at = new Date(atVal + 'T00:00:00');
+
+            if (at < dob) {
+              document.getElementById('ageResults').innerHTML = '<div style=\"color:#ef4444;\">Date of birth must be earlier than the target date.</div>';
+              return;
+            }
+
+            var years = at.getFullYear() - dob.getFullYear();
+            var months = at.getMonth() - dob.getMonth();
+            var days = at.getDate() - dob.getDate();
+
+            if (days < 0) {
+              months--;
+              var prevMonth = new Date(at.getFullYear(), at.getMonth(), 0);
+              days += prevMonth.getDate();
+            }
+            if (months < 0) {
+              years--;
+              months += 12;
+            }
+
+            var totalMs = at.getTime() - dob.getTime();
+            var totalDays = Math.floor(totalMs / (1000 * 60 * 60 * 24));
+            var totalHours = totalDays * 24;
+            var totalWeeks = (totalDays / 7).toFixed(1);
+
+            // Day of week of birth
+            var weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            var bornDay = weekdays[dob.getDay()];
+
+            // Next birthday countdown
+            var nextBday = new Date(at.getFullYear(), dob.getMonth(), dob.getDate());
+            if (nextBday < at) {
+              nextBday.setFullYear(at.getFullYear() + 1);
+            }
+            var daysUntilBday = Math.ceil((nextBday.getTime() - at.getTime()) / (1000 * 60 * 60 * 24));
+
+            document.getElementById('ageResults').innerHTML = 
+              '<div style="padding:1rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.75rem;">EXACT CHRONOLOGICAL AGE</span>' +
+                '<div style="font-size:2rem; font-weight:bold; color:#10b981;">' + years + ' Years, ' + months + ' Months, ' + days + ' Days</div>' +
+              '</div>' +
+              '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem;">' +
+                '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                  '<span style="color:var(--text-muted); font-size:0.7rem;">TOTAL DAYS ALIVE</span>' +
+                  '<div style="font-size:1.2rem; font-weight:bold; color:var(--fg);">' + totalDays.toLocaleString('en-US') + ' Days</div>' +
+                  '<div style="font-size:0.75rem; color:var(--text-muted);">' + totalWeeks + ' weeks</div>' +
+                '</div>' +
+                '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                  '<span style="color:var(--text-muted); font-size:0.7rem;">BORN ON A</span>' +
+                  '<div style="font-size:1.2rem; font-weight:bold; color:#3b82f6;">' + bornDay + '</div>' +
+                  '<div style="font-size:0.75rem; color:var(--text-muted);">Weekday of birth</div>' +
+                '</div>' +
+                '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                  '<span style="color:var(--text-muted); font-size:0.7rem;">NEXT BIRTHDAY</span>' +
+                  '<div style="font-size:1.2rem; font-weight:bold; color:#eab308;">' + (daysUntilBday === 0 ? 'Today! 🎂' : daysUntilBday + ' Days') + '</div>' +
+                  '<div style="font-size:0.75rem; color:var(--text-muted);">Birthday countdown</div>' +
+                '</div>' +
+              '</div>';
+          }
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date().toISOString().slice(0, 10);
+            document.getElementById('ageAtDate').value = today;
+            calcAge();
+          });
+        </script>
+      `
     }
   ];
 

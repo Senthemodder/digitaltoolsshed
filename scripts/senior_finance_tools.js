@@ -460,6 +460,141 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         calcCarDeprec();
       </script>
     `
+  },
+  {
+    slug: 'hourly-to-salary-calculator',
+    title: 'Hourly to Salary Calculator (Annual, Monthly & Bi-Weekly Pay)',
+    metaDesc: 'Convert hourly wage to annual salary, monthly income, and bi-weekly paychecks. Based on 40 hours per week, 2,080 working hours, with overtime and unpaid time off.',
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Hourly to Salary
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Hourly to Salary Wage Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Convert your hourly wage into total annual salary, monthly take-home estimates, bi-weekly paychecks, and daily earnings.
+          </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Wage & Work Schedule</h3>
+            
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Hourly Rate ($ USD / hr)</label>
+              <input type="number" id="wageHourly" value="25" min="1" step="0.5" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcWage()" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Hours / Week</label>
+                <input type="number" id="wageHours" value="40" min="1" max="80" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcWage()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Weeks / Year</label>
+                <input type="number" id="wageWeeks" value="52" min="1" max="52" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcWage()" />
+              </div>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.5rem;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); width: 100%;">Popular Hourly Rates:</span>
+              <button type="button" class="btn-sm" onclick="setHourly(15)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">$15/hr</button>
+              <button type="button" class="btn-sm" onclick="setHourly(20)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">$20/hr</button>
+              <button type="button" class="btn-sm" onclick="setHourly(25)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">$25/hr</button>
+              <button type="button" class="btn-sm" onclick="setHourly(30)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">$30/hr</button>
+              <button type="button" class="btn-sm" onclick="setHourly(40)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">$40/hr</button>
+              <button type="button" class="btn-sm" onclick="setHourly(50)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">$50/hr</button>
+            </div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Salary Breakdown</h3>
+            <div id="wageSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          </div>
+        </div>
+
+        <div class="ad-blend-box" style="margin: 2rem 0;">
+          <span class="ad-label">Sponsored Resource</span>
+          <div class="ad-unit-300x250">
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '335d807d460eaf2491fcca0f635474ce',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+          </div>
+        </div>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem;">Hourly to Annual Salary Reference Table (40 hrs/wk, 52 wks)</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.75rem;">Hourly Rate</th>
+                  <th style="padding: 0.5rem 0.75rem;">Weekly Pay</th>
+                  <th style="padding: 0.5rem 0.75rem;">Bi-Weekly Pay</th>
+                  <th style="padding: 0.5rem 0.75rem;">Monthly Pay</th>
+                  <th style="padding: 0.5rem 0.75rem;">Annual Salary</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">$15.00 / hr</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$600</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$1,200</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$2,600</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">$31,200</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">$20.00 / hr</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$800</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$1,600</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$3,467</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">$41,600</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">$25.00 / hr</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$1,000</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$2,000</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$4,333</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">$52,000</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">$30.00 / hr</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$1,200</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$2,400</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$5,200</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">$62,400</td></tr>
+                <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">$40.00 / hr</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$1,600</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$3,200</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$6,933</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">$83,200</td></tr>
+                <tr><td style="padding: 0.45rem 0.75rem; font-weight: bold;">$50.00 / hr</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$2,000</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$4,000</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">$8,667</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">$104,000</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function calcWage() {
+          var rate = parseFloat(document.getElementById('wageHourly').value) || 0;
+          var hrs = parseFloat(document.getElementById('wageHours').value) || 40;
+          var wks = parseFloat(document.getElementById('wageWeeks').value) || 52;
+
+          var weekly = rate * hrs;
+          var annual = weekly * wks;
+          var monthly = annual / 12;
+          var biweekly = annual / 26;
+          var daily = weekly / 5;
+
+          document.getElementById('wageSummary').innerHTML = 
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">ANNUAL SALARY (GROSS)</span>' +
+              '<div style="font-size: 1.8rem; font-weight: bold; color: #10b981;">$' + Math.round(annual).toLocaleString('en-US') + ' / year</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">' + (hrs * wks).toLocaleString('en-US') + ' total working hours per year</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">MONTHLY GROSS PAY</span>' +
+              '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">$' + Math.round(monthly).toLocaleString('en-US') + ' / month</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">BI-WEEKLY PAYCHECK</span>' +
+              '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">$' + Math.round(biweekly).toLocaleString('en-US') + ' every 2 weeks</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">Weekly: $' + Math.round(weekly).toLocaleString('en-US') + ' | Daily: $' + Math.round(daily).toLocaleString('en-US') + '</div>' +
+            '</div>';
+        }
+
+        window.setHourly = function(val) {
+          document.getElementById('wageHourly').value = val;
+          calcWage();
+        };
+
+        document.addEventListener('DOMContentLoaded', calcWage);
+        calcWage();
+      </script>
+    `
   }
 ];
   const seniorHealthTools = [
