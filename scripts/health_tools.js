@@ -824,6 +824,827 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           calcSDImpairment(20);
         </script>
       `
+    },
+    {
+      slug: 'adhd-task-breakdown',
+      title: 'ADHD Task Paralysis & Executive Dysfunction Chunking Tool',
+      metaDesc: 'Break down overwhelming chores, work projects, and emails into tiny, 2-minute dopamine-accessible micro-steps to defeat ADHD executive dysfunction.',
+      category: 'ADHD & Mental Health',
+      body: `
+        ${commonStyle}
+        <style>
+          .micro-step { display: flex; align-items: flex-start; gap: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem 1rem; border-radius: 6px; margin-bottom: 0.6rem; transition: background 0.2s; }
+          .micro-step.done { opacity: 0.5; text-decoration: line-through; background: rgba(16,185,129,0.06); border-color: #10b981; }
+          .step-num { font-family: var(--mono); font-size: 0.8rem; font-weight: bold; background: #3b82f6; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+          .pill-btn { background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.75rem; border-radius: 20px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer; }
+          .pill-btn:hover { background: var(--surface); border-color: var(--fg); }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; ADHD Task Breakdown
+          </nav>
+          <header style="margin-bottom: 2rem;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; letter-spacing: 0.1em; margin-bottom: 0.35rem;">Neurodivergent Support</div>
+            <h1 style="font-family: var(--serif); font-size: 2.1rem; margin-bottom: 0.5rem;">ADHD Executive Dysfunction & Task Paralysis Breaker</h1>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+              When the ADHD brain sees a task like <em>"Clean bedroom"</em>, the prefrontal cortex sees a 500-step mountain and freezes. Break it down into frictionless 2-minute dopamine snacks.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">What task is paralyzing you right now?</label>
+              <input type="text" id="adhdTaskInput" class="text-input" placeholder="e.g. Clean bedroom, Reply to boss email, File taxes, Start essay..." value="Clean bedroom" style="font-size: 1.1rem;" />
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; align-items: center;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Quick Presets:</span>
+              <button type="button" class="pill-btn" onclick="setADHDTask('Clean messy bedroom')">🧹 Clean Bedroom</button>
+              <button type="button" class="pill-btn" onclick="setADHDTask('Reply to scary overdue email')">✉️ Overdue Email</button>
+              <button type="button" class="pill-btn" onclick="setADHDTask('Do mountain of laundry')">🧺 Laundry</button>
+              <button type="button" class="pill-btn" onclick="setADHDTask('Start writing report or essay')">📝 Write Essay</button>
+              <button type="button" class="pill-btn" onclick="setADHDTask('Pay bills or paperwork')">📄 Paperwork</button>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label class="field-label">Granularity: <span id="granularityLabel" style="color: #3b82f6;">Tiny ADHD Baby Steps (Lowest Friction)</span></label>
+              <input type="range" id="granularity" min="1" max="2" value="2" oninput="updateGranularity(this.value)" style="width: 100%; cursor: pointer;" />
+            </div>
+
+            <button type="button" class="btn-primary" onclick="breakdownADHDTask()" style="width: 100%; padding: 0.75rem; font-size: 1rem; cursor: pointer;">
+              ⚡ Break Down Into 2-Minute Micro-Steps
+            </button>
+
+            <!-- Progress Bar -->
+            <div id="adhdProgressWrap" style="display: none; margin-top: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; margin-bottom: 0.35rem;">
+                <span id="adhdStepCount">0 of 0 Completed</span>
+                <span id="adhdPercent" style="font-weight: bold; color: #10b981;">0%</span>
+              </div>
+              <div style="background: var(--surface-alt); height: 8px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border);">
+                <div id="adhdProgressBar" style="background: #10b981; height: 100%; width: 0%; transition: width 0.3s;"></div>
+              </div>
+            </div>
+
+            <div id="adhdStepsList" style="margin-top: 1.5rem;"></div>
+          </div>
+        </div>
+
+        <script>
+          var adhdPresets = {
+            'Clean messy bedroom': [
+              'Put on comfortable shoes and play one energizing song.',
+              'Grab one empty trash bag.',
+              'Scan room for obvious trash only (wrappers, cans, paper) and throw in bag. Stop when bag has 5 items.',
+              'Collect all cups, dishes, and water bottles and move them to the kitchen sink.',
+              'Gather all clothes from floor into a single pile or hamper (do not fold yet).',
+              'Straighten the bed blanket (just one quick pull across the mattress).',
+              'Put 3 random desktop items where they belong.',
+              'Take the trash bag out of the room. Done! Dopamine unlocked.'
+            ],
+            'Reply to scary overdue email': [
+              'Open your email inbox, but DO NOT read other messages.',
+              'Locate the scary email and open it.',
+              'Read only the first two sentences to confirm the core ask.',
+              'Open a blank notepad app outside of email.',
+              'Write 1 raw, informal sentence of what you want to say.',
+              'Rephrase into 2 polite sentences: "Apologies for the delay! Here is [the answer]. Thanks for your patience."',
+              'Paste text into reply window.',
+              'Take a breath and hit Send before your brain overthinks.'
+            ],
+            'Do mountain of laundry': [
+              'Walk to the laundry pile and look at it (that is step 1).',
+              'Put only socks and underwear into the washing machine.',
+              'Toss in shirts and pants until machine is 3/4 full.',
+              'Add detergent pod and press Start button immediately.',
+              'Set a 45-minute phone alarm titled "Swap laundry or clothes mildew".',
+              'When alarm rings: Swap directly to dryer and press Start.',
+              'Do not worry about folding today—clean basket vs dirty basket is totally valid.'
+            ],
+            'Start writing report or essay': [
+              'Open a fresh blank document and save it with a title.',
+              'Type your name and today\\'s date at the top.',
+              'Type 3 simple bullet points of things you want to discuss.',
+              'Write one deliberately terrible, messy paragraph without editing.',
+              'Set a 15-minute timer and promise yourself you can stop when it rings.',
+              'Take a 5-minute movement break.'
+            ],
+            'Pay bills or paperwork': [
+              'Sit at desk and drink a full glass of water.',
+              'Log into bank or portal account.',
+              'Look at only the single bill with the soonest due date.',
+              'Click Pay / Schedule Payment for that single item.',
+              'Close the tab immediately and stretch.'
+            ]
+          };
+
+          function setADHDTask(task) {
+            document.getElementById('adhdTaskInput').value = task;
+            breakdownADHDTask();
+          }
+
+          function updateGranularity(val) {
+            document.getElementById('granularityLabel').textContent = val == 2 ? 'Tiny ADHD Baby Steps (Lowest Friction)' : 'Standard Steps (3-4 Chunks)';
+            breakdownADHDTask();
+          }
+
+          function breakdownADHDTask() {
+            var input = document.getElementById('adhdTaskInput').value.trim();
+            if (!input) return;
+
+            var steps = [];
+            // Check preset match
+            for (var k in adhdPresets) {
+              if (input.toLowerCase().includes(k.toLowerCase().split(' ')[0])) {
+                steps = adhdPresets[k];
+                break;
+              }
+            }
+
+            // Fallback dynamic generator
+            if (!steps || steps.length === 0) {
+              steps = [
+                'Put on comfortable headphones with lo-fi or brown noise.',
+                'Clear a 1-foot square radius of space where you are standing/sitting.',
+                'Open or gather the primary tool needed for "' + input + '".',
+                'Do the smallest, easiest 60-second action of the task.',
+                'Pause, celebrate that momentum has started, and do 2 more minutes.',
+                'Check off completion or take a 3-minute breather.'
+              ];
+            }
+
+            var gran = parseInt(document.getElementById('granularity').value, 10);
+            if (gran === 1 && steps.length > 4) {
+              // Condense steps
+              var condensed = [];
+              for (var i = 0; i < steps.length; i += 2) {
+                condensed.push(steps[i] + (steps[i+1] ? ' ' + steps[i+1] : ''));
+              }
+              steps = condensed;
+            }
+
+            var listHtml = '';
+            steps.forEach(function(s, idx) {
+              listHtml += '<div class="micro-step" id="mstep_' + idx + '" onclick="toggleADHDStep(' + idx + ', ' + steps.length + ')">' +
+                '<div class="step-num" id="snum_' + idx + '">' + (idx + 1) + '</div>' +
+                '<div style="font-size: 0.95rem; line-height: 1.5; color: var(--fg); cursor: pointer; flex: 1;">' + s + '</div>' +
+              '</div>';
+            });
+
+            document.getElementById('adhdStepsList').innerHTML = listHtml;
+            document.getElementById('adhdProgressWrap').style.display = 'block';
+            updateADHDProgress(steps.length);
+          }
+
+          function toggleADHDStep(idx, total) {
+            var el = document.getElementById('mstep_' + idx);
+            el.classList.toggle('done');
+            var num = document.getElementById('snum_' + idx);
+            if (el.classList.contains('done')) {
+              num.innerHTML = '✓';
+              num.style.background = '#10b981';
+            } else {
+              num.innerHTML = (idx + 1);
+              num.style.background = '#3b82f6';
+            }
+            updateADHDProgress(total);
+          }
+
+          function updateADHDProgress(total) {
+            var doneCount = document.querySelectorAll('.micro-step.done').length;
+            var pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+            document.getElementById('adhdStepCount').textContent = doneCount + ' of ' + total + ' Completed';
+            document.getElementById('adhdPercent').textContent = pct + '%';
+            document.getElementById('adhdProgressBar').style.width = pct + '%';
+          }
+
+          document.addEventListener('DOMContentLoaded', breakdownADHDTask);
+        </script>
+      `
+    },
+    {
+      slug: 'cbt-thought-challenger',
+      title: 'CBT Thought Challenger & Cognitive Distortion Diary',
+      metaDesc: 'Interactive Cognitive Behavioral Therapy (CBT) thought record. Identify automatic negative thoughts, decode cognitive distortions, and write rational reframes.',
+      category: 'Therapy & CBT',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; CBT Thought Challenger
+          </nav>
+          <header style="margin-bottom: 2rem;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; letter-spacing: 0.1em; margin-bottom: 0.35rem;">Evidence-Based Psychotherapy</div>
+            <h1 style="font-family: var(--serif); font-size: 2.1rem; margin-bottom: 0.5rem;">CBT Thought Challenger & Distortion Diary</h1>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+              Feelings are not facts. Use the clinical Cognitive Behavioral Therapy (CBT) thought record to put catastrophic thoughts on trial and generate balanced, rational reframes.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <!-- Step 1 -->
+            <div class="field-group">
+              <label class="field-label">Step 1: The Automatic Negative Thought (ANT)</label>
+              <textarea id="cbtThought" class="code-input" style="height: 75px; resize: vertical;" placeholder="e.g. I made a mistake in that meeting, so everyone thinks I'm incompetent and I'm going to get fired..."></textarea>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="field-group">
+              <label class="field-label">Step 2: Identify Cognitive Distortions</label>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.5rem; font-size: 0.85rem; color: var(--fg);">
+                <label><input type="checkbox" name="cd" value="Catastrophizing"> 🌪️ Catastrophizing (Worst case)</label>
+                <label><input type="checkbox" name="cd" value="All-or-Nothing"> ⚖️ All-or-Nothing / Perfectionism</label>
+                <label><input type="checkbox" name="cd" value="Mind Reading"> 🧠 Mind Reading ("They hate me")</label>
+                <label><input type="checkbox" name="cd" value="Emotional Reasoning"> 💔 Emotional Reasoning ("I feel it, so it's true")</label>
+                <label><input type="checkbox" name="cd" value="Fortune Telling"> 🔮 Fortune Telling (Predicting doom)</label>
+                <label><input type="checkbox" name="cd" value="Should Statements"> 📌 "Should" Statements (Guilt)</label>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label class="field-label" style="color: #ef4444;">Evidence FOR the thought</label>
+                <textarea id="cbtFor" class="code-input" style="height: 80px; resize: vertical;" placeholder="Factual data supporting it (not feelings)..."></textarea>
+              </div>
+              <div>
+                <label class="field-label" style="color: #10b981;">Evidence AGAINST the thought</label>
+                <textarea id="cbtAgainst" class="code-input" style="height: 80px; resize: vertical;" placeholder="Past successes, counter-examples, alternative explanations..."></textarea>
+              </div>
+            </div>
+
+            <!-- Step 4 -->
+            <button type="button" class="btn-primary" onclick="generateCBTReframe()" style="width: 100%; padding: 0.75rem; font-size: 1rem; cursor: pointer;">
+              ⚖️ Synthesize Balanced Rational Reframe
+            </button>
+
+            <!-- Reframe Card -->
+            <div id="cbtResultCard" style="display: none; margin-top: 1.5rem; background: var(--surface-alt); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 0 6px 6px 0;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; font-weight: bold; margin-bottom: 0.35rem;">Balanced Cognitive Reframe</div>
+              <div id="cbtReframeText" style="font-size: 1.05rem; line-height: 1.6; color: var(--fg); font-family: var(--serif);"></div>
+              <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                <button type="button" class="btn-sec" onclick="saveCBTToLocal()" style="font-size: 0.8rem; cursor: pointer;">💾 Save to Thought Diary</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function generateCBTReframe() {
+            var thought = document.getElementById('cbtThought').value.trim();
+            if (!thought) return;
+
+            var checked = [];
+            document.querySelectorAll('input[name="cd"]:checked').forEach(function(c) { checked.push(c.value); });
+            var against = document.getElementById('cbtAgainst').value.trim();
+
+            var reframe = 'While I notice the thought <em>"' + thought + '"</em>, feelings are not definitive facts. ';
+            if (checked.length > 0) {
+              reframe += 'My brain is currently engaged in <strong>' + checked.join(', ') + '</strong>. ';
+            }
+            if (against) {
+              reframe += 'Crucially, the empirical evidence shows that ' + against + '. ';
+            } else {
+              reframe += 'A single awkward moment or mistake does not define my competence. Most people are focused on their own concerns rather than judging me. ';
+            }
+            reframe += 'I can tolerate this discomfort, breathe, and focus on the next actionable step in front of me.';
+
+            document.getElementById('cbtReframeText').innerHTML = reframe;
+            document.getElementById('cbtResultCard').style.display = 'block';
+          }
+
+          function saveCBTToLocal() {
+            var thought = document.getElementById('cbtThought').value.trim();
+            var reframe = document.getElementById('cbtReframeText').innerText;
+            if (!thought) return;
+
+            var history = JSON.parse(localStorage.getItem('cbt_diary') || '[]');
+            history.push({ date: new Date().toLocaleDateString(), thought: thought, reframe: reframe });
+            localStorage.setItem('cbt_diary', JSON.stringify(history));
+            alert('Saved to your private browser thought diary!');
+          }
+        </script>
+      `
+    },
+    {
+      slug: 'box-breathing-pacer',
+      title: 'Box Breathing & Vagus Nerve Pacer (Navy SEAL & Huberman Sigh)',
+      metaDesc: 'Interactive somatic breath pacer with visual expanding guide and audio chime. Features Navy SEAL 4-4-4-4 Box Breathing and Huberman Physiological Sigh.',
+      category: 'Therapy & Somatics',
+      body: `
+        ${commonStyle}
+        <style>
+          .pacer-circle { width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, rgba(59,130,246,0.2) 0%, rgba(59,130,246,0.05) 70%); border: 3px solid #3b82f6; margin: 2rem auto; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: transform 4s ease-in-out, border-color 0.5s; box-shadow: 0 0 25px rgba(59,130,246,0.2); }
+          .pacer-label { font-family: var(--serif); font-size: 1.4rem; font-weight: bold; color: var(--fg); }
+          .pacer-counter { font-family: var(--mono); font-size: 1.8rem; color: #3b82f6; margin-top: 0.25rem; }
+        </style>
+        <div class="article-container" style="max-width: 900px; text-align: center;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted); text-align: left;">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Box Breathing Pacer
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; letter-spacing: 0.1em; margin-bottom: 0.35rem;">Somatic Downregulation</div>
+            <h1 style="font-family: var(--serif); font-size: 2.1rem; margin-bottom: 0.5rem;">Box Breathing & Vagus Nerve Somatic Pacer</h1>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; max-width: 650px; margin: 0 auto;">
+              Stimulate the vagus nerve and slow heart rate in under 2 minutes. Select a clinical breathing cadence and follow the expanding circle.
+            </p>
+          </header>
+
+          <div class="tool-box" style="text-align: center;">
+            <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+              <button type="button" class="btn-sec" id="btn-mode-box" onclick="setBreathMode('box')" style="border-color: #3b82f6; font-weight: bold;">Navy SEAL Box (4-4-4-4)</button>
+              <button type="button" class="btn-sec" id="btn-mode-sigh" onclick="setBreathMode('sigh')">Huberman Physiological Sigh</button>
+              <button type="button" class="btn-sec" id="btn-mode-478" onclick="setBreathMode('478')">Sleep Cadence (4-7-8)</button>
+            </div>
+
+            <div id="pacerCircle" class="pacer-circle">
+              <div id="pacerLabel" class="pacer-label">Ready</div>
+              <div id="pacerCounter" class="pacer-counter">4</div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+              <button type="button" class="btn-primary" id="btnPacerToggle" onclick="togglePacer()" style="padding: 0.75rem 2rem; font-size: 1.1rem; cursor: pointer;">
+                ▶ Start Breathing Pacer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var curMode = 'box';
+          var isRunning = false;
+          var pacerTimer = null;
+          var stepIdx = 0;
+          var secLeft = 4;
+
+          var modes = {
+            'box': [
+              { label: 'Inhale', sec: 4, scale: 1.4, color: '#3b82f6' },
+              { label: 'Hold', sec: 4, scale: 1.4, color: '#f59e0b' },
+              { label: 'Exhale', sec: 4, scale: 0.8, color: '#10b981' },
+              { label: 'Hold', sec: 4, scale: 0.8, color: '#6b7280' }
+            ],
+            'sigh': [
+              { label: 'Deep Inhale', sec: 3, scale: 1.3, color: '#3b82f6' },
+              { label: 'Sniff Inhale', sec: 1, scale: 1.5, color: '#6366f1' },
+              { label: 'Slow Mouth Exhale', sec: 6, scale: 0.75, color: '#10b981' }
+            ],
+            '478': [
+              { label: 'Inhale Nose', sec: 4, scale: 1.4, color: '#3b82f6' },
+              { label: 'Hold Breath', sec: 7, scale: 1.4, color: '#f59e0b' },
+              { label: 'Exhale Mouth', sec: 8, scale: 0.75, color: '#10b981' }
+            ]
+          };
+
+          function setBreathMode(m) {
+            curMode = m;
+            document.querySelectorAll('.btn-sec').forEach(function(b) { b.style.borderColor = 'var(--border)'; b.style.fontWeight = 'normal'; });
+            document.getElementById('btn-mode-' + m).style.borderColor = '#3b82f6';
+            document.getElementById('btn-mode-' + m).style.fontWeight = 'bold';
+            if (isRunning) togglePacer();
+            resetPacer();
+          }
+
+          function resetPacer() {
+            var circle = document.getElementById('pacerCircle');
+            circle.style.transform = 'scale(1)';
+            circle.style.borderColor = '#3b82f6';
+            document.getElementById('pacerLabel').textContent = 'Ready';
+            document.getElementById('pacerCounter').textContent = modes[curMode][0].sec;
+          }
+
+          function togglePacer() {
+            isRunning = !isRunning;
+            var btn = document.getElementById('btnPacerToggle');
+            if (isRunning) {
+              btn.textContent = '⏹ Stop Pacer';
+              stepIdx = 0;
+              runStep();
+            } else {
+              btn.textContent = '▶ Start Breathing Pacer';
+              clearTimeout(pacerTimer);
+              resetPacer();
+            }
+          }
+
+          function runStep() {
+            if (!isRunning) return;
+            var seq = modes[curMode];
+            var step = seq[stepIdx];
+            secLeft = step.sec;
+
+            var circle = document.getElementById('pacerCircle');
+            circle.style.transition = 'transform ' + step.sec + 's ease-in-out, border-color 0.5s';
+            circle.style.transform = 'scale(' + step.scale + ')';
+            circle.style.borderColor = step.color;
+            document.getElementById('pacerLabel').textContent = step.label;
+
+            tickSecond();
+          }
+
+          function tickSecond() {
+            if (!isRunning) return;
+            document.getElementById('pacerCounter').textContent = secLeft;
+            if (secLeft > 0) {
+              secLeft--;
+              pacerTimer = setTimeout(tickSecond, 1000);
+            } else {
+              var seq = modes[curMode];
+              stepIdx = (stepIdx + 1) % seq.length;
+              runStep();
+            }
+          }
+        </script>
+      `
+    },
+    {
+      slug: 'adhd-time-blindness-calculator',
+      title: 'ADHD Time Blindness & Departure Buffer Calculator',
+      metaDesc: 'Calculates the real time required for tasks and departures by factoring in ADHD transition tax, distraction buffers, and the prefrontal planning fallacy.',
+      category: 'ADHD & Focus',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Time Blindness Calculator
+          </nav>
+          <header style="margin-bottom: 2rem;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #f59e0b; letter-spacing: 0.1em; margin-bottom: 0.35rem;">Neurobiology of Time Perception</div>
+            <h1 style="font-family: var(--serif); font-size: 2.1rem; margin-bottom: 0.5rem;">ADHD Time Blindness & Departure Buffer Calculator</h1>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+              ADHD brains only perceive two time zones: <strong>"NOW"</strong> and <strong>"NOT NOW"</strong>. We assume an appointment at 2:00 PM means we start putting shoes on at 1:55 PM. Calculate the hidden neurodivergent time taxes.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label">Target Arrival / Appointment Time</label>
+                <input type="time" id="tbEventTime" class="text-input" value="14:00" oninput="calcTimeBlindness()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Estimated Transit / Drive Time (Mins)</label>
+                <input type="number" id="tbTransit" class="text-input" value="25" min="0" oninput="calcTimeBlindness()" />
+              </div>
+            </div>
+
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin: 1.25rem 0;">
+              <h4 style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem;">Enable ADHD Friction Buffers:</h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; font-size: 0.85rem;">
+                <label><input type="checkbox" id="tax-transition" checked onchange="calcTimeBlindness()"> 🧠 Transition Tax (stopping current activity): +15 min</label>
+                <label><input type="checkbox" id="tax-items" checked onchange="calcTimeBlindness()"> 🔑 Lost Keys / Phone / Shoes search: +10 min</label>
+                <label><input type="checkbox" id="tax-parking" checked onchange="calcTimeBlindness()"> 🚗 Parking & walking into building: +10 min</label>
+              </div>
+            </div>
+
+            <div class="result-card" style="border-top: 4px solid #f59e0b;">
+              <div class="field-label">When You MUST Start Getting Ready:</div>
+              <div id="tbStartTime" class="result-val" style="color: #f59e0b;">13:00 (1:00 PM)</div>
+              <div id="tbBreakdown" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.5;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcTimeBlindness() {
+            var timeStr = document.getElementById('tbEventTime').value;
+            if (!timeStr) return;
+            var parts = timeStr.split(':');
+            var targetMins = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+
+            var transit = parseInt(document.getElementById('tbTransit').value, 10) || 0;
+            var buffer = 0;
+            if (document.getElementById('tax-transition').checked) buffer += 15;
+            if (document.getElementById('tax-items').checked) buffer += 10;
+            if (document.getElementById('tax-parking').checked) buffer += 10;
+
+            var totalPrepMins = transit + buffer;
+            var startMins = targetMins - totalPrepMins;
+            if (startMins < 0) startMins += 1440;
+
+            var sH = Math.floor(startMins / 60);
+            var sM = startMins % 60;
+            var sAmpm = sH >= 12 ? 'PM' : 'AM';
+            var sH12 = sH % 12 || 12;
+            var formatted = (sH < 10 ? '0' : '') + sH + ':' + (sM < 10 ? '0' : '') + sM + ' (' + sH12 + ':' + (sM < 10 ? '0' : '') + sM + ' ' + sAmpm + ')';
+
+            document.getElementById('tbStartTime').textContent = formatted;
+            document.getElementById('tbBreakdown').innerHTML = 'Total prep & travel required: <strong>' + totalPrepMins + ' minutes</strong> (' + transit + 'm transit + ' + buffer + 'm ADHD friction buffer). Setting your alarm for this time eliminates pre-departure panic.';
+          }
+
+          document.addEventListener('DOMContentLoaded', calcTimeBlindness);
+        </script>
+      `
+    },
+    {
+      slug: 'adhd-dopamine-menu',
+      title: 'ADHD Dopamine Menu & Stimulus Selector',
+      metaDesc: 'Interactive Dopamine Menu planner. Organize appetizers, entrees, sides, and desserts to stimulate prefrontal dopamine and break task paralysis.',
+      category: 'ADHD & Focus',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Dopamine Menu
+          </nav>
+          <header style="margin-bottom: 2rem;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #10b981; letter-spacing: 0.1em; margin-bottom: 0.35rem;">Prefrontal Cortex Scaffolding</div>
+            <h1 style="font-family: var(--serif); font-size: 2.1rem; margin-bottom: 0.5rem;">The ADHD Dopamine Menu & Paralysis Unsticker</h1>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+              When low on dopamine, ADHD brains default to high-stimulation traps (hours of doomscrolling). Use Jessica McCabe's "Dopamine Menu" to intentionally order restorative brain fuel.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+              <button type="button" class="btn-primary" onclick="randomDopamineSnack()" style="padding: 0.75rem 1.5rem; font-size: 1rem; cursor: pointer;">
+                🎰 Spin Dopamine Roulette (Pick for Me!)
+              </button>
+              <div id="rouletteResult" style="display: none; margin-top: 1rem; background: var(--surface-alt); border: 2px dashed #10b981; padding: 1rem; border-radius: 6px; font-weight: bold; color: var(--fg); font-size: 1.1rem;"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
+              <!-- Appetizers -->
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 3px solid #3b82f6; padding: 1rem; border-radius: 6px;">
+                <h4 style="font-family: var(--mono); font-size: 0.85rem; color: #3b82f6; text-transform: uppercase; margin-bottom: 0.5rem;">🥗 Appetizers (5-10 Min Quick Hits)</h4>
+                <ul style="font-size: 0.85rem; line-height: 1.6; padding-left: 1.2rem; color: var(--fg); margin: 0;">
+                  <li>Splash face with freezing cold ice water</li>
+                  <li>Do 15 bodyweight squats or jumping jacks</li>
+                  <li>Step outside and look at natural daylight</li>
+                  <li>Drink a full glass of cold lemon water</li>
+                  <li>Put on 1 high-BPM favorite song</li>
+                </ul>
+              </div>
+
+              <!-- Entrees -->
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 3px solid #10b981; padding: 1rem; border-radius: 6px;">
+                <h4 style="font-family: var(--mono); font-size: 0.85rem; color: #10b981; text-transform: uppercase; margin-bottom: 0.5rem;">🍲 Entrees (Deep Flow Activities)</h4>
+                <ul style="font-size: 0.85rem; line-height: 1.6; padding-left: 1.2rem; color: var(--fg); margin: 0;">
+                  <li>Hyperfocus coding or creative design</li>
+                  <li>Playing a musical instrument</li>
+                  <li>Cooking an elaborate healthy meal</li>
+                  <li>Gym / heavy lifting session</li>
+                  <li>Writing or journaling passion project</li>
+                </ul>
+              </div>
+
+              <!-- Sides -->
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 3px solid #f59e0b; padding: 1rem; border-radius: 6px;">
+                <h4 style="font-family: var(--mono); font-size: 0.85rem; color: #f59e0b; text-transform: uppercase; margin-bottom: 0.5rem;">🍟 Sides (Add to Boring Chores)</h4>
+                <ul style="font-size: 0.85rem; line-height: 1.6; padding-left: 1.2rem; color: var(--fg); margin: 0;">
+                  <li>Playing brown noise or video game OSTs</li>
+                  <li>Walking on a treadmill pad while on calls</li>
+                  <li>Using a mechanical keyboard or fidget toy</li>
+                  <li>Body doubling (study stream on Discord)</li>
+                  <li>Chewing strong peppermint gum</li>
+                </ul>
+              </div>
+
+              <!-- Desserts -->
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 3px solid #ef4444; padding: 1rem; border-radius: 6px;">
+                <h4 style="font-family: var(--mono); font-size: 0.85rem; color: #ef4444; text-transform: uppercase; margin-bottom: 0.5rem;">🍰 Desserts (Consume with Boundaries)</h4>
+                <ul style="font-size: 0.85rem; line-height: 1.6; padding-left: 1.2rem; color: var(--fg); margin: 0;">
+                  <li>Endless short-form video feeds</li>
+                  <li>Video game binge sessions</li>
+                  <li>Late-night Reddit rabbit holes</li>
+                  <li>Online window shopping carts</li>
+                  <li><em>Rule: Set a 20-min timer before partaking!</em></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var quickSnacks = [
+            'Splash face with freezing cold water for 15 seconds.',
+            'Step outside barefoot on grass or stand in direct sunlight for 2 minutes.',
+            'Drink one large glass of cold water with a pinch of salt.',
+            'Do 15 quick air squats or arm circles right now.',
+            'Put on your favorite 3-minute hype song and pace the room.',
+            'Stretch your hamstrings and take 3 physiological sighs.',
+            'Chew a fresh piece of strong peppermint gum.'
+          ];
+
+          function randomDopamineSnack() {
+            var r = quickSnacks[Math.floor(Math.random() * quickSnacks.length)];
+            var el = document.getElementById('rouletteResult');
+            el.style.display = 'block';
+            el.innerHTML = '⚡ YOUR 2-MINUTE DOPAMINE MISSION:<br><span style="color: #3b82f6;">' + r + '</span>';
+          }
+        </script>
+      `
+    },
+    {
+      slug: 'sensory-grounding-decompressor',
+      title: 'Sensory Overload & 5-4-3-2-1 Somatic Grounding Tool',
+      metaDesc: 'Interactive 5-4-3-2-1 sensory grounding exercise and burnout decompression checklist for neurodivergent sensory overload and panic spikes.',
+      category: 'Therapy & Somatics',
+      body: `
+        ${commonStyle}
+        <style>
+          .grounding-step { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin-bottom: 1rem; }
+          .ground-title { font-family: var(--serif); font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Sensory Grounding
+          </nav>
+          <header style="margin-bottom: 2rem;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #8b5cf6; letter-spacing: 0.1em; margin-bottom: 0.35rem;">Autistic & ADHD Sensory Care</div>
+            <h1 style="font-family: var(--serif); font-size: 2.1rem; margin-bottom: 0.5rem;">Sensory Overload & 5-4-3-2-1 Grounding Decompressor</h1>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+              When the nervous system enters sensory overload, cognitive bandwidth shuts down. Anchor yourself back into physical safety using this step-by-step sensory grounding sequence.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <!-- 5 SEE -->
+            <div class="grounding-step" style="border-left: 4px solid #3b82f6;">
+              <div class="ground-title" style="color: #3b82f6;">👁️ 5 Things You Can SEE</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">Look around the room. Name 5 specific details (e.g. a wooden grain, a patch of light, a shadow, a book spine):</p>
+              <input type="text" class="text-input" placeholder="Type or mentally name 5 objects you see..." />
+            </div>
+
+            <!-- 4 TOUCH -->
+            <div class="grounding-step" style="border-left: 4px solid #10b981;">
+              <div class="ground-title" style="color: #10b981;">✋ 4 Things You Can TOUCH</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">Physically touch them right now: the texture of your shirt, the cool desk surface, your hair, the floor under your feet:</p>
+              <input type="text" class="text-input" placeholder="Feel 4 tactile sensations..." />
+            </div>
+
+            <!-- 3 HEAR -->
+            <div class="grounding-step" style="border-left: 4px solid #f59e0b;">
+              <div class="ground-title" style="color: #f59e0b;">👂 3 Things You Can HEAR</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">Listen past your thoughts: computer fan whirr, distant cars, a clock ticking, your own breath:</p>
+              <input type="text" class="text-input" placeholder="Listen for 3 background sounds..." />
+            </div>
+
+            <!-- 2 SMELL -->
+            <div class="grounding-step" style="border-left: 4px solid #8b5cf6;">
+              <div class="ground-title" style="color: #8b5cf6;">👃 2 Things You Can SMELL</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">Coffee, fresh air, wood, fabric of your sleeve:</p>
+              <input type="text" class="text-input" placeholder="Notice 2 scents..." />
+            </div>
+
+            <!-- 1 TASTE -->
+            <div class="grounding-step" style="border-left: 4px solid #ec4899;">
+              <div class="ground-title" style="color: #ec4899;">👅 1 Thing You Can TASTE</div>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">A sip of cool water, lingering mint, or simply the roof of your mouth:</p>
+              <input type="text" class="text-input" placeholder="Notice 1 taste..." />
+            </div>
+
+            <div style="background: rgba(16,185,129,0.08); border: 1px solid #10b981; padding: 1.25rem; border-radius: 6px; text-align: center; margin-top: 1.5rem;">
+              <div style="font-family: var(--serif); font-size: 1.2rem; font-weight: bold; color: #10b981;">You Are Safe in This Physical Room</div>
+              <p style="font-size: 0.9rem; color: var(--fg); margin: 0.5rem 0 0; line-height: 1.5;">
+                The panic was an alarm bell in your brain, not a physical predator. Unclench your jaw, drop your shoulders away from your ears, and take one slow, full breath.
+              </p>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    {
+      slug: 'adhd-screener',
+      title: 'Adult ADHD Symptom Screener (WHO ASRS-v1.1 Checklist)',
+      metaDesc: 'Interactive World Health Organization Adult ADHD Self-Report Scale (ASRS-v1.1). Screens for inattention and hyperactivity with printable clinical summary.',
+      category: 'ADHD Assessment',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; ADHD Symptom Screener
+          </nav>
+          <header style="margin-bottom: 2rem;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: #3b82f6; letter-spacing: 0.1em; margin-bottom: 0.35rem;">Validated Clinical Screener</div>
+            <h1 style="font-family: var(--serif); font-size: 2.1rem; margin-bottom: 0.5rem;">Adult ADHD Symptom Screener (WHO ASRS-v1.1)</h1>
+            <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+              The official World Health Organization 6-question Part A symptom screener for adult Attention-Deficit/Hyperactivity Disorder. Check your responses against clinical cutoffs.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <form id="asrsForm" onchange="calcASRS()">
+              
+              <!-- Q1 -->
+              <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;">
+                <label style="font-weight: 600; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">1. How often do you have trouble wrapping up the final details of a project, once the challenging parts have been done?</label>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem;">
+                  <label><input type="radio" name="asrs1" value="0"> Never</label>
+                  <label><input type="radio" name="asrs1" value="0"> Rarely</label>
+                  <label><input type="radio" name="asrs1" value="1"> Sometimes</label>
+                  <label><input type="radio" name="asrs1" value="1"> Often</label>
+                  <label><input type="radio" name="asrs1" value="1"> Very Often</label>
+                </div>
+              </div>
+
+              <!-- Q2 -->
+              <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;">
+                <label style="font-weight: 600; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">2. How often do you have difficulty getting things in order when you have to do a task that requires organization?</label>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem;">
+                  <label><input type="radio" name="asrs2" value="0"> Never</label>
+                  <label><input type="radio" name="asrs2" value="0"> Rarely</label>
+                  <label><input type="radio" name="asrs2" value="1"> Sometimes</label>
+                  <label><input type="radio" name="asrs2" value="1"> Often</label>
+                  <label><input type="radio" name="asrs2" value="1"> Very Often</label>
+                </div>
+              </div>
+
+              <!-- Q3 -->
+              <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;">
+                <label style="font-weight: 600; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">3. How often do you have problems remembering appointments or obligations?</label>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem;">
+                  <label><input type="radio" name="asrs3" value="0"> Never</label>
+                  <label><input type="radio" name="asrs3" value="0"> Rarely</label>
+                  <label><input type="radio" name="asrs3" value="1"> Sometimes</label>
+                  <label><input type="radio" name="asrs3" value="1"> Often</label>
+                  <label><input type="radio" name="asrs3" value="1"> Very Often</label>
+                </div>
+              </div>
+
+              <!-- Q4 -->
+              <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;">
+                <label style="font-weight: 600; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">4. When you have a task that requires a lot of thought, how often do you avoid or delay getting started?</label>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem;">
+                  <label><input type="radio" name="asrs4" value="0"> Never</label>
+                  <label><input type="radio" name="asrs4" value="0"> Rarely</label>
+                  <label><input type="radio" name="asrs4" value="0"> Sometimes</label>
+                  <label><input type="radio" name="asrs4" value="1"> Often</label>
+                  <label><input type="radio" name="asrs4" value="1"> Very Often</label>
+                </div>
+              </div>
+
+              <!-- Q5 -->
+              <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem;">
+                <label style="font-weight: 600; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">5. How often do you fidget or squirm with your hands or feet when you have to sit down for a long time?</label>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem;">
+                  <label><input type="radio" name="asrs5" value="0"> Never</label>
+                  <label><input type="radio" name="asrs5" value="0"> Rarely</label>
+                  <label><input type="radio" name="asrs5" value="0"> Sometimes</label>
+                  <label><input type="radio" name="asrs5" value="1"> Often</label>
+                  <label><input type="radio" name="asrs5" value="1"> Very Often</label>
+                </div>
+              </div>
+
+              <!-- Q6 -->
+              <div style="margin-bottom: 1.5rem;">
+                <label style="font-weight: 600; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">6. How often do you feel overly active and compelled to do things, like you were driven by a motor?</label>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; font-size: 0.85rem;">
+                  <label><input type="radio" name="asrs6" value="0"> Never</label>
+                  <label><input type="radio" name="asrs6" value="0"> Rarely</label>
+                  <label><input type="radio" name="asrs6" value="0"> Sometimes</label>
+                  <label><input type="radio" name="asrs6" value="1"> Often</label>
+                  <label><input type="radio" name="asrs6" value="1"> Very Often</label>
+                </div>
+              </div>
+
+              <div id="asrsResult" style="display: none; background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">WHO ASRS Part A Result</div>
+                <div id="asrsScore" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; margin: 0.25rem 0;">4 of 6 Significant</div>
+                <div id="asrsVerdict" style="font-size: 1.05rem; font-weight: bold; margin-bottom: 0.5rem;"></div>
+                <p id="asrsExplanation" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; max-width: 650px; margin: 0 auto;"></p>
+                <div style="margin-top: 1rem;">
+                  <button type="button" class="btn-sec" onclick="window.print()" style="cursor: pointer;">🖨️ Print / Save for Doctor</button>
+                </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
+        <script>
+          function calcASRS() {
+            var positive = 0;
+            var answered = 0;
+            for (var i = 1; i <= 6; i++) {
+              var sel = document.querySelector('input[name="asrs' + i + '"]:checked');
+              if (sel) {
+                answered++;
+                positive += parseInt(sel.value, 10);
+              }
+            }
+
+            if (answered === 6) {
+              var resEl = document.getElementById('asrsResult');
+              resEl.style.display = 'block';
+              document.getElementById('asrsScore').textContent = positive + ' of 6 Significant Symptoms';
+
+              var vEl = document.getElementById('asrsVerdict');
+              var expEl = document.getElementById('asrsExplanation');
+
+              if (positive >= 4) {
+                vEl.textContent = 'High Likelihood of Adult ADHD Characteristics';
+                vEl.style.color = '#ef4444';
+                expEl.innerHTML = 'According to the World Health Organization ASRS-v1.1 scoring criteria, four or more positive responses strongly indicates symptoms consistent with Adult ADHD. We recommend sharing this report with a licensed psychiatrist, clinical psychologist, or medical doctor for a formal comprehensive diagnostic evaluation.';
+              } else {
+                vEl.textContent = 'Below Clinical Threshold for High ADHD Probability';
+                vEl.style.color = '#10b981';
+                expEl.innerHTML = 'Your responses show fewer than 4 symptoms in the clinically significant range. While executive function challenges can still arise from burnout, stress, or sleep deficits, your current profile does not meet the WHO ASRS primary screening threshold.';
+              }
+            }
+          }
+        </script>
+      `
     }
   ];
 
