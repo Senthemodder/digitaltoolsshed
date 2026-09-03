@@ -717,6 +717,113 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           calcCaf();
         </script>
       `
+    },
+    {
+      slug: 'sleep-deprivation-calculator',
+      title: 'Sleep Deprivation & BAC Impairment Equivalent Calculator',
+      metaDesc: 'How impaired is your brain from staying awake? Converts continuous hours awake into equivalent Blood Alcohol Concentration (BAC) and cognitive reaction delay.',
+      category: 'Health & Sleep',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Sleep Deprivation Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Sleep Deprivation & BAC Impairment Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Pulling an all-nighter? Peer-reviewed neurobiology shows being awake for <strong>17 hours</strong> produces cognitive impairment equivalent to a <strong>0.05% BAC</strong>, and <strong>24 hours</strong> equals <strong>0.10% BAC</strong> (above legal drunk driving limits).
+          </p>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Consecutive Hours Awake: <span id="sd-hrs-val" style="color: #ef4444; font-weight: bold; font-size: 1.2rem;">20 Hours</span></label>
+              <input type="range" id="sd-range" min="8" max="72" value="20" oninput="updateSDSlider(this.value)" style="width: 100%; cursor: pointer;" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Equivalent Blood Alcohol (BAC)</div>
+                <div id="sd-bac" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">0.07% BAC</div>
+                <div id="sd-bac-desc" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">~3 standard alcoholic drinks</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Reaction Time Penalty</div>
+                <div id="sd-react" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">+45% Slower</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Lapses in attention & tracking</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Micro-Sleep Vulnerability</div>
+                <div id="sd-micro" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #8b5cf6; margin: 0.4rem 0;">High Risk</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">1-3 second involuntary brain blackouts</div>
+              </div>
+            </div>
+
+            <div id="sd-clinical" style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; color: var(--fg);"></div>
+          </div>
+        </div>
+
+        <script>
+          function updateSDSlider(val) {
+            document.getElementById('sd-hrs-val').textContent = val + ' Hours';
+            calcSDImpairment(parseInt(val, 10));
+          }
+
+          function calcSDImpairment(hrs) {
+            var bac = 0;
+            var react = 0;
+            var micro = 'None';
+            var microColor = '#10b981';
+            var clinical = '';
+
+            if (hrs <= 14) {
+              bac = 0.00;
+              react = 0;
+              micro = 'Baseline';
+              microColor = '#10b981';
+              clinical = '<strong>Normal Cognitive Function:</strong> Optimal alertness, reaction speeds, and emotional regulation.';
+            } else if (hrs <= 17) {
+              bac = ((hrs - 14) / 3) * 0.05;
+              react = Math.round((hrs - 14) * 5);
+              micro = 'Low';
+              microColor = '#3b82f6';
+              clinical = '<strong>Initial Fatigue:</strong> Minor lapses in attention and reduced hand-eye coordination.';
+            } else if (hrs <= 24) {
+              bac = 0.05 + (((hrs - 17) / 7) * 0.05);
+              react = 15 + Math.round((hrs - 17) * 8);
+              micro = 'Moderate';
+              microColor = '#f59e0b';
+              clinical = '<strong>Equivalent to Drunk Driving (BAC 0.05% - 0.10%):</strong> Executive function and working memory drop precipitously. Driving a vehicle at this stage carries the same crash risk as being legally intoxicated.';
+            } else if (hrs <= 36) {
+              bac = 0.10 + (((hrs - 24) / 12) * 0.08);
+              react = 71 + Math.round((hrs - 24) * 6);
+              micro = 'High Risk';
+              microColor = '#ef4444';
+              clinical = '<strong>Severe Cognitive Collapse:</strong> Prefrontal cortex activity plummets. Sudden involuntary 2-5 second micro-sleeps occur without your conscious awareness.';
+            } else {
+              bac = 0.18 + (((hrs - 36) / 36) * 0.10);
+              react = 140;
+              micro = 'CRITICAL';
+              microColor = '#dc2626';
+              clinical = '<strong>Psychological & Hallucinatory State:</strong> Paranoia, visual distortions (shadow movement in peripheral vision), slurred speech, and acute hormonal stress spikes.';
+            }
+
+            document.getElementById('sd-bac').textContent = bac.toFixed(2) + '% BAC';
+            document.getElementById('sd-bac-desc').textContent = '~' + Math.max(0, Math.round(bac / 0.025)) + ' standard drinks equivalent';
+            document.getElementById('sd-react').textContent = '+' + react + '% Slower';
+            
+            var microEl = document.getElementById('sd-micro');
+            microEl.textContent = micro;
+            microEl.style.color = microColor;
+
+            document.getElementById('sd-clinical').innerHTML = clinical;
+          }
+
+          document.addEventListener('DOMContentLoaded', function() { calcSDImpairment(20); });
+          calcSDImpairment(20);
+        </script>
+      `
     }
   ];
 

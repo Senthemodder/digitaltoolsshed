@@ -1016,5 +1016,391 @@ export function buildViralTools() {
     currentPath: '/util/blast-radius-calculator'
   }));
 
-  console.log('  ✓ Built Viral & Reality Suite (AI Water Counter, Desmos Graphing Calculator, Scale Visualizer, Fermi Paradox, Cosmic Calendar, Life in Weeks, Billion Seconds, Blast Radius)');
+  // ──────────────────────────────────────────────────────────────────────────
+  // 9. INFINITE MONKEY THEOREM CALCULATOR (/util/infinite-monkey-calculator.html)
+  // ──────────────────────────────────────────────────────────────────────────
+  const monkeyHtml = `
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Infinite Monkey Theorem
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">2 AM Probability Absurdity</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Infinite Monkey Theorem & Typo Probability Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          How long would it take a monkey typing randomly at a keyboard to produce Shakespeare, Hamlet, or your name? Calculate the astronomical odds and time required.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Enter Word or Phrase (Letters & Spaces Only)</label>
+          <input type="text" id="monkeyText" value="BANANA" maxlength="30" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.25rem; font-family: var(--mono); text-transform: uppercase;" oninput="calcMonkey()" />
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <span style="font-size: 0.75rem; color: var(--text-muted); align-self: center;">Test Presets:</span>
+          <button type="button" class="btn-sm" onclick="setMonkeyPreset('CAT')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">CAT (3 chars)</button>
+          <button type="button" class="btn-sm" onclick="setMonkeyPreset('BANANA')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">BANANA (6 chars)</button>
+          <button type="button" class="btn-sm" onclick="setMonkeyPreset('TO BE OR NOT')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">TO BE OR NOT (12 chars)</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; text-align: center;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability Per Attempt</span>
+            <div id="monkeyProb" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">1 in 387M</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">27 available keys (A-Z + space)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Expected Keystrokes</span>
+            <div id="monkeyKeys" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">387,420,489</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">27^L total permutations</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Time for 1 Monkey</span>
+            <div id="monkeyTime" style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">1.2 Years</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">At 10 keys / second continuously</div>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold;">Virtual Monkey Live Keystroke Stream:</span>
+            <button type="button" class="btn-sm" id="btnToggleSim" onclick="toggleMonkeySim()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">Start Simulation</button>
+          </div>
+          <div id="monkeyStream" style="font-family: var(--mono); font-size: 0.9rem; background: var(--surface); border: 1px solid var(--border); padding: 0.75rem; border-radius: 4px; height: 65px; overflow: hidden; word-break: break-all; color: var(--text-muted);">Click 'Start Simulation' to watch a virtual monkey type randomly...</div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function setMonkeyPreset(str) {
+        document.getElementById('monkeyText').value = str;
+        calcMonkey();
+      }
+
+      function calcMonkey() {
+        var text = document.getElementById('monkeyText').value.toUpperCase().replace(/[^A-Z ]/g, '');
+        var L = text.length;
+        if (L === 0) return;
+
+        var keys = Math.pow(27, L);
+        var probStr = '';
+        if (keys < 1e6) probStr = '1 in ' + Math.round(keys).toLocaleString('en-US');
+        else if (keys < 1e9) probStr = '1 in ' + (keys / 1e6).toFixed(1) + ' Million';
+        else if (keys < 1e12) probStr = '1 in ' + (keys / 1e9).toFixed(1) + ' Billion';
+        else probStr = '1 in 10^' + Math.round(Math.log10(keys));
+
+        document.getElementById('monkeyProb').textContent = probStr;
+        document.getElementById('monkeyKeys').textContent = keys < 1e15 ? Math.round(keys).toLocaleString('en-US') : '10^' + Math.round(Math.log10(keys));
+
+        // Time at 10 keys / second
+        var seconds = keys / 10;
+        var universeAges = seconds / 4.35e17; // 13.8B years ~ 4.35e17 seconds
+        var timeStr = '';
+
+        if (seconds < 60) timeStr = seconds.toFixed(1) + ' Seconds';
+        else if (seconds < 3600) timeStr = (seconds / 60).toFixed(1) + ' Minutes';
+        else if (seconds < 86400) timeStr = (seconds / 3600).toFixed(1) + ' Hours';
+        else if (seconds < 31557600) timeStr = (seconds / 86400).toFixed(1) + ' Days';
+        else if (universeAges < 1) timeStr = (seconds / 31557600).toLocaleString(undefined, {maximumFractionDigits: 1}) + ' Years';
+        else timeStr = universeAges.toExponential(1) + '× Age of Universe';
+
+        document.getElementById('monkeyTime').textContent = timeStr;
+      }
+
+      var simRunning = false;
+      var simTimer = null;
+      var simChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ';
+
+      function toggleMonkeySim() {
+        simRunning = !simRunning;
+        var btn = document.getElementById('btnToggleSim');
+        if (simRunning) {
+          btn.textContent = 'Stop Simulation';
+          simTimer = setInterval(function() {
+            var stream = document.getElementById('monkeyStream');
+            var chunk = '';
+            for (var i = 0; i < 5; i++) {
+              chunk += simChars.charAt(Math.floor(Math.random() * simChars.length));
+            }
+            stream.textContent = (stream.textContent + chunk).slice(-200);
+          }, 50);
+        } else {
+          btn.textContent = 'Start Simulation';
+          clearInterval(simTimer);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', calcMonkey);
+      calcMonkey();
+    </script>
+  `;
+
+  writeFileSync(join(utilDir, 'infinite-monkey-calculator.html'), renderPage({
+    title: 'Infinite Monkey Theorem Calculator: Typo Odds & Time | Digital Tools Shed',
+    metaDesc: 'Calculate the mathematical probability and time required for a monkey typing randomly to produce any word or phrase. Compares against the age of the universe.',
+    canonical: `${DOMAIN}/util/infinite-monkey-calculator`,
+    bodyContent: monkeyHtml,
+    currentPath: '/util/infinite-monkey-calculator'
+  }));
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 10. SIMULATION HYPOTHESIS CALCULATOR (/util/simulation-argument-calculator.html)
+  // ──────────────────────────────────────────────────────────────────────────
+  const simHtml = `
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Simulation Hypothesis
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">2 AM Metaphysical Trilemma</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Simulation Argument Probability Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Are we living in base physical reality or an ancestor computer simulation? Calculate the Bayesian probability using philosopher Nick Bostrom's 2003 Trilemma.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">fp: Civilizations Reaching Posthuman Tech (%)</label>
+            <input type="range" id="sim-fp" min="1" max="100" value="40" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
+            <div id="sim-fp-val" style="font-family: var(--mono); font-size: 0.9rem; color: #3b82f6;">40% (Survives extinction)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Ancestor Simulations Run Per Posthuman Species</label>
+            <input type="range" id="sim-ni" min="1" max="1000" value="100" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
+            <div id="sim-ni-val" style="font-family: var(--mono); font-size: 0.9rem; color: #10b981;">100 simulations</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability We Are in a Simulation</span>
+            <div id="simResult" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">97.6%</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Simulated minds vastly outnumber biological originals</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Base Reality</span>
+            <div id="baseResult" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">2.4%</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Living in original primordial universe</div>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; color: var(--fg);">
+          <strong>Bostrom's Trilemma:</strong> At least one of the following must be true:
+          <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
+            <li>Humanity goes extinct before developing high-level planetary supercomputers.</li>
+            <li>Posthuman civilizations lose all interest in simulating conscious human ancestors.</li>
+            <li>We are almost certainly living inside a software simulation right now.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcSim() {
+        var fp = parseFloat(document.getElementById('sim-fp').value) / 100;
+        var ni = parseFloat(document.getElementById('sim-ni').value);
+
+        document.getElementById('sim-fp-val').textContent = (fp * 100).toFixed(0) + '% (Survives extinction)';
+        document.getElementById('sim-ni-val').textContent = ni.toLocaleString('en-US') + ' simulations per civilization';
+
+        // Total simulated instances = fp * ni
+        // Base reality instances = 1
+        var totalSims = fp * ni;
+        var pSim = (totalSims / (1 + totalSims)) * 100;
+        var pBase = 100 - pSim;
+
+        document.getElementById('simResult').textContent = pSim.toFixed(1) + '%';
+        document.getElementById('baseResult').textContent = pBase.toFixed(1) + '%';
+      }
+
+      document.addEventListener('DOMContentLoaded', calcSim);
+      calcSim();
+    </script>
+  `;
+
+  writeFileSync(join(utilDir, 'simulation-argument-calculator.html'), renderPage({
+    title: 'Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed',
+    metaDesc: 'Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom\'s 2003 Trilemma framework.',
+    canonical: `${DOMAIN}/util/simulation-argument-calculator`,
+    bodyContent: simHtml,
+    currentPath: '/util/simulation-argument-calculator'
+  }));
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 11. EXISTENTIAL RISK & DOOM CALCULATOR (/util/existential-risk-calculator.html)
+  // ──────────────────────────────────────────────────────────────────────────
+  const xriskHtml = `
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Existential Risk
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #dc2626; margin-bottom: 0.5rem;">2 AM Civilizational Fragility</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Existential Risk & Human Survival Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          What are the odds humanity survives the next 100 years? Based on Oxford philosopher Toby Ord's <em>The Precipice</em>, calibrate threats from AI, bioweapons, and nuclear war.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Unaligned AGI Catastrophe (%)</label>
+            <input type="range" id="xr-ai" min="0" max="50" value="10" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-ai-val" style="font-family: var(--mono); font-size: 0.9rem; color: #ef4444;">10.0% (Toby Ord baseline: 1 in 10)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Engineered Pandemic (%)</label>
+            <input type="range" id="xr-bio" min="0" max="30" value="3.3" step="0.5" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-bio-val" style="font-family: var(--mono); font-size: 0.9rem; color: #f59e0b;">3.3% (Toby Ord baseline: 1 in 30)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Nuclear World War (%)</label>
+            <input type="range" id="xr-nuke" min="0" max="20" value="1.0" step="0.5" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-nuke-val" style="font-family: var(--mono); font-size: 0.9rem; color: #3b82f6;">1.0% (1 in 100)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Runaway Climate Tipping (%)</label>
+            <input type="range" id="xr-clim" min="0" max="10" value="0.1" step="0.1" oninput="calcXR()" style="width: 100%; cursor: pointer;" />
+            <div id="xr-clim-val" style="font-family: var(--mono); font-size: 0.9rem; color: #10b981;">0.1% (1 in 1,000)</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; text-align: center;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Total Catastrophe Risk (Next 100 Yrs)</span>
+            <div id="xrTotal" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">13.8%</div>
+            <div id="xrOdds" style="font-size: 0.8rem; color: var(--text-muted);">~1 in 7 chance of civilizational collapse</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Human Survival</span>
+            <div id="xrSurvival" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">86.2%</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Navigating through "The Precipice" into adulthood</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcXR() {
+        var ai = parseFloat(document.getElementById('xr-ai').value) / 100;
+        var bio = parseFloat(document.getElementById('xr-bio').value) / 100;
+        var nuke = parseFloat(document.getElementById('xr-nuke').value) / 100;
+        var clim = parseFloat(document.getElementById('xr-clim').value) / 100;
+
+        document.getElementById('xr-ai-val').textContent = (ai * 100).toFixed(1) + '%';
+        document.getElementById('xr-bio-val').textContent = (bio * 100).toFixed(1) + '%';
+        document.getElementById('xr-nuke-val').textContent = (nuke * 100).toFixed(1) + '%';
+        document.getElementById('xr-clim-val').textContent = (clim * 100).toFixed(1) + '%';
+
+        // Survival = (1 - ai) * (1 - bio) * (1 - nuke) * (1 - clim)
+        var pSurvive = (1 - ai) * (1 - bio) * (1 - nuke) * (1 - clim);
+        var pDoom = (1 - pSurvive) * 100;
+        var odds = pDoom > 0 ? (100 / pDoom) : 999;
+
+        document.getElementById('xrTotal').textContent = pDoom.toFixed(1) + '%';
+        document.getElementById('xrSurvival').textContent = (pSurvive * 100).toFixed(1) + '%';
+        document.getElementById('xrOdds').textContent = '~1 in ' + Math.round(odds) + ' chance of civilizational collapse';
+      }
+
+      document.addEventListener('DOMContentLoaded', calcXR);
+      calcXR();
+    </script>
+  `;
+
+  writeFileSync(join(utilDir, 'existential-risk-calculator.html'), renderPage({
+    title: 'Existential Risk & 100-Year Human Survival Calculator | Digital Tools Shed',
+    metaDesc: 'Calculate the probability of humanity surviving the next 100 years across artificial intelligence, bioweapons, and nuclear war based on Oxford\'s The Precipice.',
+    canonical: `${DOMAIN}/util/existential-risk-calculator`,
+    bodyContent: xriskHtml,
+    currentPath: '/util/existential-risk-calculator'
+  }));
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 12. HEAT DEATH OF THE UNIVERSE TIMELINE (/util/heat-death-timeline.html)
+  // ──────────────────────────────────────────────────────────────────────────
+  const heatDeathHtml = `
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Heat Death Timeline
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #a855f7; margin-bottom: 0.5rem;">2 AM Deep Time Void</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Heat Death of the Universe Logarithmic Timeline</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Scrub across 100 orders of magnitude of deep time: from the death of the Sun to proton decay, the evaporation of black holes, and the eternal Dark Era.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Logarithmic Deep Time Scrubber (10^X Years into the Future)</label>
+          <input type="range" id="hdSlider" min="0" max="100" value="10" oninput="updateHDTimeline(this.value)" style="width: 100%; cursor: pointer;" />
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Future Cosmic Epoch</div>
+          <div id="hdYear" style="font-family: var(--mono); font-size: 2.6rem; font-weight: bold; color: #a855f7; margin: 0.25rem 0;">Year 10^10 (10 Billion)</div>
+          <div id="hdEra" style="font-family: var(--serif); font-size: 1.3rem; color: var(--fg); margin-top: 0.35rem;">The Stelliferous Era</div>
+        </div>
+
+        <div id="hdDetails" style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6; color: var(--fg);"></div>
+      </div>
+    </div>
+
+    <script>
+      var hdMilestones = [
+        { exp: 0, title: 'Year 1 (Today)', era: 'The Present Day', desc: 'Conscious biological beings build computers, look at the night sky, and wonder about the end of time. Stars shine brightly throughout billions of galaxies.' },
+        { exp: 9, title: 'Year 10^9 (1 Billion Yrs)', era: 'The Solar Evaporation Era', desc: 'The Sun expands in luminosity by 10%. Earth oceans evaporate entirely; complex surface life ceases to exist. Only subterranean extremophiles survive.' },
+        { exp: 10, title: 'Year 10^10 (10 Billion Yrs)', era: 'The Stelliferous Era', desc: 'The Sun exhausts its core hydrogen, expands into a red giant swallowing Mercury and Venus, and sheds outer layers into a planetary nebula, leaving behind a white dwarf.' },
+        { exp: 14, title: 'Year 10^14 (100 Trillion Yrs)', era: 'End of Star Formation', desc: 'The smallest red dwarf stars exhaust their hydrogen fuel. The last stars burn out. The universe goes dark to human eyes. Galaxies are populated only by white dwarfs, neutron stars, and black holes.' },
+        { exp: 15, title: 'Year 10^15 (1 Quadrillion Yrs)', era: 'The Degenerate Era', desc: 'Planetary orbits decay via gravitational radiation. Rogue planets are stripped from dead stars and ejected into interstellar space.' },
+        { exp: 40, title: 'Year 10^40 (10 Duodecillion Yrs)', era: 'Proton Decay', desc: 'Protons within atomic nuclei spontaneously decay into positrons and pions (half-life ~ 10^34 to 10^38 years). All matter dissolves. Rocks, dead planets, and white dwarfs melt away into radiation.' },
+        { exp: 67, title: 'Year 10^67 (Stellar Black Holes Evaporate)', era: 'The Black Hole Era', desc: 'Stellar-mass black holes completely evaporate into photons through Hawking radiation.' },
+        { exp: 100, title: 'Year 10^100 (The Big Freeze)', era: 'The Dark Era', desc: 'The final supermassive black holes evaporate in a burst of gamma rays. No energy can ever be extracted again. Absolute zero temperature. Maximum entropy. The end of time itself.' }
+      ];
+
+      function updateHDTimeline(val) {
+        var exp = parseInt(val, 10);
+        var cur = hdMilestones[0];
+        for (var i = 0; i < hdMilestones.length; i++) {
+          if (exp >= hdMilestones[i].exp) {
+            cur = hdMilestones[i];
+          }
+        }
+
+        document.getElementById('hdYear').textContent = 'Year 10^' + exp;
+        document.getElementById('hdEra').textContent = cur.era;
+        document.getElementById('hdDetails').innerHTML = '<strong>' + cur.title + ':</strong> ' + cur.desc;
+      }
+
+      document.addEventListener('DOMContentLoaded', function() { updateHDTimeline(10); });
+    </script>
+  `;
+
+  writeFileSync(join(utilDir, 'heat-death-timeline.html'), renderPage({
+    title: 'The Heat Death of the Universe: Deep Time Logarithmic Timeline | Digital Tools Shed',
+    metaDesc: 'Interactive deep time logarithmic slider tracking the universe from the death of the Sun to proton decay, black hole evaporation, and the Big Freeze.',
+    canonical: `${DOMAIN}/util/heat-death-timeline`,
+    bodyContent: heatDeathHtml,
+    currentPath: '/util/heat-death-timeline'
+  }));
+
+  console.log('  ✓ Built Viral & Reality Suite (AI Water Counter, Desmos Graphing Calculator, Scale Visualizer, Fermi Paradox, Cosmic Calendar, Life in Weeks, Billion Seconds, Blast Radius, Infinite Monkey, Simulation Argument, Existential Risk, Heat Death Timeline)');
 }

@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Health & Fitness Calculators | Digital Tools Shed</title>
-  <meta name="description" content="Free online health and fitness calculators: BMI, TDEE, daily water intake, and 90-minute sleep cycle calculators.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/health/">
-  <meta property="og:title" content="Health & Fitness Calculators | Digital Tools Shed">
-  <meta property="og:description" content="Free online health and fitness calculators: BMI, TDEE, daily water intake, and 90-minute sleep cycle calculators.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/health/">
+  <title>Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed</title>
+  <meta name="description" content="Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/util/simulation-argument-calculator">
+  <meta property="og:title" content="Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed">
+  <meta property="og:description" content="Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/util/simulation-argument-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Health & Fitness Calculators | Digital Tools Shed">
-  <meta name="twitter:description" content="Free online health and fitness calculators: BMI, TDEE, daily water intake, and 90-minute sleep cycle calculators.">
+  <meta name="twitter:title" content="Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -1088,8 +1088,14 @@ footer a:hover { text-decoration: underline; }
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Health",
-      "item": "https://digitaltoolsshed.com/health"
+      "name": "Util",
+      "item": "https://digitaltoolsshed.com/util"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Simulation Argument Calculator",
+      "item": "https://digitaltoolsshed.com/util/simulation-argument-calculator"
     }
   ]
 }
@@ -1098,8 +1104,8 @@ footer a:hover { text-decoration: underline; }
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Health & Fitness Calculators",
-  "url": "https://digitaltoolsshed.com/health/",
+  "name": "Simulation Hypothesis Calculator: Are We in a Simulation?",
+  "url": "https://digitaltoolsshed.com/util/simulation-argument-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -1108,7 +1114,7 @@ footer a:hover { text-decoration: underline; }
     "priceCurrency": "USD"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
-  "description": "Free online health and fitness calculators: BMI, TDEE, daily water intake, and 90-minute sleep cycle calculators.",
+  "description": "Calculate the mathematical probability that our universe is an ancestor computer simulation using Nick Bostrom's 2003 Trilemma framework.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -1479,7 +1485,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Health & Fitness Calculators | Digital Tools Shed</span>
+            <span>Simulation Hypothesis Calculator: Are We in a Simulation? | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1517,77 +1523,80 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-    
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
-      .result-val { font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
-      .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    </style>
-  
-    <div class="article-container" style="max-width: 900px;">
-      <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Health & Fitness Calculators</h1>
-      <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-        Essential health and fitness metrics: Body Mass Index (BMI), Total Daily Energy Expenditure (TDEE), daily hydration, and sleep cycle timers.
-      </p>
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Simulation Hypothesis
+      </nav>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-        
-    <a href="/health/bmi-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">BMI (Body Mass Index) Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate Body Mass Index (BMI) using metric (kg/cm) or imperial (lbs/inches) units with WHO health weight ranges.</p>
-    </a>
-  
-    <a href="/health/tdee-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">TDEE & Calorie Burn Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate Total Daily Energy Expenditure (TDEE) and Basal Metabolic Rate (BMR) with Mifflin-St Jeor equation.</p>
-    </a>
-  
-    <a href="/health/water-intake" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Daily Water Intake Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate optimal daily water consumption in liters and ounces based on body weight, climate, and exercise.</p>
-    </a>
-  
-    <a href="/health/sleep-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Sleep Cycle & Wake-Up Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate optimal bedtimes and wake-up times based on 90-minute REM sleep cycles to avoid grogginess.</p>
-    </a>
-  
-    <a href="/health/body-fat-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">US Navy Body Fat Calculator (Circumference Method)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate body fat percentage and lean mass using the official US Navy circumference method (height, neck, waist, and hip tape measurements).</p>
-    </a>
-  
-    <a href="/health/macro-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Macro Calculator (Protein, Carbs & Fat Split for Cutting/Bulking)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate your personalized daily macronutrient targets in grams and calories. Tailored for muscle gain bulking, fat loss cutting, and body recomposition.</p>
-    </a>
-  
-    <a href="/health/ideal-weight-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Ideal Body Weight Calculator (Devine, Robinson & Miller Formulas)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Compare your ideal weight across 4 medical formulas (Devine, Robinson, Miller, and Hamwi) along with healthy BMI threshold ranges.</p>
-    </a>
-  
-    <a href="/health/caffeine-half-life-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Caffeine Half-Life & Sleep Crash Decay Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Track active caffeine levels in your bloodstream hour-by-hour using pharmacokinetic 5.7h half-life. Find out when you can actually fall asleep.</p>
-    </a>
-  
-    <a href="/health/sleep-deprivation-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Sleep Deprivation & BAC Impairment Equivalent Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">How impaired is your brain from staying awake? Converts continuous hours awake into equivalent Blood Alcohol Concentration (BAC) and cognitive reaction delay.</p>
-    </a>
-  
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">2 AM Metaphysical Trilemma</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Simulation Argument Probability Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Are we living in base physical reality or an ancestor computer simulation? Calculate the Bayesian probability using philosopher Nick Bostrom's 2003 Trilemma.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">fp: Civilizations Reaching Posthuman Tech (%)</label>
+            <input type="range" id="sim-fp" min="1" max="100" value="40" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
+            <div id="sim-fp-val" style="font-family: var(--mono); font-size: 0.9rem; color: #3b82f6;">40% (Survives extinction)</div>
+          </div>
+
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Ancestor Simulations Run Per Posthuman Species</label>
+            <input type="range" id="sim-ni" min="1" max="1000" value="100" oninput="calcSim()" style="width: 100%; cursor: pointer;" />
+            <div id="sim-ni-val" style="font-family: var(--mono); font-size: 0.9rem; color: #10b981;">100 simulations</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability We Are in a Simulation</span>
+            <div id="simResult" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">97.6%</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Simulated minds vastly outnumber biological originals</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Probability of Base Reality</span>
+            <div id="baseResult" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">2.4%</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Living in original primordial universe</div>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px; font-size: 0.9rem; line-height: 1.6; color: var(--fg);">
+          <strong>Bostrom's Trilemma:</strong> At least one of the following must be true:
+          <ol style="margin-top: 0.5rem; padding-left: 1.2rem;">
+            <li>Humanity goes extinct before developing high-level planetary supercomputers.</li>
+            <li>Posthuman civilizations lose all interest in simulating conscious human ancestors.</li>
+            <li>We are almost certainly living inside a software simulation right now.</li>
+          </ol>
+        </div>
       </div>
     </div>
+
+    <script>
+      function calcSim() {
+        var fp = parseFloat(document.getElementById('sim-fp').value) / 100;
+        var ni = parseFloat(document.getElementById('sim-ni').value);
+
+        document.getElementById('sim-fp-val').textContent = (fp * 100).toFixed(0) + '% (Survives extinction)';
+        document.getElementById('sim-ni-val').textContent = ni.toLocaleString('en-US') + ' simulations per civilization';
+
+        // Total simulated instances = fp * ni
+        // Base reality instances = 1
+        var totalSims = fp * ni;
+        var pSim = (totalSims / (1 + totalSims)) * 100;
+        var pBase = 100 - pSim;
+
+        document.getElementById('simResult').textContent = pSim.toFixed(1) + '%';
+        document.getElementById('baseResult').textContent = pBase.toFixed(1) + '%';
+      }
+
+      document.addEventListener('DOMContentLoaded', calcSim);
+      calcSim();
+    </script>
   
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
