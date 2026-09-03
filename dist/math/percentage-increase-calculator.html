@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Retirement & Personal Finance Calculators | Digital Tools Shed</title>
-  <meta name="description" content="Free retirement and financial planning calculators: Social Security estimator, 401k/IRA RMD calculator, 4% rule nest egg planner, and home downsizing.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/finance/">
-  <meta property="og:title" content="Retirement & Personal Finance Calculators | Digital Tools Shed">
-  <meta property="og:description" content="Free retirement and financial planning calculators: Social Security estimator, 401k/IRA RMD calculator, 4% rule nest egg planner, and home downsizing.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/finance/">
+  <title>Percentage Increase Calculator (Formula & Steps) | Digital Tools Shed</title>
+  <meta name="description" content="Calculate percentage increase from starting value to final value. Includes difference, growth factor multiplier, and step-by-step formula solution.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/math/percentage-increase-calculator">
+  <meta property="og:title" content="Percentage Increase Calculator (Formula & Steps) | Digital Tools Shed">
+  <meta property="og:description" content="Calculate percentage increase from starting value to final value. Includes difference, growth factor multiplier, and step-by-step formula solution.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/math/percentage-increase-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Retirement & Personal Finance Calculators | Digital Tools Shed">
-  <meta name="twitter:description" content="Free retirement and financial planning calculators: Social Security estimator, 401k/IRA RMD calculator, 4% rule nest egg planner, and home downsizing.">
+  <meta name="twitter:title" content="Percentage Increase Calculator (Formula & Steps) | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate percentage increase from starting value to final value. Includes difference, growth factor multiplier, and step-by-step formula solution.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -1088,8 +1088,14 @@ footer a:hover { text-decoration: underline; }
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Finance",
-      "item": "https://digitaltoolsshed.com/finance"
+      "name": "Math",
+      "item": "https://digitaltoolsshed.com/math"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Percentage Increase Calculator",
+      "item": "https://digitaltoolsshed.com/math/percentage-increase-calculator"
     }
   ]
 }
@@ -1098,8 +1104,8 @@ footer a:hover { text-decoration: underline; }
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Retirement & Personal Finance Calculators",
-  "url": "https://digitaltoolsshed.com/finance/",
+  "name": "Percentage Increase Calculator (Formula & Steps)",
+  "url": "https://digitaltoolsshed.com/math/percentage-increase-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -1108,7 +1114,7 @@ footer a:hover { text-decoration: underline; }
     "priceCurrency": "USD"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
-  "description": "Free retirement and financial planning calculators: Social Security estimator, 401k/IRA RMD calculator, 4% rule nest egg planner, and home downsizing.",
+  "description": "Calculate percentage increase from starting value to final value. Includes difference, growth factor multiplier, and step-by-step formula solution.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -1479,7 +1485,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Retirement & Personal Finance Calculators | Digital Tools Shed</span>
+            <span>Percentage Increase Calculator (Formula & Steps) | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1517,98 +1523,78 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-      <div class="article-container" style="max-width: 950px;">
-        <header style="margin-bottom: 2rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Retirement & Personal Finance Calculators</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Free, private financial tools running 100% in your browser. Calculate retirement distributions, Social Security payouts, and wealth planning without creating an account.
+        
+    <style>
+      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
+      .field-group { margin-bottom: 1.25rem; }
+      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
+      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
+      .btn-primary:hover { opacity: 0.9; }
+      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
+      .btn-sec:hover { background: var(--surface-alt); }
+      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
+      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
+      .result-val { font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
+      .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+    </style>
+  
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Increase
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Percentage Increase Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate percentage growth, price rises, and revenue increases between two numbers with full formula breakdown.
           </p>
-        </header>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
-          
-    <a href="/finance/social-security-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Social Security Benefit Calculator by Age (62 vs 67 vs 70)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70.</p>
-    </a>
-  
-    <a href="/finance/rmd-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">IRA & 401(k) Required Minimum Distribution (RMD) Calculator</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate your mandatory annual IRS Required Minimum Distribution (RMD) for Traditional IRAs and 401(k) accounts based on your age and IRS Uniform Lifetime Table.</p>
-    </a>
-  
-    <a href="/finance/retirement-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Retirement Nest Egg & 4% Safe Withdrawal Calculator</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Determine how long your retirement savings will last based on your annual spending, investment growth rate, inflation, and the Trinity 4% rule.</p>
-    </a>
-  
-    <a href="/finance/annuity-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Pension Annuity vs. Lump Sum Payout Calculator</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Compare taking a guaranteed monthly lifetime pension annuity versus taking a single lump-sum payout invested in the market.</p>
-    </a>
-  
-    <a href="/finance/downsizing-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Senior Home Downsizing & Net Equity Cash-Out Calculator</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate your net cash proceeds after selling a larger family home, paying closing costs, and moving into a smaller condo or retirement community.</p>
-    </a>
-  
-    <a href="/finance/inherited-ira-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Inherited IRA 10-Year Rule & Annual RMD Calculator</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate required annual distributions and 10-year payout schedules for inherited Traditional and Roth IRAs under SECURE 2.0 and IRS final regulations.</p>
-    </a>
-  
-    <a href="/finance/judgment-interest" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">50-State Statutory Judgment Interest Calculator</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate statutory post-judgment and pre-judgment interest by state (California 10%, New York 9%, Texas, Florida, and more) with daily per diem accrual.</p>
-    </a>
-  
-    <a href="/finance/social-security-tax" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Social Security Taxability & Provisional Income Calculator</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate how much of your Social Security benefit is subject to federal income tax (0%, 50%, or 85%) using the IRS provisional combined income formula.</p>
-    </a>
-  
-    <a href="/finance/car-depreciation-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Car Depreciation Calculator (5-Year Value & Residual Loss)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Estimate vehicle depreciation over 5 years. Calculate monthly depreciation cost, residual trade-in value, and resale price for cars, SUVs, trucks, and EVs.</p>
-    </a>
-  
-    <a href="/finance/hourly-to-salary-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Hourly to Salary Calculator (Annual, Monthly & Bi-Weekly Pay)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert hourly wage to annual salary, monthly income, and bi-weekly paychecks. Based on 40 hours per week, 2,080 working hours, with overtime and unpaid time off.</p>
-    </a>
-  
-    <a href="/finance/sales-tax-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Sales Tax Calculator (Add Tax or Back Out Pre-Tax Price)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate sales tax or reverse calculate price before tax. Features state presets for California, Texas, Florida, New York, and all 50 US states.</p>
-    </a>
-  
-    <a href="/finance/simple-interest-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Simple Interest Calculator (I = Prt Loan & Savings)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate simple interest with formula I = Prt. Find total interest earned or paid, total maturity balance, and monthly payback schedule.</p>
-    </a>
-  
-    <a href="/finance/overtime-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Overtime Pay Calculator (1.5x Time and a Half & Double Time)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate overtime wages, 1.5x time-and-a-half rate, 2.0x double-time holiday pay, and total gross paycheck breakdown under FLSA rules.</p>
-    </a>
-  
-    <a href="/finance/cagr-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">CAGR Calculator (Compound Annual Growth Rate)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate Compound Annual Growth Rate (CAGR) for stocks, real estate, and business revenue. Includes total percentage return and Rule of 72 doubling timeline.</p>
-    </a>
-  
-    <a href="/finance/net-worth-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Net Worth Calculator (Assets minus Liabilities)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate your total personal net worth by tallying cash, real estate, stocks, and retirement accounts against mortgages, student loans, and debt.</p>
-    </a>
-  
-    <a href="/finance/compound-interest-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-decoration: none; color: inherit;">
-      <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem; color: var(--fg);">Compound Interest Calculator (With Monthly Contributions)</h3>
-      <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate compound interest growth with monthly deposits, annual returns, and compounding frequencies. Visualize total principal vs interest earned.</p>
-    </a>
-  
+
+          <div class="tool-box">
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label">Initial / Starting Value</label>
+                <input type="number" id="pi-init" class="code-input" value="80" oninput="calcPI()" style="font-size: 1.25rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Final / New Value</label>
+                <input type="number" id="pi-final" class="code-input" value="120" oninput="calcPI()" style="font-size: 1.25rem;" />
+              </div>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Percentage Increase</div>
+              <div id="pi-pct" class="result-val" style="color: #10b981;">+50.00%</div>
+              <div id="pi-diff" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;">Absolute Increase: +40</div>
+              <div id="pi-formula" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Formula: ((120 - 80) ÷ 80) × 100 = 50%</div>
+            </div>
+          </div>
         </div>
-      </div>
-    
+
+        <script>
+          function calcPI() {
+            var v1 = parseFloat(document.getElementById('pi-init').value);
+            var v2 = parseFloat(document.getElementById('pi-final').value);
+            if (isNaN(v1) || isNaN(v2) || v1 === 0) {
+              document.getElementById('pi-pct').textContent = '-';
+              return;
+            }
+
+            var diff = v2 - v1;
+            var pct = (diff / Math.abs(v1)) * 100;
+            var mult = v2 / v1;
+
+            var sign = pct >= 0 ? '+' : '';
+            var pctEl = document.getElementById('pi-pct');
+            pctEl.textContent = sign + pct.toFixed(2) + '%';
+            pctEl.style.color = pct >= 0 ? '#10b981' : '#ef4444';
+
+            document.getElementById('pi-diff').textContent = 'Absolute Change: ' + (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US') + ' (Multiplier: ' + mult.toFixed(3) + '×)';
+            document.getElementById('pi-formula').textContent = 'Formula: ((' + v2 + ' - ' + v1 + ') ÷ |' + v1 + '|) × 100 = ' + pct.toFixed(2) + '%';
+          }
+
+          document.addEventListener('DOMContentLoaded', calcPI);
+          calcPI();
+        </script>
+      
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>

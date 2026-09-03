@@ -875,6 +875,288 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         calcOT();
       </script>
     `
+  },
+  {
+    slug: 'cagr-calculator',
+    title: 'CAGR Calculator (Compound Annual Growth Rate)',
+    metaDesc: 'Calculate Compound Annual Growth Rate (CAGR) for stocks, real estate, and business revenue. Includes total percentage return and Rule of 72 doubling timeline.',
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; CAGR Calculator
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">CAGR (Compound Annual Growth Rate) Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Determine the annualized growth rate of an investment, business revenue, or asset portfolio across any number of years.
+          </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Beginning Value ($ USD)</label>
+              <input type="number" id="cagrStart" value="10000" min="1" step="500" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCAGR()" />
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Ending Value ($ USD)</label>
+              <input type="number" id="cagrEnd" value="25000" min="1" step="500" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCAGR()" />
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Time Period (Years)</label>
+              <input type="number" id="cagrYears" value="5" min="0.1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcCAGR()" />
+            </div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Growth Analysis</h3>
+            <div id="cagrSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function calcCAGR() {
+          var bv = parseFloat(document.getElementById('cagrStart').value) || 1;
+          var ev = parseFloat(document.getElementById('cagrEnd').value) || 1;
+          var t = parseFloat(document.getElementById('cagrYears').value) || 1;
+
+          var cagr = (Math.pow(ev / bv, 1 / t) - 1) * 100;
+          var totalReturn = ((ev - bv) / bv) * 100;
+          var doublingYears = cagr > 0 ? (72 / cagr) : 0;
+
+          document.getElementById('cagrSummary').innerHTML = 
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">ANNUALIZED GROWTH RATE (CAGR)</span>' +
+              '<div style="font-size: 2rem; font-weight: bold; color: #10b981;">' + cagr.toFixed(2) + '% / year</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL OVERALL RETURN</span>' +
+              '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">+' + totalReturn.toFixed(1) + '% (+$' + Math.round(ev - bv).toLocaleString('en-US') + ')</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">RULE OF 72 (DOUBLING TIME)</span>' +
+              '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + (doublingYears > 0 ? doublingYears.toFixed(1) + ' Years to Double' : 'N/A') + '</div>' +
+            '</div>';
+        }
+
+        document.addEventListener('DOMContentLoaded', calcCAGR);
+        calcCAGR();
+      </script>
+    `
+  },
+  {
+    slug: 'net-worth-calculator',
+    title: 'Net Worth Calculator (Assets minus Liabilities)',
+    metaDesc: 'Calculate your total personal net worth by tallying cash, real estate, stocks, and retirement accounts against mortgages, student loans, and debt.',
+    category: 'Finance',
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Net Worth Calculator
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Personal Net Worth Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Calculate your true financial standing: tally what you own (assets) and subtract what you owe (liabilities).
+          </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <!-- Assets -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem; color: #10b981;">Assets (What You Own)</h3>
+            <div style="display: grid; gap: 0.85rem;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Cash & Bank Accounts ($)</label>
+                <input type="number" id="nwCash" value="25000" min="0" step="500" class="search-input nw-asset" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Retirement (401k, IRA) ($)</label>
+                <input type="number" id="nwRet" value="120000" min="0" step="1000" class="search-input nw-asset" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Real Estate Market Value ($)</label>
+                <input type="number" id="nwHome" value="380000" min="0" step="5000" class="search-input nw-asset" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Vehicles & Personal Property ($)</label>
+                <input type="number" id="nwVeh" value="30000" min="0" step="1000" class="search-input nw-asset" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Liabilities -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem; color: #ef4444;">Liabilities (What You Owe)</h3>
+            <div style="display: grid; gap: 0.85rem;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Mortgage Balance ($)</label>
+                <input type="number" id="nwMort" value="240000" min="0" step="2000" class="search-input nw-debt" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Auto Loans ($)</label>
+                <input type="number" id="nwAuto" value="12000" min="0" step="500" class="search-input nw-debt" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Student Loans ($)</label>
+                <input type="number" id="nwStudent" value="15000" min="0" step="500" class="search-input nw-debt" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Credit Cards & Other Debt ($)</label>
+                <input type="number" id="nwCards" value="3000" min="0" step="200" class="search-input nw-debt" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-align: center; margin-bottom: 2rem;">
+          <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Total Net Worth</div>
+          <div id="nwTotal" style="font-family: var(--mono); font-size: 2.8rem; font-weight: bold; color: #10b981; margin: 0.5rem 0;">$285,000</div>
+          <div id="nwRatios" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono);">
+            Total Assets: $555,000 | Total Liabilities: $270,000 | Debt Ratio: 48.6%
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function calcNW() {
+          var assets = 0;
+          document.querySelectorAll('.nw-asset').forEach(function(el) {
+            assets += parseFloat(el.value) || 0;
+          });
+
+          var debts = 0;
+          document.querySelectorAll('.nw-debt').forEach(function(el) {
+            debts += parseFloat(el.value) || 0;
+          });
+
+          var netWorth = assets - debts;
+          var debtRatio = assets > 0 ? ((debts / assets) * 100) : 0;
+
+          var totalEl = document.getElementById('nwTotal');
+          totalEl.textContent = (netWorth >= 0 ? '$' : '-$') + Math.abs(Math.round(netWorth)).toLocaleString('en-US');
+          totalEl.style.color = netWorth >= 0 ? '#10b981' : '#ef4444';
+
+          document.getElementById('nwRatios').textContent = 
+            'Total Assets: $' + Math.round(assets).toLocaleString('en-US') + ' | ' +
+            'Total Liabilities: $' + Math.round(debts).toLocaleString('en-US') + ' | ' +
+            'Debt Ratio: ' + debtRatio.toFixed(1) + '%';
+        }
+
+        document.addEventListener('DOMContentLoaded', calcNW);
+        calcNW();
+      </script>
+    `
+  },
+  {
+    slug: 'compound-interest-calculator',
+    title: 'Compound Interest Calculator (With Monthly Contributions)',
+    metaDesc: 'Calculate compound interest growth with monthly deposits, annual returns, and compounding frequencies. Visualize total principal vs interest earned.',
+    category: 'Finance',
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Compound Interest
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Compound Interest Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Calculate how your savings and investments grow over time with recurring monthly contributions and compound interest.
+          </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Initial Investment ($ USD)</label>
+              <input type="number" id="ciPrinc" value="5000" min="0" step="500" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCI()" />
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Monthly Contribution ($ / month)</label>
+              <input type="number" id="ciMonthly" value="300" min="0" step="50" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCI()" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Estimated Return (%)</label>
+                <input type="number" id="ciRate" value="8.0" min="0" max="30" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcCI()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Investment Years</label>
+                <input type="number" id="ciYears" value="20" min="1" max="50" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcCI()" />
+              </div>
+            </div>
+
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Compounding Frequency</label>
+              <select id="ciFreq" class="code-input" style="width: 100%; padding: 0.55rem;" onchange="calcCI()">
+                <option value="12" selected>Monthly (12/yr - Standard)</option>
+                <option value="1">Annually (1/yr)</option>
+                <option value="365">Daily (365/yr)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Maturity Wealth Projection</h3>
+            <div id="ciSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function calcCI() {
+          var p = parseFloat(document.getElementById('ciPrinc').value) || 0;
+          var pmt = parseFloat(document.getElementById('ciMonthly').value) || 0;
+          var r = (parseFloat(document.getElementById('ciRate').value) || 0) / 100;
+          var t = parseFloat(document.getElementById('ciYears').value) || 1;
+          var n = parseInt(document.getElementById('ciFreq').value, 10) || 12;
+
+          var totalMonths = Math.round(t * 12);
+          var monthlyRate = r / 12;
+
+          // Future value of lump sum principal
+          var fvPrincipal = p * Math.pow(1 + (r / n), n * t);
+
+          // Future value of monthly annuity (compounded monthly)
+          var fvAnnuity = 0;
+          if (monthlyRate > 0) {
+            fvAnnuity = pmt * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate);
+          } else {
+            fvAnnuity = pmt * totalMonths;
+          }
+
+          var totalFutureVal = fvPrincipal + fvAnnuity;
+          var totalContributions = p + (pmt * totalMonths);
+          var totalInterest = Math.max(0, totalFutureVal - totalContributions);
+
+          document.getElementById('ciSummary').innerHTML = 
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL PROJECTED WEALTH (' + t + ' YRS)</span>' +
+              '<div style="font-size: 2rem; font-weight: bold; color: #10b981;">$' + Math.round(totalFutureVal).toLocaleString('en-US') + '</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL INTEREST ACCRUED</span>' +
+              '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">$' + Math.round(totalInterest).toLocaleString('en-US') + '</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">' + ((totalInterest / totalFutureVal) * 100).toFixed(1) + '% of final balance from pure growth</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL PRINCIPAL CONTRIBUTED</span>' +
+              '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">$' + Math.round(totalContributions).toLocaleString('en-US') + '</div>' +
+            '</div>';
+        }
+
+        document.addEventListener('DOMContentLoaded', calcCI);
+        calcCI();
+      </script>
+    `
   }
 ];
   const seniorHealthTools = [

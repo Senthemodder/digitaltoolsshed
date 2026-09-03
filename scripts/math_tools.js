@@ -1180,6 +1180,395 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           calcSN();
         </script>
       `
+    },
+    {
+      slug: 'percentage-increase-calculator',
+      title: 'Percentage Increase Calculator (Formula & Steps)',
+      metaDesc: 'Calculate percentage increase from starting value to final value. Includes difference, growth factor multiplier, and step-by-step formula solution.',
+      category: 'Math & Finance',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Increase
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Percentage Increase Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate percentage growth, price rises, and revenue increases between two numbers with full formula breakdown.
+          </p>
+
+          <div class="tool-box">
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label">Initial / Starting Value</label>
+                <input type="number" id="pi-init" class="code-input" value="80" oninput="calcPI()" style="font-size: 1.25rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Final / New Value</label>
+                <input type="number" id="pi-final" class="code-input" value="120" oninput="calcPI()" style="font-size: 1.25rem;" />
+              </div>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Percentage Increase</div>
+              <div id="pi-pct" class="result-val" style="color: #10b981;">+50.00%</div>
+              <div id="pi-diff" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;">Absolute Increase: +40</div>
+              <div id="pi-formula" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Formula: ((120 - 80) ÷ 80) × 100 = 50%</div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcPI() {
+            var v1 = parseFloat(document.getElementById('pi-init').value);
+            var v2 = parseFloat(document.getElementById('pi-final').value);
+            if (isNaN(v1) || isNaN(v2) || v1 === 0) {
+              document.getElementById('pi-pct').textContent = '-';
+              return;
+            }
+
+            var diff = v2 - v1;
+            var pct = (diff / Math.abs(v1)) * 100;
+            var mult = v2 / v1;
+
+            var sign = pct >= 0 ? '+' : '';
+            var pctEl = document.getElementById('pi-pct');
+            pctEl.textContent = sign + pct.toFixed(2) + '%';
+            pctEl.style.color = pct >= 0 ? '#10b981' : '#ef4444';
+
+            document.getElementById('pi-diff').textContent = 'Absolute Change: ' + (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US') + ' (Multiplier: ' + mult.toFixed(3) + '×)';
+            document.getElementById('pi-formula').textContent = 'Formula: ((' + v2 + ' - ' + v1 + ') ÷ |' + v1 + '|) × 100 = ' + pct.toFixed(2) + '%';
+          }
+
+          document.addEventListener('DOMContentLoaded', calcPI);
+          calcPI();
+        </script>
+      `
+    },
+    {
+      slug: 'percentage-decrease-calculator',
+      title: 'Percentage Decrease & Discount Calculator',
+      metaDesc: 'Calculate percentage decrease, price drops, markdown discounts, and savings between original and discounted prices.',
+      category: 'Math & Finance',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Decrease
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Percentage Decrease Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Determine percentage drops, retail markdown discounts, and loss margins from initial to reduced value.
+          </p>
+
+          <div class="tool-box">
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label">Original / Starting Value</label>
+                <input type="number" id="pd-init" class="code-input" value="150" oninput="calcPD()" style="font-size: 1.25rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Reduced / Final Value</label>
+                <input type="number" id="pd-final" class="code-input" value="105" oninput="calcPD()" style="font-size: 1.25rem;" />
+              </div>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Percentage Decrease</div>
+              <div id="pd-pct" class="result-val" style="color: #ef4444;">-30.00%</div>
+              <div id="pd-diff" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;">Total Savings: $45.00</div>
+              <div id="pd-formula" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Formula: ((150 - 105) ÷ 150) × 100 = 30% reduction</div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcPD() {
+            var v1 = parseFloat(document.getElementById('pd-init').value);
+            var v2 = parseFloat(document.getElementById('pd-final').value);
+            if (isNaN(v1) || isNaN(v2) || v1 === 0) {
+              document.getElementById('pd-pct').textContent = '-';
+              return;
+            }
+
+            var drop = v1 - v2;
+            var pct = (drop / Math.abs(v1)) * 100;
+
+            var pctEl = document.getElementById('pd-pct');
+            pctEl.textContent = '-' + pct.toFixed(2) + '%';
+
+            document.getElementById('pd-diff').textContent = 'Total Reduction: ' + drop.toLocaleString('en-US') + ' (Remaining: ' + ((v2 / v1) * 100).toFixed(1) + '%)';
+            document.getElementById('pd-formula').textContent = 'Formula: ((' + v1 + ' - ' + v2 + ') ÷ |' + v1 + '|) × 100 = ' + pct.toFixed(2) + '% decrease';
+          }
+
+          document.addEventListener('DOMContentLoaded', calcPD);
+          calcPD();
+        </script>
+      `
+    },
+    {
+      slug: 'standard-deviation-calculator',
+      title: 'Standard Deviation Calculator (Sample & Population)',
+      metaDesc: 'Calculate sample standard deviation, population standard deviation, variance, mean, and sum of squares for any list of numbers.',
+      category: 'Math & Statistics',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Standard Deviation
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Standard Deviation Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Compute sample standard deviation ($s$), population standard deviation ($\\sigma$), variance, and statistical mean.
+          </p>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Enter Numbers (Comma or Space Separated)</label>
+              <textarea id="sd-data" class="code-input" rows="3" oninput="calcSD()" style="font-size: 1.1rem; line-height: 1.5;">10, 12, 23, 23, 16, 23, 21, 16</textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Sample Std Deviation (s)</div>
+                <div id="sd-s" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">5.2372</div>
+                <div id="sd-s-var" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Variance (s²): 27.4286</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Population Std Dev (σ)</div>
+                <div id="sd-p" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">4.8990</div>
+                <div id="sd-p-var" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Variance (σ²): 24.0000</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Mean & Sample Size</div>
+                <div id="sd-mean" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">18.00</div>
+                <div id="sd-count" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Count (N): 8 | Sum: 144</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcSD() {
+            var text = document.getElementById('sd-data').value;
+            var nums = text.split(/[,\\s]+/).map(parseFloat).filter(function(n) { return !isNaN(n); });
+
+            if (nums.length < 2) {
+              document.getElementById('sd-s').textContent = '-';
+              document.getElementById('sd-p').textContent = '-';
+              document.getElementById('sd-mean').textContent = nums.length === 1 ? nums[0].toFixed(2) : '-';
+              return;
+            }
+
+            var n = nums.length;
+            var sum = nums.reduce(function(a, b) { return a + b; }, 0);
+            var mean = sum / n;
+
+            var sumSqDiff = nums.reduce(function(acc, x) {
+              var d = x - mean;
+              return acc + (d * d);
+            }, 0);
+
+            var sampleVar = sumSqDiff / (n - 1);
+            var sampleSD = Math.sqrt(sampleVar);
+
+            var popVar = sumSqDiff / n;
+            var popSD = Math.sqrt(popVar);
+
+            document.getElementById('sd-s').textContent = sampleSD.toFixed(4);
+            document.getElementById('sd-s-var').textContent = 'Variance (s²): ' + sampleVar.toFixed(4);
+
+            document.getElementById('sd-p').textContent = popSD.toFixed(4);
+            document.getElementById('sd-p-var').textContent = 'Variance (σ²): ' + popVar.toFixed(4);
+
+            document.getElementById('sd-mean').textContent = mean.toFixed(2);
+            document.getElementById('sd-count').textContent = 'Count (N): ' + n + ' | Sum: ' + sum.toLocaleString('en-US');
+          }
+
+          document.addEventListener('DOMContentLoaded', calcSD);
+          calcSD();
+        </script>
+      `
+    },
+    {
+      slug: 'markup-margin-calculator',
+      title: 'Markup vs Margin Calculator (Gross Profit & Selling Price)',
+      metaDesc: 'Understand the difference between markup and profit margin. Calculate selling price, gross profit, and cost of goods sold (COGS).',
+      category: 'Finance & eCommerce',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Markup vs Margin
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Markup vs. Profit Margin Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert between cost markup and gross profit margin to ensure your retail products, client services, and quotes are profitable.
+          </p>
+
+          <div class="tool-box">
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label">Cost of Goods / Item Cost ($)</label>
+                <input type="number" id="mm-cost" class="code-input" value="40" min="0" step="1" oninput="calcMMFromCost()" style="font-size: 1.25rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Target Markup (% on Cost)</label>
+                <input type="number" id="mm-markup" class="code-input" value="50" min="0" step="1" oninput="calcMMFromMarkup()" style="font-size: 1.25rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Profit Margin (% of Revenue)</label>
+                <input type="number" id="mm-margin" class="code-input" value="33.33" min="0" max="99.9" step="0.5" oninput="calcMMFromMargin()" style="font-size: 1.25rem;" />
+              </div>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Recommended Selling Price</div>
+              <div id="mm-price" class="result-val" style="color: #10b981;">$60.00</div>
+              <div id="mm-profit" style="font-size: 1.1rem; color: #3b82f6; font-family: var(--mono); margin-top: 0.4rem;">Gross Profit: $20.00</div>
+              <div id="mm-expl" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">
+                50% Markup = 33.3% Gross Margin
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcMMFromCost() {
+            var cost = parseFloat(document.getElementById('mm-cost').value) || 0;
+            var markup = parseFloat(document.getElementById('mm-markup').value) || 0;
+            var price = cost * (1 + (markup / 100));
+            var profit = price - cost;
+            var margin = price > 0 ? ((profit / price) * 100) : 0;
+
+            document.getElementById('mm-margin').value = margin.toFixed(2);
+            updateMMResults(price, profit, markup, margin);
+          }
+
+          function calcMMFromMarkup() {
+            calcMMFromCost();
+          }
+
+          function calcMMFromMargin() {
+            var cost = parseFloat(document.getElementById('mm-cost').value) || 0;
+            var margin = parseFloat(document.getElementById('mm-margin').value) || 0;
+            if (margin >= 100) margin = 99.9;
+
+            var price = cost / (1 - (margin / 100));
+            var profit = price - cost;
+            var markup = cost > 0 ? ((profit / cost) * 100) : 0;
+
+            document.getElementById('mm-markup').value = markup.toFixed(2);
+            updateMMResults(price, profit, markup, margin);
+          }
+
+          function updateMMResults(price, profit, markup, margin) {
+            document.getElementById('mm-price').textContent = '$' + price.toFixed(2);
+            document.getElementById('mm-profit').textContent = 'Gross Profit: $' + profit.toFixed(2);
+            document.getElementById('mm-expl').textContent = markup.toFixed(1) + '% Markup on Cost = ' + margin.toFixed(1) + '% Gross Margin';
+          }
+
+          document.addEventListener('DOMContentLoaded', calcMMFromCost);
+          calcMMFromCost();
+        </script>
+      `
+    },
+    {
+      slug: 'permutation-combination-calculator',
+      title: 'Permutation and Combination Calculator (nPr & nCr)',
+      metaDesc: 'Calculate permutations (nPr order matters) and combinations (nCr order does not matter) with factorial solutions and step-by-step formulas.',
+      category: 'Math & Probability',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Permutations & Combinations
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Permutations & Combinations Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate total arrangements (nPr) and selections (nCr) from a set of $n$ distinct objects taken $r$ at a time.
+          </p>
+
+          <div class="tool-box">
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label">Total Set Size (n)</label>
+                <input type="number" id="pc-n" class="code-input" value="10" min="0" max="100" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Subset Sample Size (r)</label>
+                <input type="number" id="pc-r" class="code-input" value="3" min="0" max="100" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Combinations (nCr)</div>
+                <div id="pc-ncr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">120</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order does not matter</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Permutations (nPr)</div>
+                <div id="pc-npr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">720</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order matters</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Factorials (n! and r!)</div>
+                <div id="pc-fact" style="font-family: var(--mono); font-size: 1.25rem; font-weight: bold; color: var(--fg); margin: 0.5rem 0;">n! = 3,628,800</div>
+                <div id="pc-rfact" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">r! = 6</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function factorial(num) {
+            if (num < 0) return 0;
+            if (num === 0 || num === 1) return 1;
+            var res = 1;
+            for (var i = 2; i <= num; i++) {
+              res *= i;
+              if (res > 1e15) break; // overflow safety
+            }
+            return res;
+          }
+
+          function calcPC() {
+            var n = parseInt(document.getElementById('pc-n').value, 10);
+            var r = parseInt(document.getElementById('pc-r').value, 10);
+
+            if (isNaN(n) || isNaN(r) || n < 0 || r < 0 || r > n) {
+              document.getElementById('pc-ncr').textContent = '-';
+              document.getElementById('pc-npr').textContent = '-';
+              return;
+            }
+
+            // nPr = n! / (n-r)!
+            var npr = 1;
+            for (var i = n; i > (n - r); i--) {
+              npr *= i;
+            }
+
+            // nCr = nPr / r!
+            var rFact = factorial(r);
+            var ncr = Math.round(npr / rFact);
+
+            document.getElementById('pc-ncr').textContent = ncr.toLocaleString('en-US');
+            document.getElementById('pc-npr').textContent = npr.toLocaleString('en-US');
+
+            var nFact = n <= 20 ? factorial(n).toLocaleString('en-US') : '> 10^18';
+            document.getElementById('pc-fact').textContent = 'n! = ' + nFact;
+            document.getElementById('pc-rfact').textContent = 'r! = ' + (r <= 20 ? rFact.toLocaleString('en-US') : '> 10^18');
+          }
+
+          document.addEventListener('DOMContentLoaded', calcPC);
+          calcPC();
+        </script>
+      `
     }
   ];
 
