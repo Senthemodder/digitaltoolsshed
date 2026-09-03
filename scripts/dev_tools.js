@@ -870,6 +870,307 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           parseUrl();
         </script>
       `
+    },
+    {
+      slug: 'epoch-converter',
+      title: 'Unix Timestamp & Epoch Converter',
+      metaDesc: 'Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.',
+      category: 'Developer',
+      faq: [
+        { q: 'What is Unix Epoch time?', a: 'Unix time (or POSIX time) is the number of seconds that have elapsed since Thursday, January 1, 1970 00:00:00 UTC (Coordinated Universal Time), minus leap seconds.' },
+        { q: 'How do you convert Unix timestamp to human-readable date in JavaScript?', a: 'In JavaScript, multiply the 10-digit epoch timestamp by 1000 to convert to milliseconds, then pass to Date: new Date(timestamp * 1000).toISOString() or .toLocaleString().' },
+        { q: 'What is the Year 2038 problem in Unix timestamps?', a: 'The Year 2038 problem (Y2K38) occurs when 32-bit signed integers overflow on January 19, 2038 at 03:14:07 UTC. Modern 64-bit systems resolve this by supporting dates billions of years into the future.' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Epoch Converter
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Unix Timestamp & Epoch Converter</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Convert Unix timestamps (seconds & milliseconds) to human dates and vice versa with live timezone formatting.
+          </p>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; text-align: center;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">CURRENT UNIX EPOCH TIME (SECONDS)</span>
+            <div id="live-epoch" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">0</div>
+            <span id="live-utc" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">...</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="tool-box">
+              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">Timestamp to Date</h3>
+              <div style="margin-bottom: 1rem;">
+                <label class="field-label">Timestamp (Seconds or Milliseconds)</label>
+                <input type="text" id="tsInput" class="text-input" value="1756857600" oninput="convertTimestamp()" />
+              </div>
+              <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem;">
+                <button class="btn-sec" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="setNowTs()">Set to Now</button>
+                <button class="btn-sec" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="setTs(0)">Epoch 0</button>
+                <button class="btn-sec" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="setTs(2147483647)">Y2038 Max</button>
+              </div>
+
+              <div id="tsResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;"></div>
+            </div>
+
+            <div class="tool-box">
+              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">Human Date to Timestamp</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <div>
+                  <label class="field-label">Year</label>
+                  <input type="number" id="dtYear" class="text-input" value="2026" oninput="convertDateToTs()" />
+                </div>
+                <div>
+                  <label class="field-label">Month (1-12)</label>
+                  <input type="number" id="dtMonth" class="text-input" value="9" min="1" max="12" oninput="convertDateToTs()" />
+                </div>
+                <div>
+                  <label class="field-label">Day</label>
+                  <input type="number" id="dtDay" class="text-input" value="3" min="1" max="31" oninput="convertDateToTs()" />
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                <div>
+                  <label class="field-label">Hour (0-23)</label>
+                  <input type="number" id="dtHour" class="text-input" value="12" min="0" max="23" oninput="convertDateToTs()" />
+                </div>
+                <div>
+                  <label class="field-label">Minute</label>
+                  <input type="number" id="dtMin" class="text-input" value="0" min="0" max="59" oninput="convertDateToTs()" />
+                </div>
+                <div>
+                  <label class="field-label">Second</label>
+                  <input type="number" id="dtSec" class="text-input" value="0" min="0" max="59" oninput="convertDateToTs()" />
+                </div>
+              </div>
+
+              <div id="dateResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;"></div>
+            </div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 2rem 0;">
+            <span class="ad-label">Sponsored Resource</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function updateLiveClock() {
+            var now = new Date();
+            var sec = Math.floor(now.getTime() / 1000);
+            var el = document.getElementById('live-epoch');
+            if (el) el.textContent = sec;
+            var u = document.getElementById('live-utc');
+            if (u) u.textContent = 'UTC: ' + now.toUTCString();
+          }
+          setInterval(updateLiveClock, 1000);
+          updateLiveClock();
+
+          function convertTimestamp() {
+            var raw = (document.getElementById('tsInput').value || '').trim();
+            var num = parseFloat(raw);
+            if (isNaN(num)) {
+              document.getElementById('tsResults').innerHTML = '<span style="color:#ef4444;">Invalid number</span>';
+              return;
+            }
+            // If greater than 100 billion, assume milliseconds
+            var isMs = num > 1e11;
+            var ms = isMs ? num : num * 1000;
+            var d = new Date(ms);
+
+            document.getElementById('tsResults').innerHTML = 
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">GMT / UTC DATE</span>' +
+                '<div style="font-weight:bold; color:var(--fg);">' + d.toUTCString() + '</div>' +
+              '</div>' +
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">LOCAL TIME</span>' +
+                '<div style="font-weight:bold; color:var(--fg);">' + d.toString() + '</div>' +
+              '</div>' +
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">ISO 8601 STRING</span>' +
+                '<div style="color:#3b82f6;">' + d.toISOString() + '</div>' +
+              '</div>';
+          }
+
+          function setNowTs() {
+            document.getElementById('tsInput').value = Math.floor(Date.now() / 1000);
+            convertTimestamp();
+          }
+          function setTs(val) {
+            document.getElementById('tsInput').value = val;
+            convertTimestamp();
+          }
+
+          function convertDateToTs() {
+            var y = parseInt(document.getElementById('dtYear').value, 10) || 2026;
+            var m = (parseInt(document.getElementById('dtMonth').value, 10) || 1) - 1;
+            var d = parseInt(document.getElementById('dtDay').value, 10) || 1;
+            var h = parseInt(document.getElementById('dtHour').value, 10) || 0;
+            var min = parseInt(document.getElementById('dtMin').value, 10) || 0;
+            var s = parseInt(document.getElementById('dtSec').value, 10) || 0;
+
+            var utcDate = new Date(Date.UTC(y, m, d, h, min, s));
+            var epochSec = Math.floor(utcDate.getTime() / 1000);
+            var epochMs = utcDate.getTime();
+
+            document.getElementById('dateResults').innerHTML = 
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">UNIX TIMESTAMP (SECONDS)</span>' +
+                '<div style="font-size:1.4rem; font-weight:bold; color:#10b981;">' + epochSec + '</div>' +
+              '</div>' +
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">TIMESTAMP (MILLISECONDS)</span>' +
+                '<div style="color:var(--fg);">' + epochMs + '</div>' +
+              '</div>';
+          }
+
+          document.addEventListener('DOMContentLoaded', function() {
+            convertTimestamp();
+            convertDateToTs();
+          });
+          convertTimestamp();
+          convertDateToTs();
+        </script>
+      `
+    },
+    {
+      slug: 'diff-checker',
+      title: 'Online Text & Code Diff Checker',
+      metaDesc: 'Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.',
+      category: 'Developer',
+      faq: [
+        { q: 'How does this online diff checker work?', a: 'This tool performs a line-by-line comparison between your original and modified text directly inside your browser. Added lines are highlighted in green, while deleted lines are highlighted in red.' },
+        { q: 'Is my text or code private when using this diff tool?', a: 'Yes, 100% private. All text comparisons and diff algorithms run client-side in your web browser. No text is ever uploaded or stored on any server.' },
+        { q: 'Can I use this diff tool for programming code?', a: 'Yes. It supports JavaScript, Python, JSON, HTML, CSS, SQL, Markdown, or any plain-text document format.' }
+      ],
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Diff Checker
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Online Text & Code Diff Checker</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Compare two text or code files side-by-side with additions and deletions highlighted in real time.
+          </p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin:0;">Original Text</label>
+                <button class="btn-sec" style="font-size:0.7rem; padding:0.2rem 0.4rem;" onclick="document.getElementById('diffTextA').value=''; runDiff();">Clear</button>
+              </div>
+              <textarea id="diffTextA" class="text-input" style="height: 220px; font-family: var(--mono); font-size: 0.85rem;" oninput="runDiff()">function calculateTotal(items) {
+  let total = 0;
+  for (let i = 0; i < items.length; i++) {
+    total += items[i].price;
+  }
+  return total;
+}</textarea>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin:0;">Modified Text</label>
+                <button class="btn-sec" style="font-size:0.7rem; padding:0.2rem 0.4rem;" onclick="document.getElementById('diffTextB').value=''; runDiff();">Clear</button>
+              </div>
+              <textarea id="diffTextB" class="text-input" style="height: 220px; font-family: var(--mono); font-size: 0.85rem;" oninput="runDiff()">function calculateTotal(items, discount = 0) {
+  const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+  const tax = subtotal * 0.08;
+  return (subtotal - discount) + tax;
+}</textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="runDiff()">Compare Differences</button>
+            <button class="btn-sec" onclick="swapDiff()">Swap Texts</button>
+            <span id="diffStats" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted); margin-left: auto;"></span>
+          </div>
+
+          <div class="tool-box" style="padding: 1rem;">
+            <div class="field-label" style="margin-bottom: 0.75rem;">DIFFERENCE REPORT</div>
+            <div id="diffOutput" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.6; max-height: 400px; overflow-y: auto; border: 1px solid var(--border); background: var(--surface-alt); border-radius: 4px; padding: 0.75rem;"></div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 2rem 0;">
+            <span class="ad-label">Sponsored Resource</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function runDiff() {
+            var textA = document.getElementById('diffTextA').value.split('\\n');
+            var textB = document.getElementById('diffTextB').value.split('\\n');
+
+            var outHtml = '';
+            var adds = 0, dels = 0, unch = 0;
+
+            var maxLen = Math.max(textA.length, textB.length);
+            for (var i = 0; i < maxLen; i++) {
+              var lineA = textA[i];
+              var lineB = textB[i];
+
+              if (lineA === lineB) {
+                unch++;
+                outHtml += '<div style=\"padding:0.15rem 0.5rem; color:var(--text-muted);\">  ' + escapeDiff(lineA || '') + '</div>';
+              } else {
+                if (lineA !== undefined) {
+                  dels++;
+                  outHtml += '<div style=\"padding:0.15rem 0.5rem; background:rgba(239, 68, 68, 0.15); color:#ef4444;\">- ' + escapeDiff(lineA) + '</div>';
+                }
+                if (lineB !== undefined) {
+                  adds++;
+                  outHtml += '<div style=\"padding:0.15rem 0.5rem; background:rgba(34, 197, 94, 0.15); color:#22c55e;\">+ ' + escapeDiff(lineB) + '</div>';
+                }
+              }
+            }
+
+            document.getElementById('diffOutput').innerHTML = outHtml || '<span style=\"color:var(--text-muted);\">Both texts are identical!</span>';
+            document.getElementById('diffStats').textContent = '+' + adds + ' additions, -' + dels + ' deletions';
+          }
+
+          function swapDiff() {
+            var a = document.getElementById('diffTextA');
+            var b = document.getElementById('diffTextB');
+            var tmp = a.value;
+            a.value = b.value;
+            b.value = tmp;
+            runDiff();
+          }
+
+          function escapeDiff(str) {
+            return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          }
+
+          document.addEventListener('DOMContentLoaded', runDiff);
+          runDiff();
+        </script>
+      `
     }
   ];
 

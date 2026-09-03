@@ -313,6 +313,153 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         document.addEventListener('DOMContentLoaded', calcSSTax);
       </script>
     `
+  },
+  {
+    slug: 'car-depreciation-calculator',
+    title: 'Car Depreciation Calculator (5-Year Value & Residual Loss)',
+    metaDesc: 'Estimate vehicle depreciation over 5 years. Calculate monthly depreciation cost, residual trade-in value, and resale price for cars, SUVs, trucks, and EVs.',
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Car Depreciation
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Car Depreciation & Residual Value Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Calculate how much your car loses in value each year. Discover your 5-year residual resale value, annual dollar loss, and true monthly ownership cost.
+          </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Vehicle Information</h3>
+            
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Purchase Price ($ USD)</label>
+              <input type="number" id="carPrice" value="38000" min="1000" step="500" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCarDeprec()" />
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Vehicle Category</label>
+              <select id="carType" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 1rem;" onchange="calcCarDeprec()">
+                <option value="truck">Truck / Full-Size Pickup (Slowest Depreciation)</option>
+                <option value="suv" selected>Compact / Midsize SUV (Average Depreciation)</option>
+                <option value="sedan">Sedan / Hatchback (Moderate Depreciation)</option>
+                <option value="luxury">Luxury Vehicle (Rapid Depreciation)</option>
+                <option value="ev">Electric Vehicle EV (Rapid Battery Depreciation)</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Annual Mileage</label>
+              <select id="carMiles" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 1rem;" onchange="calcCarDeprec()">
+                <option value="0.95">Low Mileage (&lt; 10,000 miles/yr)</option>
+                <option value="1.0" selected>Average (12,000 to 15,000 miles/yr)</option>
+                <option value="1.08">High Mileage (18,000+ miles/yr)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">5-Year Ownership Loss</h3>
+            <div id="carSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          </div>
+        </div>
+
+        <div class="ad-blend-box" style="margin: 2rem 0;">
+          <span class="ad-label">Sponsored Resource</span>
+          <div class="ad-unit-300x250">
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '335d807d460eaf2491fcca0f635474ce',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+          </div>
+        </div>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem;">Year-by-Year Depreciation Schedule</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.75rem;">Year</th>
+                  <th style="padding: 0.5rem 0.75rem;">Residual Value</th>
+                  <th style="padding: 0.5rem 0.75rem;">Annual Loss ($)</th>
+                  <th style="padding: 0.5rem 0.75rem;">Total % Depreciated</th>
+                </tr>
+              </thead>
+              <tbody id="deprecTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        var deprecRates = {
+          truck: [0.17, 0.12, 0.10, 0.09, 0.08],
+          suv: [0.20, 0.14, 0.12, 0.10, 0.09],
+          sedan: [0.22, 0.15, 0.13, 0.11, 0.10],
+          luxury: [0.26, 0.18, 0.15, 0.13, 0.11],
+          ev: [0.28, 0.19, 0.16, 0.13, 0.12]
+        };
+
+        function calcCarDeprec() {
+          var price = parseFloat(document.getElementById('carPrice').value) || 0;
+          var cat = document.getElementById('carType').value || 'suv';
+          var milesMult = parseFloat(document.getElementById('carMiles').value) || 1.0;
+
+          var rates = deprecRates[cat];
+          var currentVal = price;
+          var totalLost = 0;
+          var rowsHtml = '';
+
+          for (var i = 0; i < 5; i++) {
+            var yearRate = Math.min(0.35, rates[i] * milesMult);
+            var annualLoss = currentVal * yearRate;
+            currentVal -= annualLoss;
+            totalLost += annualLoss;
+            var pctLost = ((totalLost / price) * 100).toFixed(0);
+
+            rowsHtml += 
+              '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.5rem 0.75rem; font-weight: bold;">Year ' + (i + 1) + '</td>' +
+                '<td style="padding: 0.5rem 0.75rem; font-family: var(--mono); color: #22c55e; font-weight: bold;">$' + Math.round(currentVal).toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.5rem 0.75rem; font-family: var(--mono); color: #ef4444;">-$' + Math.round(annualLoss).toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">' + pctLost + '%</td>' +
+              '</tr>';
+          }
+
+          document.getElementById('deprecTableBody').innerHTML = rowsHtml;
+
+          var monthlyCost = totalLost / 60;
+          document.getElementById('carSummary').innerHTML = 
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">5-YEAR RESALE VALUE</span>' +
+              '<div style="font-size: 1.8rem; font-weight: bold; color: #22c55e;">$' + Math.round(currentVal).toLocaleString('en-US') + '</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">' + (100 - Math.round((totalLost / price) * 100)) + '% of original purchase price retained</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL 5-YEAR DEPRECIATION LOSS</span>' +
+              '<div style="font-size: 1.3rem; font-weight: bold; color: #ef4444;">-$' + Math.round(totalLost).toLocaleString('en-US') + '</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">AVERAGE MONTHLY DEPRECIATION COST</span>' +
+              '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">$' + Math.round(monthlyCost) + ' / month</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">Hidden ownership cost beyond gas and insurance</div>' +
+            '</div>';
+        }
+
+        document.addEventListener('DOMContentLoaded', calcCarDeprec);
+        calcCarDeprec();
+      </script>
+    `
   }
 ];
   const seniorHealthTools = [

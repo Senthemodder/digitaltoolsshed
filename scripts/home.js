@@ -162,6 +162,22 @@ function buildHomepage() {
           <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Markdown Live Preview</strong>
           <span style="font-size: 0.8rem; color: var(--text-muted);">Side-by-side GFM editor & HTML</span>
         </a>
+        <a href="/calc/feet-and-inches-to-cm" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Feet & Inches to cm</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Height converter (ft & in to cm)</span>
+        </a>
+        <a href="/calc/grams-to-cups" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Grams to Cups</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Baking density: flour, sugar, butter</span>
+        </a>
+        <a href="/calc/drywall-calculator" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Drywall Sheet Calculator</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">4x8 & 4x12 panels, mud, tape</span>
+        </a>
+        <a href="/calc/mulch-calculator" style="display: flex; flex-direction: column; padding: 0.85rem 1rem; background: var(--surface-alt); border: 1px solid var(--border); text-decoration: none; color: inherit; border-radius: 4px; transition: border-color 0.15s ease;">
+          <strong style="font-size: 0.95rem; margin-bottom: 0.25rem;">Mulch & Topsoil Yardage</strong>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Cubic yards & store 2 cu ft bags</span>
+        </a>
       </div>
     </div>
 

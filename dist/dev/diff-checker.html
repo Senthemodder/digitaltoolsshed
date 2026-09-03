@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Developer Tools Suite | Digital Tools Shed</title>
-  <meta name="description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/dev/">
-  <meta property="og:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta property="og:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/dev/">
+  <title>Online Text & Code Diff Checker | Digital Tools Shed</title>
+  <meta name="description" content="Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/dev/diff-checker">
+  <meta property="og:title" content="Online Text & Code Diff Checker | Digital Tools Shed">
+  <meta property="og:description" content="Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/dev/diff-checker">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta name="twitter:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
+  <meta name="twitter:title" content="Online Text & Code Diff Checker | Digital Tools Shed">
+  <meta name="twitter:description" content="Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -1090,6 +1090,12 @@ footer a:hover { text-decoration: underline; }
       "position": 2,
       "name": "Dev",
       "item": "https://digitaltoolsshed.com/dev"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Diff Checker",
+      "item": "https://digitaltoolsshed.com/dev/diff-checker"
     }
   ]
 }
@@ -1098,8 +1104,8 @@ footer a:hover { text-decoration: underline; }
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Developer Tools Suite",
-  "url": "https://digitaltoolsshed.com/dev/",
+  "name": "Online Text & Code Diff Checker",
+  "url": "https://digitaltoolsshed.com/dev/diff-checker",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -1108,12 +1114,44 @@ footer a:hover { text-decoration: underline; }
     "priceCurrency": "USD"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
-  "description": "Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.",
+  "description": "Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
     "url": "https://digitaltoolsshed.com"
   }
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How does this online diff checker work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This tool performs a line-by-line comparison between your original and modified text directly inside your browser. Added lines are highlighted in green, while deleted lines are highlighted in red."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my text or code private when using this diff tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, 100% private. All text comparisons and diff algorithms run client-side in your web browser. No text is ever uploaded or stored on any server."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use this diff tool for programming code?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. It supports JavaScript, Python, JSON, HTML, CSS, SQL, Markdown, or any plain-text document format."
+      }
+    }
+  ]
 }
 </script>
 </head>
@@ -1479,7 +1517,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Developer Tools Suite | Digital Tools Shed</span>
+            <span>Online Text & Code Diff Checker | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1517,7 +1555,7 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-    
+        
     <style>
       .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
       .field-group { margin-bottom: 1.25rem; }
@@ -1532,102 +1570,119 @@ footer a:hover { text-decoration: underline; }
       @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
     </style>
   
-    <div class="article-container" style="max-width: 900px;">
-      <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Developer Tools Suite</h1>
-      <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-        Essential developer utilities: JWT token decoders, regex visualizers, SQL formatters, JSON converters, CSS minifiers, and Linux chmod tools.
-      </p>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Diff Checker
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Online Text & Code Diff Checker</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Compare two text or code files side-by-side with additions and deletions highlighted in real time.
+          </p>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-        
-    <a href="/dev/jwt-decoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JWT Token Decoder & Header Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Decode JSON Web Tokens (JWT) locally in your browser. Inspect JOSE header, claims payload, and token expiration timestamps.</p>
-    </a>
-  
-    <a href="/dev/regex-tester" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Regex Visual Tester & Match Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Test and debug JavaScript regular expressions with real-time match highlighting, capture groups, and replacement substitution.</p>
-    </a>
-  
-    <a href="/dev/css-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Code Minifier & Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify CSS stylesheets online: remove comments, compress whitespace, collapse zero dimensions, and optimize colors.</p>
-    </a>
-  
-    <a href="/dev/hash-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cryptographic Hash Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate SHA-256, SHA-512, and SHA-1 checksums locally using the hardware-accelerated Web Cryptography API.</p>
-    </a>
-  
-    <a href="/dev/box-shadow-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Box Shadow Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Visual CSS box-shadow slider tool with real-time blur, spread, and color controls.</p>
-    </a>
-  
-    <a href="/dev/chmod-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Linux Permissions & Chmod Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate Linux octal permissions (755, 644) and symbolic notations.</p>
-    </a>
-  
-    <a href="/dev/url-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Encode and decode URL parameters and percent-encoded characters.</p>
-    </a>
-  
-    <a href="/dev/sql-formatter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">SQL Query Formatter & Beautifier</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Beautify and indent SQL queries with uppercase keyword formatting in your browser.</p>
-    </a>
-  
-    <a href="/dev/json-to-csv" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JSON to CSV Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert JSON arrays of objects into downloadable CSV spreadsheet files.</p>
-    </a>
-  
-    <a href="/dev/ip-subnet-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">IPv4 CIDR Subnet Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate network address, broadcast address, netmask, and usable host count from IP/CIDR prefix.</p>
-    </a>
-  
-    <a href="/dev/html-entity-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">HTML Entity Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert special characters into HTML named and numeric entities and decode HTML entities back to plaintext.</p>
-    </a>
-  
-    <a href="/dev/ai-robots-txt" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">AI Bot Blocker robots.txt Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate a robots.txt file to block AI web scrapers and LLM training crawlers (GPTBot, Claude-Web, CCBot, Google-Extended, Bytespider) while keeping Googlebot allowed.</p>
-    </a>
-  
-    <a href="/dev/cron-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cron Expression Generator & Schedule Explainer</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate and test crontab schedule expressions in human-readable English. Includes live preview of next scheduled execution dates.</p>
-    </a>
-  
-    <a href="/dev/js-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JavaScript Minifier & Code Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify and compress JavaScript source code in your browser with zero network uploads. Remove comments, whitespace, and optimize syntax.</p>
-    </a>
-  
-    <a href="/dev/url-parser" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Parser & Query String Parameter Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Deconstruct and parse any URL into protocol, origin, host, path segments, query parameters table, hash, and JSON object.</p>
-    </a>
-  
-    <a href="/dev/epoch-converter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Unix Timestamp & Epoch Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.</p>
-    </a>
-  
-    <a href="/dev/diff-checker" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Online Text & Code Diff Checker</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.</p>
-    </a>
-  
-      </div>
-    </div>
-  
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin:0;">Original Text</label>
+                <button class="btn-sec" style="font-size:0.7rem; padding:0.2rem 0.4rem;" onclick="document.getElementById('diffTextA').value=''; runDiff();">Clear</button>
+              </div>
+              <textarea id="diffTextA" class="text-input" style="height: 220px; font-family: var(--mono); font-size: 0.85rem;" oninput="runDiff()">function calculateTotal(items) {
+  let total = 0;
+  for (let i = 0; i < items.length; i++) {
+    total += items[i].price;
+  }
+  return total;
+}</textarea>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin:0;">Modified Text</label>
+                <button class="btn-sec" style="font-size:0.7rem; padding:0.2rem 0.4rem;" onclick="document.getElementById('diffTextB').value=''; runDiff();">Clear</button>
+              </div>
+              <textarea id="diffTextB" class="text-input" style="height: 220px; font-family: var(--mono); font-size: 0.85rem;" oninput="runDiff()">function calculateTotal(items, discount = 0) {
+  const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+  const tax = subtotal * 0.08;
+  return (subtotal - discount) + tax;
+}</textarea>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; align-items: center; flex-wrap: wrap;">
+            <button class="btn-primary" onclick="runDiff()">Compare Differences</button>
+            <button class="btn-sec" onclick="swapDiff()">Swap Texts</button>
+            <span id="diffStats" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted); margin-left: auto;"></span>
+          </div>
+
+          <div class="tool-box" style="padding: 1rem;">
+            <div class="field-label" style="margin-bottom: 0.75rem;">DIFFERENCE REPORT</div>
+            <div id="diffOutput" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.6; max-height: 400px; overflow-y: auto; border: 1px solid var(--border); background: var(--surface-alt); border-radius: 4px; padding: 0.75rem;"></div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 2rem 0;">
+            <span class="ad-label">Sponsored Resource</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function runDiff() {
+            var textA = document.getElementById('diffTextA').value.split('\n');
+            var textB = document.getElementById('diffTextB').value.split('\n');
+
+            var outHtml = '';
+            var adds = 0, dels = 0, unch = 0;
+
+            var maxLen = Math.max(textA.length, textB.length);
+            for (var i = 0; i < maxLen; i++) {
+              var lineA = textA[i];
+              var lineB = textB[i];
+
+              if (lineA === lineB) {
+                unch++;
+                outHtml += '<div style="padding:0.15rem 0.5rem; color:var(--text-muted);">  ' + escapeDiff(lineA || '') + '</div>';
+              } else {
+                if (lineA !== undefined) {
+                  dels++;
+                  outHtml += '<div style="padding:0.15rem 0.5rem; background:rgba(239, 68, 68, 0.15); color:#ef4444;">- ' + escapeDiff(lineA) + '</div>';
+                }
+                if (lineB !== undefined) {
+                  adds++;
+                  outHtml += '<div style="padding:0.15rem 0.5rem; background:rgba(34, 197, 94, 0.15); color:#22c55e;">+ ' + escapeDiff(lineB) + '</div>';
+                }
+              }
+            }
+
+            document.getElementById('diffOutput').innerHTML = outHtml || '<span style="color:var(--text-muted);">Both texts are identical!</span>';
+            document.getElementById('diffStats').textContent = '+' + adds + ' additions, -' + dels + ' deletions';
+          }
+
+          function swapDiff() {
+            var a = document.getElementById('diffTextA');
+            var b = document.getElementById('diffTextB');
+            var tmp = a.value;
+            a.value = b.value;
+            b.value = tmp;
+            runDiff();
+          }
+
+          function escapeDiff(str) {
+            return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          }
+
+          document.addEventListener('DOMContentLoaded', runDiff);
+          runDiff();
+        </script>
+      
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>

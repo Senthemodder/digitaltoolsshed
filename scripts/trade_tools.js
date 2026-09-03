@@ -1044,5 +1044,268 @@ export function buildTradeTools() {
     ]
   }));
 
-  console.log('  ✓ Built Trade & Construction Suite (8 calculators in /calc/)');
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 9. REBAR & CONCRETE SLAB REINFORCEMENT CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const rebarBody = `
+    <div class="article-container" style="max-width: 900px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Calculators</a> &gt; Rebar Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Rebar Grid & Concrete Slab Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Estimate rebar bar counts (20-ft sticks), total linear footage, grid intersection ties, and steel weight for concrete slabs and footings.
+        </p>
+      </header>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Slab Dimensions & Grid Spacing</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Slab Length (Feet)</label>
+              <input type="number" id="rebarLength" value="24" min="1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcRebar()" />
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Slab Width (Feet)</label>
+              <input type="number" id="rebarWidth" value="16" min="1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcRebar()" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Grid Spacing</label>
+              <select id="rebarSpacing" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcRebar()">
+                <option value="12">12 Inches (Heavy Duty)</option>
+                <option value="18" selected>18 Inches (Standard Slab)</option>
+                <option value="24">24 Inches (Light Footing)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Rebar Size</label>
+              <select id="rebarSize" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcRebar()">
+                <option value="0.376">#3 (3/8" - 0.376 lb/ft)</option>
+                <option value="0.668" selected>#4 (1/2" - 0.668 lb/ft standard)</option>
+                <option value="1.043">#5 (5/8" - 1.043 lb/ft heavy)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Rebar Materials Estimate</h3>
+          <div id="rebarResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+        </div>
+      </div>
+
+      <div class="ad-blend-box" style="margin: 2rem 0;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcRebar() {
+        var l = parseFloat(document.getElementById('rebarLength').value) || 0;
+        var w = parseFloat(document.getElementById('rebarWidth').value) || 0;
+        var spacingInches = parseFloat(document.getElementById('rebarSpacing').value) || 18;
+        var weightPerFt = parseFloat(document.getElementById('rebarSize').value) || 0.668;
+
+        var spacingFt = spacingInches / 12;
+
+        // Number of bars running each direction
+        var numLongBars = Math.floor(w / spacingFt) + 1;
+        var numTransBars = Math.floor(l / spacingFt) + 1;
+
+        var totalLinearFtLong = numLongBars * l;
+        var totalLinearFtTrans = numTransBars * w;
+        var rawLinearFt = totalLinearFtLong + totalLinearFtTrans;
+
+        // Add 10% for lap splices (standard 30 bar diameter lap = ~15 inches per splice)
+        var totalLinearFt = rawLinearFt * 1.10;
+        var numSticks20ft = Math.ceil(totalLinearFt / 20);
+        var totalWeightLbs = totalLinearFt * weightPerFt;
+        var totalTies = numLongBars * numTransBars;
+
+        document.getElementById('rebarResults').innerHTML = 
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">20-FOOT REBAR STICKS</span>' +
+            '<div style="font-size: 1.8rem; font-weight: bold; color: #22c55e;">' + numSticks20ft + ' Sticks (20-ft)</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">' + totalLinearFt.toFixed(0) + ' linear feet (includes 10% lap splice overlap)</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">GRID INTERSECTION TIES & WIRE</span>' +
+            '<div style="font-size: 1.25rem; font-weight: bold; color: var(--fg);">' + totalTies + ' Intersection Ties</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">' + numLongBars + ' lengthwise bars × ' + numTransBars + ' crosswise bars (' + Math.ceil(totalTies / 500) + ' roll(s) 16-gauge tie wire)</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL STEEL WEIGHT</span>' +
+            '<div style="font-size: 1.1rem; font-weight: bold; color: #3b82f6;">' + totalWeightLbs.toFixed(0) + ' lbs (' + (totalWeightLbs / 2000).toFixed(2) + ' Tons)</div>' +
+          '</div>';
+      }
+
+      document.addEventListener('DOMContentLoaded', calcRebar);
+      calcRebar();
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'rebar-calculator.html'), renderPage({
+    title: 'Rebar Calculator: Concrete Slab Grid Sticks & Linear Feet | Digital Tools Shed',
+    metaDesc: 'Calculate rebar needed for concrete slabs and driveways. Estimates 20-ft rebar stick counts, linear feet, overlap splices, and tie wire.',
+    canonical: `${DOMAIN}/calc/rebar-calculator`,
+    bodyContent: rebarBody,
+    currentPath: '/calc/rebar-calculator',
+    faq: [
+      { q: 'How far apart should rebar be placed in a 4-inch concrete slab?', a: 'For residential 4-inch slabs (patios, shed pads, driveways), #4 rebar (1/2" diameter) is typically placed in an 18-inch on-center grid pattern suspended on rebar chairs.' },
+      { q: 'How much overlap is needed when splicing rebar?', a: 'ACI building codes recommend a minimum lap splice length of 30 to 40 times the bar diameter. For #4 (1/2") rebar, this equates to 15 to 20 inches of overlap tied with wire.' },
+      { q: 'How much does a 20-foot stick of #4 rebar weigh?', a: '#4 rebar weighs 0.668 pounds per linear foot. A single 20-foot bar weighs approximately 13.36 pounds.' }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 12. ROOFING SHINGLE & ROOF SQUARES CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const roofingBody = `
+    <div class="article-container" style="max-width: 900px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Calculators</a> &gt; Roofing Shingle Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Roofing Shingle & Roof Squares Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Calculate roof surface area, roof squares (100 sq ft), bundles of asphalt shingles, underlayment rolls, and roofing nail pounds with roof pitch multiplier.
+        </p>
+      </header>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Roof Footprint & Pitch</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">House Length (Feet)</label>
+              <input type="number" id="roofLength" value="40" min="1" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcRoof()" />
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">House Width (Feet)</label>
+              <input type="number" id="roofWidth" value="28" min="1" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcRoof()" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Roof Pitch / Slope</label>
+              <select id="roofPitch" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcRoof()">
+                <option value="1.054">4/12 Pitch (Low Slope)</option>
+                <option value="1.118" selected>6/12 Pitch (Common)</option>
+                <option value="1.202">8/12 Pitch (Moderate)</option>
+                <option value="1.302">10/12 Pitch (Steep)</option>
+                <option value="1.414">12/12 Pitch (45° Steep)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Eaves / Overhang</label>
+              <select id="roofOverhang" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcRoof()">
+                <option value="1.0">1 Foot Overhang</option>
+                <option value="1.5">1.5 Foot Overhang</option>
+                <option value="0.0">0 (Flush Gables)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Roofing Materials Required</h3>
+          <div id="roofResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+        </div>
+      </div>
+
+      <div class="ad-blend-box" style="margin: 2rem 0;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcRoof() {
+        var l = parseFloat(document.getElementById('roofLength').value) || 0;
+        var w = parseFloat(document.getElementById('roofWidth').value) || 0;
+        var pitchMult = parseFloat(document.getElementById('roofPitch').value) || 1.118;
+        var overhang = parseFloat(document.getElementById('roofOverhang').value) || 1.0;
+
+        var totalL = l + (2 * overhang);
+        var totalW = w + (2 * overhang);
+        var flatArea = totalL * totalW;
+        var slopedArea = flatArea * pitchMult;
+
+        // Add 10% standard waste
+        var areaWithWaste = slopedArea * 1.10;
+        var roofSquares = Math.ceil(areaWithWaste / 100);
+        var bundles = roofSquares * 3; // 3 bundles per square standard
+        var underlaymentRolls = Math.ceil(areaWithWaste / 400); // ~400 sq ft per standard 15# felt roll
+        var nailsLbs = Math.ceil(roofSquares * 2.5); // ~2.5 lbs nails per square
+
+        document.getElementById('roofResults').innerHTML = 
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">ROOF SQUARES (100 SQ FT EACH)</span>' +
+            '<div style="font-size: 1.8rem; font-weight: bold; color: #22c55e;">' + roofSquares + ' Roofing Squares</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">' + slopedArea.toFixed(0) + ' sq ft sloped area + 10% waste = ' + areaWithWaste.toFixed(0) + ' sq ft</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">SHINGLE BUNDLES TO PURCHASE</span>' +
+            '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">' + bundles + ' Bundles (3 per Square)</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">Standard architectural or 3-tab asphalt shingles</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">UNDERLAYMENT & NAILS</span>' +
+            '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">' + underlaymentRolls + ' Roll(s) Synthetic Felt | ' + nailsLbs + ' lbs Nails</div>' +
+          '</div>';
+      }
+
+      document.addEventListener('DOMContentLoaded', calcRoof);
+      calcRoof();
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'roofing-shingle-calculator.html'), renderPage({
+    title: 'Roofing Shingle Calculator: Roof Squares, Bundles & Pitch | Digital Tools Shed',
+    metaDesc: 'Calculate roof squares and shingle bundles needed for any roof pitch. Estimates bundles, underlayment rolls, and roofing nails.',
+    canonical: `${DOMAIN}/calc/roofing-shingle-calculator`,
+    bodyContent: roofingBody,
+    currentPath: '/calc/roofing-shingle-calculator',
+    faq: [
+      { q: 'How many bundles of shingles do I need for 1 square of roof?', a: 'Standard asphalt shingles (both 3-tab and architectural/dimensional) require exactly 3 bundles per roofing square (100 square feet).' },
+      { q: 'What is a "square" in roofing?', a: 'In the roofing industry, a "square" is a unit of measurement equal to exactly 100 square feet of roof surface area.' },
+      { q: 'How do you calculate roof pitch multiplier?', a: 'Roof pitch multiplier equals the hypotenuse of the rise and run: Sqrt((Rise^2 + 12^2)) / 12. For example, a 6/12 pitch has a multiplier of 1.118.' }
+    ]
+  }));
+
+  console.log('  ✓ Built Trade & Construction Suite (12 calculators in /calc/)');
 }
+

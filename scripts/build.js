@@ -2,6 +2,8 @@ import { buildJavaLearnSection } from './learn_java.js';
 import { buildEpistemicTools } from './epistemic_tools.js';
 import { buildViralTools } from './viral_tools.js';
 import { buildTradeTools } from './trade_tools.js';
+import { buildBodyTools } from './body_tools.js';
+import { buildKitchenTools } from './kitchen_tools.js';
 // scripts/build.js — Master Static Site Generator for Digital Tools Shed
 import { writeFileSync } from 'fs';
 import { join } from 'path';
@@ -46,6 +48,8 @@ function main() {
   buildViralTools();
   buildEpistemicTools();
   buildUnitCalcSuite();
+  buildBodyTools();
+  buildKitchenTools();
   buildArticlesSuite();
   buildProductivitySuite();
 

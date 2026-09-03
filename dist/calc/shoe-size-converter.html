@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Developer Tools Suite | Digital Tools Shed</title>
-  <meta name="description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/dev/">
-  <meta property="og:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta property="og:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/dev/">
+  <title>Shoe Size Converter (US, UK, EU, cm) & Chart | Digital Tools Shed</title>
+  <meta name="description" content="Convert shoe sizes between US, UK, EU, and foot length in cm. Accurate conversion charts for men and women shoes with international sizing rules.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/shoe-size-converter">
+  <meta property="og:title" content="Shoe Size Converter (US, UK, EU, cm) & Chart | Digital Tools Shed">
+  <meta property="og:description" content="Convert shoe sizes between US, UK, EU, and foot length in cm. Accurate conversion charts for men and women shoes with international sizing rules.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/shoe-size-converter">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta name="twitter:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
+  <meta name="twitter:title" content="Shoe Size Converter (US, UK, EU, cm) & Chart | Digital Tools Shed">
+  <meta name="twitter:description" content="Convert shoe sizes between US, UK, EU, and foot length in cm. Accurate conversion charts for men and women shoes with international sizing rules.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -1088,8 +1088,14 @@ footer a:hover { text-decoration: underline; }
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Dev",
-      "item": "https://digitaltoolsshed.com/dev"
+      "name": "Calc",
+      "item": "https://digitaltoolsshed.com/calc"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Shoe Size Converter",
+      "item": "https://digitaltoolsshed.com/calc/shoe-size-converter"
     }
   ]
 }
@@ -1098,8 +1104,8 @@ footer a:hover { text-decoration: underline; }
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Developer Tools Suite",
-  "url": "https://digitaltoolsshed.com/dev/",
+  "name": "Shoe Size Converter (US, UK, EU, cm) & Chart",
+  "url": "https://digitaltoolsshed.com/calc/shoe-size-converter",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -1108,12 +1114,44 @@ footer a:hover { text-decoration: underline; }
     "priceCurrency": "USD"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
-  "description": "Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.",
+  "description": "Convert shoe sizes between US, UK, EU, and foot length in cm. Accurate conversion charts for men and women shoes with international sizing rules.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
     "url": "https://digitaltoolsshed.com"
   }
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is a US Men's 10 shoe size in European (EU) size?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A US Men's size 10 is equal to European size EU 44 (or UK size 9.5), corresponding to approximately 27.5 cm foot length."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is a US Women's 8 in EU shoe size?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A US Women's size 8 corresponds to European size EU 39 (or UK size 6.0), fitting a 25.0 cm foot length."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you convert Men's shoe sizes to Women's in the US?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In the US, Men's sizes are generally 1.5 sizes smaller than Women's sizes. For example, a Men's size 8 is equivalent to a Women's size 9.5."
+      }
+    }
+  ]
 }
 </script>
 </head>
@@ -1479,7 +1517,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Developer Tools Suite | Digital Tools Shed</span>
+            <span>Shoe Size Converter (US, UK, EU, cm) & Chart | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1517,116 +1555,173 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-    
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-      @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
-    </style>
-  
     <div class="article-container" style="max-width: 900px;">
-      <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Developer Tools Suite</h1>
-      <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-        Essential developer utilities: JWT token decoders, regex visualizers, SQL formatters, JSON converters, CSS minifiers, and Linux chmod tools.
-      </p>
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Calculators</a> &gt; Shoe Size Converter
+      </nav>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-        
-    <a href="/dev/jwt-decoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JWT Token Decoder & Header Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Decode JSON Web Tokens (JWT) locally in your browser. Inspect JOSE header, claims payload, and token expiration timestamps.</p>
-    </a>
-  
-    <a href="/dev/regex-tester" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Regex Visual Tester & Match Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Test and debug JavaScript regular expressions with real-time match highlighting, capture groups, and replacement substitution.</p>
-    </a>
-  
-    <a href="/dev/css-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Code Minifier & Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify CSS stylesheets online: remove comments, compress whitespace, collapse zero dimensions, and optimize colors.</p>
-    </a>
-  
-    <a href="/dev/hash-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cryptographic Hash Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate SHA-256, SHA-512, and SHA-1 checksums locally using the hardware-accelerated Web Cryptography API.</p>
-    </a>
-  
-    <a href="/dev/box-shadow-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Box Shadow Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Visual CSS box-shadow slider tool with real-time blur, spread, and color controls.</p>
-    </a>
-  
-    <a href="/dev/chmod-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Linux Permissions & Chmod Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate Linux octal permissions (755, 644) and symbolic notations.</p>
-    </a>
-  
-    <a href="/dev/url-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Encode and decode URL parameters and percent-encoded characters.</p>
-    </a>
-  
-    <a href="/dev/sql-formatter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">SQL Query Formatter & Beautifier</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Beautify and indent SQL queries with uppercase keyword formatting in your browser.</p>
-    </a>
-  
-    <a href="/dev/json-to-csv" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JSON to CSV Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert JSON arrays of objects into downloadable CSV spreadsheet files.</p>
-    </a>
-  
-    <a href="/dev/ip-subnet-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">IPv4 CIDR Subnet Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate network address, broadcast address, netmask, and usable host count from IP/CIDR prefix.</p>
-    </a>
-  
-    <a href="/dev/html-entity-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">HTML Entity Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert special characters into HTML named and numeric entities and decode HTML entities back to plaintext.</p>
-    </a>
-  
-    <a href="/dev/ai-robots-txt" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">AI Bot Blocker robots.txt Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate a robots.txt file to block AI web scrapers and LLM training crawlers (GPTBot, Claude-Web, CCBot, Google-Extended, Bytespider) while keeping Googlebot allowed.</p>
-    </a>
-  
-    <a href="/dev/cron-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cron Expression Generator & Schedule Explainer</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate and test crontab schedule expressions in human-readable English. Includes live preview of next scheduled execution dates.</p>
-    </a>
-  
-    <a href="/dev/js-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JavaScript Minifier & Code Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify and compress JavaScript source code in your browser with zero network uploads. Remove comments, whitespace, and optimize syntax.</p>
-    </a>
-  
-    <a href="/dev/url-parser" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Parser & Query String Parameter Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Deconstruct and parse any URL into protocol, origin, host, path segments, query parameters table, hash, and JSON object.</p>
-    </a>
-  
-    <a href="/dev/epoch-converter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Unix Timestamp & Epoch Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.</p>
-    </a>
-  
-    <a href="/dev/diff-checker" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Online Text & Code Diff Checker</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.</p>
-    </a>
-  
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">International Shoe Size Converter & Chart</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Convert shoe sizes between US, UK, European (EU), and Foot Length in Centimeters (cm) and Inches for Men, Women, and Kids.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Gender / Category</label>
+            <select id="shoeGender" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 1rem;" onchange="renderShoeOptions()">
+              <option value="men">Men\'s Shoes</option>
+              <option value="women">Women\'s Shoes</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Input Region / Unit</label>
+            <select id="shoeRegion" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 1rem;" onchange="renderShoeOptions()">
+              <option value="us">US Size</option>
+              <option value="eu">EU Size</option>
+              <option value="uk">UK Size</option>
+              <option value="cm">Foot Length (cm)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Select Size</label>
+            <select id="shoeSelect" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 1rem;" onchange="convertShoe()"></select>
+          </div>
+        </div>
+
+        <div id="shoeResults" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-top: 1.5rem; font-family: var(--mono);"></div>
+      </div>
+
+      <div class="ad-blend-box" style="margin: 2rem 0;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem;">Men\'s Shoe Size Conversion Table</h3>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                <th style="padding: 0.45rem 0.75rem;">US Men</th>
+                <th style="padding: 0.45rem 0.75rem;">UK</th>
+                <th style="padding: 0.45rem 0.75rem;">EU</th>
+                <th style="padding: 0.45rem 0.75rem;">Foot (cm)</th>
+                <th style="padding: 0.45rem 0.75rem;">Inches</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">7.0</td><td style="padding: 0.4rem 0.75rem;">6.5</td><td style="padding: 0.4rem 0.75rem;">40</td><td style="padding: 0.4rem 0.75rem;">24.8 cm</td><td style="padding: 0.4rem 0.75rem;">9.75"</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">8.0</td><td style="padding: 0.4rem 0.75rem;">7.5</td><td style="padding: 0.4rem 0.75rem;">41</td><td style="padding: 0.4rem 0.75rem;">25.7 cm</td><td style="padding: 0.4rem 0.75rem;">10.12"</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">8.5</td><td style="padding: 0.4rem 0.75rem;">8.0</td><td style="padding: 0.4rem 0.75rem;">42</td><td style="padding: 0.4rem 0.75rem;">26.0 cm</td><td style="padding: 0.4rem 0.75rem;">10.25"</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">9.0</td><td style="padding: 0.4rem 0.75rem;">8.5</td><td style="padding: 0.4rem 0.75rem;">42.5</td><td style="padding: 0.4rem 0.75rem;">26.7 cm</td><td style="padding: 0.4rem 0.75rem;">10.50"</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">9.5</td><td style="padding: 0.4rem 0.75rem;">9.0</td><td style="padding: 0.4rem 0.75rem;">43</td><td style="padding: 0.4rem 0.75rem;">27.0 cm</td><td style="padding: 0.4rem 0.75rem;">10.62"</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">10.0</td><td style="padding: 0.4rem 0.75rem;">9.5</td><td style="padding: 0.4rem 0.75rem;">44</td><td style="padding: 0.4rem 0.75rem;">27.5 cm</td><td style="padding: 0.4rem 0.75rem;">10.87"</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">10.5</td><td style="padding: 0.4rem 0.75rem;">10.0</td><td style="padding: 0.4rem 0.75rem;">44.5</td><td style="padding: 0.4rem 0.75rem;">28.0 cm</td><td style="padding: 0.4rem 0.75rem;">11.00"</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">11.0</td><td style="padding: 0.4rem 0.75rem;">10.5</td><td style="padding: 0.4rem 0.75rem;">45</td><td style="padding: 0.4rem 0.75rem;">28.5 cm</td><td style="padding: 0.4rem 0.75rem;">11.25"</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">11.5</td><td style="padding: 0.4rem 0.75rem;">11.0</td><td style="padding: 0.4rem 0.75rem;">45.5</td><td style="padding: 0.4rem 0.75rem;">29.0 cm</td><td style="padding: 0.4rem 0.75rem;">11.37"</td></tr>
+              <tr><td style="padding: 0.4rem 0.75rem; font-weight: bold;">12.0</td><td style="padding: 0.4rem 0.75rem;">11.5</td><td style="padding: 0.4rem 0.75rem;">46</td><td style="padding: 0.4rem 0.75rem;">29.5 cm</td><td style="padding: 0.4rem 0.75rem;">11.62"</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
+
+    <script>
+      var shoeDb = {
+        men: [
+          { us: "6.0", uk: "5.5", eu: "38.5", cm: "24.0", in: "9.45" },
+          { us: "6.5", uk: "6.0", eu: "39.0", cm: "24.5", in: "9.65" },
+          { us: "7.0", uk: "6.5", eu: "40.0", cm: "24.8", in: "9.75" },
+          { us: "7.5", uk: "7.0", eu: "40.5", cm: "25.2", in: "9.92" },
+          { us: "8.0", uk: "7.5", eu: "41.0", cm: "25.7", in: "10.12" },
+          { us: "8.5", uk: "8.0", eu: "42.0", cm: "26.0", in: "10.25" },
+          { us: "9.0", uk: "8.5", eu: "42.5", cm: "26.7", in: "10.50" },
+          { us: "9.5", uk: "9.0", eu: "43.0", cm: "27.0", in: "10.62" },
+          { us: "10.0", uk: "9.5", eu: "44.0", cm: "27.5", in: "10.87" },
+          { us: "10.5", uk: "10.0", eu: "44.5", cm: "28.0", in: "11.00" },
+          { us: "11.0", uk: "10.5", eu: "45.0", cm: "28.5", in: "11.25" },
+          { us: "11.5", uk: "11.0", eu: "45.5", cm: "29.0", in: "11.37" },
+          { us: "12.0", uk: "11.5", eu: "46.0", cm: "29.5", in: "11.62" },
+          { us: "13.0", uk: "12.5", eu: "47.5", cm: "30.5", in: "12.00" }
+        ],
+        women: [
+          { us: "5.0", uk: "3.0", eu: "35.5", cm: "22.0", in: "8.66" },
+          { us: "5.5", uk: "3.5", eu: "36.0", cm: "22.5", in: "8.86" },
+          { us: "6.0", uk: "4.0", eu: "36.5", cm: "23.0", in: "9.06" },
+          { us: "6.5", uk: "4.5", eu: "37.5", cm: "23.5", in: "9.25" },
+          { us: "7.0", uk: "5.0", eu: "38.0", cm: "24.0", in: "9.45" },
+          { us: "7.5", uk: "5.5", eu: "38.5", cm: "24.5", in: "9.65" },
+          { us: "8.0", uk: "6.0", eu: "39.0", cm: "25.0", in: "9.84" },
+          { us: "8.5", uk: "6.5", eu: "40.0", cm: "25.5", in: "10.04" },
+          { us: "9.0", uk: "7.0", eu: "40.5", cm: "26.0", in: "10.24" },
+          { us: "9.5", uk: "7.5", eu: "41.0", cm: "26.5", in: "10.43" },
+          { us: "10.0", uk: "8.0", eu: "42.0", cm: "27.0", in: "10.63" },
+          { us: "11.0", uk: "9.0", eu: "43.0", cm: "28.0", in: "11.02" }
+        ]
+      };
+
+      function renderShoeOptions() {
+        var gender = document.getElementById('shoeGender').value;
+        var region = document.getElementById('shoeRegion').value;
+        var select = document.getElementById('shoeSelect');
+        var list = shoeDb[gender];
+
+        select.innerHTML = '';
+        for (var i = 0; i < list.length; i++) {
+          var item = list[i];
+          var opt = document.createElement('option');
+          opt.value = i;
+          opt.textContent = region.toUpperCase() + ' ' + item[region];
+          select.appendChild(opt);
+        }
+        // Default select middle size
+        select.value = Math.floor(list.length / 2);
+        convertShoe();
+      }
+
+      function convertShoe() {
+        var gender = document.getElementById('shoeGender').value;
+        var index = parseInt(document.getElementById('shoeSelect').value, 10);
+        var item = shoeDb[gender][index];
+        if (!item) return;
+
+        var container = document.getElementById('shoeResults');
+        container.innerHTML = 
+          '<div style="padding: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">US SIZE</span>' +
+            '<div style="font-size: 1.3rem; font-weight: bold; color: #10b981;">' + item.us + '</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">EU SIZE</span>' +
+            '<div style="font-size: 1.3rem; font-weight: bold; color: #3b82f6;">' + item.eu + '</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">UK SIZE</span>' +
+            '<div style="font-size: 1.3rem; font-weight: bold; color: var(--fg);">' + item.uk + '</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">FOOT LENGTH</span>' +
+            '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + item.cm + ' cm</div>' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">' + item.in + '"</span>' +
+          '</div>';
+      }
+
+      renderShoeOptions();
+    </script>
   
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">

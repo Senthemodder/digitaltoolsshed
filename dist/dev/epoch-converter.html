@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Developer Tools Suite | Digital Tools Shed</title>
-  <meta name="description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/dev/">
-  <meta property="og:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta property="og:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/dev/">
+  <title>Unix Timestamp & Epoch Converter | Digital Tools Shed</title>
+  <meta name="description" content="Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/dev/epoch-converter">
+  <meta property="og:title" content="Unix Timestamp & Epoch Converter | Digital Tools Shed">
+  <meta property="og:description" content="Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/dev/epoch-converter">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Developer Tools Suite | Digital Tools Shed">
-  <meta name="twitter:description" content="Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.">
+  <meta name="twitter:title" content="Unix Timestamp & Epoch Converter | Digital Tools Shed">
+  <meta name="twitter:description" content="Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -1090,6 +1090,12 @@ footer a:hover { text-decoration: underline; }
       "position": 2,
       "name": "Dev",
       "item": "https://digitaltoolsshed.com/dev"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Epoch Converter",
+      "item": "https://digitaltoolsshed.com/dev/epoch-converter"
     }
   ]
 }
@@ -1098,8 +1104,8 @@ footer a:hover { text-decoration: underline; }
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Developer Tools Suite",
-  "url": "https://digitaltoolsshed.com/dev/",
+  "name": "Unix Timestamp & Epoch Converter",
+  "url": "https://digitaltoolsshed.com/dev/epoch-converter",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -1108,12 +1114,44 @@ footer a:hover { text-decoration: underline; }
     "priceCurrency": "USD"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
-  "description": "Free online developer tools: JWT decoder, Regex tester, SQL formatter, JSON to CSV, CSS minifier, and subnet calculator.",
+  "description": "Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
     "url": "https://digitaltoolsshed.com"
   }
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Unix Epoch time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Unix time (or POSIX time) is the number of seconds that have elapsed since Thursday, January 1, 1970 00:00:00 UTC (Coordinated Universal Time), minus leap seconds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you convert Unix timestamp to human-readable date in JavaScript?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In JavaScript, multiply the 10-digit epoch timestamp by 1000 to convert to milliseconds, then pass to Date: new Date(timestamp * 1000).toISOString() or .toLocaleString()."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the Year 2038 problem in Unix timestamps?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Year 2038 problem (Y2K38) occurs when 32-bit signed integers overflow on January 19, 2038 at 03:14:07 UTC. Modern 64-bit systems resolve this by supporting dates billions of years into the future."
+      }
+    }
+  ]
 }
 </script>
 </head>
@@ -1479,7 +1517,7 @@ footer a:hover { text-decoration: underline; }
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Developer Tools Suite | Digital Tools Shed</span>
+            <span>Unix Timestamp & Epoch Converter | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
@@ -1517,7 +1555,7 @@ footer a:hover { text-decoration: underline; }
           </div>
 
           
-    
+        
     <style>
       .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
       .field-group { margin-bottom: 1.25rem; }
@@ -1532,102 +1570,168 @@ footer a:hover { text-decoration: underline; }
       @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
     </style>
   
-    <div class="article-container" style="max-width: 900px;">
-      <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Developer Tools Suite</h1>
-      <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-        Essential developer utilities: JWT token decoders, regex visualizers, SQL formatters, JSON converters, CSS minifiers, and Linux chmod tools.
-      </p>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Epoch Converter
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Unix Timestamp & Epoch Converter</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Convert Unix timestamps (seconds & milliseconds) to human dates and vice versa with live timezone formatting.
+          </p>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-        
-    <a href="/dev/jwt-decoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JWT Token Decoder & Header Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Decode JSON Web Tokens (JWT) locally in your browser. Inspect JOSE header, claims payload, and token expiration timestamps.</p>
-    </a>
-  
-    <a href="/dev/regex-tester" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Regex Visual Tester & Match Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Test and debug JavaScript regular expressions with real-time match highlighting, capture groups, and replacement substitution.</p>
-    </a>
-  
-    <a href="/dev/css-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Code Minifier & Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify CSS stylesheets online: remove comments, compress whitespace, collapse zero dimensions, and optimize colors.</p>
-    </a>
-  
-    <a href="/dev/hash-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cryptographic Hash Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate SHA-256, SHA-512, and SHA-1 checksums locally using the hardware-accelerated Web Cryptography API.</p>
-    </a>
-  
-    <a href="/dev/box-shadow-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">CSS Box Shadow Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Visual CSS box-shadow slider tool with real-time blur, spread, and color controls.</p>
-    </a>
-  
-    <a href="/dev/chmod-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Linux Permissions & Chmod Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate Linux octal permissions (755, 644) and symbolic notations.</p>
-    </a>
-  
-    <a href="/dev/url-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Encode and decode URL parameters and percent-encoded characters.</p>
-    </a>
-  
-    <a href="/dev/sql-formatter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">SQL Query Formatter & Beautifier</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Beautify and indent SQL queries with uppercase keyword formatting in your browser.</p>
-    </a>
-  
-    <a href="/dev/json-to-csv" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JSON to CSV Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert JSON arrays of objects into downloadable CSV spreadsheet files.</p>
-    </a>
-  
-    <a href="/dev/ip-subnet-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">IPv4 CIDR Subnet Calculator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate network address, broadcast address, netmask, and usable host count from IP/CIDR prefix.</p>
-    </a>
-  
-    <a href="/dev/html-entity-encoder" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">HTML Entity Encoder & Decoder</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert special characters into HTML named and numeric entities and decode HTML entities back to plaintext.</p>
-    </a>
-  
-    <a href="/dev/ai-robots-txt" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">AI Bot Blocker robots.txt Generator</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate a robots.txt file to block AI web scrapers and LLM training crawlers (GPTBot, Claude-Web, CCBot, Google-Extended, Bytespider) while keeping Googlebot allowed.</p>
-    </a>
-  
-    <a href="/dev/cron-generator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Cron Expression Generator & Schedule Explainer</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Generate and test crontab schedule expressions in human-readable English. Includes live preview of next scheduled execution dates.</p>
-    </a>
-  
-    <a href="/dev/js-minifier" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">JavaScript Minifier & Code Compressor</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Minify and compress JavaScript source code in your browser with zero network uploads. Remove comments, whitespace, and optimize syntax.</p>
-    </a>
-  
-    <a href="/dev/url-parser" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">URL Parser & Query String Parameter Inspector</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Deconstruct and parse any URL into protocol, origin, host, path segments, query parameters table, hash, and JSON object.</p>
-    </a>
-  
-    <a href="/dev/epoch-converter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Unix Timestamp & Epoch Converter</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert Unix timestamps in seconds and milliseconds to human-readable UTC and local dates. Includes live ticking clock and code snippets.</p>
-    </a>
-  
-    <a href="/dev/diff-checker" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Online Text & Code Diff Checker</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Compare two text files or code snippets side-by-side. Highlights additions, deletions, and character differences directly in your browser.</p>
-    </a>
-  
-      </div>
-    </div>
-  
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 2rem; text-align: center;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">CURRENT UNIX EPOCH TIME (SECONDS)</span>
+            <div id="live-epoch" style="font-family: var(--mono); font-size: 2.4rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">0</div>
+            <span id="live-utc" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">...</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div class="tool-box">
+              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">Timestamp to Date</h3>
+              <div style="margin-bottom: 1rem;">
+                <label class="field-label">Timestamp (Seconds or Milliseconds)</label>
+                <input type="text" id="tsInput" class="text-input" value="1756857600" oninput="convertTimestamp()" />
+              </div>
+              <div style="display: flex; gap: 0.4rem; margin-bottom: 1rem;">
+                <button class="btn-sec" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="setNowTs()">Set to Now</button>
+                <button class="btn-sec" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="setTs(0)">Epoch 0</button>
+                <button class="btn-sec" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" onclick="setTs(2147483647)">Y2038 Max</button>
+              </div>
+
+              <div id="tsResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;"></div>
+            </div>
+
+            <div class="tool-box">
+              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">Human Date to Timestamp</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <div>
+                  <label class="field-label">Year</label>
+                  <input type="number" id="dtYear" class="text-input" value="2026" oninput="convertDateToTs()" />
+                </div>
+                <div>
+                  <label class="field-label">Month (1-12)</label>
+                  <input type="number" id="dtMonth" class="text-input" value="9" min="1" max="12" oninput="convertDateToTs()" />
+                </div>
+                <div>
+                  <label class="field-label">Day</label>
+                  <input type="number" id="dtDay" class="text-input" value="3" min="1" max="31" oninput="convertDateToTs()" />
+                </div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 1rem;">
+                <div>
+                  <label class="field-label">Hour (0-23)</label>
+                  <input type="number" id="dtHour" class="text-input" value="12" min="0" max="23" oninput="convertDateToTs()" />
+                </div>
+                <div>
+                  <label class="field-label">Minute</label>
+                  <input type="number" id="dtMin" class="text-input" value="0" min="0" max="59" oninput="convertDateToTs()" />
+                </div>
+                <div>
+                  <label class="field-label">Second</label>
+                  <input type="number" id="dtSec" class="text-input" value="0" min="0" max="59" oninput="convertDateToTs()" />
+                </div>
+              </div>
+
+              <div id="dateResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;"></div>
+            </div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 2rem 0;">
+            <span class="ad-label">Sponsored Resource</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function updateLiveClock() {
+            var now = new Date();
+            var sec = Math.floor(now.getTime() / 1000);
+            var el = document.getElementById('live-epoch');
+            if (el) el.textContent = sec;
+            var u = document.getElementById('live-utc');
+            if (u) u.textContent = 'UTC: ' + now.toUTCString();
+          }
+          setInterval(updateLiveClock, 1000);
+          updateLiveClock();
+
+          function convertTimestamp() {
+            var raw = (document.getElementById('tsInput').value || '').trim();
+            var num = parseFloat(raw);
+            if (isNaN(num)) {
+              document.getElementById('tsResults').innerHTML = '<span style="color:#ef4444;">Invalid number</span>';
+              return;
+            }
+            // If greater than 100 billion, assume milliseconds
+            var isMs = num > 1e11;
+            var ms = isMs ? num : num * 1000;
+            var d = new Date(ms);
+
+            document.getElementById('tsResults').innerHTML = 
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">GMT / UTC DATE</span>' +
+                '<div style="font-weight:bold; color:var(--fg);">' + d.toUTCString() + '</div>' +
+              '</div>' +
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">LOCAL TIME</span>' +
+                '<div style="font-weight:bold; color:var(--fg);">' + d.toString() + '</div>' +
+              '</div>' +
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">ISO 8601 STRING</span>' +
+                '<div style="color:#3b82f6;">' + d.toISOString() + '</div>' +
+              '</div>';
+          }
+
+          function setNowTs() {
+            document.getElementById('tsInput').value = Math.floor(Date.now() / 1000);
+            convertTimestamp();
+          }
+          function setTs(val) {
+            document.getElementById('tsInput').value = val;
+            convertTimestamp();
+          }
+
+          function convertDateToTs() {
+            var y = parseInt(document.getElementById('dtYear').value, 10) || 2026;
+            var m = (parseInt(document.getElementById('dtMonth').value, 10) || 1) - 1;
+            var d = parseInt(document.getElementById('dtDay').value, 10) || 1;
+            var h = parseInt(document.getElementById('dtHour').value, 10) || 0;
+            var min = parseInt(document.getElementById('dtMin').value, 10) || 0;
+            var s = parseInt(document.getElementById('dtSec').value, 10) || 0;
+
+            var utcDate = new Date(Date.UTC(y, m, d, h, min, s));
+            var epochSec = Math.floor(utcDate.getTime() / 1000);
+            var epochMs = utcDate.getTime();
+
+            document.getElementById('dateResults').innerHTML = 
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">UNIX TIMESTAMP (SECONDS)</span>' +
+                '<div style="font-size:1.4rem; font-weight:bold; color:#10b981;">' + epochSec + '</div>' +
+              '</div>' +
+              '<div style="padding:0.65rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
+                '<span style="color:var(--text-muted); font-size:0.7rem;">TIMESTAMP (MILLISECONDS)</span>' +
+                '<div style="color:var(--fg);">' + epochMs + '</div>' +
+              '</div>';
+          }
+
+          document.addEventListener('DOMContentLoaded', function() {
+            convertTimestamp();
+            convertDateToTs();
+          });
+          convertTimestamp();
+          convertDateToTs();
+        </script>
+      
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>
