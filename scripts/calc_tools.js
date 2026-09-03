@@ -33,6 +33,8 @@ function buildUnitCalcSuite() {
         tonne:     { label: 'Tonnes',     abbr: 't',   factor: 1000 },
         ounce:     { label: 'Ounces',     abbr: 'oz',  factor: 0.0283495 },
         pound:     { label: 'Pounds',     abbr: 'lbs', factor: 0.453592 },
+        microgram: { label: 'Micrograms', abbr: 'mcg', factor: 0.000000001 },
+        grain:     { label: 'Grains',     abbr: 'gr',  factor: 0.00006479891 },
         stone:     { label: 'Stones',     abbr: 'st',  factor: 6.35029 }
       }
     },
@@ -140,6 +142,39 @@ function buildUnitCalcSuite() {
         atmosphere: { label: 'Atmospheres', abbr: 'atm',  factor: 101325 },
         torr:       { label: 'Torr',        abbr: 'Torr', factor: 133.322 }
       }
+    },
+    power: {
+      label: 'Power',
+      base: 'watt',
+      units: {
+        watt:              { label: 'Watts', abbr: 'W', factor: 1 },
+        kilowatt:          { label: 'Kilowatts', abbr: 'kW', factor: 1000 },
+        megawatt:          { label: 'Megawatts', abbr: 'MW', factor: 1000000 },
+        horsepower:        { label: 'Horsepower (Mechanical)', abbr: 'hp', factor: 745.699872 },
+        horsepower_metric: { label: 'Metric Horsepower', abbr: 'PS', factor: 735.49875 },
+        btu_per_hour:      { label: 'BTU per Hour', abbr: 'BTU/h', factor: 0.293071 }
+      }
+    },
+    angle: {
+      label: 'Angle & Geometry',
+      base: 'degree',
+      units: {
+        degree:   { label: 'Degrees', abbr: '°', factor: 1 },
+        radian:   { label: 'Radians', abbr: 'rad', factor: 57.29577951308232 },
+        gradian:  { label: 'Gradians', abbr: 'grad', factor: 0.9 }
+      }
+    },
+    data_rate: {
+      label: 'Data Transfer & Internet Speed',
+      base: 'megabit_per_second',
+      units: {
+        kilobit_per_second:  { label: 'Kilobits/sec', abbr: 'Kbps', factor: 0.001 },
+        megabit_per_second:  { label: 'Megabits/sec', abbr: 'Mbps', factor: 1 },
+        gigabit_per_second:  { label: 'Gigabits/sec', abbr: 'Gbps', factor: 1000 },
+        kilobyte_per_second: { label: 'Kilobytes/sec', abbr: 'KB/s', factor: 0.008 },
+        megabyte_per_second: { label: 'Megabytes/sec', abbr: 'MB/s', factor: 8 },
+        gigabyte_per_second: { label: 'Gigabytes/sec', abbr: 'GB/s', factor: 8000 }
+      }
     }
   };
 
@@ -175,7 +210,11 @@ function buildUnitCalcSuite() {
       ['mile', 'meter', 'miles-to-meters'],
       ['meter', 'mile', 'meters-to-miles'],
       ['inch', 'meter', 'inches-to-meters'],
-      ['meter', 'inch', 'meters-to-inches']
+      ['meter', 'inch', 'meters-to-inches'],
+      ['yard', 'inch', 'yards-to-inches'],
+      ['inch', 'yard', 'inches-to-yards'],
+      ['mile', 'yard', 'miles-to-yards'],
+      ['yard', 'mile', 'yards-to-miles']
     ],
     weight: [
       ['kilogram', 'pound', 'kg-to-lbs'],
@@ -197,7 +236,13 @@ function buildUnitCalcSuite() {
       ['milligram', 'gram', 'mg-to-g'],
       ['gram', 'milligram', 'g-to-mg'],
       ['pound', 'gram', 'lbs-to-grams'],
-      ['gram', 'pound', 'grams-to-lbs']
+      ['gram', 'pound', 'grams-to-lbs'],
+      ['microgram', 'milligram', 'mcg-to-mg'],
+      ['milligram', 'microgram', 'mg-to-mcg'],
+      ['grain', 'gram', 'grains-to-grams'],
+      ['gram', 'grain', 'grams-to-grains'],
+      ['grain', 'milligram', 'grains-to-mg'],
+      ['milligram', 'grain', 'mg-to-grains']
     ],
     temperature: [
       ['celsius', 'fahrenheit', 'celsius-to-fahrenheit'],
@@ -233,7 +278,25 @@ function buildUnitCalcSuite() {
       ['fluid_oz', 'cup', 'fl-oz-to-cups'],
       ['cup', 'fluid_oz', 'cups-to-fl-oz'],
       ['gallon_us', 'quart', 'gallons-to-quarts'],
-      ['quart', 'gallon_us', 'quarts-to-gallons']
+      ['quart', 'gallon_us', 'quarts-to-gallons'],
+      ['tablespoon', 'teaspoon', 'tbsp-to-tsp'],
+      ['teaspoon', 'tablespoon', 'tsp-to-tbsp'],
+      ['cup', 'teaspoon', 'cups-to-tsp'],
+      ['teaspoon', 'cup', 'tsp-to-cups'],
+      ['pint', 'cup', 'pints-to-cups'],
+      ['cup', 'pint', 'cups-to-pints'],
+      ['quart', 'cup', 'quarts-to-cups'],
+      ['cup', 'quart', 'cups-to-quarts'],
+      ['gallon_us', 'pint', 'gallons-to-pints'],
+      ['pint', 'gallon_us', 'pints-to-gallons'],
+      ['quart', 'pint', 'quarts-to-pints'],
+      ['pint', 'quart', 'pints-to-quarts'],
+      ['fluid_oz', 'tablespoon', 'fl-oz-to-tbsp'],
+      ['tablespoon', 'fluid_oz', 'tbsp-to-fl-oz'],
+      ['fluid_oz', 'teaspoon', 'fl-oz-to-tsp'],
+      ['teaspoon', 'fluid_oz', 'tsp-to-fl-oz'],
+      ['liter', 'fluid_oz', 'liters-to-fl-oz'],
+      ['fluid_oz', 'liter', 'fl-oz-to-liters']
     ],
     speed: [
       ['kilometer_per_hour', 'mile_per_hour', 'kmh-to-mph'],
@@ -346,7 +409,40 @@ function buildUnitCalcSuite() {
       ['atmosphere', 'kilopascal', 'atm-to-kpa'],
       ['kilopascal', 'atmosphere', 'kpa-to-atm'],
       ['bar', 'kilopascal', 'bar-to-kpa'],
-      ['kilopascal', 'bar', 'kpa-to-bar']
+      ['kilopascal', 'bar', 'kpa-to-bar'],
+      ['psi', 'torr', 'psi-to-torr'],
+      ['torr', 'psi', 'torr-to-psi'],
+      ['bar', 'torr', 'bar-to-torr']
+    ],
+    power: [
+      ['horsepower', 'kilowatt', 'hp-to-kw'],
+      ['kilowatt', 'horsepower', 'kw-to-hp'],
+      ['horsepower', 'watt', 'hp-to-watts'],
+      ['watt', 'horsepower', 'watts-to-hp'],
+      ['kilowatt', 'watt', 'kw-to-watts'],
+      ['watt', 'kilowatt', 'watts-to-kw'],
+      ['megawatt', 'kilowatt', 'mw-to-kw'],
+      ['kilowatt', 'megawatt', 'kw-to-mw'],
+      ['btu_per_hour', 'watt', 'btu-hr-to-watts'],
+      ['watt', 'btu_per_hour', 'watts-to-btu-hr'],
+      ['horsepower_metric', 'kilowatt', 'ps-to-kw'],
+      ['kilowatt', 'horsepower_metric', 'kw-to-ps']
+    ],
+    angle: [
+      ['degree', 'radian', 'degrees-to-radians'],
+      ['radian', 'degree', 'radians-to-degrees'],
+      ['degree', 'gradian', 'degrees-to-gradians'],
+      ['gradian', 'degree', 'gradians-to-degrees']
+    ],
+    data_rate: [
+      ['megabit_per_second', 'megabyte_per_second', 'mbps-to-mbs'],
+      ['megabyte_per_second', 'megabit_per_second', 'mbs-to-mbps'],
+      ['gigabit_per_second', 'megabit_per_second', 'gbps-to-mbps'],
+      ['megabit_per_second', 'gigabit_per_second', 'mbps-to-gbps'],
+      ['kilobit_per_second', 'megabit_per_second', 'kbps-to-mbps'],
+      ['megabit_per_second', 'kilobit_per_second', 'mbps-to-kbps'],
+      ['gigabit_per_second', 'gigabyte_per_second', 'gbps-to-gbs'],
+      ['gigabyte_per_second', 'gigabit_per_second', 'gbs-to-gbps']
     ]
   };
 

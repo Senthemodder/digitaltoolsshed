@@ -595,6 +595,286 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         calcWage();
       </script>
     `
+  },
+  {
+    slug: 'sales-tax-calculator',
+    title: 'Sales Tax Calculator (Add Tax or Back Out Pre-Tax Price)',
+    metaDesc: 'Calculate sales tax or reverse calculate price before tax. Features state presets for California, Texas, Florida, New York, and all 50 US states.',
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Sales Tax Calculator
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Sales Tax Calculator & Reverse Tax Finder</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Calculate sales tax on any purchase, or reverse calculate the original price before tax from a total receipt.
+          </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Calculation Mode</label>
+              <select id="stMode" class="code-input" style="width: 100%; padding: 0.6rem;" onchange="calcSalesTax()">
+                <option value="add" selected>Add Sales Tax (Amount is Before Tax)</option>
+                <option value="reverse">Reverse / Back Out Tax (Amount is Total Paid)</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label id="stAmountLabel" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Amount ($ USD)</label>
+              <input type="number" id="stAmount" value="100.00" min="0" step="0.5" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcSalesTax()" />
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Tax Rate (% Percent)</label>
+              <input type="number" id="stRate" value="8.25" min="0" max="30" step="0.05" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcSalesTax()" />
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); width: 100%;">US State Presets:</span>
+              <button type="button" class="btn-sm" onclick="setSTRate(7.25)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">CA (7.25%)</button>
+              <button type="button" class="btn-sm" onclick="setSTRate(6.25)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">TX (6.25%)</button>
+              <button type="button" class="btn-sm" onclick="setSTRate(4.00)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">NY (4.0%)</button>
+              <button type="button" class="btn-sm" onclick="setSTRate(6.00)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">FL (6.0%)</button>
+              <button type="button" class="btn-sm" onclick="setSTRate(6.50)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">WA (6.5%)</button>
+              <button type="button" class="btn-sm" onclick="setSTRate(0.00)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">No Tax (0%)</button>
+            </div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Tax Breakdown</h3>
+            <div id="stSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function calcSalesTax() {
+          var mode = document.getElementById('stMode').value;
+          var amt = parseFloat(document.getElementById('stAmount').value) || 0;
+          var rate = parseFloat(document.getElementById('stRate').value) || 0;
+          var rateDec = rate / 100;
+
+          var preTax = 0, taxAmt = 0, total = 0;
+
+          if (mode === 'add') {
+            preTax = amt;
+            taxAmt = preTax * rateDec;
+            total = preTax + taxAmt;
+          } else {
+            total = amt;
+            preTax = total / (1 + rateDec);
+            taxAmt = total - preTax;
+          }
+
+          document.getElementById('stSummary').innerHTML = 
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL AMOUNT (WITH TAX)</span>' +
+              '<div style="font-size: 1.8rem; font-weight: bold; color: #10b981;">$' + total.toFixed(2) + '</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">SALES TAX AMOUNT (' + rate + '%)</span>' +
+              '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">$' + taxAmt.toFixed(2) + '</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">ORIGINAL PRE-TAX PRICE</span>' +
+              '<div style="font-size: 1.25rem; font-weight: bold; color: var(--fg);">$' + preTax.toFixed(2) + '</div>' +
+            '</div>';
+        }
+
+        window.setSTRate = function(r) {
+          document.getElementById('stRate').value = r;
+          calcSalesTax();
+        };
+
+        document.addEventListener('DOMContentLoaded', calcSalesTax);
+        calcSalesTax();
+      </script>
+    `
+  },
+  {
+    slug: 'simple-interest-calculator',
+    title: 'Simple Interest Calculator (I = Prt Loan & Savings)',
+    metaDesc: 'Calculate simple interest with formula I = Prt. Find total interest earned or paid, total maturity balance, and monthly payback schedule.',
+    category: 'Finance',
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Simple Interest
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Simple Interest Calculator (I = Prt)</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Calculate simple interest for personal loans, auto financing, notes, and short-term certificates of deposit.
+          </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Principal Amount ($ USD)</label>
+              <input type="number" id="siPrinc" value="10000" min="1" step="100" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcSI()" />
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Annual Interest Rate (%)</label>
+              <input type="number" id="siRate" value="6.5" min="0.1" max="100" step="0.1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcSI()" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Term Duration</label>
+                <input type="number" id="siTerm" value="3" min="0.1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcSI()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Time Unit</label>
+                <select id="siUnit" class="code-input" style="width: 100%; padding: 0.55rem;" onchange="calcSI()">
+                  <option value="years" selected>Years</option>
+                  <option value="months">Months</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Repayment Summary</h3>
+            <div id="siSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function calcSI() {
+          var p = parseFloat(document.getElementById('siPrinc').value) || 0;
+          var r = (parseFloat(document.getElementById('siRate').value) || 0) / 100;
+          var term = parseFloat(document.getElementById('siTerm').value) || 0;
+          var unit = document.getElementById('siUnit').value;
+
+          var tInYears = unit === 'months' ? (term / 12) : term;
+          var interest = p * r * tInYears;
+          var total = p + interest;
+          var totalMonths = tInYears * 12;
+          var moPayment = totalMonths > 0 ? (total / totalMonths) : total;
+
+          document.getElementById('siSummary').innerHTML = 
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL REPAYMENT / FUTURE VALUE</span>' +
+              '<div style="font-size: 1.8rem; font-weight: bold; color: #10b981;">$' + Math.round(total).toLocaleString('en-US') + '</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL INTEREST ACCRUED</span>' +
+              '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">$' + Math.round(interest).toLocaleString('en-US') + '</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">MONTHLY REPAYMENT COST</span>' +
+              '<div style="font-size: 1.25rem; font-weight: bold; color: var(--fg);">$' + Math.round(moPayment).toLocaleString('en-US') + ' / mo</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">Over ' + Math.round(totalMonths) + ' monthly payments</div>' +
+            '</div>';
+        }
+
+        document.addEventListener('DOMContentLoaded', calcSI);
+        calcSI();
+      </script>
+    `
+  },
+  {
+    slug: 'overtime-calculator',
+    title: 'Overtime Pay Calculator (1.5x Time and a Half & Double Time)',
+    metaDesc: 'Calculate overtime wages, 1.5x time-and-a-half rate, 2.0x double-time holiday pay, and total gross paycheck breakdown under FLSA rules.',
+    category: 'Finance',
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Overtime Calculator
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Overtime & Double Time Wage Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Calculate time-and-a-half (1.5×) overtime and double-time (2.0×) earnings based on federal Fair Labor Standards Act (FLSA) guidelines.
+          </p>
+        </header>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Regular Hourly Rate ($ / hr)</label>
+              <input type="number" id="otRate" value="24.00" min="1" step="0.5" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcOT()" />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Regular Hours (≤ 40)</label>
+                <input type="number" id="otRegHrs" value="40" min="0" max="40" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcOT()" />
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Overtime Hours (1.5×)</label>
+                <input type="number" id="otOthHrs" value="10" min="0" max="60" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcOT()" />
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Double Time Hours (2.0× Holidays/Sundays)</label>
+              <input type="number" id="otDblHrs" value="0" min="0" max="40" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcOT()" />
+            </div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Paycheck Breakdown</h3>
+            <div id="otSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        function calcOT() {
+          var rate = parseFloat(document.getElementById('otRate').value) || 0;
+          var regHrs = parseFloat(document.getElementById('otRegHrs').value) || 0;
+          var otHrs = parseFloat(document.getElementById('otOthHrs').value) || 0;
+          var dblHrs = parseFloat(document.getElementById('otDblHrs').value) || 0;
+
+          var regPay = regHrs * rate;
+          var otRate = rate * 1.5;
+          var otPay = otHrs * otRate;
+          var dblRate = rate * 2.0;
+          var dblPay = dblHrs * dblRate;
+
+          var totalPay = regPay + otPay + dblPay;
+          var totalHrs = regHrs + otHrs + dblHrs;
+          var effectiveRate = totalHrs > 0 ? (totalPay / totalHrs) : rate;
+
+          document.getElementById('otSummary').innerHTML = 
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL GROSS PAY</span>' +
+              '<div style="font-size: 1.8rem; font-weight: bold; color: #10b981;">$' + totalPay.toFixed(2) + '</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">' + totalHrs + ' total hours worked</div>' +
+            '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">OVERTIME (1.5× @ $' + otRate.toFixed(2) + '/hr)</span>' +
+              '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">$' + otPay.toFixed(2) + '</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">' + otHrs + ' overtime hours</div>' +
+            '</div>' +
+            (dblHrs > 0 ? (
+              '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                '<span style="color: var(--text-muted); font-size: 0.75rem;">DOUBLE TIME (2.0× @ $' + dblRate.toFixed(2) + '/hr)</span>' +
+                '<div style="font-size: 1.35rem; font-weight: bold; color: #f59e0b;">$' + dblPay.toFixed(2) + '</div>' +
+              '</div>'
+            ) : '') +
+            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.75rem;">REGULAR PAY & EFFECTIVE RATE</span>' +
+              '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">$' + regPay.toFixed(2) + ' (Regular)</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted);">Effective rate: $' + effectiveRate.toFixed(2) + '/hr</div>' +
+            '</div>';
+        }
+
+        document.addEventListener('DOMContentLoaded', calcOT);
+        calcOT();
+      </script>
+    `
   }
 ];
   const seniorHealthTools = [

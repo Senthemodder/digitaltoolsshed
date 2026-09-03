@@ -1306,6 +1306,270 @@ export function buildTradeTools() {
     ]
   }));
 
-  console.log('  ✓ Built Trade & Construction Suite (12 calculators in /calc/)');
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 13. WALLPAPER CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const wallpaperBody = `
+    <div class="article-container" style="max-width: 900px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Calculators</a> &gt; Wallpaper Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Wallpaper Roll Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Estimate how many rolls of wallpaper you need for walls and rooms. Accounts for door/window cutouts, waste margins, and pattern repeat drop.
+        </p>
+      </header>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Wall Dimensions</h3>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Total Wall Width (Feet)</label>
+              <input type="number" id="wpWidth" value="28" min="1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcWP()" />
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Wall Height (Feet)</label>
+              <input type="number" id="wpHeight" value="9" min="1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcWP()" />
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Doors (21 sq ft ea)</label>
+              <input type="number" id="wpDoors" value="1" min="0" max="10" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcWP()" />
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Windows (15 sq ft ea)</label>
+              <input type="number" id="wpWindows" value="2" min="0" max="20" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcWP()" />
+            </div>
+          </div>
+
+          <div style="margin-bottom: 0.5rem;">
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Roll Size</label>
+            <select id="wpRollSize" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcWP()">
+              <option value="56" selected>Standard US Double Roll (~56 sq ft)</option>
+              <option value="28">Standard US Single Roll (~28 sq ft)</option>
+              <option value="57">Euro Roll (0.53m × 10m / ~57 sq ft)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Wallpaper Materials</h3>
+          <div id="wpResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+        </div>
+      </div>
+
+      <div class="ad-blend-box" style="margin: 2rem 0;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcWP() {
+        var w = parseFloat(document.getElementById('wpWidth').value) || 0;
+        var h = parseFloat(document.getElementById('wpHeight').value) || 0;
+        var doors = parseInt(document.getElementById('wpDoors').value, 10) || 0;
+        var windows = parseInt(document.getElementById('wpWindows').value, 10) || 0;
+        var rollSqFt = parseFloat(document.getElementById('wpRollSize').value) || 56;
+
+        var grossSqFt = w * h;
+        var deductions = (doors * 21) + (windows * 15);
+        var netSqFt = Math.max(10, grossSqFt - deductions);
+        var netWithWaste = netSqFt * 1.15; // 15% waste for trimming and pattern match
+
+        // Usable yield is ~85% of advertised roll square footage due to trimming
+        var usablePerRoll = rollSqFt * 0.85;
+        var rollsNeeded = Math.ceil(netWithWaste / usablePerRoll);
+
+        document.getElementById('wpResults').innerHTML = 
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">ROLLS TO PURCHASE</span>' +
+            '<div style="font-size: 2rem; font-weight: bold; color: #10b981;">' + rollsNeeded + ' Rolls</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">Includes 15% safety waste & pattern matching</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">NET WALL SURFACE AREA</span>' +
+            '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">' + netSqFt.toFixed(0) + ' sq ft</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">' + grossSqFt.toFixed(0) + ' gross sq ft minus ' + deductions + ' sq ft for doors/windows</div>' +
+          '</div>';
+      }
+
+      document.addEventListener('DOMContentLoaded', calcWP);
+      calcWP();
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'wallpaper-calculator.html'), renderPage({
+    title: 'Wallpaper Calculator: How Many Rolls Do I Need? | Digital Tools Shed',
+    metaDesc: 'Calculate exactly how many rolls of wallpaper you need for any room or accent wall. Automatically deducts doors, windows, and accounts for pattern match waste.',
+    canonical: `${DOMAIN}/calc/wallpaper-calculator`,
+    bodyContent: wallpaperBody,
+    currentPath: '/calc/wallpaper-calculator',
+    faq: [
+      { q: 'How many square feet does a standard double roll of wallpaper cover?', a: 'A standard American double roll covers approximately 56 to 60 square feet. However, due to trimming and pattern repeats, plan on an effective usable coverage of 48 to 50 square feet per double roll.' },
+      { q: 'Why is wallpaper sold in double rolls?', a: 'In the wallpaper industry, pricing is often quoted per "single roll" for historical reasons, but modern wallpaper is packaged and shipped as continuous "double rolls" to minimize seams on tall 8-foot and 9-foot walls.' },
+      { q: 'Should you deduct windows and doors when calculating wallpaper?', a: 'Yes, deducting standard doors (approx. 21 sq ft) and windows (approx. 15 sq ft) saves money, but always add back 10% to 15% extra for waste and pattern match drops.' }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 14. FENCE MATERIALS CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const fenceBody = `
+    <div class="article-container" style="max-width: 900px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Calculators</a> &gt; Fence Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Wood Privacy Fence Material Calculator</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Estimate wooden fence posts (4x4), horizontal 2x4 rails, vertical pickets, and concrete bags based on perimeter length and height.
+        </p>
+      </header>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Fence Specifications</h3>
+          
+          <div style="margin-bottom: 1.25rem;">
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Total Fence Length (Linear Feet)</label>
+            <input type="number" id="fenceLength" value="120" min="5" step="5" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcFence()" />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Post Spacing</label>
+              <select id="fenceSpacing" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcFence()">
+                <option value="6">6 Feet On-Center (Heavy / Wind)</option>
+                <option value="8" selected>8 Feet On-Center (Standard)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Fence Height</label>
+              <select id="fenceHeight" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcFence()">
+                <option value="6" selected>6 Feet (Standard Privacy - 3 Rails)</option>
+                <option value="4">4 Feet (Picket Fence - 2 Rails)</option>
+                <option value="8">8 Feet (Tall Privacy - 4 Rails)</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Picket Width</label>
+              <select id="fencePicketWidth" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcFence()">
+                <option value="5.5" selected>5.5 Inches (1x6 Dog Ear)</option>
+                <option value="3.5">3.5 Inches (1x4 Picket)</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Number of Gates</label>
+              <input type="number" id="fenceGates" value="1" min="0" max="10" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcFence()" />
+            </div>
+          </div>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Materials Shopping List</h3>
+          <div id="fenceResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+        </div>
+      </div>
+
+      <div class="ad-blend-box" style="margin: 2rem 0;">
+        <span class="ad-label">Sponsored Resource</span>
+        <div class="ad-unit-300x250">
+          <script type="text/javascript">
+            atOptions = {
+              'key' : '335d807d460eaf2491fcca0f635474ce',
+              'format' : 'iframe',
+              'height' : 250,
+              'width' : 300,
+              'params' : {}
+            };
+          </script>
+          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcFence() {
+        var length = parseFloat(document.getElementById('fenceLength').value) || 0;
+        var spacing = parseFloat(document.getElementById('fenceSpacing').value) || 8;
+        var height = parseInt(document.getElementById('fenceHeight').value, 10) || 6;
+        var pWidth = parseFloat(document.getElementById('fencePicketWidth').value) || 5.5;
+        var gates = parseInt(document.getElementById('fenceGates').value, 10) || 0;
+
+        var sections = Math.ceil(length / spacing);
+        var posts = sections + 1 + gates; // 1 extra post per end and gate
+        var railsPerSec = height >= 8 ? 4 : (height >= 6 ? 3 : 2);
+        var totalRails = sections * railsPerSec;
+
+        // Pickets: 12 inches per foot / picket width, plus 5% waste
+        var picketsPerFoot = 12 / pWidth;
+        var pickets = Math.ceil((length * picketsPerFoot) * 1.05);
+
+        // Concrete: 1.5 to 2 bags per post hole (50-lb fast setting)
+        var concreteBags = Math.ceil(posts * 1.5);
+
+        document.getElementById('fenceResults').innerHTML = 
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">WOOD POSTS (4x4 PRESSURE TREATED)</span>' +
+            '<div style="font-size: 1.8rem; font-weight: bold; color: #10b981;">' + posts + ' Posts (' + (height + 2) + ' ft long)</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">' + sections + ' fence sections @ ' + spacing + ' ft on-center</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">VERTICAL PICKETS (' + pWidth + '" WIDE)</span>' +
+            '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">' + pickets + ' Pickets</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">Includes 5% trimming & defect margin</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">HORIZONTAL RAILS (2x4x8)</span>' +
+            '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg);">' + totalRails + ' Rails (' + railsPerSec + ' rails per bay)</div>' +
+          '</div>' +
+          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem;">POST HOLE CONCRETE (50 LB BAGS)</span>' +
+            '<div style="font-size: 1.2rem; font-weight: bold; color: #f59e0b;">' + concreteBags + ' Bags Fast-Setting Concrete</div>' +
+            '<div style="font-size: 0.75rem; color: var(--text-muted);">1.5 bags per post hole (1/3 depth rule)</div>' +
+          '</div>';
+      }
+
+      document.addEventListener('DOMContentLoaded', calcFence);
+      calcFence();
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'fence-calculator.html'), renderPage({
+    title: 'Wood Fence Material Calculator: Posts, Rails, Pickets & Concrete | Digital Tools Shed',
+    metaDesc: 'Calculate materials needed for a 4ft, 6ft, or 8ft wood privacy fence. Estimates 4x4 posts, 2x4 rails, dog-ear pickets, and concrete bags.',
+    canonical: `${DOMAIN}/calc/fence-calculator`,
+    bodyContent: fenceBody,
+    currentPath: '/calc/fence-calculator',
+    faq: [
+      { q: 'How many posts do I need for a 100-foot fence?', a: 'With standard 8-foot on-center post spacing, a 100-foot fence requires 13 fence posts (100 ÷ 8 = 12.5, rounded up to 13, plus 1 end post = 14 posts total).' },
+      { q: 'How many bags of concrete per fence post?', a: 'Standard recommendations are 1.5 to 2 fifty-pound bags of fast-setting concrete per 4x4 post hole, with holes dug to a depth of 1/3 of the total post length (typically 24 to 30 inches).' },
+      { q: 'How many 2x4 rails for a 6-foot privacy fence?', a: 'A standard 6-foot privacy fence requires 3 horizontal 2x4 rails per section (top, middle, and bottom) to prevent wood warping and sagging under wind loads.' }
+    ]
+  }));
+
+  console.log('  ✓ Built Trade & Construction Suite (14 calculators in /calc/)');
 }
 

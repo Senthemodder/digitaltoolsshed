@@ -676,6 +676,510 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           calcGpa();
         </script>
       `
+    },
+    {
+      slug: 'fraction-to-decimal',
+      title: 'Fraction to Decimal Converter (with Inches & Tape Measure)',
+      metaDesc: 'Convert fractions to decimals instantly. Includes mixed numbers, repeating decimals, percentage conversion, and imperial tape measure chart.',
+      category: 'Math & Units',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Fraction to Decimal
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Fraction to Decimal Converter</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert proper fractions, improper fractions, and mixed numbers into exact decimals, percentages, and tape measure equivalents.
+          </p>
+
+          <div class="tool-box">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; align-items: flex-end;">
+              <div class="field-group">
+                <label class="field-label">Whole Number (Optional)</label>
+                <input type="number" id="f2d-whole" class="code-input" placeholder="e.g. 2" oninput="calcF2D()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Numerator (Top)</label>
+                <input type="number" id="f2d-num" class="code-input" value="3" oninput="calcF2D()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Denominator (Bottom)</label>
+                <input type="number" id="f2d-den" class="code-input" value="8" min="1" oninput="calcF2D()" />
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1rem;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Popular Fraction Presets:</span>
+              <button type="button" class="btn-sec" onclick="setF2D(0, 1, 2)">1/2</button>
+              <button type="button" class="btn-sec" onclick="setF2D(0, 1, 3)">1/3</button>
+              <button type="button" class="btn-sec" onclick="setF2D(0, 1, 4)">1/4</button>
+              <button type="button" class="btn-sec" onclick="setF2D(0, 3, 4)">3/4</button>
+              <button type="button" class="btn-sec" onclick="setF2D(0, 3, 8)">3/8</button>
+              <button type="button" class="btn-sec" onclick="setF2D(0, 5, 8)">5/8</button>
+              <button type="button" class="btn-sec" onclick="setF2D(0, 7, 16)">7/16</button>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Decimal Equivalent</div>
+              <div id="f2d-dec" class="result-val">0.375</div>
+              <div id="f2d-details" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">37.5% | Formula: 3 ÷ 8 = 0.375</div>
+            </div>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Standard Imperial Tape Measure Chart (16ths & 32nds)</h3>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+                <thead>
+                  <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
+                    <th style="padding: 0.5rem 0.75rem;">Fraction</th>
+                    <th style="padding: 0.5rem 0.75rem;">Decimal</th>
+                    <th style="padding: 0.5rem 0.75rem;">Millimeters (mm)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">1/16 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.0625</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">1.5875 mm</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">1/8 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.125</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">3.1750 mm</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">3/16 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.1875</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">4.7625 mm</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">1/4 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.25</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">6.3500 mm</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">5/16 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.3125</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">7.9375 mm</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">3/8 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.375</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">9.5250 mm</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">1/2 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.50</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">12.700 mm</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">5/8 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.625</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">15.875 mm</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">3/4 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.75</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">19.050 mm</td></tr>
+                  <tr><td style="padding: 0.4rem 0.75rem; font-weight: bold;">7/8 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.875</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">22.225 mm</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcF2D() {
+            var w = parseFloat(document.getElementById('f2d-whole').value) || 0;
+            var num = parseFloat(document.getElementById('f2d-num').value) || 0;
+            var den = parseFloat(document.getElementById('f2d-den').value) || 1;
+            if (den === 0) den = 1;
+
+            var dec = w >= 0 ? (w + (num / den)) : (w - (num / den));
+            var pct = (dec * 100).toFixed(2);
+
+            document.getElementById('f2d-dec').textContent = parseFloat(dec.toFixed(8)).toString();
+            document.getElementById('f2d-details').textContent = pct + '% | Formula: (' + (w ? w + ' + ' : '') + num + ' ÷ ' + den + ') = ' + parseFloat(dec.toFixed(8));
+          }
+
+          window.setF2D = function(w, n, d) {
+            document.getElementById('f2d-whole').value = w || '';
+            document.getElementById('f2d-num').value = n;
+            document.getElementById('f2d-den').value = d;
+            calcF2D();
+          };
+
+          document.addEventListener('DOMContentLoaded', calcF2D);
+          calcF2D();
+        </script>
+      `
+    },
+    {
+      slug: 'decimal-to-fraction',
+      title: 'Decimal to Fraction Converter (Simplified & Mixed Numbers)',
+      metaDesc: 'Convert any decimal to an exact reduced fraction or mixed number. Automatically find nearest tape measure fraction (16ths, 32nds, 64ths).',
+      category: 'Math & Units',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Decimal to Fraction
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Decimal to Fraction Converter</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert terminating or repeating decimals into fully simplified fractions, mixed numbers, and nearest construction tape measure inches.
+          </p>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Decimal Value</label>
+              <input type="number" id="d2f-in" class="code-input" value="0.625" step="0.001" oninput="calcD2F()" style="font-size: 1.25rem;" />
+            </div>
+
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1rem;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Sample Decimals:</span>
+              <button type="button" class="btn-sec" onclick="setD2F('0.125')">0.125 (1/8)</button>
+              <button type="button" class="btn-sec" onclick="setD2F('0.375')">0.375 (3/8)</button>
+              <button type="button" class="btn-sec" onclick="setD2F('0.625')">0.625 (5/8)</button>
+              <button type="button" class="btn-sec" onclick="setD2F('0.875')">0.875 (7/8)</button>
+              <button type="button" class="btn-sec" onclick="setD2F('2.5')">2.5 (2 1/2)</button>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Simplified Fraction</div>
+              <div id="d2f-res" class="result-val">5/8</div>
+              <div id="d2f-mixed" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;"></div>
+              <div id="d2f-tape" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) { var t = b; b = a % b; a = t; }
+            return a;
+          }
+
+          function calcD2F() {
+            var val = parseFloat(document.getElementById('d2f-in').value);
+            if (isNaN(val)) {
+              document.getElementById('d2f-res').textContent = '-';
+              return;
+            }
+
+            var sign = val < 0 ? -1 : 1;
+            val = Math.abs(val);
+
+            var whole = Math.floor(val);
+            var fracPart = val - whole;
+
+            // Find denominator based on decimal places (up to 6 places)
+            var str = fracPart.toFixed(6).replace(/0+$/, '');
+            var decPlaces = (str.split('.')[1] || '').length;
+            var den = Math.pow(10, Math.min(decPlaces, 6));
+            var num = Math.round(fracPart * den);
+
+            var g = gcd(num, den);
+            var simpNum = num / g;
+            var simpDen = den / g;
+
+            var totalNum = (whole * simpDen + simpNum) * sign;
+
+            var resStr = simpNum === 0 ? whole.toString() : (simpDen === 1 ? totalNum.toString() : (totalNum + '/' + simpDen));
+            document.getElementById('d2f-res').textContent = resStr;
+
+            if (whole > 0 && simpNum > 0) {
+              document.getElementById('d2f-mixed').textContent = 'Mixed Number: ' + (sign < 0 ? '-' : '') + whole + ' ' + simpNum + '/' + simpDen;
+            } else {
+              document.getElementById('d2f-mixed').textContent = '';
+            }
+
+            // Nearest 16th and 32nd inch
+            var sixteenths = Math.round(fracPart * 16);
+            var g16 = gcd(sixteenths, 16);
+            var tapeStr = (sixteenths / g16) + '/' + (16 / g16) + ' in';
+            document.getElementById('d2f-tape').textContent = 'Nearest Tape Measure: ' + (whole > 0 ? whole + ' ' : '') + tapeStr + ' (within 1/16")';
+          }
+
+          window.setD2F = function(v) {
+            document.getElementById('d2f-in').value = v;
+            calcD2F();
+          };
+
+          document.addEventListener('DOMContentLoaded', calcD2F);
+          calcD2F();
+        </script>
+      `
+    },
+    {
+      slug: 'fraction-calculator',
+      title: 'Fraction Calculator (Add, Subtract, Multiply, Divide Fractions)',
+      metaDesc: 'Add, subtract, multiply, and divide fractions with step-by-step solutions, LCD least common denominator, and mixed number simplification.',
+      category: 'Math & Units',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Fraction Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Fraction Arithmetic Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Add, subtract, multiply, and divide two fractions or mixed numbers with full step-by-step work and common denominator solving.
+          </p>
+
+          <div class="tool-box">
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center;">
+              <!-- Fraction 1 -->
+              <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <div class="field-label">Fraction 1</div>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <input type="number" id="fc-w1" class="code-input" placeholder="Whole" style="width: 70px;" oninput="calcFracCalc()" />
+                  <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                    <input type="number" id="fc-n1" class="code-input" value="1" style="width: 70px;" oninput="calcFracCalc()" />
+                    <input type="number" id="fc-d1" class="code-input" value="2" min="1" style="width: 70px;" oninput="calcFracCalc()" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Operation -->
+              <div>
+                <select id="fc-op" class="code-input" style="font-size: 1.5rem; padding: 0.5rem; font-weight: bold; width: auto;" onchange="calcFracCalc()">
+                  <option value="+">+</option>
+                  <option value="-">−</option>
+                  <option value="*">×</option>
+                  <option value="/">÷</option>
+                </select>
+              </div>
+
+              <!-- Fraction 2 -->
+              <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                <div class="field-label">Fraction 2</div>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <input type="number" id="fc-w2" class="code-input" placeholder="Whole" style="width: 70px;" oninput="calcFracCalc()" />
+                  <div style="display: flex; flex-direction: column; gap: 0.3rem;">
+                    <input type="number" id="fc-n2" class="code-input" value="3" style="width: 70px;" oninput="calcFracCalc()" />
+                    <input type="number" id="fc-d2" class="code-input" value="4" min="1" style="width: 70px;" oninput="calcFracCalc()" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Result</div>
+              <div id="fc-res" class="result-val">1 1/4</div>
+              <div id="fc-steps" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Decimal: 1.25 | Improper Fraction: 5/4</div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function gcdFrac(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) { var t = b; b = a % b; a = t; }
+            return a;
+          }
+
+          function calcFracCalc() {
+            var w1 = parseFloat(document.getElementById('fc-w1').value) || 0;
+            var n1 = parseFloat(document.getElementById('fc-n1').value) || 0;
+            var d1 = parseFloat(document.getElementById('fc-d1').value) || 1;
+
+            var w2 = parseFloat(document.getElementById('fc-w2').value) || 0;
+            var n2 = parseFloat(document.getElementById('fc-n2').value) || 0;
+            var d2 = parseFloat(document.getElementById('fc-d2').value) || 1;
+
+            var op = document.getElementById('fc-op').value;
+
+            // Convert to improper fractions
+            var top1 = (w1 * d1) + n1;
+            var top2 = (w2 * d2) + n2;
+
+            var resNum = 0, resDen = 1;
+
+            if (op === '+') {
+              resNum = (top1 * d2) + (top2 * d1);
+              resDen = d1 * d2;
+            } else if (op === '-') {
+              resNum = (top1 * d2) - (top2 * d1);
+              resDen = d1 * d2;
+            } else if (op === '*') {
+              resNum = top1 * top2;
+              resDen = d1 * d2;
+            } else if (op === '/') {
+              resNum = top1 * d2;
+              resDen = d1 * top2;
+            }
+
+            if (resDen === 0) {
+              document.getElementById('fc-res').textContent = 'Undefined';
+              return;
+            }
+
+            var g = gcdFrac(resNum, resDen);
+            resNum = resNum / g;
+            resDen = resDen / g;
+
+            if (resDen < 0) {
+              resNum = -resNum;
+              resDen = -resDen;
+            }
+
+            var whole = Math.floor(Math.abs(resNum) / resDen);
+            var rem = Math.abs(resNum) % resDen;
+            var sign = resNum < 0 ? '-' : '';
+
+            var outStr = '';
+            if (rem === 0) {
+              outStr = (sign ? '-' : '') + whole;
+            } else if (whole === 0) {
+              outStr = (sign ? '-' : '') + rem + '/' + resDen;
+            } else {
+              outStr = (sign ? '-' : '') + whole + ' ' + rem + '/' + resDen;
+            }
+
+            document.getElementById('fc-res').textContent = outStr;
+            var dec = (resNum / resDen).toFixed(4).replace(/0+$/, '').replace(/\\.$/, '');
+            document.getElementById('fc-steps').textContent = 'Decimal: ' + dec + ' | Improper Fraction: ' + resNum + '/' + resDen;
+          }
+
+          document.addEventListener('DOMContentLoaded', calcFracCalc);
+          calcFracCalc();
+        </script>
+      `
+    },
+    {
+      slug: 'aspect-ratio-calculator',
+      title: 'Aspect Ratio Calculator (16:9, 4:3, 21:9 & Pixel Resizer)',
+      metaDesc: 'Calculate aspect ratios, resize video resolutions, and scale image dimensions. Presets for 16:9 (YouTube), 9:16 (TikTok), 4:3, 1:1, and 21:9 ultrawide.',
+      category: 'Design & Media',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Aspect Ratio Calculator
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Aspect Ratio & Resolution Scaler</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Find aspect ratios from pixel dimensions or scale video/image resolutions proportionally without distortion.
+          </p>
+
+          <div class="tool-box">
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Popular Ratios:</span>
+              <button type="button" class="btn-sec" onclick="setRatio(16, 9, 1920, 1080)">16:9 (YouTube / 1080p)</button>
+              <button type="button" class="btn-sec" onclick="setRatio(9, 16, 1080, 1920)">9:16 (TikTok / Reels)</button>
+              <button type="button" class="btn-sec" onclick="setRatio(4, 3, 1024, 768)">4:3 (SD / iPad)</button>
+              <button type="button" class="btn-sec" onclick="setRatio(1, 1, 1080, 1080)">1:1 (Instagram)</button>
+              <button type="button" class="btn-sec" onclick="setRatio(21, 9, 2560, 1080)">21:9 (Ultrawide)</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+              <div class="field-group">
+                <label class="field-label">Width (Pixels)</label>
+                <input type="number" id="ar-w" class="code-input" value="1920" oninput="calcARWidth()" style="font-size: 1.25rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Height (Pixels)</label>
+                <input type="number" id="ar-h" class="code-input" value="1080" oninput="calcARHeight()" style="font-size: 1.25rem;" />
+              </div>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Aspect Ratio</div>
+              <div id="ar-res" class="result-val">16:9</div>
+              <div id="ar-factor" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Decimal Factor: 1.778:1</div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function gcdAR(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) { var t = b; b = a % b; a = t; }
+            return a;
+          }
+
+          var lockedRatio = 16 / 9;
+
+          function calcAR() {
+            var w = parseInt(document.getElementById('ar-w').value, 10) || 1;
+            var h = parseInt(document.getElementById('ar-h').value, 10) || 1;
+
+            var g = gcdAR(w, h);
+            var rw = w / g;
+            var rh = h / g;
+
+            document.getElementById('ar-res').textContent = rw + ':' + rh;
+            document.getElementById('ar-factor').textContent = 'Decimal Factor: ' + (w / h).toFixed(3) + ':1';
+          }
+
+          function calcARWidth() {
+            var w = parseInt(document.getElementById('ar-w').value, 10) || 1;
+            document.getElementById('ar-h').value = Math.round(w / lockedRatio);
+            calcAR();
+          }
+
+          function calcARHeight() {
+            var h = parseInt(document.getElementById('ar-h').value, 10) || 1;
+            document.getElementById('ar-w').value = Math.round(h * lockedRatio);
+            calcAR();
+          }
+
+          window.setRatio = function(rw, rh, defW, defH) {
+            lockedRatio = rw / rh;
+            document.getElementById('ar-w').value = defW;
+            document.getElementById('ar-h').value = defH;
+            calcAR();
+          };
+
+          document.addEventListener('DOMContentLoaded', calcAR);
+          calcAR();
+        </script>
+      `
+    },
+    {
+      slug: 'scientific-notation-converter',
+      title: 'Scientific Notation Converter (Standard & Engineering E-Notation)',
+      metaDesc: 'Convert scientific notation (1.23 × 10^6) to standard decimal numbers and E-notation. Includes order of magnitude and metric prefix steps.',
+      category: 'Math & Science',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Scientific Notation Converter
+          </nav>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Scientific Notation Converter</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert between standard decimal numbers, scientific notation ($a \\times 10^b$), and engineering E-notation.
+          </p>
+
+          <div class="tool-box">
+            <div class="field-group">
+              <label class="field-label">Enter Number (Decimal, Scientific, or E-Notation)</label>
+              <input type="text" id="sn-in" class="code-input" value="4500000" oninput="calcSN()" style="font-size: 1.25rem;" />
+            </div>
+
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1rem;">
+              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Sample Inputs:</span>
+              <button type="button" class="btn-sec" onclick="setSN('4500000')">4,500,000</button>
+              <button type="button" class="btn-sec" onclick="setSN('0.00028')">0.00028</button>
+              <button type="button" class="btn-sec" onclick="setSN('3.0e8')">Speed of Light (3e8)</button>
+              <button type="button" class="btn-sec" onclick="setSN('6.022e23')">Avogadro (6.022e23)</button>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Scientific Notation</div>
+              <div id="sn-sci" class="result-val">4.5 × 10⁶</div>
+              <div id="sn-eng" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;">Engineering: 4.5e+6</div>
+              <div id="sn-dec" style="font-size: 0.9rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.4rem;">Standard Decimal: 4,500,000</div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function toSuperscript(num) {
+            var chars = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻', '+': '' };
+            return num.toString().split('').map(function(c) { return chars[c] || c; }).join('');
+          }
+
+          function calcSN() {
+            var raw = document.getElementById('sn-in').value.trim().replace(/,/g, '');
+            var val = parseFloat(raw);
+            if (isNaN(val)) {
+              document.getElementById('sn-sci').textContent = '-';
+              return;
+            }
+
+            var expStr = val.toExponential();
+            var parts = expStr.split('e');
+            var coef = parseFloat(parseFloat(parts[0]).toFixed(6));
+            var exp = parseInt(parts[1], 10);
+
+            document.getElementById('sn-sci').textContent = coef + ' × 10' + toSuperscript(exp);
+            document.getElementById('sn-eng').textContent = 'E-Notation: ' + coef + 'e' + (exp >= 0 ? '+' : '') + exp;
+            document.getElementById('sn-dec').textContent = 'Decimal: ' + (Math.abs(val) >= 1e15 || Math.abs(val) < 1e-6 ? val.toString() : val.toLocaleString('en-US', { maximumFractionDigits: 10 }));
+          }
+
+          window.setSN = function(v) {
+            document.getElementById('sn-in').value = v;
+            calcSN();
+          };
+
+          document.addEventListener('DOMContentLoaded', calcSN);
+          calcSN();
+        </script>
+      `
     }
   ];
 
