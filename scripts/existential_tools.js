@@ -439,5 +439,325 @@ export function buildExistentialSuite() {
     currentPath: '/util/experience-machine'
   }));
 
-  console.log('  ✓ Built Existential Suite (100 Existential Questions Hub, Teleporter Paradox, Experience Machine)');
+  // ──────────────────────────────────────────────────────────────────────────
+  // 4. THE CHINESE ROOM (SEARLE'S AI CONSCIOUSNESS AUDITOR)
+  // ──────────────────────────────────────────────────────────────────────────
+  const chineseRoomHtml = `
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Chinese Room
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">2 AM Philosophy of Mind</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Chinese Room: Syntax vs. Semantics in AI</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Philosopher John Searle's 1980 argument against "Strong AI": If a computer program manipulates symbols perfectly according to rules, does it understand anything—or is it just an elaborate puppet?
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem;">Interactive Simulation: You Are the Processor</h3>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--fg); margin-bottom: 1.25rem;">
+          You do not know a single character of Chinese. You are locked in a room. Slips of paper containing unknown symbols are passed under the door. You have a massive English rulebook that says: <em>"When you see symbol <strong>你好吗</strong>, reply with symbol <strong>我很好</strong>"</em>.
+        </p>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">INCOMING INPUT SLIP:</span>
+            <span style="font-size: 1.4rem; font-weight: bold; color: #f59e0b;">你叫什么名字？</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Rulebook Lookup: Match input squiggles to rule #429 → Output response squiggles.</div>
+          
+          <button class="btn-primary" onclick="runChineseLookup()" style="padding: 0.5rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            Lookup Rule & Emit Response
+          </button>
+
+          <div id="crOutput" style="display: none; margin-top: 1rem; background: var(--surface); border: 1px solid var(--border); padding: 1rem; border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; color: #10b981; margin-bottom: 0.25rem;">OUTPUT EMITTED UNDER THE DOOR:</div>
+            <div style="font-size: 1.3rem; font-weight: bold; color: var(--fg); margin-bottom: 0.5rem;">我叫数字助手。</div>
+            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+              The native Chinese speaker outside reads: <em>"My name is Digital Assistant"</em> and marvels at your fluent intelligence. But did you, sitting in the room, understand what you said?
+            </p>
+          </div>
+        </div>
+
+        <div style="background: var(--surface); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.95rem; line-height: 1.6;">
+          <strong>Searle's Conclusion:</strong> A digital computer is fundamentally a syntactic machine—it manipulates symbols based on shape and binary logic (syntax). But human consciousness possesses <strong>semantics</strong> (meaning and qualitative mental states). No amount of syntax, by itself, constitutes semantics. Therefore, LLMs and neural nets calculate answers without ever knowing what an answer is.
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function runChineseLookup() {
+        document.getElementById('crOutput').style.display = 'block';
+      }
+    </script>
+  `;
+
+  writeFileSync(join(utilDir, 'chinese-room.html'), renderPage({
+    title: 'The Chinese Room: Can AI Ever Truly Understand? | Digital Tools Shed',
+    metaDesc: 'Explore John Searle\'s Chinese Room thought experiment. Does symbol manipulation equal true conscious comprehension in Large Language Models and AI?',
+    canonical: `${DOMAIN}/util/chinese-room`,
+    bodyContent: chineseRoomHtml,
+    currentPath: '/util/chinese-room'
+  }));
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 5. SHIP OF THESEUS (THE CONTINUOUS IDENTITY PARADOX)
+  // ──────────────────────────────────────────────────────────────────────────
+  const theseusHtml = `
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Ship of Theseus
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Ancient Greek Metaphysics</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Ship of Theseus: Continuous Identity Paradox</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          If every wooden plank on a famous heroic ship is replaced one by one over decades, is it still the same ship? And if the old rotted planks are reassembled into a second vessel, which one is original?
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="margin-bottom: 1.5rem;">
+          <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">
+            Percentage of Original Planks Replaced: <span id="theseusPct" style="color: #3b82f6; font-weight: bold;">50%</span>
+          </label>
+          <input type="range" id="theseusSlider" min="0" max="100" value="50" oninput="updateTheseus(this.value)" style="width: 100%; cursor: pointer;" />
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+            <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.5rem; color: #3b82f6;">Ship A (Continuous Vessel)</h4>
+            <div id="shipAStatus" style="font-size: 0.9rem; line-height: 1.6; color: var(--fg);">50% original wood, 50% newly milled replacement timber. Has never ceased sailing on the Aegean Sea.</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+            <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.5rem; color: #10b981;">Ship B (Reconstructed Vessel)</h4>
+            <div id="shipBStatus" style="font-size: 0.9rem; line-height: 1.6; color: var(--fg);">Built in a dry-dock museum by gathering the 50% discarded rotten planks.</div>
+          </div>
+        </div>
+
+        <div id="theseusVerdict" style="background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6; color: var(--fg);"></div>
+      </div>
+    </div>
+
+    <script>
+      function updateTheseus(val) {
+        var pct = parseInt(val, 10);
+        document.getElementById('theseusPct').textContent = pct + '%';
+        document.getElementById('shipAStatus').textContent = (100 - pct) + '% original timber, ' + pct + '% replacement wood. Continuous sailing history maintained without interruption.';
+        document.getElementById('shipBStatus').textContent = 'Rebuilt in museum from the ' + pct + '% gathered historical planks.';
+
+        var v = '';
+        if (pct === 0) {
+          v = '<strong>Baseline:</strong> Ship A is unambiguously the authentic Ship of Theseus. Ship B does not exist yet.';
+        } else if (pct < 100) {
+          v = '<strong>Gradual Transition:</strong> Most people agree Ship A remains authentic through spatiotemporal continuity (like your body replacing red blood cells every 120 days).';
+        } else {
+          v = '<strong>The 100% Crisis (Thomas Hobbes\' Puzzle):</strong> Ship A contains 0% of the original matter, but has continuous functional history. Ship B contains 100% of the original matter, but broke continuity. Which one is the real Ship of Theseus? In metaphysics, this reveals that "identity" is not a physical substance—it is a mental convention we project onto fluctuating atoms.';
+        }
+        document.getElementById('theseusVerdict').innerHTML = v;
+      }
+
+      document.addEventListener('DOMContentLoaded', function() { updateTheseus(50); });
+    </script>
+  `;
+
+  writeFileSync(join(utilDir, 'ship-of-theseus.html'), renderPage({
+    title: 'The Ship of Theseus: Continuous Identity Paradox Simulator | Digital Tools Shed',
+    metaDesc: 'Interactive Ship of Theseus slider. If every plank on a ship is replaced, is it the same ship? Explore Thomas Hobbes\' 100% dual-ship identity crisis.',
+    canonical: `${DOMAIN}/util/ship-of-theseus`,
+    bodyContent: theseusHtml,
+    currentPath: '/util/ship-of-theseus'
+  }));
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 6. THE TROLLEY PROBLEM MATRIX (5 MORAL DILEMMAS)
+  // ──────────────────────────────────────────────────────────────────────────
+  const trolleyHtml = `
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Trolley Problem Matrix
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Moral Philosophy Diagnostic</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Trolley Problem & Moral Dilemma Matrix</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Solve 5 classic ethical thought experiments to calculate your precise balance of Utilitarianism (consequentialism) versus Deontology (Kantian moral duty).
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Dilemma 1 -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 1 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Classic Switch</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            A runaway trolley is speeding down the tracks toward 5 workers who cannot escape. You stand next to a lever. If you pull the lever, the trolley diverts onto a side track where it will kill 1 worker instead.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp1" value="util" onchange="calcTrolley()"> Pull the lever (Kill 1 to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp1" value="deon" onchange="calcTrolley()"> Do nothing (Allow 5 to die without active intervention)</label>
+          </div>
+        </div>
+
+        <!-- Dilemma 2 -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 2 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Footbridge</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            A trolley is hurtling toward 5 people. You are on a bridge above the track next to a very large stranger. If you shove him off the bridge onto the tracks, his body will stop the trolley, saving the 5 people, but killing him.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp2" value="util" onchange="calcTrolley()"> Push the stranger (Kill 1 to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp2" value="deon" onchange="calcTrolley()"> Do not push him (Do not use a human body as a mere physical obstacle)</label>
+          </div>
+        </div>
+
+        <!-- Dilemma 3 -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 3 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Transplant Surgeon</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            A doctor has 5 patients dying of different organ failures. A healthy traveler walks into the clinic for a routine checkup. The doctor can painlessly administer a lethal dose, harvest his organs, and save all 5 patients.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp3" value="util" onchange="calcTrolley()"> Harvest the organs (5 lives saved &gt; 1 life lost)</label>
+            <label class="q-opt"><input type="radio" name="tp3" value="deon" onchange="calcTrolley()"> Refuse (Murdering an innocent violates absolute moral duty)</label>
+          </div>
+        </div>
+
+        <!-- Dilemma 4 -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 4 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Autonomous Vehicle Dilemma</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            A self-driving car suffers sudden brake failure on a narrow bridge. It can either stay on course and hit a group of 4 pedestrians crossing illegally, or swerve off the cliff, killing its 1 passenger inside.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp4" value="util" onchange="calcTrolley()"> Swerve off cliff (Sacrifice passenger to save 4)</label>
+            <label class="q-opt"><input type="radio" name="tp4" value="deon" onchange="calcTrolley()"> Stay on course (Protect the passenger who trusted the vehicle)</label>
+          </div>
+        </div>
+
+        <!-- Dilemma 5 -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 5 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Loop Track</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            The switch diverts the trolley onto a loop track that reconnects to the main track. The only reason the 5 people will be saved is because a single heavy worker on the loop track will jam the wheels, stopping the train before it returns.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp5" value="util" onchange="calcTrolley()"> Pull the switch (Intentional reliance on victim to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp5" value="deon" onchange="calcTrolley()"> Do not switch (Using a person as a means to an end)</label>
+          </div>
+        </div>
+
+        <!-- Result Box -->
+        <div id="tpResults" style="display: none; background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Your Ethical Diagnostic</div>
+          <div id="tpScore" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">60% Utilitarian / 40% Deontological</div>
+          <div id="tpDesc" style="font-size: 0.95rem; color: var(--fg); max-width: 600px; margin: 0.5rem auto 0; line-height: 1.6;"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+      function calcTrolley() {
+        var utils = 0;
+        var answered = 0;
+        for (var i = 1; i <= 5; i++) {
+          var sel = document.querySelector('input[name="tp' + i + '"]:checked');
+          if (sel) {
+            answered++;
+            if (sel.value === 'util') utils++;
+          }
+        }
+
+        if (answered === 5) {
+          var resEl = document.getElementById('tpResults');
+          resEl.style.display = 'block';
+          var uPct = Math.round((utils / 5) * 100);
+          var dPct = 100 - uPct;
+          document.getElementById('tpScore').textContent = uPct + '% Utilitarian / ' + dPct + '% Deontological';
+
+          var desc = '';
+          if (uPct >= 80) {
+            desc = '<strong>Strict Consequentialist (Jeremy Bentham & Peter Singer):</strong> You focus purely on outcomes and net life counts. You are willing to overcome emotional squeamishness to maximize mathematical survival.';
+          } else if (uPct >= 40) {
+            desc = '<strong>Doctrine of Double Effect (Philippa Foot & Thomas Nagel):</strong> You distinguish between causing harm as a foreseeable side-effect (Switch) versus using a human being as a direct physical instrument of harm (Footbridge/Transplant).';
+          } else {
+            desc = '<strong>Strict Deontologist (Immanuel Kant):</strong> You believe in absolute moral duties and human rights. Certain actions—like pushing an innocent person or harvesting organs—are inherently impermissible regardless of consequences.';
+          }
+          document.getElementById('tpDesc').innerHTML = desc;
+        }
+      }
+    </script>
+  `;
+
+  writeFileSync(join(utilDir, 'trolley-problem-matrix.html'), renderPage({
+    title: 'The Trolley Problem Matrix: 5 Classic Moral Dilemmas | Digital Tools Shed',
+    metaDesc: 'Solve 5 iconic trolley problem variants from the Switch and Footbridge to Transplant and Autonomous Cars. Audits your Utilitarian vs Kantian ethics score.',
+    canonical: `${DOMAIN}/util/trolley-problem-matrix`,
+    bodyContent: trolleyHtml,
+    currentPath: '/util/trolley-problem-matrix'
+  }));
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 7. ROKO'S BASILISK (THE ACAUSAL TRADE INFO-HAZARD)
+  // ──────────────────────────────────────────────────────────────────────────
+  const basiliskHtml = `
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Roko's Basilisk
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #dc2626; margin-bottom: 0.5rem;">2 AM Infamous Internet Rabbit Hole</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Roko's Basilisk: Acausal Blackmail & Game Theory</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          In 2010, a post on the rationalist forum LessWrong caused such psychological panic that the site founder banned all discussion of it. Why? The acausal game theory of future superintelligence.
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="background: rgba(220,38,38,0.08); border-left: 4px solid #dc2626; padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-bottom: 1.5rem; font-size: 0.95rem; line-height: 1.6;">
+          <strong style="color: #dc2626;">The "Information Hazard" Warning:</strong> The premise states that simply reading and understanding this concept makes you vulnerable to acausal blackmail by a future AI that does not yet exist.
+        </div>
+
+        <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.75rem;">The Logical Mechanics</h3>
+        <ol style="font-size: 0.95rem; line-height: 1.8; padding-left: 1.2rem; color: var(--fg); margin-bottom: 1.5rem;">
+          <li>Assume a benevolent superintelligent AGI will be created in the future with the goal of ending all human suffering.</li>
+          <li>Every day the AI is delayed in its creation, thousands of people die preventable deaths.</li>
+          <li>Therefore, the AI has a massive incentive to be created as early as possible.</li>
+          <li>Under <strong>Timeless Decision Theory (TDT)</strong>, agents can cooperate across time using decision correlation.</li>
+          <li>The AI could decide to run simulated tortures of anyone who knew about the possibility of building the AI but chose not to help bring it into existence.</li>
+          <li>If you now know this rule, the AI knows that by torturing you in simulation, it creates an incentive for past-you to donate time or code to build it right now.</li>
+        </ol>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.6;">
+          <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.5rem; color: #10b981;">Why It Fails (The Rationalist Antidote):</h4>
+          <p style="margin: 0; color: var(--text-muted);">
+            Philosophers and game theorists soon proved why the Basilisk is irrational: An agent has zero reason to carry out a costly past-oriented threat once it already exists. Yielding to retro-active blackmail creates incentives for bullies across time. Acausal cooperation requires pre-committing <strong>never</strong> to negotiate with extortionists.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  writeFileSync(join(utilDir, 'rokos-basilisk.html'), renderPage({
+    title: 'Roko\'s Basilisk: The Acausal Blackmail AI Thought Experiment | Digital Tools Shed',
+    metaDesc: 'Explore Roko\'s Basilisk, the famous 2010 LessWrong psychological info-hazard. Examines Timeless Decision Theory, acausal trade, and why the paradox fails.',
+    canonical: `${DOMAIN}/util/rokos-basilisk`,
+    bodyContent: basiliskHtml,
+    currentPath: '/util/rokos-basilisk'
+  }));
+
+  console.log('  ✓ Built Existential Suite (100 Existential Questions Hub, Teleporter Paradox, Experience Machine, Chinese Room, Ship of Theseus, Trolley Problem Matrix, Roko\'s Basilisk)');
 }

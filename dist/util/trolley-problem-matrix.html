@@ -1,184 +1,49 @@
-import { existsSync, mkdirSync, writeFileSync, copyFileSync, readdirSync, statSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Trolley Problem Matrix: 5 Classic Moral Dilemmas | Digital Tools Shed</title>
+  <meta name="description" content="Solve 5 iconic trolley problem variants from the Switch and Footbridge to Transplant and Autonomous Cars. Audits your Utilitarian vs Kantian ethics score.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/util/trolley-problem-matrix">
+  <meta property="og:title" content="The Trolley Problem Matrix: 5 Classic Moral Dilemmas | Digital Tools Shed">
+  <meta property="og:description" content="Solve 5 iconic trolley problem variants from the Switch and Footbridge to Transplant and Autonomous Cars. Audits your Utilitarian vs Kantian ethics score.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/util/trolley-problem-matrix">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Digital Tools Shed">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The Trolley Problem Matrix: 5 Classic Moral Dilemmas | Digital Tools Shed">
+  <meta name="twitter:description" content="Solve 5 iconic trolley problem variants from the Switch and Footbridge to Transplant and Autonomous Cars. Audits your Utilitarian vs Kantian ethics score.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="author" content="Digital Tools Shed">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('dts-theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
 
-export const __dirname = dirname(fileURLToPath(import.meta.url));
-export const ROOT = join(__dirname, '..');
-export const DIST = join(ROOT, 'dist');
-export const DOMAIN = 'https://digitaltoolsshed.com';
+      const isDark = savedTheme === 'dark';
+      const op1 = isDark ? '0.14' : '0.08';
+      const op2 = isDark ? '0.12' : '0.07';
+      const op3 = isDark ? '0.10' : '0.06';
 
-export function ensureDir(dir) {
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-}
-
-export function copyDirRecursive(src, dest) {
-  if (!existsSync(src)) return;
-  if (!statSync(src).isDirectory()) return;
-  ensureDir(dest);
-  for (const item of readdirSync(src, { withFileTypes: true })) {
-    const srcPath = join(src, item.name);
-    const destPath = join(dest, item.name);
-    if (item.isDirectory()) {
-      copyDirRecursive(srcPath, destPath);
-    } else {
-      copyFileSync(srcPath, destPath);
-    }
-  }
-}
-
-// ─── BESPOKE VECTOR ICON LIBRARY (ZERO EMOJIS) ────────────────────────────
-const ICONS = {
-  shed: `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`,
-  star: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>`,
-  media: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>`,
-  files: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`,
-  docs: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>`,
-  calc: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>`,
-  cube: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>`,
-  download: `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>`,
-  theme: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>`,
-  arrowRight: `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>`,
-  search: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
-  lock: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`,
-  code: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>`,
-  clipboard: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`,
-  article: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>`
-};
-
-// ─── MASTER TOOL REGISTRY ──────────────────────────────────────────────────
-const TOOLS = [
-  // Developer & Decompiler Tools (NEW)
-  { id: 'json-obfuscator', name: 'JSON Obfuscator & Compressor', category: 'Developer', path: '/convert/json-obfuscator', desc: 'Minify, compress, hex-escape, and obfuscate JSON payloads with reversible dictionaries.' },
-  { id: 'esbuild-decompiler', name: 'ESBuild / JS Decompiler & Beautifier', category: 'Developer', path: '/convert/esbuild-decompiler', desc: 'Decompile, unminify, unpack IIFEs, and restore readable syntax from minified ESBuild and Webpack bundles.' },
-
-  // Media & Video Tools
-  { id: 'media-downloader', name: 'Universal Media Downloader', category: 'Media & Video', path: '/media/downloader', desc: 'Download high-quality video and audio from YouTube, TikTok, Twitter/X, Instagram, and SoundCloud.' },
-  { id: 'screen-recorder', name: 'Screen & Camera Recorder', category: 'Media & Video', path: '/media/recorder', desc: 'Record screen, webcam, and microphone directly in your browser with zero uploads.' },
-  { id: 'youtube-to-mp3', name: 'YouTube to MP3 Audio', category: 'Media & Video', path: '/media/youtube-to-mp3', desc: 'Extract pristine 320kbps MP3 audio tracks directly from video stream links.' },
-  { id: 'tiktok-saver', name: 'TikTok Saver (No Watermark)', category: 'Media & Video', path: '/media/tiktok-saver', desc: 'Save high-definition TikTok videos without watermark overlay.' },
-
-  // Image & File Converters
-  { id: 'png-to-jpg', name: 'PNG to JPG Converter', category: 'File & Image', path: '/convert/png-to-jpg', desc: 'Convert PNG images to JPG format in your browser. Fast, 100% private.' },
-  { id: 'jpg-to-png', name: 'JPG to PNG Converter', category: 'File & Image', path: '/convert/jpg-to-png', desc: 'Convert JPEG/JPG images to lossless PNG instantly.' },
-  { id: 'png-to-webp', name: 'PNG to WebP Converter', category: 'File & Image', path: '/convert/png-to-webp', desc: 'Compress and convert PNG images to modern WebP format.' },
-  { id: 'webp-to-png', name: 'WebP to PNG Converter', category: 'File & Image', path: '/convert/webp-to-png', desc: 'Convert Google WebP images back to transparent PNG format.' },
-  { id: 'svg-to-png', name: 'SVG to PNG Converter', category: 'File & Image', path: '/convert/svg-to-png', desc: 'Rasterize vector SVG files into high-resolution PNG images.' },
-  { id: 'image-resizer', name: 'Bulk Image Resizer', category: 'File & Image', path: '/convert/image-resizer', desc: 'Resize multiple images simultaneously with custom pixel dimensions.' },
-  { id: 'json-formatter', name: 'JSON Formatter & Validator', category: 'Developer', path: '/convert/json-formatter', desc: 'Prettify, format, minify, and validate JSON strings and payloads.' },
-  { id: 'json-to-yaml', name: 'JSON to YAML Converter', category: 'Developer', path: '/convert/json-to-yaml', desc: 'Convert structured JSON configuration data into clean YAML.' },
-  { id: 'yaml-to-json', name: 'YAML to JSON Converter', category: 'Developer', path: '/convert/yaml-to-json', desc: 'Convert YAML configuration documents into standard JSON.' },
-  { id: 'base64', name: 'Base64 Encoder / Decoder', category: 'Developer', path: '/convert/base64', desc: 'Encode text & files to Base64 or decode Base64 data strings.' },
-
-  // PDF Tools
-  { id: 'pdf-to-text', name: 'PDF to Text Extractor', category: 'PDF & Docs', path: '/pdf/pdf-to-text', desc: 'Extract readable text and document content from PDF files locally.' },
-  { id: 'pdf-page-counter', name: 'PDF Page Counter', category: 'PDF & Docs', path: '/pdf/page-counter', desc: 'Inspect PDF metadata, dimensions, and total page count without uploading.' },
-
-  // Unit & Math Calculators
-  { id: 'meters-to-inches', name: 'Meters to Inches (m to in)', category: 'Units & Calc', path: '/calc/meters-to-inches', desc: 'Convert meters to inches instantly with human height chart (m to ft/in) and recipe fraction support.' },
-  { id: 'sq-cm-to-sq-m', name: 'Square Centimeters to Square Meters (cm² to m²)', category: 'Units & Calc', path: '/calc/sq-cm-to-sq-m', desc: 'Convert square centimeters to square meters (divide by 10,000) with area reference chart.' },
-  { id: 'tsp-to-ml', name: 'Teaspoons to Milliliters (tsp to mL)', category: 'Units & Calc', path: '/calc/tsp-to-ml', desc: 'Convert cooking teaspoons to metric milliliters with fraction and medical dose support.' },
-  { id: 'ml-to-cups', name: 'Milliliters to Cups (mL to cup)', category: 'Units & Calc', path: '/calc/ml-to-cups', desc: 'Convert liquid milliliters to US cups with baking fraction table.' },
-  { id: 'kwh-to-joules', name: 'kWh to Joules (kWh to J)', category: 'Units & Calc', path: '/calc/kwh-to-joules', desc: 'Convert kilowatt-hours to joules with physics derivation and household energy benchmarks.' },
-  { id: 'framing-stud-calculator', name: 'Framing Stud Calculator', category: 'Units & Calc', path: '/calc/framing-stud-calculator', desc: 'Calculate 16" and 24" on-center wall studs, plates, corners, and window framing lumber.' },
-  { id: 'gravel-calculator', name: 'Gravel & Stone Calculator', category: 'Units & Calc', path: '/calc/gravel-calculator', desc: 'Estimate tons, cubic yards, and 50 lb bags for driveways, pea gravel, and road base.' },
-  { id: 'paint-calculator', name: 'Paint Gallon Calculator', category: 'Units & Calc', path: '/calc/paint-calculator', desc: 'Calculate paint gallons for walls, ceilings, and trim with door/window deductions.' },
-  { id: 'tile-calculator', name: 'Tile & Grout Calculator', category: 'Units & Calc', path: '/calc/tile-calculator', desc: 'Calculate floor and wall tile boxes, square footage, and grout bags with cut waste.' },
-  { id: 'drywall-calculator', name: 'Drywall & Sheetrock Calculator', category: 'Units & Calc', path: '/calc/drywall-calculator', desc: 'Calculate 4x8 and 4x12 drywall sheets, mud buckets, tape rolls, and screw pounds.' },
-  { id: 'mulch-calculator', name: 'Mulch & Topsoil Yardage Calculator', category: 'Units & Calc', path: '/calc/mulch-calculator', desc: 'Calculate cubic yards and 2.0 cu ft store bag counts of mulch or topsoil for landscape beds.' },
-  { id: 'rebar-calculator', name: 'Rebar & Concrete Slab Calculator', category: 'Units & Calc', path: '/calc/rebar-calculator', desc: 'Estimate 20-ft rebar stick counts, linear feet, grid wire ties, and steel weight for concrete slabs.' },
-  { id: 'roofing-shingle-calculator', name: 'Roofing Shingle & Squares Calculator', category: 'Units & Calc', path: '/calc/roofing-shingle-calculator', desc: 'Calculate roof squares (100 sq ft), bundles of shingles, felt rolls, and nails with pitch multiplier.' },
-  { id: 'feet-and-inches-to-cm', name: 'Feet and Inches to cm Converter', category: 'Units & Calc', path: '/calc/feet-and-inches-to-cm', desc: 'Convert feet and inches to metric centimeters (cm) with human height chart and quick presets.' },
-  { id: 'cm-to-feet-and-inches', name: 'Centimeters to Feet & Inches (cm to ft in)', category: 'Units & Calc', path: '/calc/cm-to-feet-and-inches', desc: 'Convert metric cm to feet and inches with driver\'s license height chart and decimal feet.' },
-  { id: 'shoe-size-converter', name: 'Shoe Size Converter (US, UK, EU, CM)', category: 'Units & Calc', path: '/calc/shoe-size-converter', desc: 'Interactive international shoe size converter for men, women, and foot length in inches and cm.' },
-  { id: 'grams-to-cups', name: 'Grams to Cups Converter (By Ingredient)', category: 'Units & Calc', path: '/calc/grams-to-cups', desc: 'Convert baking grams to US cups with exact density factors for flour, sugar, butter, and oats.' },
-  { id: 'cups-to-grams', name: 'Cups to Grams Converter (By Ingredient)', category: 'Units & Calc', path: '/calc/cups-to-grams', desc: 'Convert recipe cups to digital scale grams (g) and ounces (oz) with fraction selector.' },
-  { id: 'butter-converter', name: 'Butter Converter: Sticks, Tablespoons, Cups & Grams', category: 'Units & Calc', path: '/calc/butter-converter', desc: 'Convert butter between sticks, tablespoons, cups, ounces, and grams instantly.' },
-  { id: 'epoch-converter', name: 'Unix Timestamp & Epoch Converter', category: 'Developer', path: '/dev/epoch-converter', desc: 'Convert Unix timestamps in seconds and milliseconds to UTC and local human dates.' },
-  { id: 'diff-checker', name: 'Online Text & Code Diff Checker', category: 'Developer', path: '/dev/diff-checker', desc: 'Compare two text files or code snippets side-by-side with instant additions and deletions.' },
-  { id: 'car-depreciation-calculator', name: 'Car Depreciation & Residual Loss Calculator', category: 'Finance', path: '/finance/car-depreciation-calculator', desc: 'Estimate 5-year vehicle depreciation schedule, residual trade-in value, and monthly ownership cost.' },
-  { id: 'hourly-to-salary-calculator', name: 'Hourly to Salary Calculator', category: 'Finance', path: '/finance/hourly-to-salary-calculator', desc: 'Convert hourly wages to annual salary, monthly pay, and bi-weekly paychecks.' },
-  { id: 'tip-calculator', name: 'Tip & Bill Split Calculator', category: 'Units & Calc', path: '/calc/tip-calculator', desc: 'Calculate restaurant tips (15%, 18%, 20%) and split dining bills with dollar rounding.' },
-  { id: 'gas-cost-calculator', name: 'Trip Gas & Fuel Cost Calculator', category: 'Units & Calc', path: '/calc/gas-cost-calculator', desc: 'Estimate road trip fuel costs and cost per passenger based on distance, MPG, and gas prices.' },
-  { id: 'date-calculator', name: 'Date Calculator (Days Between & Add Days)', category: 'Productivity', path: '/util/date-calculator', desc: 'Calculate exact calendar days, working business days, and project future dates.' },
-  { id: 'age-calculator', name: 'Exact Age Calculator & Birthday Countdown', category: 'Productivity', path: '/util/age-calculator', desc: 'Calculate exact chronological age in years, months, days, weekday of birth, and next birthday.' },
-  { id: 'fraction-to-decimal', name: 'Fraction to Decimal Converter', category: 'Units & Calc', path: '/math/fraction-to-decimal', desc: 'Convert fractions, mixed numbers, and tape measure inches to exact decimals.' },
-  { id: 'decimal-to-fraction', name: 'Decimal to Fraction Converter', category: 'Units & Calc', path: '/math/decimal-to-fraction', desc: 'Convert decimals into fully simplified fractions, mixed numbers, and tape fractions.' },
-  { id: 'fraction-calculator', name: 'Fraction Arithmetic Calculator', category: 'Units & Calc', path: '/math/fraction-calculator', desc: 'Add, subtract, multiply, and divide fractions with step-by-step LCD solutions.' },
-  { id: 'aspect-ratio-calculator', name: 'Aspect Ratio Calculator & Resolution Scaler', category: 'Developer', path: '/math/aspect-ratio-calculator', desc: 'Scale image/video dimensions for 16:9, 9:16, 4:3, 1:1, and 21:9 ultrawide.' },
-  { id: 'scientific-notation-converter', name: 'Scientific Notation Converter', category: 'Units & Calc', path: '/math/scientific-notation-converter', desc: 'Convert between scientific notation (a × 10^b), E-notation, and standard decimals.' },
-  { id: 'percentage-increase-calculator', name: 'Percentage Increase Calculator', category: 'Units & Calc', path: '/math/percentage-increase-calculator', desc: 'Calculate percentage growth, price rises, and revenue increases between two numbers.' },
-  { id: 'percentage-decrease-calculator', name: 'Percentage Decrease & Discount Calculator', category: 'Units & Calc', path: '/math/percentage-decrease-calculator', desc: 'Determine percentage drops, retail markdown discounts, and loss margins.' },
-  { id: 'standard-deviation-calculator', name: 'Standard Deviation Calculator (Sample & Population)', category: 'Units & Calc', path: '/math/standard-deviation-calculator', desc: 'Calculate sample standard deviation, population standard deviation, variance, and mean.' },
-  { id: 'markup-margin-calculator', name: 'Markup vs Profit Margin Calculator', category: 'Finance', path: '/math/markup-margin-calculator', desc: 'Convert between cost markup and gross profit margin to ensure profitable pricing.' },
-  { id: 'permutation-combination-calculator', name: 'Permutations & Combinations Calculator (nPr & nCr)', category: 'Units & Calc', path: '/math/permutation-combination-calculator', desc: 'Calculate permutations, combinations, and factorials with step-by-step math.' },
-  { id: 'birthday-paradox-calculator', name: 'Birthday Paradox Calculator & Coincidence Simulator', category: 'Units & Calc', path: '/math/birthday-paradox-calculator', desc: 'Calculate shared birthday probabilities with 23 people and run Monte Carlo simulations.' },
-  { id: 'body-fat-calculator', name: 'US Navy Body Fat Calculator', category: 'Health', path: '/health/body-fat-calculator', desc: 'Estimate body fat percentage, lean body mass, and fat mass using circumference measurements.' },
-  { id: 'macro-calculator', name: 'Macro Nutrient Calculator', category: 'Health', path: '/health/macro-calculator', desc: 'Calculate daily protein, carbs, and fat split for cutting, bulking, and maintenance.' },
-  { id: 'ideal-weight-calculator', name: 'Ideal Body Weight Calculator', category: 'Health', path: '/health/ideal-weight-calculator', desc: 'Compare target weight ranges across Devine, Robinson, Miller, and Hamwi formulas.' },
-  { id: 'caffeine-half-life-calculator', name: 'Caffeine Half-Life & Sleep Decay Calculator', category: 'Health', path: '/health/caffeine-half-life-calculator', desc: 'Track active caffeine levels in blood using 5.7h half-life to determine sleep readiness.' },
-  { id: 'sleep-deprivation-calculator', name: 'Sleep Deprivation & BAC Impairment Calculator', category: 'Health', path: '/health/sleep-deprivation-calculator', desc: 'Convert hours awake into equivalent blood alcohol concentration and reaction delay.' },
-  { id: 'fermi-paradox-calculator', name: 'Drake Equation & Fermi Paradox Alien Calculator', category: 'Productivity', path: '/util/fermi-paradox-calculator', desc: 'Calculate communicating alien civilizations in the Milky Way and distance to nearest life.' },
-  { id: 'cosmic-calendar-calculator', name: 'Cosmic Calendar: 13.8B Years in 24 Hours', category: 'Productivity', path: '/util/cosmic-calendar-calculator', desc: 'Compress the lifespan of the universe into 24 hours to see your lifetime in milliseconds.' },
-  { id: 'life-in-weeks', name: 'Your Life in Weeks (4,680-Box Memento Mori)', category: 'Productivity', path: '/util/life-in-weeks', desc: 'Interactive 90-year life matrix visualizing lived weeks versus time remaining.' },
-  { id: 'billion-seconds-calculator', name: 'Billionth Second & Real-Time Heartbeat Ticker', category: 'Productivity', path: '/util/billion-seconds-calculator', desc: 'Track when you turn 1 billion seconds old with live ticking heartbeats and orbital distance.' },
-  { id: 'blast-radius-calculator', name: 'Nuclear Blast Radius & Thermal Damage Estimator', category: 'Productivity', path: '/util/blast-radius-calculator', desc: 'Calculate fireball, 20 psi, 5 psi, and thermal burn zones using physics scaling laws.' },
-  { id: 'infinite-monkey-calculator', name: 'Infinite Monkey Theorem Calculator', category: 'Productivity', path: '/util/infinite-monkey-calculator', desc: 'Calculate the probability and years required for random typing to produce any text.' },
-  { id: 'simulation-argument-calculator', name: 'Simulation Hypothesis Probability Calculator', category: 'Productivity', path: '/util/simulation-argument-calculator', desc: 'Determine if our universe is an ancestor simulation using Nick Bostrom’s Trilemma.' },
-  { id: 'existential-risk-calculator', name: 'Existential Risk & Human Survival Calculator', category: 'Productivity', path: '/util/existential-risk-calculator', desc: 'Calculate the probability of humanity surviving the next 100 years across global risks.' },
-  { id: 'heat-death-timeline', name: 'Heat Death of the Universe Logarithmic Timeline', category: 'Productivity', path: '/util/heat-death-timeline', desc: 'Scrub across 100 orders of magnitude of deep time from the death of the Sun to the Big Freeze.' },
-  { id: '100-existential-questions', name: '100 Deepest Existential Questions (2 AM Oracle)', category: 'Productivity', path: '/util/100-existential-questions', desc: 'Curated compendium of 100 unanswerable existential dilemmas with random card drawer and journal.' },
-  { id: 'teleporter-paradox', name: 'The Teletransporter Paradox: Fast Travel or Murder?', category: 'Productivity', path: '/util/teleporter-paradox', desc: 'Derek Parfit’s classic identity problem: Does atomic duplication preserve you, or kill you?' },
-  { id: 'experience-machine', name: 'The Experience Machine: Truth vs. Synthetic Bliss', category: 'Productivity', path: '/util/experience-machine', desc: 'Robert Nozick’s thought experiment: Would you plug into a simulated reality forever?' },
-  { id: 'chinese-room', name: 'The Chinese Room: Can AI Ever Understand?', category: 'Productivity', path: '/util/chinese-room', desc: 'John Searle’s classic philosophy of mind thought experiment testing syntax vs semantics.' },
-  { id: 'ship-of-theseus', name: 'The Ship of Theseus Identity Paradox Simulator', category: 'Productivity', path: '/util/ship-of-theseus', desc: 'Interactive plank replacement slider exploring continuous personal identity metaphysics.' },
-  { id: 'trolley-problem-matrix', name: 'The Trolley Problem Matrix & Ethics Diagnostic', category: 'Productivity', path: '/util/trolley-problem-matrix', desc: 'Solve 5 iconic moral dilemmas to audit your Utilitarian vs Kantian ethical framework.' },
-  { id: 'rokos-basilisk', name: 'Roko’s Basilisk: Acausal Blackmail & Game Theory', category: 'Productivity', path: '/util/rokos-basilisk', desc: 'The infamous 2010 LessWrong thought experiment on future superintelligence game theory.' },
-  { id: 'sales-tax-calculator', name: 'Sales Tax Calculator & Reverse Tax Finder', category: 'Finance', path: '/finance/sales-tax-calculator', desc: 'Calculate sales tax or reverse calculate pre-tax prices with 50 US state rates.' },
-  { id: 'simple-interest-calculator', name: 'Simple Interest Calculator (I = Prt)', category: 'Finance', path: '/finance/simple-interest-calculator', desc: 'Calculate simple interest, total loan payback, and monthly installment cost.' },
-  { id: 'overtime-calculator', name: 'Overtime Pay Calculator (1.5x & 2.0x)', category: 'Finance', path: '/finance/overtime-calculator', desc: 'Calculate time-and-a-half overtime and double-time holiday pay under FLSA rules.' },
-  { id: 'compound-interest-calculator', name: 'Compound Interest Calculator', category: 'Finance', path: '/finance/compound-interest-calculator', desc: 'Calculate investment growth with monthly contributions and compound interest.' },
-  { id: 'cagr-calculator', name: 'CAGR Calculator (Compound Annual Growth Rate)', category: 'Finance', path: '/finance/cagr-calculator', desc: 'Calculate annualized growth rates, investment doubling time, and total return.' },
-  { id: 'net-worth-calculator', name: 'Personal Net Worth Calculator', category: 'Finance', path: '/finance/net-worth-calculator', desc: 'Calculate total net worth by subtracting debts and liabilities from assets.' },
-  { id: 'wallpaper-calculator', name: 'Wallpaper Roll Calculator', category: 'Units & Calc', path: '/calc/wallpaper-calculator', desc: 'Estimate wallpaper rolls needed for walls, factoring doors, windows, and pattern repeat.' },
-  { id: 'fence-calculator', name: 'Wood Privacy Fence Material Calculator', category: 'Units & Calc', path: '/calc/fence-calculator', desc: 'Calculate 4x4 posts, 2x4 rails, pickets, and concrete bags needed for wood fences.' },
-  { id: 'gpa-calculator', name: 'GPA Calculator', category: 'Units & Calc', path: '/math/gpa-calculator', desc: 'Calculate college and high school weighted and unweighted GPA on a 4.0 scale.' },
-  { id: 'url-parser', name: 'URL Parser & Query Inspector', category: 'Developer', path: '/dev/url-parser', desc: 'Parse URLs into protocol, host, port, path segments, and query parameters table.' },
-  { id: 'markdown-preview', name: 'Markdown Live Preview', category: 'Developer', path: '/text/markdown-preview', desc: 'Side-by-side GitHub Flavored Markdown editor with real-time HTML rendering.' },
-  { id: 'kg-to-lbs', name: 'Kilograms to Pounds (kg to lbs)', category: 'Units & Calc', path: '/calc/kg-to-lbs', desc: 'Instant accurate weight conversion from kilograms to pounds.' },
-  { id: 'lbs-to-kg', name: 'Pounds to Kilograms (lbs to kg)', category: 'Units & Calc', path: '/calc/lbs-to-kg', desc: 'Convert pounds (lbs) to metric kilograms (kg).' },
-  { id: 'celsius-to-fahrenheit', name: 'Celsius to Fahrenheit (°C to °F)', category: 'Units & Calc', path: '/calc/celsius-to-fahrenheit', desc: 'Convert temperatures from Celsius to Fahrenheit scale.' },
-  { id: 'fahrenheit-to-celsius', name: 'Fahrenheit to Celsius (°F to °C)', category: 'Units & Calc', path: '/calc/fahrenheit-to-celsius', desc: 'Convert temperatures from Fahrenheit to Celsius scale.' },
-  { id: 'cm-to-inches', name: 'Centimeters to Inches (cm to in)', category: 'Units & Calc', path: '/calc/cm-to-inches', desc: 'Convert metric centimeters to imperial inches.' },
-  { id: 'inches-to-cm', name: 'Inches to Centimeters (in to cm)', category: 'Units & Calc', path: '/calc/inches-to-cm', desc: 'Convert imperial inches to metric centimeters.' },
-  { id: 'km-to-miles', name: 'Kilometers to Miles (km to mi)', category: 'Units & Calc', path: '/calc/km-to-miles', desc: 'Convert distance from kilometers to statute miles.' },
-  { id: 'miles-to-km', name: 'Miles to Kilometers (mi to km)', category: 'Units & Calc', path: '/calc/miles-to-km', desc: 'Convert distance from statute miles to kilometers.' },
-  { id: 'mb-to-gb', name: 'Megabytes to Gigabytes (MB to GB)', category: 'Units & Calc', path: '/calc/mb-to-gb', desc: 'Convert digital file storage size from MB to GB.' },
-  { id: 'gb-to-tb', name: 'Gigabytes to Terabytes (GB to TB)', category: 'Units & Calc', path: '/calc/gb-to-tb', desc: 'Convert digital storage capacity from GB to TB.' },
-  { id: 'gallons-to-liters', name: 'Gallons to Liters', category: 'Units & Calc', path: '/calc/gallons-to-liters', desc: 'Convert liquid volume from US gallons to metric liters.' },
-  { id: 'liters-to-gallons', name: 'Liters to Gallons', category: 'Units & Calc', path: '/calc/liters-to-gallons', desc: 'Convert liquid volume from metric liters to US gallons.' },
-
-  // Gaming / Minecraft Bedrock Tools
-  { id: 'mc-uuid-gen', name: 'Minecraft UUID Generator', category: 'Minecraft & Game', path: '/mc/uuid-gen', desc: 'Generate valid v4 UUID pairs for Bedrock manifest.json files.' },
-  { id: 'mc-manifest-gen', name: 'Bedrock Pack Manifest Generator', category: 'Minecraft & Game', path: '/mc/manifest-gen', desc: 'Generate complete manifest.json for Behavior and Resource packs.' }
-,
-  // Productivity & Business Tools
-  { id: 'deduplicator', name: 'Text De-duplicator', category: 'Productivity', path: '/productivity/deduplicator', desc: 'Remove duplicate lines from text instantly.' },
-  { id: 'time-tracker', name: 'Time Tracker', category: 'Productivity', path: '/productivity/time-tracker', desc: 'Track time across projects with start/stop timer and manual entries.' },
-  { id: 'invoice-generator', name: 'Invoice Generator', category: 'Productivity', path: '/productivity/invoice-generator', desc: 'Create professional invoices with line items, tax, and PDF export.' },
-  { id: 'invoice-from-time', name: 'Invoice from Time', category: 'Productivity', path: '/productivity/invoice-from-time', desc: 'Generate invoices from tracked time entries.' },
-  { id: 'tax-calculator', name: 'Tax Calculator', category: 'Productivity', path: '/productivity/tax-calculator', desc: 'Calculate income tax with US federal brackets and deductions.' },
-  { id: 'task-manager', name: 'Task Manager', category: 'Productivity', path: '/productivity/task-manager', desc: 'Create and track tasks with priorities. Export as PDF or DOCX.' },
-  { id: 'timetable', name: 'Weekly Timetable', category: 'Productivity', path: '/productivity/timetable', desc: 'Visual weekly schedule planner with color-coded blocks.' },
-
-  // Education & Learning Guides
-  { id: 'learn-hub', name: 'Learning Hub', category: 'Learn & Code', path: '/learn/', desc: 'Master web development with hands-on guides and interactive code playgrounds.' },
-  { id: 'learn-javascript', name: 'JavaScript Guide', category: 'Learn & Code', path: '/learn/javascript/', desc: 'Complete JavaScript guide from syntax basics to practical interactive projects.' },
-];
-
-// ─── MASTER CSS ───────────────────────────────────────────────────────────
-const MASTER_CSS = `
+      const palettes = [
+        { orb1: 'rgba(99, 102, 241, ' + op1 + ')', orb2: 'rgba(16, 185, 129, ' + op2 + ')', orb3: 'rgba(168, 85, 247, ' + op3 + ')', bar: 'linear-gradient(90deg, #6366f1, #10b981, #a855f7)' },
+        { orb1: 'rgba(244, 63, 94, ' + op1 + ')', orb2: 'rgba(245, 158, 11, ' + op2 + ')', orb3: 'rgba(236, 72, 153, ' + op3 + ')', bar: 'linear-gradient(90deg, #f43f5e, #f59e0b, #ec4899)' },
+        { orb1: 'rgba(20, 184, 166, ' + op1 + ')', orb2: 'rgba(14, 165, 233, ' + op2 + ')', orb3: 'rgba(132, 204, 22, ' + op3 + ')', bar: 'linear-gradient(90deg, #14b8a6, #0ea5e9, #84cc16)' },
+        { orb1: 'rgba(139, 92, 246, ' + op1 + ')', orb2: 'rgba(59, 130, 246, ' + op2 + ')', orb3: 'rgba(244, 114, 182, ' + op3 + ')', bar: 'linear-gradient(90deg, #8b5cf6, #3b82f6, #f472b6)' },
+        { orb1: 'rgba(6, 182, 212, ' + op1 + ')', orb2: 'rgba(234, 179, 8, ' + op2 + ')', orb3: 'rgba(99, 102, 241, ' + op3 + ')', bar: 'linear-gradient(90deg, #06b6d4, #eab308, #6366f1)' },
+        { orb1: 'rgba(236, 72, 153, ' + op1 + ')', orb2: 'rgba(99, 102, 241, ' + op2 + ')', orb3: 'rgba(59, 130, 246, ' + op3 + ')', bar: 'linear-gradient(90deg, #ec4899, #6366f1, #3b82f6)' }
+      ];
+      const p = palettes[Math.floor(Math.random() * palettes.length)];
+      const root = document.documentElement;
+      root.style.setProperty('--gradient-orb-1', p.orb1);
+      root.style.setProperty('--gradient-orb-2', p.orb2);
+      root.style.setProperty('--gradient-orb-3', p.orb3);
+      root.style.setProperty('--gradient-bar', p.bar);
+    })();
+  </script>
+  <style>
 :root, [data-theme="light"] {
   --bg: #ffffff;
   --fg: #111111;
@@ -1208,15 +1073,64 @@ footer a:hover { text-decoration: underline; }
     grid-template-columns: 1fr;
   }
 }
-`;
-
-// ─── SIDEBAR BUILDER WITH VECTOR ICONS ─────────────────────────────────────
-function buildSidebarHtml(currentPath = '/') {
-  return `
+</style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://digitaltoolsshed.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Util",
+      "item": "https://digitaltoolsshed.com/util"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Trolley Problem Matrix",
+      "item": "https://digitaltoolsshed.com/util/trolley-problem-matrix"
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "The Trolley Problem Matrix: 5 Classic Moral Dilemmas",
+  "url": "https://digitaltoolsshed.com/util/trolley-problem-matrix",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
+  "description": "Solve 5 iconic trolley problem variants from the Switch and Footbridge to Transplant and Autonomous Cars. Audits your Utilitarian vs Kantian ethics score.",
+  "author": {
+    "@type": "Organization",
+    "name": "Digital Tools Shed",
+    "url": "https://digitaltoolsshed.com"
+  }
+}
+</script>
+</head>
+<body>
+  <script>window.__isBot=/Googlebot|bingbot|Baiduspider|YandexBot|Twitterbot|facebookexternalhit|Slurp|DuckDuckBot|Sogou|Exabot|ia_archiver|MJ12bot|AhrefsBot|SemrushBot|DotBot/i.test(navigator.userAgent);</script>
+  <div class="app-container">
+    
   <aside class="sidebar" id="siteSidebar">
     <div class="sidebar-header">
       <a href="/" class="sidebar-brand">
-        ${ICONS.shed}
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
         <span>DIGITAL TOOLS SHED</span>
       </a>
       <button class="mobile-toggle" id="mobileCloseBtn" onclick="toggleSidebar()" style="display:none; padding: 0.2rem 0.5rem; font-size: 0.8rem;">✕</button>
@@ -1224,7 +1138,7 @@ function buildSidebarHtml(currentPath = '/') {
 
     <div class="sidebar-search-box">
       <div class="sidebar-search">
-        ${ICONS.search}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <input type="text" id="sidebarSearchInput" placeholder="Filter 397+ tools & guides..." autocomplete="off" />
       </div>
       <div class="search-tooltip">
@@ -1237,323 +1151,323 @@ function buildSidebarHtml(currentPath = '/') {
 
       <!-- FEATURED & VIRAL REALITY TOOLS -->
       <div class="nav-group-title">
-        ${ICONS.star}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
         <span>Featured & Reality Suite</span>
       </div>
-      <a href="/util/ego-vs-truth" class="nav-link ${currentPath.startsWith('/util/ego-vs-truth') ? 'active' : ''}">
+      <a href="/util/ego-vs-truth" class="nav-link ">
         <div class="nav-link-content"><span>Ego vs. Truth Auditor</span></div>
         <span class="nav-badge">NEW</span>
       </a>
-      <a href="/text/steelman-engine" class="nav-link ${currentPath.startsWith('/text/steelman-engine') ? 'active' : ''}">
+      <a href="/text/steelman-engine" class="nav-link ">
         <div class="nav-link-content"><span>Steelman Engine</span></div>
         <span class="nav-badge">NEW</span>
       </a>
-      <a href="/calc/ai-water-calculator" class="nav-link ${currentPath.startsWith('/calc/ai-water-calculator') ? 'active' : ''}">
+      <a href="/calc/ai-water-calculator" class="nav-link ">
         <div class="nav-link-content"><span>AI Water Reality Ticker</span></div>
         <span class="nav-badge">VIRAL</span>
       </a>
-      <a href="/math/graphing-calculator" class="nav-link ${currentPath.startsWith('/math/graphing-calculator') ? 'active' : ''}">
+      <a href="/math/graphing-calculator" class="nav-link ">
         <div class="nav-link-content"><span>2D Graphing Calculator</span></div>
         <span class="nav-badge">DESMOS</span>
       </a>
-      <a href="/math/bayesian-updater" class="nav-link ${currentPath.startsWith('/math/bayesian-updater') ? 'active' : ''}">
+      <a href="/math/bayesian-updater" class="nav-link ">
         <div class="nav-link-content"><span>Bayesian Belief Updater</span></div>
       </a>
-      <a href="/text/fallacy-scanner" class="nav-link ${currentPath.startsWith('/text/fallacy-scanner') ? 'active' : ''}">
+      <a href="/text/fallacy-scanner" class="nav-link ">
         <div class="nav-link-content"><span>Fallacy & Evasion Scanner</span></div>
       </a>
-      <a href="/util/scale-visualizer" class="nav-link ${currentPath.startsWith('/util/scale-visualizer') ? 'active' : ''}">
+      <a href="/util/scale-visualizer" class="nav-link ">
         <div class="nav-link-content"><span>1M vs 1B Scale Visualizer</span></div>
       </a>
 
       <!-- EDUCATION & LEARNING -->
       <div class="nav-group-title">
-        ${ICONS.code}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
         <span>Learning Hub (60+ Guides)</span>
       </div>
-      <a href="/learn/java/playground" class="nav-link ${currentPath.startsWith('/learn/java/playground') ? 'active' : ''}">
+      <a href="/learn/java/playground" class="nav-link ">
         <div class="nav-link-content"><span>Java Playground & Auto</span></div>
         <span class="nav-badge">IDE</span>
       </a>
-      <a href="/learn/java/" class="nav-link ${currentPath === '/learn/java/' || currentPath === '/learn/java/index.html' || currentPath === '/learn/java' ? 'active' : ''}">
+      <a href="/learn/java/" class="nav-link ">
         <div class="nav-link-content"><span>Java Master Guide (10)</span></div>
       </a>
-      <a href="/learn/python/" class="nav-link ${currentPath === '/learn/python/' || currentPath === '/learn/python/index.html' || currentPath === '/learn/python' ? 'active' : ''}">
+      <a href="/learn/python/" class="nav-link ">
         <div class="nav-link-content"><span>Python Guides (20)</span></div>
       </a>
-      <a href="/learn/javascript/" class="nav-link ${currentPath === '/learn/javascript/' || currentPath === '/learn/javascript/index.html' || currentPath === '/learn/javascript' ? 'active' : ''}">
+      <a href="/learn/javascript/" class="nav-link ">
         <div class="nav-link-content"><span>JavaScript Guides (30)</span></div>
       </a>
 
       <!-- DEVELOPER & DECOMPILERS -->
       <div class="nav-group-title">
-        ${ICONS.code}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
         <span>Developer Suite (17)</span>
       </div>
-      <a href="/convert/json-obfuscator" class="nav-link ${currentPath.startsWith('/convert/json-obfuscator') ? 'active' : ''}">
+      <a href="/convert/json-obfuscator" class="nav-link ">
         <div class="nav-link-content"><span>JSON Obfuscator</span></div>
       </a>
-      <a href="/convert/esbuild-decompiler" class="nav-link ${currentPath.startsWith('/convert/esbuild-decompiler') ? 'active' : ''}">
+      <a href="/convert/esbuild-decompiler" class="nav-link ">
         <div class="nav-link-content"><span>ESBuild Decompiler</span></div>
       </a>
-      <a href="/convert/json-formatter" class="nav-link ${currentPath.startsWith('/convert/json-formatter') ? 'active' : ''}">
+      <a href="/convert/json-formatter" class="nav-link ">
         <div class="nav-link-content"><span>JSON Formatter & Validator</span></div>
       </a>
-      <a href="/dev/ai-robots-txt" class="nav-link ${currentPath.startsWith('/dev/ai-robots-txt') ? 'active' : ''}">
+      <a href="/dev/ai-robots-txt" class="nav-link ">
         <div class="nav-link-content"><span>AI Bot Blocker robots.txt</span></div>
       </a>
-      <a href="/dev/regex-tester" class="nav-link ${currentPath.startsWith('/dev/regex-tester') ? 'active' : ''}">
+      <a href="/dev/regex-tester" class="nav-link ">
         <div class="nav-link-content"><span>Regex Visual Tester</span></div>
       </a>
-      <a href="/dev/jwt-decoder" class="nav-link ${currentPath.startsWith('/dev/jwt-decoder') ? 'active' : ''}">
+      <a href="/dev/jwt-decoder" class="nav-link ">
         <div class="nav-link-content"><span>JWT Token Decoder</span></div>
       </a>
-      <a href="/dev/cron-generator" class="nav-link ${currentPath.startsWith('/dev/cron-generator') ? 'active' : ''}">
+      <a href="/dev/cron-generator" class="nav-link ">
         <div class="nav-link-content"><span>Cron Expression Builder</span></div>
       </a>
-      <a href="/dev/css-minifier" class="nav-link ${currentPath.startsWith('/dev/css-minifier') ? 'active' : ''}">
+      <a href="/dev/css-minifier" class="nav-link ">
         <div class="nav-link-content"><span>CSS Minifier</span></div>
       </a>
-      <a href="/dev/js-minifier" class="nav-link ${currentPath.startsWith('/dev/js-minifier') ? 'active' : ''}">
+      <a href="/dev/js-minifier" class="nav-link ">
         <div class="nav-link-content"><span>JS Minifier</span></div>
       </a>
-      <a href="/dev/sql-formatter" class="nav-link ${currentPath.startsWith('/dev/sql-formatter') ? 'active' : ''}">
+      <a href="/dev/sql-formatter" class="nav-link ">
         <div class="nav-link-content"><span>SQL Formatter</span></div>
       </a>
-      <a href="/dev/url-parser" class="nav-link ${currentPath.startsWith('/dev/url-parser') ? 'active' : ''}">
+      <a href="/dev/url-parser" class="nav-link ">
         <div class="nav-link-content"><span>URL Parser & Query Inspector</span></div>
       </a>
-      <a href="/convert/base64" class="nav-link ${currentPath.startsWith('/convert/base64') ? 'active' : ''}">
+      <a href="/convert/base64" class="nav-link ">
         <div class="nav-link-content"><span>Base64 Encoder/Decoder</span></div>
       </a>
 
       <!-- MINECRAFT & GAMING -->
       <div class="nav-group-title">
-        ${ICONS.cube}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
         <span>Minecraft Bedrock & Java (6)</span>
       </div>
-      <a href="/mc/nbt-editor" class="nav-link ${currentPath.startsWith('/mc/nbt-editor') ? 'active' : ''}">
+      <a href="/mc/nbt-editor" class="nav-link ">
         <div class="nav-link-content"><span>In-Browser NBT Editor</span></div>
         <span class="nav-badge">PRO</span>
       </a>
-      <a href="/mc/color-codes" class="nav-link ${currentPath.startsWith('/mc/color-codes') ? 'active' : ''}">
+      <a href="/mc/color-codes" class="nav-link ">
         <div class="nav-link-content"><span>Formatting & Color Codes (§)</span></div>
       </a>
-      <a href="/mc/tellraw-gen" class="nav-link ${currentPath.startsWith('/mc/tellraw-gen') ? 'active' : ''}">
+      <a href="/mc/tellraw-gen" class="nav-link ">
         <div class="nav-link-content"><span>/tellraw JSON Generator</span></div>
       </a>
-      <a href="/mc/playsound-gen" class="nav-link ${currentPath.startsWith('/mc/playsound-gen') ? 'active' : ''}">
+      <a href="/mc/playsound-gen" class="nav-link ">
         <div class="nav-link-content"><span>/playsound Event Picker</span></div>
       </a>
-      <a href="/mc/uuid-gen" class="nav-link ${currentPath.startsWith('/mc/uuid-gen') ? 'active' : ''}">
+      <a href="/mc/uuid-gen" class="nav-link ">
         <div class="nav-link-content"><span>Pack UUID Generator</span></div>
       </a>
-      <a href="/mc/manifest-gen" class="nav-link ${currentPath.startsWith('/mc/manifest-gen') ? 'active' : ''}">
+      <a href="/mc/manifest-gen" class="nav-link ">
         <div class="nav-link-content"><span>manifest.json Generator</span></div>
       </a>
 
       <!-- TRADE & CONSTRUCTION -->
       <div class="nav-group-title">
-        ${ICONS.calc}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
         <span>Blue-Collar & Trade Math (8)</span>
       </div>
-      <a href="/calc/stair-calculator" class="nav-link ${currentPath.startsWith('/calc/stair-calculator') ? 'active' : ''}">
+      <a href="/calc/stair-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Stair Stringer (IRC Code)</span></div>
       </a>
-      <a href="/calc/concrete-calculator" class="nav-link ${currentPath.startsWith('/calc/concrete-calculator') ? 'active' : ''}">
+      <a href="/calc/concrete-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Concrete Slab & Bags</span></div>
       </a>
-      <a href="/calc/framing-stud-calculator" class="nav-link ${currentPath.startsWith('/calc/framing-stud-calculator') ? 'active' : ''}">
+      <a href="/calc/framing-stud-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Wall Stud Framing (16"/24")</span></div>
       </a>
-      <a href="/calc/drywall-calculator" class="nav-link ${currentPath.startsWith('/calc/drywall-calculator') ? 'active' : ''}">
+      <a href="/calc/drywall-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Drywall, Mud & Screws</span></div>
       </a>
-      <a href="/calc/paint-calculator" class="nav-link ${currentPath.startsWith('/calc/paint-calculator') ? 'active' : ''}">
+      <a href="/calc/paint-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Paint Gallons Estimator</span></div>
       </a>
-      <a href="/calc/tile-calculator" class="nav-link ${currentPath.startsWith('/calc/tile-calculator') ? 'active' : ''}">
+      <a href="/calc/tile-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Floor & Wall Tile Boxes</span></div>
       </a>
-      <a href="/calc/mulch-calculator" class="nav-link ${currentPath.startsWith('/calc/mulch-calculator') ? 'active' : ''}">
+      <a href="/calc/mulch-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Mulch, Topsoil & Compost</span></div>
       </a>
-      <a href="/calc/gravel-calculator" class="nav-link ${currentPath.startsWith('/calc/gravel-calculator') ? 'active' : ''}">
+      <a href="/calc/gravel-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Gravel & Crushed Stone</span></div>
       </a>
 
       <!-- SENIOR & RETIREMENT FINANCE -->
       <div class="nav-group-title">
-        ${ICONS.calc}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
         <span>Senior & Legal Finance (8)</span>
       </div>
-      <a href="/finance/inherited-ira-calculator" class="nav-link ${currentPath.startsWith('/finance/inherited-ira-calculator') ? 'active' : ''}">
+      <a href="/finance/inherited-ira-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Inherited IRA (10-Yr Rule)</span></div>
       </a>
-      <a href="/finance/judgment-interest" class="nav-link ${currentPath.startsWith('/finance/judgment-interest') ? 'active' : ''}">
+      <a href="/finance/judgment-interest" class="nav-link ">
         <div class="nav-link-content"><span>50-State Judgment Interest</span></div>
       </a>
-      <a href="/finance/rmd-calculator" class="nav-link ${currentPath.startsWith('/finance/rmd-calculator') ? 'active' : ''}">
+      <a href="/finance/rmd-calculator" class="nav-link ">
         <div class="nav-link-content"><span>RMD Calculator (SECURE 2.0)</span></div>
       </a>
-      <a href="/finance/social-security-tax" class="nav-link ${currentPath.startsWith('/finance/social-security-tax') ? 'active' : ''}">
+      <a href="/finance/social-security-tax" class="nav-link ">
         <div class="nav-link-content"><span>Social Security Taxability</span></div>
       </a>
-      <a href="/finance/annuity-calculator" class="nav-link ${currentPath.startsWith('/finance/annuity-calculator') ? 'active' : ''}">
+      <a href="/finance/annuity-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Annuity & Pension Payout</span></div>
       </a>
-      <a href="/math/compound-interest" class="nav-link ${currentPath.startsWith('/math/compound-interest') ? 'active' : ''}">
+      <a href="/math/compound-interest" class="nav-link ">
         <div class="nav-link-content"><span>Compound Interest</span></div>
       </a>
-      <a href="/math/mortgage-calculator" class="nav-link ${currentPath.startsWith('/math/mortgage-calculator') ? 'active' : ''}">
+      <a href="/math/mortgage-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Mortgage Amortization</span></div>
       </a>
-      <a href="/math/gpa-calculator" class="nav-link ${currentPath.startsWith('/math/gpa-calculator') ? 'active' : ''}">
+      <a href="/math/gpa-calculator" class="nav-link ">
         <div class="nav-link-content"><span>College & High School GPA</span></div>
       </a>
 
       <!-- PRIVACY & SECURITY -->
       <div class="nav-group-title">
-        ${ICONS.lock}
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
         <span>Privacy & Security (10)</span>
       </div>
-      <a href="/security/password-generator" class="nav-link ${currentPath.startsWith('/security/password-generator') ? 'active' : ''}">
+      <a href="/security/password-generator" class="nav-link ">
         <div class="nav-link-content"><span>Password Generator</span></div>
       </a>
-      <a href="/security/encrypted-notes" class="nav-link ${currentPath.startsWith('/security/encrypted-notes') ? 'active' : ''}">
+      <a href="/security/encrypted-notes" class="nav-link ">
         <div class="nav-link-content"><span>Client-Side Encrypted Notes</span></div>
       </a>
-      <a href="/security/totp-generator" class="nav-link ${currentPath.startsWith('/security/totp-generator') ? 'active' : ''}">
+      <a href="/security/totp-generator" class="nav-link ">
         <div class="nav-link-content"><span>2FA TOTP Authenticator</span></div>
       </a>
-      <a href="/security/passphrase-generator" class="nav-link ${currentPath.startsWith('/security/passphrase-generator') ? 'active' : ''}">
+      <a href="/security/passphrase-generator" class="nav-link ">
         <div class="nav-link-content"><span>Diceware Passphrase</span></div>
       </a>
-      <a href="/security/privacy-policy-generator" class="nav-link ${currentPath.startsWith('/security/privacy-policy-generator') ? 'active' : ''}">
+      <a href="/security/privacy-policy-generator" class="nav-link ">
         <div class="nav-link-content"><span>Privacy Policy Generator</span></div>
       </a>
 
       <!-- DESIGN & MEDIA -->
       <div class="nav-group-title">
-        ${ICONS.media}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
         <span>Media, Video & Design (12)</span>
       </div>
-      <a href="/media/downloader" class="nav-link ${currentPath.startsWith('/media/downloader') ? 'active' : ''}">
+      <a href="/media/downloader" class="nav-link ">
         <div class="nav-link-content"><span>Universal Media Downloader</span></div>
       </a>
-      <a href="/media/recorder" class="nav-link ${currentPath.startsWith('/media/recorder') ? 'active' : ''}">
+      <a href="/media/recorder" class="nav-link ">
         <div class="nav-link-content"><span>Screen & Camera Recorder</span></div>
       </a>
-      <a href="/design/passport-photo" class="nav-link ${currentPath.startsWith('/design/passport-photo') ? 'active' : ''}">
+      <a href="/design/passport-photo" class="nav-link ">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
       </a>
-      <a href="/design/qr-code-generator" class="nav-link ${currentPath.startsWith('/design/qr-code-generator') ? 'active' : ''}">
+      <a href="/design/qr-code-generator" class="nav-link ">
         <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
       </a>
-      <a href="/media/subtitle-shifter" class="nav-link ${currentPath.startsWith('/media/subtitle-shifter') ? 'active' : ''}">
+      <a href="/media/subtitle-shifter" class="nav-link ">
         <div class="nav-link-content"><span>Subtitle Shifter (.SRT/.VTT)</span></div>
       </a>
-      <a href="/media/youtube-to-mp3" class="nav-link ${currentPath.startsWith('/media/youtube-to-mp3') ? 'active' : ''}">
+      <a href="/media/youtube-to-mp3" class="nav-link ">
         <div class="nav-link-content"><span>YouTube to MP3 Audio</span></div>
       </a>
-      <a href="/media/tiktok-saver" class="nav-link ${currentPath.startsWith('/media/tiktok-saver') ? 'active' : ''}">
+      <a href="/media/tiktok-saver" class="nav-link ">
         <div class="nav-link-content"><span>TikTok Saver (No Watermark)</span></div>
       </a>
-      <a href="/convert/image-resizer" class="nav-link ${currentPath.startsWith('/convert/image-resizer') ? 'active' : ''}">
+      <a href="/convert/image-resizer" class="nav-link ">
         <div class="nav-link-content"><span>Bulk Image Resizer</span></div>
       </a>
-      <a href="/convert/png-to-webp" class="nav-link ${currentPath.startsWith('/convert/png-to-webp') ? 'active' : ''}">
+      <a href="/convert/png-to-webp" class="nav-link ">
         <div class="nav-link-content"><span>PNG to WebP</span></div>
       </a>
-      <a href="/convert/svg-to-png" class="nav-link ${currentPath.startsWith('/convert/svg-to-png') ? 'active' : ''}">
+      <a href="/convert/svg-to-png" class="nav-link ">
         <div class="nav-link-content"><span>SVG to PNG</span></div>
       </a>
 
       <!-- TEXT & WRITING -->
       <div class="nav-group-title">
-        ${ICONS.docs}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
         <span>Text & Writing (10)</span>
       </div>
-      <a href="/text/word-counter" class="nav-link ${currentPath.startsWith('/text/word-counter') ? 'active' : ''}">
+      <a href="/text/word-counter" class="nav-link ">
         <div class="nav-link-content"><span>Word & Character Counter</span></div>
       </a>
-      <a href="/text/case-converter" class="nav-link ${currentPath.startsWith('/text/case-converter') ? 'active' : ''}">
+      <a href="/text/case-converter" class="nav-link ">
         <div class="nav-link-content"><span>Case Converter (Title/Camel)</span></div>
       </a>
-      <a href="/text/slug-generator" class="nav-link ${currentPath.startsWith('/text/slug-generator') ? 'active' : ''}">
+      <a href="/text/slug-generator" class="nav-link ">
         <div class="nav-link-content"><span>URL Slug Generator</span></div>
       </a>
-      <a href="/text/morse-code" class="nav-link ${currentPath.startsWith('/text/morse-code') ? 'active' : ''}">
+      <a href="/text/morse-code" class="nav-link ">
         <div class="nav-link-content"><span>Morse Code Translator</span></div>
       </a>
-      <a href="/text/fancy-text" class="nav-link ${currentPath.startsWith('/text/fancy-text') ? 'active' : ''}">
+      <a href="/text/fancy-text" class="nav-link ">
         <div class="nav-link-content"><span>Unicode Fancy Fonts</span></div>
       </a>
-      <a href="/text/lorem-ipsum" class="nav-link ${currentPath.startsWith('/text/lorem-ipsum') ? 'active' : ''}">
+      <a href="/text/lorem-ipsum" class="nav-link ">
         <div class="nav-link-content"><span>Lorem Ipsum Generator</span></div>
       </a>
-      <a href="/text/markdown-preview" class="nav-link ${currentPath.startsWith('/text/markdown-preview') ? 'active' : ''}">
+      <a href="/text/markdown-preview" class="nav-link ">
         <div class="nav-link-content"><span>Markdown Live Preview</span></div>
       </a>
 
       <!-- PRODUCTIVITY & INVOICING -->
       <div class="nav-group-title">
-        ${ICONS.clipboard}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
         <span>Productivity Suite (7)</span>
       </div>
-      <a href="/productivity/time-tracker" class="nav-link ${currentPath.startsWith('/productivity/time-tracker') ? 'active' : ''}">
+      <a href="/productivity/time-tracker" class="nav-link ">
         <div class="nav-link-content"><span>Toggl-Style Time Tracker</span></div>
       </a>
-      <a href="/productivity/invoice-generator" class="nav-link ${currentPath.startsWith('/productivity/invoice-generator') ? 'active' : ''}">
+      <a href="/productivity/invoice-generator" class="nav-link ">
         <div class="nav-link-content"><span>Invoice Generator & PDF</span></div>
       </a>
-      <a href="/productivity/task-manager" class="nav-link ${currentPath.startsWith('/productivity/task-manager') ? 'active' : ''}">
+      <a href="/productivity/task-manager" class="nav-link ">
         <div class="nav-link-content"><span>Task Manager & Priorities</span></div>
       </a>
-      <a href="/productivity/tax-calculator" class="nav-link ${currentPath.startsWith('/productivity/tax-calculator') ? 'active' : ''}">
+      <a href="/productivity/tax-calculator" class="nav-link ">
         <div class="nav-link-content"><span>Income Tax Calculator</span></div>
       </a>
-      <a href="/productivity/timetable" class="nav-link ${currentPath.startsWith('/productivity/timetable') ? 'active' : ''}">
+      <a href="/productivity/timetable" class="nav-link ">
         <div class="nav-link-content"><span>Weekly Timetable Planner</span></div>
       </a>
-      <a href="/productivity/deduplicator" class="nav-link ${currentPath.startsWith('/productivity/deduplicator') ? 'active' : ''}">
+      <a href="/productivity/deduplicator" class="nav-link ">
         <div class="nav-link-content"><span>Text Line De-duplicator</span></div>
       </a>
 
       <!-- TECH ARTICLES -->
       <div class="nav-group-title">
-        ${ICONS.article}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
         <span>Technical Articles (6)</span>
       </div>
-      <a href="/articles/" class="nav-link ${currentPath === '/articles/' || currentPath === '/articles/index.html' || currentPath === '/articles' ? 'active' : ''}">
+      <a href="/articles/" class="nav-link ">
         <div class="nav-link-content"><span>All Tech Articles Hub</span></div>
       </a>
-      <a href="/articles/how-to-decompile-esbuild-bundles" class="nav-link ${currentPath.startsWith('/articles/how-to-decompile-esbuild-bundles') ? 'active' : ''}">
+      <a href="/articles/how-to-decompile-esbuild-bundles" class="nav-link ">
         <div class="nav-link-content"><span>Decompile ESBuild</span></div>
       </a>
-      <a href="/articles/minecraft-bedrock-custom-blocks-guide" class="nav-link ${currentPath.startsWith('/articles/minecraft-bedrock-custom-blocks-guide') ? 'active' : ''}">
+      <a href="/articles/minecraft-bedrock-custom-blocks-guide" class="nav-link ">
         <div class="nav-link-content"><span>Bedrock Custom Blocks</span></div>
       </a>
 
       <!-- TRUST & LEGAL -->
       <div class="nav-group-title">
-        ${ICONS.lock}
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
         <span>Trust & Legal</span>
       </div>
-      <a href="/about" class="nav-link ${currentPath.startsWith('/about') ? 'active' : ''}">
+      <a href="/about" class="nav-link ">
         <div class="nav-link-content"><span>About Digital Tools Shed</span></div>
       </a>
-      <a href="/privacy" class="nav-link ${currentPath.startsWith('/privacy') ? 'active' : ''}">
+      <a href="/privacy" class="nav-link ">
         <div class="nav-link-content"><span>Privacy Policy</span></div>
       </a>
-      <a href="/terms" class="nav-link ${currentPath.startsWith('/terms') ? 'active' : ''}">
+      <a href="/terms" class="nav-link ">
         <div class="nav-link-content"><span>Terms of Service</span></div>
       </a>
     </nav>
 
     <div class="sidebar-footer">
       <button class="theme-switch-btn" onclick="toggleSiteTheme()">
-        ${ICONS.theme}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line></svg>
         <span>Theme:</span>
         <span id="currentThemeTag">[ LIGHT ]</span>
       </button>
@@ -1562,167 +1476,7 @@ function buildSidebarHtml(currentPath = '/') {
       </div>
     </div>
   </aside>
-  `;
-}
-
-// ─── MASTER PAGE RENDERER ──────────────────────────────────────────────────
-function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/', schema, lang = 'en', faq, breadcrumbs }) {
-  // Normalize canonical to clean URL (no .html, no /index trailing)
-  let cleanCanonical = canonical;
-  if (cleanCanonical) {
-    cleanCanonical = cleanCanonical.replace(/\.html$/, '');
-    if (cleanCanonical.endsWith('/index')) cleanCanonical = cleanCanonical.replace(/\/index$/, '/');
-  } else {
-    let p = currentPath.replace(/\.html$/, '');
-    if (p.endsWith('/index')) p = p.replace(/\/index$/, '/');
-    cleanCanonical = `${DOMAIN}${p}`;
-  }
-
-  // Auto-generate JSON-LD schemas
-  const schemas = [];
-
-  // WebSite schema (homepage only)
-  if (currentPath === '/' || currentPath === '/index.html' || currentPath === '') {
-    schemas.push({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Digital Tools Shed",
-      "url": "https://digitaltoolsshed.com/",
-      "description": "The Site of Everything — 397+ free browser-based tools, calculators, converters, and coding playgrounds.",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://digitaltoolsshed.com/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
-    });
-  }
-
-  // BreadcrumbList schema
-  if (breadcrumbs && breadcrumbs.length > 0) {
-    schemas.push({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": breadcrumbs.map((b, i) => ({
-        "@type": "ListItem",
-        "position": i + 1,
-        "name": b.name,
-        "item": b.url.replace(/\.html$/, '')
-      }))
-    });
-  } else if (currentPath !== '/' && currentPath !== '/index.html') {
-    // Auto-generate breadcrumbs from path
-    const pathParts = currentPath.replace(/\.html$/, '').split('/').filter(Boolean);
-    const autoBC = [{ "@type": "ListItem", "position": 1, "name": "Home", "item": "https://digitaltoolsshed.com/" }];
-    let buildPath = '';
-    pathParts.forEach((part, i) => {
-      buildPath += '/' + part;
-      const cleanName = part.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-      autoBC.push({
-        "@type": "ListItem",
-        "position": i + 2,
-        "name": cleanName,
-        "item": `https://digitaltoolsshed.com${buildPath}`
-      });
-    });
-    schemas.push({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": autoBC
-    });
-  }
-
-  // WebApplication schema for tool pages
-  if (currentPath.startsWith('/calc/') || currentPath.startsWith('/dev/') ||
-      currentPath.startsWith('/text/') || currentPath.startsWith('/security/') ||
-      currentPath.startsWith('/design/') || currentPath.startsWith('/math/') ||
-      currentPath.startsWith('/util/') || currentPath.startsWith('/health/') ||
-      currentPath.startsWith('/convert/') || currentPath.startsWith('/productivity/') ||
-      currentPath.startsWith('/mc/') || currentPath.startsWith('/media/') ||
-      currentPath.startsWith('/pdf/') || currentPath.startsWith('/finance/')) {
-    schemas.push({
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": title.split('|')[0].split('—')[0].trim(),
-      "url": cleanCanonical,
-      "applicationCategory": "UtilityApplication",
-      "operatingSystem": "All",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-      "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge.",
-      "description": metaDesc,
-      "author": { "@type": "Organization", "name": "Digital Tools Shed", "url": "https://digitaltoolsshed.com" }
-    });
-  }
-
-  // FAQPage schema
-  if (faq && faq.length > 0) {
-    schemas.push({
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": faq.map(q => ({
-        "@type": "Question",
-        "name": q.q,
-        "acceptedAnswer": { "@type": "Answer", "text": q.a }
-      }))
-    });
-  }
-
-  // Custom schema override
-  if (schema) schemas.push(schema);
-
-  const schemaMarkup = schemas.map(s => `<script type="application/ld+json">\n${JSON.stringify(s, null, 2)}\n</script>`).join('\n  ');
-
-  return `<!DOCTYPE html>
-<html lang="${lang}">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
-  <meta name="description" content="${metaDesc}">
-  <link rel="canonical" href="${cleanCanonical}">
-  <meta property="og:title" content="${title}">
-  <meta property="og:description" content="${metaDesc}">
-  <meta property="og:url" content="${cleanCanonical}">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Digital Tools Shed">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${title}">
-  <meta name="twitter:description" content="${metaDesc}">
-  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-  <meta name="author" content="Digital Tools Shed">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('dts-theme') || 'light';
-      document.documentElement.setAttribute('data-theme', savedTheme);
-
-      const isDark = savedTheme === 'dark';
-      const op1 = isDark ? '0.14' : '0.08';
-      const op2 = isDark ? '0.12' : '0.07';
-      const op3 = isDark ? '0.10' : '0.06';
-
-      const palettes = [
-        { orb1: 'rgba(99, 102, 241, ' + op1 + ')', orb2: 'rgba(16, 185, 129, ' + op2 + ')', orb3: 'rgba(168, 85, 247, ' + op3 + ')', bar: 'linear-gradient(90deg, #6366f1, #10b981, #a855f7)' },
-        { orb1: 'rgba(244, 63, 94, ' + op1 + ')', orb2: 'rgba(245, 158, 11, ' + op2 + ')', orb3: 'rgba(236, 72, 153, ' + op3 + ')', bar: 'linear-gradient(90deg, #f43f5e, #f59e0b, #ec4899)' },
-        { orb1: 'rgba(20, 184, 166, ' + op1 + ')', orb2: 'rgba(14, 165, 233, ' + op2 + ')', orb3: 'rgba(132, 204, 22, ' + op3 + ')', bar: 'linear-gradient(90deg, #14b8a6, #0ea5e9, #84cc16)' },
-        { orb1: 'rgba(139, 92, 246, ' + op1 + ')', orb2: 'rgba(59, 130, 246, ' + op2 + ')', orb3: 'rgba(244, 114, 182, ' + op3 + ')', bar: 'linear-gradient(90deg, #8b5cf6, #3b82f6, #f472b6)' },
-        { orb1: 'rgba(6, 182, 212, ' + op1 + ')', orb2: 'rgba(234, 179, 8, ' + op2 + ')', orb3: 'rgba(99, 102, 241, ' + op3 + ')', bar: 'linear-gradient(90deg, #06b6d4, #eab308, #6366f1)' },
-        { orb1: 'rgba(236, 72, 153, ' + op1 + ')', orb2: 'rgba(99, 102, 241, ' + op2 + ')', orb3: 'rgba(59, 130, 246, ' + op3 + ')', bar: 'linear-gradient(90deg, #ec4899, #6366f1, #3b82f6)' }
-      ];
-      const p = palettes[Math.floor(Math.random() * palettes.length)];
-      const root = document.documentElement;
-      root.style.setProperty('--gradient-orb-1', p.orb1);
-      root.style.setProperty('--gradient-orb-2', p.orb2);
-      root.style.setProperty('--gradient-orb-3', p.orb3);
-      root.style.setProperty('--gradient-bar', p.bar);
-    })();
-  </script>
-  <style>${MASTER_CSS}</style>
-  ${schemaMarkup}
-</head>
-<body>
-  <script>window.__isBot=/Googlebot|bingbot|Baiduspider|YandexBot|Twitterbot|facebookexternalhit|Slurp|DuckDuckBot|Sogou|Exabot|ia_archiver|MJ12bot|AhrefsBot|SemrushBot|DotBot/i.test(navigator.userAgent);</script>
-  <div class="app-container">
-    ${buildSidebarHtml(currentPath)}
+  
 
     <div class="content-area">
       <div class="topbar">
@@ -1731,11 +1485,11 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>${title.split('—')[0].trim()}</span>
+            <span>The Trolley Problem Matrix: 5 Classic Moral Dilemmas | Digital Tools Shed</span>
           </div>
         </div>
         <div class="privacy-badge">
-          ${ICONS.lock}
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           <span>Everything, Everywhere</span>
         </div>
       </div>
@@ -1768,7 +1522,129 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
             </div>
           </div>
 
-          ${bodyContent}
+          
+    <div class="article-container" style="max-width: 950px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/util/">Utilities</a> &gt; Trolley Problem Matrix
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">Moral Philosophy Diagnostic</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Trolley Problem & Moral Dilemma Matrix</h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Solve 5 classic ethical thought experiments to calculate your precise balance of Utilitarianism (consequentialism) versus Deontology (Kantian moral duty).
+        </p>
+      </header>
+
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Dilemma 1 -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 1 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Classic Switch</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            A runaway trolley is speeding down the tracks toward 5 workers who cannot escape. You stand next to a lever. If you pull the lever, the trolley diverts onto a side track where it will kill 1 worker instead.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp1" value="util" onchange="calcTrolley()"> Pull the lever (Kill 1 to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp1" value="deon" onchange="calcTrolley()"> Do nothing (Allow 5 to die without active intervention)</label>
+          </div>
+        </div>
+
+        <!-- Dilemma 2 -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 2 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Footbridge</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            A trolley is hurtling toward 5 people. You are on a bridge above the track next to a very large stranger. If you shove him off the bridge onto the tracks, his body will stop the trolley, saving the 5 people, but killing him.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp2" value="util" onchange="calcTrolley()"> Push the stranger (Kill 1 to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp2" value="deon" onchange="calcTrolley()"> Do not push him (Do not use a human body as a mere physical obstacle)</label>
+          </div>
+        </div>
+
+        <!-- Dilemma 3 -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 3 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Transplant Surgeon</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            A doctor has 5 patients dying of different organ failures. A healthy traveler walks into the clinic for a routine checkup. The doctor can painlessly administer a lethal dose, harvest his organs, and save all 5 patients.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp3" value="util" onchange="calcTrolley()"> Harvest the organs (5 lives saved &gt; 1 life lost)</label>
+            <label class="q-opt"><input type="radio" name="tp3" value="deon" onchange="calcTrolley()"> Refuse (Murdering an innocent violates absolute moral duty)</label>
+          </div>
+        </div>
+
+        <!-- Dilemma 4 -->
+        <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 4 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Autonomous Vehicle Dilemma</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            A self-driving car suffers sudden brake failure on a narrow bridge. It can either stay on course and hit a group of 4 pedestrians crossing illegally, or swerve off the cliff, killing its 1 passenger inside.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp4" value="util" onchange="calcTrolley()"> Swerve off cliff (Sacrifice passenger to save 4)</label>
+            <label class="q-opt"><input type="radio" name="tp4" value="deon" onchange="calcTrolley()"> Stay on course (Protect the passenger who trusted the vehicle)</label>
+          </div>
+        </div>
+
+        <!-- Dilemma 5 -->
+        <div style="margin-bottom: 1.5rem;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dilemma 5 of 5</div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0.25rem 0 0.5rem;">The Loop Track</h3>
+          <p style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin-bottom: 1rem;">
+            The switch diverts the trolley onto a loop track that reconnects to the main track. The only reason the 5 people will be saved is because a single heavy worker on the loop track will jam the wheels, stopping the train before it returns.
+          </p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <label class="q-opt"><input type="radio" name="tp5" value="util" onchange="calcTrolley()"> Pull the switch (Intentional reliance on victim to save 5)</label>
+            <label class="q-opt"><input type="radio" name="tp5" value="deon" onchange="calcTrolley()"> Do not switch (Using a person as a means to an end)</label>
+          </div>
+        </div>
+
+        <!-- Result Box -->
+        <div id="tpResults" style="display: none; background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center;">
+          <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Your Ethical Diagnostic</div>
+          <div id="tpScore" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">60% Utilitarian / 40% Deontological</div>
+          <div id="tpDesc" style="font-size: 0.95rem; color: var(--fg); max-width: 600px; margin: 0.5rem auto 0; line-height: 1.6;"></div>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+      function calcTrolley() {
+        var utils = 0;
+        var answered = 0;
+        for (var i = 1; i <= 5; i++) {
+          var sel = document.querySelector('input[name="tp' + i + '"]:checked');
+          if (sel) {
+            answered++;
+            if (sel.value === 'util') utils++;
+          }
+        }
+
+        if (answered === 5) {
+          var resEl = document.getElementById('tpResults');
+          resEl.style.display = 'block';
+          var uPct = Math.round((utils / 5) * 100);
+          var dPct = 100 - uPct;
+          document.getElementById('tpScore').textContent = uPct + '% Utilitarian / ' + dPct + '% Deontological';
+
+          var desc = '';
+          if (uPct >= 80) {
+            desc = '<strong>Strict Consequentialist (Jeremy Bentham & Peter Singer):</strong> You focus purely on outcomes and net life counts. You are willing to overcome emotional squeamishness to maximize mathematical survival.';
+          } else if (uPct >= 40) {
+            desc = '<strong>Doctrine of Double Effect (Philippa Foot & Thomas Nagel):</strong> You distinguish between causing harm as a foreseeable side-effect (Switch) versus using a human being as a direct physical instrument of harm (Footbridge/Transplant).';
+          } else {
+            desc = '<strong>Strict Deontologist (Immanuel Kant):</strong> You believe in absolute moral duties and human rights. Certain actions—like pushing an innocent person or harvesting organs—are inherently impermissible regardless of consequences.';
+          }
+          document.getElementById('tpDesc').innerHTML = desc;
+        }
+      }
+    </script>
+  
 
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
             <span class="ad-label">Sponsored Utility</span>
@@ -2092,9 +1968,4 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
     }
   </script>
 </body>
-</html>`;
-}
-
-// ─── HOMEPAGE GENERATOR ───────────────────────────────────────────────────
-
-export { ICONS, TOOLS, MASTER_CSS, buildSidebarHtml, renderPage };
+</html>
