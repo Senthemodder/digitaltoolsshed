@@ -1747,6 +1747,10 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/design/passport-photo" class="nav-link ${currentPath.startsWith('/design/passport-photo') ? 'active' : ''}">
         <div class="nav-link-content"><span>US Passport Photo 2x2" Grid</span></div>
       </a>
+      <a href="/design/crop-600x600" class="nav-link ${currentPath.startsWith('/design/crop-600x600') ? 'active' : ''}">
+        <div class="nav-link-content"><span>600x600 Square Cutter</span></div>
+        <span class="nav-badge">FAST</span>
+      </a>
       <a href="/design/qr-code-generator" class="nav-link ${currentPath.startsWith('/design/qr-code-generator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Custom QR Code Generator</span></div>
       </a>

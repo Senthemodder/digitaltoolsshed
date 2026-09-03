@@ -661,6 +661,476 @@ export function buildDesignToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
         </script>
       `
     }
+,
+    {
+      slug: 'crop-600x600',
+      title: '600x600 Square Image Cutter & Cropper [Fast & Free]',
+      metaDesc: 'Cut or crop any image into a perfect 600x600 square quickly in your browser. Free, instant, 100% private with live zoom, drag, pan, rotation, and DV lottery size check.',
+      category: 'Design',
+      body: `
+        ${commonStyle}
+        <style>
+          .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            background: var(--surface-alt);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 1.5rem;
+          }
+          .drop-zone:hover, .drop-zone.dragover {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.05);
+          }
+          .canvas-wrap {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+            border: 2px solid #6366f1;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #e5e7eb;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            touch-action: none;
+          }
+          .canvas-wrap canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+          }
+          .canvas-wrap canvas:active {
+            cursor: grabbing;
+          }
+          .ctrl-btn {
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            color: var(--fg);
+            padding: 0.5rem 0.85rem;
+            border-radius: 4px;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.15s;
+          }
+          .ctrl-btn:hover {
+            background: var(--border);
+          }
+        </style>
+
+        <div class="article-container" style="max-width: 960px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/design/">Design & Image</a> &gt; 600x600 Square Cutter
+          </nav>
+
+          <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;">
+            <span class="badge badge-green">100% Client-Side Private</span>
+            <span class="badge badge-blue">Exact 600x600 px Output</span>
+            <span class="badge badge-purple">DV Lottery & Passport Ready</span>
+          </div>
+
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem; line-height: 1.2;">
+            Cut & Crop Image into a 600x600 Square Quickly
+          </h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
+            Upload, paste, or drop any photo to instantly crop it into an exact 600 &times; 600 pixel square. Perfect for US Diversity Visa (DV Lottery) entries, US passport photos, social avatars, and e-commerce product thumbnails. Zero server uploads.
+          </p>
+
+          <div class="tool-box">
+            <!-- DROP ZONE -->
+            <div id="dropZone" class="drop-zone" onclick="document.getElementById('fileInput').click()">
+              <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
+              <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📸</div>
+              <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 0.25rem;">
+                Drop your image here, click to browse, or press <kbd style="background:var(--surface);border:1px solid var(--border);padding:0.15rem 0.4rem;border-radius:4px;font-size:0.85rem;">Ctrl + V</kbd> to paste
+              </div>
+              <div style="font-size: 0.85rem; color: var(--text-muted);">
+                Supports JPG, PNG, WebP, AVIF, BMP, GIF (Any resolution, up to 50MB)
+              </div>
+            </div>
+
+            <!-- WORKSPACE (Hidden until image loaded) -->
+            <div id="cropWorkspace" style="display: none;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; align-items: start;">
+                
+                <!-- CANVAS & INTERACTIVE CROP BOX -->
+                <div style="text-align: center;">
+                  <div class="field-label" style="text-align:center;margin-bottom:0.75rem;">
+                    Preview: 600 x 600 Pixel Canvas (Drag to Pan &bull; Scroll to Zoom)
+                  </div>
+                  
+                  <div class="canvas-wrap" id="canvasWrap">
+                    <canvas id="cropCanvas" width="600" height="600"></canvas>
+                    <!-- Grid Overlay Lines -->
+                    <div style="position:absolute;top:33.33%;left:0;right:0;height:1px;border-top:1px dashed rgba(255,255,255,0.4);pointer-events:none;"></div>
+                    <div style="position:absolute;top:66.66%;left:0;right:0;height:1px;border-top:1px dashed rgba(255,255,255,0.4);pointer-events:none;"></div>
+                    <div style="position:absolute;left:33.33%;top:0;bottom:0;width:1px;border-left:1px dashed rgba(255,255,255,0.4);pointer-events:none;"></div>
+                    <div style="position:absolute;left:66.66%;top:0;bottom:0;width:1px;border-left:1px dashed rgba(255,255,255,0.4);pointer-events:none;"></div>
+                  </div>
+
+                  <!-- Quick Tool Bar Under Canvas -->
+                  <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                    <button type="button" class="ctrl-btn" onclick="rotateImage(90)" title="Rotate 90 degrees clockwise">⟳ Rotate 90°</button>
+                    <button type="button" class="ctrl-btn" onclick="flipHorizontal()" title="Flip horizontally">⇄ Flip</button>
+                    <button type="button" class="ctrl-btn" onclick="fitCenter()" title="Fit entire photo with borders">Center Fit</button>
+                    <button type="button" class="ctrl-btn" onclick="fillCenter()" title="Fill square without borders">Center Fill</button>
+                    <button type="button" class="ctrl-btn" onclick="resetTransforms()" title="Reset to original">Reset</button>
+                  </div>
+                </div>
+
+                <!-- CONTROLS & EXPORT SETTINGS -->
+                <div>
+                  <!-- Zoom Range -->
+                  <div class="field-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                      <label class="field-label" style="margin: 0;">Zoom Level</label>
+                      <span id="zoomVal" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">1.0x</span>
+                    </div>
+                    <input type="range" id="zoomSlider" min="0.2" max="4" step="0.02" value="1" style="width: 100%; accent-color: #6366f1;" oninput="onZoomSlider(this.value)" />
+                  </div>
+
+                  <!-- Background Color Fill (For Fit mode) -->
+                  <div class="field-group">
+                    <label class="field-label">Background Fill (If photo doesn't fill square)</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                      <select id="bgType" onchange="render()" class="text-input" style="flex: 1; padding: 0.5rem 0.75rem;">
+                        <option value="#ffffff" selected>White (Standard Passport / Visa / Products)</option>
+                        <option value="#000000">Black</option>
+                        <option value="#f3f4f6">Light Gray</option>
+                        <option value="transparent">Transparent (PNG only)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Export Format & Quality -->
+                  <div class="grid-controls" style="margin-bottom: 1.25rem;">
+                    <div class="field-group">
+                      <label class="field-label">Output Format</label>
+                      <select id="exportFormat" class="text-input" onchange="updateFileSize()" style="padding: 0.5rem 0.75rem;">
+                        <option value="image/jpeg" selected>JPEG (.jpg) - DV Lottery & Web</option>
+                        <option value="image/png">PNG (.png) - Lossless / Transparent</option>
+                        <option value="image/webp">WebP (.webp) - High Efficiency</option>
+                      </select>
+                    </div>
+                    <div class="field-group">
+                      <label class="field-label">JPEG Quality (<span id="qualDisp">90%</span>)</label>
+                      <input type="range" id="qualitySlider" min="0.5" max="1" step="0.05" value="0.9" style="width: 100%; accent-color: #6366f1;" oninput="onQualityChange(this.value)" />
+                    </div>
+                  </div>
+
+                  <!-- FILE SIZE & COMPLIANCE BADGE -->
+                  <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                      <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Estimated Output Size:</span>
+                      <strong id="fileSizeDisp" style="font-family: var(--mono); font-size: 1rem; color: #10b981;">~120 KB</strong>
+                    </div>
+                    <div id="complianceNotice" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                      ✅ <strong>DV Lottery Ready:</strong> File size is well within the official 240 KB limit and dimensions are exactly 600 &times; 600 pixels.
+                    </div>
+                  </div>
+
+                  <!-- DOWNLOAD & COPY ACTIONS -->
+                  <div class="action-bar" style="flex-direction: column; align-items: stretch; gap: 0.75rem;">
+                    <button type="button" class="btn-primary" onclick="downloadImage()" style="padding: 0.85rem 1.5rem; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                      <span>💾 DOWNLOAD 600x600 SQUARE</span>
+                    </button>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <button type="button" class="btn-sec" onclick="copyToClipboard()" style="flex: 1; padding: 0.6rem;">📋 Copy to Clipboard</button>
+                      <button type="button" class="btn-sec" onclick="document.getElementById('fileInput').click()" style="flex: 1; padding: 0.6rem;">🔄 Choose Another</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- USES & SPECS ARTICLE -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; margin: 3rem 0;">
+            <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">Why 600 &times; 600 Pixels is the Global Standard</h2>
+            <div style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.7;">
+              <p>
+                A 600x600 pixel square is one of the most frequently required image specifications across government portals and web platforms:
+              </p>
+              <ul style="margin: 0.75rem 0 1.25rem 1.5rem;">
+                <li><strong>US Diversity Visa (DV Green Card Lottery):</strong> The US Department of State requires an exact 1:1 aspect ratio with dimensions of 600 &times; 600 pixels, in 24-bit color sRGB, and a maximum file size of 240 KB.</li>
+                <li><strong>US Passport Digital Submission:</strong> 2 &times; 2 inches at 300 DPI resolution calculates precisely to 600 &times; 600 pixels.</li>
+                <li><strong>E-Commerce & Marketplaces:</strong> Shopify, Amazon, and eBay recommend square product hero photos to prevent automatic distortion on mobile shopping feeds.</li>
+                <li><strong>Social Avatars:</strong> Discord profile pictures, Twitter/X profile photos, and Instagram icons crop to 1:1 circles or squares without pixel stretching when provided at 600x600.</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- FAQ ACCORDION -->
+          <div style="margin: 3rem 0;">
+            <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600;">Does this tool upload my image to a remote server?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--surface-alt);">
+                No. The cropping, panning, zooming, and compression run 100% locally in your web browser using the HTML5 Canvas API. Your photos never leave your device.
+              </div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600;">How do I make sure my photo meets the 240 KB DV Lottery limit?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--surface-alt);">
+                Select the "JPEG (.jpg)" format and keep the quality slider around 85% to 90%. The live estimated output counter will confirm if your image is safely under 240 KB.
+              </div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600;">Can I paste an image directly from my clipboard?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border); background: var(--surface-alt);">
+                Yes! If you took a screenshot or copied an image from anywhere, simply press Ctrl + V (or Command + V on Mac) on this page to load it directly into the cropper.
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <script>
+          var img = null;
+          var panX = 0, panY = 0;
+          var zoom = 1;
+          var rotation = 0;
+          var isFlipped = false;
+          var isDragging = false;
+          var startX = 0, startY = 0;
+          var canvas = document.getElementById('cropCanvas');
+          var ctx = canvas.getContext('2d');
+
+          // Paste listener
+          window.addEventListener('paste', function(e) {
+            var items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (var i = 0; i < items.length; i++) {
+              if (items[i].type.indexOf('image') === 0) {
+                var blob = items[i].getAsFile();
+                loadImageFromFile(blob);
+                break;
+              }
+            }
+          });
+
+          // Drag & drop on zone
+          var dropZone = document.getElementById('dropZone');
+          ['dragenter', 'dragover'].forEach(function(eventName) {
+            dropZone.addEventListener(eventName, function(e) {
+              e.preventDefault();
+              dropZone.classList.add('dragover');
+            }, false);
+          });
+          ['dragleave', 'drop'].forEach(function(eventName) {
+            dropZone.addEventListener(eventName, function(e) {
+              e.preventDefault();
+              dropZone.classList.remove('dragover');
+            }, false);
+          });
+          dropZone.addEventListener('drop', function(e) {
+            var dt = e.dataTransfer;
+            var files = dt.files;
+            if (files.length > 0) {
+              loadImageFromFile(files[0]);
+            }
+          });
+
+          function handleFileSelect(e) {
+            var file = e.target.files[0];
+            if (file) loadImageFromFile(file);
+          }
+
+          function loadImageFromFile(file) {
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+              img = new Image();
+              img.onload = function() {
+                document.getElementById('cropWorkspace').style.display = 'block';
+                document.getElementById('dropZone').style.display = 'none';
+                resetTransforms();
+                fillCenter();
+              };
+              img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+
+          function resetTransforms() {
+            panX = 0;
+            panY = 0;
+            rotation = 0;
+            isFlipped = false;
+            zoom = 1;
+            document.getElementById('zoomSlider').value = 1;
+            document.getElementById('zoomVal').textContent = '1.0x';
+            render();
+          }
+
+          function fitCenter() {
+            if (!img) return;
+            var scaleW = 600 / img.width;
+            var scaleH = 600 / img.height;
+            zoom = Math.min(scaleW, scaleH);
+            panX = 0; panY = 0;
+            updateZoomUi();
+            render();
+          }
+
+          function fillCenter() {
+            if (!img) return;
+            var scaleW = 600 / img.width;
+            var scaleH = 600 / img.height;
+            zoom = Math.max(scaleW, scaleH);
+            panX = 0; panY = 0;
+            updateZoomUi();
+            render();
+          }
+
+          function rotateImage(deg) {
+            rotation = (rotation + deg) % 360;
+            render();
+          }
+
+          function flipHorizontal() {
+            isFlipped = !isFlipped;
+            render();
+          }
+
+          function onZoomSlider(val) {
+            zoom = parseFloat(val) || 1;
+            document.getElementById('zoomVal').textContent = zoom.toFixed(2) + 'x';
+            render();
+          }
+
+          function updateZoomUi() {
+            document.getElementById('zoomSlider').value = zoom;
+            document.getElementById('zoomVal').textContent = zoom.toFixed(2) + 'x';
+          }
+
+          function onQualityChange(val) {
+            document.getElementById('qualDisp').textContent = Math.round(val * 100) + '%';
+            updateFileSize();
+          }
+
+          // Pan drag interactions
+          canvas.addEventListener('mousedown', function(e) {
+            isDragging = true;
+            startX = e.clientX - panX;
+            startY = e.clientY - panY;
+          });
+          window.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            panX = e.clientX - startX;
+            panY = e.clientY - startY;
+            render();
+          });
+          window.addEventListener('mouseup', function() {
+            isDragging = false;
+          });
+
+          // Touch interactions for mobile
+          canvas.addEventListener('touchstart', function(e) {
+            if (e.touches.length === 1) {
+              isDragging = true;
+              startX = e.touches[0].clientX - panX;
+              startY = e.touches[0].clientY - panY;
+            }
+          });
+          window.addEventListener('touchmove', function(e) {
+            if (!isDragging || e.touches.length !== 1) return;
+            panX = e.touches[0].clientX - startX;
+            panY = e.touches[0].clientY - startY;
+            render();
+          });
+          window.addEventListener('touchend', function() {
+            isDragging = false;
+          });
+
+          // Mouse wheel zoom
+          canvas.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            var delta = e.deltaY < 0 ? 0.05 : -0.05;
+            zoom = Math.max(0.2, Math.min(4, zoom + delta));
+            updateZoomUi();
+            render();
+          }, { passive: false });
+
+          function render() {
+            if (!img) return;
+            var bg = document.getElementById('bgType').value;
+            ctx.clearRect(0, 0, 600, 600);
+
+            if (bg !== 'transparent') {
+              ctx.fillStyle = bg;
+              ctx.fillRect(0, 0, 600, 600);
+            }
+
+            ctx.save();
+            // Center transformation
+            ctx.translate(300 + panX, 300 + panY);
+            ctx.rotate((rotation * Math.PI) / 180);
+            if (isFlipped) ctx.scale(-1, 1);
+            ctx.scale(zoom, zoom);
+
+            ctx.drawImage(img, -img.width / 2, -img.height / 2);
+            ctx.restore();
+
+            updateFileSize();
+          }
+
+          function updateFileSize() {
+            if (!img) return;
+            var format = document.getElementById('exportFormat').value;
+            var quality = parseFloat(document.getElementById('qualitySlider').value) || 0.9;
+            var dataUrl = canvas.toDataURL(format, quality);
+
+            // Estimate byte size from Base64 string length
+            var head = 'data:' + format + ';base64,';
+            var bytes = Math.round((dataUrl.length - head.length) * 3 / 4);
+            var kb = Math.round(bytes / 1024);
+
+            var sizeDisp = document.getElementById('fileSizeDisp');
+            var notice = document.getElementById('complianceNotice');
+
+            sizeDisp.textContent = '~' + kb + ' KB';
+
+            if (kb <= 240) {
+              sizeDisp.style.color = '#10b981';
+              notice.innerHTML = '✅ <strong>DV Lottery Ready:</strong> File size is ' + kb + ' KB, strictly under the 240 KB limit (600 &times; 600 px).';
+            } else {
+              sizeDisp.style.color = '#ef4444';
+              notice.innerHTML = '⚠️ <strong>Exceeds 240 KB:</strong> Lower the JPEG quality slider slightly to comply with US Visa / Lottery requirements.';
+            }
+          }
+
+          function downloadImage() {
+            if (!img) return;
+            var format = document.getElementById('exportFormat').value;
+            var quality = parseFloat(document.getElementById('qualitySlider').value) || 0.9;
+            var ext = format === 'image/png' ? 'png' : (format === 'image/webp' ? 'webp' : 'jpg');
+            
+            var a = document.createElement('a');
+            a.download = 'cropped-600x600.' + ext;
+            a.href = canvas.toDataURL(format, quality);
+            a.click();
+          }
+
+          function copyToClipboard() {
+            if (!img) return;
+            canvas.toBlob(function(blob) {
+              if (navigator.clipboard && window.ClipboardItem) {
+                navigator.clipboard.write([
+                  new ClipboardItem({ 'image/png': blob })
+                ]).then(function() {
+                  alert('600x600 square image copied to clipboard!');
+                }).catch(function() {
+                  alert('Unable to copy directly. Please use the Download button.');
+                });
+              } else {
+                alert('Clipboard API not supported in this browser. Please use the Download button.');
+              }
+            }, 'image/png');
+          }
+        </script>
+      `
+    }
   ];
 
   // Render individual tool pages
