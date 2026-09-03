@@ -128,6 +128,14 @@ const TOOLS = [
   { id: 'adhd-screener', name: 'Adult ADHD Symptom Screener (WHO ASRS-v1.1)', category: 'Health', path: '/health/adhd-screener', desc: 'Official World Health Organization 6-question adult ADHD symptom screener with printable clinical report.' },
   { id: 'stand-on-your-own-feet', name: 'Stand On Your Own Feet: Self-Reliance & Motivation Engine', category: 'Health', path: '/health/stand-on-your-own-feet', desc: 'No-bullshit stoic motivation bombardment engine and 4-pillar self-reliance diagnostic. 100% Ad-Free.' },
   { id: 'therapy-recommendation-engine', name: 'Evidence-Based Therapy Matcher & Guidance', category: 'Health', path: '/health/therapy-recommendation-engine', desc: 'Clinical psychotherapy triage matching symptoms to CBT, DBT, ACT, EMDR, and Somatic regulation. 100% Ad-Free.' },
+  { id: 'burnout-calculator', name: 'Clinical Burnout & Depletion Index (Maslach MBI)', category: 'Health', path: '/health/burnout-calculator', desc: 'Assess emotional exhaustion, depersonalization/cynicism, and personal inefficacy with clinical triage.' },
+  { id: 'imposter-syndrome-test', name: 'Imposter Phenomenon Diagnostic & Competence Auditor (CIPS)', category: 'Health', path: '/health/imposter-syndrome-test', desc: 'Official Clance Imposter Phenomenon Scale evaluating intellectual self-doubt, attribution error, and perfectionism.' },
+  { id: 'sleep-debt-calculator', name: 'Cumulative Sleep Debt & Circadian Recovery Calculator', category: 'Health', path: '/health/sleep-debt-calculator', desc: 'Calculate 7-day sleep debt, equivalent blood alcohol concentration impairment, and safe recovery schedule.' },
+  { id: 'screen-time-calculator', name: 'Lifetime Screen Time & Dopamine Detox Calculator', category: 'Health', path: '/health/screen-time-calculator', desc: 'Calculate the total continuous years of your remaining life spent staring at glowing glass rectangles.' },
+  { id: 'attachment-style-test', name: 'Adult Attachment Style & Relationship Diagnostic', category: 'Health', path: '/health/attachment-style-test', desc: 'Map your relational blueprint: Secure, Anxious-Preoccupied, Dismissive-Avoidant, or Fearful-Avoidant.' },
+  { id: 'noise-exposure-calculator', name: 'Decibel Sound Dose & Hearing Damage Estimator (OSHA/NIOSH)', category: 'Health', path: '/health/noise-exposure-calculator', desc: 'Calculate safe listening duration for headphones and concerts before irreversible stereocilia damage.' },
+  { id: 'ats-resume-scanner', name: 'Free ATS Resume Scanner & Keyword Matcher', category: 'Productivity', path: '/productivity/ats-resume-scanner', desc: 'Client-side ATS resume scanner. Match your CV against job descriptions and uncover missing keywords.' },
+  { id: 'expense-splitter', name: 'Zero-Login Group Expense Splitter & Debt Simplifier', category: 'Productivity', path: '/productivity/expense-splitter', desc: 'Splitwise alternative with optimal debt simplification algorithm to settle shared costs with fewest payments.' },
   { id: 'fermi-paradox-calculator', name: 'Drake Equation & Fermi Paradox Alien Calculator', category: 'Productivity', path: '/util/fermi-paradox-calculator', desc: 'Calculate communicating alien civilizations in the Milky Way and distance to nearest life.' },
   { id: 'cosmic-calendar-calculator', name: 'Cosmic Calendar: 13.8B Years in 24 Hours', category: 'Productivity', path: '/util/cosmic-calendar-calculator', desc: 'Compress the lifespan of the universe into 24 hours to see your lifetime in milliseconds.' },
   { id: 'life-in-weeks', name: 'Your Life in Weeks (4,680-Box Memento Mori)', category: 'Productivity', path: '/util/life-in-weeks', desc: 'Interactive 90-year life matrix visualizing lived weeks versus time remaining.' },
@@ -1527,6 +1535,12 @@ function buildSidebarHtml(currentPath = '/') {
       </a>
       <a href="/productivity/deduplicator" class="nav-link ${currentPath.startsWith('/productivity/deduplicator') ? 'active' : ''}">
         <div class="nav-link-content"><span>Text Line De-duplicator</span></div>
+      </a>
+      <a href="/productivity/ats-resume-scanner" class="nav-link ${currentPath.startsWith('/productivity/ats-resume-scanner') ? 'active' : ''}">
+        <div class="nav-link-content"><span>ATS Resume Scanner</span></div>
+      </a>
+      <a href="/productivity/expense-splitter" class="nav-link ${currentPath.startsWith('/productivity/expense-splitter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Group Expense Splitter</span></div>
       </a>
 
       <!-- TECH ARTICLES -->

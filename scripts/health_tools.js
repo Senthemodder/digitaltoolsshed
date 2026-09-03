@@ -2009,6 +2009,728 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           }
         </script>
       `
+    },
+    {
+      slug: 'burnout-calculator',
+      title: 'Clinical Burnout & Depletion Index (Maslach MBI Diagnostic)',
+      metaDesc: 'Evidence-based workplace burnout assessment based on the Maslach Burnout Inventory (MBI). Measures emotional exhaustion, depersonalization, and professional efficacy.',
+      category: 'Workplace Mental Health',
+      body: `
+        ${commonStyle}
+        <style>
+          .mbi-q { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+          .scale-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+          .scale-btn { flex: 1; min-width: 60px; padding: 0.4rem; text-align: center; border: 1px solid var(--border); background: var(--surface); border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-family: var(--mono); }
+          .scale-btn input { margin-right: 0.25rem; }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Clinical Burnout Index
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge" style="background: rgba(239,68,68,0.1); border: 1px solid #ef4444; color: #ef4444;">Occupational Psychology</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Maslach MBI Model</span>
+            </div>
+            <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Clinical Workplace Burnout & Depletion Index</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+              Burnout is not personal weakness or simple fatigue; it is an occupational syndrome caused by unmanaged chronic workplace stress. Assess your depletion across <strong>Emotional Exhaustion</strong>, <strong>Depersonalization/Cynicism</strong>, and <strong>Personal Efficacy</strong>.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem;">Rate how often you experience each statement (0 = Never, 4 = Every Day):</h2>
+
+            <div id="mbiQuestions"></div>
+
+            <div style="text-align: center; margin: 2rem 0 1rem;">
+              <button type="button" class="btn-primary" onclick="calcBurnout()" style="padding: 0.85rem 2.5rem; font-size: 1.05rem; cursor: pointer;">
+                📊 Compute Burnout Index
+              </button>
+            </div>
+
+            <!-- RESULTS -->
+            <div id="burnoutResultBox" style="display: none; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); padding: 1.5rem; margin-top: 1.5rem;">
+              <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Overall Burnout Depletion Score</div>
+                <div id="boScore" style="font-size: 3.5rem; font-family: var(--mono); font-weight: bold; line-height: 1; margin: 0.5rem 0;">0%</div>
+                <div id="boVerdict" style="font-size: 1.15rem; font-weight: bold;"></div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                  <div style="font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); text-transform: uppercase;">Emotional Exhaustion</div>
+                  <div id="boEE" style="font-size: 1.4rem; font-weight: bold; margin: 0.25rem 0;">--</div>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Drainage of emotional capacity and chronic physical tiredness.</p>
+                </div>
+                <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                  <div style="font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); text-transform: uppercase;">Cynicism / Detachment</div>
+                  <div id="boDP" style="font-size: 1.4rem; font-weight: bold; margin: 0.25rem 0;">--</div>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Callous attitude toward work, clients, and teammates.</p>
+                </div>
+                <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
+                  <div style="font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); text-transform: uppercase;">Sense of Inefficacy</div>
+                  <div id="boPA" style="font-size: 1.4rem; font-weight: bold; margin: 0.25rem 0;">--</div>
+                  <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0;">Erosion of competence and feelings of futility.</p>
+                </div>
+              </div>
+
+              <div id="boIntervention" style="font-size: 0.95rem; line-height: 1.6; border-top: 1px solid var(--border); padding-top: 1rem;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var mbiItems = [
+            { id: 'q1', text: 'I feel emotionally drained from my work.', dim: 'EE' },
+            { id: 'q2', text: 'I feel used up at the end of the workday.', dim: 'EE' },
+            { id: 'q3', text: 'I feel fatigued when I get up in the morning and have to face another day on the job.', dim: 'EE' },
+            { id: 'q4', text: 'Working with people all day is really a strain for me.', dim: 'EE' },
+            { id: 'q5', text: 'I have become more callous or cynical toward people since taking this job.', dim: 'DP' },
+            { id: 'q6', text: 'I worry that this job is hardening me emotionally.', dim: 'DP' },
+            { id: 'q7', text: 'I don\\'t really care what happens to some colleagues or clients anymore.', dim: 'DP' },
+            { id: 'q8', text: 'I feel I am achieving worthwhile accomplishments at my work.', dim: 'PA', reverse: true },
+            { id: 'q9', text: 'I feel energetic and exhilarated when working.', dim: 'PA', reverse: true }
+          ];
+
+          function renderMbi() {
+            var c = document.getElementById('mbiQuestions');
+            var h = '';
+            for (var i = 0; i < mbiItems.length; i++) {
+              var q = mbiItems[i];
+              h += '<div class="mbi-q">' +
+                '<div style="font-size:0.95rem;font-weight:bold;margin-bottom:0.4rem;">' + (i + 1) + '. ' + q.text + '</div>' +
+                '<div class="scale-btns">' +
+                  '<label class="scale-btn"><input type="radio" name="' + q.id + '" value="0" checked> Never</label>' +
+                  '<label class="scale-btn"><input type="radio" name="' + q.id + '" value="1"> Rarely</label>' +
+                  '<label class="scale-btn"><input type="radio" name="' + q.id + '" value="2"> Sometimes</label>' +
+                  '<label class="scale-btn"><input type="radio" name="' + q.id + '" value="3"> Often</label>' +
+                  '<label class="scale-btn"><input type="radio" name="' + q.id + '" value="4"> Daily</label>' +
+                '</div>' +
+              '</div>';
+            }
+            c.innerHTML = h;
+          }
+
+          function calcBurnout() {
+            var ee = 0, dp = 0, pa = 0;
+            for (var i = 0; i < mbiItems.length; i++) {
+              var q = mbiItems[i];
+              var sel = document.querySelector('input[name="' + q.id + '"]:checked');
+              var val = sel ? parseInt(sel.value, 10) : 0;
+              if (q.dim === 'EE') ee += val;
+              if (q.dim === 'DP') dp += val;
+              if (q.dim === 'PA') {
+                pa += (q.reverse ? (4 - val) : val);
+              }
+            }
+
+            var maxScore = (4 * 4) + (3 * 4) + (2 * 4); // 16 + 12 + 8 = 36
+            var total = ee + dp + pa;
+            var pct = Math.round((total / maxScore) * 100);
+
+            document.getElementById('burnoutResultBox').style.display = 'block';
+            var sEl = document.getElementById('boScore');
+            sEl.textContent = pct + '%';
+
+            var vEl = document.getElementById('boVerdict');
+            var intEl = document.getElementById('boIntervention');
+
+            document.getElementById('boEE').textContent = Math.round((ee / 16) * 100) + '%';
+            document.getElementById('boDP').textContent = Math.round((dp / 12) * 100) + '%';
+            document.getElementById('boPA').textContent = Math.round((pa / 8) * 100) + '%';
+
+            if (pct >= 65) {
+              sEl.style.color = '#ef4444';
+              vEl.textContent = 'Severe Clinical Burnout Phase';
+              vEl.style.color = '#ef4444';
+              intEl.innerHTML = '<strong>Immediate Crisis Protocol:</strong> You are experiencing acute nervous system depletion. Your current workload is structurally unsustainable. Implement radical boundary scripts immediately: do not check work email outside 9-5, cancel optional meetings, take sick days to sleep without guilt, and consult a therapist or physician.';
+            } else if (pct >= 40) {
+              sEl.style.color = '#f59e0b';
+              vEl.textContent = 'Moderate Chronic Exhaustion (Pre-Burnout)';
+              vEl.style.color = '#f59e0b';
+              intEl.innerHTML = '<strong>Warning Sign Protocol:</strong> You are accumulating chronic stress faster than you are recovering. Notice if cynicism is creeping in as a protective shell. Institute a strict 60-minute wind-down routine every evening, take micro-breaks during the day, and delegate or reject at least one non-critical project.';
+            } else {
+              sEl.style.color = '#10b981';
+              vEl.textContent = 'Resilient Occupational Baseline';
+              vEl.style.color = '#10b981';
+              intEl.innerHTML = '<strong>Maintenance Protocol:</strong> Your burnout markers are low. You retain healthy emotional boundaries and personal engagement with your work. Continue prioritizing sleep, regular exercise, and distinct separation between work and personal life.';
+            }
+
+            document.getElementById('burnoutResultBox').scrollIntoView({ behavior: 'smooth' });
+          }
+
+          document.addEventListener('DOMContentLoaded', renderMbi);
+        </script>
+      `
+    },
+    {
+      slug: 'imposter-syndrome-test',
+      title: 'Imposter Phenomenon Diagnostic & Competence Auditor (CIPS)',
+      metaDesc: 'Free Clance Imposter Phenomenon Scale (CIPS). Assess your level of intellectual fraud feelings, perfectionism, fear of failure, and attribution bias.',
+      category: 'Psychological Diagnostics',
+      body: `
+        ${commonStyle}
+        <style>
+          .cips-item { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+          .cips-opts { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+          .cips-opt { flex: 1; min-width: 60px; padding: 0.4rem; text-align: center; border: 1px solid var(--border); background: var(--surface); border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-family: var(--mono); }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Imposter Syndrome Test
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge" style="background: rgba(139,92,246,0.1); border: 1px solid #8b5cf6; color: #8b5cf6;">Clinical Scale</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Dr. Pauline Clance CIPS</span>
+            </div>
+            <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Imposter Phenomenon Diagnostic & Competence Auditor</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+              Do you feel like you just got lucky? That you fooled everyone and will soon be exposed as a fraud? The Clance Imposter Phenomenon Scale measures intellectual self-doubt, attribution error, and perfectionism.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <h2 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1.25rem;">Rate how true each statement is for you (1 = Not at all true, 5 = Very true):</h2>
+
+            <div id="cipsQuestions"></div>
+
+            <div style="text-align: center; margin: 2rem 0 1rem;">
+              <button type="button" class="btn-primary" onclick="calcCips()" style="padding: 0.85rem 2.5rem; font-size: 1.05rem; cursor: pointer;">
+                🧠 Calculate Imposter Score
+              </button>
+            </div>
+
+            <!-- RESULT -->
+            <div id="cipsResultBox" style="display: none; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); padding: 1.5rem; margin-top: 1.5rem;">
+              <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Total Clance Imposter Score</div>
+                <div id="cipsScore" style="font-size: 3.5rem; font-family: var(--mono); font-weight: bold; line-height: 1; margin: 0.5rem 0;">--</div>
+                <div id="cipsVerdict" style="font-size: 1.15rem; font-weight: bold;"></div>
+              </div>
+
+              <div id="cipsAnalysis" style="font-size: 0.95rem; line-height: 1.6; border-top: 1px solid var(--border); padding-top: 1rem;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var cipsItems = [
+            'I have often succeeded on a test or task even though I felt confident that I wouldn’t do well.',
+            'I can give the impression that I’m more competent than I really am.',
+            'I avoid evaluations if possible and have a dread of others evaluating me.',
+            'When people praise me for something I\\'ve accomplished, I feel I’m deceiving them.',
+            'I sometimes think I obtained my present position or success because I happened to be in the right place at the right time.',
+            'I’m afraid people important to me may find out that I’m not as capable as they think I am.',
+            'I tend to remember the incidents on which I haven’t done my best more than those on which I have.',
+            'I rarely do a project or task as well as I’d like to do it.',
+            'Sometimes I feel or believe that my success in my life or in my job has been the result of some kind of error.',
+            'It’s hard for me to accept compliments or praise about my intelligence or accomplishments.'
+          ];
+
+          function renderCips() {
+            var c = document.getElementById('cipsQuestions');
+            var h = '';
+            for (var i = 0; i < cipsItems.length; i++) {
+              h += '<div class="cips-item">' +
+                '<div style="font-size:0.95rem;font-weight:bold;margin-bottom:0.4rem;">' + (i + 1) + '. ' + cipsItems[i] + '</div>' +
+                '<div class="cips-opts">' +
+                  '<label class="cips-opt"><input type="radio" name="cips' + i + '" value="1" checked> 1 (Not true)</label>' +
+                  '<label class="cips-opt"><input type="radio" name="cips' + i + '" value="2"> 2 (Rarely)</label>' +
+                  '<label class="cips-opt"><input type="radio" name="cips' + i + '" value="3"> 3 (Sometimes)</label>' +
+                  '<label class="cips-opt"><input type="radio" name="cips' + i + '" value="4"> 4 (Often)</label>' +
+                  '<label class="cips-opt"><input type="radio" name="cips' + i + '" value="5"> 5 (Very true)</label>' +
+                '</div>' +
+              '</div>';
+            }
+            c.innerHTML = h;
+          }
+
+          function calcCips() {
+            var total = 0;
+            for (var i = 0; i < cipsItems.length; i++) {
+              var sel = document.querySelector('input[name="cips' + i + '"]:checked');
+              total += sel ? parseInt(sel.value, 10) : 1;
+            }
+
+            document.getElementById('cipsResultBox').style.display = 'block';
+            var sEl = document.getElementById('cipsScore');
+            sEl.textContent = total + ' / 50';
+
+            var vEl = document.getElementById('cipsVerdict');
+            var aEl = document.getElementById('cipsAnalysis');
+
+            if (total >= 40) {
+              sEl.style.color = '#ef4444';
+              vEl.textContent = 'Intense Imposter Phenomenon';
+              vEl.style.color = '#ef4444';
+              aEl.innerHTML = '<strong>Cognitive Pattern:</strong> You suffer from acute attribution error—crediting your success to pure luck, timing, or charm while attributing mistakes entirely to personal inadequacy. You likely live in perpetual fear that the "fraud police" will unmask you. <em>Clinical Reframe:</em> True frauds do not experience imposter syndrome. Only competent people who hold themselves to impossible standards fear they are inadequate.';
+            } else if (total >= 28) {
+              sEl.style.color = '#f59e0b';
+              vEl.textContent = 'Moderate Imposter Characteristics';
+              vEl.style.color = '#f59e0b';
+              aEl.innerHTML = '<strong>Cognitive Pattern:</strong> You frequently experience waves of self-doubt, especially when entering new roles or receiving public accolades. You discount positive feedback and over-ruminate on minor errors. Practice creating a "Brag Document" listing objective, factual evidence of your skills.';
+            } else {
+              sEl.style.color = '#10b981';
+              vEl.textContent = 'Few Imposter Characteristics';
+              vEl.style.color = '#10b981';
+              aEl.innerHTML = '<strong>Cognitive Pattern:</strong> You have a grounded, realistic sense of your capabilities. You can internalize praise and recognize that luck and effort operate together. You do not tie your entire self-worth to error-free perfection.';
+            }
+
+            document.getElementById('cipsResultBox').scrollIntoView({ behavior: 'smooth' });
+          }
+
+          document.addEventListener('DOMContentLoaded', renderCips);
+        </script>
+      `
+    },
+    {
+      slug: 'sleep-debt-calculator',
+      title: 'Cumulative Sleep Debt & Circadian Recovery Calculator',
+      metaDesc: 'Calculate your accumulated weekly sleep deficit, blood alcohol equivalent impairment, and safe weekend recovery schedule without causing social jetlag.',
+      category: 'Sleep & Recovery',
+      body: `
+        ${commonStyle}
+        <style>
+          .day-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem; text-align: center; }
+          .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; margin-bottom: 1.5rem; }
+          @media (max-width: 640px) { .day-grid { grid-template-columns: repeat(2, 1fr); } }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Sleep Debt Calculator
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge" style="background: rgba(14,165,233,0.1); border: 1px solid #0ea5e9; color: #0ea5e9;">Sleep Architecture</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Cognitive Deficit</span>
+            </div>
+            <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Cumulative Sleep Debt & Circadian Recovery Calculator</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+              Every hour of lost sleep accumulates on your prefrontal cortex as a metabolic deficit. Calculate your 7-day sleep debt, its equivalent blood alcohol concentration impairment, and how to safely repay it without wrecking your Sunday night sleep.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <div style="margin-bottom: 1.25rem;">
+              <label style="font-weight: bold; font-size: 0.95rem;">Your Individual Nightly Sleep Baseline Requirement:</label>
+              <div style="display: flex; align-items: center; gap: 1rem; margin-top: 0.35rem;">
+                <input type="number" id="baselineSleep" value="8.0" min="6.0" max="10.0" step="0.25" class="text-input" style="width: 100px;" onchange="calcDebt()" />
+                <span style="font-size: 0.85rem; color: var(--text-muted);">hours per night (adult average is 7.5 – 8.5h)</span>
+              </div>
+            </div>
+
+            <label style="font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 0.5rem;">Hours Slept Over the Last 7 Days:</label>
+            <div class="day-grid">
+              <div class="day-card"><label style="font-size:0.75rem;display:block;margin-bottom:0.25rem;font-weight:bold;">MON</label><input type="number" id="d1" value="6.5" step="0.5" class="text-input" style="width:100%;text-align:center;" oninput="calcDebt()"></div>
+              <div class="day-card"><label style="font-size:0.75rem;display:block;margin-bottom:0.25rem;font-weight:bold;">TUE</label><input type="number" id="d2" value="6.0" step="0.5" class="text-input" style="width:100%;text-align:center;" oninput="calcDebt()"></div>
+              <div class="day-card"><label style="font-size:0.75rem;display:block;margin-bottom:0.25rem;font-weight:bold;">WED</label><input type="number" id="d3" value="5.5" step="0.5" class="text-input" style="width:100%;text-align:center;" oninput="calcDebt()"></div>
+              <div class="day-card"><label style="font-size:0.75rem;display:block;margin-bottom:0.25rem;font-weight:bold;">THU</label><input type="number" id="d4" value="7.0" step="0.5" class="text-input" style="width:100%;text-align:center;" oninput="calcDebt()"></div>
+              <div class="day-card"><label style="font-size:0.75rem;display:block;margin-bottom:0.25rem;font-weight:bold;">FRI</label><input type="number" id="d5" value="6.0" step="0.5" class="text-input" style="width:100%;text-align:center;" oninput="calcDebt()"></div>
+              <div class="day-card"><label style="font-size:0.75rem;display:block;margin-bottom:0.25rem;font-weight:bold;">SAT</label><input type="number" id="d6" value="7.5" step="0.5" class="text-input" style="width:100%;text-align:center;" oninput="calcDebt()"></div>
+              <div class="day-card"><label style="font-size:0.75rem;display:block;margin-bottom:0.25rem;font-weight:bold;">SUN</label><input type="number" id="d7" value="7.0" step="0.5" class="text-input" style="width:100%;text-align:center;" oninput="calcDebt()"></div>
+            </div>
+
+            <!-- RESULT -->
+            <div class="result-card" style="border-top: 4px solid #0ea5e9;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: center;">
+                <div>
+                  <div class="field-label">Total Cumulative Sleep Debt</div>
+                  <div id="debtHours" class="result-val" style="color: #ef4444;">10.5 hrs</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">behind your baseline</div>
+                </div>
+                <div>
+                  <div class="field-label">Equivalent Cognitive Impairment</div>
+                  <div id="bacEquiv" class="result-val" style="color: #f59e0b;">~0.05% BAC</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">Reaction time slowdown</div>
+                </div>
+              </div>
+
+              <div id="sleepRecoveryPlan" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem; font-size: 0.95rem; line-height: 1.6;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          function calcDebt() {
+            var b = parseFloat(document.getElementById('baselineSleep').value) || 8.0;
+            var days = ['d1','d2','d3','d4','d5','d6','d7'];
+            var totalActual = 0;
+            for (var i = 0; i < days.length; i++) {
+              totalActual += parseFloat(document.getElementById(days[i]).value) || 0;
+            }
+            var target = b * 7;
+            var debt = Math.max(0, target - totalActual);
+
+            var dEl = document.getElementById('debtHours');
+            dEl.textContent = debt.toFixed(1) + ' hrs';
+
+            var bacEl = document.getElementById('bacEquiv');
+            var planEl = document.getElementById('sleepRecoveryPlan');
+
+            if (debt <= 1.0) {
+              dEl.style.color = '#10b981';
+              bacEl.textContent = 'Normal / Rested';
+              bacEl.style.color = '#10b981';
+              planEl.innerHTML = '<strong>Circadian Health:</strong> You are fully caught up on sleep. Your prefrontal cortex and autonomic nervous system are operating at peak restorative baseline.';
+            } else if (debt <= 6.0) {
+              dEl.style.color = '#f59e0b';
+              bacEl.textContent = '~0.04% BAC';
+              bacEl.style.color = '#f59e0b';
+              planEl.innerHTML = '<strong>Moderate Debt Recovery Protocol:</strong> Do NOT sleep in for 4 extra hours on Sunday—this causes "social jetlag" and makes waking up Monday hell. Instead: extend your sleep window by <strong>+60 minutes tonight</strong> and take a <strong>20-minute power nap before 2:00 PM</strong>.';
+            } else {
+              dEl.style.color = '#ef4444';
+              bacEl.textContent = '~0.08% BAC (Legally Drunk Impairment)';
+              bacEl.style.color = '#ef4444';
+              planEl.innerHTML = '<strong>Severe Chronic Sleep Debt Warning:</strong> Stanford sleep research shows that chronic sleep debt impairs reaction time, emotional regulation, and working memory identically to being legally intoxicated. Repay this over 4–5 days by adding <strong>+90 minutes to your sleep opportunity window</strong> each night.';
+            }
+          }
+
+          document.addEventListener('DOMContentLoaded', calcDebt);
+        </script>
+      `
+    },
+    {
+      slug: 'screen-time-calculator',
+      title: 'Lifetime Screen Time & Dopamine Detox Protocol',
+      metaDesc: 'Calculate how many years of your finite life you will spend looking at phone and computer screens. Includes custom 3-tier dopamine detox protocols.',
+      category: 'Digital Wellness',
+      body: `
+        ${commonStyle}
+        <style>
+          .stat-callout { font-size: 3.5rem; font-weight: bold; font-family: var(--mono); color: #ef4444; line-height: 1; margin: 0.5rem 0; }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Lifetime Screen Time
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge" style="background: rgba(236,72,153,0.1); border: 1px solid #ec4899; color: #ec4899;">Existential Reality</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Digital Longevity</span>
+            </div>
+            <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Lifetime Screen Time & Dopamine Detox Calculator</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+              Humans have roughly 16 conscious waking hours per day. When you look at a smartphone for 5 hours and a computer for 6 hours, how many literal continuous years of your remaining life will be spent staring at glowing glass?
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+              <div>
+                <label style="font-weight: bold; font-size: 0.9rem; display: block; margin-bottom: 0.25rem;">Current Age</label>
+                <input type="number" id="stAge" value="28" min="10" max="100" class="text-input" style="width: 100%; box-sizing: border-box;" oninput="calcScreen()" />
+              </div>
+              <div>
+                <label style="font-weight: bold; font-size: 0.9rem; display: block; margin-bottom: 0.25rem;">Life Expectancy</label>
+                <input type="number" id="stExp" value="80" min="50" max="110" class="text-input" style="width: 100%; box-sizing: border-box;" oninput="calcScreen()" />
+              </div>
+              <div>
+                <label style="font-weight: bold; font-size: 0.9rem; display: block; margin-bottom: 0.25rem;">Daily Phone Screen Time (hrs)</label>
+                <input type="number" id="stPhone" value="5.0" min="0" max="16" step="0.5" class="text-input" style="width: 100%; box-sizing: border-box;" oninput="calcScreen()" />
+              </div>
+              <div>
+                <label style="font-weight: bold; font-size: 0.9rem; display: block; margin-bottom: 0.25rem;">Daily Computer/TV (hrs)</label>
+                <input type="number" id="stPC" value="5.5" min="0" max="16" step="0.5" class="text-input" style="width: 100%; box-sizing: border-box;" oninput="calcScreen()" />
+              </div>
+            </div>
+
+            <!-- RESULT -->
+            <div class="result-card" style="border-top: 4px solid #ec4899; text-align: center;">
+              <div class="field-label">Total Years of Your Finite Life Staring at Glass</div>
+              <div id="yearsStared" class="stat-callout">34.1 Years</div>
+              <div id="pctWaking" style="font-size: 1.1rem; font-weight: bold; color: var(--fg); margin-bottom: 0.5rem;">65.6% of every waking moment</div>
+              <div id="stWakeupText" style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6; max-width: 650px; margin: 0 auto;"></div>
+            </div>
+          </div>
+
+          <!-- DETOX PROTOCOL -->
+          <div class="tool-box" style="margin-top: 1.5rem; background: rgba(59,130,246,0.04); border-color: #3b82f6;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.5rem;">Actionable 3-Tier Dopamine Detox Protocol</h3>
+            <ul style="font-size: 0.95rem; line-height: 1.8; color: var(--fg); padding-left: 1.25rem; margin: 0;">
+              <li><strong>Level 1 (Friction):</strong> Turn your phone display to <em>Grayscale Mode</em> (Triple-click power button). Stripping RGB color makes Instagram and TikTok unstimulating to dopamine receptors.</li>
+              <li><strong>Level 2 (Bedroom Sanctuary):</strong> Charge your phone in another room overnight. Buy a $10 analog alarm clock so your eyes do not wake up to notifications.</li>
+              <li><strong>Level 3 (24-Hour Digital Sabbath):</strong> Choose Sunday as a zero-screen day. Books, walking, cooking, socializing only. Resets baseline dopamine within 24 hours.</li>
+            </ul>
+          </div>
+        </div>
+
+        <script>
+          function calcScreen() {
+            var age = parseFloat(document.getElementById('stAge').value) || 28;
+            var exp = parseFloat(document.getElementById('stExp').value) || 80;
+            var phone = parseFloat(document.getElementById('stPhone').value) || 0;
+            var pc = parseFloat(document.getElementById('stPC').value) || 0;
+
+            var yearsRemaining = Math.max(0, exp - age);
+            var totalDailyScreen = phone + pc;
+            var wakingHours = 16.0; // Assuming 8h sleep
+            var screenFraction = Math.min(1.0, totalDailyScreen / wakingHours);
+
+            var lifetimeScreenYears = yearsRemaining * screenFraction;
+            var pctWaking = Math.round(screenFraction * 100);
+
+            document.getElementById('yearsStared').textContent = lifetimeScreenYears.toFixed(1) + ' Years';
+            document.getElementById('pctWaking').textContent = pctWaking + '% of your conscious waking life';
+
+            var txt = 'Out of the ' + yearsRemaining.toFixed(0) + ' years you have left before age ' + exp + ', ' +
+              '<strong>' + lifetimeScreenYears.toFixed(1) + ' full, unbroken 365-day years</strong> will be spent staring directly into illuminated pixels.';
+            document.getElementById('stWakeupText').innerHTML = txt;
+          }
+
+          document.addEventListener('DOMContentLoaded', calcScreen);
+        </script>
+      `
+    },
+    {
+      slug: 'attachment-style-test',
+      title: 'Adult Attachment Style & Relationship Trigger Diagnostic',
+      metaDesc: 'Discover your adult attachment style: Secure, Anxious-Preoccupied, Dismissive-Avoidant, or Fearful-Avoidant (Disorganized). Based on Hazan & Shaver psychology.',
+      category: 'Relationship Psychology',
+      body: `
+        ${commonStyle}
+        <style>
+          .att-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+          .att-opts { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
+          .att-opt { flex: 1; min-width: 60px; padding: 0.35rem; text-align: center; border: 1px solid var(--border); background: var(--surface); border-radius: 4px; cursor: pointer; font-size: 0.8rem; font-family: var(--mono); }
+        </style>
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Attachment Style Test
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge" style="background: rgba(245,158,11,0.1); border: 1px solid #f59e0b; color: #f59e0b;">Relational Psychology</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Bowlby & Hazan Model</span>
+            </div>
+            <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Adult Attachment Style & Relationship Diagnostic</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+              Your attachment style dictates how you navigate conflict, intimacy, vulnerability, and abandonment in romantic partnerships. Discover your placement across the <strong>Attachment Anxiety</strong> and <strong>Attachment Avoidance</strong> axes.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <h2 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1.25rem;">Rate each statement (1 = Strongly Disagree, 5 = Strongly Agree):</h2>
+
+            <div id="attQuestions"></div>
+
+            <div style="text-align: center; margin: 2rem 0 1rem;">
+              <button type="button" class="btn-primary" onclick="calcAttachment()" style="padding: 0.85rem 2.5rem; font-size: 1.05rem; cursor: pointer;">
+                ❤️ Analyze Attachment Style
+              </button>
+            </div>
+
+            <!-- RESULT -->
+            <div id="attResultBox" style="display: none; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); padding: 1.5rem; margin-top: 1.5rem;">
+              <div style="text-align: center; margin-bottom: 1.5rem;">
+                <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Primary Adult Attachment Pattern</div>
+                <div id="attTitle" style="font-size: 2rem; font-family: var(--serif); font-weight: bold; margin: 0.5rem 0;">--</div>
+              </div>
+
+              <div id="attProfile" style="font-size: 0.95rem; line-height: 1.6; border-top: 1px solid var(--border); padding-top: 1rem;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var attQuestions = [
+            { text: 'I worry a lot about my relationships and fear my partner will stop loving me.', dim: 'anx' },
+            { text: 'I find it relatively easy to get close to others and feel comfortable depending on them.', dim: 'sec' },
+            { text: 'I prefer not to show a partner how I feel deep down.', dim: 'av' },
+            { text: 'I need a lot of reassurance that I am loved by my partner.', dim: 'anx' },
+            { text: 'I get uncomfortable when someone gets too emotionally close or dependent on me.', dim: 'av' },
+            { text: 'I crave close relationships, but I find myself pulling away when things get intimate.', dim: 'fear' },
+            { text: 'I do not often worry about being abandoned or unloved.', dim: 'sec' },
+            { text: 'When conflicts arise, my immediate instinct is to shut down or leave the room.', dim: 'av' }
+          ];
+
+          function renderAtt() {
+            var c = document.getElementById('attQuestions');
+            var h = '';
+            for (var i = 0; i < attQuestions.length; i++) {
+              h += '<div class="att-card">' +
+                '<div style="font-size:0.95rem;font-weight:bold;margin-bottom:0.4rem;">' + (i + 1) + '. ' + attQuestions[i].text + '</div>' +
+                '<div class="att-opts">' +
+                  '<label class="att-opt"><input type="radio" name="att' + i + '" value="1" checked> 1 (Disagree)</label>' +
+                  '<label class="att-opt"><input type="radio" name="att' + i + '" value="2"> 2</label>' +
+                  '<label class="att-opt"><input type="radio" name="att' + i + '" value="3"> 3</label>' +
+                  '<label class="att-opt"><input type="radio" name="att' + i + '" value="4"> 4</label>' +
+                  '<label class="att-opt"><input type="radio" name="att' + i + '" value="5"> 5 (Agree)</label>' +
+                '</div>' +
+              '</div>';
+            }
+            c.innerHTML = h;
+          }
+
+          function calcAttachment() {
+            var anx = 0, av = 0;
+            var q0 = parseInt(document.querySelector('input[name="att0"]:checked').value, 10);
+            var q1 = parseInt(document.querySelector('input[name="att1"]:checked').value, 10);
+            var q2 = parseInt(document.querySelector('input[name="att2"]:checked').value, 10);
+            var q3 = parseInt(document.querySelector('input[name="att3"]:checked').value, 10);
+            var q4 = parseInt(document.querySelector('input[name="att4"]:checked').value, 10);
+            var q5 = parseInt(document.querySelector('input[name="att5"]:checked').value, 10);
+            var q6 = parseInt(document.querySelector('input[name="att6"]:checked').value, 10);
+            var q7 = parseInt(document.querySelector('input[name="att7"]:checked').value, 10);
+
+            anx = q0 + q3 + (6 - q6);
+            av = q2 + q4 + q7 + (6 - q1);
+
+            document.getElementById('attResultBox').style.display = 'block';
+            var tEl = document.getElementById('attTitle');
+            var pEl = document.getElementById('attProfile');
+
+            if (anx <= 7 && av <= 7) {
+              tEl.textContent = '🛡️ Secure Attachment';
+              tEl.style.color = '#10b981';
+              pEl.innerHTML = '<strong>Traits:</strong> You have a high capacity for intimacy while maintaining your personal autonomy. You view conflict as a problem to solve together rather than a threat to your survival. You communicate needs directly without passive-aggressive testing.';
+            } else if (anx > 8 && av <= 8) {
+              tEl.textContent = '🌊 Anxious-Preoccupied Attachment';
+              tEl.style.color = '#3b82f6';
+              pEl.innerHTML = '<strong>Traits:</strong> Hypervigilant to shifts in your partner’s tone or text response time. You equate physical or emotional space with impending abandonment. <em>Growth Edge:</em> Learn self-soothing practices so you do not rely on immediate partner reassurance to regulate your nervous system.';
+            } else if (anx <= 8 && av > 8) {
+              tEl.textContent = '🏰 Dismissive-Avoidant Attachment';
+              tEl.style.color = '#f59e0b';
+              pEl.innerHTML = '<strong>Traits:</strong> Highly self-reliant to a fault. You equate emotional intimacy with loss of independence and suffocating obligation. During conflict, your primary defense mechanism is stonewalling or emotional shutdown. <em>Growth Edge:</em> Vulnerability is not weakness; expressing your needs directly prevents toxic resentment.';
+            } else {
+              tEl.textContent = '⚡ Fearful-Avoidant (Disorganized) Attachment';
+              tEl.style.color = '#ef4444';
+              pEl.innerHTML = '<strong>Traits:</strong> You deeply crave closeness, but genuine intimacy triggers intense panic or trauma responses. You oscillate in a push-pull cycle: pulling someone close when they are distant, then pushing them away when they show affection. Somatic and EMDR trauma therapy is highly effective for healing this attachment injury.';
+            }
+
+            document.getElementById('attResultBox').scrollIntoView({ behavior: 'smooth' });
+          }
+
+          document.addEventListener('DOMContentLoaded', renderAtt);
+        </script>
+      `
+    },
+    {
+      slug: 'noise-exposure-calculator',
+      title: 'Decibel Sound Dose & Hearing Damage Estimator (OSHA/NIOSH)',
+      metaDesc: 'Calculate safe listening duration for headphones, concerts, and loud noise environments before permanent hearing loss occurs. Uses NIOSH 3dB and OSHA 5dB rules.',
+      category: 'Hearing & Sensory Health',
+      body: `
+        ${commonStyle}
+        <div class="article-container" style="max-width: 900px;">
+          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Noise Exposure Calculator
+          </nav>
+          <header style="margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge" style="background: rgba(239,68,68,0.1); border: 1px solid #ef4444; color: #ef4444;">Audiology & OSHA</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">NIOSH 3dB Exchange</span>
+            </div>
+            <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Decibel Sound Dose & Hearing Damage Estimator</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+              The cochlear hair cells in your inner ear never regenerate. When listening to headphones at 95 dB or attending a 105 dB concert, the safe exposure window drops from 8 hours down to minutes.
+            </p>
+          </header>
+
+          <div class="tool-box">
+            <div style="margin-bottom: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label style="font-weight: bold;">Sound Pressure Level (Decibels - dB):</label>
+                <span id="dbDisp" style="font-family: var(--mono); font-size: 1.25rem; font-weight: bold; color: #ef4444;">94 dB</span>
+              </div>
+              <input type="range" id="dbInput" min="70" max="120" value="94" style="width: 100%; cursor: pointer;" oninput="calcNoise()" />
+              <div id="dbExample" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.35rem;">Example: Heavy city traffic, food blender, or headphones at 80% volume</div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <label style="font-weight: bold; display: block; margin-bottom: 0.35rem;">Duration of Exposure (Minutes):</label>
+              <input type="number" id="noiseMins" value="60" min="1" max="960" class="text-input" style="width: 150px;" oninput="calcNoise()" />
+            </div>
+
+            <!-- RESULTS -->
+            <div class="result-card" style="border-top: 4px solid #ef4444;">
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: center;">
+                <div>
+                  <div class="field-label">Daily Safe Noise Dose</div>
+                  <div id="noiseDose" class="result-val" style="color: #ef4444;">800%</div>
+                  <div id="doseWarning" style="font-size: 0.85rem; font-weight: bold; color: #ef4444;">Severe Risk of Permanent Damage</div>
+                </div>
+                <div>
+                  <div class="field-label">Max Safe Exposure Limit</div>
+                  <div id="maxSafeTime" class="result-val" style="color: #3b82f6;">37 mins</div>
+                  <div style="font-size: 0.8rem; color: var(--text-muted);">per 24-hour period</div>
+                </div>
+              </div>
+
+              <div id="noiseAdvice" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem; font-size: 0.95rem; line-height: 1.6;"></div>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          var soundExamples = {
+            70: "Normal office conversation, quiet dishwasher",
+            75: "Vacuum cleaner, toilet flush",
+            80: "Garbage disposal, alarm clock, dial tone",
+            85: "Heavy city traffic, lawn mower, food blender (NIOSH Threshold)",
+            90: "Hairdryer, lawnmower, motorcycle close up",
+            95: "Headphones at 80% volume, power drill, subway train",
+            100: "Car horn at 5 meters, chainsaw, garbage truck",
+            105: "Headphones at maximum volume, nightclub, soccer game",
+            110: "Rock concert, live stadium music, car stereo maximum",
+            115: "Emergency vehicle siren at close range",
+            120: "Jet engine takeoff at 100m, ambulance siren (Pain threshold)"
+          };
+
+          function calcNoise() {
+            var db = parseInt(document.getElementById('dbInput').value, 10);
+            var mins = parseFloat(document.getElementById('noiseMins').value) || 1;
+
+            document.getElementById('dbDisp').textContent = db + ' dB';
+
+            // Find closest example
+            var nearest = 85;
+            var keys = Object.keys(soundExamples);
+            for (var k = 0; k < keys.length; k++) {
+              if (Math.abs(keys[k] - db) < Math.abs(nearest - db)) {
+                nearest = keys[k];
+              }
+            }
+            document.getElementById('dbExample').textContent = 'Example: ' + soundExamples[nearest];
+
+            // NIOSH 3dB Exchange Rate: T = 8 / (2 ^ ((L - 85) / 3)) in hours
+            var safeHours = 8 / Math.pow(2, (db - 85) / 3);
+            var safeMins = safeHours * 60;
+
+            var dosePct = Math.round((mins / safeMins) * 100);
+
+            var doseEl = document.getElementById('noiseDose');
+            var warnEl = document.getElementById('doseWarning');
+            var maxEl = document.getElementById('maxSafeTime');
+            var advEl = document.getElementById('noiseAdvice');
+
+            doseEl.textContent = dosePct + '%';
+
+            if (safeMins >= 60) {
+              maxEl.textContent = (safeMins / 60).toFixed(1) + ' hrs';
+            } else if (safeMins >= 1) {
+              maxEl.textContent = safeMins.toFixed(0) + ' mins';
+            } else {
+              maxEl.textContent = (safeMins * 60).toFixed(0) + ' secs';
+            }
+
+            if (dosePct > 100) {
+              doseEl.style.color = '#ef4444';
+              warnEl.textContent = 'Exceeds Maximum Safe Dose (' + (dosePct / 100).toFixed(1) + 'x Limit)';
+              warnEl.style.color = '#ef4444';
+              advEl.innerHTML = '<strong>High Risk of Tinnitus & Sensorineural Hearing Loss:</strong> Exposing your ears to ' + db + ' dB for ' + mins + ' minutes delivers ' + dosePct + '% of your allowable 24-hour acoustic energy. Cochlear stereocilia bend and snap under this acoustic pressure, resulting in permanent high-frequency hearing deficits and chronic ringing (tinnitus). Wear high-fidelity acoustic earplugs (15–25 dB attenuation) or lower headphone volume immediately.';
+            } else {
+              doseEl.style.color = '#10b981';
+              warnEl.textContent = 'Within Safe Acoustic Dosage';
+              warnEl.style.color = '#10b981';
+              advEl.innerHTML = '<strong>Safe Exposure Window:</strong> At ' + db + ' dB, you are below the daily acoustic threshold. Ensure you give your ears quiet recovery periods between listening sessions.';
+            }
+          }
+
+          document.addEventListener('DOMContentLoaded', calcNoise);
+        </script>
+      `
     }
   ];
 

@@ -1678,6 +1678,515 @@ function buildProductivitySuite() {
     </div>
   `;
 
+  const atsResumeScannerBody = `
+    <style>
+      .ats-container { max-width: 960px; margin: 0 auto; }
+      .ats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+      @media (max-width: 768px) { .ats-grid { grid-template-columns: 1fr; } }
+      .ats-textarea { width: 100%; height: 260px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--fg); resize: vertical; box-sizing: border-box; }
+      .ats-score-badge { font-size: 3rem; font-weight: bold; font-family: var(--mono); line-height: 1; margin: 0.5rem 0; }
+      .ats-tag { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-family: var(--mono); margin: 0.25rem; }
+      .tag-match { background: rgba(16,185,129,0.12); border: 1px solid #10b981; color: #10b981; }
+      .tag-missing { background: rgba(239,68,68,0.12); border: 1px solid #ef4444; color: #ef4444; }
+      .check-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    </style>
+    <div class="ats-container">
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem;">Career Intelligence</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Free ATS Resume Scanner & Keyword Matcher</h1>
+        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+          Beat Applicant Tracking Systems (Workday, Taleo, Greenhouse, Lever). Paste a job description and your resume text to instantly calculate match rate, discover missing keywords, and audit formatting traps. 100% free and private client-side.
+        </p>
+      </div>
+
+      <div class="ats-grid">
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <label style="font-weight: bold; font-size: 0.95rem;">1. Target Job Description</label>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Paste full posting</span>
+          </div>
+          <textarea id="atsJobDesc" class="ats-textarea" placeholder="Paste the job description here (requirements, qualifications, responsibilities)..."></textarea>
+        </div>
+
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <label style="font-weight: bold; font-size: 0.95rem;">2. Your Resume Text</label>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Copy & paste text</span>
+          </div>
+          <textarea id="atsResume" class="ats-textarea" placeholder="Paste your resume content here (experience, skills, summary, education)..."></textarea>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <button type="button" class="btn-primary" onclick="runAtsScan()" style="padding: 0.85rem 2.5rem; font-size: 1.05rem; cursor: pointer;">
+          🔍 Run Instant ATS Audit
+        </button>
+      </div>
+
+      <!-- RESULTS SECTION -->
+      <div id="atsResults" style="display: none;">
+        <!-- Top Metric Summary -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">ATS Keyword Match</div>
+            <div id="atsScore" class="ats-score-badge" style="color: #3b82f6;">0%</div>
+            <div id="atsVerdict" style="font-size: 0.85rem; font-weight: bold; color: var(--fg);">Needs Optimization</div>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Matching Keywords</div>
+            <div id="atsMatchCount" class="ats-score-badge" style="color: #10b981;">0</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Found in your resume</div>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Missing Keywords</div>
+            <div id="atsMissingCount" class="ats-score-badge" style="color: #ef4444;">0</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">In job post, missing in CV</div>
+          </div>
+        </div>
+
+        <!-- Missing vs Matching Keywords -->
+        <div class="ats-grid">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.5rem; color: #ef4444;">
+              ⚠️ Top Missing Keywords to Add:
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+              Integrate these naturally into your bullet points and skills section:
+            </p>
+            <div id="atsMissingTags" style="min-height: 80px;"></div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.5rem; color: #10b981;">
+              ✓ Matching Keywords Verified:
+            </h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+              These high-value skills align directly with recruiter search queries:
+            </p>
+            <div id="atsMatchingTags" style="min-height: 80px;"></div>
+          </div>
+        </div>
+
+        <!-- ATS Readability & Formatting Trap Check -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.75rem;">ATS Formatting & Readability Audit</h3>
+          <div id="atsChecks"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var stopwords = new Set(["a","about","above","after","again","against","all","am","an","and","any","are","aren't","as","at","be","because","been","before","being","below","between","both","but","by","can't","cannot","could","couldn't","did","didn't","do","does","doesn't","doing","don't","down","during","each","few","for","from","further","had","hadn't","has","hasn't","have","haven't","having","he","he'd","he'll","he's","her","here","here's","hers","herself","him","himself","his","how","how's","i","i'd","i'll","i'm","i've","if","in","into","is","isn't","it","it's","its","itself","let's","me","more","most","mustn't","my","myself","no","nor","not","of","off","on","once","only","or","other","ought","our","ours","ourselves","out","over","own","same","shan't","she","she'd","she'll","she's","should","shouldn't","so","some","such","than","that","that's","the","their","theirs","them","themselves","then","there","there's","these","they","they'd","they'll","they're","they've","this","those","through","to","too","under","until","up","very","was","wasn't","we","we'd","we'll","we're","we've","were","weren't","what","what's","when","when's","where","where's","which","while","who","who's","whom","why","why's","with","won't","would","wouldn't","you","you'd","you'll","you're","you've","your","yours","yourself","yourselves","will","job","role","work","experience","years","candidate","skills","must","able","team","company","responsibilities","requirements","qualifications","including","ability","opportunity"]);
+
+      function tokenize(text) {
+        return text.toLowerCase()
+          .replace(/[^a-z0-9#+.]+/g, ' ')
+          .split(/\\s+/)
+          .filter(function(w) { return w.length > 2 && !stopwords.has(w); });
+      }
+
+      function getFrequencies(words) {
+        var freq = {};
+        for (var i = 0; i < words.length; i++) {
+          freq[words[i]] = (freq[words[i]] || 0) + 1;
+        }
+        return freq;
+      }
+
+      function runAtsScan() {
+        var jobText = document.getElementById('atsJobDesc').value.trim();
+        var resumeText = document.getElementById('atsResume').value.trim();
+
+        if (!jobText || !resumeText) {
+          alert('Please paste both the Job Description and your Resume text!');
+          return;
+        }
+
+        var jobWords = tokenize(jobText);
+        var resumeWords = tokenize(resumeText);
+        var jobFreq = getFrequencies(jobWords);
+        var resumeFreq = getFrequencies(resumeWords);
+
+        // Sort job keywords by frequency
+        var sortedJobKeys = Object.keys(jobFreq).sort(function(a, b) {
+          return jobFreq[b] - jobFreq[a];
+        });
+
+        var topJobKeys = sortedJobKeys.slice(0, 30);
+        var matched = [];
+        var missing = [];
+
+        for (var i = 0; i < topJobKeys.length; i++) {
+          var k = topJobKeys[i];
+          if (resumeFreq[k]) {
+            matched.push({ word: k, count: resumeFreq[k] });
+          } else {
+            missing.push({ word: k, count: jobFreq[k] });
+          }
+        }
+
+        var matchScore = Math.round((matched.length / Math.max(1, topJobKeys.length)) * 100);
+
+        document.getElementById('atsResults').style.display = 'block';
+        var scoreEl = document.getElementById('atsScore');
+        scoreEl.textContent = matchScore + '%';
+
+        var verdEl = document.getElementById('atsVerdict');
+        if (matchScore >= 75) {
+          scoreEl.style.color = '#10b981';
+          verdEl.textContent = 'Excellent Match (High Interview Probability)';
+          verdEl.style.color = '#10b981';
+        } else if (matchScore >= 50) {
+          scoreEl.style.color = '#f59e0b';
+          verdEl.textContent = 'Moderate Match (Target Missing Keywords)';
+          verdEl.style.color = '#f59e0b';
+        } else {
+          scoreEl.style.color = '#ef4444';
+          verdEl.textContent = 'Low ATS Match (High Risk of Auto-Filter)';
+          verdEl.style.color = '#ef4444';
+        }
+
+        document.getElementById('atsMatchCount').textContent = matched.length;
+        document.getElementById('atsMissingCount').textContent = missing.length;
+
+        // Render Missing Tags
+        var mTagsHtml = '';
+        for (var m = 0; m < missing.length; m++) {
+          mTagsHtml += '<span class="ats-tag tag-missing">✕ ' + missing[m].word + ' (' + missing[m].count + 'x in job)</span>';
+        }
+        document.getElementById('atsMissingTags').innerHTML = mTagsHtml || '<span style="color:#10b981;">No critical missing keywords!</span>';
+
+        // Render Matching Tags
+        var matTagsHtml = '';
+        for (var n = 0; n < matched.length; n++) {
+          matTagsHtml += '<span class="ats-tag tag-match">✓ ' + matched[n].word + ' (' + matched[n].count + 'x in CV)</span>';
+        }
+        document.getElementById('atsMatchingTags').innerHTML = matTagsHtml;
+
+        // Formatting & Quality Audit
+        var totalWords = resumeText.split(/\\s+/).filter(Boolean).length;
+        var hasMetrics = /[0-9]+%|\\$[0-9]+|[0-9]+\\s*(million|k|users|clients|revenue|increase|reduced)/i.test(resumeText);
+        var hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/.test(resumeText);
+        var hasPhone = /[0-9]{3}[-.\\s]?[0-9]{3}[-.\\s]?[0-9]{4}/.test(resumeText);
+
+        var checksHtml = '';
+        // Word Count Check
+        if (totalWords >= 400 && totalWords <= 1000) {
+          checksHtml += '<div class="check-item"><span style="color:#10b981;">✓</span> <strong>Ideal Resume Length:</strong> ' + totalWords + ' words (ideal range is 450–900 words).</div>';
+        } else if (totalWords < 400) {
+          checksHtml += '<div class="check-item"><span style="color:#ef4444;">⚠️</span> <strong>Resume is Too Brief:</strong> ' + totalWords + ' words. You may lack depth in descriptions and quantifiable accomplishments.</div>';
+        } else {
+          checksHtml += '<div class="check-item"><span style="color:#f59e0b;">⚠️</span> <strong>Resume May Be Too Long:</strong> ' + totalWords + ' words. Consider tightening bullet points to stay within 1–2 pages.</div>';
+        }
+
+        // Metrics Check
+        if (hasMetrics) {
+          checksHtml += '<div class="check-item"><span style="color:#10b981;">✓</span> <strong>Quantifiable Metrics Detected:</strong> Found percentages, dollar values, or scale figures. Recruiters love quantifiable ROI.</div>';
+        } else {
+          checksHtml += '<div class="check-item"><span style="color:#ef4444;">⚠️</span> <strong>Lack of Quantifiable Achievements:</strong> No clear percentages, dollar savings, or team sizes found. Add metrics (e.g., "Increased sales by 24%", "Cut load time by 400ms").</div>';
+        }
+
+        // Contact info check
+        if (hasEmail && hasPhone) {
+          checksHtml += '<div class="check-item"><span style="color:#10b981;">✓</span> <strong>Contact Credentials:</strong> Email address and phone number cleanly detected in plain text.</div>';
+        } else {
+          checksHtml += '<div class="check-item"><span style="color:#f59e0b;">⚠️</span> <strong>Missing Contact Details:</strong> Could not parse email or phone number. Ensure contact info is not trapped in an unreadable header or image.</div>';
+        }
+
+        document.getElementById('atsChecks').innerHTML = checksHtml;
+        document.getElementById('atsResults').scrollIntoView({ behavior: 'smooth' });
+      }
+    </script>
+  `;
+
+  const expenseSplitterBody = `
+    <style>
+      .split-container { max-width: 900px; margin: 0 auto; }
+      .split-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
+      .participant-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.85rem; margin: 0.25rem; }
+      .settle-card { background: var(--surface); border-left: 4px solid #10b981; padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
+      .expense-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    </style>
+    <div class="split-container">
+      <div style="margin-bottom: 1.5rem;">
+        <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem;">Free Group Finance</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Zero-Login Expense Splitter & Debt Simplifier</h1>
+        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+          Split costs with roommates, trips, and friends without creating an account or paying for Splitwise Pro. Uses an optimal graph cash-flow algorithm to settle all group debts with the fewest possible transactions.
+        </p>
+      </div>
+
+      <!-- 1. MANAGE PARTICIPANTS -->
+      <div class="split-card">
+        <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem;">1. Who Is in the Group?</h3>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
+          <input type="text" id="partInput" class="text-input" placeholder="Enter name (e.g. Alex, Jordan, Sam)..." style="flex: 1;" onkeydown="if(event.key==='Enter') addParticipant()" />
+          <button type="button" class="btn-primary" onclick="addParticipant()">Add Person</button>
+        </div>
+        <div id="partList" style="min-height: 38px;"></div>
+      </div>
+
+      <!-- 2. ADD EXPENSE -->
+      <div class="split-card">
+        <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem;">2. Add an Expense</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem;">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Description</label>
+            <input type="text" id="expDesc" class="text-input" placeholder="e.g. Airbnb, Dinner, Groceries" style="width: 100%; box-sizing: border-box;" />
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Amount ($)</label>
+            <input type="number" id="expAmount" class="text-input" placeholder="0.00" step="0.01" style="width: 100%; box-sizing: border-box;" />
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Paid By</label>
+            <select id="expPayer" class="text-input" style="width: 100%; box-sizing: border-box;"></select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Split Equally Among:</label>
+          <div id="expSplitCheckboxes" style="display: flex; flex-wrap: wrap; gap: 0.75rem;"></div>
+        </div>
+
+        <button type="button" class="btn-primary" onclick="addExpense()">+ Add Expense</button>
+      </div>
+
+      <!-- 3. EXPENSES LIST -->
+      <div class="split-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0;">3. Group Expenses (<span id="expTotalCount">0</span>)</h3>
+          <span style="font-family: var(--mono); font-weight: bold; color: var(--fg);" id="expTotalSum">$0.00 Total</span>
+        </div>
+        <div id="expensesTable" style="margin-top: 0.75rem;">
+          <p style="color: var(--text-muted); font-size: 0.85rem;">No expenses added yet.</p>
+        </div>
+      </div>
+
+      <!-- 4. SETTLEMENT PLAN -->
+      <div class="split-card" style="border-top: 4px solid #10b981;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">4. Optimal Settlement Plan (Fewest Payments)</h3>
+          <button type="button" class="btn-sec" onclick="copySettlement()" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">📋 Copy Summary for Chat</button>
+        </div>
+        <div id="settlementPlan">
+          <p style="color: var(--text-muted); font-size: 0.9rem;">Add at least two people and one expense to compute the settlement.</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var participants = [];
+      var expenses = [];
+
+      function loadSplitData() {
+        var p = localStorage.getItem('dts-split-parts');
+        var e = localStorage.getItem('dts-split-exps');
+        if (p) participants = JSON.parse(p);
+        if (e) expenses = JSON.parse(e);
+        if (participants.length === 0) {
+          participants = ["Alex", "Sam", "Jordan"];
+        }
+        renderParts();
+        renderExpenses();
+        calculateSettlement();
+      }
+
+      function saveSplitData() {
+        localStorage.setItem('dts-split-parts', JSON.stringify(participants));
+        localStorage.setItem('dts-split-exps', JSON.stringify(expenses));
+      }
+
+      function addParticipant() {
+        var inp = document.getElementById('partInput');
+        var name = inp.value.trim();
+        if (!name) return;
+        if (participants.indexOf(name) !== -1) { alert('Name already exists!'); return; }
+        participants.push(name);
+        inp.value = '';
+        saveSplitData();
+        renderParts();
+        calculateSettlement();
+      }
+
+      function removeParticipant(idx) {
+        var name = participants[idx];
+        participants.splice(idx, 1);
+        saveSplitData();
+        renderParts();
+        calculateSettlement();
+      }
+
+      function renderParts() {
+        var c = document.getElementById('partList');
+        c.innerHTML = '';
+        var payerSel = document.getElementById('expPayer');
+        payerSel.innerHTML = '';
+        var chkBox = document.getElementById('expSplitCheckboxes');
+        chkBox.innerHTML = '';
+
+        for (var i = 0; i < participants.length; i++) {
+          var p = participants[i];
+          c.innerHTML += '<span class="participant-badge">' + p + ' <button type="button" onclick="removeParticipant(' + i + ')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-weight:bold;">&times;</button></span>';
+          payerSel.innerHTML += '<option value="' + p + '">' + p + '</option>';
+          chkBox.innerHTML += '<label style="font-size:0.85rem;display:flex;align-items:center;gap:0.25rem;"><input type="checkbox" name="splitWith" value="' + p + '" checked> ' + p + '</label>';
+        }
+      }
+
+      function addExpense() {
+        var desc = document.getElementById('expDesc').value.trim() || 'Untitled Expense';
+        var amt = parseFloat(document.getElementById('expAmount').value);
+        var payer = document.getElementById('expPayer').value;
+
+        if (isNaN(amt) || amt <= 0) { alert('Please enter a valid amount!'); return; }
+
+        var checkedEls = document.querySelectorAll('input[name="splitWith"]:checked');
+        var splitWith = [];
+        for (var i = 0; i < checkedEls.length; i++) {
+          splitWith.push(checkedEls[i].value);
+        }
+
+        if (splitWith.length === 0) { alert('Select at least one person to split the expense!'); return; }
+
+        expenses.push({
+          id: Date.now(),
+          desc: desc,
+          amount: amt,
+          payer: payer,
+          splitWith: splitWith
+        });
+
+        document.getElementById('expDesc').value = '';
+        document.getElementById('expAmount').value = '';
+
+        saveSplitData();
+        renderExpenses();
+        calculateSettlement();
+      }
+
+      function deleteExpense(id) {
+        expenses = expenses.filter(function(e) { return e.id !== id; });
+        saveSplitData();
+        renderExpenses();
+        calculateSettlement();
+      }
+
+      function renderExpenses() {
+        var tbl = document.getElementById('expensesTable');
+        var totalCount = document.getElementById('expTotalCount');
+        var totalSum = document.getElementById('expTotalSum');
+
+        totalCount.textContent = expenses.length;
+        var sum = 0;
+
+        if (expenses.length === 0) {
+          tbl.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No expenses added yet.</p>';
+          totalSum.textContent = '$0.00 Total';
+          return;
+        }
+
+        var h = '';
+        for (var i = 0; i < expenses.length; i++) {
+          var exp = expenses[i];
+          sum += exp.amount;
+          h += '<div class="expense-row">' +
+            '<div><strong>' + exp.desc + '</strong> <span style="color:var(--text-muted);font-size:0.8rem;">(' + exp.payer + ' paid for ' + exp.splitWith.join(', ') + ')</span></div>' +
+            '<div style="display:flex;align-items:center;gap:1rem;">' +
+              '<span style="font-family:var(--mono);font-weight:bold;">$' + exp.amount.toFixed(2) + '</span>' +
+              '<button type="button" onclick="deleteExpense(' + exp.id + ')" style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button>' +
+            '</div>' +
+          '</div>';
+        }
+
+        tbl.innerHTML = h;
+        totalSum.textContent = '$' + sum.toFixed(2) + ' Total';
+      }
+
+      function calculateSettlement() {
+        var net = {};
+        for (var i = 0; i < participants.length; i++) {
+          net[participants[i]] = 0;
+        }
+
+        for (var j = 0; j < expenses.length; j++) {
+          var e = expenses[j];
+          var share = e.amount / e.splitWith.length;
+          net[e.payer] = (net[e.payer] || 0) + e.amount;
+          for (var k = 0; k < e.splitWith.length; k++) {
+            var person = e.splitWith[k];
+            net[person] = (net[person] || 0) - share;
+          }
+        }
+
+        var debtors = [];
+        var creditors = [];
+
+        var names = Object.keys(net);
+        for (var m = 0; m < names.length; m++) {
+          var val = Math.round(net[names[m]] * 100) / 100;
+          if (val < -0.01) {
+            debtors.push({ name: names[m], amount: -val });
+          } else if (val > 0.01) {
+            creditors.push({ name: names[m], amount: val });
+          }
+        }
+
+        // Greedy Min-Cash Flow algorithm
+        var transactions = [];
+        var di = 0, ci = 0;
+
+        while (di < debtors.length && ci < creditors.length) {
+          var debtor = debtors[di];
+          var creditor = creditors[ci];
+          var minAmt = Math.min(debtor.amount, creditor.amount);
+
+          transactions.push({
+            from: debtor.name,
+            to: creditor.name,
+            amount: minAmt
+          });
+
+          debtor.amount -= minAmt;
+          creditor.amount -= minAmt;
+
+          if (debtor.amount <= 0.009) di++;
+          if (creditor.amount <= 0.009) ci++;
+        }
+
+        var sEl = document.getElementById('settlementPlan');
+        if (transactions.length === 0) {
+          sEl.innerHTML = '<p style="color:#10b981;font-weight:bold;">🎉 All balances are perfectly settled! Nobody owes anything.</p>';
+          return;
+        }
+
+        var resHtml = '';
+        for (var t = 0; t < transactions.length; t++) {
+          var tx = transactions[t];
+          resHtml += '<div class="settle-card">' +
+            '<div><strong>' + tx.from + '</strong> pays <strong>' + tx.to + '</strong></div>' +
+            '<div style="font-family:var(--mono);font-weight:bold;color:#10b981;font-size:1.1rem;">$' + tx.amount.toFixed(2) + '</div>' +
+          '</div>';
+        }
+        sEl.innerHTML = resHtml;
+      }
+
+      function copySettlement() {
+        var cards = document.querySelectorAll('.settle-card');
+        if (cards.length === 0) { alert('Nothing to copy!'); return; }
+        var lines = ['💰 Group Expense Settlement Summary:'];
+        cards.forEach(function(c) { lines.push('• ' + c.innerText.replace(/\\n/g, ' ')); });
+        lines.push('\\nCalculated with digitaltoolsshed.com');
+        navigator.clipboard.writeText(lines.join('\\n')).then(function() {
+          alert('Settlement summary copied to clipboard!');
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', loadSplitData);
+    </script>
+  `;
+
   const pages = [
     { slug: 'deduplicator', title: 'Text De-duplicator', metaDesc: 'Remove duplicate lines from text automatically online.', body: deduplicatorBody },
     { slug: 'time-tracker', title: 'Time Tracker', metaDesc: 'Free browser-based time tracking for projects and freelance work.', body: timeTrackerBody },
@@ -1685,7 +2194,9 @@ function buildProductivitySuite() {
     { slug: 'invoice-from-time', title: 'Invoice from Time', metaDesc: 'Generate invoices from your tracked time entries.', body: invoiceFromTimeBody },
     { slug: 'tax-calculator', title: 'Tax Calculator', metaDesc: 'Estimate your income tax and net take-home pay.', body: taxCalculatorBody },
     { slug: 'task-manager', title: 'Task Manager', metaDesc: 'Simple, private task management right in your browser.', body: taskManagerBody },
-    { slug: 'timetable', title: 'Weekly Timetable', metaDesc: 'Plan your week with a colorful block-based schedule.', body: timetableBody }
+    { slug: 'timetable', title: 'Weekly Timetable', metaDesc: 'Plan your week with a colorful block-based schedule.', body: timetableBody },
+    { slug: 'ats-resume-scanner', title: 'ATS Resume Scanner & Keyword Matcher', metaDesc: 'Free client-side ATS resume scanner. Match your CV against job descriptions, uncover missing keywords, and audit formatting traps.', body: atsResumeScannerBody },
+    { slug: 'expense-splitter', title: 'Group Expense Splitter & Debt Simplifier', metaDesc: 'Zero-login Splitwise alternative. Add participants, track shared costs, and simplify debts with the fewest possible payments.', body: expenseSplitterBody }
   ];
 
   for (const page of pages) {
