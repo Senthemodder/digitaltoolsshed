@@ -80,6 +80,8 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/hardware/gpus/`);
   collectUrls(join(DIST, 'handhelds'), '/handhelds');
   discoveredUrls.push(`${DOMAIN}/handhelds/`);
+  collectUrls(join(DIST, 'web'), '/web');
+  discoveredUrls.push(`${DOMAIN}/web/`);
 
   const uniqueUrls = [...new Set(discoveredUrls)];
 

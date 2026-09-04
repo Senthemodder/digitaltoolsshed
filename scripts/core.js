@@ -166,6 +166,23 @@ const TOOLS = [
   { id: 'epistemic-calibration', name: 'Epistemic Calibration & Overconfidence Game [Rationality Training Benchmark]', category: 'Curiosity & Mind', path: '/util/epistemic-calibration', desc: 'Test epistemic calibration with 10 numerical estimation questions and 80% confidence intervals to measure overconfidence.' },
   { id: 'sunk-cost-auditor', name: 'The Sunk Cost Fallacy & Irretrievable Loss Auditor [Prospect Theory Decision Tree]', category: 'Curiosity & Mind', path: '/util/sunk-cost-auditor', desc: 'Audit failing projects, degrees, or investments using Prospect Theory to eliminate past costs and calculate forward expected value.' },
   { id: 'cosmic-perspective-clock', name: 'The Cosmic Perspective Clock [Live Deep Time & Existential Scale Ticker]', category: 'Curiosity & Mind', path: '/util/cosmic-perspective-clock', desc: 'Synchronized live clocks tracking personal existence against Earth\'s history, solar evolution, and cosmic deep time.' },
+
+  // Web Engineering & Internet Architecture Suite (14 Tools)
+  { id: 'csp-cors-architect', name: 'Content Security Policy (CSP) & CORS Policy Architect [Security Workbench]', category: 'Web Engineering', path: '/web/csp-cors-architect', desc: 'Interactive visual Content Security Policy (CSP) & CORS header generator. Calculate nonces, SHA-256 script hashes, and export Nginx/Apache configs.' },
+  { id: 'curl-to-code', name: 'cURL to Code Multi-Language Transpiler [Fetch, Axios, Python, Go, Rust]', category: 'Web Engineering', path: '/web/curl-to-code', desc: 'Convert cURL commands to JavaScript Fetch, Node Axios, Python Requests, Go net/http, and Rust reqwest with zero server dependencies.' },
+  { id: 'websocket-inspector', name: 'Live WebSocket Frame & Handshake Inspector [Real-Time Telemetry]', category: 'Web Engineering', path: '/web/websocket-inspector', desc: 'Interactive client-side WebSocket client and frame debugger. Inspect RFC 6455 handshake headers, opcode frames, and roundtrip latency.' },
+  { id: 'dns-record-generator', name: 'DNS Zone Architect & SPF / DKIM / DMARC Policy Builder [Email Deliverability]', category: 'Web Engineering', path: '/web/dns-record-generator', desc: 'Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies for domain deliverability.' },
+  { id: 'css-grid-flexbox-studio', name: 'CSS Grid & Flexbox Visual Architecture Studio [2D Layout Engine]', category: 'Web Engineering', path: '/web/css-grid-flexbox-studio', desc: 'Interactive visual layout playground for CSS Flexbox and 2D Grid. Adjust flex-direction, align-items, gap, and export production CSS.' },
+  { id: 'css-clamp-calculator', name: 'CSS clamp() Fluid Typography & Spacing Calculator [Linear Scale Engine]', category: 'Web Engineering', path: '/web/css-clamp-calculator', desc: 'Generate exact CSS clamp(min, preferred_vw, max) functions for fluid typography and responsive spacing without media queries.' },
+  { id: 'social-card-previewer', name: 'OpenGraph & Twitter Card Visual Studio [SERP & Social Previewer]', category: 'Web Engineering', path: '/web/social-card-previewer', desc: 'Live interactive previewer for OpenGraph, Twitter/X cards, and Google SERP search snippets. Generates complete HTML metadata tags.' },
+  { id: 'webrtc-sdp-analyzer', name: 'WebRTC SDP (Session Description Protocol) Dissector [Signaling Debugger]', category: 'Web Engineering', path: '/web/webrtc-sdp-analyzer', desc: 'Parse and dissect raw WebRTC SDP offer and answer strings. Inspect m-lines, ICE candidates, codecs, and DTLS fingerprints.' },
+  { id: 'web-vitals-budget', name: 'Core Web Vitals & Performance Budget Simulator [CrUX Metrics Engine]', category: 'Web Engineering', path: '/web/web-vitals-budget', desc: 'Interactive performance budget and Core Web Vitals diagnostic. Calculate Largest Contentful Paint (LCP), INP, and financial conversion loss.' },
+  { id: 'svg-path-studio', name: 'SVG Path Visualizer & Bézier Explainer [Interactive Vector Canvas]', category: 'Web Engineering', path: '/web/svg-path-studio', desc: 'Interactive HTML5 Canvas SVG path editor with visual Bézier control handles. Parse M, C, S, Q, and A path segments and minify coordinates.' },
+  { id: 'webcrypto-key-studio', name: 'WebCrypto Keypair & HMAC Studio [SubtleCrypto Engine]', category: 'Web Engineering', path: '/web/webcrypto-key-studio', desc: 'Generate cryptographically secure RSA and ECDSA keypairs locally in your browser with Web Crypto API. Export PEM and JWK keys.' },
+  { id: 'cookie-inspector', name: 'HTTP Cookie & Set-Cookie Header Dissector [Privacy & Security Audit]', category: 'Web Engineering', path: '/web/cookie-inspector', desc: 'Parse and dissect raw Set-Cookie HTTP headers. Audit SameSite, Secure, HttpOnly, and modern Partitioned (CHIPS) flags.' },
+  { id: 'user-agent-hints', name: 'User-Agent & Client Hints (Sec-CH-UA) Dissector [Browser Fingerprint]', category: 'Web Engineering', path: '/web/user-agent-hints', desc: 'Live dissect browser User-Agent strings and modern Client Hints (Sec-CH-UA). Detect rendering engines, OS platforms, and bots.' },
+  { id: 'color-contrast-apca', name: 'WCAG 2.2 & APCA Color Contrast Studio [Accessible Typography Matrix]', category: 'Web Engineering', path: '/web/color-contrast-apca', desc: 'Compare legacy WCAG 2.1 contrast ratios with modern APCA (Advanced Perceptual Contrast Algorithm) across font weights and sizes.' },
+
   { id: 'sales-tax-calculator', name: 'Sales Tax Calculator & Reverse Tax Finder', category: 'Finance', path: '/finance/sales-tax-calculator', desc: 'Calculate sales tax or reverse calculate pre-tax prices with 50 US state rates.' },
   { id: 'simple-interest-calculator', name: 'Simple Interest Calculator (I = Prt)', category: 'Finance', path: '/finance/simple-interest-calculator', desc: 'Calculate simple interest, total loan payback, and monthly installment cost.' },
   { id: 'overtime-calculator', name: 'Overtime Pay Calculator (1.5x & 2.0x)', category: 'Finance', path: '/finance/overtime-calculator', desc: 'Calculate time-and-a-half overtime and double-time holiday pay under FLSA rules.' },
@@ -1374,6 +1391,72 @@ function buildSidebarHtml(currentPath = '/') {
       </a>
       <a href="/util/cosmic-perspective-clock" class="nav-link ${currentPath.startsWith('/util/cosmic-perspective-clock') ? 'active' : ''}">
         <div class="nav-link-content"><span>Cosmic Clock</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+
+      <!-- WEB ENGINEERING & INTERNET ARCHITECTURE -->
+      <div class="nav-group-title">
+        ${ICONS.code}
+        <span>Web Engineering (14)</span>
+      </div>
+      <a href="/web/" class="nav-link ${currentPath === '/web/' || currentPath === '/web/index.html' || currentPath === '/web' ? 'active' : ''}">
+        <div class="nav-link-content"><span>Web Architecture Hub</span></div>
+        <span class="nav-badge">HUB</span>
+      </a>
+      <a href="/web/csp-cors-architect" class="nav-link ${currentPath.startsWith('/web/csp-cors-architect') ? 'active' : ''}">
+        <div class="nav-link-content"><span>CSP & CORS Architect</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/curl-to-code" class="nav-link ${currentPath.startsWith('/web/curl-to-code') ? 'active' : ''}">
+        <div class="nav-link-content"><span>cURL to Code</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/websocket-inspector" class="nav-link ${currentPath.startsWith('/web/websocket-inspector') ? 'active' : ''}">
+        <div class="nav-link-content"><span>WebSocket Inspector</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/dns-record-generator" class="nav-link ${currentPath.startsWith('/web/dns-record-generator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>DNS Zone & SPF/DMARC</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/css-grid-flexbox-studio" class="nav-link ${currentPath.startsWith('/web/css-grid-flexbox-studio') ? 'active' : ''}">
+        <div class="nav-link-content"><span>CSS Grid & Flex Studio</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/css-clamp-calculator" class="nav-link ${currentPath.startsWith('/web/css-clamp-calculator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Fluid clamp() Generator</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/social-card-previewer" class="nav-link ${currentPath.startsWith('/web/social-card-previewer') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Social Card & SERP</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/webrtc-sdp-analyzer" class="nav-link ${currentPath.startsWith('/web/webrtc-sdp-analyzer') ? 'active' : ''}">
+        <div class="nav-link-content"><span>WebRTC SDP Dissector</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/web-vitals-budget" class="nav-link ${currentPath.startsWith('/web/web-vitals-budget') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Core Web Vitals Budget</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/svg-path-studio" class="nav-link ${currentPath.startsWith('/web/svg-path-studio') ? 'active' : ''}">
+        <div class="nav-link-content"><span>SVG Path & Bézier</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/webcrypto-key-studio" class="nav-link ${currentPath.startsWith('/web/webcrypto-key-studio') ? 'active' : ''}">
+        <div class="nav-link-content"><span>WebCrypto Key Studio</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/cookie-inspector" class="nav-link ${currentPath.startsWith('/web/cookie-inspector') ? 'active' : ''}">
+        <div class="nav-link-content"><span>HTTP Cookie Dissector</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/user-agent-hints" class="nav-link ${currentPath.startsWith('/web/user-agent-hints') ? 'active' : ''}">
+        <div class="nav-link-content"><span>User-Agent & Hints</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/web/color-contrast-apca" class="nav-link ${currentPath.startsWith('/web/color-contrast-apca') ? 'active' : ''}">
+        <div class="nav-link-content"><span>WCAG & APCA Contrast</span></div>
         <span class="nav-badge">NEW</span>
       </a>
 
