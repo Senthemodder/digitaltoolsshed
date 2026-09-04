@@ -6,6 +6,7 @@ import { buildTradeTools } from './trade_tools.js';
 import { buildBodyTools } from './body_tools.js';
 import { buildKitchenTools } from './kitchen_tools.js';
 import { buildDailyCalcTools } from './daily_calc_tools.js';
+import { buildCuriosityNeuroSuite } from './curiosity_neuro_suite.js';
 // scripts/build.js — Master Static Site Generator for Digital Tools Shed
 import { writeFileSync } from 'fs';
 import { join } from 'path';
@@ -72,6 +73,7 @@ function main() {
   buildViralTools();
   buildExistentialSuite();
   buildEpistemicTools();
+  buildCuriosityNeuroSuite();
   buildUnitCalcSuite();
   buildBodyTools();
   buildKitchenTools();

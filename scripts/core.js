@@ -156,6 +156,16 @@ const TOOLS = [
   { id: 'ship-of-theseus', name: 'The Ship of Theseus Identity Paradox Simulator', category: 'Productivity', path: '/util/ship-of-theseus', desc: 'Interactive plank replacement slider exploring continuous personal identity metaphysics.' },
   { id: 'trolley-problem-matrix', name: 'The Trolley Problem Matrix & Ethics Diagnostic', category: 'Productivity', path: '/util/trolley-problem-matrix', desc: 'Solve 5 iconic moral dilemmas to audit your Utilitarian vs Kantian ethical framework.' },
   { id: 'rokos-basilisk', name: 'Roko’s Basilisk: Acausal Blackmail & Game Theory', category: 'Productivity', path: '/util/rokos-basilisk', desc: 'The infamous 2010 LessWrong thought experiment on future superintelligence game theory.' },
+  { id: 'decision-bracket', name: 'Decision Paralysis Bracket Tournament [Prefrontal Cortex Bypass Engine]', category: 'Curiosity & Mind', path: '/util/decision-bracket', desc: 'Rapid binary head-to-head tournament bracket to eliminate decision fatigue and reveal subconscious priority.' },
+  { id: 'tail-end-mortality', name: 'The Tail End: Loved-One Time Remaining Ledger [Mortality Dot Matrix]', category: 'Curiosity & Mind', path: '/util/tail-end-mortality', desc: 'Calculate remaining face-to-face visits, holidays, and hours with parents and loved ones in an interactive dot grid.' },
+  { id: 'dopamine-reset-simulator', name: 'Dopamine Receptor Downregulation Simulator [Opponent-Process Reset]', category: 'Curiosity & Mind', path: '/util/dopamine-reset-simulator', desc: 'Simulate dopamine baseline, D2 receptor downregulation, and opponent-process rebound with scientific reset protocol.' },
+  { id: 'sensory-overload-meter', name: 'Sensory Overload Budget & Autonomic Battery Meter [Polyvagal Stress Diagnostic]', category: 'Curiosity & Mind', path: '/util/sensory-overload-meter', desc: 'Audit auditory noise, visual flicker, social masking, and context switches against allostatic capacity with physiological sigh pacer.' },
+  { id: 'dunbar-social-auditor', name: 'Dunbar\'s 150 Social Sphere Auditor [Neocortex Bandwidth Diagnostic]', category: 'Curiosity & Mind', path: '/util/dunbar-social-auditor', desc: 'Audit relationships against 5-15-50-150 cognitive layers to uncover parasocial feed displacement and energy vampires.' },
+  { id: 'habit-decay-simulator', name: 'Habit Decay Half-Life & Synaptic Pruning Simulator [The Never Miss Twice Proof]', category: 'Curiosity & Mind', path: '/util/habit-decay-simulator', desc: 'Mathematically simulate neural pathway decay when habits are interrupted and explore why the Never Miss Twice rule protects myelination.' },
+  { id: 'personal-drake-equation', name: 'The Personal Drake Equation [Human Compatibility Probability Funnel]', category: 'Curiosity & Mind', path: '/util/personal-drake-equation', desc: 'Calculate the mathematical probability of finding your ideal romantic partner or peer using Peter Backus\'s cascading funnel.' },
+  { id: 'epistemic-calibration', name: 'Epistemic Calibration & Overconfidence Game [Rationality Training Benchmark]', category: 'Curiosity & Mind', path: '/util/epistemic-calibration', desc: 'Test epistemic calibration with 10 numerical estimation questions and 80% confidence intervals to measure overconfidence.' },
+  { id: 'sunk-cost-auditor', name: 'The Sunk Cost Fallacy & Irretrievable Loss Auditor [Prospect Theory Decision Tree]', category: 'Curiosity & Mind', path: '/util/sunk-cost-auditor', desc: 'Audit failing projects, degrees, or investments using Prospect Theory to eliminate past costs and calculate forward expected value.' },
+  { id: 'cosmic-perspective-clock', name: 'The Cosmic Perspective Clock [Live Deep Time & Existential Scale Ticker]', category: 'Curiosity & Mind', path: '/util/cosmic-perspective-clock', desc: 'Synchronized live clocks tracking personal existence against Earth\'s history, solar evolution, and cosmic deep time.' },
   { id: 'sales-tax-calculator', name: 'Sales Tax Calculator & Reverse Tax Finder', category: 'Finance', path: '/finance/sales-tax-calculator', desc: 'Calculate sales tax or reverse calculate pre-tax prices with 50 US state rates.' },
   { id: 'simple-interest-calculator', name: 'Simple Interest Calculator (I = Prt)', category: 'Finance', path: '/finance/simple-interest-calculator', desc: 'Calculate simple interest, total loan payback, and monthly installment cost.' },
   { id: 'overtime-calculator', name: 'Overtime Pay Calculator (1.5x & 2.0x)', category: 'Finance', path: '/finance/overtime-calculator', desc: 'Calculate time-and-a-half overtime and double-time holiday pay under FLSA rules.' },
@@ -1319,6 +1329,52 @@ function buildSidebarHtml(currentPath = '/') {
       </a>
       <a href="/util/scale-visualizer" class="nav-link ${currentPath.startsWith('/util/scale-visualizer') ? 'active' : ''}">
         <div class="nav-link-content"><span>1M vs 1B Scale Visualizer</span></div>
+      </a>
+
+      <!-- CURIOSITY, NEUROBIOLOGY & DECISIONS -->
+      <div class="nav-group-title">
+        ${ICONS.psychology}
+        <span>Curiosity & Neurobiology (10)</span>
+      </div>
+      <a href="/util/decision-bracket" class="nav-link ${currentPath.startsWith('/util/decision-bracket') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Decision Bracket</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/tail-end-mortality" class="nav-link ${currentPath.startsWith('/util/tail-end-mortality') ? 'active' : ''}">
+        <div class="nav-link-content"><span>The Tail End Ledger</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/dopamine-reset-simulator" class="nav-link ${currentPath.startsWith('/util/dopamine-reset-simulator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Dopamine Reset Sim</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/sensory-overload-meter" class="nav-link ${currentPath.startsWith('/util/sensory-overload-meter') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Sensory Overload Meter</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/dunbar-social-auditor" class="nav-link ${currentPath.startsWith('/util/dunbar-social-auditor') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Dunbar 150 Auditor</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/habit-decay-simulator" class="nav-link ${currentPath.startsWith('/util/habit-decay-simulator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Habit Decay Simulator</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/personal-drake-equation" class="nav-link ${currentPath.startsWith('/util/personal-drake-equation') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Personal Drake Eq</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/epistemic-calibration" class="nav-link ${currentPath.startsWith('/util/epistemic-calibration') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Epistemic Calibration</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/sunk-cost-auditor" class="nav-link ${currentPath.startsWith('/util/sunk-cost-auditor') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Sunk Cost Auditor</span></div>
+        <span class="nav-badge">NEW</span>
+      </a>
+      <a href="/util/cosmic-perspective-clock" class="nav-link ${currentPath.startsWith('/util/cosmic-perspective-clock') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Cosmic Clock</span></div>
+        <span class="nav-badge">NEW</span>
       </a>
 
       <!-- EDUCATION & LEARNING -->
