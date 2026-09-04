@@ -9,7 +9,7 @@ import { buildDailyCalcTools } from './daily_calc_tools.js';
 // scripts/build.js — Master Static Site Generator for Digital Tools Shed
 import { writeFileSync } from 'fs';
 import { join } from 'path';
-import { DIST, DOMAIN, ensureDir, renderPage } from './core.js';
+import { DIST, DOMAIN, ensureDir, renderPage, MASTER_CSS } from './core.js';
 
 // Import all modular suite builders
 import { buildHomepage } from './home.js';
@@ -47,12 +47,19 @@ import { buildCpuBenchmarks } from './cpu_benchmarks.js';
 import { buildGpuBenchmarks } from './gpu_benchmarks.js';
 import { buildLaptopUpgrades } from './laptop_upgrades.js';
 import { buildLaptopPwm } from './laptop_pwm.js';
+import { buildHandheldTools } from './handheld_tools.js';
 import { buildTrustPages, build404Page } from './trust_pages.js';
 import { buildSEOAssets } from './seo.js';
 
 function main() {
   console.log('\n🔨 Building DIGITAL TOOLS SHED (Modular Architecture)...\n');
   ensureDir(DIST);
+
+  // Generate Cached Global Stylesheet (Static Diet)
+  const assetsDir = join(DIST, 'assets');
+  ensureDir(assetsDir);
+  writeFileSync(join(assetsDir, 'style.css'), MASTER_CSS, 'utf8');
+  console.log('  ✓ Generated Global Static Stylesheet (dist/assets/style.css)');
 
   // Core & Legacy Suites
   buildHomepage();
@@ -102,6 +109,7 @@ function main() {
   buildGpuBenchmarks({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildLaptopUpgrades({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildLaptopPwm({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildHandheldTools({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
 
   // Trust, Legal & Error Pages
   buildTrustPages();

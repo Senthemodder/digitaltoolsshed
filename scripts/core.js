@@ -1666,6 +1666,10 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/laptops/pwm/" class="nav-link ${currentPath.startsWith('/laptops/pwm') ? 'active' : ''}">
         <div class="nav-link-content"><span>Display PWM Eye Safety</span></div>
       </a>
+      <a href="/handhelds/" class="nav-link ${currentPath.startsWith('/handhelds') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Gaming Handhelds</span></div>
+        <span class="nav-badge">OLED</span>
+      </a>
       <a href="/laptops/lenovo-thinkpad-x1-carbon-2021-intel-amd-radeon-780m-890m-igpu-16gb-ram-512gb-ssd" class="nav-link ${currentPath.includes('thinkpad-x1-carbon') ? 'active' : ''}">
         <div class="nav-link-content"><span>ThinkPad X1 Carbon</span></div>
       </a>
@@ -2031,7 +2035,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, currentPath = '/'
       root.style.setProperty('--gradient-bar', p.bar);
     })();
   </script>
-  <style>${MASTER_CSS}</style>
+  <link rel="stylesheet" href="/assets/style.css">
   ${schemaMarkup}
 </head>
 <body>
