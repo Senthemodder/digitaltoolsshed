@@ -2528,6 +2528,38 @@ function renderPage({ title, metaDesc, canonical, bodyContent, content, currentP
     else schemas.push(jsonLd);
   }
 
+  // Universal HowTo schema fallback for rich snippet steps across all tools
+  const hasHowTo = schemas.some(s => s && (s['@type'] === 'HowTo' || (Array.isArray(s['@type']) && s['@type'].includes('HowTo'))));
+  if (!hasHowTo && !isNotTool && currentPath !== '/' && !currentPath.endsWith('/index.html') && !currentPath.endsWith('/index') && !currentPath.endsWith('sitemap.xml')) {
+    const rawToolName = title.split('|')[0].split('—')[0].split('[')[0].trim();
+    schemas.push({
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": `How to Use the ${rawToolName}`,
+      "description": metaDesc || `Step-by-step instructions on how to use the interactive ${rawToolName} online with instant calculation and zero server latency.`,
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Input Parameters & Values",
+          "text": `Enter your baseline parameters, quantities, or data values into the interactive fields of the ${rawToolName}.`
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Execute Real-Time Client Calculation",
+          "text": "The calculation or simulation computes instantaneously in your browser memory with zero tracking and zero server latency."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Analyze Detailed Specifications & Copy Results",
+          "text": "Review the full mathematical breakdown, reference tables, or clinical protocol, and export or copy the formatted results."
+        }
+      ]
+    });
+  }
+
   const schemaMarkup = schemas.map(s => `<script type="application/ld+json">\n${JSON.stringify(s, null, 2)}\n</script>`).join('\n  ');
 
   // ─── PSYCHOLOGICAL SERP SNIPPET OPTIMIZATION (HIGH-CTR BEHAVIORAL TRIGGERS) ───

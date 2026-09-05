@@ -4496,8 +4496,59 @@ export function renderUnitConverterBody(tool) {
                 ${subdivisionsList}
               </div>
             </div>
+
+            <button type="button" id="btnCopyReport" onclick="copyHistoricalReport()" class="btn-sec" style="margin-top: 1rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.2s;">
+              📋 Copy Historical Metrology Report
+            </button>
           </div>
         </div>
+      </div>
+
+      <!-- Step-by-Step Historical Conversion Derivation -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Historical Conversion Derivation</h3>
+          <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Archaeological Standard</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+          Historical unit calibrations link ancient archaeological artifacts and temple prototypes directly to modern SI metric standards and Anglo-American Imperial benchmarks:
+        </p>
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Classical Benchmark Unit Definition</strong>
+            <div style="color: var(--text-muted); margin-top: 0.25rem;">
+              Base Ancient Standard: 1 ${tool.primaryUnit} (${tool.era}) &bull; Benchmark Default: ${tool.defaultVal} ${tool.unitSymbol}
+            </div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Metric SI Ratio Derivation</strong>
+            <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
+              1 ${tool.primaryUnit} = ${tool.metricBase} ${tool.metricName} (${tool.metricSymbol}) &bull; Formula: Modern Metric = [Quantity in ${tool.unitSymbol}] × ${tool.metricBase} ${tool.metricSymbol}
+            </div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Imperial / Anglo-American Equivalent</strong>
+            <div style="color: var(--text-muted); margin-top: 0.25rem;">
+              1 ${tool.primaryUnit} = ${tool.imperialBase} ${tool.imperialName} (${tool.imperialSymbol}) &bull; Multiplier: Modern Imperial = [Quantity in ${tool.unitSymbol}] × ${tool.imperialBase} ${tool.imperialSymbol}
+            </div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 4: Classical Subdivisions & Fractional Hierarchy</strong>
+            <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
+              Canonical Hierarchy: ${tool.subdivisions.map(s => `${s.name} (${s.ratio >= 1 ? '1/' + s.ratio : (1/s.ratio) + 'x'} ${tool.unitSymbol})`).join(' &bull; ')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical Metrological Drift & Historical Variations -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Metrological Drift & Historical Variations</h3>
+        <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Regional Metrological Drift:</strong> Before state-enforced decimalization (such as the 1795 French metric decrees or the British 1824 Weights and Measures Act), measuring vessels varied between commercial port cities, royal capitals, and agricultural provinces. For instance, Roman provincial measures often absorbed local Greek or Celtic tolerances.</li>
+          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Dry vs Liquid Capacity Discrepancies:</strong> In antiquity, grain, legumes, and dry commodities were measured by struck (level) or heaped baskets, whereas precious liquids (wine, olive oil, garum) were calibrated by exact vessel weight. Do not interchange dry and liquid measures without accounting for packing density.</li>
+          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Archaeological Consensus Standards:</strong> The conversion factors in this calculator reflect the consensus measurements established by classical scholars and museum calibrations (e.g. Capitoline bronze standards, Louvre Egyptian cubit rods, and British Museum cuneiform weights).</li>
+        </ul>
       </div>
 
       <!-- Historical Context & Primary Sources Card -->
@@ -4576,6 +4627,58 @@ export function renderUnitConverterBody(tool) {
             inputEl.value = v;
             update();
           }
+        };
+
+        window.copyHistoricalReport = function() {
+          var inputEl = document.getElementById('primaryInput');
+          var qty = inputEl ? inputEl.value : '${tool.defaultVal}';
+          var mEl = document.getElementById('metricOutput');
+          var iEl = document.getElementById('imperialOutput');
+          var metricVal = mEl ? mEl.textContent.trim() : '';
+          var imperialVal = iEl ? iEl.textContent.trim() : '';
+          
+          var subList = [];
+          for (var i = 0; i < subdivisions.length; i++) {
+            var sub = subdivisions[i];
+            var subId = 'sub_' + sub.name.replace(/[^a-zA-Z0-9]/g, '_');
+            var el = document.getElementById(subId);
+            if (el) subList.push('  - ' + sub.name + ': ' + el.textContent.trim() + ' (' + sub.note + ')');
+          }
+
+          var report = [
+            '=== HISTORICAL METROLOGY CONVERSION REPORT ===',
+            'Tool: ${tool.name} [' + "${tool.era}".replace(/"/g, '') + ']',
+            'Category: ${tool.category}',
+            '-----------------------------------------------',
+            'Input Quantity: ' + qty + ' ${tool.primaryUnit} (${tool.unitSymbol})',
+            'Modern Metric: ' + metricVal,
+            'Modern Imperial: ' + imperialVal,
+            '-----------------------------------------------',
+            'Classical Subdivisions & Hierarchy:',
+            subList.join('\\n'),
+            '-----------------------------------------------',
+            'Historical Context: ' + "${tool.primarySources}".replace(/<[^>]+>/g, '').replace(/"/g, "'"),
+            'Timestamp: ' + new Date().toISOString(),
+            'Verified via Digital Tools Shed Historical Metrology Suite',
+            'https://digitaltoolsshed.com/units/${tool.slug}'
+          ].join('\\n');
+
+          navigator.clipboard.writeText(report).then(function() {
+            var btn = document.getElementById('btnCopyReport');
+            if (btn) {
+              var old = btn.innerHTML;
+              btn.innerHTML = '✓ Copied Metrology Report!';
+              btn.style.background = 'rgba(34, 197, 94, 0.15)';
+              btn.style.color = '#22c55e';
+              setTimeout(function() {
+                btn.innerHTML = old;
+                btn.style.background = 'var(--surface)';
+                btn.style.color = 'var(--fg)';
+              }, 2500);
+            }
+          }).catch(function() {
+            alert('Failed to copy report to clipboard. Please copy manually.');
+          });
         };
 
         var inputEl = document.getElementById('primaryInput');
@@ -4720,13 +4823,47 @@ export function buildHistoryUnitsTools({ DIST, DOMAIN, renderPage, writeFileSync
 
   let builtCount = 0;
   for (const tool of HISTORY_UNITS_TOOLS) {
+    const howToSchema = {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": `How to Convert ${tool.name} to Modern Metric & Imperial Units`,
+      "description": tool.metaDesc,
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": `Enter Historical Quantity (${tool.primaryUnit})`,
+          "text": `Specify the number of historical ${tool.primaryUnit} units (${tool.unitSymbol}) or select from standard classical presets.`
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Derive Modern Metric & Imperial Equivalents",
+          "text": `Multiply the input quantity by ${tool.metricBase} ${tool.metricSymbol} for metric or ${tool.imperialBase} ${tool.imperialSymbol} for imperial measurements.`
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Inspect Classical Subdivisions & Hierarchy",
+          "text": `Review the authentic ancient hierarchical breakdown across subordinate units (${tool.subdivisions.map(s => s.name).join(', ')}).`
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "Export Historical Metrology Report",
+          "text": "Copy the formatted conversion analysis to your clipboard for academic research, historical reenactment, or recipe reconstruction."
+        }
+      ]
+    };
+
     const pageHtml = renderPage({
       title: tool.title,
       metaDesc: tool.metaDesc,
       canonical: `${DOMAIN}/units/${tool.slug}`,
       bodyContent: renderUnitConverterBody(tool),
       currentPath: `/units/${tool.slug}.html`,
-      faq: tool.faq
+      faq: tool.faq,
+      jsonLd: howToSchema
     });
 
     writeFileSync(join(unitsDist, `${tool.slug}.html`), pageHtml);

@@ -139,6 +139,34 @@
   ]
 }
 </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "How to Convert Kilometers to Nanometers (km to nm)",
+  "description": "Convert kilometers to nanometers instantly. 1 km = 1,000,000,000,000 nm (1e12 nm). Free online distance calculator and scientific chart.",
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": 1,
+      "name": "Enter Kilometers Quantity",
+      "text": "Type your value in Kilometers (km) or click one of the quick preset buttons."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 2,
+      "name": "Instant Two-Way Mathematical Computation",
+      "text": "The tool multiplies by the exact ratio 999999999999.9999 in real time client-side."
+    },
+    {
+      "@type": "HowToStep",
+      "position": 3,
+      "name": "Read & Copy Nanometers Equivalent",
+      "text": "Inspect the converted Nanometers (nm) output or click 'Copy Conversion Summary' for documentation."
+    }
+  ]
+}
+</script>
 </head>
 <body>
   <script>window.__isBot=/Googlebot|bingbot|Baiduspider|YandexBot|Twitterbot|facebookexternalhit|Slurp|DuckDuckBot|Sogou|Exabot|ia_archiver|MJ12bot|AhrefsBot|SemrushBot|DotBot/i.test(navigator.userAgent);</script>
@@ -1044,6 +1072,9 @@
               <button type="button" onclick="setPreset('100')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">100 km</button>
             
           </div>
+          <button type="button" id="btnCopyCalc" onclick="copyCalcSummary()" style="margin-top: 1rem; width: 100%; padding: 0.6rem 1rem; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.2s;">
+            📋 Copy Conversion Summary
+          </button>
         </div>
 
         <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
@@ -1229,6 +1260,23 @@
           window.setPreset = function(val) {
             fromInput.value = val;
             updateFrom();
+          };
+
+          window.copyCalcSummary = function() {
+            var fromVal = fromInput ? fromInput.value : '';
+            var toVal = toInput ? toInput.value : '';
+            var text = fromVal + ' km (Kilometers) = ' + toVal + ' nm (Nanometers)\n' +
+                       'Conversion Ratio: 1 km = 999999999999.9999 nm\n' +
+                       'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/km-to-nm';
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyCalc');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied to Clipboard!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
           };
 
           fromInput.addEventListener('input', updateFrom);

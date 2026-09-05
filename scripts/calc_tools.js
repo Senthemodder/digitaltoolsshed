@@ -660,6 +660,22 @@ function buildUnitCalcSuite() {
             updateFrom();
           };
 
+          window.copyCalcSummary = function() {
+            var fromVal = fromInput ? fromInput.value : '';
+            var toVal = toInput ? toInput.value : '';
+            var text = fromVal + ' ${fromUnit.abbr} (${fromUnit.label}) = ' + toVal + ' ${toUnit.abbr} (${toUnit.label})\\n' +
+                       'Thermodynamic Temperature Conversion: https://digitaltoolsshed.com/calc/${slug}';
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyCalc');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied to Clipboard!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           fromInput.addEventListener('input', updateFrom);
           toInput.addEventListener('input', updateTo);
           updateFrom();
@@ -718,6 +734,23 @@ function buildUnitCalcSuite() {
           window.setPreset = function(val) {
             fromInput.value = val;
             updateFrom();
+          };
+
+          window.copyCalcSummary = function() {
+            var fromVal = fromInput ? fromInput.value : '';
+            var toVal = toInput ? toInput.value : '';
+            var text = fromVal + ' ${fromUnit.abbr} (${fromUnit.label}) = ' + toVal + ' ${toUnit.abbr} (${toUnit.label})\\n' +
+                       'Conversion Ratio: 1 ${fromUnit.abbr} = ${parseFloat(factor.toFixed(6))} ${toUnit.abbr}\\n' +
+                       'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/${slug}';
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyCalc');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied to Clipboard!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
           };
 
           fromInput.addEventListener('input', updateFrom);
@@ -1153,6 +1186,9 @@ function buildUnitCalcSuite() {
               <button type="button" onclick="setPreset('${p}')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.35rem 0.65rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; color: var(--fg); transition: all 0.15s ease;" onmouseover="this.style.background='var(--border)'" onmouseout="this.style.background='var(--surface-alt)'">${p} ${fromUnit.abbr}</button>
             `).join('')}
           </div>
+          <button type="button" id="btnCopyCalc" onclick="copyCalcSummary()" style="margin-top: 1rem; width: 100%; padding: 0.6rem 1rem; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: all 0.2s;">
+            📋 Copy Conversion Summary
+          </button>
         </div>
 
         <div style="border: 1px solid var(--border); padding: 1.5rem; background: var(--surface); margin: 2rem 0; max-width: 850px;">
@@ -1328,13 +1364,41 @@ function buildUnitCalcSuite() {
 
       const cleanSlug = fileName.replace(/\.html$/, '');
 
+      const howToSchema = {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": `How to Convert ${fromUnit.label} to ${toUnit.label} (${fromUnit.abbr} to ${toUnit.abbr})`,
+        "description": pageMetaDesc,
+        "step": [
+          {
+            "@type": "HowToStep",
+            "position": 1,
+            "name": `Enter ${fromUnit.label} Quantity`,
+            "text": `Type your value in ${fromUnit.label} (${fromUnit.abbr}) or click one of the quick preset buttons.`
+          },
+          {
+            "@type": "HowToStep",
+            "position": 2,
+            "name": "Instant Two-Way Mathematical Computation",
+            "text": `${cat.custom ? 'The calculator applies thermodynamic temperature formulas' : `The tool multiplies by the exact ratio ${parseFloat(factor.toFixed(6))}`} in real time client-side.`
+          },
+          {
+            "@type": "HowToStep",
+            "position": 3,
+            "name": `Read & Copy ${toUnit.label} Equivalent`,
+            "text": `Inspect the converted ${toUnit.label} (${toUnit.abbr}) output or click 'Copy Conversion Summary' for documentation.`
+          }
+        ]
+      };
+
       writeFileSync(join(calcDist, fileName), renderPage({
         title: pageTitle,
         metaDesc: pageMetaDesc,
         canonical: `${DOMAIN}/calc/${cleanSlug}`,
         bodyContent: calcBodyWithFaq,
         currentPath: `/calc/${cleanSlug}`,
-        faq: faqData
+        faq: faqData,
+        jsonLd: howToSchema
       }));
 
       totalCalcsBuilt++;

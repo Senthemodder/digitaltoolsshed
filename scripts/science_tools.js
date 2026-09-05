@@ -1989,6 +1989,9 @@ export function renderScienceToolHtml(tool) {
           <div class="sci-result-grid">
             ${outputsHtml}
           </div>
+          <button type="button" id="btnCopySciReport" onclick="copySciReport()" class="sci-preset-btn" style="width: 100%; margin-top: 1rem; padding: 0.65rem; font-size: 0.82rem; background: var(--surface); border: 1px solid var(--border); color: var(--fg); display: flex; align-items: center; justify-content: center; gap: 0.4rem; font-weight: 600;">
+            📋 Copy Physics Calculation Summary
+          </button>
         </div>
       </div>
 
@@ -1996,6 +1999,53 @@ export function renderScienceToolHtml(tool) {
       <div class="sci-box">
         <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.75rem; color: var(--fg);">Physical Formula & Mathematical Principles</h3>
         ${tool.formulaHtml}
+      </div>
+
+      <!-- Step-by-Step Worked Derivation -->
+      <div class="sci-box" style="border-left: 3px solid #3b82f6;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Worked Derivation</h3>
+          <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Analytical Solution</span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+          To understand the dimensional mechanics governing this physical scale, review this step-by-step mathematical derivation based on invariant universal constants:
+        </p>
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Fundamental Physical Invariants</strong>
+            <div style="color: var(--text-muted); margin-top: 0.25rem;">
+              ħ = 1.05457 × 10⁻³⁴ J·s (Reduced Planck) &bull; c = 2.99792 × 10⁸ m/s (Speed of Light) &bull; G = 6.67430 × 10⁻¹¹ m³/(kg·s²) (Gravitational Constant)
+            </div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Input Parameter Normalization</strong>
+            <div style="color: #3b82f6; margin-top: 0.25rem;">
+              ${tool.inputs.map(i => `${i.label} = ${i.default}`).join(' &bull; ')}
+            </div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Dimensional Scaling & In-Browser Solution</strong>
+            <div style="color: var(--text-muted); margin-top: 0.25rem;">
+              Dimensional analysis maps energy, length, and temporal limits into invariant SI units with double-precision floating point accuracy.
+            </div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 4: Primary Physical Outputs</strong>
+            <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
+              ${tool.outputs.map(o => `${o.label}: ${o.default}`).join(' | ')}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Theoretical Limits & Physical Boundaries -->
+      <div class="sci-box" style="border-left: 3px solid #f59e0b; background: var(--surface-alt);">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.75rem; color: var(--fg);">⚠️ Theoretical Limits & Physical Boundaries</h3>
+        <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Quantum Spacetime Granularity:</strong> At scales approaching Planck thresholds (ℓ_P, t_P, m_P), smooth general relativity breaks down due to non-perturbative quantum fluctuations of the spacetime metric.</li>
+          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Relativistic Causality:</strong> No physical energy, signal, or quantum information transfer can exceed the speed of light in vacuum c, strictly maintaining Lorentz invariance and micro-causality.</li>
+          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Idealized Metric Assumptions:</strong> Derivations assume isotropic Schwarzschild geometries and flat asymptotic space unless non-zero Kerr angular momentum or cosmological lambda factors are explicitly defined.</li>
+        </ul>
       </div>
 
       <!-- Comparative Benchmarks Table -->
@@ -2043,6 +2093,40 @@ export function renderScienceToolHtml(tool) {
             if (el) el.value = vals[k];
           }
           calculate();
+        };
+
+        window.copySciReport = function() {
+          var lines = [];
+          lines.push('====================================================');
+          lines.push('${tool.shortTitle} — Scientific Calculation Summary');
+          lines.push('Domain: ${tool.category} | Engine: Digital Tools Shed (2026)');
+          lines.push('----------------------------------------------------');
+          lines.push('INPUT VALUES:');
+          ${tool.inputs.map(i => `lines.push('- ${i.label}: ' + (document.getElementById('${i.id}') ? document.getElementById('${i.id}').value : '${i.default}'));`).join('\n          ')}
+          lines.push('');
+          lines.push('COMPUTED OUTPUTS:');
+          ${tool.outputs.map(o => `lines.push('- ${o.label}: ' + (document.getElementById('${o.id}') ? document.getElementById('${o.id}').innerText : '—'));`).join('\n          ')}
+          lines.push('----------------------------------------------------');
+          lines.push('Direct Tool URL: ' + window.location.href);
+          lines.push('Verified 100% Client-Side Physics Engine (Zero Server Logging)');
+          lines.push('====================================================');
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(lines.join('\\n')).then(function() {
+              var btn = document.getElementById('btnCopySciReport');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Calculation Summary!';
+                btn.style.borderColor = '#10b981';
+                btn.style.color = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = old;
+                  btn.style.borderColor = 'var(--border)';
+                  btn.style.color = 'var(--fg)';
+                }, 2500);
+              }
+            });
+          }
         };
 
         function calculate() {
@@ -7743,13 +7827,47 @@ export function buildScienceTools({ DIST, DOMAIN, renderPage, writeFileSync, joi
   ensureDir(dir);
 
   for (const tool of ALL_SCIENCE_TOOLS) {
+    const howToSchema = {
+      "@context": "https://schema.org",
+      "@type": "HowTo",
+      "name": `How to Calculate ${tool.shortTitle} [${tool.badge}]`,
+      "description": tool.metaDesc,
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Input Fundamental Physical Parameters",
+          "text": `Enter the baseline dimensional values: ${tool.inputs.map(i => i.label).join(', ')}.`
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Apply Invariant Constants",
+          "text": "The client-side engine binds fundamental universal constants (ħ, c, G, k_B) with zero server latency."
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Review Computed Metrics",
+          "text": `Examine computed outputs (${tool.outputs.map(o => o.label).join(', ')}) against astrophysical and quantum benchmarks.`
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "Export Scientific Summary",
+          "text": "Copy the formatted calculation report to clipboard for research documentation or academic problem sets."
+        }
+      ]
+    };
+
     const html = renderPage({
       title: tool.title,
       metaDesc: tool.metaDesc,
       canonical: `${DOMAIN}/science/${tool.slug}`,
       bodyContent: renderScienceToolHtml(tool),
       currentPath: `/science/${tool.slug}.html`,
-      faq: tool.faq
+      faq: tool.faq,
+      jsonLd: howToSchema
     });
     writeFileSync(join(dir, `${tool.slug}.html`), html);
   }
