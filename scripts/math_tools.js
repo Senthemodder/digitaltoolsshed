@@ -496,328 +496,384 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
   ],
   "body": "\n<div class=\"article-container\" style=\"max-width:1050px;margin:0 auto;padding:1.5rem 1rem;\">\n  <nav style=\"font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);\">\n    <a href=\"/\">Home</a> &gt; <a href=\"/math/\">Math &amp; Finance</a> &gt; Mortgage Calculator\n  </nav>\n\n  <header style=\"margin-bottom:2rem;text-align:center;\">\n    <h1 style=\"font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;\">PITI Mortgage & Amortization Calculator</h1>\n    <p style=\"color:var(--text-muted);font-size:1.05rem;max-width:780px;margin:0 auto;line-height:1.6;\">\n      Calculate your complete monthly housing payment (Principal, Interest, Property Taxes, Homeowners Insurance, and PMI). Model extra monthly principal payments to calculate exact interest savings and loan payoff acceleration.\n    </p>\n  </header>\n\n  <div style=\"display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:2.5rem;\" class=\"calc-grid\">\n    <!-- INPUT COLUMN -->\n    <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n      <h2 style=\"font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;\">\n        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/><polyline points=\"9 22 9 12 15 12 15 22\"/></svg>\n        Loan Details & Property Expenses\n      </h2>\n\n      <!-- HOME PRICE & DOWN PAYMENT -->\n      <div style=\"display:grid;grid-template-columns:1.2fr 1fr;gap:1rem;margin-bottom:1.25rem;\">\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"mortHomePrice\">Home Purchase Price ($)</label>\n          <input type=\"number\" id=\"mortHomePrice\" value=\"450000\" min=\"10000\" step=\"5000\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;\">\n        </div>\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"mortDownPct\">Down Payment (%)</label>\n          <div style=\"display:grid;grid-template-columns:1fr 1.2fr;gap:0.5rem;\">\n            <input type=\"number\" id=\"mortDownPct\" value=\"20\" min=\"0\" max=\"95\" step=\"0.5\" style=\"width:100%;padding:0.65rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;\">\n            <span id=\"mortDownDollars\" style=\"padding:0.65rem 0.4rem;font-family:var(--mono);font-size:0.85rem;color:var(--text-muted);display:flex;align-items:center;\">$90,000</span>\n          </div>\n        </div>\n      </div>\n\n      <!-- INTEREST RATE & LOAN TERM -->\n      <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;\">\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"mortRate\">Interest Rate (% APR)</label>\n          <input type=\"number\" id=\"mortRate\" value=\"6.75\" min=\"0.1\" max=\"25\" step=\"0.125\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;\">\n        </div>\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"mortTermYears\">Loan Term</label>\n          <select id=\"mortTermYears\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;\">\n            <option value=\"30\" selected>30-Year Fixed Rate</option>\n            <option value=\"20\">20-Year Fixed Rate</option>\n            <option value=\"15\">15-Year Fixed Rate</option>\n            <option value=\"10\">10-Year Fixed Rate</option>\n          </select>\n        </div>\n      </div>\n\n      <!-- ESCROW: TAXES & INSURANCE -->\n      <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;\">\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"mortAnnualTax\">Annual Property Taxes ($)</label>\n          <input type=\"number\" id=\"mortAnnualTax\" value=\"5400\" min=\"0\" step=\"100\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;\">\n          <span style=\"font-size:0.75rem;color:var(--text-muted);\">(~1.2% national average)</span>\n        </div>\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"mortAnnualIns\">Annual Homeowners Ins. ($)</label>\n          <input type=\"number\" id=\"mortAnnualIns\" value=\"1800\" min=\"0\" step=\"50\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;\">\n          <span style=\"font-size:0.75rem;color:var(--text-muted);\">(Hazard & fire policy)</span>\n        </div>\n      </div>\n\n      <!-- HOA & EXTRA PAYMENTS -->\n      <div style=\"display:grid;grid-template-columns:1fr 1.2fr;gap:1rem;\">\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"mortMonthlyHOA\">Monthly HOA Dues ($)</label>\n          <input type=\"number\" id=\"mortMonthlyHOA\" value=\"0\" min=\"0\" step=\"25\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;\">\n        </div>\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"mortExtraMonthly\">Extra Monthly Principal ($)</label>\n          <input type=\"number\" id=\"mortExtraMonthly\" value=\"200\" min=\"0\" step=\"50\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;\">\n        </div>\n      </div>\n    </div>\n\n    <!-- SUMMARY & OUTPUT COLUMN -->\n    <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;\">\n      <div>\n        <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;\">\n          <h2 style=\"font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;\">\n            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><line x1=\"12\" y1=\"1\" x2=\"12\" y2=\"23\"/><path d=\"M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6\"/></svg>\n            Monthly Housing Takeoff (PITI)\n          </h2>\n          <button id=\"copyMortgageBtn\" style=\"padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);\">\n            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>\n            <span>Copy Takeoff</span>\n          </button>\n        </div>\n\n        <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;\">\n          <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;\">\n            <span style=\"font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;\">Total Monthly PITI</span>\n            <span id=\"mortTotalMonthly\" style=\"font-family:var(--mono);font-size:2rem;font-weight:800;color:#3b82f6;display:block;\">$2,935</span>\n            <span id=\"mortPITIBreakdown\" style=\"font-size:0.8rem;color:var(--text-muted);font-weight:600;\">$2,335 P&amp;I + $600 Escrow</span>\n          </div>\n\n          <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;\">\n            <span style=\"font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;\">Total Interest Paid</span>\n            <span id=\"mortTotalInterest\" style=\"font-family:var(--mono);font-size:2rem;font-weight:800;color:var(--fg);display:block;\">$480,528</span>\n            <span id=\"mortInterestSavedVal\" style=\"font-size:0.8rem;color:#10b981;font-weight:600;\">Saves $74,210 with extra</span>\n          </div>\n        </div>\n\n        <!-- PAYMENT COMPOSITION LEDGER -->\n        <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;\">\n          <div style=\"font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;\">Monthly Itemized Distribution</div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;\">\n            <span>Principal &amp; Interest (P&amp;I):</span>\n            <strong id=\"mortPIVal\" style=\"font-family:var(--mono);color:#3b82f6;\">$2,335 / mo</strong>\n          </div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;\">\n            <span>Property Taxes:</span>\n            <strong id=\"mortTaxVal\" style=\"font-family:var(--mono);color:var(--fg);\">$450 / mo</strong>\n          </div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;\">\n            <span>Homeowners Insurance:</span>\n            <strong id=\"mortInsVal\" style=\"font-family:var(--mono);color:var(--fg);\">$150 / mo</strong>\n          </div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;\">\n            <span>Private Mortgage Insurance (PMI):</span>\n            <strong id=\"mortPMIVal\" style=\"font-family:var(--mono);color:#ef4444;\">$0 / mo (20% Down)</strong>\n          </div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;\">\n            <span>Loan Payoff Acceleration:</span>\n            <strong id=\"mortPayoffDelta\" style=\"font-family:var(--mono);color:#10b981;\">Pay off 4.8 Years Early</strong>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- INTERACTIVE SVG AMORTIZATION WATERFALL -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n    <h2 style=\"font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;\">\n      <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"22 12 18 12 15 21 9 3 6 12 2 12\"/></svg>\n      Amortization Balance & Cumulative Interest Decay Curve\n    </h2>\n    <p style=\"color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;\">\n      Visualization tracking remaining principal balance over time (blue) versus cumulative interest accrued (red), highlighting the critical \"amortization crossover point\" and extra payment velocity.\n    </p>\n\n    <div style=\"overflow-x:auto;\">\n      <svg id=\"mortgageAmortSvg\" viewBox=\"0 0 800 280\" style=\"width:100%;height:auto;min-width:600px;font-family:var(--mono);\"></svg>\n    </div>\n  </div>\n\n  <!-- MATHEMATICAL & FINANCIAL DERIVATIONS -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);\">Standard Fixed-Rate Amortization Formulas</h2>\n    <p style=\"color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;\">\n      Under federal banking standards, fixed-rate mortgage payments are derived using the actuarial annuity present-value formula. Monthly compounding calculates the exact periodic payment required to amortize principal $P_0$ to zero over $N$ months at periodic rate $r$:\n    </p>\n\n    <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;\">\n      <strong>1. Monthly Principal &amp; Interest Formula:</strong><br>\n      M = P_0 \\times \\frac{r(1 + r)^N}{(1 + r)^N - 1}<br>\n      \\text{Where } r = \\frac{\\text{Annual Interest Rate}}{12}, \\quad N = \\text{Term Years} \\times 12, \\quad P_0 = \\text{Purchase Price} - \\text{Down Payment}<br><br>\n      <strong>2. Monthly Escrow Components (PITI):</strong><br>\n      \\text{Monthly Tax} = \\frac{\\text{Annual Property Tax}}{12}, \\quad \\text{Monthly Insurance} = \\frac{\\text{Annual Premium}}{12}<br>\n      \\text{Monthly PMI} = \\begin{cases} \\frac{P_0 \\times 0.0075}{12} & \\text{if } \\text{Down Payment} < 20\\% \\\\ 0 & \\text{if } \\text{Down Payment} \\ge 20\\% \\end{cases}<br><br>\n      <strong>3. Periodic Balance Recurrence:</strong><br>\n      I_k = B_{k-1} \\times r \\quad \\text{(Interest Due)}, \\qquad P_k = (M - I_k) + P_{\\text{extra}} \\quad \\text{(Principal Paid)}<br>\n      B_k = B_{k-1} - P_k \\quad \\text{(Ending Balance)}\n    </div>\n  </div>\n\n  <!-- 5 CRITICAL MORTGAGE TRAPS -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);\">5 Critical Mortgage Traps &amp; Hidden Lending Pitfalls</h2>\n\n    <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;\">\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">1. The Year-Two Escrow Shortage Shock</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Lenders calculate initial property tax escrow based on the previous homeowner's old tax assessment. In year two, county assessors reset taxable value to your actual new purchase price. The resulting tax increase creates an \"escrow shortage,\" causing lenders to hike monthly payments by $300 to $600 to recoup past deficits.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">2. Paying for Lender \"Discount Points\" You Never Recover</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Lenders encourage borrowers to buy \"discount points\" (paying 1% of the loan amount upfront to lower the interest rate by 0.25%). On a $400,000 loan, 2 points cost $8,000 upfront to save ~$65/month. The break-even period is 10.2 years. If you refinance or sell within 7 years, you lose thousands.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">3. FHA Loan MIP is Permanent (Unlike Conventional PMI)</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          On conventional loans, Private Mortgage Insurance (PMI) cancels automatically once equity reaches 20% to 22%. On FHA loans with less than 10% down, Mortgage Insurance Premium (MIP) remains for the entire 30-year life of the loan. The only way to eliminate FHA MIP is to refinance into a conventional mortgage.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">4. The \"Bi-Weekly Mortgage Payment\" Fee Scam</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Third-party companies charge $300 to $500 setup fees plus monthly maintenance to administer \"bi-weekly payment plans.\" Paying 26 half-payments a year simply equals 13 full payments (one extra payment per year). You can achieve the exact same interest savings for free by adding 1/12th of your monthly payment to principal each month.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">5. Miscalculating Early vs Late Prepayment Velocity</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          A $5,000 lump sum principal payment made in Year 2 saves over $22,000 in compounding interest over a 30-year loan because it eliminates 28 years of interest accrual on that capital. Making that same $5,000 payment in Year 26 saves less than $900 in interest. Early prepayment velocity is vastly superior to late payoff.\n        </p>\n      </div>\n    </div>\n  </div>\n\n  <!-- SCRIPT ENGINE -->\n  <script>\n    (function() {\n      function calcMortgage() {\n        var price = parseFloat(document.getElementById('mortHomePrice').value) || 0;\n        var downPct = parseFloat(document.getElementById('mortDownPct').value) || 0;\n        var rate = parseFloat(document.getElementById('mortRate').value) || 0;\n        var termYears = parseInt(document.getElementById('mortTermYears').value) || 30;\n        var annualTax = parseFloat(document.getElementById('mortAnnualTax').value) || 0;\n        var annualIns = parseFloat(document.getElementById('mortAnnualIns').value) || 0;\n        var hoa = parseFloat(document.getElementById('mortMonthlyHOA').value) || 0;\n        var extraPrincipal = parseFloat(document.getElementById('mortExtraMonthly').value) || 0;\n\n        var downDollars = price * (downPct / 100);\n        document.getElementById('mortDownDollars').textContent = '$' + Math.round(downDollars).toLocaleString();\n\n        var principal = Math.max(0, price - downDollars);\n        var r = (rate / 100) / 12;\n        var n = termYears * 12;\n\n        var monthlyPI = 0;\n        if (r > 0 && n > 0 && principal > 0) {\n          monthlyPI = principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);\n        }\n\n        var monthlyTax = annualTax / 12;\n        var monthlyIns = annualIns / 12;\n        var monthlyPMI = (downPct < 20 && principal > 0) ? (principal * 0.0075 / 12) : 0;\n\n        var totalMonthly = monthlyPI + monthlyTax + monthlyIns + monthlyPMI + hoa;\n\n        // Amortization simulation with & without extra payment\n        var balanceStd = principal;\n        var totalInterestStd = 0;\n        for (var m = 0; m < n; m++) {\n          var intPmt = balanceStd * r;\n          var prinPmt = monthlyPI - intPmt;\n          totalInterestStd += intPmt;\n          balanceStd = Math.max(0, balanceStd - prinPmt);\n          if (balanceStd <= 0) break;\n        }\n\n        var balanceExtra = principal;\n        var totalInterestExtra = 0;\n        var monthsToPayoff = 0;\n        var curveData = [];\n\n        for (var m2 = 0; m2 < n; m2++) {\n          var intPmt2 = balanceExtra * r;\n          var prinPmt2 = (monthlyPI - intPmt2) + extraPrincipal;\n          totalInterestExtra += intPmt2;\n          balanceExtra = Math.max(0, balanceExtra - prinPmt2);\n          monthsToPayoff++;\n\n          if (m2 % 12 === 0 || balanceExtra <= 0) {\n            curveData.push({\n              year: Math.round(m2 / 12),\n              balance: balanceExtra,\n              interest: totalInterestExtra\n            });\n          }\n\n          if (balanceExtra <= 0) break;\n        }\n\n        var interestSaved = Math.max(0, totalInterestStd - totalInterestExtra);\n        var yearsSaved = Math.max(0, (n - monthsToPayoff) / 12);\n\n        // Update DOM\n        document.getElementById('mortTotalMonthly').textContent = '$' + Math.round(totalMonthly).toLocaleString();\n        document.getElementById('mortPITIBreakdown').textContent = '$' + Math.round(monthlyPI).toLocaleString() + ' P&I + $' + Math.round(monthlyTax + monthlyIns + monthlyPMI).toLocaleString() + ' Escrow';\n        document.getElementById('mortTotalInterest').textContent = '$' + Math.round(totalInterestExtra).toLocaleString();\n        document.getElementById('mortInterestSavedVal').textContent = (extraPrincipal > 0) ? 'Saves $' + Math.round(interestSaved).toLocaleString() + ' with extra' : 'Standard 30-year amortization';\n\n        document.getElementById('mortPIVal').textContent = '$' + Math.round(monthlyPI).toLocaleString() + ' / mo';\n        document.getElementById('mortTaxVal').textContent = '$' + Math.round(monthlyTax).toLocaleString() + ' / mo';\n        document.getElementById('mortInsVal').textContent = '$' + Math.round(monthlyIns).toLocaleString() + ' / mo';\n        document.getElementById('mortPMIVal').textContent = (monthlyPMI > 0) ? '$' + Math.round(monthlyPMI).toLocaleString() + ' / mo (<20% Down)' : '$0 / mo (No PMI)';\n        document.getElementById('mortPayoffDelta').textContent = (extraPrincipal > 0) ? 'Pay off ' + yearsSaved.toFixed(1) + ' Years Early (' + (monthsToPayoff / 12).toFixed(1) + ' yrs)' : termYears + '-Year Standard Schedule';\n\n        renderMortgageSvg(curveData, principal, totalInterestStd, termYears);\n      }\n\n      function renderMortgageSvg(curve, origPrincipal, maxInterest, termYears) {\n        var svg = document.getElementById('mortgageAmortSvg');\n        if (!svg) return;\n\n        var svgHtml = '';\n        var x0 = 80, x1 = 730;\n        var y0 = 30, y1 = 220;\n        var maxVal = Math.max(origPrincipal, maxInterest) * 1.05;\n\n        // Grid lines\n        svgHtml += '<line x1=\"' + x0 + '\" y1=\"' + y1 + '\" x2=\"' + x1 + '\" y2=\"' + y1 + '\" stroke=\"var(--border)\" stroke-width=\"2\"/>';\n        svgHtml += '<line x1=\"' + x0 + '\" y1=\"' + y0 + '\" x2=\"' + x0 + '\" y2=\"' + y1 + '\" stroke=\"var(--border)\" stroke-width=\"2\"/>';\n\n        // Curve path for Balance (Blue)\n        var balPoints = [];\n        var intPoints = [];\n\n        curve.forEach(function(pt) {\n          var x = x0 + ((pt.year / termYears) * (x1 - x0));\n          var yBal = y1 - ((pt.balance / maxVal) * (y1 - y0));\n          var yInt = y1 - ((pt.interest / maxVal) * (y1 - y0));\n          balPoints.push(x.toFixed(1) + ',' + yBal.toFixed(1));\n          intPoints.push(x.toFixed(1) + ',' + yInt.toFixed(1));\n        });\n\n        // Balance line\n        svgHtml += '<polyline points=\"' + balPoints.join(' ') + '\" fill=\"none\" stroke=\"#3b82f6\" stroke-width=\"3\"/>';\n        // Interest line\n        svgHtml += '<polyline points=\"' + intPoints.join(' ') + '\" fill=\"none\" stroke=\"#ef4444\" stroke-width=\"3\" stroke-dasharray=\"6,4\"/>';\n\n        // X labels\n        svgHtml += '<text x=\"' + x0 + '\" y=\"' + (y1 + 20) + '\" fill=\"var(--text-muted)\" font-size=\"10\">Year 0</text>';\n        svgHtml += '<text x=\"' + ((x0 + x1) / 2) + '\" y=\"' + (y1 + 20) + '\" text-anchor=\"middle\" fill=\"var(--text-muted)\" font-size=\"10\">Year ' + Math.round(termYears / 2) + '</text>';\n        svgHtml += '<text x=\"' + x1 + '\" y=\"' + (y1 + 20) + '\" text-anchor=\"end\" fill=\"var(--text-muted)\" font-size=\"10\">Year ' + termYears + '</text>';\n\n        // Legend\n        svgHtml += '<line x1=\"120\" y1=\"260\" x2=\"145\" y2=\"260\" stroke=\"#3b82f6\" stroke-width=\"3\"/>';\n        svgHtml += '<text x=\"155\" y=\"264\" fill=\"var(--fg)\" font-size=\"11\">Remaining Principal Balance</text>';\n\n        svgHtml += '<line x1=\"370\" y1=\"260\" x2=\"395\" y2=\"260\" stroke=\"#ef4444\" stroke-width=\"3\" stroke-dasharray=\"6,4\"/>';\n        svgHtml += '<text x=\"405\" y=\"264\" fill=\"var(--fg)\" font-size=\"11\">Cumulative Interest Paid</text>';\n\n        svg.innerHTML = svgHtml;\n      }\n\n      function copyMortgageTakeoff() {\n        var monthly = document.getElementById('mortTotalMonthly').textContent;\n        var pi = document.getElementById('mortPIVal').textContent;\n        var tax = document.getElementById('mortTaxVal').textContent;\n        var ins = document.getElementById('mortInsVal').textContent;\n        var pmi = document.getElementById('mortPMIVal').textContent;\n        var interest = document.getElementById('mortTotalInterest').textContent;\n        var delta = document.getElementById('mortPayoffDelta').textContent;\n        var price = document.getElementById('mortHomePrice').value;\n        var rate = document.getElementById('mortRate').value;\n        var term = document.getElementById('mortTermYears').value;\n\n        var text = '📋 Mortgage Loan & PITI Takeoff\\n' +\n          '• Home Price: $' + Number(price).toLocaleString() + ' (' + rate + '% APR, ' + term + '-Year Fixed)\\n' +\n          '• Total Monthly Payment: ' + monthly + ' PITI\\n' +\n          '• Principal & Interest: ' + pi + '\\n' +\n          '• Property Taxes: ' + tax + '\\n' +\n          '• Homeowners Insurance: ' + ins + '\\n' +\n          '• Private Mortgage Insurance: ' + pmi + '\\n' +\n          '• Total Loan Interest: ' + interest + '\\n' +\n          '• Payoff Schedule: ' + delta + '\\n\\n' +\n          'Calculated at digitaltoolsshed.com/math/mortgage-calculator';\n\n        navigator.clipboard.writeText(text).then(function() {\n          var btn = document.getElementById('copyMortgageBtn');\n          var orig = btn.innerHTML;\n          btn.innerHTML = '<span>✓ Copied Takeoff!</span>';\n          setTimeout(function() { btn.innerHTML = orig; }, 2000);\n        });\n      }\n\n      var inputs = ['mortHomePrice', 'mortDownPct', 'mortRate', 'mortTermYears', 'mortAnnualTax', 'mortAnnualIns', 'mortMonthlyHOA', 'mortExtraMonthly'];\n      inputs.forEach(function(id) {\n        var el = document.getElementById(id);\n        if (el) {\n          el.addEventListener('input', calcMortgage);\n          el.addEventListener('change', calcMortgage);\n        }\n      });\n\n      document.getElementById('copyMortgageBtn').addEventListener('click', copyMortgageTakeoff);\n\n      calcMortgage();\n    })();\n  </script>\n</div>\n"
 },
-    {
-      slug: 'tip-calculator',
-      title: 'Tip & Bill Split Calculator (Pre-Tax vs Post-Tax & Dollar Rounding)',
-      metaDesc: 'Calculate restaurant tips accurately on pre-tax subtotal, sales tax, split the bill evenly per person, and round up to whole dollars for cash or Venmo.',
-      category: 'Math & Finance',
-      faq: [
-        { q: 'Should you calculate tip on the pre-tax subtotal or post-tax total?', a: 'Proper dining etiquette (endorsed by the Emily Post Institute and restaurant industry standards) dictates that gratuity should be calculated on the pre-tax food and beverage subtotal. Sales tax is a mandatory government levy that does not reflect service quality; tipping on tax means you are paying gratuity on government taxes.' },
-        { q: 'What is the standard tipping percentage for dining in the United States?', a: 'In the United States, 15% is considered baseline for acceptable service, 18% to 20% is standard for good to great table service, and 22% to 25% is customary for exceptional hospitality or fine dining. For takeout or counter service where no seated hospitality is provided, 0% to 10% is typical.' },
-        { q: 'How does the calculator round up to whole dollars for Venmo or cash?', a: 'The calculator provides rounding options to eliminate awkward cent amounts ($0.37, $0.89). You can choose to round up the tip amount to the nearest whole dollar or round up each person\'s final payment to the nearest whole dollar or nearest $5, making split cash payments and digital transfers seamless.' },
-        { q: 'What is an automatic service charge and should I tip on top of it?', a: 'Many restaurants automatically add an 18% to 20% gratuity or \'service charge\' for large parties (typically 6 or more guests) or in certain urban areas. Always inspect your itemized bill before tipping: if an automatic gratuity or service charge is already included in the total, you do not need to add another 20% tip unless you wish to provide an extra discretionary bonus.' },
-        { q: 'How does tipping etiquette vary internationally (Europe, Japan, Australia)?', a: 'In Europe (UK, France, Italy), a 10%–12.5% discretionary service charge is often included, or rounding up the bill is customary because servers earn statutory living wages. In Australia and New Zealand, tipping is entirely optional (0%–10%). In Japan and South Korea, tipping is culturally taboo and can be perceived as an insult to the professional pride of the staff.' }
-      ],
-      body: `
-        ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math &amp; Calculators</a> &gt; Tip Calculator
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Tip &amp; Bill Split Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate restaurant tips, sales tax, equal or itemized bill splits, and whole-dollar roundups. Adheres to dining etiquette by supporting pre-tax subtotal gratuity calculations.
-          </p>
+      {
+    slug: "tip-calculator",
+    title: "Tip & Bill Split Calculator (Pre-Tax vs Post-Tax & Dollar Rounding)",
+    metaDesc: "Calculate restaurant tips accurately on pre-tax subtotal or post-tax total, split bills evenly across 1 to 30 diners, round up to whole dollars for cash or Venmo, and inspect service quality benchmarks.",
+    category: "Math & Finance",
+    faq: [
+        {
+            "q": "Should you calculate tip on the pre-tax subtotal or post-tax total?",
+            "a": "Proper dining etiquette, endorsed by the Emily Post Institute and restaurant industry standards, dictates that gratuity should be calculated on the pre-tax food and beverage subtotal. Sales tax is a mandatory government levy that does not reflect service quality; tipping on tax means you are paying a gratuity on government taxes. On a $150 meal with 9.5% sales tax ($14.25), tipping 20% on pre-tax is $30.00, whereas tipping on post-tax adds an unnecessary $2.85 surcharge."
+        },
+        {
+            "q": "What is the standard tipping percentage for dining in the United States?",
+            "a": "In the United States, standard gratuity benchmarks are: 15% for baseline acceptable service, 18% to 20% for good to attentive seated table service, and 22% to 25% for exceptional hospitality, sommeliers, or fine dining. For counter-service pickup where no table hospitality is provided, 0% to 10% is customary. Buffet attendants typically receive 10% for clearing plates and refilling drinks."
+        },
+        {
+            "q": "How does rounding up to whole dollars or $5 increments simplify group payments?",
+            "a": "Splitting bills down to exact cents ($34.83 each) creates friction when paying in cash or transferring funds via Venmo, Zelle, or Cash App. Choosing \"Round Total Per Person Up to Whole Dollar\" rounds $34.83 to $35.00, giving the server a modest extra tip ($0.17 per diner) while eliminating awkward cent transfers. Rounding to the nearest $5 makes cash bill settlement effortless without needing coins."
+        },
+        {
+            "q": "What is the legal difference between an auto-gratuity and a voluntary tip?",
+            "a": "Under IRS Revenue Ruling 2012-18, an automatic gratuity (e.g., \"18% added for parties of 6 or more\") is legally classified as a service charge, not a tip. Because the patron does not have the unrestricted right to determine the amount, the funds legally belong to the restaurant employer, must be treated as regular wages subject to payroll tax withholding, and are not required by federal law to be distributed directly to your server."
+        },
+        {
+            "q": "Are restaurants allowed to deduct credit card processing fees from employee tips?",
+            "a": "Yes, under federal Fair Labor Standards Act (FLSA) regulations and rulings in most US states (including California and New York under specific restrictions), an employer may deduct the actual transactional interchange fee (typically 2.0% to 2.75%) charged by the credit card processor to convert the charged tip into cash. However, the employer cannot deduct more than the actual merchant processing fee."
+        }
+    ],
+    body: `
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Tip & Bill Split Calculator
+  </nav>
 
-          <div class="tool-box">
-            <!-- Quick Tip Preset Buttons -->
-            <div style="margin-bottom: 1.25rem;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 600;">
-                Quick Gratuity Presets:
-              </div>
-              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                <button type="button" class="btn-sec" onclick="setTipPct(10)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">10% (Buffet/Fair)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(15)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">15% (Baseline)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(18)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">18% (Good)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(20)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem; border-color: #10b981; color: #10b981; font-weight: bold;">20% (Standard Great)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(22)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">22% (Fine Dining)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(25)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">25% (VIP Hospitality)</button>
-              </div>
-            </div>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Tip &amp; Bill Split Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Compute exact hospitality gratuity on pre-tax or post-tax totals, split expenses across groups, and round up to whole dollars for seamless cash and Venmo settlement.
+    </p>
+  </header>
 
-            <!-- Primary Inputs Grid -->
-            <div class="grid-inputs">
-              <div class="field-group">
-                <label class="field-label">Bill Subtotal ($ USD)</label>
-                <input type="number" id="tip-bill" class="code-input" value="95.00" min="0" step="0.5" oninput="calcTip()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Sales Tax Rate (%)</label>
-                <input type="number" id="tip-tax-pct" class="code-input" value="8.50" min="0" max="30" step="0.1" oninput="calcTip()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Tip Percentage (%)</label>
-                <input type="number" id="tip-pct" class="code-input" value="20" min="0" max="100" step="0.5" oninput="calcTip()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Gratuity Base</label>
-                <select id="tip-base" class="code-input" onchange="calcTip()" style="font-size: 0.95rem;">
-                  <option value="pre" selected>Pre-Tax Subtotal (Etiquette Standard)</option>
-                  <option value="post">Post-Tax Total (Higher Tip)</option>
-                </select>
-              </div>
-              <div class="field-group">
-                <label class="field-label">Number of People Splitting</label>
-                <input type="number" id="tip-people" class="code-input" value="3" min="1" max="50" step="1" oninput="calcTip()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Cash / Venmo Rounding</label>
-                <select id="tip-round" class="code-input" onchange="calcTip()" style="font-size: 0.95rem;">
-                  <option value="none" selected>Exact Cents ($0.01 Precision)</option>
-                  <option value="round-person">Round Up Per Person to Whole $1</option>
-                  <option value="round-5">Round Up Per Person to Nearest $5</option>
-                  <option value="round-tip">Round Up Tip to Whole $1</option>
-                </select>
-              </div>
-            </div>
+  <style>
+    .tip-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .tip-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .tip-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .tip-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .tip-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .tip-tab-btn { background:var(--surface-alt); border:1px solid var(--border); color:var(--text-muted); padding:0.5rem 1rem; font-family:var(--mono); font-size:0.82rem; border-radius:4px; cursor:pointer; transition:all 0.15s ease; }
+    .tip-tab-btn.active { background:#3b82f6; border-color:#2563eb; color:#ffffff; font-weight:600; }
+    .tip-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .tip-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .tip-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .tip-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
 
-            <!-- Hero Output Results Cards -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Per Person</div>
-                <div id="tip-per-person" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">$40.70</div>
-                <div id="tip-per-person-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">$6.33 tip + $2.69 tax + $31.67 meal</div>
-              </div>
+  <div class="tip-box">
+    <!-- Row 1: Bill Amounts -->
+    <div class="tip-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Food &amp; Beverage Subtotal ($ USD)</label>
+        <input type="number" id="tip-subtotal" value="85.00" min="0" step="0.5" oninput="calcTip()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
 
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Tip Amount</div>
-                <div id="tip-amount-out" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">$19.00</div>
-                <div id="tip-base-savings" style="font-size: 0.82rem; color: #10b981; font-family: var(--mono);">Pre-tax tip saves $1.62 vs post-tax</div>
-              </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Sales Tax ($ USD)</label>
+        <input type="number" id="tip-tax" value="7.23" min="0" step="0.1" oninput="calcTip()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
 
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Grand Total Bill</div>
-                <div id="tip-total-out" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">$122.08</div>
-                <div id="tip-tax-out" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Includes $8.08 sales tax (8.5%)</div>
-              </div>
-            </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Number of Guests Splitting</label>
+        <input type="number" id="tip-diners" value="2" min="1" max="50" step="1" oninput="calcTip()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+    </div>
 
-            <!-- Visual Receipt Breakdown Waterfall Bar -->
-            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
-                <span>Itemized Receipt Share Breakdown:</span>
-                <span id="tip-bar-summary" style="color: var(--fg); font-weight: bold;">Grand Total: $122.08 (100%)</span>
-              </div>
-              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
-                <div id="tip-bar-food" style="width: 77.8%; background: #10b981;" title="Food & Drinks Subtotal">Food Subtotal ($95.00)</div>
-                <div id="tip-bar-tax" style="width: 6.6%; background: #64748b;" title="Sales Tax">Tax</div>
-                <div id="tip-bar-tip" style="width: 15.6%; background: #3b82f6;" title="Gratuity">Tip ($19.00)</div>
-              </div>
-              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Food &amp; Beverage Subtotal</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #64748b; border-radius: 2px;"></span> Government Sales Tax</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> Staff Gratuity Tip</span>
-              </div>
-            </div>
+    <!-- Tip Percentage Selector Buttons -->
+    <div style="margin-bottom:1.25rem;">
+      <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.4rem;">Select Gratuity Rate</label>
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+        <button type="button" class="tip-tab-btn" onclick="setTipPct(10)">10% (Counter/Pickup)</button>
+        <button type="button" class="tip-tab-btn" onclick="setTipPct(15)">15% (Baseline)</button>
+        <button type="button" class="tip-tab-btn" onclick="setTipPct(18)">18% (Good)</button>
+        <button type="button" class="tip-tab-btn active" id="btn-tip-20" onclick="setTipPct(20)">20% (Great Standard)</button>
+        <button type="button" class="tip-tab-btn" onclick="setTipPct(22)">22% (Excellent)</button>
+        <button type="button" class="tip-tab-btn" onclick="setTipPct(25)">25% (Fine Dining)</button>
+      </div>
+    </div>
 
-            <!-- Global Tipping Etiquette Reference Table -->
-            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
-                🌍 Global Dining Gratuity Etiquette Cheat Sheet:
-              </h4>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.8rem;">
-                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #ef4444; display: block; margin-bottom: 0.25rem;">🇺🇸 United States &amp; Canada</strong>
-                  <div style="color: var(--fg); font-weight: bold;">18% – 22% Expected</div>
-                  <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.2rem;">Servers rely on tips due to tipped subminimum wage laws. 15% is bare minimum.</div>
-                </div>
+    <!-- Row 2: Custom Rate & Options -->
+    <div class="tip-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Custom Tip Percentage (%)</label>
+        <input type="number" id="tip-pct" value="20" min="0" max="100" step="0.5" oninput="onCustomTipInput()" style="width:100%;padding:0.6rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1rem;box-sizing:border-box;">
+      </div>
 
-                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #3b82f6; display: block; margin-bottom: 0.25rem;">🇬🇧 UK &amp; Western Europe</strong>
-                  <div style="color: var(--fg); font-weight: bold;">10% – 12.5% Optional</div>
-                  <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.2rem;">Often auto-included as 'Servizio/Service'. Full statutory minimum wages paid.</div>
-                </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Tipping Basis Policy</label>
+        <select id="tip-basis" onchange="calcTip()" style="width:100%;padding:0.6rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:0.92rem;box-sizing:border-box;">
+          <option value="pretax" selected>Pre-Tax Subtotal (Etiquette Standard)</option>
+          <option value="posttax">Post-Tax Total (Includes Sales Tax)</option>
+        </select>
+      </div>
 
-                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #10b981; display: block; margin-bottom: 0.25rem;">🇯🇵 Japan &amp; South Korea</strong>
-                  <div style="color: var(--fg); font-weight: bold;">0% (Strictly Taboo)</div>
-                  <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.2rem;">Exceptional service is standard culture. Leaving cash on table can be perceived as an insult.</div>
-                </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Settlement Rounding Option</label>
+        <select id="tip-round" onchange="calcTip()" style="width:100%;padding:0.6rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:0.92rem;box-sizing:border-box;">
+          <option value="exact" selected>Exact Cents ($0.01)</option>
+          <option value="round_tip">Round Tip Up to Nearest Dollar</option>
+          <option value="round_person">Round Per Person Up to Nearest $1</option>
+          <option value="round_five">Round Per Person Up to Nearest $5</option>
+        </select>
+      </div>
+    </div>
 
-                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #f59e0b; display: block; margin-bottom: 0.25rem;">🇦🇺 Australia &amp; New Zealand</strong>
-                  <div style="color: var(--fg); font-weight: bold;">0% – 10% Discretionary</div>
-                  <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.2rem;">High baseline wages. Tips are only left for standout restaurant hospitality.</div>
-                </div>
-              </div>
-            </div>
+    <!-- Hero Metrics Cards -->
+    <div class="tip-grid-4">
+      <div class="tip-card" style="border-top:4px solid #10b981;">
+        <span class="tip-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Each Diner</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Per Person</div>
+        <div id="card-tip-person-tot" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#10b981;">$54.62</div>
+        <div id="card-tip-person-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Tip included: $8.50</div>
+      </div>
 
-            <!-- Action Copy Button -->
-            <button type="button" id="btnCopyTip" onclick="copyTipSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Itemized Dining Bill &amp; Venmo Split Report
-            </button>
-          </div>
+      <div class="tip-card" style="border-top:4px solid #3b82f6;">
+        <span class="tip-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Total Gratuity</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Tip Amount</div>
+        <div id="card-tip-total-amt" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#3b82f6;">$17.00</div>
+        <div id="card-tip-rate-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">20.0% on pre-tax subtotal</div>
+      </div>
 
-          <!-- Step-by-Step Worked Derivation -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Gratuity &amp; Bill Derivation</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Etiquette Standard</span>
-            </div>
-            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Gratuity and equal share derivation based on your bill inputs:
-            </p>
-            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">1. Sales Tax Assessment:</strong>
-                <div style="color: #3b82f6; margin-top: 0.25rem;">Tax = Subtotal &times; (Tax Rate / 100)</div>
-                <div id="tip-step-tax" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  Worked: $95.00 &times; (8.50 / 100) = <strong>$8.08</strong>
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">2. Tip Calculation (Pre-Tax Standard):</strong>
-                <div style="color: #3b82f6; margin-top: 0.25rem;">Tip = Base &times; (Tip Rate / 100)</div>
-                <div id="tip-step-tip" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  Worked: $95.00 &times; 20% = <strong>$19.00</strong>
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981; font-weight: 700;">3. Grand Total &amp; Per Person Division:</strong>
-                <div id="tip-step-total" style="color: #10b981; margin-top: 0.25rem;">
-                  Total = $95.00 + $8.08 + $19.00 = $122.08 &bull; Split 3 ways: <strong>$40.70 per person</strong>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div class="tip-card" style="border-top:4px solid #8b5cf6;">
+        <span class="tip-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Full Check</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Register Bill</div>
+        <div id="card-tip-grand-total" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:var(--fg);">$109.23</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Subtotal + Tax + Tip</div>
+      </div>
 
-          <!-- Critical Pitfalls & Dining Gotchas -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Dining Pitfalls &amp; Tip Traps</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Double-Tipping Auto-Gratuity Trap:</strong> For parties of 6 or more, restaurants almost universally add an automatic 18% or 20% gratuity onto the bill. Many diners inadvertently sign the merchant credit card slip and add another 20% tip, unintentionally tipping 40% on their meal. Always review itemized lines before signing.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Point-of-Sale (POS) Tip Creep:</strong> Tablet checkout terminals (Toast, Square, Clover) calculate recommended tip percentages on the post-tax, post-fee grand total by default, rather than the pre-tax food cost. On a $100 food order with 10% tax and a 3% card fee, a "20% tip" prompt charges $22.60 instead of $20.00.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Mandatory Service Fees vs Gratuity:</strong> In some jurisdictions (e.g. California, New York), restaurants assess a 3% to 5% "kitchen wellness" or "employee health fee". Legally, these fees belong to the restaurant owners and are NOT gratuities distributed directly to waitstaff. Ask your server if the fee reaches their pocket.</li>
-            </ul>
-          </div>
-        </div>
+      <div class="tip-card" style="border-top:4px solid #f59e0b;">
+        <span class="tip-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Tax Rate</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Sales Tax Paid</div>
+        <div id="card-tip-tax-amt" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#f59e0b;">$7.23</div>
+        <div id="card-tip-tax-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">8.51% effective tax</div>
+      </div>
+    </div>
 
-        <script>
-          window.setTipPct = function(pct) {
-            document.getElementById('tip-pct').value = pct;
-            calcTip();
-          };
+    <!-- Pure SVG Dining Cost Breakdown -->
+    <div class="tip-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Dining Check Allocation Stack</span>
+        <span style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Proportional Bill Distribution</span>
+      </div>
+      <div id="tip-svg-container" style="width:100%;height:75px;"></div>
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#64748b;border-radius:2px;"></span> Food &amp; Drink Subtotal</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#f59e0b;border-radius:2px;"></span> Sales Tax</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#3b82f6;border-radius:2px;"></span> Gratuity Tip</span>
+      </div>
+    </div>
 
-          function calcTip() {
-            const bill = parseFloat(document.getElementById('tip-bill').value) || 0;
-            const taxPct = (parseFloat(document.getElementById('tip-tax-pct').value) || 0) / 100;
-            const tipPct = (parseFloat(document.getElementById('tip-pct').value) || 0) / 100;
-            const baseMode = document.getElementById('tip-base').value;
-            const people = parseInt(document.getElementById('tip-people').value, 10) || 1;
-            const roundMode = document.getElementById('tip-round').value;
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #3b82f6;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Mathematical Derivations:</div>
+      <div id="tip-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
 
-            const taxAmount = bill * taxPct;
-            let tipAmount = 0;
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyTipBreakdown(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Dining Bill Split Breakdown
+      </button>
+    </div>
+  </div>
 
-            if (baseMode === 'pre') {
-              tipAmount = bill * tipPct;
-            } else {
-              tipAmount = (bill + taxAmount) * tipPct;
-            }
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Restaurant Tipping &amp; Bill Splitting</h2>
 
-            // Post-tax difference savings
-            const postTaxTip = (bill + taxAmount) * tipPct;
-            const preTaxTip = bill * tipPct;
-            const diffSavings = postTaxTip - preTaxTip;
+    <div class="tip-trap-card">
+      <div class="tip-trap-title">1. The "Double Tipping on Sales Tax" Trap</div>
+      <p class="tip-trap-desc">
+        Many point-of-sale terminals (e.g., Toast, Clover, Square) automatically calculate suggested tip percentages on the post-tax balance rather than the pre-tax food subtotal. In metropolitan cities with high combined sales and restaurant meal taxes (such as Chicago at 10.75% or Seattle at 10.25%), tipping 20% on the tax amounts to paying gratuity to your server on money that goes directly to municipal government coffers.
+      </p>
+    </div>
 
-            if (baseMode === 'pre' && diffSavings > 0.05) {
-              document.getElementById('tip-base-savings').textContent = 'Pre-tax tip saves $' + diffSavings.toFixed(2) + ' vs post-tax';
-              document.getElementById('tip-base-savings').style.color = '#10b981';
-            } else {
-              document.getElementById('tip-base-savings').textContent = 'Calculated on post-tax total';
-              document.getElementById('tip-base-savings').style.color = 'var(--text-muted)';
-            }
+    <div class="tip-trap-card">
+      <div class="tip-trap-title">2. Mandatory "Service Charge" vs. Voluntary Tip (IRS Revenue Ruling 2012-18)</div>
+      <p class="tip-trap-desc">
+        When an eatery automatically adds an "18% auto-gratuity for large parties" or a "4% kitchen wellness fee", this money legally belongs to the restaurant entity, not your server. Restaurants can legally use service charges to subsidize rent, back-of-house utility expenses, or manager bonuses. Unless explicitly stated in writing that 100% of the charge is transferred to your front-of-house server, your server may receive none of it.
+      </p>
+    </div>
 
-            // Rounding logic
-            if (roundMode === 'round-tip') {
-              tipAmount = Math.ceil(tipAmount);
-            }
+    <div class="tip-trap-card">
+      <div class="tip-trap-title">3. The Counter-Service iPad Guilt-Trip Screen</div>
+      <p class="tip-trap-desc">
+        Self-ordering kiosks, coffee shops, and counter-service bakeries frequently swivel an iPad terminal displaying preset tip buttons starting at 20%, 25%, and 30%. Historically, gratuity compensates servers who provide ongoing table service (menu recommendations, drink refills, clearing courses). For over-the-counter retail transactions where you carry your own food to a table, a tip of 0% to 10% is customary.
+      </p>
+    </div>
 
-            let totalBill = bill + taxAmount + tipAmount;
-            let perPerson = totalBill / people;
+    <div class="tip-trap-card">
+      <div class="tip-trap-title">4. Credit Card Interchange Fee Tip Deductions</div>
+      <p class="tip-trap-desc">
+        Under federal FLSA regulations, restaurant operators are legally permitted to deduct the actual credit card processing fee (2.0% to 2.75%) from employee tips paid via credit card. For example, on a $20.00 credit card tip, the employer can withhold approximately $0.50 to cover the Visa/Mastercard interchange fee, paying the employee $19.50. Some states (such as California and Massachusetts) strictly prohibit this deduction, requiring the employer to absorb the full transaction fee.
+      </p>
+    </div>
 
-            if (roundMode === 'round-person') {
-              perPerson = Math.ceil(perPerson);
-              totalBill = perPerson * people;
-              tipAmount = Math.max(0, totalBill - bill - taxAmount);
-            } else if (roundMode === 'round-5') {
-              perPerson = Math.ceil(perPerson / 5) * 5;
-              totalBill = perPerson * people;
-              tipAmount = Math.max(0, totalBill - bill - taxAmount);
-            }
+    <div class="tip-trap-card">
+      <div class="tip-trap-title">5. Delivery App Service Fee &amp; Driver Tip Stacking</div>
+      <p class="tip-trap-desc">
+        Ordering via third-party delivery apps (DoorDash, UberEats, Grubhub) incurs stacked surcharges: higher menu prices (often 15-30% higher than in-store), delivery fees, service fees, regulatory response fees, and courier tips. Many customers mistakenly believe the "delivery fee" goes to the delivery driver; in reality, drivers rely almost entirely on the separate in-app tip to cover fuel, vehicle depreciation, and liveable compensation.
+      </p>
+    </div>
+  </div>
+</div>
 
-            const tipPerPerson = tipAmount / people;
-            const taxPerPerson = taxAmount / people;
-            const mealPerPerson = bill / people;
+<script>
+  function setTipPct(pct) {
+    document.getElementById('tip-pct').value = pct;
+    var btns = document.querySelectorAll('.tip-tab-btn');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+    var matchBtn = Array.from(btns).find(function(b) { return b.textContent.indexOf(pct + '%') !== -1; });
+    if (matchBtn) matchBtn.classList.add('active');
+    calcTip();
+  }
 
-            // DOM Updates
-            document.getElementById('tip-per-person').textContent = '$' + perPerson.toFixed(2);
-            document.getElementById('tip-amount-out').textContent = '$' + tipAmount.toFixed(2);
-            document.getElementById('tip-total-out').textContent = '$' + totalBill.toFixed(2);
+  function onCustomTipInput() {
+    var btns = document.querySelectorAll('.tip-tab-btn');
+    btns.forEach(function(b) { b.classList.remove('active'); });
+    calcTip();
+  }
 
-            document.getElementById('tip-per-person-sub').textContent = '$' + tipPerPerson.toFixed(2) + ' tip + $' + taxPerPerson.toFixed(2) + ' tax + $' + mealPerPerson.toFixed(2) + ' meal';
-            document.getElementById('tip-tax-out').textContent = 'Includes $' + taxAmount.toFixed(2) + ' sales tax (' + (taxPct * 100).toFixed(1) + '%)';
+  function calcTip() {
+    var subtotal = parseFloat(document.getElementById('tip-subtotal').value) || 0;
+    var tax = parseFloat(document.getElementById('tip-tax').value) || 0;
+    var diners = parseInt(document.getElementById('tip-diners').value, 10) || 1;
+    var tipPct = parseFloat(document.getElementById('tip-pct').value) || 0;
+    var basis = document.getElementById('tip-basis').value;
+    var roundMode = document.getElementById('tip-round').value;
 
-            // Waterfall Bar
-            if (totalBill > 0) {
-              const foodPct = (bill / totalBill) * 100;
-              const taxP = (taxAmount / totalBill) * 100;
-              const tipP = (tipAmount / totalBill) * 100;
+    if (diners < 1) diners = 1;
 
-              document.getElementById('tip-bar-food').style.width = foodPct.toFixed(1) + '%';
-              document.getElementById('tip-bar-tax').style.width = taxP.toFixed(1) + '%';
-              document.getElementById('tip-bar-tip').style.width = tipP.toFixed(1) + '%';
+    var tipBase = (basis === 'posttax') ? (subtotal + tax) : subtotal;
+    var rawTip = tipBase * (tipPct / 100);
 
-              document.getElementById('tip-bar-food').textContent = 'Food ($' + bill.toFixed(2) + ')';
-              document.getElementById('tip-bar-tip').textContent = 'Tip ($' + tipAmount.toFixed(2) + ')';
-              document.getElementById('tip-bar-summary').textContent = 'Grand Total: $' + totalBill.toFixed(2) + ' (100%)';
-            }
+    var finalTip = rawTip;
+    var grandTotal = subtotal + tax + rawTip;
+    var perPersonTotal = grandTotal / diners;
+    var perPersonTip = rawTip / diners;
 
-            // Steps
-            document.getElementById('tip-step-tax').innerHTML = '$' + bill.toFixed(2) + ' &times; ' + (taxPct * 100).toFixed(2) + '% = <strong>$' + taxAmount.toFixed(2) + '</strong>';
-            document.getElementById('tip-step-tip').innerHTML = (baseMode === 'pre' ? '$' + bill.toFixed(2) : '$' + (bill + taxAmount).toFixed(2)) + ' &times; ' + (tipPct * 100).toFixed(1) + '% = <strong>$' + tipAmount.toFixed(2) + '</strong>';
-            document.getElementById('tip-step-total').innerHTML = 'Total = $' + bill.toFixed(2) + ' + $' + taxAmount.toFixed(2) + ' + $' + tipAmount.toFixed(2) + ' = $' + totalBill.toFixed(2) + ' &bull; Split ' + people + ' ways: <strong>$' + perPerson.toFixed(2) + ' per person</strong>';
-          }
+    // Apply Rounding Modes
+    if (roundMode === 'round_tip') {
+      finalTip = Math.ceil(rawTip);
+      grandTotal = subtotal + tax + finalTip;
+      perPersonTotal = grandTotal / diners;
+      perPersonTip = finalTip / diners;
+    } else if (roundMode === 'round_person') {
+      perPersonTotal = Math.ceil(perPersonTotal);
+      grandTotal = perPersonTotal * diners;
+      finalTip = Math.max(0, grandTotal - subtotal - tax);
+      perPersonTip = finalTip / diners;
+    } else if (roundMode === 'round_five') {
+      perPersonTotal = Math.ceil(perPersonTotal / 5) * 5;
+      grandTotal = perPersonTotal * diners;
+      finalTip = Math.max(0, grandTotal - subtotal - tax);
+      perPersonTip = finalTip / diners;
+    }
 
-          window.copyTipSummary = function() {
-            const bill = document.getElementById('tip-bill').value;
-            const perPerson = document.getElementById('tip-per-person').textContent;
-            const tip = document.getElementById('tip-amount-out').textContent;
-            const total = document.getElementById('tip-total-out').textContent;
-            const people = document.getElementById('tip-people').value;
-            const tax = document.getElementById('tip-tax-out').textContent;
+    var effTipPct = (subtotal > 0) ? ((finalTip / subtotal) * 100) : 0;
+    var effTaxPct = (subtotal > 0) ? ((tax / subtotal) * 100) : 0;
 
-            const text = [
-              '=== DINING BILL & TIP SPLIT SUMMARY ===',
-              'Bill Subtotal: $' + parseFloat(bill).toFixed(2),
-              tax,
-              'Total Tip: ' + tip,
-              'Grand Total Bill: ' + total,
-              '--------------------------------------',
-              'Number of People: ' + people,
-              'Total Payment Per Person: ' + perPerson,
-              '--------------------------------------',
-              'Etiquette Standard: Pre-Tax Subtotal Gratuity',
-              'Timestamp: ' + new Date().toISOString(),
-              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/tip-calculator'
-            ].join('\n');
+    // Display Hero metrics
+    document.getElementById('card-tip-person-tot').textContent = '$' + perPersonTotal.toFixed(2);
+    document.getElementById('card-tip-person-sub').textContent = 'Tip share: $' + perPersonTip.toFixed(2) + ' (' + diners + ' guest' + (diners > 1 ? 's' : '') + ')';
 
-            navigator.clipboard.writeText(text).then(function() {
-              const btn = document.getElementById('btnCopyTip');
-              if (btn) {
-                const old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Dining Split Report!';
-                btn.style.color = '#10b981';
-                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
-              }
-            });
-          };
+    document.getElementById('card-tip-total-amt').textContent = '$' + finalTip.toFixed(2);
+    document.getElementById('card-tip-rate-sub').textContent = tipPct.toFixed(1) + '% on ' + (basis === 'posttax' ? 'total check' : 'pre-tax subtotal');
 
-          document.addEventListener('DOMContentLoaded', function() { calcTip(); });
-          calcTip();
-        </script>
-      `
-    },
+    document.getElementById('card-tip-grand-total').textContent = '$' + grandTotal.toFixed(2);
+
+    document.getElementById('card-tip-tax-amt').textContent = '$' + tax.toFixed(2);
+    document.getElementById('card-tip-tax-sub').textContent = effTaxPct.toFixed(2) + '% effective tax rate';
+
+    renderTipVisual(subtotal, tax, finalTip, grandTotal);
+
+    // Derivations
+    var deriv = [
+      '1. Tipping Base Amount: ' + (basis === 'posttax' ? ('Post-Tax Total ($' + subtotal.toFixed(2) + ' + $' + tax.toFixed(2) + ' = $' + (subtotal + tax).toFixed(2) + ')') : ('Pre-Tax Subtotal ($' + subtotal.toFixed(2) + ')')),
+      '2. Gratuity Computation: $' + tipBase.toFixed(2) + ' &times; (' + tipPct.toFixed(1) + '% &divide; 100) = <strong>$' + rawTip.toFixed(2) + ' raw tip</strong>',
+      '3. Full Dining Check: $' + subtotal.toFixed(2) + ' (food) + $' + tax.toFixed(2) + ' (tax) + $' + finalTip.toFixed(2) + ' (tip) = <strong>$' + grandTotal.toFixed(2) + ' total</strong>'
+    ];
+
+    if (diners > 1) {
+      deriv.push('4. Bill Split (' + diners + ' diners): $' + grandTotal.toFixed(2) + ' &divide; ' + diners + ' = <strong>$' + perPersonTotal.toFixed(2) + ' per person</strong> (Tip contribution: $' + perPersonTip.toFixed(2) + ' each)');
+    }
+
+    if (roundMode !== 'exact') {
+      deriv.push('5. Rounding Adjustment Applied: ' + (roundMode === 'round_tip' ? 'Tip rounded up to whole dollar' : ('Per-person amount rounded up to nearest ' + (roundMode === 'round_five' ? '$5.00' : '$1.00') + ' (generates an extra $' + (finalTip - rawTip).toFixed(2) + ' gratuity for the server)')));
+    }
+
+    document.getElementById('tip-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderTipVisual(subtotal, tax, tip, total) {
+    var c = document.getElementById('tip-svg-container');
+    if (!c || total <= 0) return;
+
+    var w = c.clientWidth || 600;
+    var h = 65;
+
+    var pctSub = subtotal / total;
+    var pctTax = tax / total;
+    var pctTip = tip / total;
+
+    var barH = 26;
+    var y = 14;
+
+    var wSub = Math.max(1, pctSub * (w - 4));
+    var wTax = Math.max(0, pctTax * (w - 4));
+    var wTip = Math.max(0, pctTip * (w - 4));
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    svg += '<rect x="2" y="' + y + '" width="' + (w - 4) + '" height="' + barH + '" rx="4" fill="#334155" />';
+    svg += '<rect x="2" y="' + y + '" width="' + wSub + '" height="' + barH + '" rx="4" fill="#64748b" />';
+
+    if (wTax > 0) {
+      svg += '<rect x="' + (2 + wSub) + '" y="' + y + '" width="' + wTax + '" height="' + barH + '" fill="#f59e0b" />';
+    }
+
+    if (wTip > 0) {
+      svg += '<rect x="' + (2 + wSub + wTax) + '" y="' + y + '" width="' + wTip + '" height="' + barH + '" rx="4" fill="#3b82f6" />';
+    }
+
+    svg += '<text x="4" y="' + (y + barH + 16) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Food: $' + subtotal.toFixed(2) + ' (' + (pctSub * 100).toFixed(1) + '%)</text>';
+    svg += '<text x="' + (w - 4) + '" y="' + (y + barH + 16) + '" fill="#3b82f6" font-family="var(--mono)" font-size="11" text-anchor="end">Tip: $' + tip.toFixed(2) + ' (' + (pctTip * 100).toFixed(1) + '%)</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyTipBreakdown(btn) {
+    var sub = document.getElementById('tip-subtotal').value;
+    var tax = document.getElementById('card-tip-tax-amt').textContent.trim();
+    var tip = document.getElementById('card-tip-total-amt').textContent.trim();
+    var grand = document.getElementById('card-tip-grand-total').textContent.trim();
+    var each = document.getElementById('card-tip-person-tot').textContent.trim();
+    var diners = document.getElementById('tip-diners').value;
+    var tipPct = document.getElementById('tip-pct').value;
+
+    var lines = [
+      '========================================',
+      '     RESTAURANT BILL SPLIT BREAKDOWN',
+      '========================================',
+      'Food & Drink Subtotal : $' + Number(sub).toFixed(2),
+      'Sales Tax             : ' + tax,
+      'Gratuity (' + tipPct + '%)         : ' + tip,
+      '----------------------------------------',
+      'TOTAL REGISTER BILL   : ' + grand,
+      'Number of Diners      : ' + diners,
+      'TOTAL PER PERSON      : ' + each,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/tip-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Bill Split!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcTip);
+  document.addEventListener('DOMContentLoaded', calcTip);
+  calcTip();
+</script>
+`
+  },
     {
       slug: 'roman-numerals',
       title: 'Roman Numerals Converter & Decoder (Standard & Vinculum Extended)',
@@ -1132,769 +1188,878 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
         </script>
       `
     },
-    {
-      slug: 'age-calculator',
-      title: 'Exact Age Calculator (Years, Months, Days, Lifetime Milestones & Next Birthday)',
-      metaDesc: 'Free exact age calculator: compute chronological age in years, months, days, hours, and seconds. Discover total heartbeats, planetary ages, astrological zodiac signs, and next birthday countdown.',
-      category: 'Math & Calculation',
-      faq: [
-        { q: 'How is exact chronological age calculated across leap years and variable month lengths?', a: 'Chronological age is calculated using calendar month and day borrowing. If the target day is smaller than the birth day, we borrow the exact number of days from the preceding month (28, 29, 30, or 31). If the target month is smaller than the birth month, we borrow 12 months from the year.' },
-        { q: 'What happens if I was born on Leap Day (February 29)? When is my legal birthday?', a: 'In non-leap years, legal maturity for leap day babies varies by jurisdiction. In the United Kingdom and common-law countries, statutory age increments on March 1st. In some US states (like California) and Taiwan, rights legally vest on February 28th.' },
-        { q: 'What is the difference between chronological age and biological age?', a: 'Chronological age measures the elapsed orbital cycles around the Sun since birth. Biological age reflects cellular senescence, DNA methylation (epigenetic clocks like Horvath\'s clock), telomere length, and cardiovascular health.' },
-        { q: 'Why did South Korea abolish its traditional East Asian age reckoning system?', a: 'Under traditional East Asian reckoning, a baby was considered 1 year old at birth and gained a year every January 1st (meaning a baby born on Dec 31 turned 2 the next day). South Korea officially abolished this in June 2023 to eliminate administrative and legal confusion.' },
-        { q: 'How are planetary ages (Mars, Venus, Jupiter) calculated?', a: 'Planetary age divides your total days alive by the orbital period of the planet. For example, a Mars year is 686.98 Earth days, so someone aged 30 on Earth is approximately 15.9 Mars years old.' }
-      ],
-      body: `
-        \${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Age Calculator
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.85rem; margin-bottom: 0.5rem;">Exact Age Calculator & Lifetime Milestones</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Compute your exact chronological age in years, months, and days down to the second. Explore biological vitality milestones, planetary orbits, astrological signs, and live next-birthday countdowns.
-          </p>
+      {
+    slug: "age-calculator",
+    title: "Exact Age Calculator (Years, Months, Days, Lifetime Milestones & Next Birthday)",
+    metaDesc: "Calculate exact chronological age in years, months, days, hours, and minutes. Includes actuarial life progression SVG bar, planetary orbital ages, next birthday countdown, and biological milestone trackers.",
+    category: "Math & Calculation",
+    faq: [
+        {
+            "q": "How is exact chronological age calculated across leap years and variable month lengths?",
+            "a": "Chronological age uses strict calendar date borrowing rather than average month division. If the current target day is less than the birth day, the calculation borrows the exact number of days from the preceding month (28, 29, 30, or 31 depending on the calendar month and leap year status). If the target month is less than the birth month, it borrows 12 months from the year. Naive division by 365.25 or 30.44 days creates systematic 1 to 2-day errors."
+        },
+        {
+            "q": "What happens if I was born on Leap Day (February 29)? When is my legal birthday?",
+            "a": "For individuals born on February 29 during a leap year, statutory maturity in non-leap years varies by jurisdiction. In the United Kingdom, common-law countries, and Hong Kong, statutory age increments on March 1st. In some US states (such as California) and Taiwan, legal rights vest on February 28th. Aviation and passport authorities internationally typically recognize March 1st as the standard non-leap year renewal date."
+        },
+        {
+            "q": "What is the difference between chronological age and biological age?",
+            "a": "Chronological age measures elapsed calendar orbital revolutions around the Sun since birth. Biological (or epigenetic) age reflects cellular senescence, telomere attrition, DNA methylation patterns (such as the Horvath epigenetic clock), and physiological cardiovascular elasticity. An individual with a chronological age of 45 may possess a biological biomarker age of 38 or 52 depending on metabolic health, sleep, and lifestyle."
+        },
+        {
+            "q": "Why did South Korea officially abolish its traditional \"Korean Age\" counting system in 2023?",
+            "a": "Prior to June 28, 2023, South Korea used the traditional \"Korean age\" system (K-age), where infants were considered 1 year old on the day of birth and gained an additional year every January 1st regardless of their actual birthday. This meant a baby born on December 31st became 2 years old on January 1st at just two days old. South Korea passed landmark legislation officially standardizing on international chronological age for all civil, legal, and administrative matters."
+        },
+        {
+            "q": "How are planetary ages calculated on other planets in our solar system?",
+            "a": "Planetary age is determined by dividing total Earth days lived by the orbital period (sidereal year) of each target planet: Mercury (87.97 Earth days), Venus (224.7 Earth days), Mars (686.98 Earth days), Jupiter (4,332.59 Earth days / 11.86 Earth years), and Saturn (10,759.22 Earth days / 29.46 Earth years). An Earthling aged 30 is approximately 124.5 years old on Mercury, but only 2.53 years old on Jupiter."
+        }
+    ],
+    body: `
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Exact Age Calculator
+  </nav>
 
-          <div class="tool-box">
-            <!-- Input Grid -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-              <div>
-                <label class="field-label" for="dobInput">Date of Birth</label>
-                <input type="date" id="dobInput" class="text-input" value="1995-06-15" oninput="calcAge()" />
-                <span id="dobWeekdayLabel" style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;"></span>
-              </div>
-              <div>
-                <label class="field-label" for="ageAtDate">Age at Date (Target Date)</label>
-                <input type="date" id="ageAtDate" class="text-input" oninput="calcAge()" />
-                <span id="targetWeekdayLabel" style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;"></span>
-              </div>
-            </div>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Exact Chronological Age Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Calculate exact elapsed age in years, months, days, and seconds. Discover your planetary solar ages, countdown to your next birthday, and inspect actuarial life progression.
+    </p>
+  </header>
 
-            <!-- Quick Presets -->
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-              <button type="button" class="btn" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="setDobPreset(2000, 0, 1)">Born Jan 1, 2000</button>
-              <button type="button" class="btn" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="setDobPreset(1990, 5, 15)">Born 1990</button>
-              <button type="button" class="btn" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="setDobPreset(1980, 9, 20)">Born 1980</button>
-              <button type="button" class="btn" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="resetTargetToToday()">Set Target to Today</button>
-            </div>
+  <style>
+    .age-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .age-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .age-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .age-grid-5 { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:0.75rem; margin-top:1.25rem; }
+    .age-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .age-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .age-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .age-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .age-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .age-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
 
-            <!-- Live Results Container -->
-            <div id="ageResults" style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+  <div class="age-box">
+    <!-- Row 1: Inputs -->
+    <div class="age-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Date of Birth</label>
+        <input type="date" id="age-dob" value="1995-06-15" onchange="calcAge()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.15rem;font-weight:bold;box-sizing:border-box;">
+      </div>
 
-            <!-- One-Click Copy Report Button -->
-            <div style="margin-top: 1.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
-              <button type="button" id="copyAgeReportBtn" class="btn" style="background: #10b981; color: #fff; font-weight: 600; padding: 0.6rem 1.25rem; font-size: 0.85rem;" onclick="copyAgeReport()">
-                📋 Copy Complete Milestone Report
-              </button>
-            </div>
-          </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Calculate Age As Of Date</label>
+        <input type="date" id="age-target" onchange="calcAge()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.15rem;font-weight:bold;box-sizing:border-box;">
+      </div>
 
-          <!-- Step-by-Step Derivation & Calendar Borrowing Math -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin: 1.5rem 0; font-family: var(--mono); font-size: 0.85rem;">
-            <div style="font-weight: bold; color: var(--fg); margin-bottom: 0.5rem; font-size: 0.95rem;">Step-by-Step Calendar Borrowing Derivation</div>
-            <div id="ageDerivationBox" style="display: grid; gap: 0.4rem; color: var(--text-muted); line-height: 1.5;"></div>
-          </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Time of Birth (Optional)</label>
+        <input type="time" id="age-tob" value="12:00" onchange="calcAge()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.15rem;box-sizing:border-box;">
+      </div>
+    </div>
 
-          <!-- 3 Real-World Pitfalls & Legal Gotchas -->
-          <div style="margin: 2rem 0; display: grid; gap: 1rem;">
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #ef4444; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 1: The Leap Day Baby Legal Age Paradox (Feb 29)</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                If you were born on February 29th (a Leap Year), when do you legally turn 18 or 21 in non-leap years? Statutory laws diverge globally. Under English common law (rooted in <em>21 Henry III</em>) and UK precedent, legal age is attained on <strong>March 1st</strong>. Conversely, several US state administrative codes and Taiwan civil law declare legal rights vest on <strong>February 28th</strong>.
-              </p>
-            </div>
+    <!-- Quick Date Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Sample Milestones:</span>
+      <button type="button" class="btn-sec" onclick="setAgePreset('2000-01-01')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Y2K Baby (Jan 1, 2000)</button>
+      <button type="button" class="btn-sec" onclick="setAgePreset('1990-10-15')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Millennial (Oct 15, 1990)</button>
+      <button type="button" class="btn-sec" onclick="setAgePreset('1980-05-20')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Gen X (May 20, 1980)</button>
+      <button type="button" class="btn-sec" onclick="setAgePreset('1960-03-12')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Boomer (Mar 12, 1960)</button>
+    </div>
 
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #eab308; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 2: East Asian Age Reckoning (Korean Age Abolition)</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                Traditionally in Korea, China, and Japan, babies were considered 1 year old on their day of birth, and everyone gained an additional year together on New Year\'s Day. Under this system, an infant born on December 31st would turn 2 years old on January 1st despite having lived for less than 24 hours. On June 28, 2023, South Korea officially abolished this legal standard, mandating international chronological age across all administrative contracts and civil law.
-              </p>
-            </div>
+    <!-- Hero Cards -->
+    <div class="age-grid-4">
+      <div class="age-card" style="border-top:4px solid #10b981;">
+        <span class="age-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Exact Age</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Chronological Age</div>
+        <div id="card-age-main" style="font-family:var(--mono);font-size:1.7rem;font-weight:bold;color:#10b981;">31 Yrs 2 Mos</div>
+        <div id="card-age-days" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">and 18 Days</div>
+      </div>
 
-            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-weight: bold; color: #3b82f6; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 3: Chronological Age vs Biological Epigenetic Age</div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
-                Chronological age is merely a measure of how many 365.2425-day astronomical orbits Earth has completed since your birth. In contrast, modern biomedical science evaluates <strong>Biological Age</strong> through epigenetic clocks (such as Steve Horvath\'s DNA methylation clock), telomere length attrition, and organ biomarkers. A 45-year-old marathon runner with optimal cardiovascular markers may register a biological age of 38, while chronic inflammation can elevate biological age far above calendar years.
-              </p>
-            </div>
-          </div>
+      <div class="age-card" style="border-top:4px solid #3b82f6;">
+        <span class="age-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Next Birthday</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Countdown</div>
+        <div id="card-age-next" style="font-family:var(--mono);font-size:1.7rem;font-weight:bold;color:#3b82f6;">283 Days</div>
+        <div id="card-age-next-dow" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Falling on a Tuesday</div>
+      </div>
 
-          <div class="ad-blend-box" style="margin: 2rem 0;">
-            <span class="ad-label">Sponsored Resource</span>
-            <div class="ad-unit-300x250">
-              <script type="text/javascript">
-                atOptions = {
-                  'key' : '335d807d460eaf2491fcca0f635474ce',
-                  'format' : 'iframe',
-                  'height' : 250,
-                  'width' : 300,
-                  'params' : {}
-                };
-              </script>
-              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-            </div>
-          </div>
+      <div class="age-card" style="border-top:4px solid #8b5cf6;">
+        <span class="age-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Total Days</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Days Lived</div>
+        <div id="card-age-total-days" style="font-family:var(--mono);font-size:1.7rem;font-weight:bold;color:var(--fg);">11,398</div>
+        <div id="card-age-hours" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">273,552 Hours</div>
+      </div>
+
+      <div class="age-card" style="border-top:4px solid #f59e0b;">
+        <span class="age-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Biology</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Heartbeats Elapsed</div>
+        <div id="card-age-heartbeats" style="font-family:var(--mono);font-size:1.7rem;font-weight:bold;color:#f59e0b;">1.23 Billion</div>
+        <div id="card-age-breaths" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">~262 Million Breaths</div>
+      </div>
+    </div>
+
+    <!-- Pure SVG Life Expectancy Progression -->
+    <div class="age-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Actuarial Life Horizon Progression (79.5 Yr Benchmark)</span>
+        <span id="age-pct-lived-text" style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">39.2% of statistical life lived</span>
+      </div>
+      <div id="age-svg-container" style="width:100%;height:65px;"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span>Birth (0)</span>
+        <span>Youth (18-21)</span>
+        <span>Prime (35)</span>
+        <span>Midlife (50)</span>
+        <span>Retirement (65)</span>
+        <span>Expectancy (79.5)</span>
+      </div>
+    </div>
+
+    <!-- Planetary Solar System Ages Grid -->
+    <div style="margin-top:1.5rem;">
+      <h3 style="font-family:var(--serif);font-size:1.15rem;margin-bottom:0.75rem;color:var(--fg);">Your Planetary Solar Ages (Orbital Revolution Years)</h3>
+      <div class="age-grid-5">
+        <div class="age-card">
+          <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Mercury (88d)</div>
+          <div id="planet-mercury" style="font-family:var(--mono);font-size:1.25rem;font-weight:bold;color:#38bdf8;margin:0.25rem 0;">129.5 Yrs</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--mono);">Orbital speed: 47 km/s</div>
         </div>
-
-        <script>
-          var currentAgeData = null;
-          var weekdaysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-          function getWesternZodiac(m, d) {
-            if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return { sign: 'Aries ♈', element: 'Fire 🔥', dates: 'Mar 21 - Apr 19' };
-            if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return { sign: 'Taurus ♉', element: 'Earth 🌍', dates: 'Apr 20 - May 20' };
-            if ((m === 5 && d >= 21) || (m === 6 && d <= 20)) return { sign: 'Gemini ♊', element: 'Air 💨', dates: 'May 21 - Jun 20' };
-            if ((m === 6 && d >= 21) || (m === 7 && d <= 22)) return { sign: 'Cancer ♋', element: 'Water 💧', dates: 'Jun 21 - Jul 22' };
-            if ((m === 7 && d >= 23) || (m === 8 && d <= 22)) return { sign: 'Leo ♌', element: 'Fire 🔥', dates: 'Jul 23 - Aug 22' };
-            if ((m === 8 && d >= 23) || (m === 9 && d <= 22)) return { sign: 'Virgo ♍', element: 'Earth 🌍', dates: 'Aug 23 - Sep 22' };
-            if ((m === 9 && d >= 23) || (m === 10 && d <= 22)) return { sign: 'Libra ♎', element: 'Air 💨', dates: 'Sep 23 - Oct 22' };
-            if ((m === 10 && d >= 23) || (m === 11 && d <= 21)) return { sign: 'Scorpio ♏', element: 'Water 💧', dates: 'Oct 23 - Nov 21' };
-            if ((m === 11 && d >= 22) || (m === 12 && d <= 21)) return { sign: 'Sagittarius ♐', element: 'Fire 🔥', dates: 'Nov 22 - Dec 21' };
-            if ((m === 12 && d >= 22) || (m === 1 && d <= 19)) return { sign: 'Capricorn ♑', element: 'Earth 🌍', dates: 'Dec 22 - Jan 19' };
-            if ((m === 1 && d >= 20) || (m === 2 && d <= 18)) return { sign: 'Aquarius ♒', element: 'Air 💨', dates: 'Jan 20 - Feb 18' };
-            return { sign: 'Pisces ♓', element: 'Water 💧', dates: 'Feb 19 - Mar 20' };
-          }
-
-          function getChineseZodiac(year) {
-            var animals = [
-              { name: 'Rat 🐀', trait: 'Quick-witted & resourceful' },
-              { name: 'Ox 🐂', trait: 'Diligent & dependable' },
-              { name: 'Tiger 🐅', trait: 'Brave & confident' },
-              { name: 'Rabbit 🐇', trait: 'Quiet, elegant & kind' },
-              { name: 'Dragon 🐉', trait: 'Enthusiastic & bold' },
-              { name: 'Snake 🐍', trait: 'Wise & intuitive' },
-              { name: 'Horse 🐎', trait: 'Animated & energetic' },
-              { name: 'Goat 🐐', trait: 'Gentle & sympathetic' },
-              { name: 'Monkey 🐒', trait: 'Smart & curious' },
-              { name: 'Rooster 🐓', trait: 'Hardworking & observant' },
-              { name: 'Dog 🐕', trait: 'Honest & loyal' },
-              { name: 'Pig 🐖', trait: 'Compassionate & generous' }
-            ];
-            var idx = (year - 4) % 12;
-            if (idx < 0) idx += 12;
-            var animal = animals[idx];
-
-            var lastDigit = Math.abs(year) % 10;
-            var element = '';
-            if (lastDigit === 0 || lastDigit === 1) element = 'Metal';
-            else if (lastDigit === 2 || lastDigit === 3) element = 'Water';
-            else if (lastDigit === 4 || lastDigit === 5) element = 'Wood';
-            else if (lastDigit === 6 || lastDigit === 7) element = 'Fire';
-            else if (lastDigit === 8 || lastDigit === 9) element = 'Earth';
-
-            return { animal: animal.name, element: element, trait: animal.trait };
-          }
-
-          function calcAge() {
-            var dobVal = document.getElementById('dobInput').value;
-            var atVal = document.getElementById('ageAtDate').value;
-            if (!dobVal || !atVal) return;
-
-            var dob = new Date(dobVal + 'T00:00:00');
-            var at = new Date(atVal + 'T00:00:00');
-
-            document.getElementById('dobWeekdayLabel').textContent = weekdaysArr[dob.getDay()] + ', ' + dob.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-            document.getElementById('targetWeekdayLabel').textContent = weekdaysArr[at.getDay()] + ', ' + at.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-
-            if (at < dob) {
-              document.getElementById('ageResults').innerHTML = '<div style="padding:1rem; background:#fee2e2; border:1px solid #ef4444; border-radius:4px; color:#b91c1c;">Target date cannot precede your date of birth! Please pick a date after ' + dobVal + '.</div>';
-              document.getElementById('ageDerivationBox').innerHTML = '<em>Awaiting valid forward chronological dates...</em>';
-              return;
-            }
-
-            var years = at.getFullYear() - dob.getFullYear();
-            var months = at.getMonth() - dob.getMonth();
-            var days = at.getDate() - dob.getDate();
-
-            var borrowedDays = 0;
-            var borrowedMonthDaysCount = 0;
-            if (days < 0) {
-              months--;
-              var prevMonth = new Date(at.getFullYear(), at.getMonth(), 0);
-              borrowedMonthDaysCount = prevMonth.getDate();
-              days += borrowedMonthDaysCount;
-              borrowedDays = 1;
-            }
-            var borrowedMonths = 0;
-            if (months < 0) {
-              years--;
-              months += 12;
-              borrowedMonths = 1;
-            }
-
-            var totalMs = at.getTime() - dob.getTime();
-            var totalDays = Math.floor(totalMs / (1000 * 60 * 60 * 24));
-            var totalHours = totalDays * 24;
-            var totalMinutes = totalHours * 60;
-            var totalSeconds = totalMinutes * 60;
-            var totalWeeks = Math.floor(totalDays / 7);
-            var remWeekDays = totalDays % 7;
-            var decimalYears = (totalDays / 365.2425).toFixed(2);
-
-            // Weekday of birth
-            var bornWeekday = weekdaysArr[dob.getDay()];
-
-            // Next birthday countdown
-            var nextBday = new Date(at.getFullYear(), dob.getMonth(), dob.getDate());
-            var isLeapBaby = (dob.getMonth() === 1 && dob.getDate() === 29);
-            var checkLeapYear = function(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); };
-
-            if (isLeapBaby && !checkLeapYear(nextBday.getFullYear())) {
-              nextBday = new Date(nextBday.getFullYear(), 2, 1); // March 1st
-            }
-            if (nextBday < at) {
-              var nextYr = at.getFullYear() + 1;
-              nextBday = new Date(nextYr, dob.getMonth(), dob.getDate());
-              if (isLeapBaby && !checkLeapYear(nextYr)) {
-                nextBday = new Date(nextYr, 2, 1);
-              }
-            }
-            var msUntilBday = nextBday.getTime() - at.getTime();
-            var daysUntilBday = Math.ceil(msUntilBday / (1000 * 60 * 60 * 24));
-            var nextAge = (nextBday.getFullYear() - dob.getFullYear());
-            var nextBdayWeekday = weekdaysArr[nextBday.getDay()];
-
-            // Half-birthday calculation (6 months after birth month)
-            var halfBdayMonth = (dob.getMonth() + 6) % 12;
-            var halfBdayMonthName = new Date(2000, halfBdayMonth, 1).toLocaleDateString('en-US', { month: 'long' });
-
-            // Vitality Estimates
-            var totalHeartbeats = Math.round(totalDays * 103680); // 72 bpm avg
-            var totalBreaths = Math.round(totalDays * 23040); // 16 breaths/min
-            var sleepYears = (totalDays * (8 / 24) / 365.2425).toFixed(1);
-            var pctLifespan = Math.min(100, (totalDays / (73.4 * 365.2425)) * 100).toFixed(1);
-
-            // Zodiacs
-            var wz = getWesternZodiac(dob.getMonth() + 1, dob.getDate());
-            var cz = getChineseZodiac(dob.getFullYear());
-
-            // Planetary Ages
-            var mercuryAge = (totalDays / 87.97).toFixed(1);
-            var venusAge = (totalDays / 224.7).toFixed(1);
-            var marsAge = (totalDays / 686.98).toFixed(1);
-            var jupiterAge = (totalDays / 4332.59).toFixed(2);
-
-            var container = document.getElementById('ageResults');
-            container.innerHTML = 
-              '<!-- Primary Hero Card -->' +
-              '<div style="padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
-                '<div style="display: flex; justify-content: space-between; align-items: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Exact Chronological Age</span>' +
-                  '<span style="font-size: 0.75rem; color: #10b981; font-weight: bold;">' + decimalYears + ' Solar Years</span>' +
-                '</div>' +
-                '<div style="font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">' + years + ' Years, ' + months + ' Months, ' + days + ' Days</div>' +
-                '<div style="font-size: 0.85rem; color: var(--fg);">' +
-                  'Born on a <strong>' + bornWeekday + '</strong>' + (isLeapBaby ? ' <span style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:3px; font-size:0.75rem; font-weight:bold;">Leap Day Baby (Feb 29)</span>' : '') +
-                '</div>' +
-              '</div>' +
-
-              '<!-- Next Birthday Card -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">' +
-                '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Next Birthday Countdown</span>' +
-                  '<div style="font-size: 1.4rem; font-weight: bold; color: #eab308; margin: 0.2rem 0;">' + (daysUntilBday === 0 ? 'Today! 🎂' : daysUntilBday + ' Days Away') + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">Turns ' + nextAge + ' on ' + nextBdayWeekday + ', ' + nextBday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</div>' +
-                '</div>' +
-                '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Annual Half-Birthday</span>' +
-                  '<div style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; margin: 0.2rem 0;">' + halfBdayMonthName + ' ' + dob.getDate() + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">Exact 6-month halfway milestone mark</div>' +
-                '</div>' +
-              '</div>' +
-
-              '<!-- Lifetime Milestones Grid -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem;">' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Days</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalDays.toLocaleString() + '</div>' +
-                '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Weeks & Days</span>' +
-                  '<div style="font-size: 1.05rem; font-weight: bold; color: var(--fg);">' + totalWeeks.toLocaleString() + 'w ' + remWeekDays + 'd</div>' +
-                '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Hours</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalHours.toLocaleString() + 'h</div>' +
-                '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Minutes</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalMinutes.toLocaleString() + 'm</div>' +
-                '</div>' +
-                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Seconds</span>' +
-                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalSeconds.toLocaleString() + 's</div>' +
-                '</div>' +
-              '</div>' +
-
-              '<!-- Biological & Physiological Vitality Stats -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Estimated Heartbeats</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #ef4444; margin: 0.15rem 0;">' + totalHeartbeats.toLocaleString() + '</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Based on standard 72 bpm resting pulse</div>' +
-                '</div>' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Breaths Inhaled</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #06b6d4; margin: 0.15rem 0;">' + totalBreaths.toLocaleString() + '</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Based on standard 16 breaths/minute</div>' +
-                '</div>' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Cumulative Sleep</span>' +
-                  '<div style="font-size: 1.25rem; font-weight: bold; color: #8b5cf6; margin: 0.15rem 0;">' + sleepYears + ' Years</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">~8 hours nightly restorative sleep</div>' +
-                '</div>' +
-              '</div>' +
-
-              '<!-- Cosmic & Astrological Profile -->' +
-              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Western Zodiac Sign</span>' +
-                  '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin: 0.15rem 0;">' + wz.sign + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + wz.element + ' • ' + wz.dates + '</div>' +
-                '</div>' +
-                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Chinese Zodiac</span>' +
-                  '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin: 0.15rem 0;">' + cz.element + ' ' + cz.animal + '</div>' +
-                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + cz.trait + '</div>' +
-                '</div>' +
-              '</div>' +
-
-              '<!-- Planetary Ages -->' +
-              '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-                '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">Planetary Orbits (Your Age on Other Worlds)</span>' +
-                '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; text-align: center;">' +
-                  '<div style="padding: 0.4rem; background: var(--bg); border-radius: 3px;">' +
-                    '<div style="font-size: 0.68rem; color: var(--text-muted);">Mercury ☿</div>' +
-                    '<div style="font-size: 1rem; font-weight: bold; color: #f59e0b;">' + mercuryAge + ' yrs</div>' +
-                  '</div>' +
-                  '<div style="padding: 0.4rem; background: var(--bg); border-radius: 3px;">' +
-                    '<div style="font-size: 0.68rem; color: var(--text-muted);">Venus ♀</div>' +
-                    '<div style="font-size: 1rem; font-weight: bold; color: #ec4899;">' + venusAge + ' yrs</div>' +
-                  '</div>' +
-                  '<div style="padding: 0.4rem; background: var(--bg); border-radius: 3px;">' +
-                    '<div style="font-size: 0.68rem; color: var(--text-muted);">Mars ♂</div>' +
-                    '<div style="font-size: 1rem; font-weight: bold; color: #ef4444;">' + marsAge + ' yrs</div>' +
-                  '</div>' +
-                  '<div style="padding: 0.4rem; background: var(--bg); border-radius: 3px;">' +
-                    '<div style="font-size: 0.68rem; color: var(--text-muted);">Jupiter ♃</div>' +
-                    '<div style="font-size: 1rem; font-weight: bold; color: #8b5cf6;">' + jupiterAge + ' yrs</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>';
-
-            var deriv = document.getElementById('ageDerivationBox');
-            deriv.innerHTML = 
-              '<div><strong>1. Calendar Year Math:</strong> ' + at.getFullYear() + ' &minus; ' + dob.getFullYear() + ' = ' + (at.getFullYear() - dob.getFullYear()) + ' years' + (borrowedMonths ? ' &minus; 1 borrowed year = <strong>' + years + ' years</strong>' : '') + '</div>' +
-              '<div><strong>2. Month Borrowing Math:</strong> ' + at.getMonth() + ' &minus; ' + dob.getMonth() + ' = ' + (at.getMonth() - dob.getMonth()) + ' months' + (borrowedMonths ? ' + 12 = ' + (at.getMonth() - dob.getMonth() + 12) : '') + (borrowedDays ? ' &minus; 1 borrowed month = <strong>' + months + ' months</strong>' : '') + '</div>' +
-              '<div><strong>3. Day Borrowing Math:</strong> ' + at.getDate() + ' &minus; ' + dob.getDate() + ' = ' + (at.getDate() - dob.getDate()) + ' days' + (borrowedDays ? ' + ' + borrowedMonthDaysCount + ' (days in preceding month) = <strong>' + days + ' days</strong>' : '') + '</div>' +
-              '<div><strong>4. Epoch Duration:</strong> &Delta;T = ' + totalMs.toLocaleString() + ' ms &divide; 86,400,000 ms/day = <strong>' + totalDays.toLocaleString() + ' total days alive</strong></div>';
-
-            currentAgeData = {
-              dob: dobVal,
-              target: atVal,
-              years: years,
-              months: months,
-              days: days,
-              decimalYears: decimalYears,
-              bornWeekday: bornWeekday,
-              totalDays: totalDays,
-              totalWeeks: totalWeeks,
-              remWeekDays: remWeekDays,
-              totalHours: totalHours,
-              totalMinutes: totalMinutes,
-              totalHeartbeats: totalHeartbeats,
-              totalBreaths: totalBreaths,
-              sleepYears: sleepYears,
-              daysUntilBday: daysUntilBday,
-              nextAge: nextAge,
-              nextBdayWeekday: nextBdayWeekday,
-              nextBdayDateStr: nextBday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-              zodiacWestern: wz.sign,
-              zodiacChinese: cz.element + ' ' + cz.animal
-            };
-          }
-
-          window.setDobPreset = function(y, m, d) {
-            var dateObj = new Date(y, m, d);
-            document.getElementById('dobInput').value = dateObj.toISOString().slice(0, 10);
-            calcAge();
-          };
-
-          window.resetTargetToToday = function() {
-            document.getElementById('ageAtDate').value = new Date().toISOString().slice(0, 10);
-            calcAge();
-          };
-
-          window.copyAgeReport = function() {
-            if (!currentAgeData) return;
-            var text = 
-              '[Exact Chronological Age & Lifetime Milestone Report]\\n' +
-              '• Date of Birth: ' + currentAgeData.dob + ' (' + currentAgeData.bornWeekday + ')\\n' +
-              '• As of Date: ' + currentAgeData.target + '\\n' +
-              '• Exact Age: ' + currentAgeData.years + ' Years, ' + currentAgeData.months + ' Months, ' + currentAgeData.days + ' Days (' + currentAgeData.decimalYears + ' solar years)\\n' +
-              '• Lifetime Traversed: ' + currentAgeData.totalDays.toLocaleString() + ' Days (' + currentAgeData.totalWeeks.toLocaleString() + ' weeks, ' + currentAgeData.remWeekDays + ' days)\\n' +
-              '• Total Hours Lived: ' + currentAgeData.totalHours.toLocaleString() + ' Hours (' + currentAgeData.totalMinutes.toLocaleString() + ' minutes)\\n' +
-              '• Estimated Heartbeats: ~' + currentAgeData.totalHeartbeats.toLocaleString() + ' beats\\n' +
-              '• Restorative Sleep: ~' + currentAgeData.sleepYears + ' cumulative years\\n' +
-              '• Western Zodiac: ' + currentAgeData.zodiacWestern + '\\n' +
-              '• Chinese Zodiac: ' + currentAgeData.zodiacChinese + '\\n' +
-              '• Next Birthday: ' + (currentAgeData.daysUntilBday === 0 ? 'Today! 🎂' : currentAgeData.daysUntilBday + ' days away (Turns ' + currentAgeData.nextAge + ' on ' + currentAgeData.nextBdayWeekday + ', ' + currentAgeData.nextBdayDateStr + ')') + '\\n' +
-              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/age-calculator';
-
-            navigator.clipboard.writeText(text).then(function() {
-              var btn = document.getElementById('copyAgeReportBtn');
-              var orig = btn.innerHTML;
-              btn.innerHTML = '<span style=\"color:#fff; font-weight:bold;\">✓ Copied Milestone Report!</span>';
-              setTimeout(function() { btn.innerHTML = orig; }, 2200);
-            });
-          };
-
-          document.addEventListener('DOMContentLoaded', function() {
-            var today = new Date().toISOString().slice(0, 10);
-            document.getElementById('ageAtDate').value = today;
-            calcAge();
-          });
-        </script>
-      `
-    },
-    {
-      slug: 'gpa-calculator',
-      title: 'College & High School GPA Calculator (Weighted & Unweighted)',
-      metaDesc: 'Calculate your semester and cumulative GPA on a 4.0 scale with weighted Honors (+0.5) and AP/IB (+1.0) credit support.',
-      category: 'Math & Education',
-      faq: [
-        { q: 'How is cumulative GPA calculated?', a: 'Cumulative GPA is calculated by multiplying the grade point value of each letter grade by the course credit hours to get quality points, summing all quality points across semesters, and dividing by total credit hours completed.' },
-        { q: 'What is the difference between weighted and unweighted GPA?', a: 'An unweighted GPA measures academic achievement on a standard 4.0 scale regardless of course rigor. A weighted GPA provides extra points for advanced coursework (typically +0.5 points for Honors and +1.0 points for AP or IB courses).' },
-        { q: 'What grade point does an A- or B+ equal on a 4.0 scale?', a: 'On standard 4.0 scales, A = 4.0, A- = 3.7, B+ = 3.3, B = 3.0, B- = 2.7, C+ = 2.3, C = 2.0, D = 1.0, and F = 0.0.' }
-      ],
-      body: `
-        ${commonStyle}
-        <div class="article-container" style="max-width: 950px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; GPA Calculator
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">College & High School GPA Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Calculate your semester and cumulative Grade Point Average on a 4.0 scale with weighted course support (Honors, AP, IB, and College courses).
-          </p>
-
-          <div class="tool-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0;">Current Semester Courses</h3>
-              <button class="btn-sec" onclick="addGpaRow()" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">+ Add Course</button>
-            </div>
-
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem;" id="gpaTable">
-                <thead>
-                  <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-muted);">
-                    <th style="padding: 0.5rem;">Course Name</th>
-                    <th style="padding: 0.5rem;">Grade</th>
-                    <th style="padding: 0.5rem;">Credits</th>
-                    <th style="padding: 0.5rem;">Level / Weight</th>
-                    <th style="padding: 0.5rem; width: 40px;"></th>
-                  </tr>
-                </thead>
-                <tbody id="gpaRows">
-                  <tr style="border-bottom: 1px solid var(--border);">
-                    <td style="padding: 0.5rem;"><input type="text" value="English 101" class="text-input" style="padding: 0.4rem;" /></td>
-                    <td style="padding: 0.5rem;">
-                      <select class="text-input grade-select" onchange="calcGpa()" style="padding: 0.4rem;">
-                        <option value="4.0" selected>A (4.0)</option>
-                        <option value="3.7">A- (3.7)</option>
-                        <option value="3.3">B+ (3.3)</option>
-                        <option value="3.0">B (3.0)</option>
-                        <option value="2.7">B- (2.7)</option>
-                        <option value="2.3">C+ (2.3)</option>
-                        <option value="2.0">C (2.0)</option>
-                        <option value="1.7">C- (1.7)</option>
-                        <option value="1.0">D (1.0)</option>
-                        <option value="0.0">F (0.0)</option>
-                      </select>
-                    </td>
-                    <td style="padding: 0.5rem;"><input type="number" value="3" min="0.5" step="0.5" class="text-input credit-input" oninput="calcGpa()" style="padding: 0.4rem; width: 60px;" /></td>
-                    <td style="padding: 0.5rem;">
-                      <select class="text-input weight-select" onchange="calcGpa()" style="padding: 0.4rem;">
-                        <option value="0" selected>Standard (Regular)</option>
-                        <option value="0.5">Honors (+0.5)</option>
-                        <option value="1.0">AP / IB / College (+1.0)</option>
-                      </select>
-                    </td>
-                    <td style="padding: 0.5rem;"><button onclick="removeGpaRow(this)" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button></td>
-                  </tr>
-                  <tr style="border-bottom: 1px solid var(--border);">
-                    <td style="padding: 0.5rem;"><input type="text" value="Calculus BC" class="text-input" style="padding: 0.4rem;" /></td>
-                    <td style="padding: 0.5rem;">
-                      <select class="text-input grade-select" onchange="calcGpa()" style="padding: 0.4rem;">
-                        <option value="4.0">A (4.0)</option>
-                        <option value="3.7" selected>A- (3.7)</option>
-                        <option value="3.3">B+ (3.3)</option>
-                        <option value="3.0">B (3.0)</option>
-                        <option value="2.7">B- (2.7)</option>
-                        <option value="2.3">C+ (2.3)</option>
-                        <option value="2.0">C (2.0)</option>
-                        <option value="1.7">C- (1.7)</option>
-                        <option value="1.0">D (1.0)</option>
-                        <option value="0.0">F (0.0)</option>
-                      </select>
-                    </td>
-                    <td style="padding: 0.5rem;"><input type="number" value="4" min="0.5" step="0.5" class="text-input credit-input" oninput="calcGpa()" style="padding: 0.4rem; width: 60px;" /></td>
-                    <td style="padding: 0.5rem;">
-                      <select class="text-input weight-select" onchange="calcGpa()" style="padding: 0.4rem;">
-                        <option value="0">Standard (Regular)</option>
-                        <option value="0.5">Honors (+0.5)</option>
-                        <option value="1.0" selected>AP / IB / College (+1.0)</option>
-                      </select>
-                    </td>
-                    <td style="padding: 0.5rem;"><button onclick="removeGpaRow(this)" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button></td>
-                  </tr>
-                  <tr style="border-bottom: 1px solid var(--border);">
-                    <td style="padding: 0.5rem;"><input type="text" value="Biology Lab" class="text-input" style="padding: 0.4rem;" /></td>
-                    <td style="padding: 0.5rem;">
-                      <select class="text-input grade-select" onchange="calcGpa()" style="padding: 0.4rem;">
-                        <option value="4.0">A (4.0)</option>
-                        <option value="3.7">A- (3.7)</option>
-                        <option value="3.3" selected>B+ (3.3)</option>
-                        <option value="3.0">B (3.0)</option>
-                        <option value="2.7">B- (2.7)</option>
-                        <option value="2.3">C+ (2.3)</option>
-                        <option value="2.0">C (2.0)</option>
-                        <option value="1.7">C- (1.7)</option>
-                        <option value="1.0">D (1.0)</option>
-                        <option value="0.0">F (0.0)</option>
-                      </select>
-                    </td>
-                    <td style="padding: 0.5rem;"><input type="number" value="4" min="0.5" step="0.5" class="text-input credit-input" oninput="calcGpa()" style="padding: 0.4rem; width: 60px;" /></td>
-                    <td style="padding: 0.5rem;">
-                      <select class="text-input weight-select" onchange="calcGpa()" style="padding: 0.4rem;">
-                        <option value="0">Standard (Regular)</option>
-                        <option value="0.5" selected>Honors (+0.5)</option>
-                        <option value="1.0">AP / IB / College (+1.0)</option>
-                      </select>
-                    </td>
-                    <td style="padding: 0.5rem;"><button onclick="removeGpaRow(this)" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
-              <div class="result-card" style="margin:0;">
-                <div class="field-label">Unweighted Semester GPA</div>
-                <div id="unweightedGpa" class="result-val">3.64</div>
-                <div style="font-size:0.75rem; color:var(--text-muted);">Standard 4.00 Max</div>
-              </div>
-              <div class="result-card" style="margin:0;">
-                <div class="field-label">Weighted Semester GPA</div>
-                <div id="weightedGpa" class="result-val" style="color:#22c55e;">4.18</div>
-                <div style="font-size:0.75rem; color:var(--text-muted);">Honors/AP Weighted Scale</div>
-              </div>
-              <div class="result-card" style="margin:0;">
-                <div class="field-label">Total Credit Hours</div>
-                <div id="totalCredits" class="result-val" style="color:var(--fg); font-size:1.8rem;">11.0</div>
-                <div id="totalPoints" style="font-size:0.75rem; color:var(--text-muted);">46.0 Quality Points</div>
-              </div>
-            </div>
-
-            <div style="margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
-              <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.75rem;">Cumulative GPA (Optional)</h4>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 500px;">
-                <div>
-                  <label class="field-label">Prior Cumulative GPA</label>
-                  <input type="number" id="priorGpa" value="3.50" step="0.01" min="0" max="5" class="text-input" oninput="calcGpa()" />
-                </div>
-                <div>
-                  <label class="field-label">Prior Completed Credits</label>
-                  <input type="number" id="priorCredits" value="30" step="1" min="0" class="text-input" oninput="calcGpa()" />
-                </div>
-              </div>
-              <div id="cumulResult" style="margin-top: 0.75rem; font-family: var(--mono); font-size: 0.95rem; color: #3b82f6;"></div>
-            <button type="button" id="btnCopyGPA" onclick="copyGPASummary()" class="btn-sec" style="margin-top: 1.5rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Official GPA Transcript Breakdown
-            </button>
-          </div>
-
-          <!-- Step-by-Step Quality Points Worked Derivation -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step GPA & Quality Points Derivation</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">AACRAO Collegiate Standard</span>
-            </div>
-            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Grade Point Average is a credit-weighted arithmetic mean where each letter grade is converted to quality points and normalized by total attempted credits:
-            </p>
-            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 1: Calculate Course Quality Points</strong>
-                <div style="color: #3b82f6; margin-top: 0.25rem;">
-                  Quality Points = Course Credit Hours &times; Grade Numerical Value
-                </div>
-                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  Example: 3-credit course with an A (4.0) = 3 &times; 4.0 = 12.0 Quality Points &bull; 4-credit course with an A- (3.7) = 4 &times; 3.7 = 14.8 Quality Points.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 2: Weighted GPA Multiplier Allocation</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Honors Course: Grade + 0.50 &bull; AP / IB / Dual-Enrollment College Course: Grade + 1.00
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981; font-weight: 700;">Step 3: Semester GPA Formula</strong>
-                <div style="color: #10b981; margin-top: 0.25rem;">
-                  Semester GPA = &Sigma; (Quality Points) / &Sigma; (Attempted Credit Hours)
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #8b5cf6;">Step 4: Cumulative GPA Compounding Formula</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Cumulative GPA = [ (Prior GPA &times; Prior Credits) + New Quality Points ] / (Prior Credits + New Credits)
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Critical Academic Pitfalls & GPA Traps -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Academic Pitfalls & GPA Calculation Traps</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Credit Hour Weighting Trap:</strong> A 4.0 in a 1-credit elective (e.g. Physical Education or Choir) generates only 4.0 quality points, whereas a 2.0 (C) in a 4-credit Organic Chemistry or Engineering Physics lecture/lab generates 8.0 quality points across 4 credits. High-credit STEM courses exert <strong>300% to 400% more gravitational pull</strong> on your final transcript GPA than 1-credit courses.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Institutional Retake / Forgiveness Myth:</strong> While your university registrar may replace an F with a B on your internal diploma transcript, professional graduate admissions boards (such as AMCAS for US medical schools or LSAC for law schools) <strong>re-calculate GPA by counting every single grade attempt</strong>, completely nullifying institutional grade forgiveness.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The High School Weighted Inflation Mirage:</strong> High school weighted GPAs often reach 4.5 to 5.0+ due to local bonus policies. Highly selective universities (Ivy League, Stanford, MIT) strip out high school weighting entirely during the holistic review phase, re-calculating all applicant GPAs on an unweighted, rigorous 4.0 academic core scale.</li>
-            </ul>
-          </div>
+        <div class="age-card">
+          <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Venus (225d)</div>
+          <div id="planet-venus" style="font-family:var(--mono);font-size:1.25rem;font-weight:bold;color:#fbbf24;margin:0.25rem 0;">50.7 Yrs</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--mono);">Orbital period: 224.7d</div>
         </div>
+        <div class="age-card">
+          <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Mars (687d)</div>
+          <div id="planet-mars" style="font-family:var(--mono);font-size:1.25rem;font-weight:bold;color:#f87171;margin:0.25rem 0;">16.6 Yrs</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--mono);">1 Sol = 24h 39m</div>
+        </div>
+        <div class="age-card">
+          <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Jupiter (11.9y)</div>
+          <div id="planet-jupiter" style="font-family:var(--mono);font-size:1.25rem;font-weight:bold;color:#a78bfa;margin:0.25rem 0;">2.63 Yrs</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--mono);">4,333 Earth days</div>
+        </div>
+        <div class="age-card">
+          <div style="font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;">Saturn (29.5y)</div>
+          <div id="planet-saturn" style="font-family:var(--mono);font-size:1.25rem;font-weight:bold;color:#f472b6;margin:0.25rem 0;">1.06 Yrs</div>
+          <div style="font-size:0.7rem;color:var(--text-muted);font-family:var(--mono);">10,759 Earth days</div>
+        </div>
+      </div>
+    </div>
 
-        <script>
-          function addGpaRow() {
-            var tbody = document.getElementById('gpaRows');
-            var tr = document.createElement('tr');
-            tr.style.borderBottom = '1px solid var(--border)';
-            tr.innerHTML = 
-              '<td style="padding: 0.5rem;"><input type="text" placeholder="Course Name" class="text-input" style="padding: 0.4rem;" /></td>' +
-              '<td style="padding: 0.5rem;">' +
-                '<select class="text-input grade-select" onchange="calcGpa()" style="padding: 0.4rem;">' +
-                  '<option value="4.0" selected>A (4.0)</option>' +
-                  '<option value="3.7">A- (3.7)</option>' +
-                  '<option value="3.3">B+ (3.3)</option>' +
-                  '<option value="3.0">B (3.0)</option>' +
-                  '<option value="2.7">B- (2.7)</option>' +
-                  '<option value="2.3">C+ (2.3)</option>' +
-                  '<option value="2.0">C (2.0)</option>' +
-                  '<option value="1.7">C- (1.7)</option>' +
-                  '<option value="1.0">D (1.0)</option>' +
-                  '<option value="0.0">F (0.0)</option>' +
-                '</select>' +
-              '</td>' +
-              '<td style="padding: 0.5rem;"><input type="number" value="3" min="0.5" step="0.5" class="text-input credit-input" oninput="calcGpa()" style="padding: 0.4rem; width: 60px;" /></td>' +
-              '<td style="padding: 0.5rem;">' +
-                '<select class="text-input weight-select" onchange="calcGpa()" style="padding: 0.4rem;">' +
-                  '<option value="0" selected>Standard (Regular)</option>' +
-                  '<option value="0.5">Honors (+0.5)</option>' +
-                  '<option value="1.0">AP / IB / College (+1.0)</option>' +
-                '</select>' +
-              '</td>' +
-              '<td style="padding: 0.5rem;"><button onclick="removeGpaRow(this)" style="background:none; border:none; color:var(--text-muted); cursor:pointer;">✕</button></td>';
-            tbody.appendChild(tr);
-            calcGpa();
-          }
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #10b981;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Calendar Borrowing Derivations:</div>
+      <div id="age-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
 
-          function removeGpaRow(btn) {
-            var row = btn.closest('tr');
-            if (document.querySelectorAll('#gpaRows tr').length > 1) {
-              row.remove();
-              calcGpa();
-            }
-          }
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyAgeProfile(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Biographical Age Profile
+      </button>
+    </div>
+  </div>
 
-          function calcGpa() {
-            var rows = document.querySelectorAll('#gpaRows tr');
-            var totalCreds = 0;
-            var unweightedPoints = 0;
-            var weightedPoints = 0;
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Age &amp; Date Calculation</h2>
 
-            rows.forEach(function(r) {
-              var g = parseFloat(r.querySelector('.grade-select').value) || 0;
-              var c = parseFloat(r.querySelector('.credit-input').value) || 0;
-              var w = parseFloat(r.querySelector('.weight-select').value) || 0;
-              if (c > 0) {
-                totalCreds += c;
-                unweightedPoints += (g * c);
-                var weightedGrade = g > 0 ? (g + w) : 0;
-                weightedPoints += (weightedGrade * c);
-              }
-            });
+    <div class="age-trap-card">
+      <div class="age-trap-title">1. The "Average 30.4375 Days Per Month" Mathematical Flaw</div>
+      <p class="age-trap-desc">
+        Many amateur calculators divide elapsed days by 365.25 or 30.4375 to determine years and months. Because calendar months vary between 28, 29, 30, and 31 days, naive floating-point division produces errors of 1 to 3 days when computing age intervals. The only actuarially accurate method is calendar borrowing: tracking exact days elapsed within the specific Gregorian month cycle.
+      </p>
+    </div>
 
-            var unweightedGpa = totalCreds > 0 ? (unweightedPoints / totalCreds) : 0;
-            var weightedGpa = totalCreds > 0 ? (weightedPoints / totalCreds) : 0;
+    <div class="age-trap-card">
+      <div class="age-trap-title">2. Leap Day Statutory Maturity (February 29 Birthdays)</div>
+      <p class="age-trap-desc">
+        If you were born on Leap Day (February 29), your legal age increments on different dates depending on national laws. Under English common law and UK statute, a leap year baby does not legally turn 18 or 21 until March 1st. In contrast, under Taiwanese and New Zealand legislation, rights vest on February 28th. Airline booking systems frequently reject Feb 29 birthdates on non-leap departure years without automatic rollover logic.
+      </p>
+    </div>
 
-            document.getElementById('unweightedGpa').textContent = unweightedGpa.toFixed(2);
-            document.getElementById('weightedGpa').textContent = weightedGpa.toFixed(2);
-            document.getElementById('totalCredits').textContent = totalCreds.toFixed(1);
-            document.getElementById('totalPoints').textContent = weightedPoints.toFixed(1) + ' Quality Points';
+    <div class="age-trap-card">
+      <div class="age-trap-title">3. South Korea's Historic 2023 Age Law Abolition</div>
+      <p class="age-trap-desc">
+        Until June 28, 2023, South Korea operated three competing age systems: "Korean Age" (where you are 1 year old at birth and age up every New Year's Day), "Counting Age" (used for military conscription and alcohol purchase), and "International Age". The confusion resulted in severe administrative disputes regarding COVID-19 vaccine eligibility and insurance payouts until the National Assembly officially mandated the international chronological system.
+      </p>
+    </div>
 
-            var priorGpa = parseFloat(document.getElementById('priorGpa').value);
-            var priorCreds = parseFloat(document.getElementById('priorCredits').value);
-            if (!isNaN(priorGpa) && !isNaN(priorCreds) && priorCreds > 0) {
-              var newTotalCreds = priorCreds + totalCreds;
-              var newCumulGpa = ((priorGpa * priorCreds) + unweightedPoints) / newTotalCreds;
-              document.getElementById('cumulResult').textContent = 'Updated Cumulative GPA: ' + newCumulGpa.toFixed(2) + ' across ' + newTotalCreds.toFixed(1) + ' total credits';
-            } else {
-              document.getElementById('cumulResult').textContent = '';
-            }
-          }
+    <div class="age-trap-card">
+      <div class="age-trap-title">4. The 1752 Calendar Act (The Missing 11 Days Trap)</div>
+      <p class="age-trap-desc">
+        When Great Britain and the American colonies transitioned from the Julian to the Gregorian calendar in September 1752, eleven calendar days were dropped entirely: Wednesday, September 2 was followed directly by Thursday, September 14! Historical figures born before 1752 (such as George Washington, originally born February 11, 1731/32) had their birthdays shifted to February 22, 1732.
+      </p>
+    </div>
 
-          window.copyGPASummary = function() {
-            var unweighted = document.getElementById('unweightedGpa').textContent;
-            var weighted = document.getElementById('weightedGpa').textContent;
-            var credits = document.getElementById('totalCredits').textContent;
-            var points = document.getElementById('totalPoints').textContent;
-            var cumul = document.getElementById('cumulResult').textContent;
+    <div class="age-trap-card">
+      <div class="age-trap-title">5. Daylight Saving Time &amp; Midnight Birth Boundary Errors</div>
+      <p class="age-trap-desc">
+        Individuals born within one hour of midnight during the "Fall Back" or "Spring Forward" transitions of Daylight Saving Time can suffer statutory birthdate discrepancies. An infant born at 1:45 AM during the fallback hour might be registered after a twin born at 1:15 AM if clocks were set back to 1:00 AM between births, creating permanent legal identification and birth certificate timing anomalies.
+      </p>
+    </div>
+  </div>
+</div>
 
-            var rows = document.querySelectorAll('#gpaRows tr');
-            var courseLines = [];
-            rows.forEach(function(r) {
-              var name = r.querySelector('input[type="text"]').value || 'Course';
-              var gradeSel = r.querySelector('.grade-select');
-              var gradeText = gradeSel.options[gradeSel.selectedIndex].text;
-              var creds = r.querySelector('.credit-input').value;
-              var weightSel = r.querySelector('.weight-select');
-              var weightText = weightSel.options[weightSel.selectedIndex].text;
-              courseLines.push('  • ' + name + ': ' + gradeText + ' (' + creds + ' cr, ' + weightText + ')');
-            });
+<script>
+  function setAgePreset(dateStr) {
+    document.getElementById('age-dob').value = dateStr;
+    calcAge();
+  }
 
-            var text = [
-              '=== OFFICIAL GPA TRANSCRIPT BREAKDOWN ===',
-              'Semester Unweighted GPA (4.0 Max): ' + unweighted,
-              'Semester Weighted GPA (Honors/AP): ' + weighted,
-              'Total Attempted Credits: ' + credits,
-              'Cumulative Quality Points: ' + points,
-              cumul ? (cumul) : '',
-              '-----------------------------------------',
-              'Course Itemization:',
-              courseLines.join('\\n'),
-              '-----------------------------------------',
-              'Standard: AACRAO Collegiate Grading Guidelines',
-              'Timestamp: ' + new Date().toISOString(),
-              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/gpa-calculator'
-            ].filter(Boolean).join('\\n');
+  function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  }
 
-            navigator.clipboard.writeText(text).then(function() {
-              var btn = document.getElementById('btnCopyGPA');
-              if (btn) {
-                var old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied GPA Breakdown!';
-                btn.style.color = '#10b981';
-                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
-              }
-            });
-          };
+  function calcAge() {
+    var dobInput = document.getElementById('age-dob').value;
+    if (!dobInput) return;
 
-          document.addEventListener('DOMContentLoaded', calcGpa);
-          calcGpa();
-        </script>
-      `
-    },
+    var targetInput = document.getElementById('age-target').value;
+    var targetDate = targetInput ? new Date(targetInput + 'T12:00:00') : new Date();
+
+    var dobParts = dobInput.split('-');
+    var bYear = parseInt(dobParts[0], 10);
+    var bMonth = parseInt(dobParts[1], 10) - 1;
+    var bDay = parseInt(dobParts[2], 10);
+    var dob = new Date(bYear, bMonth, bDay, 12, 0, 0);
+
+    var tYear = targetDate.getFullYear();
+    var tMonth = targetDate.getMonth();
+    var tDay = targetDate.getDate();
+
+    if (targetDate < dob) {
+      document.getElementById('card-age-main').textContent = 'Future Date';
+      document.getElementById('card-age-days').textContent = 'Born after target';
+      return;
+    }
+
+    // Exact calendar difference with borrowing
+    var years = tYear - bYear;
+    var months = tMonth - bMonth;
+    var days = tDay - bDay;
+
+    if (days < 0) {
+      months -= 1;
+      var prevMonthDays = getDaysInMonth(tYear, (tMonth === 0 ? 11 : tMonth - 1));
+      days += prevMonthDays;
+    }
+
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+
+    // Total milliseconds and days
+    var diffMs = targetDate.getTime() - dob.getTime();
+    var totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    var totalHours = totalDays * 24;
+
+    // Next Birthday Countdown
+    var nextBday = new Date(tYear, bMonth, bDay, 12, 0, 0);
+    if (nextBday < targetDate) {
+      nextBday = new Date(tYear + 1, bMonth, bDay, 12, 0, 0);
+    }
+    var msToNext = nextBday.getTime() - targetDate.getTime();
+    var daysToNext = Math.ceil(msToNext / (1000 * 60 * 60 * 24));
+
+    var dows = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var birthDow = dows[dob.getDay()];
+    var nextBdayDow = dows[nextBday.getDay()];
+
+    // Biological approximations
+    var heartbeats = totalDays * 24 * 60 * 75; // 75 bpm
+    var breaths = totalDays * 24 * 60 * 16; // 16 bpm
+
+    // Planetary Ages
+    var pMercury = (totalDays / 87.97).toFixed(1);
+    var pVenus = (totalDays / 224.7).toFixed(1);
+    var pMars = (totalDays / 686.98).toFixed(1);
+    var pJupiter = (totalDays / 4332.59).toFixed(2);
+    var pSaturn = (totalDays / 10759.22).toFixed(2);
+
+    // Hero Cards
+    document.getElementById('card-age-main').textContent = years + ' Yrs ' + months + ' Mos';
+    document.getElementById('card-age-days').textContent = 'and ' + days + ' Day' + (days === 1 ? '' : 's');
+
+    document.getElementById('card-age-next').textContent = (daysToNext === 0 ? '🎉 TODAY!' : (daysToNext + ' Days'));
+    document.getElementById('card-age-next-dow').textContent = (daysToNext === 0 ? 'Happy Birthday!' : ('Falling on a ' + nextBdayDow));
+
+    document.getElementById('card-age-total-days').textContent = totalDays.toLocaleString('en-US');
+    document.getElementById('card-age-hours').textContent = totalHours.toLocaleString('en-US') + ' Hours lived';
+
+    document.getElementById('card-age-heartbeats').textContent = (heartbeats / 1e9).toFixed(2) + ' Billion';
+    document.getElementById('card-age-breaths').textContent = '~' + Math.round(breaths / 1e6) + ' Million Breaths';
+
+    // Planetary Grid
+    document.getElementById('planet-mercury').textContent = pMercury + ' Yrs';
+    document.getElementById('planet-venus').textContent = pVenus + ' Yrs';
+    document.getElementById('planet-mars').textContent = pMars + ' Yrs';
+    document.getElementById('planet-jupiter').textContent = pJupiter + ' Yrs';
+    document.getElementById('planet-saturn').textContent = pSaturn + ' Yrs';
+
+    // Life Expectancy Percentage (79.5 yrs)
+    var decimalAge = years + (months / 12) + (days / 365.25);
+    var pctLife = Math.min(100, Math.max(0, (decimalAge / 79.5) * 100));
+    document.getElementById('age-pct-lived-text').textContent = pctLife.toFixed(1) + '% of 79.5-year statistical life lived';
+
+    renderAgeVisual(pctLife, decimalAge);
+
+    // Derivations
+    var deriv = [
+      '1. Birth Record: ' + dob.toISOString().split('T')[0] + ' (' + birthDow + ') &bull; Target Evaluation Date: ' + targetDate.toISOString().split('T')[0],
+      '2. Calendar Borrowing Calculation: Year delta (' + (tYear - bYear) + ') &bull; Month delta adjusted (' + months + ') &bull; Day delta adjusted (' + days + ')',
+      '3. Exact Chronological Age: <strong>' + years + ' Years, ' + months + ' Months, ' + days + ' Days</strong>',
+      '4. Total Duration: <strong>' + totalDays.toLocaleString('en-US') + ' days</strong> (' + totalHours.toLocaleString('en-US') + ' hours &bull; ' + (totalDays * 1440).toLocaleString('en-US') + ' minutes elapsed)',
+      '5. Next Milestone: ' + daysToNext + ' days until turning ' + (years + 1) + ' years old on ' + nextBdayDow + ', ' + nextBday.toISOString().split('T')[0]
+    ];
+    document.getElementById('age-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderAgeVisual(pct, age) {
+    var c = document.getElementById('age-svg-container');
+    if (!c) return;
+
+    var w = c.clientWidth || 600;
+    var h = 55;
+    var barH = 22;
+    var y = 14;
+
+    var wFill = Math.max(2, Math.min(w - 4, (pct / 100) * (w - 4)));
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Base background bar
+    svg += '<rect x="2" y="' + y + '" width="' + (w - 4) + '" height="' + barH + '" rx="4" fill="#334155" />';
+
+    // Elapsed life bar (gradient-like emerald)
+    svg += '<rect x="2" y="' + y + '" width="' + wFill + '" height="' + barH + '" rx="4" fill="#10b981" />';
+
+    // Current needle marker
+    svg += '<line x1="' + (2 + wFill) + '" y1="' + (y - 4) + '" x2="' + (2 + wFill) + '" y2="' + (y + barH + 4) + '" stroke="#ffffff" stroke-width="2" />';
+
+    // Current age label
+    svg += '<text x="' + (2 + wFill) + '" y="' + (y + barH + 16) + '" fill="#10b981" font-family="var(--mono)" font-size="11" text-anchor="middle" font-weight="bold">You: ' + age.toFixed(1) + ' yrs (' + pct.toFixed(1) + '%)</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyAgeProfile(btn) {
+    var age = document.getElementById('card-age-main').textContent + ' ' + document.getElementById('card-age-days').textContent;
+    var totalDays = document.getElementById('card-age-total-days').textContent;
+    var hours = document.getElementById('card-age-hours').textContent;
+    var next = document.getElementById('card-age-next').textContent + ' (' + document.getElementById('card-age-next-dow').textContent + ')';
+    var dob = document.getElementById('age-dob').value;
+    var merc = document.getElementById('planet-mercury').textContent;
+    var mars = document.getElementById('planet-mars').textContent;
+    var jup = document.getElementById('planet-jupiter').textContent;
+
+    var lines = [
+      '========================================',
+      '      EXACT CHRONOLOGICAL AGE PROFILE',
+      '========================================',
+      'Date of Birth       : ' + dob,
+      'Exact Age           : ' + age,
+      'Total Days Lived    : ' + totalDays + ' Days',
+      'Total Hours Lived   : ' + hours,
+      'Next Birthday       : ' + next,
+      '----------------------------------------',
+      'Solar Planetary Ages:',
+      '  - Mercury (88d)   : ' + merc,
+      '  - Mars (687d)     : ' + mars,
+      '  - Jupiter (11.9y) : ' + jup,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/age-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Age Profile!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcAge);
+  document.addEventListener('DOMContentLoaded', function() {
+    var now = new Date();
+    document.getElementById('age-target').value = now.toISOString().split('T')[0];
+    calcAge();
+  });
+  var now = new Date();
+  document.getElementById('age-target').value = now.toISOString().split('T')[0];
+  calcAge();
+</script>
+`
+  },
+      {
+    slug: "gpa-calculator",
+    title: "College & High School GPA Calculator (Weighted, Unweighted & Target GPA Planner)",
+    metaDesc: "Calculate college and high school semester and cumulative GPA on 4.0, 4.33, and 5.0 weighted scales. Includes Honors and AP/IB credit weighting, target GPA graduation planner, and SVG honors standing gauge.",
+    category: "Math & Education",
+    faq: [
+        {
+            "q": "How is cumulative GPA calculated from quality points and credit hours?",
+            "a": "Cumulative GPA is calculated by determining the \"quality points\" earned in every course (multiplying the numeric grade value by the course credit hours), summing all quality points earned across all semesters, and dividing by the total number of graded credit hours completed: Cumulative GPA = Total Quality Points / Total Graded Credits. Non-graded courses (Pass/Fail, Audited, Incomplete) are excluded from the divisor."
+        },
+        {
+            "q": "What is the mathematical difference between weighted and unweighted GPA?",
+            "a": "An unweighted GPA evaluates every class on a standard 4.0 scale regardless of academic rigor, where an A is worth 4.0 points. A weighted GPA rewards students for enrolling in more challenging curricula by adding a grade-weight bonus: typically +0.5 points for Honors courses (maximum 4.5) and +1.0 points for Advanced Placement (AP), International Baccalaureate (IB), or Dual Enrollment college courses (maximum 5.0)."
+        },
+        {
+            "q": "How does the Target GPA Planner calculate the grades needed to graduate with honors?",
+            "a": "To find the required grade point average across remaining credit hours to hit a target graduation goal, the planner uses the deficit allocation formula: Required GPA = [(Target GPA × Total Degree Credits) - Current Cumulative Quality Points] / Remaining Credit Hours. If the resulting required GPA exceeds 4.0 (or the maximum institutional cap), the goal is mathematically unreachable without repeating previously graded courses."
+        },
+        {
+            "q": "What numeric values correspond to letter grades on standard 4.0 vs 4.33 scales?",
+            "a": "On the standard 4.0 scale: A = 4.0, A- = 3.7, B+ = 3.3, B = 3.0, B- = 2.7, C+ = 2.3, C = 2.0, C- = 1.7, D+ = 1.3, D = 1.0, D- = 0.7, and F = 0.0. On a 4.33 scale (used by institutions such as Columbia, Cornell, and Stanford Law), an A+ is awarded 4.33 quality points, allowing high-performing students to exceed a 4.00 unweighted average."
+        },
+        {
+            "q": "How do Pass/Fail credits, course repeats, and transfer credits affect your GPA?",
+            "a": "Pass/Fail courses that you pass add to your completed degree credits but have zero mathematical impact on your GPA (they do not help raise a low GPA). A failing grade (\"No Pass\" / \"F\") in a P/F course is frequently calculated as 0.0 quality points. Transfer credits from other universities usually fulfill degree requirements but are excluded from institutional GPA calculations used for Latin Honors (Cum Laude, Magna Cum Laude)."
+        }
+    ],
+    body: `
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; GPA Calculator
+  </nav>
+
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">College &amp; High School GPA Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Compute semester and cumulative GPA on 4.0 and 5.0 weighted scales, model AP/IB honors grade points, and calculate the exact grades needed to reach graduation honors.
+    </p>
+  </header>
+
+  <style>
+    .gpa-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .gpa-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .gpa-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .gpa-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .gpa-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .gpa-table { width:100%; border-collapse:collapse; font-family:var(--mono); font-size:0.88rem; margin-top:0.75rem; }
+    .gpa-table th, .gpa-table td { padding:0.6rem 0.75rem; border:1px solid var(--border); text-align:left; }
+    .gpa-table th { background:var(--surface-alt); font-weight:600; color:var(--text-muted); }
+    .gpa-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .gpa-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .gpa-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .gpa-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
+
+  <div class="gpa-box">
+    <!-- Row 1: Scale & Prior History -->
+    <div class="gpa-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Grading Scale Model</label>
+        <select id="gpa-scale" onchange="calcGPA()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:0.95rem;box-sizing:border-box;">
+          <option value="4.0" selected>Standard 4.0 Scale (A = 4.0, A- = 3.7)</option>
+          <option value="4.33">4.33 Scale (A+ = 4.33, A = 4.0)</option>
+          <option value="weighted">Weighted High School (Honors +0.5, AP/IB +1.0)</option>
+        </select>
+      </div>
+
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Prior Cumulative GPA (Optional)</label>
+        <input type="number" id="gpa-prior-gpa" value="3.40" min="0" max="5.0" step="0.01" oninput="calcGPA()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.15rem;box-sizing:border-box;">
+      </div>
+
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Prior Credits Completed</label>
+        <input type="number" id="gpa-prior-credits" value="45" min="0" max="200" step="1" oninput="calcGPA()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.15rem;box-sizing:border-box;">
+      </div>
+    </div>
+
+    <!-- Target Goal Setting Row -->
+    <div class="gpa-grid-3" style="background:var(--surface-alt);padding:1rem;border-radius:6px;margin-bottom:1.5rem;border:1px dashed var(--border);">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">🎯 Graduation Target GPA Goal</label>
+        <input type="number" id="gpa-target-goal" value="3.60" min="2.0" max="4.5" step="0.05" oninput="calcGPA()" style="width:100%;padding:0.6rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Total Credits Required for Degree</label>
+        <input type="number" id="gpa-total-degree-credits" value="120" min="60" max="180" step="1" oninput="calcGPA()" style="width:100%;padding:0.6rem;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1rem;box-sizing:border-box;">
+      </div>
+      <div style="display:flex;align-items:flex-end;">
+        <div id="gpa-target-status" style="font-family:var(--mono);font-size:0.85rem;color:#3b82f6;padding-bottom:0.6rem;">Target GPA calculations active</div>
+      </div>
+    </div>
+
+    <!-- Courses Schedule Table -->
+    <div style="margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-family:var(--serif);font-size:1.15rem;font-weight:600;color:var(--fg);">Current Semester Course Roster</span>
+      <button type="button" class="btn-sec" onclick="addGPACourseRow()" style="font-family:var(--mono);font-size:0.8rem;padding:0.4rem 0.8rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">+ Add Course</button>
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="gpa-table">
+        <thead>
+          <tr>
+            <th style="width:35%;">Course Name</th>
+            <th style="width:20%;">Letter Grade</th>
+            <th style="width:15%;">Credits</th>
+            <th style="width:20%;">Course Weight</th>
+            <th style="width:10%;text-align:center;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="gpa-course-tbody">
+          <!-- Rows injected dynamically -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Hero Cards -->
+    <div class="gpa-grid-4">
+      <div class="gpa-card" style="border-top:4px solid #10b981;">
+        <span class="gpa-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Term GPA</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Semester GPA</div>
+        <div id="card-gpa-term" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#10b981;">3.67</div>
+        <div id="card-gpa-weighted-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Unweighted: 3.67</div>
+      </div>
+
+      <div class="gpa-card" style="border-top:4px solid #3b82f6;">
+        <span class="gpa-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Overall</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">New Cumulative GPA</div>
+        <div id="card-gpa-cum" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#3b82f6;">3.47</div>
+        <div id="card-gpa-credits-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">60 total credits completed</div>
+      </div>
+
+      <div class="gpa-card" style="border-top:4px solid #8b5cf6;">
+        <span class="gpa-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Quality Pts</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Quality Points</div>
+        <div id="card-gpa-qp" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:var(--fg);">208.1</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Cumulative earned points</div>
+      </div>
+
+      <div class="gpa-card" style="border-top:4px solid #f59e0b;">
+        <span class="gpa-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Target Goal</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Required Remaining GPA</div>
+        <div id="card-gpa-needed" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#f59e0b;">3.73</div>
+        <div id="card-gpa-needed-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Across remaining 60 credits</div>
+      </div>
+    </div>
+
+    <!-- Pure SVG Academic Standing Gauge -->
+    <div class="gpa-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Academic Standing &amp; Latin Honors Spectrum</span>
+        <span id="gpa-standing-text" style="font-family:var(--mono);font-size:0.78rem;color:#10b981;">Dean's List / Honors Standing</span>
+      </div>
+      <div id="gpa-svg-container" style="width:100%;height:65px;"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span>Good Standing (2.0)</span>
+        <span>Honors (3.0)</span>
+        <span>Dean's List (3.5)</span>
+        <span>Cum Laude (3.6)</span>
+        <span>Magna Cum Laude (3.8)</span>
+        <span>Summa (3.9+)</span>
+      </div>
+    </div>
+
+    <!-- Live Step-by-Step Derivation -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #3b82f6;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Mathematical Quality Points Derivation:</div>
+      <div id="gpa-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
+
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyGPAReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Academic GPA Transcript Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Academic GPA Calculations</h2>
+
+    <div class="gpa-trap-card">
+      <div class="gpa-trap-title">1. The Credit-Hour Weighting Distortion</div>
+      <p class="gpa-trap-desc">
+        A common student error is taking the simple average of letter grades. An 'F' in a 4-credit Organic Chemistry lab carries four times the mathematical drag of an 'A' in a 1-credit physical education seminar. Quality points are strictly proportional to credit units; neglecting course credits produces wildly inaccurate GPA predictions that can lead to unexpected academic probation.
+      </p>
+    </div>
+
+    <div class="gpa-trap-card">
+      <div class="gpa-trap-title">2. The Pass/Fail (P/F) Credit Illusion</div>
+      <p class="gpa-trap-desc">
+        Enrolling in classes on a Pass/Fail (or Credit/No Credit) grading option fulfills graduation requirements, but passing grades do <em>not</em> factor into your GPA numerator or denominator. Therefore, Pass credits cannot be used to raise a depressed GPA. Furthermore, at many major universities, a failing grade ('No Pass' / 'F') in a P/F class is computed as a 0.00 quality point failure, causing your GPA to plummet.
+      </p>
+    </div>
+
+    <div class="gpa-trap-card">
+      <div class="gpa-trap-title">3. Institutional Course Repeat &amp; Grade Forgiveness Rules</div>
+      <p class="gpa-trap-desc">
+        University policies on retaking classes diverge sharply. Under strict "Grade Replacement", the new grade replaces the prior grade in your institutional GPA. However, centralized graduate school admissions application services (e.g., AMCAS for Medical School, LSAC for Law School) reverse institutional grade forgiveness, recalculating every attempt and averaging original 'F' grades back into your cumulative admission GPA.
+      </p>
+    </div>
+
+    <div class="gpa-trap-card">
+      <div class="gpa-trap-title">4. Transfer Credit Exclusion for Latin Honors</div>
+      <p class="gpa-trap-desc">
+        Students who transfer credits from community colleges often discover that transfer coursework carries credit units but zero institutional GPA points. At universities like UCLA, UC Berkeley, and NYU, Latin Honors (Cum Laude, Magna Cum Laude, Summa Cum Laude) are evaluated exclusively on grades earned in residence, meaning a single B- in your senior year can knock you out of the honors cutoff.
+      </p>
+    </div>
+
+    <div class="gpa-trap-card">
+      <div class="gpa-trap-title">5. The Unweighted High School Class Rank Ceiling</div>
+      <p class="gpa-trap-desc">
+        In competitive secondary schools with weighted class ranking, maintaining a perfect 4.00 unweighted GPA in standard college-prep classes will not earn valedictorian status. Students taking 8 to 12 Advanced Placement (AP) or International Baccalaureate (IB) courses receive +1.0 grade point bumps, achieving weighted GPAs of 4.60 to 4.90, displacing unweighted students in percentile rank.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  var courseRows = [
+    { name: 'Calculus II', grade: 'A', credits: 4, type: 'ap' },
+    { name: 'Organic Chemistry', grade: 'A-', credits: 4, type: 'standard' },
+    { name: 'World History', grade: 'B+', credits: 3, type: 'honors' },
+    { name: 'Computer Science', grade: 'A', credits: 4, type: 'ap' }
+  ];
+
+  var GRADE_POINTS = {
+    '4.0': { 'A+': 4.0, 'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'D-': 0.7, 'F': 0.0 },
+    '4.33': { 'A+': 4.33, 'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'D-': 0.7, 'F': 0.0 },
+    'weighted': { 'A+': 4.0, 'A': 4.0, 'A-': 3.7, 'B+': 3.3, 'B': 3.0, 'B-': 2.7, 'C+': 2.3, 'C': 2.0, 'C-': 1.7, 'D+': 1.3, 'D': 1.0, 'D-': 0.7, 'F': 0.0 }
+  };
+
+  function renderGPATable() {
+    var tb = document.getElementById('gpa-course-tbody');
+    if (!tb) return;
+
+    var html = '';
+    for (var i = 0; i < courseRows.length; i++) {
+      var r = courseRows[i];
+      html += '<tr style="border-bottom:1px solid var(--border);">' +
+        '<td><input type="text" value="' + r.name + '" oninput="updateCourse(' + i + ', \'name\', this.value)" style="width:100%;padding:0.4rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:var(--mono);font-size:0.85rem;box-sizing:border-box;"></td>' +
+        '<td><select onchange="updateCourse(' + i + ', \'grade\', this.value)" style="width:100%;padding:0.4rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:var(--mono);font-size:0.85rem;box-sizing:border-box;">' +
+          ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'F'].map(function(g) {
+            return '<option value="' + g + '"' + (r.grade === g ? ' selected' : '') + '>' + g + '</option>';
+          }).join('') +
+        '</select></td>' +
+        '<td><input type="number" value="' + r.credits + '" min="0.5" max="12" step="0.5" oninput="updateCourse(' + i + ', \'credits\', this.value)" style="width:100%;padding:0.4rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:var(--mono);font-size:0.85rem;box-sizing:border-box;"></td>' +
+        '<td><select onchange="updateCourse(' + i + ', \'type\', this.value)" style="width:100%;padding:0.4rem;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:var(--mono);font-size:0.85rem;box-sizing:border-box;">' +
+          '<option value="standard"' + (r.type === 'standard' ? ' selected' : '') + '>Standard (+0.0)</option>' +
+          '<option value="honors"' + (r.type === 'honors' ? ' selected' : '') + '>Honors (+0.5)</option>' +
+          '<option value="ap"' + (r.type === 'ap' ? ' selected' : '') + '>AP / IB / College (+1.0)</option>' +
+        '</select></td>' +
+        '<td style="text-align:center;"><button type="button" onclick="removeGPACourseRow(' + i + ')" style="background:transparent;border:none;color:#ef4444;cursor:pointer;font-family:var(--mono);font-size:1rem;">&times;</button></td>' +
+      '</tr>';
+    }
+    tb.innerHTML = html;
+  }
+
+  function addGPACourseRow() {
+    courseRows.push({ name: 'Course ' + (courseRows.length + 1), grade: 'A', credits: 3, type: 'standard' });
+    renderGPATable();
+    calcGPA();
+  }
+
+  function removeGPACourseRow(idx) {
+    if (courseRows.length > 1) {
+      courseRows.splice(idx, 1);
+      renderGPATable();
+      calcGPA();
+    }
+  }
+
+  function updateCourse(idx, field, val) {
+    if (field === 'credits') {
+      courseRows[idx][field] = parseFloat(val) || 0;
+    } else {
+      courseRows[idx][field] = val;
+    }
+    calcGPA();
+  }
+
+  function calcGPA() {
+    var scaleMode = document.getElementById('gpa-scale').value;
+    var priorGPA = parseFloat(document.getElementById('gpa-prior-gpa').value) || 0;
+    var priorCredits = parseFloat(document.getElementById('gpa-prior-credits').value) || 0;
+    var targetGoal = parseFloat(document.getElementById('gpa-target-goal').value) || 0;
+    var totalDegreeCredits = parseFloat(document.getElementById('gpa-total-degree-credits').value) || 120;
+
+    var termQualityPts = 0;
+    var termUnweightedPts = 0;
+    var termCredits = 0;
+
+    var pointMap = GRADE_POINTS[scaleMode] || GRADE_POINTS['4.0'];
+
+    for (var i = 0; i < courseRows.length; i++) {
+      var r = courseRows[i];
+      var basePt = pointMap[r.grade] !== undefined ? pointMap[r.grade] : 0.0;
+      var bonus = 0;
+      if (scaleMode === 'weighted') {
+        if (r.type === 'honors') bonus = 0.5;
+        if (r.type === 'ap') bonus = 1.0;
+      }
+      var coursePt = basePt + bonus;
+      termQualityPts += coursePt * r.credits;
+      termUnweightedPts += basePt * r.credits;
+      termCredits += r.credits;
+    }
+
+    var termGPA = termCredits > 0 ? (termQualityPts / termCredits) : 0;
+    var termUnweightedGPA = termCredits > 0 ? (termUnweightedPts / termCredits) : 0;
+
+    var priorQualityPts = priorGPA * priorCredits;
+    var totalQualityPts = priorQualityPts + termQualityPts;
+    var totalCredits = priorCredits + termCredits;
+
+    var newCumGPA = totalCredits > 0 ? (totalQualityPts / totalCredits) : termGPA;
+
+    // Target GPA Planning
+    var remainingCredits = Math.max(0, totalDegreeCredits - totalCredits);
+    var targetQPNeeded = (targetGoal * totalDegreeCredits) - totalQualityPts;
+    var requiredRemainingGPA = remainingCredits > 0 ? (targetQPNeeded / remainingCredits) : 0;
+
+    // Display Hero cards
+    document.getElementById('card-gpa-term').textContent = termGPA.toFixed(2);
+    document.getElementById('card-gpa-weighted-sub').textContent = 'Unweighted: ' + termUnweightedGPA.toFixed(2) + ' (' + termCredits + ' credits)';
+
+    document.getElementById('card-gpa-cum').textContent = newCumGPA.toFixed(2);
+    document.getElementById('card-gpa-credits-sub').textContent = totalCredits + ' total credits completed';
+
+    document.getElementById('card-gpa-qp').textContent = totalQualityPts.toFixed(1);
+
+    var neededEl = document.getElementById('card-gpa-needed');
+    var neededSubEl = document.getElementById('card-gpa-needed-sub');
+
+    if (remainingCredits <= 0) {
+      neededEl.textContent = 'Graduated';
+      neededSubEl.textContent = 'All ' + totalDegreeCredits + ' degree credits finished';
+    } else if (requiredRemainingGPA > 4.0 && scaleMode !== 'weighted') {
+      neededEl.textContent = requiredRemainingGPA.toFixed(2) + ' ⚠️';
+      neededEl.style.color = '#ef4444';
+      neededSubEl.textContent = 'Exceeds 4.0 cap (mathematically unreachable without repeats)';
+    } else if (requiredRemainingGPA <= 0) {
+      neededEl.textContent = 'Achieved';
+      neededEl.style.color = '#10b981';
+      neededSubEl.textContent = 'Target guaranteed even with 0.0 remaining GPA';
+    } else {
+      neededEl.textContent = requiredRemainingGPA.toFixed(2);
+      neededEl.style.color = '#f59e0b';
+      neededSubEl.textContent = 'Required average across remaining ' + remainingCredits + ' credits';
+    }
+
+    renderGPAGauge(newCumGPA);
+
+    // Derivations
+    var deriv = [
+      '1. Term Quality Points: &sum;(Course Points &times; Credits) = <strong>' + termQualityPts.toFixed(2) + ' quality points</strong> across ' + termCredits + ' credits',
+      '2. Semester GPA Formula: ' + termQualityPts.toFixed(2) + ' &divide; ' + termCredits + ' = <strong>' + termGPA.toFixed(3) + ' Term GPA</strong>',
+      '3. Cumulative GPA Formula: (' + priorQualityPts.toFixed(1) + ' prior QP + ' + termQualityPts.toFixed(2) + ' term QP) &divide; ' + totalCredits + ' credits = <strong>' + newCumGPA.toFixed(3) + ' Cumulative GPA</strong>'
+    ];
+
+    if (remainingCredits > 0) {
+      deriv.push('4. Target GPA Formula: [(' + targetGoal.toFixed(2) + ' target &times; ' + totalDegreeCredits + ' credits) - ' + totalQualityPts.toFixed(1) + ' earned QP] &divide; ' + remainingCredits + ' remaining credits = <strong>' + requiredRemainingGPA.toFixed(2) + ' required average GPA</strong>');
+    }
+
+    document.getElementById('gpa-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderGPAGauge(gpa) {
+    var c = document.getElementById('gpa-svg-container');
+    if (!c) return;
+
+    var w = c.clientWidth || 600;
+    var h = 55;
+    var barH = 20;
+    var y = 14;
+
+    var minG = 2.0;
+    var maxG = 4.0;
+    var clamped = Math.max(minG, Math.min(maxG, gpa));
+    var pct = (clamped - minG) / (maxG - minG);
+
+    var needleX = 2 + pct * (w - 4);
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Zones
+    var wGood = 0.5 * (w - 4); // 2.0 to 3.0
+    var wHonors = 0.25 * (w - 4); // 3.0 to 3.5
+    var wDeans = 0.15 * (w - 4); // 3.5 to 3.8
+    var wSumma = 0.10 * (w - 4); // 3.8 to 4.0
+
+    svg += '<rect x="2" y="' + y + '" width="' + wGood + '" height="' + barH + '" rx="4" fill="#64748b" />';
+    svg += '<rect x="' + (2 + wGood) + '" y="' + y + '" width="' + wHonors + '" height="' + barH + '" fill="#3b82f6" />';
+    svg += '<rect x="' + (2 + wGood + wHonors) + '" y="' + y + '" width="' + wDeans + '" height="' + barH + '" fill="#8b5cf6" />';
+    svg += '<rect x="' + (2 + wGood + wHonors + wDeans) + '" y="' + y + '" width="' + wSumma + '" height="' + barH + '" rx="4" fill="#10b981" />';
+
+    // Needle
+    svg += '<line x1="' + needleX + '" y1="' + (y - 4) + '" x2="' + needleX + '" y2="' + (y + barH + 4) + '" stroke="#ffffff" stroke-width="2.5" />';
+    svg += '<text x="' + needleX + '" y="' + (y + barH + 16) + '" fill="#10b981" font-family="var(--mono)" font-size="11" text-anchor="middle" font-weight="bold">GPA: ' + gpa.toFixed(2) + '</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+
+    var standing = 'Good Standing';
+    if (gpa >= 3.9) standing = 'Summa Cum Laude (Top Tier Honors)';
+    else if (gpa >= 3.75) standing = 'Magna Cum Laude Honors';
+    else if (gpa >= 3.5) standing = "Dean's List / Cum Laude Standing";
+    else if (gpa >= 3.0) standing = 'Academic Honors Standing';
+    document.getElementById('gpa-standing-text').textContent = standing;
+  }
+
+  function copyGPAReport(btn) {
+    var term = document.getElementById('card-gpa-term').textContent;
+    var cum = document.getElementById('card-gpa-cum').textContent;
+    var qp = document.getElementById('card-gpa-qp').textContent;
+    var needed = document.getElementById('card-gpa-needed').textContent + ' (' + document.getElementById('card-gpa-needed-sub').textContent + ')';
+    var scale = document.getElementById('gpa-scale').value;
+
+    var lines = [
+      '========================================',
+      '      ACADEMIC GPA TRANSCRIPT REPORT',
+      '========================================',
+      'Grading Scale Model : ' + scale,
+      'Semester Term GPA   : ' + term,
+      'Cumulative Total GPA: ' + cum,
+      'Total Quality Points: ' + qp,
+      'Target Goal Status  : ' + needed,
+      '----------------------------------------',
+      'Course Schedule Summary:'
+    ];
+
+    for (var i = 0; i < courseRows.length; i++) {
+      var r = courseRows[i];
+      lines.push('  • ' + r.name + ': Grade ' + r.grade + ' (' + r.credits + ' cr, ' + r.type + ')');
+    }
+
+    lines.push('========================================');
+    lines.push('Source: Digital Tools Shed (https://digitaltoolsshed.com/math/gpa-calculator.html)');
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied GPA Report!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcGPA);
+  document.addEventListener('DOMContentLoaded', function() {
+    renderGPATable();
+    calcGPA();
+  });
+  renderGPATable();
+  calcGPA();
+</script>
+`
+  },
     {
       slug: 'fraction-to-decimal',
       title: 'Fraction to Decimal Converter (with Repeating Decimals & Tape Measure)',
@@ -2618,419 +2783,438 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
         </script>
       `
     },
-    {
-      slug: 'fraction-calculator',
-      title: 'Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers)',
-      metaDesc: 'Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with LCD least common denominator, mixed number simplification, and one-click copy.',
-      category: 'Math & Units',
-      faq: [
-        { q: 'How do you add or subtract fractions with different denominators?', a: 'Find the Least Common Denominator (LCD) of the fractions by calculating the Least Common Multiple (LCM) of the denominators. Multiply the numerator and denominator of each fraction by the factor needed to reach the LCD, add or subtract the adjusted numerators while keeping the common denominator, and simplify the final fraction using the Greatest Common Divisor (GCD).' },
-        { q: 'What is the Keep-Change-Flip rule for dividing fractions?', a: 'To divide two fractions (A/B ÷ C/D), keep the first fraction (A/B), change the division operator to multiplication (×), and flip the second fraction to its reciprocal (D/C). Then multiply straight across: (A × D) / (B × C), and reduce to lowest terms.' },
-        { q: 'What is the difference between a proper fraction, improper fraction, and mixed number?', a: 'A proper fraction has a numerator smaller than its denominator (e.g., 3/4). An improper fraction has a numerator equal to or greater than its denominator (e.g., 7/4). A mixed number expresses an improper fraction as an integer combined with a proper fraction (e.g., 1 3/4).' },
-        { q: 'Why can you not just add the numerators and denominators together directly?', a: 'Adding numerators and denominators directly (e.g., 1/2 + 1/3 = 2/5) is known as the "Freshman’s Dream" error. 2/5 (0.4) is smaller than 1/2 (0.5), which is impossible when adding two positive values. Adding top-and-bottom computes the mediant, which always falls strictly between the two fractions rather than calculating their combined sum (5/6 ≈ 0.833).' },
-        { q: 'How do you convert a mixed number to an improper fraction?', a: 'Multiply the whole integer part by the denominator, add the numerator to that product, and place the resulting sum over the original denominator: W N/D = (W × D + N) / D. For example, 3 2/5 = (3 × 5 + 2) / 5 = 17/5.' }
-      ],
-      body: `
-        ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Fraction Calculator
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Fraction Arithmetic Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Add, subtract, multiply, and divide two fractions or mixed numbers with full step-by-step LCD solutions, improper conversions, decimal approximations, and tape measure markings.
-          </p>
+      {
+    slug: "fraction-calculator",
+    title: "Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers)",
+    metaDesc: "Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with Least Common Denominator (LCD), Euclidean GCD reduction, and pure SVG visual fraction comparison bars.",
+    category: "Math & Units",
+    faq: [
+        {
+            "q": "How do you add or subtract fractions with different denominators?",
+            "a": "To add or subtract fractions with unlike denominators, find the Least Common Denominator (LCD), which is the Least Common Multiple (LCM) of the two denominators. Convert each fraction to an equivalent fraction with the LCD as its denominator by multiplying both numerator and denominator by the required scaling factor. Then, add or subtract the numerators while keeping the common denominator unchanged, and simplify the final fraction to lowest terms using the Greatest Common Divisor (GCD)."
+        },
+        {
+            "q": "What is the Keep-Change-Flip rule for dividing fractions?",
+            "a": "To divide any two fractions (A/B ÷ C/D): 1) Keep the first fraction (A/B) exactly as it is; 2) Change the division operator (÷) into multiplication (×); 3) Flip the second fraction upside down to create its reciprocal (D/C). Then multiply the numerators straight across and the denominators straight across: (A × D) / (B × C), and reduce to lowest terms."
+        },
+        {
+            "q": "What is the difference between a proper fraction, improper fraction, and mixed number?",
+            "a": "A proper fraction has a numerator smaller than its denominator (e.g., 3/4), representing a value between 0 and 1. An improper fraction has a numerator greater than or equal to its denominator (e.g., 11/4), representing a value equal to or greater than 1. A mixed number combines a non-zero integer with a proper fraction (e.g., 2 3/4), which is mathematically identical to 11/4."
+        },
+        {
+            "q": "How does the Euclidean algorithm find the Greatest Common Divisor (GCD) for fraction simplification?",
+            "a": "The Euclidean algorithm is an ancient, highly efficient algorithm based on the principle that the GCD of two numbers also divides their remainder: GCD(A, B) = GCD(B, A mod B). By repeatedly taking remainders until the remainder reaches 0, the final non-zero divisor is the exact GCD. Dividing both the numerator and denominator by this GCD guarantees that the fraction is reduced to its simplest, coprime lowest terms."
+        },
+        {
+            "q": "How do you convert decimal values to carpentry tape measure fractions (1/16, 1/32, 1/64)?",
+            "a": "To find the nearest tape measure fraction on standard Imperial rulers, multiply the decimal fraction by the desired ruler resolution (e.g., 16 for 1/16\", 32 for 1/32\", or 64 for 1/64\"), round to the nearest whole integer, and simplify the resulting fraction. For example, 0.6875 × 16 = 11, giving exactly 11/16\". For 0.70\", 0.70 × 16 = 11.2 ≈ 11/16\" with a minor measurement tolerance deviation of +0.0125\"."
+        }
+    ],
+    body: `
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Fraction Calculator
+  </nav>
 
-          <div class="tool-box">
-            <!-- Quick Presets -->
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Popular Problems & Quick Presets:</span>
-              <button type="button" class="btn-sec" onclick="setFracPreset(0, 1, 2, '+', 0, 3, 4)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1/2 + 3/4</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(2, 1, 3, '*', 1, 1, 2)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">2 1/3 &times; 1 1/2</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(0, 5, 6, '-', 0, 2, 3)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">5/6 &minus; 2/3</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(3, 3, 4, '/', 0, 1, 8)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">3 3/4 &divide; 1/8 (Carpentry)</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(0, 7, 8, '-', 0, 5, 16)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">7/8 &minus; 5/16 (Machining)</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(0, 1, 4, '+', 0, 1, 3)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1/4 + 1/3 (Freshman Trap)</button>
-            </div>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Fraction &amp; Mixed Number Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Add, subtract, multiply, and divide fractions and mixed numbers. Get step-by-step Least Common Denominator (LCD) solutions, tape measure equivalents, and visual SVG fraction bars.
+    </p>
+  </header>
 
-            <!-- Input Grid -->
-            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center;">
-              <!-- Fraction 1 -->
-              <div style="background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border);">
-                <div class="field-label">Fraction 1 (Mixed or Simple)</div>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <div style="text-align: center;">
-                    <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--mono); display: block; margin-bottom: 0.2rem;">Whole</span>
-                    <input type="number" id="fc-w1" class="code-input" placeholder="0" style="width: 70px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" />
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: center;">
-                    <input type="number" id="fc-n1" class="code-input" value="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Numerator" />
-                    <div style="width: 100%; height: 2px; background: var(--border);"></div>
-                    <input type="number" id="fc-d1" class="code-input" value="2" min="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Denominator" />
-                  </div>
-                </div>
-              </div>
+  <style>
+    .frac-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .frac-entry-row { display:flex; align-items:center; justify-content:center; gap:1.25rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .frac-unit { display:inline-flex; align-items:center; gap:0.5rem; background:var(--surface-alt); padding:1rem; border-radius:8px; border:1px solid var(--border); }
+    .frac-stacked { display:inline-flex; flex-direction:column; align-items:center; width:65px; }
+    .frac-input { width:60px; text-align:center; padding:0.45rem; background:var(--surface); border:1px solid var(--border); border-radius:4px; color:var(--fg); font-family:var(--mono); font-size:1.15rem; font-weight:bold; }
+    .frac-bar { width:100%; height:2px; background:var(--fg); margin:3px 0; }
+    .frac-op-select { padding:0.6rem 0.8rem; background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; color:var(--fg); font-family:var(--mono); font-size:1.4rem; font-weight:bold; cursor:pointer; }
+    .frac-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .frac-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .frac-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .frac-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .frac-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .frac-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .frac-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
 
-              <!-- Operator Selector -->
-              <div style="text-align: center;">
-                <label class="field-label" style="margin-bottom: 0.3rem;">Operator</label>
-                <select id="fc-op" class="code-input" style="font-size: 1.6rem; padding: 0.4rem 0.8rem; font-weight: bold; width: auto; text-align: center; cursor: pointer; border-color: #3b82f6;" onchange="calcFracCalc()">
-                  <option value="+">&plus;</option>
-                  <option value="-">&minus;</option>
-                  <option value="*">&times;</option>
-                  <option value="/">&divide;</option>
-                </select>
-              </div>
-
-              <!-- Fraction 2 -->
-              <div style="background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border);">
-                <div class="field-label">Fraction 2 (Mixed or Simple)</div>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <div style="text-align: center;">
-                    <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--mono); display: block; margin-bottom: 0.2rem;">Whole</span>
-                    <input type="number" id="fc-w2" class="code-input" placeholder="0" style="width: 70px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" />
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: center;">
-                    <input type="number" id="fc-n2" class="code-input" value="3" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Numerator" />
-                    <div style="width: 100%; height: 2px; background: var(--border);"></div>
-                    <input type="number" id="fc-d2" class="code-input" value="4" min="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Denominator" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Dynamic Result Card -->
-            <div class="result-card" style="margin-top: 1.5rem; text-align: center;">
-              <div style="font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Simplified Solution</div>
-              <div id="fc-res" class="result-val" style="font-size: 2.8rem; margin: 0.4rem 0; color: #10b981;">1 1/4</div>
-              <div id="fc-subtext" style="font-family: var(--mono); font-size: 1rem; color: var(--fg); margin-bottom: 0.75rem;">
-                1/2 &plus; 3/4 = 1 1/4
-              </div>
-
-              <!-- Multi-representation metrics -->
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem;">
-                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Improper Fraction</div>
-                  <div id="fc-improper" style="font-weight: bold; color: #3b82f6; font-size: 1.05rem; margin-top: 0.2rem;">5/4</div>
-                </div>
-                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Decimal Value</div>
-                  <div id="fc-decimal" style="font-weight: bold; color: var(--fg); font-size: 1.05rem; margin-top: 0.2rem;">1.25</div>
-                </div>
-                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Percentage</div>
-                  <div id="fc-percent" style="font-weight: bold; color: var(--fg); font-size: 1.05rem; margin-top: 0.2rem;">125%</div>
-                </div>
-                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Reciprocal (Inverse)</div>
-                  <div id="fc-reciprocal" style="font-weight: bold; color: #8b5cf6; font-size: 1.05rem; margin-top: 0.2rem;">4/5 (0.8)</div>
-                </div>
-              </div>
-
-              <!-- One-Click Copy Button -->
-              <button type="button" id="btnCopyFrac" onclick="copyFractionSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy Complete Fraction Solution & Work
-              </button>
-            </div>
-          </div>
-
-          <!-- Step-by-Step Worked Derivation Engine -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Algebraic Solution</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">LCD & Reduction Proof</span>
-            </div>
-            <div id="fc-steps-box" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-              <!-- Dynamic worked steps populated by calcFracCalc() -->
-            </div>
-          </div>
-
-          <!-- Master Reference Table: Imperial 16th Fractions to Decimals & Metric -->
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--fg);">📏 Imperial Tape Measure & Workshop Fraction Chart</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-              Exact decimal equivalents and millimeter conversions for standard 16th-inch increments used in carpentry, machining, and cooking:
-            </p>
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: left;">
-                <thead>
-                  <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
-                    <th style="padding: 0.5rem 0.75rem;">Fraction</th>
-                    <th style="padding: 0.5rem 0.75rem;">Decimal (in)</th>
-                    <th style="padding: 0.5rem 0.75rem;">Metric (mm)</th>
-                    <th style="padding: 0.5rem 0.75rem;">Percent (%)</th>
-                    <th style="padding: 0.5rem 0.75rem;">Workshop Benchmark</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/16"</td><td style="padding: 0.45rem 0.75rem;">0.0625"</td><td style="padding: 0.45rem 0.75rem;">1.588 mm</td><td style="padding: 0.45rem 0.75rem;">6.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Sheet steel gauge tolerance</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/8"</td><td style="padding: 0.45rem 0.75rem;">0.1250"</td><td style="padding: 0.45rem 0.75rem;">3.175 mm</td><td style="padding: 0.45rem 0.75rem;">12.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Hardboard / Table saw blade kerf</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/16"</td><td style="padding: 0.45rem 0.75rem;">0.1875"</td><td style="padding: 0.45rem 0.75rem;">4.763 mm</td><td style="padding: 0.45rem 0.75rem;">18.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Masonry screw pilot hole</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/4"</td><td style="padding: 0.45rem 0.75rem;">0.2500"</td><td style="padding: 0.45rem 0.75rem;">6.350 mm</td><td style="padding: 0.45rem 0.75rem;">25.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Standard plywood / 1/4 cup</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">5/16"</td><td style="padding: 0.45rem 0.75rem;">0.3125"</td><td style="padding: 0.45rem 0.75rem;">7.938 mm</td><td style="padding: 0.45rem 0.75rem;">31.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Lag bolt diameter</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/8"</td><td style="padding: 0.45rem 0.75rem;">0.3750"</td><td style="padding: 0.45rem 0.75rem;">9.525 mm</td><td style="padding: 0.45rem 0.75rem;">37.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Ratchet drive / Drywall sheathing</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">7/16"</td><td style="padding: 0.45rem 0.75rem;">0.4375"</td><td style="padding: 0.45rem 0.75rem;">11.113 mm</td><td style="padding: 0.45rem 0.75rem;">43.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">OSB roof sheathing</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/2"</td><td style="padding: 0.45rem 0.75rem;">0.5000"</td><td style="padding: 0.45rem 0.75rem;">12.700 mm</td><td style="padding: 0.45rem 0.75rem;">50.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Standard wall drywall / 1/2 cup</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">9/16"</td><td style="padding: 0.45rem 0.75rem;">0.5625"</td><td style="padding: 0.45rem 0.75rem;">14.288 mm</td><td style="padding: 0.45rem 0.75rem;">56.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Spark plug hex socket</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">5/8"</td><td style="padding: 0.45rem 0.75rem;">0.6250"</td><td style="padding: 0.45rem 0.75rem;">15.875 mm</td><td style="padding: 0.45rem 0.75rem;">62.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Type X fire-rated drywall</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">11/16"</td><td style="padding: 0.45rem 0.75rem;">0.6875"</td><td style="padding: 0.45rem 0.75rem;">17.463 mm</td><td style="padding: 0.45rem 0.75rem;">68.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Hardwood flooring tongue</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/4"</td><td style="padding: 0.45rem 0.75rem;">0.7500"</td><td style="padding: 0.45rem 0.75rem;">19.050 mm</td><td style="padding: 0.45rem 0.75rem;">75.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Subflooring / Cabinet carcase</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">13/16"</td><td style="padding: 0.45rem 0.75rem;">0.8125"</td><td style="padding: 0.45rem 0.75rem;">20.638 mm</td><td style="padding: 0.45rem 0.75rem;">81.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Rough sawn 4/4 lumber surfaced</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">7/8"</td><td style="padding: 0.45rem 0.75rem;">0.8750"</td><td style="padding: 0.45rem 0.75rem;">22.225 mm</td><td style="padding: 0.45rem 0.75rem;">87.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Heavy structural steel bolt</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">15/16"</td><td style="padding: 0.45rem 0.75rem;">0.9375"</td><td style="padding: 0.45rem 0.75rem;">23.813 mm</td><td style="padding: 0.45rem 0.75rem;">93.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Plumbing union coupling</td></tr>
-                  <tr><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">1"</td><td style="padding: 0.45rem 0.75rem;">1.0000"</td><td style="padding: 0.45rem 0.75rem;">25.400 mm</td><td style="padding: 0.45rem 0.75rem;">100.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Full imperial base unit</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- 3 Fraction Traps & Historical Gotchas -->
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 3 Critical Fraction Pitfalls & Common Mistakes</h3>
-            <div style="display: grid; gap: 1rem;">
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #ef4444;">
-                <strong style="color: #ef4444; font-size: 0.95rem;">1. The Freshman's Dream: Adding Numerators and Denominators Directly</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  A frequent elementary mistake is writing <code style="color: var(--fg); font-family: var(--mono);">1/2 + 1/3 = 2/5</code>. Notice that 2/5 = 0.4, which is <em>smaller</em> than the 1/2 (0.5) you started with! In mathematics, <code style="color: var(--fg); font-family: var(--mono);">(a+c)/(b+d)</code> is known as the <strong>mediant</strong>—a weighted average that always lies strictly <em>between</em> the two values. To calculate the combined sum, denominators MUST be unified through the Least Common Denominator: <code style="color: var(--fg); font-family: var(--mono);">3/6 + 2/6 = 5/6 &approx; 0.833</code>.
-                </p>
-              </div>
-
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #f59e0b;">
-                <strong style="color: #f59e0b; font-size: 0.95rem;">2. Division by Zero & Reciprocal Singularities</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  Fractions represent division: <code style="color: var(--fg); font-family: var(--mono);">N / D</code>. Setting <code style="color: var(--fg); font-family: var(--mono);">D = 0</code> yields an undefined mathematical singularity because no real number multiplied by 0 can recreate N. Furthermore, when dividing by a fraction with a numerator of zero (<code style="color: var(--fg); font-family: var(--mono);">&divide; 0/D</code>), the Keep-Change-Flip rule attempts to multiply by its reciprocal <code style="color: var(--fg); font-family: var(--mono);">D/0</code>, immediately causing an illegal division by zero.
-                </p>
-              </div>
-
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #3b82f6;">
-                <strong style="color: #3b82f6; font-size: 0.95rem;">3. Floating-Point Binary Imprecision vs Exact Rational Arithmetic</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  In standard computer hardware (IEEE 754 double precision), fractions like 1/3 or 1/10 cannot be represented with finite binary bits. Evaluating <code style="color: var(--fg); font-family: var(--mono);">1/3 + 1/3 + 1/3</code> in raw floating-point code produces <code style="color: var(--fg); font-family: var(--mono);">0.9999999999999999</code> instead of <code style="color: var(--fg); font-family: var(--mono);">1.0</code>. Digital Tools Shed performs exact rational integer arithmetic behind the scenes, ensuring 100% precision with zero accumulated rounding error.
-                </p>
-              </div>
-            </div>
-          </div>
+  <div class="frac-box">
+    <!-- Equation Entry Container -->
+    <div class="frac-entry-row">
+      <!-- Fraction 1 -->
+      <div class="frac-unit">
+        <div>
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Whole</label>
+          <input type="number" id="f1-w" value="1" min="0" step="1" oninput="calcFrac()" class="frac-input" placeholder="0">
         </div>
+        <div class="frac-stacked">
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Num</label>
+          <input type="number" id="f1-n" value="1" min="0" step="1" oninput="calcFrac()" class="frac-input">
+          <div class="frac-bar"></div>
+          <input type="number" id="f1-d" value="2" min="1" step="1" oninput="calcFrac()" class="frac-input">
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:2px;">Den</label>
+        </div>
+      </div>
 
-        <script>
-          function gcdFrac(a, b) {
-            a = Math.abs(a);
-            b = Math.abs(b);
-            while (b) { var t = b; b = a % b; a = t; }
-            return a;
-          }
+      <!-- Operator -->
+      <div>
+        <select id="frac-op" onchange="calcFrac()" class="frac-op-select">
+          <option value="add" selected>+</option>
+          <option value="sub">&minus;</option>
+          <option value="mul">&times;</option>
+          <option value="div">&divide;</option>
+        </select>
+      </div>
 
-          function lcmFrac(a, b) {
-            if (a === 0 || b === 0) return 0;
-            return Math.abs(a * b) / gcdFrac(a, b);
-          }
+      <!-- Fraction 2 -->
+      <div class="frac-unit">
+        <div>
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Whole</label>
+          <input type="number" id="f2-w" value="0" min="0" step="1" oninput="calcFrac()" class="frac-input" placeholder="0">
+        </div>
+        <div class="frac-stacked">
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Num</label>
+          <input type="number" id="f2-n" value="3" min="0" step="1" oninput="calcFrac()" class="frac-input">
+          <div class="frac-bar"></div>
+          <input type="number" id="f2-d" value="4" min="1" step="1" oninput="calcFrac()" class="frac-input">
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:2px;">Den</label>
+        </div>
+      </div>
+    </div>
 
-          window.setFracPreset = function(w1, n1, d1, op, w2, n2, d2) {
-            document.getElementById('fc-w1').value = w1 || '';
-            document.getElementById('fc-n1').value = n1;
-            document.getElementById('fc-d1').value = d1;
-            document.getElementById('fc-op').value = op;
-            document.getElementById('fc-w2').value = w2 || '';
-            document.getElementById('fc-n2').value = n2;
-            document.getElementById('fc-d2').value = d2;
-            calcFracCalc();
-          };
+    <!-- Quick Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;justify-content:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Quick Scenarios:</span>
+      <button type="button" class="btn-sec" onclick="setFracPreset(0,1,2, 'add', 0,3,4)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">1/2 + 3/4</button>
+      <button type="button" class="btn-sec" onclick="setFracPreset(2,3,8, 'sub', 1,5,16)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">2 3/8 &minus; 1 5/16 (Carpentry)</button>
+      <button type="button" class="btn-sec" onclick="setFracPreset(0,5,6, 'mul', 0,2,3)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">5/6 &times; 2/3</button>
+      <button type="button" class="btn-sec" onclick="setFracPreset(0,7,8, 'div', 0,1,4)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">7/8 &divide; 1/4 (Keep-Flip)</button>
+    </div>
 
-          function calcFracCalc() {
-            var rawW1 = parseFloat(document.getElementById('fc-w1').value) || 0;
-            var rawN1 = parseFloat(document.getElementById('fc-n1').value) || 0;
-            var rawD1 = parseFloat(document.getElementById('fc-d1').value) || 1;
+    <!-- Hero Cards -->
+    <div class="frac-grid-4">
+      <div class="frac-card" style="border-top:4px solid #10b981;">
+        <span class="frac-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Simplified</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Mixed / Final Result</div>
+        <div id="card-frac-mixed" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#10b981;">2 1/4</div>
+        <div id="card-frac-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Reduced to lowest terms</div>
+      </div>
 
-            var rawW2 = parseFloat(document.getElementById('fc-w2').value) || 0;
-            var rawN2 = parseFloat(document.getElementById('fc-n2').value) || 0;
-            var rawD2 = parseFloat(document.getElementById('fc-d2').value) || 1;
+      <div class="frac-card" style="border-top:4px solid #3b82f6;">
+        <span class="frac-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Improper</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Improper Fraction</div>
+        <div id="card-frac-improper" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#3b82f6;">9/4</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Single numerator / denominator</div>
+      </div>
 
-            var op = document.getElementById('fc-op').value;
+      <div class="frac-card" style="border-top:4px solid #8b5cf6;">
+        <span class="frac-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Decimal</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Decimal Equivalent</div>
+        <div id="card-frac-dec" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:var(--fg);">2.2500</div>
+        <div id="card-frac-pct" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">225.0% of whole</div>
+      </div>
 
-            if (rawD1 === 0 || rawD2 === 0) {
-              document.getElementById('fc-res').textContent = 'Undefined';
-              document.getElementById('fc-res').style.color = '#ef4444';
-              document.getElementById('fc-subtext').textContent = 'Denominator cannot be zero';
-              document.getElementById('fc-steps-box').innerHTML = '<div style="color: #ef4444;">Error: Denominator is 0. Division by zero is undefined.</div>';
-              return;
-            }
+      <div class="frac-card" style="border-top:4px solid #f59e0b;">
+        <span class="frac-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Carpentry</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Tape Measure (1/16")</div>
+        <div id="card-frac-tape" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#f59e0b;">2 1/4"</div>
+        <div id="card-frac-tape-32" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Exact: 2 8/32"</div>
+      </div>
+    </div>
 
-            // Convert to improper fractions
-            var top1 = (Math.abs(rawW1) * rawD1) + rawN1;
-            if (rawW1 < 0) top1 = -top1;
-            var d1 = rawD1;
+    <!-- Pure SVG Fraction Comparison Visualizer -->
+    <div class="frac-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Visual Fraction Magnitude Comparison Bars</span>
+        <span style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Proportional Value Scale</span>
+      </div>
+      <div id="frac-svg-container" style="width:100%;height:100px;"></div>
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#3b82f6;border-radius:2px;"></span> Fraction 1</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#8b5cf6;border-radius:2px;"></span> Fraction 2</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#10b981;border-radius:2px;"></span> Result Output</span>
+      </div>
+    </div>
 
-            var top2 = (Math.abs(rawW2) * rawD2) + rawN2;
-            if (rawW2 < 0) top2 = -top2;
-            var d2 = rawD2;
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #10b981;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Step-by-Step Mathematical Derivation:</div>
+      <div id="frac-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
 
-            var resNum = 0, resDen = 1;
-            var stepHtml = '';
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyFracReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Fraction Solution Report
+      </button>
+    </div>
+  </div>
 
-            // Step 1: Improper Fractions
-            var f1Str = (rawW1 ? rawW1 + ' ' : '') + rawN1 + '/' + rawD1;
-            var f2Str = (rawW2 ? rawW2 + ' ' : '') + rawN2 + '/' + rawD2;
-            stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-              '<strong style="color: var(--fg);">Step 1: Convert to Improper Fractions</strong>' +
-              '<div style="color: #3b82f6; margin-top: 0.25rem;">Fraction 1: ' + top1 + '/' + d1 + ' &bull; Fraction 2: ' + top2 + '/' + d2 + '</div>' +
-              '</div>';
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Fraction Math</h2>
 
-            // Step 2: Common Denominator & Calculation
-            if (op === '+' || op === '-') {
-              var lcd = lcmFrac(d1, d2);
-              var m1 = lcd / d1;
-              var m2 = lcd / d2;
-              var scaledTop1 = top1 * m1;
-              var scaledTop2 = top2 * m2;
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">1. The "Numerator &amp; Denominator Addition" Fallacy</div>
+      <p class="frac-trap-desc">
+        The most notorious arithmetic fallacy is adding numerators and denominators straight across: <code>1/2 + 1/3 = 2/5</code>. In reality, 1/2 (0.50) plus 1/3 (0.333) equals 5/6 (0.833). Adding denominators changes the fractional unit size rather than accumulating equal quantities. You must normalize denominators to the Least Common Denominator (LCD) before adding.
+      </p>
+    </div>
 
-              if (op === '+') {
-                resNum = scaledTop1 + scaledTop2;
-              } else {
-                resNum = scaledTop1 - scaledTop2;
-              }
-              resDen = lcd;
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">2. Dividing Mixed Numbers Without Converting to Improper Fractions</div>
+      <p class="frac-trap-desc">
+        When dividing mixed numbers such as <code>4 1/2 &divide; 1 1/2</code>, novice students frequently divide the whole numbers (4 &divide; 1 = 4) and then divide the fractions (1/2 &divide; 1/2 = 1) to get an incorrect answer of 5. You must convert both operands into improper fractions first: <code>9/2 &divide; 3/2 = (9/2) &times; (2/3) = 18/6 = 3</code>.
+      </p>
+    </div>
 
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step 2: Find Least Common Denominator (LCD)</strong>' +
-                '<div style="color: #3b82f6; margin-top: 0.25rem;">LCD(' + d1 + ', ' + d2 + ') = <strong>' + lcd + '</strong></div>' +
-                '<div style="margin-top: 0.25rem; color: var(--text-muted);">' +
-                  'Fraction 1: (' + top1 + ' &times; ' + m1 + ') / (' + d1 + ' &times; ' + m1 + ') = ' + scaledTop1 + '/' + lcd + '<br>' +
-                  'Fraction 2: (' + top2 + ' &times; ' + m2 + ') / (' + d2 + ' &times; ' + m2 + ') = ' + scaledTop2 + '/' + lcd +
-                '</div>' +
-                '</div>';
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">3. The Cross-Multiplication Overuse Confusion</div>
+      <p class="frac-trap-desc">
+        Cross-multiplication is a valid mathematical technique <em>only</em> for solving proportional equations (<code>A/B = C/D &rarr; A &times; D = B &times; C</code>) or testing inequality magnitudes. Using cross-multiplication when multiplying two fractions (e.g., cross-multiplying <code>2/3 &times; 4/5</code>) results in complete mathematical chaos; fraction multiplication requires multiplying straight across: <code>(2 &times; 4) / (3 &times; 5) = 8/15</code>.
+      </p>
+    </div>
 
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step 3: Perform Operation on Numerators</strong>' +
-                '<div style="color: #3b82f6; margin-top: 0.25rem;">' + scaledTop1 + ' ' + (op === '+' ? '&plus;' : '&minus;') + ' ' + scaledTop2 + ' = <strong>' + resNum + '</strong> &rarr; ' + resNum + '/' + resDen + '</div>' +
-                '</div>';
-            } else if (op === '*') {
-              resNum = top1 * top2;
-              resDen = d1 * d2;
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">4. Negative Sign Distribution in Subtracted Fractions</div>
+      <p class="frac-trap-desc">
+        When subtracting an algebraic fraction with a compound numerator, such as <code>(X - 3) / 4</code>, the subtraction applies to the entire numerator. Neglecting to distribute the negative sign yields <code>-X - 3</code> instead of the mathematically correct <code>-X + 3</code>. Similarly, a negative fraction <code>-3/4</code> means either <code>(-3)/4</code> or <code>3/(-4)</code>, but not <code>(-3)/(-4)</code> which is positive <code>+3/4</code>.
+      </p>
+    </div>
 
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step 2: Multiply Numerators and Denominators Straight Across</strong>' +
-                '<div style="color: #3b82f6; margin-top: 0.25rem;">' +
-                  'Numerators: ' + top1 + ' &times; ' + top2 + ' = <strong>' + resNum + '</strong><br>' +
-                  'Denominators: ' + d1 + ' &times; ' + d2 + ' = <strong>' + resDen + '</strong> &rarr; ' + resNum + '/' + resDen +
-                '</div>' +
-                '</div>';
-            } else if (op === '/') {
-              if (top2 === 0) {
-                document.getElementById('fc-res').textContent = 'Undefined';
-                document.getElementById('fc-res').style.color = '#ef4444';
-                document.getElementById('fc-subtext').textContent = 'Division by zero is undefined';
-                document.getElementById('fc-steps-box').innerHTML = '<div style="color: #ef4444;">Cannot divide by zero fraction (0/' + d2 + ').</div>';
-                return;
-              }
-              resNum = top1 * d2;
-              resDen = d1 * top2;
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">5. Tape Measure Imperial Conversion Rounding Tolerance</div>
+      <p class="frac-trap-desc">
+        Carpenters frequently convert engineering decimal specs (e.g., 0.350 inches) to ruler ticks. Rounding 0.350" directly to 3/8" (0.375") introduces a +0.025" (+25 thousandths of an inch) error. In precision joinery, cabinetry, and CNC milling, this exceeds allowable tolerance limits. Always verify the deviation delta between the exact decimal and the nearest 1/16" or 1/32" tick.
+      </p>
+    </div>
+  </div>
+</div>
 
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step 2: Keep, Change, Flip (Multiply by Reciprocal)</strong>' +
-                '<div style="color: #3b82f6; margin-top: 0.25rem;">' +
-                  '(' + top1 + '/' + d1 + ') &divide; (' + top2 + '/' + d2 + ') = (' + top1 + '/' + d1 + ') &times; (' + d2 + '/' + top2 + ')<br>' +
-                  '= (' + top1 + ' &times; ' + d2 + ') / (' + d1 + ' &times; ' + top2 + ') = <strong>' + resNum + '/' + resDen + '</strong>' +
-                '</div>' +
-                '</div>';
-            }
+<script>
+  function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b) {
+      var t = b;
+      b = a % b;
+      a = t;
+    }
+    return a || 1;
+  }
 
-            if (resDen < 0) {
-              resNum = -resNum;
-              resDen = -resDen;
-            }
+  function lcm(a, b) {
+    return Math.abs(a * b) / gcd(a, b);
+  }
 
-            // Step 4: Reduce via GCD
-            var g = gcdFrac(resNum, resDen);
-            var redNum = resNum / g;
-            var redDen = resDen / g;
+  function setFracPreset(w1, n1, d1, op, w2, n2, d2) {
+    document.getElementById('f1-w').value = w1;
+    document.getElementById('f1-n').value = n1;
+    document.getElementById('f1-d').value = d1;
+    document.getElementById('frac-op').value = op;
+    document.getElementById('f2-w').value = w2;
+    document.getElementById('f2-n').value = n2;
+    document.getElementById('f2-d').value = d2;
+    calcFrac();
+  }
 
-            stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-              '<strong style="color: var(--fg);">Step ' + (op === '+' || op === '-' ? '4' : '3') + ': Simplify with Greatest Common Divisor (GCD)</strong>' +
-              '<div style="color: #3b82f6; margin-top: 0.25rem;">GCD(' + resNum + ', ' + resDen + ') = ' + g + ' &bull; (' + resNum + ' &divide; ' + g + ') / (' + resDen + ' &divide; ' + g + ') = <strong>' + redNum + '/' + redDen + '</strong></div>' +
-              '</div>';
+  function calcFrac() {
+    var w1 = parseInt(document.getElementById('f1-w').value, 10) || 0;
+    var n1 = parseInt(document.getElementById('f1-n').value, 10) || 0;
+    var d1 = parseInt(document.getElementById('f1-d').value, 10) || 1;
 
-            // Step 5: Convert to Mixed
-            var whole = Math.floor(Math.abs(redNum) / redDen);
-            var rem = Math.abs(redNum) % redDen;
-            var isNeg = redNum < 0;
+    var op = document.getElementById('frac-op').value;
 
-            var mixedStr = '';
-            if (rem === 0) {
-              mixedStr = (isNeg ? '-' : '') + whole;
-            } else if (whole === 0) {
-              mixedStr = (isNeg ? '-' : '') + rem + '/' + redDen;
-            } else {
-              mixedStr = (isNeg ? '-' : '') + whole + ' ' + rem + '/' + redDen;
-            }
+    var w2 = parseInt(document.getElementById('f2-w').value, 10) || 0;
+    var n2 = parseInt(document.getElementById('f2-n').value, 10) || 0;
+    var d2 = parseInt(document.getElementById('f2-d').value, 10) || 1;
 
-            if (whole > 0 && rem > 0) {
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step ' + (op === '+' || op === '-' ? '5' : '4') + ': Extract Whole Mixed Number</strong>' +
-                '<div style="color: #10b981; margin-top: 0.25rem;">' + Math.abs(redNum) + ' &divide; ' + redDen + ' = <strong>' + whole + '</strong> with remainder <strong>' + rem + '</strong> &rarr; <strong>' + mixedStr + '</strong></div>' +
-                '</div>';
-            }
+    if (d1 === 0) d1 = 1;
+    if (d2 === 0) d2 = 1;
 
-            // Render Results
-            var resEl = document.getElementById('fc-res');
-            resEl.textContent = mixedStr;
-            resEl.style.color = '#10b981';
+    // Convert to improper
+    var imp1 = (w1 * d1) + n1;
+    var imp2 = (w2 * d2) + n2;
 
-            var opSymbol = op === '+' ? '+' : (op === '-' ? '−' : (op === '*' ? '×' : '÷'));
-            document.getElementById('fc-subtext').textContent = f1Str + ' ' + opSymbol + ' ' + f2Str + ' = ' + mixedStr;
+    var resNum = 0;
+    var resDen = 1;
+    var steps = [];
 
-            document.getElementById('fc-improper').textContent = redNum + '/' + redDen;
-            var decVal = redNum / redDen;
-            document.getElementById('fc-decimal').textContent = Number.isInteger(decVal) ? decVal.toString() : decVal.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
-            document.getElementById('fc-percent').textContent = (decVal * 100).toFixed(2).replace(/\.00$/, '') + '%';
+    steps.push('1. Convert Mixed to Improper: Fraction 1 = (' + w1 + ' &times; ' + d1 + ' + ' + n1 + ')/' + d1 + ' = <strong>' + imp1 + '/' + d1 + '</strong> &bull; Fraction 2 = (' + w2 + ' &times; ' + d2 + ' + ' + n2 + ')/' + d2 + ' = <strong>' + imp2 + '/' + d2 + '</strong>');
 
-            if (redNum !== 0) {
-              var recipNum = redDen;
-              var recipDen = redNum;
-              if (recipDen < 0) { recipNum = -recipNum; recipDen = -recipDen; }
-              var recipDec = (recipNum / recipDen).toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
-              document.getElementById('fc-reciprocal').textContent = recipNum + '/' + recipDen + ' (' + recipDec + ')';
-            } else {
-              document.getElementById('fc-reciprocal').textContent = 'Undefined (0 has no inverse)';
-            }
+    if (op === 'add') {
+      var commonDen = lcm(d1, d2);
+      var scale1 = commonDen / d1;
+      var scale2 = commonDen / d2;
+      var adjNum1 = imp1 * scale1;
+      var adjNum2 = imp2 * scale2;
+      resNum = adjNum1 + adjNum2;
+      resDen = commonDen;
+      steps.push('2. Least Common Denominator (LCD): LCM(' + d1 + ', ' + d2 + ') = <strong>' + commonDen + '</strong>');
+      steps.push('3. Scale Numerators: (' + imp1 + ' &times; ' + scale1 + ') + (' + imp2 + ' &times; ' + scale2 + ') = ' + adjNum1 + ' + ' + adjNum2 + ' = <strong>' + resNum + '/' + resDen + '</strong>');
+    } else if (op === 'sub') {
+      var commonDen = lcm(d1, d2);
+      var scale1 = commonDen / d1;
+      var scale2 = commonDen / d2;
+      var adjNum1 = imp1 * scale1;
+      var adjNum2 = imp2 * scale2;
+      resNum = adjNum1 - adjNum2;
+      resDen = commonDen;
+      steps.push('2. Least Common Denominator (LCD): LCM(' + d1 + ', ' + d2 + ') = <strong>' + commonDen + '</strong>');
+      steps.push('3. Scale & Subtract: (' + imp1 + ' &times; ' + scale1 + ') - (' + imp2 + ' &times; ' + scale2 + ') = ' + adjNum1 + ' - ' + adjNum2 + ' = <strong>' + resNum + '/' + resDen + '</strong>');
+    } else if (op === 'mul') {
+      resNum = imp1 * imp2;
+      resDen = d1 * d2;
+      steps.push('2. Multiply Straight Across: (' + imp1 + ' &times; ' + imp2 + ') &divide; (' + d1 + ' &times; ' + d2 + ') = <strong>' + resNum + '/' + resDen + '</strong>');
+    } else if (op === 'div') {
+      if (imp2 === 0) {
+        document.getElementById('card-frac-mixed').textContent = 'Undefined';
+        document.getElementById('card-frac-improper').textContent = 'Div by 0';
+        return;
+      }
+      resNum = imp1 * d2;
+      resDen = d1 * imp2;
+      steps.push('2. Keep-Change-Flip: (' + imp1 + '/' + d1 + ') &times; (' + d2 + '/' + imp2 + ') = (' + imp1 + ' &times; ' + d2 + ') &divide; (' + d1 + ' &times; ' + imp2 + ') = <strong>' + resNum + '/' + resDen + '</strong>');
+    }
 
-            document.getElementById('fc-steps-box').innerHTML = stepHtml;
-          }
+    // Simplification via GCD
+    var div = gcd(resNum, resDen);
+    var simpNum = resNum / div;
+    var simpDen = resDen / div;
 
-          window.copyFractionSummary = function() {
-            var btn = document.getElementById('btnCopyFrac');
-            var res = document.getElementById('fc-res').textContent;
-            var eq = document.getElementById('fc-subtext').textContent;
-            var improper = document.getElementById('fc-improper').textContent;
-            var dec = document.getElementById('fc-decimal').textContent;
-            var pct = document.getElementById('fc-percent').textContent;
-            var recip = document.getElementById('fc-reciprocal').textContent;
+    if (simpDen < 0) {
+      simpNum = -simpNum;
+      simpDen = -simpDen;
+    }
 
-            var text = '--- Fraction Calculation Report ---\n' +
-              'Equation: ' + eq + '\n' +
-              'Simplified Result: ' + res + '\n' +
-              'Improper Fraction: ' + improper + '\n' +
-              'Decimal Value: ' + dec + '\n' +
-              'Percentage: ' + pct + '\n' +
-              'Reciprocal: ' + recip + '\n' +
-              'Calculated on Digital Tools Shed (https://digitaltoolsshed.com/math/fraction-calculator)';
+    // Mixed number format
+    var wholePart = Math.floor(Math.abs(simpNum) / simpDen);
+    var remNum = Math.abs(simpNum) % simpDen;
+    var isNeg = (simpNum < 0);
 
-            navigator.clipboard.writeText(text).then(function() {
-              btn.textContent = '✓ Fraction Solution Copied!';
-              btn.style.borderColor = '#10b981';
-              btn.style.color = '#10b981';
-              setTimeout(function() {
-                btn.textContent = '📋 Copy Complete Fraction Solution & Work';
-                btn.style.borderColor = 'var(--border)';
-                btn.style.color = 'var(--fg)';
-              }, 2500);
-            });
-          };
+    var mixedStr = '';
+    if (simpDen === 1) {
+      mixedStr = (isNeg ? '-' : '') + Math.abs(simpNum);
+    } else if (wholePart === 0) {
+      mixedStr = (isNeg ? '-' : '') + remNum + '/' + simpDen;
+    } else {
+      mixedStr = (isNeg ? '-' : '') + wholePart + ' ' + remNum + '/' + simpDen;
+    }
 
-          document.addEventListener('DOMContentLoaded', calcFracCalc);
-          calcFracCalc();
-        </script>
-      `
-    },
+    var decVal = simpNum / simpDen;
+
+    // Display Hero cards
+    document.getElementById('card-frac-mixed').textContent = mixedStr;
+    document.getElementById('card-frac-sub').textContent = 'GCD reduction: &divide; ' + div;
+
+    document.getElementById('card-frac-improper').textContent = simpNum + '/' + simpDen;
+    document.getElementById('card-frac-dec').textContent = decVal.toFixed(4);
+    document.getElementById('card-frac-pct').textContent = (decVal * 100).toFixed(1) + '% of whole';
+
+    // Tape measure nearest 1/16"
+    var tape16 = Math.round(decVal * 16);
+    var tapeWhole = Math.floor(tape16 / 16);
+    var tapeRem16 = tape16 % 16;
+    var tapeDiv16 = gcd(tapeRem16, 16);
+    var tapeStr = tapeWhole > 0 ? (tapeWhole + (tapeRem16 > 0 ? (' ' + (tapeRem16 / tapeDiv16) + '/' + (16 / tapeDiv16)) : '') + '"') : ((tapeRem16 / tapeDiv16) + '/' + (16 / tapeDiv16) + '"');
+    document.getElementById('card-frac-tape').textContent = tapeStr;
+
+    var tape32 = Math.round(decVal * 32);
+    var tapeWhole32 = Math.floor(tape32 / 32);
+    var tapeRem32 = tape32 % 32;
+    var tapeDiv32 = gcd(tapeRem32, 32);
+    var tapeStr32 = tapeWhole32 > 0 ? (tapeWhole32 + (tapeRem32 > 0 ? (' ' + (tapeRem32 / tapeDiv32) + '/' + (32 / tapeDiv32)) : '') + '"') : ((tapeRem32 / tapeDiv32) + '/' + (32 / tapeDiv32) + '"');
+    document.getElementById('card-frac-tape-32').textContent = 'Nearest 1/32": ' + tapeStr32;
+
+    steps.push('3. Reduce to Lowest Terms: GCD(' + resNum + ', ' + resDen + ') = ' + div + ' &rarr; <strong>' + simpNum + '/' + simpDen + '</strong>');
+    if (simpDen !== 1 && wholePart > 0) {
+      steps.push('4. Mixed Number Conversion: ' + Math.abs(simpNum) + ' &divide; ' + simpDen + ' = ' + wholePart + ' with remainder ' + remNum + ' &rarr; <strong>' + mixedStr + '</strong>');
+    }
+    steps.push('5. Decimal Equivalent: ' + simpNum + ' &divide; ' + simpDen + ' = <strong>' + decVal.toFixed(6) + '</strong>');
+
+    document.getElementById('frac-derivations').innerHTML = steps.join('<br>');
+
+    renderFracVisual(imp1 / d1, imp2 / d2, decVal);
+  }
+
+  function renderFracVisual(v1, v2, vRes) {
+    var c = document.getElementById('frac-svg-container');
+    if (!c) return;
+
+    var w = c.clientWidth || 600;
+    var h = 95;
+    var maxVal = Math.max(1, v1, v2, Math.abs(vRes));
+
+    var barH = 16;
+    var y1 = 10, y2 = 38, y3 = 66;
+
+    function getBarW(v) {
+      return Math.max(2, Math.min(w - 120, (Math.abs(v) / maxVal) * (w - 120)));
+    }
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Fraction 1 Bar
+    svg += '<text x="0" y="' + (y1 + 12) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Fraction 1:</text>';
+    svg += '<rect x="90" y="' + y1 + '" width="' + (w - 100) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y1 + '" width="' + getBarW(v1) + '" height="' + barH + '" rx="3" fill="#3b82f6" />';
+    svg += '<text x="' + (95 + getBarW(v1)) + '" y="' + (y1 + 12) + '" fill="#3b82f6" font-family="var(--mono)" font-size="11">' + v1.toFixed(3) + '</text>';
+
+    // Fraction 2 Bar
+    svg += '<text x="0" y="' + (y2 + 12) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Fraction 2:</text>';
+    svg += '<rect x="90" y="' + y2 + '" width="' + (w - 100) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y2 + '" width="' + getBarW(v2) + '" height="' + barH + '" rx="3" fill="#8b5cf6" />';
+    svg += '<text x="' + (95 + getBarW(v2)) + '" y="' + (y2 + 12) + '" fill="#8b5cf6" font-family="var(--mono)" font-size="11">' + v2.toFixed(3) + '</text>';
+
+    // Result Bar
+    svg += '<text x="0" y="' + (y3 + 12) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Result:</text>';
+    svg += '<rect x="90" y="' + y3 + '" width="' + (w - 100) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y3 + '" width="' + getBarW(vRes) + '" height="' + barH + '" rx="3" fill="#10b981" />';
+    svg += '<text x="' + (95 + getBarW(vRes)) + '" y="' + (y3 + 12) + '" fill="#10b981" font-family="var(--mono)" font-size="11" font-weight="bold">' + vRes.toFixed(3) + '</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyFracReport(btn) {
+    var mixed = document.getElementById('card-frac-mixed').textContent;
+    var improper = document.getElementById('card-frac-improper').textContent;
+    var dec = document.getElementById('card-frac-dec').textContent;
+    var tape = document.getElementById('card-frac-tape').textContent;
+    var op = document.getElementById('frac-op').value;
+
+    var lines = [
+      '========================================',
+      '       FRACTION ARITHMETIC SOLUTION',
+      '========================================',
+      'Operation Performed : ' + op.toUpperCase(),
+      'Simplified Result   : ' + mixed,
+      'Improper Equivalent : ' + improper,
+      'Decimal Equivalent  : ' + dec,
+      'Tape Measure (1/16"): ' + tape,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/fraction-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Fraction Solution!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcFrac);
+  document.addEventListener('DOMContentLoaded', calcFrac);
+  calcFrac();
+</script>
+`
+  },
     {
   "slug": "aspect-ratio-calculator",
   "title": "Aspect Ratio Calculator — 16:9, 9:16, 4K Resizing & Video Scales",

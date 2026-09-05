@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers) | Digital Tools Shed</title>
-  <meta name="description" content="Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with LCD least common denominator, mixed number simplification, and one-click copy.">
+  <meta name="description" content="Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with Least Common Denominator (LCD), Euclidean GCD reduction, and pure SVG visual fraction comparison bars.">
   <link rel="canonical" href="https://digitaltoolsshed.com/math/fraction-calculator">
   <meta property="og:title" content="Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers) | Digital Tools Shed">
-  <meta property="og:description" content="Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with LCD least common denominator, mixed number simplification, and one-click copy.">
+  <meta property="og:description" content="Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with Least Common Denominator (LCD), Euclidean GCD reduction, and pure SVG visual fraction comparison bars.">
   <meta property="og:url" content="https://digitaltoolsshed.com/math/fraction-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers) | Digital Tools Shed">
-  <meta name="twitter:description" content="Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with LCD least common denominator, mixed number simplification, and one-click copy.">
+  <meta name="twitter:description" content="Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with Least Common Denominator (LCD), Euclidean GCD reduction, and pure SVG visual fraction comparison bars.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with LCD least common denominator, mixed number simplification, and one-click copy.",
+  "description": "Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with Least Common Denominator (LCD), Euclidean GCD reduction, and pure SVG visual fraction comparison bars.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -109,7 +109,7 @@
       "name": "How do you add or subtract fractions with different denominators?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Find the Least Common Denominator (LCD) of the fractions by calculating the Least Common Multiple (LCM) of the denominators. Multiply the numerator and denominator of each fraction by the factor needed to reach the LCD, add or subtract the adjusted numerators while keeping the common denominator, and simplify the final fraction using the Greatest Common Divisor (GCD)."
+        "text": "To add or subtract fractions with unlike denominators, find the Least Common Denominator (LCD), which is the Least Common Multiple (LCM) of the two denominators. Convert each fraction to an equivalent fraction with the LCD as its denominator by multiplying both numerator and denominator by the required scaling factor. Then, add or subtract the numerators while keeping the common denominator unchanged, and simplify the final fraction to lowest terms using the Greatest Common Divisor (GCD)."
       }
     },
     {
@@ -117,7 +117,7 @@
       "name": "What is the Keep-Change-Flip rule for dividing fractions?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "To divide two fractions (A/B ÷ C/D), keep the first fraction (A/B), change the division operator to multiplication (×), and flip the second fraction to its reciprocal (D/C). Then multiply straight across: (A × D) / (B × C), and reduce to lowest terms."
+        "text": "To divide any two fractions (A/B ÷ C/D): 1) Keep the first fraction (A/B) exactly as it is; 2) Change the division operator (÷) into multiplication (×); 3) Flip the second fraction upside down to create its reciprocal (D/C). Then multiply the numerators straight across and the denominators straight across: (A × D) / (B × C), and reduce to lowest terms."
       }
     },
     {
@@ -125,23 +125,23 @@
       "name": "What is the difference between a proper fraction, improper fraction, and mixed number?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A proper fraction has a numerator smaller than its denominator (e.g., 3/4). An improper fraction has a numerator equal to or greater than its denominator (e.g., 7/4). A mixed number expresses an improper fraction as an integer combined with a proper fraction (e.g., 1 3/4)."
+        "text": "A proper fraction has a numerator smaller than its denominator (e.g., 3/4), representing a value between 0 and 1. An improper fraction has a numerator greater than or equal to its denominator (e.g., 11/4), representing a value equal to or greater than 1. A mixed number combines a non-zero integer with a proper fraction (e.g., 2 3/4), which is mathematically identical to 11/4."
       }
     },
     {
       "@type": "Question",
-      "name": "Why can you not just add the numerators and denominators together directly?",
+      "name": "How does the Euclidean algorithm find the Greatest Common Divisor (GCD) for fraction simplification?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Adding numerators and denominators directly (e.g., 1/2 + 1/3 = 2/5) is known as the \"Freshman’s Dream\" error. 2/5 (0.4) is smaller than 1/2 (0.5), which is impossible when adding two positive values. Adding top-and-bottom computes the mediant, which always falls strictly between the two fractions rather than calculating their combined sum (5/6 ≈ 0.833)."
+        "text": "The Euclidean algorithm is an ancient, highly efficient algorithm based on the principle that the GCD of two numbers also divides their remainder: GCD(A, B) = GCD(B, A mod B). By repeatedly taking remainders until the remainder reaches 0, the final non-zero divisor is the exact GCD. Dividing both the numerator and denominator by this GCD guarantees that the fraction is reduced to its simplest, coprime lowest terms."
       }
     },
     {
       "@type": "Question",
-      "name": "How do you convert a mixed number to an improper fraction?",
+      "name": "How do you convert decimal values to carpentry tape measure fractions (1/16, 1/32, 1/64)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Multiply the whole integer part by the denominator, add the numerator to that product, and place the resulting sum over the original denominator: W N/D = (W × D + N) / D. For example, 3 2/5 = (3 × 5 + 2) / 5 = 17/5."
+        "text": "To find the nearest tape measure fraction on standard Imperial rulers, multiply the decimal fraction by the desired ruler resolution (e.g., 16 for 1/16\", 32 for 1/32\", or 64 for 1/64\"), round to the nearest whole integer, and simplify the resulting fraction. For example, 0.6875 × 16 = 11, giving exactly 11/16\". For 0.70\", 0.70 × 16 = 11.2 ≈ 11/16\" with a minor measurement tolerance deviation of +0.0125\"."
       }
     }
   ]
@@ -152,7 +152,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers)",
-  "description": "Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with LCD least common denominator, mixed number simplification, and one-click copy.",
+  "description": "Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with Least Common Denominator (LCD), Euclidean GCD reduction, and pure SVG visual fraction comparison bars.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1041,427 +1041,410 @@
           
 
           
-        
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
-      .result-val { font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
-      .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    </style>
-  
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Fraction Calculator
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Fraction Arithmetic Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Add, subtract, multiply, and divide two fractions or mixed numbers with full step-by-step LCD solutions, improper conversions, decimal approximations, and tape measure markings.
-          </p>
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Fraction Calculator
+  </nav>
 
-          <div class="tool-box">
-            <!-- Quick Presets -->
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Popular Problems & Quick Presets:</span>
-              <button type="button" class="btn-sec" onclick="setFracPreset(0, 1, 2, '+', 0, 3, 4)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1/2 + 3/4</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(2, 1, 3, '*', 1, 1, 2)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">2 1/3 &times; 1 1/2</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(0, 5, 6, '-', 0, 2, 3)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">5/6 &minus; 2/3</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(3, 3, 4, '/', 0, 1, 8)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">3 3/4 &divide; 1/8 (Carpentry)</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(0, 7, 8, '-', 0, 5, 16)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">7/8 &minus; 5/16 (Machining)</button>
-              <button type="button" class="btn-sec" onclick="setFracPreset(0, 1, 4, '+', 0, 1, 3)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1/4 + 1/3 (Freshman Trap)</button>
-            </div>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Fraction &amp; Mixed Number Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Add, subtract, multiply, and divide fractions and mixed numbers. Get step-by-step Least Common Denominator (LCD) solutions, tape measure equivalents, and visual SVG fraction bars.
+    </p>
+  </header>
 
-            <!-- Input Grid -->
-            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center;">
-              <!-- Fraction 1 -->
-              <div style="background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border);">
-                <div class="field-label">Fraction 1 (Mixed or Simple)</div>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <div style="text-align: center;">
-                    <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--mono); display: block; margin-bottom: 0.2rem;">Whole</span>
-                    <input type="number" id="fc-w1" class="code-input" placeholder="0" style="width: 70px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" />
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: center;">
-                    <input type="number" id="fc-n1" class="code-input" value="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Numerator" />
-                    <div style="width: 100%; height: 2px; background: var(--border);"></div>
-                    <input type="number" id="fc-d1" class="code-input" value="2" min="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Denominator" />
-                  </div>
-                </div>
-              </div>
+  <style>
+    .frac-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .frac-entry-row { display:flex; align-items:center; justify-content:center; gap:1.25rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .frac-unit { display:inline-flex; align-items:center; gap:0.5rem; background:var(--surface-alt); padding:1rem; border-radius:8px; border:1px solid var(--border); }
+    .frac-stacked { display:inline-flex; flex-direction:column; align-items:center; width:65px; }
+    .frac-input { width:60px; text-align:center; padding:0.45rem; background:var(--surface); border:1px solid var(--border); border-radius:4px; color:var(--fg); font-family:var(--mono); font-size:1.15rem; font-weight:bold; }
+    .frac-bar { width:100%; height:2px; background:var(--fg); margin:3px 0; }
+    .frac-op-select { padding:0.6rem 0.8rem; background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; color:var(--fg); font-family:var(--mono); font-size:1.4rem; font-weight:bold; cursor:pointer; }
+    .frac-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .frac-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .frac-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .frac-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .frac-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .frac-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .frac-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
 
-              <!-- Operator Selector -->
-              <div style="text-align: center;">
-                <label class="field-label" style="margin-bottom: 0.3rem;">Operator</label>
-                <select id="fc-op" class="code-input" style="font-size: 1.6rem; padding: 0.4rem 0.8rem; font-weight: bold; width: auto; text-align: center; cursor: pointer; border-color: #3b82f6;" onchange="calcFracCalc()">
-                  <option value="+">&plus;</option>
-                  <option value="-">&minus;</option>
-                  <option value="*">&times;</option>
-                  <option value="/">&divide;</option>
-                </select>
-              </div>
-
-              <!-- Fraction 2 -->
-              <div style="background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border);">
-                <div class="field-label">Fraction 2 (Mixed or Simple)</div>
-                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <div style="text-align: center;">
-                    <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--mono); display: block; margin-bottom: 0.2rem;">Whole</span>
-                    <input type="number" id="fc-w2" class="code-input" placeholder="0" style="width: 70px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" />
-                  </div>
-                  <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: center;">
-                    <input type="number" id="fc-n2" class="code-input" value="3" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Numerator" />
-                    <div style="width: 100%; height: 2px; background: var(--border);"></div>
-                    <input type="number" id="fc-d2" class="code-input" value="4" min="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Denominator" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Dynamic Result Card -->
-            <div class="result-card" style="margin-top: 1.5rem; text-align: center;">
-              <div style="font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Simplified Solution</div>
-              <div id="fc-res" class="result-val" style="font-size: 2.8rem; margin: 0.4rem 0; color: #10b981;">1 1/4</div>
-              <div id="fc-subtext" style="font-family: var(--mono); font-size: 1rem; color: var(--fg); margin-bottom: 0.75rem;">
-                1/2 &plus; 3/4 = 1 1/4
-              </div>
-
-              <!-- Multi-representation metrics -->
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem;">
-                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Improper Fraction</div>
-                  <div id="fc-improper" style="font-weight: bold; color: #3b82f6; font-size: 1.05rem; margin-top: 0.2rem;">5/4</div>
-                </div>
-                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Decimal Value</div>
-                  <div id="fc-decimal" style="font-weight: bold; color: var(--fg); font-size: 1.05rem; margin-top: 0.2rem;">1.25</div>
-                </div>
-                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Percentage</div>
-                  <div id="fc-percent" style="font-weight: bold; color: var(--fg); font-size: 1.05rem; margin-top: 0.2rem;">125%</div>
-                </div>
-                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Reciprocal (Inverse)</div>
-                  <div id="fc-reciprocal" style="font-weight: bold; color: #8b5cf6; font-size: 1.05rem; margin-top: 0.2rem;">4/5 (0.8)</div>
-                </div>
-              </div>
-
-              <!-- One-Click Copy Button -->
-              <button type="button" id="btnCopyFrac" onclick="copyFractionSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy Complete Fraction Solution & Work
-              </button>
-            </div>
-          </div>
-
-          <!-- Step-by-Step Worked Derivation Engine -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Algebraic Solution</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">LCD & Reduction Proof</span>
-            </div>
-            <div id="fc-steps-box" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-              <!-- Dynamic worked steps populated by calcFracCalc() -->
-            </div>
-          </div>
-
-          <!-- Master Reference Table: Imperial 16th Fractions to Decimals & Metric -->
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--fg);">📏 Imperial Tape Measure & Workshop Fraction Chart</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-              Exact decimal equivalents and millimeter conversions for standard 16th-inch increments used in carpentry, machining, and cooking:
-            </p>
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: left;">
-                <thead>
-                  <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
-                    <th style="padding: 0.5rem 0.75rem;">Fraction</th>
-                    <th style="padding: 0.5rem 0.75rem;">Decimal (in)</th>
-                    <th style="padding: 0.5rem 0.75rem;">Metric (mm)</th>
-                    <th style="padding: 0.5rem 0.75rem;">Percent (%)</th>
-                    <th style="padding: 0.5rem 0.75rem;">Workshop Benchmark</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/16"</td><td style="padding: 0.45rem 0.75rem;">0.0625"</td><td style="padding: 0.45rem 0.75rem;">1.588 mm</td><td style="padding: 0.45rem 0.75rem;">6.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Sheet steel gauge tolerance</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/8"</td><td style="padding: 0.45rem 0.75rem;">0.1250"</td><td style="padding: 0.45rem 0.75rem;">3.175 mm</td><td style="padding: 0.45rem 0.75rem;">12.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Hardboard / Table saw blade kerf</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/16"</td><td style="padding: 0.45rem 0.75rem;">0.1875"</td><td style="padding: 0.45rem 0.75rem;">4.763 mm</td><td style="padding: 0.45rem 0.75rem;">18.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Masonry screw pilot hole</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/4"</td><td style="padding: 0.45rem 0.75rem;">0.2500"</td><td style="padding: 0.45rem 0.75rem;">6.350 mm</td><td style="padding: 0.45rem 0.75rem;">25.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Standard plywood / 1/4 cup</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">5/16"</td><td style="padding: 0.45rem 0.75rem;">0.3125"</td><td style="padding: 0.45rem 0.75rem;">7.938 mm</td><td style="padding: 0.45rem 0.75rem;">31.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Lag bolt diameter</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/8"</td><td style="padding: 0.45rem 0.75rem;">0.3750"</td><td style="padding: 0.45rem 0.75rem;">9.525 mm</td><td style="padding: 0.45rem 0.75rem;">37.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Ratchet drive / Drywall sheathing</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">7/16"</td><td style="padding: 0.45rem 0.75rem;">0.4375"</td><td style="padding: 0.45rem 0.75rem;">11.113 mm</td><td style="padding: 0.45rem 0.75rem;">43.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">OSB roof sheathing</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/2"</td><td style="padding: 0.45rem 0.75rem;">0.5000"</td><td style="padding: 0.45rem 0.75rem;">12.700 mm</td><td style="padding: 0.45rem 0.75rem;">50.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Standard wall drywall / 1/2 cup</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">9/16"</td><td style="padding: 0.45rem 0.75rem;">0.5625"</td><td style="padding: 0.45rem 0.75rem;">14.288 mm</td><td style="padding: 0.45rem 0.75rem;">56.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Spark plug hex socket</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">5/8"</td><td style="padding: 0.45rem 0.75rem;">0.6250"</td><td style="padding: 0.45rem 0.75rem;">15.875 mm</td><td style="padding: 0.45rem 0.75rem;">62.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Type X fire-rated drywall</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">11/16"</td><td style="padding: 0.45rem 0.75rem;">0.6875"</td><td style="padding: 0.45rem 0.75rem;">17.463 mm</td><td style="padding: 0.45rem 0.75rem;">68.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Hardwood flooring tongue</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/4"</td><td style="padding: 0.45rem 0.75rem;">0.7500"</td><td style="padding: 0.45rem 0.75rem;">19.050 mm</td><td style="padding: 0.45rem 0.75rem;">75.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Subflooring / Cabinet carcase</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">13/16"</td><td style="padding: 0.45rem 0.75rem;">0.8125"</td><td style="padding: 0.45rem 0.75rem;">20.638 mm</td><td style="padding: 0.45rem 0.75rem;">81.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Rough sawn 4/4 lumber surfaced</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">7/8"</td><td style="padding: 0.45rem 0.75rem;">0.8750"</td><td style="padding: 0.45rem 0.75rem;">22.225 mm</td><td style="padding: 0.45rem 0.75rem;">87.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Heavy structural steel bolt</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">15/16"</td><td style="padding: 0.45rem 0.75rem;">0.9375"</td><td style="padding: 0.45rem 0.75rem;">23.813 mm</td><td style="padding: 0.45rem 0.75rem;">93.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Plumbing union coupling</td></tr>
-                  <tr><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">1"</td><td style="padding: 0.45rem 0.75rem;">1.0000"</td><td style="padding: 0.45rem 0.75rem;">25.400 mm</td><td style="padding: 0.45rem 0.75rem;">100.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Full imperial base unit</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- 3 Fraction Traps & Historical Gotchas -->
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 3 Critical Fraction Pitfalls & Common Mistakes</h3>
-            <div style="display: grid; gap: 1rem;">
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #ef4444;">
-                <strong style="color: #ef4444; font-size: 0.95rem;">1. The Freshman's Dream: Adding Numerators and Denominators Directly</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  A frequent elementary mistake is writing <code style="color: var(--fg); font-family: var(--mono);">1/2 + 1/3 = 2/5</code>. Notice that 2/5 = 0.4, which is <em>smaller</em> than the 1/2 (0.5) you started with! In mathematics, <code style="color: var(--fg); font-family: var(--mono);">(a+c)/(b+d)</code> is known as the <strong>mediant</strong>—a weighted average that always lies strictly <em>between</em> the two values. To calculate the combined sum, denominators MUST be unified through the Least Common Denominator: <code style="color: var(--fg); font-family: var(--mono);">3/6 + 2/6 = 5/6 &approx; 0.833</code>.
-                </p>
-              </div>
-
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #f59e0b;">
-                <strong style="color: #f59e0b; font-size: 0.95rem;">2. Division by Zero & Reciprocal Singularities</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  Fractions represent division: <code style="color: var(--fg); font-family: var(--mono);">N / D</code>. Setting <code style="color: var(--fg); font-family: var(--mono);">D = 0</code> yields an undefined mathematical singularity because no real number multiplied by 0 can recreate N. Furthermore, when dividing by a fraction with a numerator of zero (<code style="color: var(--fg); font-family: var(--mono);">&divide; 0/D</code>), the Keep-Change-Flip rule attempts to multiply by its reciprocal <code style="color: var(--fg); font-family: var(--mono);">D/0</code>, immediately causing an illegal division by zero.
-                </p>
-              </div>
-
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #3b82f6;">
-                <strong style="color: #3b82f6; font-size: 0.95rem;">3. Floating-Point Binary Imprecision vs Exact Rational Arithmetic</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  In standard computer hardware (IEEE 754 double precision), fractions like 1/3 or 1/10 cannot be represented with finite binary bits. Evaluating <code style="color: var(--fg); font-family: var(--mono);">1/3 + 1/3 + 1/3</code> in raw floating-point code produces <code style="color: var(--fg); font-family: var(--mono);">0.9999999999999999</code> instead of <code style="color: var(--fg); font-family: var(--mono);">1.0</code>. Digital Tools Shed performs exact rational integer arithmetic behind the scenes, ensuring 100% precision with zero accumulated rounding error.
-                </p>
-              </div>
-            </div>
-          </div>
+  <div class="frac-box">
+    <!-- Equation Entry Container -->
+    <div class="frac-entry-row">
+      <!-- Fraction 1 -->
+      <div class="frac-unit">
+        <div>
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Whole</label>
+          <input type="number" id="f1-w" value="1" min="0" step="1" oninput="calcFrac()" class="frac-input" placeholder="0">
         </div>
+        <div class="frac-stacked">
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Num</label>
+          <input type="number" id="f1-n" value="1" min="0" step="1" oninput="calcFrac()" class="frac-input">
+          <div class="frac-bar"></div>
+          <input type="number" id="f1-d" value="2" min="1" step="1" oninput="calcFrac()" class="frac-input">
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:2px;">Den</label>
+        </div>
+      </div>
 
-        <script>
-          function gcdFrac(a, b) {
-            a = Math.abs(a);
-            b = Math.abs(b);
-            while (b) { var t = b; b = a % b; a = t; }
-            return a;
-          }
+      <!-- Operator -->
+      <div>
+        <select id="frac-op" onchange="calcFrac()" class="frac-op-select">
+          <option value="add" selected>+</option>
+          <option value="sub">&minus;</option>
+          <option value="mul">&times;</option>
+          <option value="div">&divide;</option>
+        </select>
+      </div>
 
-          function lcmFrac(a, b) {
-            if (a === 0 || b === 0) return 0;
-            return Math.abs(a * b) / gcdFrac(a, b);
-          }
+      <!-- Fraction 2 -->
+      <div class="frac-unit">
+        <div>
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Whole</label>
+          <input type="number" id="f2-w" value="0" min="0" step="1" oninput="calcFrac()" class="frac-input" placeholder="0">
+        </div>
+        <div class="frac-stacked">
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Num</label>
+          <input type="number" id="f2-n" value="3" min="0" step="1" oninput="calcFrac()" class="frac-input">
+          <div class="frac-bar"></div>
+          <input type="number" id="f2-d" value="4" min="1" step="1" oninput="calcFrac()" class="frac-input">
+          <label style="display:block;font-family:var(--mono);font-size:0.65rem;color:var(--text-muted);text-align:center;margin-top:2px;">Den</label>
+        </div>
+      </div>
+    </div>
 
-          window.setFracPreset = function(w1, n1, d1, op, w2, n2, d2) {
-            document.getElementById('fc-w1').value = w1 || '';
-            document.getElementById('fc-n1').value = n1;
-            document.getElementById('fc-d1').value = d1;
-            document.getElementById('fc-op').value = op;
-            document.getElementById('fc-w2').value = w2 || '';
-            document.getElementById('fc-n2').value = n2;
-            document.getElementById('fc-d2').value = d2;
-            calcFracCalc();
-          };
+    <!-- Quick Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;justify-content:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Quick Scenarios:</span>
+      <button type="button" class="btn-sec" onclick="setFracPreset(0,1,2, 'add', 0,3,4)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">1/2 + 3/4</button>
+      <button type="button" class="btn-sec" onclick="setFracPreset(2,3,8, 'sub', 1,5,16)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">2 3/8 &minus; 1 5/16 (Carpentry)</button>
+      <button type="button" class="btn-sec" onclick="setFracPreset(0,5,6, 'mul', 0,2,3)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">5/6 &times; 2/3</button>
+      <button type="button" class="btn-sec" onclick="setFracPreset(0,7,8, 'div', 0,1,4)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">7/8 &divide; 1/4 (Keep-Flip)</button>
+    </div>
 
-          function calcFracCalc() {
-            var rawW1 = parseFloat(document.getElementById('fc-w1').value) || 0;
-            var rawN1 = parseFloat(document.getElementById('fc-n1').value) || 0;
-            var rawD1 = parseFloat(document.getElementById('fc-d1').value) || 1;
+    <!-- Hero Cards -->
+    <div class="frac-grid-4">
+      <div class="frac-card" style="border-top:4px solid #10b981;">
+        <span class="frac-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Simplified</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Mixed / Final Result</div>
+        <div id="card-frac-mixed" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#10b981;">2 1/4</div>
+        <div id="card-frac-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Reduced to lowest terms</div>
+      </div>
 
-            var rawW2 = parseFloat(document.getElementById('fc-w2').value) || 0;
-            var rawN2 = parseFloat(document.getElementById('fc-n2').value) || 0;
-            var rawD2 = parseFloat(document.getElementById('fc-d2').value) || 1;
+      <div class="frac-card" style="border-top:4px solid #3b82f6;">
+        <span class="frac-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Improper</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Improper Fraction</div>
+        <div id="card-frac-improper" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#3b82f6;">9/4</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Single numerator / denominator</div>
+      </div>
 
-            var op = document.getElementById('fc-op').value;
+      <div class="frac-card" style="border-top:4px solid #8b5cf6;">
+        <span class="frac-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Decimal</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Decimal Equivalent</div>
+        <div id="card-frac-dec" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:var(--fg);">2.2500</div>
+        <div id="card-frac-pct" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">225.0% of whole</div>
+      </div>
 
-            if (rawD1 === 0 || rawD2 === 0) {
-              document.getElementById('fc-res').textContent = 'Undefined';
-              document.getElementById('fc-res').style.color = '#ef4444';
-              document.getElementById('fc-subtext').textContent = 'Denominator cannot be zero';
-              document.getElementById('fc-steps-box').innerHTML = '<div style="color: #ef4444;">Error: Denominator is 0. Division by zero is undefined.</div>';
-              return;
-            }
+      <div class="frac-card" style="border-top:4px solid #f59e0b;">
+        <span class="frac-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Carpentry</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Tape Measure (1/16")</div>
+        <div id="card-frac-tape" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#f59e0b;">2 1/4"</div>
+        <div id="card-frac-tape-32" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Exact: 2 8/32"</div>
+      </div>
+    </div>
 
-            // Convert to improper fractions
-            var top1 = (Math.abs(rawW1) * rawD1) + rawN1;
-            if (rawW1 < 0) top1 = -top1;
-            var d1 = rawD1;
+    <!-- Pure SVG Fraction Comparison Visualizer -->
+    <div class="frac-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Visual Fraction Magnitude Comparison Bars</span>
+        <span style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Proportional Value Scale</span>
+      </div>
+      <div id="frac-svg-container" style="width:100%;height:100px;"></div>
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#3b82f6;border-radius:2px;"></span> Fraction 1</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#8b5cf6;border-radius:2px;"></span> Fraction 2</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#10b981;border-radius:2px;"></span> Result Output</span>
+      </div>
+    </div>
 
-            var top2 = (Math.abs(rawW2) * rawD2) + rawN2;
-            if (rawW2 < 0) top2 = -top2;
-            var d2 = rawD2;
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #10b981;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Step-by-Step Mathematical Derivation:</div>
+      <div id="frac-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
 
-            var resNum = 0, resDen = 1;
-            var stepHtml = '';
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyFracReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Fraction Solution Report
+      </button>
+    </div>
+  </div>
 
-            // Step 1: Improper Fractions
-            var f1Str = (rawW1 ? rawW1 + ' ' : '') + rawN1 + '/' + rawD1;
-            var f2Str = (rawW2 ? rawW2 + ' ' : '') + rawN2 + '/' + rawD2;
-            stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-              '<strong style="color: var(--fg);">Step 1: Convert to Improper Fractions</strong>' +
-              '<div style="color: #3b82f6; margin-top: 0.25rem;">Fraction 1: ' + top1 + '/' + d1 + ' &bull; Fraction 2: ' + top2 + '/' + d2 + '</div>' +
-              '</div>';
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Fraction Math</h2>
 
-            // Step 2: Common Denominator & Calculation
-            if (op === '+' || op === '-') {
-              var lcd = lcmFrac(d1, d2);
-              var m1 = lcd / d1;
-              var m2 = lcd / d2;
-              var scaledTop1 = top1 * m1;
-              var scaledTop2 = top2 * m2;
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">1. The "Numerator &amp; Denominator Addition" Fallacy</div>
+      <p class="frac-trap-desc">
+        The most notorious arithmetic fallacy is adding numerators and denominators straight across: <code>1/2 + 1/3 = 2/5</code>. In reality, 1/2 (0.50) plus 1/3 (0.333) equals 5/6 (0.833). Adding denominators changes the fractional unit size rather than accumulating equal quantities. You must normalize denominators to the Least Common Denominator (LCD) before adding.
+      </p>
+    </div>
 
-              if (op === '+') {
-                resNum = scaledTop1 + scaledTop2;
-              } else {
-                resNum = scaledTop1 - scaledTop2;
-              }
-              resDen = lcd;
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">2. Dividing Mixed Numbers Without Converting to Improper Fractions</div>
+      <p class="frac-trap-desc">
+        When dividing mixed numbers such as <code>4 1/2 &divide; 1 1/2</code>, novice students frequently divide the whole numbers (4 &divide; 1 = 4) and then divide the fractions (1/2 &divide; 1/2 = 1) to get an incorrect answer of 5. You must convert both operands into improper fractions first: <code>9/2 &divide; 3/2 = (9/2) &times; (2/3) = 18/6 = 3</code>.
+      </p>
+    </div>
 
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step 2: Find Least Common Denominator (LCD)</strong>' +
-                '<div style="color: #3b82f6; margin-top: 0.25rem;">LCD(' + d1 + ', ' + d2 + ') = <strong>' + lcd + '</strong></div>' +
-                '<div style="margin-top: 0.25rem; color: var(--text-muted);">' +
-                  'Fraction 1: (' + top1 + ' &times; ' + m1 + ') / (' + d1 + ' &times; ' + m1 + ') = ' + scaledTop1 + '/' + lcd + '<br>' +
-                  'Fraction 2: (' + top2 + ' &times; ' + m2 + ') / (' + d2 + ' &times; ' + m2 + ') = ' + scaledTop2 + '/' + lcd +
-                '</div>' +
-                '</div>';
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">3. The Cross-Multiplication Overuse Confusion</div>
+      <p class="frac-trap-desc">
+        Cross-multiplication is a valid mathematical technique <em>only</em> for solving proportional equations (<code>A/B = C/D &rarr; A &times; D = B &times; C</code>) or testing inequality magnitudes. Using cross-multiplication when multiplying two fractions (e.g., cross-multiplying <code>2/3 &times; 4/5</code>) results in complete mathematical chaos; fraction multiplication requires multiplying straight across: <code>(2 &times; 4) / (3 &times; 5) = 8/15</code>.
+      </p>
+    </div>
 
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step 3: Perform Operation on Numerators</strong>' +
-                '<div style="color: #3b82f6; margin-top: 0.25rem;">' + scaledTop1 + ' ' + (op === '+' ? '&plus;' : '&minus;') + ' ' + scaledTop2 + ' = <strong>' + resNum + '</strong> &rarr; ' + resNum + '/' + resDen + '</div>' +
-                '</div>';
-            } else if (op === '*') {
-              resNum = top1 * top2;
-              resDen = d1 * d2;
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">4. Negative Sign Distribution in Subtracted Fractions</div>
+      <p class="frac-trap-desc">
+        When subtracting an algebraic fraction with a compound numerator, such as <code>(X - 3) / 4</code>, the subtraction applies to the entire numerator. Neglecting to distribute the negative sign yields <code>-X - 3</code> instead of the mathematically correct <code>-X + 3</code>. Similarly, a negative fraction <code>-3/4</code> means either <code>(-3)/4</code> or <code>3/(-4)</code>, but not <code>(-3)/(-4)</code> which is positive <code>+3/4</code>.
+      </p>
+    </div>
 
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step 2: Multiply Numerators and Denominators Straight Across</strong>' +
-                '<div style="color: #3b82f6; margin-top: 0.25rem;">' +
-                  'Numerators: ' + top1 + ' &times; ' + top2 + ' = <strong>' + resNum + '</strong><br>' +
-                  'Denominators: ' + d1 + ' &times; ' + d2 + ' = <strong>' + resDen + '</strong> &rarr; ' + resNum + '/' + resDen +
-                '</div>' +
-                '</div>';
-            } else if (op === '/') {
-              if (top2 === 0) {
-                document.getElementById('fc-res').textContent = 'Undefined';
-                document.getElementById('fc-res').style.color = '#ef4444';
-                document.getElementById('fc-subtext').textContent = 'Division by zero is undefined';
-                document.getElementById('fc-steps-box').innerHTML = '<div style="color: #ef4444;">Cannot divide by zero fraction (0/' + d2 + ').</div>';
-                return;
-              }
-              resNum = top1 * d2;
-              resDen = d1 * top2;
+    <div class="frac-trap-card">
+      <div class="frac-trap-title">5. Tape Measure Imperial Conversion Rounding Tolerance</div>
+      <p class="frac-trap-desc">
+        Carpenters frequently convert engineering decimal specs (e.g., 0.350 inches) to ruler ticks. Rounding 0.350" directly to 3/8" (0.375") introduces a +0.025" (+25 thousandths of an inch) error. In precision joinery, cabinetry, and CNC milling, this exceeds allowable tolerance limits. Always verify the deviation delta between the exact decimal and the nearest 1/16" or 1/32" tick.
+      </p>
+    </div>
+  </div>
+</div>
 
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step 2: Keep, Change, Flip (Multiply by Reciprocal)</strong>' +
-                '<div style="color: #3b82f6; margin-top: 0.25rem;">' +
-                  '(' + top1 + '/' + d1 + ') &divide; (' + top2 + '/' + d2 + ') = (' + top1 + '/' + d1 + ') &times; (' + d2 + '/' + top2 + ')<br>' +
-                  '= (' + top1 + ' &times; ' + d2 + ') / (' + d1 + ' &times; ' + top2 + ') = <strong>' + resNum + '/' + resDen + '</strong>' +
-                '</div>' +
-                '</div>';
-            }
+<script>
+  function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b) {
+      var t = b;
+      b = a % b;
+      a = t;
+    }
+    return a || 1;
+  }
 
-            if (resDen < 0) {
-              resNum = -resNum;
-              resDen = -resDen;
-            }
+  function lcm(a, b) {
+    return Math.abs(a * b) / gcd(a, b);
+  }
 
-            // Step 4: Reduce via GCD
-            var g = gcdFrac(resNum, resDen);
-            var redNum = resNum / g;
-            var redDen = resDen / g;
+  function setFracPreset(w1, n1, d1, op, w2, n2, d2) {
+    document.getElementById('f1-w').value = w1;
+    document.getElementById('f1-n').value = n1;
+    document.getElementById('f1-d').value = d1;
+    document.getElementById('frac-op').value = op;
+    document.getElementById('f2-w').value = w2;
+    document.getElementById('f2-n').value = n2;
+    document.getElementById('f2-d').value = d2;
+    calcFrac();
+  }
 
-            stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-              '<strong style="color: var(--fg);">Step ' + (op === '+' || op === '-' ? '4' : '3') + ': Simplify with Greatest Common Divisor (GCD)</strong>' +
-              '<div style="color: #3b82f6; margin-top: 0.25rem;">GCD(' + resNum + ', ' + resDen + ') = ' + g + ' &bull; (' + resNum + ' &divide; ' + g + ') / (' + resDen + ' &divide; ' + g + ') = <strong>' + redNum + '/' + redDen + '</strong></div>' +
-              '</div>';
+  function calcFrac() {
+    var w1 = parseInt(document.getElementById('f1-w').value, 10) || 0;
+    var n1 = parseInt(document.getElementById('f1-n').value, 10) || 0;
+    var d1 = parseInt(document.getElementById('f1-d').value, 10) || 1;
 
-            // Step 5: Convert to Mixed
-            var whole = Math.floor(Math.abs(redNum) / redDen);
-            var rem = Math.abs(redNum) % redDen;
-            var isNeg = redNum < 0;
+    var op = document.getElementById('frac-op').value;
 
-            var mixedStr = '';
-            if (rem === 0) {
-              mixedStr = (isNeg ? '-' : '') + whole;
-            } else if (whole === 0) {
-              mixedStr = (isNeg ? '-' : '') + rem + '/' + redDen;
-            } else {
-              mixedStr = (isNeg ? '-' : '') + whole + ' ' + rem + '/' + redDen;
-            }
+    var w2 = parseInt(document.getElementById('f2-w').value, 10) || 0;
+    var n2 = parseInt(document.getElementById('f2-n').value, 10) || 0;
+    var d2 = parseInt(document.getElementById('f2-d').value, 10) || 1;
 
-            if (whole > 0 && rem > 0) {
-              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
-                '<strong style="color: var(--fg);">Step ' + (op === '+' || op === '-' ? '5' : '4') + ': Extract Whole Mixed Number</strong>' +
-                '<div style="color: #10b981; margin-top: 0.25rem;">' + Math.abs(redNum) + ' &divide; ' + redDen + ' = <strong>' + whole + '</strong> with remainder <strong>' + rem + '</strong> &rarr; <strong>' + mixedStr + '</strong></div>' +
-                '</div>';
-            }
+    if (d1 === 0) d1 = 1;
+    if (d2 === 0) d2 = 1;
 
-            // Render Results
-            var resEl = document.getElementById('fc-res');
-            resEl.textContent = mixedStr;
-            resEl.style.color = '#10b981';
+    // Convert to improper
+    var imp1 = (w1 * d1) + n1;
+    var imp2 = (w2 * d2) + n2;
 
-            var opSymbol = op === '+' ? '+' : (op === '-' ? '−' : (op === '*' ? '×' : '÷'));
-            document.getElementById('fc-subtext').textContent = f1Str + ' ' + opSymbol + ' ' + f2Str + ' = ' + mixedStr;
+    var resNum = 0;
+    var resDen = 1;
+    var steps = [];
 
-            document.getElementById('fc-improper').textContent = redNum + '/' + redDen;
-            var decVal = redNum / redDen;
-            document.getElementById('fc-decimal').textContent = Number.isInteger(decVal) ? decVal.toString() : decVal.toFixed(4).replace(/0+$/, '').replace(/.$/, '');
-            document.getElementById('fc-percent').textContent = (decVal * 100).toFixed(2).replace(/.00$/, '') + '%';
+    steps.push('1. Convert Mixed to Improper: Fraction 1 = (' + w1 + ' &times; ' + d1 + ' + ' + n1 + ')/' + d1 + ' = <strong>' + imp1 + '/' + d1 + '</strong> &bull; Fraction 2 = (' + w2 + ' &times; ' + d2 + ' + ' + n2 + ')/' + d2 + ' = <strong>' + imp2 + '/' + d2 + '</strong>');
 
-            if (redNum !== 0) {
-              var recipNum = redDen;
-              var recipDen = redNum;
-              if (recipDen < 0) { recipNum = -recipNum; recipDen = -recipDen; }
-              var recipDec = (recipNum / recipDen).toFixed(3).replace(/0+$/, '').replace(/.$/, '');
-              document.getElementById('fc-reciprocal').textContent = recipNum + '/' + recipDen + ' (' + recipDec + ')';
-            } else {
-              document.getElementById('fc-reciprocal').textContent = 'Undefined (0 has no inverse)';
-            }
+    if (op === 'add') {
+      var commonDen = lcm(d1, d2);
+      var scale1 = commonDen / d1;
+      var scale2 = commonDen / d2;
+      var adjNum1 = imp1 * scale1;
+      var adjNum2 = imp2 * scale2;
+      resNum = adjNum1 + adjNum2;
+      resDen = commonDen;
+      steps.push('2. Least Common Denominator (LCD): LCM(' + d1 + ', ' + d2 + ') = <strong>' + commonDen + '</strong>');
+      steps.push('3. Scale Numerators: (' + imp1 + ' &times; ' + scale1 + ') + (' + imp2 + ' &times; ' + scale2 + ') = ' + adjNum1 + ' + ' + adjNum2 + ' = <strong>' + resNum + '/' + resDen + '</strong>');
+    } else if (op === 'sub') {
+      var commonDen = lcm(d1, d2);
+      var scale1 = commonDen / d1;
+      var scale2 = commonDen / d2;
+      var adjNum1 = imp1 * scale1;
+      var adjNum2 = imp2 * scale2;
+      resNum = adjNum1 - adjNum2;
+      resDen = commonDen;
+      steps.push('2. Least Common Denominator (LCD): LCM(' + d1 + ', ' + d2 + ') = <strong>' + commonDen + '</strong>');
+      steps.push('3. Scale & Subtract: (' + imp1 + ' &times; ' + scale1 + ') - (' + imp2 + ' &times; ' + scale2 + ') = ' + adjNum1 + ' - ' + adjNum2 + ' = <strong>' + resNum + '/' + resDen + '</strong>');
+    } else if (op === 'mul') {
+      resNum = imp1 * imp2;
+      resDen = d1 * d2;
+      steps.push('2. Multiply Straight Across: (' + imp1 + ' &times; ' + imp2 + ') &divide; (' + d1 + ' &times; ' + d2 + ') = <strong>' + resNum + '/' + resDen + '</strong>');
+    } else if (op === 'div') {
+      if (imp2 === 0) {
+        document.getElementById('card-frac-mixed').textContent = 'Undefined';
+        document.getElementById('card-frac-improper').textContent = 'Div by 0';
+        return;
+      }
+      resNum = imp1 * d2;
+      resDen = d1 * imp2;
+      steps.push('2. Keep-Change-Flip: (' + imp1 + '/' + d1 + ') &times; (' + d2 + '/' + imp2 + ') = (' + imp1 + ' &times; ' + d2 + ') &divide; (' + d1 + ' &times; ' + imp2 + ') = <strong>' + resNum + '/' + resDen + '</strong>');
+    }
 
-            document.getElementById('fc-steps-box').innerHTML = stepHtml;
-          }
+    // Simplification via GCD
+    var div = gcd(resNum, resDen);
+    var simpNum = resNum / div;
+    var simpDen = resDen / div;
 
-          window.copyFractionSummary = function() {
-            var btn = document.getElementById('btnCopyFrac');
-            var res = document.getElementById('fc-res').textContent;
-            var eq = document.getElementById('fc-subtext').textContent;
-            var improper = document.getElementById('fc-improper').textContent;
-            var dec = document.getElementById('fc-decimal').textContent;
-            var pct = document.getElementById('fc-percent').textContent;
-            var recip = document.getElementById('fc-reciprocal').textContent;
+    if (simpDen < 0) {
+      simpNum = -simpNum;
+      simpDen = -simpDen;
+    }
 
-            var text = '--- Fraction Calculation Report ---
-' +
-              'Equation: ' + eq + '
-' +
-              'Simplified Result: ' + res + '
-' +
-              'Improper Fraction: ' + improper + '
-' +
-              'Decimal Value: ' + dec + '
-' +
-              'Percentage: ' + pct + '
-' +
-              'Reciprocal: ' + recip + '
-' +
-              'Calculated on Digital Tools Shed (https://digitaltoolsshed.com/math/fraction-calculator)';
+    // Mixed number format
+    var wholePart = Math.floor(Math.abs(simpNum) / simpDen);
+    var remNum = Math.abs(simpNum) % simpDen;
+    var isNeg = (simpNum < 0);
 
-            navigator.clipboard.writeText(text).then(function() {
-              btn.textContent = '✓ Fraction Solution Copied!';
-              btn.style.borderColor = '#10b981';
-              btn.style.color = '#10b981';
-              setTimeout(function() {
-                btn.textContent = '📋 Copy Complete Fraction Solution & Work';
-                btn.style.borderColor = 'var(--border)';
-                btn.style.color = 'var(--fg)';
-              }, 2500);
-            });
-          };
+    var mixedStr = '';
+    if (simpDen === 1) {
+      mixedStr = (isNeg ? '-' : '') + Math.abs(simpNum);
+    } else if (wholePart === 0) {
+      mixedStr = (isNeg ? '-' : '') + remNum + '/' + simpDen;
+    } else {
+      mixedStr = (isNeg ? '-' : '') + wholePart + ' ' + remNum + '/' + simpDen;
+    }
 
-          document.addEventListener('DOMContentLoaded', calcFracCalc);
-          calcFracCalc();
-        </script>
-      
+    var decVal = simpNum / simpDen;
+
+    // Display Hero cards
+    document.getElementById('card-frac-mixed').textContent = mixedStr;
+    document.getElementById('card-frac-sub').textContent = 'GCD reduction: &divide; ' + div;
+
+    document.getElementById('card-frac-improper').textContent = simpNum + '/' + simpDen;
+    document.getElementById('card-frac-dec').textContent = decVal.toFixed(4);
+    document.getElementById('card-frac-pct').textContent = (decVal * 100).toFixed(1) + '% of whole';
+
+    // Tape measure nearest 1/16"
+    var tape16 = Math.round(decVal * 16);
+    var tapeWhole = Math.floor(tape16 / 16);
+    var tapeRem16 = tape16 % 16;
+    var tapeDiv16 = gcd(tapeRem16, 16);
+    var tapeStr = tapeWhole > 0 ? (tapeWhole + (tapeRem16 > 0 ? (' ' + (tapeRem16 / tapeDiv16) + '/' + (16 / tapeDiv16)) : '') + '"') : ((tapeRem16 / tapeDiv16) + '/' + (16 / tapeDiv16) + '"');
+    document.getElementById('card-frac-tape').textContent = tapeStr;
+
+    var tape32 = Math.round(decVal * 32);
+    var tapeWhole32 = Math.floor(tape32 / 32);
+    var tapeRem32 = tape32 % 32;
+    var tapeDiv32 = gcd(tapeRem32, 32);
+    var tapeStr32 = tapeWhole32 > 0 ? (tapeWhole32 + (tapeRem32 > 0 ? (' ' + (tapeRem32 / tapeDiv32) + '/' + (32 / tapeDiv32)) : '') + '"') : ((tapeRem32 / tapeDiv32) + '/' + (32 / tapeDiv32) + '"');
+    document.getElementById('card-frac-tape-32').textContent = 'Nearest 1/32": ' + tapeStr32;
+
+    steps.push('3. Reduce to Lowest Terms: GCD(' + resNum + ', ' + resDen + ') = ' + div + ' &rarr; <strong>' + simpNum + '/' + simpDen + '</strong>');
+    if (simpDen !== 1 && wholePart > 0) {
+      steps.push('4. Mixed Number Conversion: ' + Math.abs(simpNum) + ' &divide; ' + simpDen + ' = ' + wholePart + ' with remainder ' + remNum + ' &rarr; <strong>' + mixedStr + '</strong>');
+    }
+    steps.push('5. Decimal Equivalent: ' + simpNum + ' &divide; ' + simpDen + ' = <strong>' + decVal.toFixed(6) + '</strong>');
+
+    document.getElementById('frac-derivations').innerHTML = steps.join('<br>');
+
+    renderFracVisual(imp1 / d1, imp2 / d2, decVal);
+  }
+
+  function renderFracVisual(v1, v2, vRes) {
+    var c = document.getElementById('frac-svg-container');
+    if (!c) return;
+
+    var w = c.clientWidth || 600;
+    var h = 95;
+    var maxVal = Math.max(1, v1, v2, Math.abs(vRes));
+
+    var barH = 16;
+    var y1 = 10, y2 = 38, y3 = 66;
+
+    function getBarW(v) {
+      return Math.max(2, Math.min(w - 120, (Math.abs(v) / maxVal) * (w - 120)));
+    }
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Fraction 1 Bar
+    svg += '<text x="0" y="' + (y1 + 12) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Fraction 1:</text>';
+    svg += '<rect x="90" y="' + y1 + '" width="' + (w - 100) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y1 + '" width="' + getBarW(v1) + '" height="' + barH + '" rx="3" fill="#3b82f6" />';
+    svg += '<text x="' + (95 + getBarW(v1)) + '" y="' + (y1 + 12) + '" fill="#3b82f6" font-family="var(--mono)" font-size="11">' + v1.toFixed(3) + '</text>';
+
+    // Fraction 2 Bar
+    svg += '<text x="0" y="' + (y2 + 12) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Fraction 2:</text>';
+    svg += '<rect x="90" y="' + y2 + '" width="' + (w - 100) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y2 + '" width="' + getBarW(v2) + '" height="' + barH + '" rx="3" fill="#8b5cf6" />';
+    svg += '<text x="' + (95 + getBarW(v2)) + '" y="' + (y2 + 12) + '" fill="#8b5cf6" font-family="var(--mono)" font-size="11">' + v2.toFixed(3) + '</text>';
+
+    // Result Bar
+    svg += '<text x="0" y="' + (y3 + 12) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Result:</text>';
+    svg += '<rect x="90" y="' + y3 + '" width="' + (w - 100) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y3 + '" width="' + getBarW(vRes) + '" height="' + barH + '" rx="3" fill="#10b981" />';
+    svg += '<text x="' + (95 + getBarW(vRes)) + '" y="' + (y3 + 12) + '" fill="#10b981" font-family="var(--mono)" font-size="11" font-weight="bold">' + vRes.toFixed(3) + '</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyFracReport(btn) {
+    var mixed = document.getElementById('card-frac-mixed').textContent;
+    var improper = document.getElementById('card-frac-improper').textContent;
+    var dec = document.getElementById('card-frac-dec').textContent;
+    var tape = document.getElementById('card-frac-tape').textContent;
+    var op = document.getElementById('frac-op').value;
+
+    var lines = [
+      '========================================',
+      '       FRACTION ARITHMETIC SOLUTION',
+      '========================================',
+      'Operation Performed : ' + op.toUpperCase(),
+      'Simplified Result   : ' + mixed,
+      'Improper Equivalent : ' + improper,
+      'Decimal Equivalent  : ' + dec,
+      'Tape Measure (1/16"): ' + tape,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/fraction-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('
+')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Fraction Solution!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcFrac);
+  document.addEventListener('DOMContentLoaded', calcFrac);
+  calcFrac();
+</script>
+
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
