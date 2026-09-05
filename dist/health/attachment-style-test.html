@@ -1080,11 +1080,87 @@
               </div>
 
               <div id="attProfile" style="font-size: 0.95rem; line-height: 1.6; border-top: 1px solid var(--border); padding-top: 1rem;"></div>
+
+              <!-- Copy Adult Attachment Report -->
+              <button type="button" id="btnCopyAttachmentProfile" onclick="copyAttachmentProfile()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Adult Attachment Profile &amp; Relational Analysis</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Adult Attachment Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Adult Attachment &amp; Relationship Dynamics</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Anxious-Avoidant Trap (The Protest-Withdrawal Polarization Cycle)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When relational tension arises, an anxiously attached partner demands immediate reassurance or confrontation (protest behavior). This activates an avoidant partner's claustrophobia, causing them to physically or emotionally withdraw. The withdrawal magnifies the anxious partner's abandonment panic, escalating into explosive relational volatility.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚡ 2. Mistaking Anxious Activation for "Soulmate Passion" / Chemistry</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Individuals with insecure attachment frequently mistake visceral anxiety, emotional rollercoasters, and fear of rejection for profound romantic "spark" or "chemistry." Conversely, when they encounter a stable, emotionally available secure partner, they often misinterpret the absence of autonomic chaos as "lack of passion" or "boredom."
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. The "Phantom Ex" &amp; The Flaw-Hunting Defense Strategy</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Dismissive-avoidant individuals subconsciously maintain emotional distance by fixating on an unattainable idealized past partner (the "phantom ex") or by compulsively obsessing over minor, insignificant flaws in current partners (chewing sounds, clothing choices). This preemptive defect-seeking protects against deep intimacy.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔄 4. The Fixed Personality Fallacy (Ignoring "Earned Security")</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Attachment styles are not rigid genetic traits; they are behavioral adaptations to childhood or relational conditioning. Longitudinal developmental psychology proves that individuals can achieve "Earned Security" through long-term therapy, conscious emotional regulation, and consistent partnership with secure individuals.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🗣️ 5. Pathologizing Interdependence as "Codependency"</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Popular culture often weaponizes the term "codependency" to stigmatize healthy relational needs. Human beings are biologically wired for social dependency (the "dependency paradox": being securely dependent on a responsive partner actually enhances autonomous exploration in the outside world).
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
+          
+          window.copyAttachmentProfile = function() {
+            var title = document.getElementById('attTitle') ? document.getElementById('attTitle').textContent : '--';
+            var profile = document.getElementById('attProfile') ? document.getElementById('attProfile').textContent : '';
+
+            var text = '❤️ Adult Attachment Style (ECR-R Dimension Assessment)
+' +
+              '• Primary Adult Attachment Pattern: ' + title + '
+' +
+              '• Clinical Relational Profile: ' + profile.replace(/s+/g, ' ').trim() + '
+' +
+              '• Theoretical Framework: Hazan & Shaver (1987) & Brennan, Clark, Shaver (ECR-R Scale).
+
+' +
+              'Evaluated at digitaltoolsshed.com/health/attachment-style-test';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyAttachmentProfile');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Attachment Profile Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           var attQuestions = [
             { text: 'I worry a lot about my relationships and fear my partner will stop loving me.', dim: 'anx' },
             { text: 'I find it relatively easy to get close to others and feel comfortable depending on them.', dim: 'sec' },

@@ -1081,11 +1081,90 @@
               </div>
 
               <div id="cipsAnalysis" style="font-size: 0.95rem; line-height: 1.6; border-top: 1px solid var(--border); padding-top: 1rem;"></div>
+
+              <!-- Copy Clance Imposter Report -->
+              <button type="button" id="btnCopyCipsReport" onclick="copyCipsReport()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Clance Imposter Profile &amp; Clinical Analysis</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Imposter Phenomenon Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Overcoming Imposter Phenomenon</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Over-Preparation Anxiety Loop (Dr. Pauline Clance Model)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When faced with an evaluation or high-stakes task, individuals with imposter syndrome experience intense anxiety and respond by frantically over-preparing or procrastinating. When success inevitably follows, they attribute it entirely to frantic overwork rather than baseline competence, cementing the belief that normal effort would lead to humiliating exposure.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Asymmetric Attribution Bias (Luck for Wins, Incompetence for Losses)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Promotions, grants, publications, or client praise are dismissed as "luck," "fluke timing," or "they were just being nice." Conversely, any minor error, syntax bug, or constructive critique is seized upon as undeniable, conclusive proof of innate intellectual fraudulence.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🎭 3. The "Charming Imposter" Deception Fallacy</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Many high-achieving professionals secretly believe their interpersonal warmth, humor, or conversational charisma has somehow "tricked" bosses and colleagues into overrating their technical ability. They live in dread of a technical challenge that will finally unmask their presumed lack of substance.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The "Natural Genius" &amp; Instant Knowledge Fallacy</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Dr. Valerie Young identified the "Natural Genius" archetype: the internal rule that if you don't grasp a complex system on the first pass, or if you have to consult documentation, you aren't truly smart. Real mastery is the cumulative result of iterative confusion, reference lookups, and deliberate practice.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🛡️ 5. Relational Isolation &amp; The Feedback Avoidance Paradox</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Fearing exposure, sufferers avoid asking questions, decline high-visibility leadership opportunities, or isolate themselves from peer review. This isolation denies them the normalizing reality that nearly all senior engineers, clinicians, and researchers experience identical doubts and knowledge limits.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
+          
+          window.copyCipsReport = function() {
+            var score = document.getElementById('cipsScore') ? document.getElementById('cipsScore').textContent : '--';
+            var verdict = document.getElementById('cipsVerdict') ? document.getElementById('cipsVerdict').textContent : '';
+            var analysis = document.getElementById('cipsAnalysis') ? document.getElementById('cipsAnalysis').textContent : '';
+
+            var text = '🎓 Clance Imposter Phenomenon Scale (CIPS) Clinical Assessment
+' +
+              '• Total CIPS Score: ' + score + '/100
+' +
+              '• Clinical Severity: ' + verdict.replace(/s+/g, ' ').trim() + '
+' +
+              '• Clinical Analysis: ' + analysis.replace(/s+/g, ' ').trim() + '
+' +
+              '• Diagnostic Reference: Clance, P. R. (1985). The Imposter Phenomenon: Overcoming the Fear That Haunts Your Success.
+
+' +
+              'Evaluated at digitaltoolsshed.com/health/imposter-syndrome-test';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyCipsReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Imposter Assessment Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           var cipsItems = [
             'I have often succeeded on a test or task even though I felt confident that I wouldn’t do well.',
             'I can give the impression that I’m more competent than I really am.',

@@ -1103,7 +1103,7 @@
 
           <!-- Copy Action Bar -->
           <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
-            <button type="button" id="copy-summary-btn" onclick="copyBurnoutSummary()" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--surface-alt); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; color: var(--fg); transition: background 0.15s;">
+            <button type="button" id="btnCopyBurnout" onclick="copyBurnoutSummary()" style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--surface-alt); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; color: var(--fg); transition: background 0.15s;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
               <span>Copy Clinical Assessment Summary</span>
             </button>
@@ -1119,6 +1119,47 @@
         </div>
         <div style="width: 100%; overflow-x: auto;">
           <svg id="bo-radar-svg" viewBox="0 0 760 280" style="width: 100%; height: auto; min-width: 580px; display: block; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- 5 Critical Clinical Burnout Traps -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Clinical Burnout &amp; Occupational Depletion</h3>
+        <div style="display: grid; gap: 1rem;">
+          <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The "Just Need a Vacation" Fallacy (ICD-11 Chronic Workplace Syndrome)</h4>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+              Treating neuroendocrine exhaustion with a 4-day weekend fails because vacation provides only transient symptom relief. Returning to an unchanged toxic workload or unsustainable cognitive load reignites autonomic depletion and emotional exhaustion within 48 to 72 hours.
+            </p>
+          </div>
+
+          <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Cynicism &amp; Depersonalization as a Defense Mechanism</h4>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+              Viewing emotional detachment and cynical contempt for colleagues or clients as personal callousness misses its clinical nature. Cynicism is the nervous system's instinctive emotional anesthesia to shield against unmanageable empathy fatigue and chronic organizational betrayal.
+            </p>
+          </div>
+
+          <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🔋 3. Adrenal &amp; HPA Axis Dysregulation (Exhaustion vs. Depression)</h4>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+              Confusing occupational burnout with unipolar depression leads to improper interventions. Burnout is a situational energy bankruptcy characterized by blunted cortisol awakening responses and neuroendocrine exhaustion; prescribing SSRIs without structural workload reduction fails to restore baseline vigor.
+            </p>
+          </div>
+
+          <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🏆 4. The "Hero Syndrome" &amp; Inefficacy Paradox</h4>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+              Attempting to cure feelings of reduced accomplishment by grinding 70-hour workweeks creates a death spiral. Working longer hours while cognitively depleted spikes error rates, triggers catastrophic mistakes, and deepens perceived inefficacy.
+            </p>
+          </div>
+
+          <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+            <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🏢 5. The Individual Blame Trap (Fixing the Worker, Ignoring the System)</h4>
+            <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+              Prescribing mindfulness apps and corporate yoga workshops while systemic understaffing, impossible quarterly targets, and lack of autonomy remain unchanged is clinical gaslighting. As pioneer Christina Maslach established, burnout is an organizational disease, not an individual pathology.
+            </p>
+          </div>
         </div>
       </div>
 

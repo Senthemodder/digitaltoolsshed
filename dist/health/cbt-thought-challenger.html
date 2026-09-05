@@ -1433,7 +1433,7 @@
                    'Restructured via Digital Tools Shed (digitaltoolsshed.com/health/cbt-thought-challenger)';
 
         navigator.clipboard.writeText(text).then(function() {
-          var btn = document.getElementById('copy-summary-btn');
+          var btn = document.getElementById('btnCopyBurnout') || document.getElementById('copy-summary-btn');
           var orig = btn.innerHTML;
           btn.innerHTML = '<span style="color:#22c55e; font-weight:bold;">✓ Copied to Clipboard!</span>';
           setTimeout(function() { btn.innerHTML = orig; }, 2500);
