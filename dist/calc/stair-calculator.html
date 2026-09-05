@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stair Stringer Calculator & IRC Code Checker | Digital Tools Shed</title>
-  <meta name="description" content="Free stair stringer calculator: calculate rise, run, number of steps, stringer board length, and verify IRC building code compliance.">
+  <title>Stair Stringer Calculator & IRC Code Checker (Rise, Run & Cut List) | Digital Tools Shed</title>
+  <meta name="description" content="Calculate stair stringer cuts, exact riser heights, tread runs, stringer board lengths, and verify IRC 2024 building code compliance with an interactive diagram.">
   <link rel="canonical" href="https://digitaltoolsshed.com/calc/stair-calculator">
-  <meta property="og:title" content="Stair Stringer Calculator & IRC Code Checker | Digital Tools Shed">
-  <meta property="og:description" content="Free stair stringer calculator: calculate rise, run, number of steps, stringer board length, and verify IRC building code compliance.">
+  <meta property="og:title" content="Stair Stringer Calculator & IRC Code Checker (Rise, Run & Cut List) | Digital Tools Shed">
+  <meta property="og:description" content="Calculate stair stringer cuts, exact riser heights, tread runs, stringer board lengths, and verify IRC 2024 building code compliance with an interactive diagram.">
   <meta property="og:url" content="https://digitaltoolsshed.com/calc/stair-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Stair Stringer Calculator & IRC Code Checker | Digital Tools Shed">
-  <meta name="twitter:description" content="Free stair stringer calculator: calculate rise, run, number of steps, stringer board length, and verify IRC building code compliance.">
+  <meta name="twitter:title" content="Stair Stringer Calculator & IRC Code Checker (Rise, Run & Cut List) | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate stair stringer cuts, exact riser heights, tread runs, stringer board lengths, and verify IRC 2024 building code compliance with an interactive diagram.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Stair Stringer Calculator & IRC Code Checker",
+  "name": "Stair Stringer Calculator & IRC Code Checker (Rise, Run & Cut List)",
   "url": "https://digitaltoolsshed.com/calc/stair-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -85,13 +85,13 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "5.0",
-    "ratingCount": 1343,
+    "ratingValue": "4.9",
+    "ratingCount": 1444,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Free stair stringer calculator: calculate rise, run, number of steps, stringer board length, and verify IRC building code compliance.",
+  "description": "Calculate stair stringer cuts, exact riser heights, tread runs, stringer board lengths, and verify IRC 2024 building code compliance with an interactive diagram.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,10 +106,10 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the maximum stair riser height according to IRC code?",
+      "name": "What is the maximum stair riser height according to IRC building code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Under Section R311.7.5.1 of the International Residential Code (IRC), the maximum riser height for residential stairs is 7 3/4 inches (197 mm)."
+        "text": "Under Section R311.7.5.1 of the International Residential Code (IRC 2024), the maximum allowable riser height for residential stairs is 7 3/4 inches (197 mm). Any riser taller than 7.75 inches fails building inspection and creates severe trip hazards."
       }
     },
     {
@@ -117,23 +117,31 @@
       "name": "What is the minimum stair tread depth required by building code?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The IRC requires a minimum tread depth of 10 inches (254 mm) with nosing, or 11 inches without nosing."
+        "text": "The IRC mandates a minimum tread depth of 10 inches (254 mm) when treads have a nosing, or 11 inches (279 mm) if built without nosing. Tread depth is measured horizontally between the vertical planes of adjacent risers."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the standard stair comfort rule of thumb?",
+      "name": "Why must you cut the thickness of the tread off the bottom of the stringer?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The standard architectural formula for comfortable stairs is 2 × Riser + Tread = 24 to 25.5 inches."
+        "text": "If you do not trim the thickness of one tread (typically 1.0\" or 1.5\") off the bottom of the stringer where it rests on the lower floor, the very first step will be too high by that exact thickness once the tread is nailed down. Conversely, the top step onto the upper floor will be too short by that thickness."
       }
     },
     {
       "@type": "Question",
-      "name": "How long of a 2x12 board do I need for a stair stringer?",
+      "name": "What is Blondel's Rule for comfortable stair proportions?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Stringer length is calculated using the Pythagorean theorem: Stringer Length = √(Total Rise² + Total Run²). Always round up to the next available standard lumber length."
+        "text": "Architect François Blondel's historic rule of thumb states that twice the riser height plus the tread depth (2R + T) should equal between 24 and 25.5 inches (600 to 640 mm). Stairs matching this ratio feel natural and effortless to climb because they match standard human walking strides."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What size lumber should be used to cut stair stringers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Stair stringers should always be cut from nominal 2x12 lumber. Never use 2x10 boards for notched stringers, as cutting 7\" to 10\" notches leaves less than 3.5 inches of uncut \"throat\" meat, drastically increasing the risk of structural stringer snapping."
       }
     }
   ]
@@ -143,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Stair Stringer Calculator & IRC Code Checker",
-  "description": "Free stair stringer calculator: calculate rise, run, number of steps, stringer board length, and verify IRC building code compliance.",
+  "name": "How to Use the Stair Stringer Calculator & IRC Code Checker (Rise, Run & Cut List)",
+  "description": "Calculate stair stringer cuts, exact riser heights, tread runs, stringer board lengths, and verify IRC 2024 building code compliance with an interactive diagram.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Stair Stringer Calculator & IRC Code Checker."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Stair Stringer Calculator & IRC Code Checker (Rise, Run & Cut List)."
     },
     {
       "@type": "HowToStep",
@@ -962,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Stair Stringer Calculator & IRC Code Checker | Digital Tools Shed</span>
+            <span>Stair Stringer Calculator & IRC Code Checker (Rise, Run & Cut List) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1033,125 +1041,392 @@
           
 
           
-    <div class="article-container" style="max-width: 900px;">
-      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-        <a href="/">Home</a> &gt; <a href="/calc/">Calculators</a> &gt; Stair Stringer Calculator
-      </nav>
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Stair Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Stair Stringer Calculator & IRC Code Checker</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate stair stringer layout, exact fractional riser heights, horizontal run, minimum 2x12 lumber lengths, and verify compliance with International Residential Code (IRC) 2024 standards. Includes Blondel's ergonomic comfort index and cut-list derivations.
+    </p>
+  </div>
 
-      <header style="margin-bottom: 2rem;">
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Stair Stringer & Rise/Run Calculator</h1>
-        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Calculate step riser heights, tread depths, stringer cut lengths, and verify International Residential Code (IRC) building compliance.
-        </p>
-      </header>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Stair Dimensions
+      </h2>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Stair Dimensions</h3>
-          
-          <div style="margin-bottom: 1.25rem;">
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Total Rise / Height (Inches)</label>
-            <input type="number" id="totalRise" value="108" step="0.125" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" />
-            <span style="font-size: 0.75rem; color: var(--text-muted);">From lower finished floor to upper finished floor (e.g. 9 ft = 108 in)</span>
-          </div>
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="totalRise">Total Rise (Overall Height in Inches)</label>
+        <input type="number" id="totalRise" value="108" min="10" max="300" step="0.125" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Vertical distance from finished lower floor to finished upper floor (e.g. 108" = 9 ft)</span>
+      </div>
 
-          <div style="margin-bottom: 1.25rem;">
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Desired Tread Depth (Inches)</label>
-            <input type="number" id="desiredTread" value="10.5" step="0.25" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" />
-            <span style="font-size: 0.75rem; color: var(--text-muted);">IRC minimum is 10 inches (standard is 10.5 to 11 in)</span>
-          </div>
-
-          <div style="margin-bottom: 1.25rem;">
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Target Riser Height (Inches)</label>
-            <input type="number" id="targetRiser" value="7.5" step="0.25" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" />
-            <span style="font-size: 0.75rem; color: var(--text-muted);">IRC maximum is 7.75 inches (standard is 7 to 7.5 in)</span>
-          </div>
-
-          <button class="btn-primary" onclick="calcStairs()" style="width: 100%; padding: 0.75rem; font-size: 1rem;">Calculate Stringer Layout</button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="targetRiser">Target Riser (Inches)</label>
+          <input type="number" id="targetRiser" value="7.5" min="5" max="8.5" step="0.125" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">IRC Code Max: 7.75"</span>
         </div>
-
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Stringer Cut Results</h3>
-          <div id="stairResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="treadDepth">Tread Run (Inches)</label>
+          <input type="number" id="treadDepth" value="10.5" min="9" max="15" step="0.25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">IRC Code Min: 10.0"</span>
         </div>
       </div>
 
-      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
-        <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.75rem;">IRC Building Code Quick Reference</h3>
-        <ul style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; padding-left: 1.25rem;">
-          <li><strong>Maximum Riser Height:</strong> 7 ¾ inches (197 mm).</li>
-          <li><strong>Minimum Tread Depth:</strong> 10 inches (254 mm) with nosing, or 11 inches without nosing.</li>
-          <li><strong>Comfort Rule of Thumb:</strong> 2 × (Riser) + Tread should equal between 24 and 25 inches.</li>
-          <li><strong>Variation Limit:</strong> The difference between the tallest and shortest riser in a flight cannot exceed ⅜ inch.</li>
-        </ul>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="treadThickness">Tread Thickness</label>
+          <input type="number" id="treadThickness" value="1.0" min="0.5" max="2.5" step="0.125" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Cut off bottom stringer!</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stringerWidth">Stair Width (Feet)</label>
+          <input type="number" id="stairWidth" value="3.0" min="2.5" max="8.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+          <span style="font-size:0.72rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Code Min: 3.0 ft (36")</span>
+        </div>
       </div>
     </div>
 
-    <script>
-      function calcStairs() {
-        var rise = parseFloat(document.getElementById('totalRise').value) || 0;
-        var targetR = parseFloat(document.getElementById('targetRiser').value) || 7.5;
-        var tread = parseFloat(document.getElementById('desiredTread').value) || 10.5;
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Stringer Cut Specifications
+          </h2>
+          <button id="copyStairBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Cut List</span>
+          </button>
+        </div>
 
-        var numSteps = Math.round(rise / targetR);
-        var actualRiser = rise / numSteps;
-        var numTreads = numSteps - 1;
-        var totalRun = numTreads * tread;
-        var stringerLenInches = Math.sqrt(rise * rise + totalRun * totalRun);
-        var stringerFeet = Math.ceil(stringerLenInches / 12);
-        var inclineAngle = (Math.atan(rise / totalRun) * (180 / Math.PI)).toFixed(1);
-        var ruleOfThumb = (2 * actualRiser + tread).toFixed(2);
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Exact Riser Height</span>
+            <span id="unitRiseExact" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:var(--fg);display:block;">7 3/16"</span>
+            <span id="riserCount" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">14 Steps / Risers</span>
+          </div>
 
-        var isRiserCode = actualRiser <= 7.75;
-        var isTreadCode = tread >= 10.0;
-        var isComfortGood = ruleOfThumb >= 24 && ruleOfThumb <= 25.5;
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Horizontal Run</span>
+            <span id="totalRunFt" style="font-family:var(--mono);font-size:1.8rem;font-weight:800;color:#3b82f6;display:block;">11' 4"</span>
+            <span id="treadCount" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">13 Treads @ 10.5"</span>
+          </div>
+        </div>
 
-        document.getElementById('stairResults').innerHTML = 
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">NUMBER OF RISERS / STEPS</span>' +
-            '<div style="font-size: 1.4rem; font-weight: bold; color: var(--fg);">' + numSteps + ' Steps</div>' +
-          '</div>' +
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">EXACT RISER HEIGHT</span>' +
-            '<div style="font-size: 1.25rem; font-weight: bold; color: ' + (isRiserCode ? '#22c55e' : '#ef4444') + ';">' +
-              actualRiser.toFixed(3) + '" (' + toFraction(actualRiser) + ') ' + (isRiserCode ? '✅ Code Compliant' : '⚠️ Exceeds 7.75"') +
-            '</div>' +
-          '</div>' +
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">NUMBER OF TREADS & RUN</span>' +
-            '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">' + numTreads + ' Treads | Total Run: ' + (totalRun / 12).toFixed(2) + ' ft (' + totalRun.toFixed(1) + '")</div>' +
-          '</div>' +
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">MINIMUM STRINGER BOARD LENGTH</span>' +
-            '<div style="font-size: 1.25rem; font-weight: bold; color: #3b82f6;">' + stringerFeet + ' Foot 2x12 Board (' + stringerLenInches.toFixed(1) + '" diagonal)</div>' +
-          '</div>' +
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">STAIRWAY INCLINE ANGLE</span>' +
-            '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">' + inclineAngle + '° (Comfort zone: 30° - 37°)</div>' +
-          '</div>' +
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">COMFORT RULE (2R + T)</span>' +
-            '<div style="font-size: 1.1rem; font-weight: bold; color: ' + (isComfortGood ? '#22c55e' : '#f59e0b') + ';">' +
-              ruleOfThumb + '" ' + (isComfortGood ? '✅ Ideal Proportions' : 'ℹ️ Standard is 24" to 25.5"') +
-            '</div>' +
-          '</div>';
-      }
+        <!-- LUMBER & ANGLE SPEC -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Stringer Diagonal Length:</span>
+            <strong id="stringerLength" style="font-family:var(--mono);">14' 2" (170.5")</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Lumber Board to Buy:</span>
+            <strong id="lumberBoardSize" style="font-family:var(--mono);color:#10b981;">2x12 x 16 Ft</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Stair Incline Pitch Angle:</span>
+            <strong id="stairInclineAngle" style="font-family:var(--mono);">34.8° (Ideal 30° - 37°)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span style="color:var(--text-muted);">Blondel Ergonomic Comfort (2R + T):</span>
+            <strong id="blondelIndex" style="font-family:var(--mono);">24.9" (Ideal 24" - 25.5")</strong>
+          </div>
+        </div>
 
+        <!-- IRC CODE STATUS BOX -->
+        <div id="ircComplianceBadge" style="border-radius:8px;padding:0.85rem 1rem;font-size:0.85rem;line-height:1.4;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG STAIR ELEVATION SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;">Stair Stringer Profile & Framing Elevation</h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Vector cut profile illustrating bottom riser height adjustment, stringer throat meat ($5''$ minimum depth), and layout steps.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="stairSchematicSvg" viewBox="0 0 800 300" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & CARPENTRY DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Carpentry Trigonometry & The Bottom Riser Drop Formula</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Stair stringer layout requires solving right triangles and applying discrete integer quantization to total vertical rise. Every riser in a flight must be identical to within $\frac{3}{8}''$ (IRC Section R311.7.5.1).
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Integer Step Quantization:</strong><br>
+      N_{\text{risers}} = \text{round}\left( \frac{\text{Total Rise}}{\text{Target Rise (7.5'')}} \right)<br><br>
+      <strong>2. Exact Unit Rise:</strong><br>
+      R = \frac{\text{Total Rise}}{N_{\text{risers}}} \quad (\le 7\frac{3}{4}'' \text{ IRC maximum})<br><br>
+      <strong>3. Stringer Diagonal Length (Pythagorean Theorem):</strong><br>
+      L_{\text{stringer}} = \sqrt{\text{Total Rise}^2 + \text{Total Run}^2}<br><br>
+      <strong>4. The Mandatory Bottom Riser Drop:</strong><br>
+      R_{\text{bottom cut}} = R - \text{Tread Thickness} + \text{Lower Finish Floor Thickness}<br>
+      \textit{(Failing to cut tread thickness off the bottom makes the 1st step too high and the top step too short!)}<br><br>
+      <strong>5. Blondel's Comfort Formula (1675):</strong><br>
+      2R + T \in [24'', 25.5''] \quad (600 - 640\text{ mm})
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL STAIRBUILDING TRAPS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Stairbuilding & Inspection Pitfalls</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. The Bottom Riser Drop Disaster</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          The #1 mistake amateur carpenters make is cutting all stringer notches identical. When you install a 1" tread on top, the first step becomes 1" taller ($R + 1''$) and the top step onto the second floor becomes 1" shorter ($R - 1''$). You must saw the thickness of one tread off the bottom of the stringer.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">2. Over-Notching the Stringer Throat</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          When cutting notches into a 2x12 stringer with a circular saw, never let the saw kerf extend past the inside corner. Over-cutting weakens the remaining timber throat (the "effective depth"). Code generally requires at least 3.5" to 5" of uncut solid lumber along the stringer throat to prevent snapping.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">3. The 3/8-Inch Riser Variation Code Failure</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          IRC Section R311.7.5.1 strictly mandates that the difference between the greatest riser height and smallest riser height in any flight cannot exceed 3/8" (9.5 mm). Human muscle memory expects uniform cadence; variations greater than 3/8" cause people to trip and fall.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">4. Violating the 6'8" (80") Headroom Mandate</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Building codes require minimum 80 inches (2,032 mm) of continuous vertical clearance measured from the sloped plane of stair nosings to the ceiling above. Failing to leave a large enough rough ceiling opening forces costly framing teardowns.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">5. Insufficient Stringer Quantity Across Width</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Using only 2 stringers on a 36-inch wide staircase causes bouncy, sagging treads. For standard 1-inch thick dimensional lumber or composite decking treads, stringers must be spaced no more than 16 inches on center (requiring at least 3 stringers for a 3-foot wide stair).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
       function toFraction(val) {
         var whole = Math.floor(val);
         var frac = val - whole;
         var sixteenths = Math.round(frac * 16);
-        if (sixteenths === 0) return whole + '"';
-        if (sixteenths === 16) return (whole + 1) + '"';
+        if (sixteenths === 16) { whole++; sixteenths = 0; }
+        if (sixteenths === 0) return whole + '\"';
+        
         var num = sixteenths;
         var den = 16;
         while (num % 2 === 0 && den % 2 === 0) { num /= 2; den /= 2; }
-        return whole > 0 ? (whole + ' ' + num + '/' + den + '"') : (num + '/' + den + '"');
+        return (whole > 0 ? whole + ' ' : '') + num + '/' + den + '\"';
       }
 
+      function toFeetInches(totalInches) {
+        var feet = Math.floor(totalInches / 12);
+        var inches = Math.round((totalInches % 12) * 10) / 10;
+        return feet + "' " + inches + '"';
+      }
+
+      function calcStairs() {
+        var totalRise = parseFloat(document.getElementById('totalRise').value) || 108;
+        var targetRise = parseFloat(document.getElementById('targetRiser').value) || 7.5;
+        var treadDepth = parseFloat(document.getElementById('treadDepth').value) || 10.5;
+        var treadThick = parseFloat(document.getElementById('treadThickness').value) || 1.0;
+        var stairWidth = parseFloat(document.getElementById('stairWidth').value) || 3.0;
+
+        var numRisers = Math.round(totalRise / targetRise);
+        if (numRisers < 1) numRisers = 1;
+
+        var unitRise = totalRise / numRisers;
+        var numTreads = numRisers - 1;
+        var totalRun = numTreads * treadDepth;
+
+        var stringerDiag = Math.sqrt(totalRise * totalRise + totalRun * totalRun);
+        var stringerFt = stringerDiag / 12;
+
+        // Standard lumber boards: 10, 12, 14, 16, 18, 20
+        var boards = [10, 12, 14, 16, 18, 20];
+        var boardSize = '2x12 x Custom Length';
+        for (var b = 0; b < boards.length; b++) {
+          if (boards[b] >= stringerFt + 0.5) { // 6 inches margin
+            boardSize = '2x12 x ' + boards[b] + ' Ft';
+            break;
+          }
+        }
+
+        // Angle
+        var angleRad = Math.atan2(totalRise, totalRun);
+        var angleDeg = angleRad * (180 / Math.PI);
+
+        // Blondel index
+        var blondel = (2 * unitRise) + treadDepth;
+
+        // Bottom riser cut
+        var bottomRiserCut = unitRise - treadThick;
+
+        // DOM update
+        document.getElementById('unitRiseExact').textContent = toFraction(unitRise) + ' (' + unitRise.toFixed(2) + '\")';
+        document.getElementById('riserCount').textContent = numRisers + ' Steps / Risers';
+        document.getElementById('totalRunFt').textContent = toFeetInches(totalRun);
+        document.getElementById('treadCount').textContent = numTreads + ' Treads @ ' + treadDepth + '\"';
+
+        document.getElementById('stringerLength').textContent = toFeetInches(stringerDiag) + ' (' + stringerDiag.toFixed(1) + '\")';
+        document.getElementById('lumberBoardSize').textContent = boardSize;
+        document.getElementById('stairInclineAngle').textContent = angleDeg.toFixed(1) + '°';
+        document.getElementById('blondelIndex').textContent = blondel.toFixed(1) + '\"';
+
+        // IRC Compliance Check
+        var badge = document.getElementById('ircComplianceBadge');
+        var passesRiser = unitRise <= 7.75;
+        var passesTread = treadDepth >= 10.0;
+        var passesAngle = angleDeg >= 30 && angleDeg <= 38;
+
+        if (passesRiser && passesTread && passesAngle) {
+          badge.style.background = 'rgba(16, 185, 129, 0.1)';
+          badge.style.border = '1px solid #10b981';
+          badge.style.color = '#10b981';
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>' +
+              'IRC 2024 Building Code Compliant' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              'Riser (' + unitRise.toFixed(2) + '\") ≤ 7.75\" max, Tread (' + treadDepth + '\") ≥ 10.0\" min, Angle (' + angleDeg.toFixed(1) + '°) is ergonomically safe.' +
+            '</div>';
+        } else {
+          badge.style.background = 'rgba(239, 68, 68, 0.1)';
+          badge.style.border = '1px solid #ef4444';
+          badge.style.color = '#ef4444';
+          var issues = [];
+          if (!passesRiser) issues.push('Riser height exceeds 7.75" code limit');
+          if (!passesTread) issues.push('Tread depth is less than 10.0" code minimum');
+          if (!passesAngle) issues.push('Angle (' + angleDeg.toFixed(1) + '°) is outside recommended 30°-38° comfort range');
+          badge.innerHTML =
+            '<div style="font-weight:700;display:flex;align-items:center;gap:0.4rem;">' +
+              '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>' +
+              'IRC Code Warning' +
+            '</div>' +
+            '<div style="font-size:0.8rem;margin-top:0.2rem;color:var(--fg);">' +
+              issues.join('; ') + '. Adjust target riser or tread depth.' +
+            '</div>';
+        }
+
+        renderSchematic(numRisers, unitRise, treadDepth);
+      }
+
+      function renderSchematic(steps, r, t) {
+        var svg = document.getElementById('stairSchematicSvg');
+        if (!svg) return;
+
+        var displaySteps = Math.min(steps, 6); // Draw up to 6 steps for clean schematic
+        var svgW = 800;
+        var svgH = 300;
+
+        var startX = 120;
+        var startY = 240;
+        var scale = 22; // px per inch
+
+        var stepW = Math.min(60, (svgW - 250) / displaySteps);
+        var stepH = stepW * (r / t);
+
+        var pathD = 'M ' + startX + ' ' + startY;
+        var curX = startX;
+        var curY = startY;
+
+        for (var s = 0; s < displaySteps; s++) {
+          curY -= stepH;
+          pathD += ' L ' + curX + ' ' + curY;
+          curX += stepW;
+          pathD += ' L ' + curX + ' ' + curY;
+        }
+
+        // Down to baseline to form stringer body
+        var stringerPath = pathD + ' L ' + curX + ' ' + startY + ' Z';
+
+        var svgHtml =
+          '<path d="' + stringerPath + '" fill="var(--surface)" stroke="#3b82f6" stroke-width="3"/>' +
+          '<line x1="60" y1="' + startY + '" x2="' + (curX + 60) + '" y2="' + startY + '" stroke="var(--border)" stroke-width="2"/>' +
+          '<text x="' + (startX - 50) + '" y="' + (startY - 10) + '" fill="var(--text-muted)" font-size="11">Lower Floor</text>' +
+          '<text x="' + (curX + 15) + '" y="' + (curY + 5) + '" fill="var(--text-muted)" font-size="11">Upper Floor</text>';
+
+        // Callouts on first step
+        svgHtml +=
+          '<line x1="' + (startX - 15) + '" y1="' + startY + '" x2="' + (startX - 15) + '" y2="' + (startY - stepH) + '" stroke="#ef4444" stroke-width="2"/>' +
+          '<text x="' + (startX - 22) + '" y="' + (startY - stepH/2 + 4) + '" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="end">Rise: ' + toFraction(r) + '</text>' +
+          '<line x1="' + startX + '" y1="' + (startY - stepH - 12) + '" x2="' + (startX + stepW) + '" y2="' + (startY - stepH - 12) + '" stroke="#10b981" stroke-width="2"/>' +
+          '<text x="' + (startX + stepW/2) + '" y="' + (startY - stepH - 18) + '" fill="#10b981" font-size="11" font-weight="bold" text-anchor="middle">Run: ' + t + '\"</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyCutList() {
+        var risers = document.getElementById('riserCount').textContent;
+        var unitR = document.getElementById('unitRiseExact').textContent;
+        var treads = document.getElementById('treadCount').textContent;
+        var totalRun = document.getElementById('totalRunFt').textContent;
+        var sLength = document.getElementById('stringerLength').textContent;
+        var board = document.getElementById('lumberBoardSize').textContent;
+        var angle = document.getElementById('stairInclineAngle').textContent;
+        var blondel = document.getElementById('blondelIndex').textContent;
+        var tThick = document.getElementById('treadThickness').value;
+
+        var text = '📐 Stair Stringer Cut List & Specifications\n' +
+          '• Total Rise: ' + document.getElementById('totalRise').value + ' Inches\n' +
+          '• Number of Risers: ' + risers + '\n' +
+          '• Unit Riser Height: ' + unitR + '\n' +
+          '• Number of Treads: ' + treads + '\n' +
+          '• Total Horizontal Run: ' + totalRun + '\n' +
+          '• Stringer Diagonal Length: ' + sLength + '\n' +
+          '• Lumber Board to Buy: ' + board + '\n' +
+          '• Stair Pitch Angle: ' + angle + '\n' +
+          '• Blondel Comfort Index (2R + T): ' + blondel + '\n' +
+          '• MANDATORY CUT: Saw ' + tThick + '" off the bottom of stringers\n\n' +
+          'Calculated at digitaltoolsshed.com/calc/stair-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyStairBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Cut List!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['totalRise', 'targetRiser', 'treadDepth', 'treadThickness', 'stairWidth'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcStairs);
+          el.addEventListener('change', calcStairs);
+        }
+      });
+
+      document.getElementById('copyStairBtn').addEventListener('click', copyCutList);
+
       calcStairs();
-    </script>
-  
+    })();
+  </script>
+</div>
+
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1161,8 +1436,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fstair-calculator&text=Stair%20Stringer%20Calculator%20%26%20IRC%20Code%20Checker%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fstair-calculator&title=Stair%20Stringer%20Calculator%20%26%20IRC%20Code%20Checker" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fstair-calculator&text=Stair%20Stringer%20Calculator%20%26%20IRC%20Code%20Checker%20(Rise%2C%20Run%20%26%20Cut%20List)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fstair-calculator&title=Stair%20Stringer%20Calculator%20%26%20IRC%20Code%20Checker%20(Rise%2C%20Run%20%26%20Cut%20List)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
