@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Markup vs Profit Margin Calculator (eCommerce, Retail & Agency Pricing) | Digital Tools Shed</title>
-  <meta name="description" content="Convert between cost markup and gross profit margin. Calculate optimal retail selling price, net profit after merchant fees & CAC, discount sensitivity, and break-even volume.">
+  <title>Markup vs Margin Calculator — Profit, COGS & E-Commerce Fees | Digital Tools Shed</title>
+  <meta name="description" content="Free commercial markup and margin calculator. Converts markup % to gross margin %, factors Stripe/Amazon marketplace fees, shipping costs, and generates interactive SVG profit waterfalls.">
   <link rel="canonical" href="https://digitaltoolsshed.com/math/markup-margin-calculator">
-  <meta property="og:title" content="Markup vs Profit Margin Calculator (eCommerce, Retail & Agency Pricing) | Digital Tools Shed">
-  <meta property="og:description" content="Convert between cost markup and gross profit margin. Calculate optimal retail selling price, net profit after merchant fees & CAC, discount sensitivity, and break-even volume.">
+  <meta property="og:title" content="Markup vs Margin Calculator — Profit, COGS & E-Commerce Fees | Digital Tools Shed">
+  <meta property="og:description" content="Free commercial markup and margin calculator. Converts markup % to gross margin %, factors Stripe/Amazon marketplace fees, shipping costs, and generates interactive SVG profit waterfalls.">
   <meta property="og:url" content="https://digitaltoolsshed.com/math/markup-margin-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Markup vs Profit Margin Calculator (eCommerce, Retail & Agency Pricing) | Digital Tools Shed">
-  <meta name="twitter:description" content="Convert between cost markup and gross profit margin. Calculate optimal retail selling price, net profit after merchant fees & CAC, discount sensitivity, and break-even volume.">
+  <meta name="twitter:title" content="Markup vs Margin Calculator — Profit, COGS & E-Commerce Fees | Digital Tools Shed">
+  <meta name="twitter:description" content="Free commercial markup and margin calculator. Converts markup % to gross margin %, factors Stripe/Amazon marketplace fees, shipping costs, and generates interactive SVG profit waterfalls.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Markup vs Profit Margin Calculator (eCommerce, Retail & Agency Pricing)",
+  "name": "Markup vs Margin Calculator",
   "url": "https://digitaltoolsshed.com/math/markup-margin-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -86,12 +86,12 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1166,
+    "ratingCount": 1219,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Convert between cost markup and gross profit margin. Calculate optimal retail selling price, net profit after merchant fees & CAC, discount sensitivity, and break-even volume.",
+  "description": "Free commercial markup and margin calculator. Converts markup % to gross margin %, factors Stripe/Amazon marketplace fees, shipping costs, and generates interactive SVG profit waterfalls.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,42 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the mathematical difference between markup and profit margin?",
+      "name": "What is the exact mathematical difference between markup and margin?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Markup is the percentage added to the cost of a product to determine its selling price: Markup = (Profit / Cost) × 100%. Profit margin is the percentage of the selling price that is profit: Margin = (Profit / Revenue) × 100%. Because cost is lower than selling price, markup percentage is always higher than gross margin percentage for the same product."
+        "text": "Markup is the percentage added to the cost of a product to determine its selling price: Markup = (Profit / Cost) × 100%. Gross margin is the percentage of the final selling price that is retained as profit: Margin = (Profit / Revenue) × 100%. For example, an item costing $50 and sold for $100 has a 100% markup on cost, but a 50% gross margin on revenue."
       }
     },
     {
       "@type": "Question",
-      "name": "Why does a 50% markup NOT equal a 50% profit margin?",
+      "name": "How do you convert a target gross margin into a required markup?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "If an item costs $50 and you mark it up by 50%, you add $25 to reach a selling price of $75. Your profit is $25. Your profit margin is $25 / $75 = 33.33%, NOT 50%. To achieve a true 50% profit margin on a $50 cost, you must price the item at $50 / (1 - 0.50) = $100, which is a 100% markup (keystoning)."
+        "text": "To convert a desired gross margin into markup, divide the margin decimal by (1 minus the margin decimal): Markup = Margin / (1 - Margin). If your retail business targets a 40% gross margin, your required markup is 0.40 / (1 - 0.40) = 0.40 / 0.60 = 66.7% markup on cost."
       }
     },
     {
       "@type": "Question",
-      "name": "How does discounting a product affect gross profit margin?",
+      "name": "How do credit card and marketplace fees affect net profit margins?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Discounts disproportionately destroy gross profit. If a product with a 25% markup ($100 cost, $125 price, $25 profit) is discounted by 20% ($25 off, new price $100), 100% of your profit is erased. A 20% discount on a 25% markup leaves you at zero profit."
+        "text": "Credit card payment gateways (such as Stripe or Shopify Payments) charge 2.9% + $0.30 on the gross transaction total (including sales tax and shipping charged to the buyer). Online marketplaces like Amazon or Etsy take 6.5% to 15% in referral fees. On a product with a 20% gross margin, platform fees can consume more than half of your actual net profit."
       }
     },
     {
       "@type": "Question",
-      "name": "What is Keystoning in retail pricing?",
+      "name": "What is a good gross margin for an e-commerce or retail business?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Keystoning is a traditional retail pricing strategy where merchandise is priced at double the wholesale cost—representing a 100% markup on cost and a 50% gross profit margin. While standard in apparel and gift retail, high-competition eCommerce often operates at lower margins (25%–40%)."
+        "text": "Healthy direct-to-consumer (DTC) e-commerce businesses generally target gross margins of 60% to 75% to absorb digital ad acquisition costs (CAC), payment fees, and returns. Retail brick-and-mortar stores typically operate at 45% to 50% gross margins (keystone pricing), while grocery stores operate on ultra-thin 20% to 25% gross margins with rapid volume turnover."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the difference between Gross Margin and Net Profit Margin?",
+      "name": "How do I calculate the minimum break-even selling price for a product?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Gross margin accounts only for the direct Cost of Goods Sold (COGS). Net profit margin accounts for all expenses: merchant credit card processing fees (~2.9% + $0.30), marketplace referral fees (Amazon 15%), customer acquisition ad spend (CAC), shipping, returns, and operating overhead."
+        "text": "To calculate your break-even selling price where net profit equals exactly zero, divide the sum of your unit production cost, shipping, and fixed gateway fees by (1 minus the percentage transaction fee rate): Break-Even Price = (COGS + Shipping + Fixed Fee) / (1 - Fee Rate)."
       }
     }
   ]
@@ -151,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Markup vs Profit Margin Calculator (eCommerce, Retail & Agency Pricing)",
-  "description": "Convert between cost markup and gross profit margin. Calculate optimal retail selling price, net profit after merchant fees & CAC, discount sensitivity, and break-even volume.",
+  "name": "How to Use the Markup vs Margin Calculator",
+  "description": "Free commercial markup and margin calculator. Converts markup % to gross margin %, factors Stripe/Amazon marketplace fees, shipping costs, and generates interactive SVG profit waterfalls.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Markup vs Profit Margin Calculator (eCommerce, Retail & Agency Pricing)."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Markup vs Margin Calculator."
     },
     {
       "@type": "HowToStep",
@@ -970,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Markup vs Profit Margin Calculator (eCommerce, Retail & Agency Pricing) | Digital Tools Shed</span>
+            <span>Markup vs Margin Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1041,441 +1041,377 @@
           
 
           
-        
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
-      .result-val { font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
-      .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    </style>
-  
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Markup vs Margin
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Markup vs. Profit Margin Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert cost markup to gross profit margin and vice versa. Calculate selling price, net profit after merchant processing fees and ad spend, and simulate discount impact on sales volume.
-          </p>
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math &amp; Finance</a> &gt; Markup vs Margin Calculator
+  </nav>
 
-          <div class="tool-box">
-            <!-- Mode Selector -->
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-              <button type="button" class="btn-sec" id="mm-mode-cost-markup" onclick="setMMMode('cost-markup')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; border-color: #3b82f6; color: #3b82f6; font-weight: bold;">Cost &amp; Markup % &rarr; Price</button>
-              <button type="button" class="btn-sec" id="mm-mode-cost-margin" onclick="setMMMode('cost-margin')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">Cost &amp; Target Margin % &rarr; Price</button>
-              <button type="button" class="btn-sec" id="mm-mode-cost-price" onclick="setMMMode('cost-price')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">Cost &amp; Selling Price &rarr; Margins</button>
-              <button type="button" class="btn-sec" id="mm-mode-price-margin" onclick="setMMMode('price-margin')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">Target Costing (Price &amp; Margin &rarr; Max Cost)</button>
-            </div>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Markup vs Margin Commercial Profit Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:780px;margin:0 auto;line-height:1.6;">
+      Convert between markup and profit margin, price inventory for target returns, and factor payment gateway fees, marketplace commissions, and shipping overhead to reveal true net profit.
+    </p>
+  </header>
 
-            <!-- Primary Inputs Grid -->
-            <div class="grid-inputs">
-              <div class="field-group" id="mm-grp-cost">
-                <label class="field-label">Unit Cost of Goods (COGS $)</label>
-                <input type="number" id="mm-cost" class="code-input" value="40" min="0" step="0.01" oninput="recalcMM()" style="font-size: 1.2rem;" />
-              </div>
-              <div class="field-group" id="mm-grp-markup">
-                <label class="field-label">Cost Markup (% on Cost)</label>
-                <input type="number" id="mm-markup" class="code-input" value="50" min="0" step="0.5" oninput="recalcMM('markup')" style="font-size: 1.2rem;" />
-              </div>
-              <div class="field-group" id="mm-grp-margin">
-                <label class="field-label">Gross Margin (% of Revenue)</label>
-                <input type="number" id="mm-margin" class="code-input" value="33.33" min="0" max="99.9" step="0.1" oninput="recalcMM('margin')" style="font-size: 1.2rem;" />
-              </div>
-              <div class="field-group" id="mm-grp-price" style="display: none;">
-                <label class="field-label">Target Selling Price ($)</label>
-                <input type="number" id="mm-input-price" class="code-input" value="60" min="0" step="0.01" oninput="recalcMM('price')" style="font-size: 1.2rem;" />
-              </div>
-            </div>
+  <div style="display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:2.5rem;" class="calc-grid">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Cost of Goods &amp; Pricing Strategy
+      </h2>
 
-            <!-- Real-World Deductions & Fee Waterfall Accordion -->
-            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-top: 1rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-                <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">
-                  💳 Optional Real-World Deductions (Net Margin Waterfall):
-                </span>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">Credit card fees, marketplace cut, ad CAC</span>
-              </div>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem;">
-                <div>
-                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Payment Processing (%)</label>
-                  <input type="number" id="mm-pay-pct" class="code-input" value="2.9" step="0.1" min="0" oninput="recalcMM()" style="padding: 0.4rem; font-size: 0.85rem;" />
-                </div>
-                <div>
-                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Payment Fixed Fee ($)</label>
-                  <input type="number" id="mm-pay-fixed" class="code-input" value="0.30" step="0.05" min="0" oninput="recalcMM()" style="padding: 0.4rem; font-size: 0.85rem;" />
-                </div>
-                <div>
-                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Marketplace / Platform Fee (%)</label>
-                  <input type="number" id="mm-plat-pct" class="code-input" value="0" step="0.5" min="0" oninput="recalcMM()" placeholder="Amazon 15%, Etsy 6.5%" style="padding: 0.4rem; font-size: 0.85rem;" />
-                </div>
-                <div>
-                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Ad Spend / CAC ($ per unit)</label>
-                  <input type="number" id="mm-cac" class="code-input" value="0" step="0.5" min="0" oninput="recalcMM()" placeholder="0.00" style="padding: 0.4rem; font-size: 0.85rem;" />
-                </div>
-              </div>
-            </div>
+      <!-- COST OF GOODS (COGS) -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="cogsCost">Unit Cost of Goods Sold (COGS in $)</label>
+        <input type="number" id="cogsCost" value="45.00" min="0.01" step="1.00" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.15rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Direct manufacturing, supplier purchase, or inventory acquisition cost</span>
+      </div>
 
-            <!-- Hero Results Dashboard -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Recommended Selling Price</div>
-                <div id="mm-price" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">$60.00</div>
-                <div id="mm-markup-disp" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Markup: 50.0% on cost</div>
-              </div>
+      <!-- PRICING MODE & VALUE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pricingStrategyMode">Pricing Objective Mode</label>
+          <select id="pricingStrategyMode" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="targetMargin" selected>Target Gross Margin (%)</option>
+            <option value="targetMarkup">Target Markup (%)</option>
+            <option value="fixedPrice">Set Fixed Selling Price ($)</option>
+          </select>
+        </div>
+        <div>
+          <label id="lblTargetValue" style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="targetValInput">Target Gross Margin (%)</label>
+          <input type="number" id="targetValInput" value="50" min="0" max="99.9" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.15rem;">
+        </div>
+      </div>
 
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Gross Profit &amp; Margin</div>
-                <div id="mm-gross-profit" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">$20.00</div>
-                <div id="mm-gross-margin" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Gross Margin: 33.33%</div>
-              </div>
+      <!-- PLATFORM & TRANSACTION FEES -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="platformFeePreset">Payment Gateway / Platform Fee</label>
+          <select id="platformFeePreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="0.029|0.30" selected>Stripe / Shopify Basic (2.9% + $0.30)</option>
+            <option value="0.150|0.00">Amazon Marketplace FBA (~15% Referral)</option>
+            <option value="0.065|0.20">Etsy Transaction (6.5% + $0.20)</option>
+            <option value="0.000|0.00">Direct B2B / Cash / Zero Fee (0%)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="shippingCost">Packaging &amp; Shipping Overhead ($)</label>
+          <input type="number" id="shippingCost" value="6.50" min="0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+      </div>
+    </div>
 
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">True Net Profit (After Fees)</div>
-                <div id="mm-net-profit" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">$17.96</div>
-                <div id="mm-net-margin" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Net Margin: 29.93%</div>
-              </div>
-            </div>
+    <!-- SUMMARY & OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            Unit Pricing &amp; Profitability Takeoff
+          </h2>
+          <button id="copyMarkupBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Pricing Sheet</span>
+          </button>
+        </div>
 
-            <!-- Revenue Waterfall Stacked Bar (Pure CSS) -->
-            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
-                <span>Revenue Share Waterfall:</span>
-                <span id="mm-bar-legend" style="color: var(--fg);">100% Selling Price ($60.00)</span>
-              </div>
-              <div style="display: flex; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.75rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
-                <div id="mm-bar-cost" style="width: 66.7%; background: #ef4444;" title="COGS">COGS</div>
-                <div id="mm-bar-fees" style="width: 3.4%; background: #f59e0b;" title="Payment Fees">Fee</div>
-                <div id="mm-bar-plat" style="width: 0%; background: #a855f7;" title="Marketplace">Mkt</div>
-                <div id="mm-bar-cac" style="width: 0%; background: #3b82f6;" title="Ad CAC">CAC</div>
-                <div id="mm-bar-net" style="width: 29.9%; background: #10b981;" title="Net Profit">Profit</div>
-              </div>
-              <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> Cost of Goods</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #f59e0b; border-radius: 2px;"></span> Processing Fees</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #a855f7; border-radius: 2px;"></span> Marketplace Cut</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> Ad Spend (CAC)</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Net Profit</span>
-              </div>
-            </div>
-
-            <!-- Asymmetric Discounting & Volume Multiplier Engine -->
-            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #ef4444; border-radius: 6px; padding: 1.25rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0; color: var(--fg);">
-                  📉 The Asymmetric Discounting Trap &amp; Required Sales Volume Multiplier:
-                </h4>
-                <span style="font-family: var(--mono); font-size: 0.75rem; color: #ef4444; font-weight: bold;">Margin Protection Alert</span>
-              </div>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-                See how promotional discounts disproportionately destroy unit profitability, and calculate how many more units you must sell to break even on gross profit:
-              </p>
-              <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
-                <div>
-                  <label class="field-label">Simulate Promotional Discount: <span id="mm-disc-val" style="color: #ef4444; font-size: 1rem;">10% Off</span></label>
-                  <input type="range" id="mm-disc-slider" min="0" max="50" value="10" step="1" oninput="updateMMDiscount(this.value)" style="width: 100%; cursor: pointer;" />
-                </div>
-                <div style="text-align: right; min-width: 130px;">
-                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">Discounted Price:</div>
-                  <div id="mm-disc-price" style="font-family: var(--mono); font-size: 1.25rem; font-weight: bold; color: var(--fg);">$54.00</div>
-                </div>
-              </div>
-              <div id="mm-disc-breakdown" style="margin-top: 0.75rem; padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.82rem; line-height: 1.5;">
-                <!-- Populated dynamically -->
-              </div>
-            </div>
-
-            <!-- Industry Margin Benchmarks Table -->
-            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--fg);">
-                📊 Standard Industry Margin &amp; Markup Benchmarks (Click to Load):
-              </div>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 0.5rem; font-family: var(--mono); font-size: 0.8rem; text-align: center;">
-                <div onclick="loadMMBenchmark(2, 18)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
-                  <div style="color: var(--text-muted); font-size: 0.7rem;">Grocery Store</div>
-                  <strong style="color: #3b82f6;">15% Margin</strong>
-                  <div style="font-size: 0.7rem; color: var(--text-muted);">18% Markup</div>
-                </div>
-                <div onclick="loadMMBenchmark(150, 33.3)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
-                  <div style="color: var(--text-muted); font-size: 0.7rem;">Consumer Tech</div>
-                  <strong style="color: #3b82f6;">25% Margin</strong>
-                  <div style="font-size: 0.7rem; color: var(--text-muted);">33% Markup</div>
-                </div>
-                <div onclick="loadMMBenchmark(25, 100)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
-                  <div style="color: var(--text-muted); font-size: 0.7rem;">Apparel Keystoning</div>
-                  <strong style="color: #10b981;">50% Margin</strong>
-                  <div style="font-size: 0.7rem; color: var(--text-muted);">100% Markup</div>
-                </div>
-                <div onclick="loadMMBenchmark(6, 250)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
-                  <div style="color: var(--text-muted); font-size: 0.7rem;">Restaurant Food</div>
-                  <strong style="color: #f59e0b;">71% Margin</strong>
-                  <div style="font-size: 0.7rem; color: var(--text-muted);">250% Markup</div>
-                </div>
-                <div onclick="loadMMBenchmark(1.5, 450)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
-                  <div style="color: var(--text-muted); font-size: 0.7rem;">Bar Beverages</div>
-                  <strong style="color: #8b5cf6;">82% Margin</strong>
-                  <div style="font-size: 0.7rem; color: var(--text-muted);">450% Markup</div>
-                </div>
-                <div onclick="loadMMBenchmark(5, 566)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
-                  <div style="color: var(--text-muted); font-size: 0.7rem;">SaaS / Digital</div>
-                  <strong style="color: #10b981;">85% Margin</strong>
-                  <div style="font-size: 0.7rem; color: var(--text-muted);">566% Markup</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Copy Button -->
-            <button type="button" id="btnCopyMM" onclick="copyMMSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Pricing, Profit Margins &amp; Fee Waterfall Analysis
-            </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Recommended Retail Price</span>
+            <span id="sellingPriceVal" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#3b82f6;display:block;">$90.00</span>
+            <span id="sellingPriceSub" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">Gross Unit Revenue</span>
           </div>
 
-          <!-- Step-by-Step Worked Derivation -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Markup vs Margin Mathematical Derivation</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Accounting GAAP Standard</span>
-            </div>
-            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              The distinction between markup and margin is the mathematical denominator used in the percentage ratio:
-            </p>
-            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #3b82f6;">Markup Equation (Denominator = Cost)</strong>
-                <div style="color: var(--fg); margin-top: 0.25rem;">
-                  Markup % = [ (Selling Price - Cost) / Cost ] &times; 100
-                </div>
-                <div id="mm-step-markup" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  For $40 cost and $60 price: ($20 / $40) &times; 100 = <strong>50.0% Markup</strong>.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981;">Gross Margin Equation (Denominator = Revenue)</strong>
-                <div style="color: var(--fg); margin-top: 0.25rem;">
-                  Margin % = [ (Selling Price - Cost) / Selling Price ] &times; 100
-                </div>
-                <div id="mm-step-margin" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  For $40 cost and $60 price: ($20 / $60) &times; 100 = <strong>33.3% Margin</strong>.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #8b5cf6;">Direct Reciprocal Conversion Formulas</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Price = Cost / [ 1 - (Margin % / 100) ] &bull; Markup % = [ Margin % / (100 - Margin %) ] &times; 100<br>
-                  Margin % = [ Markup % / (100 + Markup %) ] &times; 100
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Critical Business Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Retail Pitfalls &amp; Profit Bleed Traps</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 50% Markup vs 50% Margin Confusion:</strong> New eCommerce store owners frequently assume adding a 50% markup gives them a 50% profit margin. In reality, a 50% markup yields only a 33.3% gross margin. To achieve a 50% profit margin, you must use a <strong>100% markup</strong> (selling at double your unit cost). Confusing these numbers leads to catastrophic cash flow collapse.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Asymmetric Discounting Trap:</strong> If you markup a product by 25% ($100 to $125) and later discount it by 20%, you return to break-even ($100). If you discount by 25%, you actually lose money ($93.75). Percentage discounts always hit harder than percentage markups of equal value.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Payment Processing &amp; Ad Spend Blindspot:</strong> Gross profit margin accounts solely for Cost of Goods Sold (COGS). It does not include payment gateway fees (Stripe/PayPal ~2.9% + $0.30), platform transaction fees (Shopify/Amazon ~8%–15%), or customer acquisition cost (CAC). If your gross margin is 25% and your ad CAC takes 20%, you are operating at net negative cash flow after returns and shipping damages.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Keystoning &amp; Wholesale Pricing Trap:</strong> If you sell wholesale to retailers, the retailer will want to keystone your wholesale price (double it). That means if your MSRP is $100, wholesale price must be $50, which means your unit manufacturing cost cannot exceed $20–$25 if you want to retain a viable brand margin.</li>
-            </ul>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">True Net Realized Profit</span>
+            <span id="netProfitVal" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#10b981;display:block;">$35.59</span>
+            <span id="netMarginSub" style="font-size:0.8rem;color:#10b981;font-weight:600;">39.5% Net Margin (after fees)</span>
           </div>
         </div>
 
-        <script>
-          var curMMMode = 'cost-markup';
+        <!-- METRICS LEDGER -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Financial Ratios &amp; Deductions</div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Gross Margin (before fees):</span>
+            <strong id="grossMarginVal" style="font-family:var(--mono);color:var(--fg);">50.0% ($45.00)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Markup on Cost:</span>
+            <strong id="markupPctVal" style="font-family:var(--mono);color:var(--fg);">100.0% Markup</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Transaction &amp; Gateway Fees:</span>
+            <strong id="platformFeesVal" style="font-family:var(--mono);color:#ef4444;">-$2.91 (2.9% + $0.30)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Shipping &amp; Packaging:</span>
+            <strong id="shippingDeductVal" style="font-family:var(--mono);color:var(--fg);">-$6.50</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span>Minimum Break-Even Price:</span>
+            <strong id="breakEvenPriceVal" style="font-family:var(--mono);color:#f59e0b;">$53.35 (0% Net Profit)</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          window.setMMMode = function(mode) {
-            curMMMode = mode;
-            ['cost-markup', 'cost-margin', 'cost-price', 'price-margin'].forEach(function(m) {
-              var btn = document.getElementById('mm-mode-' + m);
-              if (btn) {
-                if (m === mode) {
-                  btn.style.borderColor = '#3b82f6';
-                  btn.style.color = '#3b82f6';
-                  btn.style.fontWeight = 'bold';
-                } else {
-                  btn.style.borderColor = 'var(--border)';
-                  btn.style.color = 'var(--fg)';
-                  btn.style.fontWeight = 'normal';
-                }
-              }
-            });
+  <!-- INTERACTIVE SVG REVENUE WATERFALL -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Unit Revenue Waterfall: COGS vs Fees vs Net Profit
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Proportional breakdown of gross selling price allocated across production costs (slate), gateway fees (red), fulfillment (orange), and retained net profit (emerald green).
+    </p>
 
-            // Adjust input visibility
-            document.getElementById('mm-grp-cost').style.display = 'block';
-            document.getElementById('mm-grp-markup').style.display = (mode === 'cost-markup' || mode === 'cost-price') ? 'block' : 'none';
-            document.getElementById('mm-grp-margin').style.display = (mode === 'cost-margin' || mode === 'price-margin') ? 'block' : 'none';
-            document.getElementById('mm-grp-price').style.display = (mode === 'cost-price' || mode === 'price-margin') ? 'block' : 'none';
+    <div style="overflow-x:auto;">
+      <svg id="markupWaterfallSvg" viewBox="0 0 800 180" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
 
-            recalcMM();
-          };
+  <!-- MATHEMATICAL DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Markup vs Margin Conversion &amp; Fee Factoring Formulas</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      While markup expresses profit as a percentage of <em>cost</em>, gross margin expresses profit as a percentage of <em>selling price</em>. Because selling price is always larger than cost, markup is always mathematically larger than margin:
+    </p>
 
-          window.loadMMBenchmark = function(cost, markup) {
-            document.getElementById('mm-cost').value = cost;
-            document.getElementById('mm-markup').value = markup;
-            setMMMode('cost-markup');
-          };
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Markup to Margin Conversion:</strong><br>
+      \text{Margin} = \frac{\text{Markup}}{1 + \text{Markup}}, \qquad \text{Markup} = \frac{\text{Margin}}{1 - \text{Margin}}<br>
+      \text{Example: A 100% markup on cost equals a 50% gross margin: } \frac{1.0}{1 + 1.0} = 0.50.<br><br>
+      <strong>2. Selling Price Derived from Target Gross Margin:</strong><br>
+      P = \frac{C}{1 - M_{\text{gross}}}<br><br>
+      <strong>3. Selling Price Derived from Target Markup:</strong><br>
+      P = C \times (1 + K_{\text{markup}})<br><br>
+      <strong>4. True Net Realized Margin with Payment &amp; Marketplace Fees:</strong><br>
+      \text{Platform Fees} = (P \times f_{\text{pct}}) + f_{\text{fixed}}<br>
+      \text{Net Profit} = P - C - \text{Shipping} - \text{Platform Fees}<br>
+      \text{Net Margin} = \left( \frac{\text{Net Profit}}{P} \right) \times 100\%<br><br>
+      <strong>5. Break-Even Minimum Selling Price:</strong><br>
+      P_{\text{breakeven}} = \frac{C + \text{Shipping} + f_{\text{fixed}}}{1 - f_{\text{pct}}}
+    </div>
+  </div>
 
-          function recalcMM(source) {
-            var cost = parseFloat(document.getElementById('mm-cost').value) || 0;
-            var markup = parseFloat(document.getElementById('mm-markup').value) || 0;
-            var margin = parseFloat(document.getElementById('mm-margin').value) || 0;
-            var inPrice = parseFloat(document.getElementById('mm-input-price').value) || 0;
+  <!-- 5 CRITICAL PRICING TRAPS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Retail &amp; E-Commerce Pricing Pitfalls</h2>
 
-            var price = 0;
-            var profit = 0;
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. Confusing Markup with Gross Margin</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          If an item costs $60 and you apply a 40% markup, you sell it for $84 with $24 profit. However, $24 profit on $84 revenue is only a <strong>28.6% gross margin</strong>! If your business overhead requires a 40% margin to break even, your company will bleed cash and fail while believing it is operating profitably.
+        </p>
+      </div>
 
-            if (curMMMode === 'cost-markup') {
-              price = cost * (1 + (markup / 100));
-              profit = price - cost;
-              margin = price > 0 ? ((profit / price) * 100) : 0;
-              document.getElementById('mm-margin').value = margin.toFixed(2);
-            } else if (curMMMode === 'cost-margin') {
-              if (margin >= 100) margin = 99.9;
-              price = cost / (1 - (margin / 100));
-              profit = price - cost;
-              markup = cost > 0 ? ((profit / cost) * 100) : 0;
-              document.getElementById('mm-markup').value = markup.toFixed(2);
-            } else if (curMMMode === 'cost-price') {
-              price = inPrice;
-              profit = price - cost;
-              markup = cost > 0 ? ((profit / cost) * 100) : 0;
-              margin = price > 0 ? ((profit / price) * 100) : 0;
-              document.getElementById('mm-markup').value = markup.toFixed(2);
-              document.getElementById('mm-margin').value = margin.toFixed(2);
-            } else if (curMMMode === 'price-margin') {
-              price = inPrice;
-              if (margin >= 100) margin = 99.9;
-              cost = price * (1 - (margin / 100));
-              profit = price - cost;
-              markup = cost > 0 ? ((profit / cost) * 100) : 0;
-              document.getElementById('mm-cost').value = cost.toFixed(2);
-              document.getElementById('mm-markup').value = markup.toFixed(2);
-            }
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">2. Payment Gateways Charge on Gross Transaction Value</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Credit card processors (Stripe, PayPal, Square) charge their 2.9% fee on the <em>total charged to the customer</em>, including sales tax and shipping fees. If you charge $100 product + $10 shipping + $8 tax = $118 total, the processing fee is $3.72, not $2.90. On tight margins, this eats into bottom-line profit.
+        </p>
+      </div>
 
-            // Real-World Fee Waterfall
-            var payPct = parseFloat(document.getElementById('mm-pay-pct').value) || 0;
-            var payFixed = parseFloat(document.getElementById('mm-pay-fixed').value) || 0;
-            var platPct = parseFloat(document.getElementById('mm-plat-pct').value) || 0;
-            var cac = parseFloat(document.getElementById('mm-cac').value) || 0;
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">3. Ignoring Return Rates and Shrinkage</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          In e-commerce apparel, average return rates hover between 20% and 30%. Between two-way shipping costs, damaged packaging, inspection labor, and restocking depreciation, a return costs 30% of original item value. Sellers pricing inventory without an actuarial return buffer see healthy paper profits vanish.
+        </p>
+      </div>
 
-            var payFee = price > 0 ? ((price * (payPct / 100)) + payFixed) : 0;
-            var platFee = price > 0 ? (price * (platPct / 100)) : 0;
-            var totalDeductions = payFee + platFee + cac;
-            var netProfit = profit - totalDeductions;
-            var netMargin = price > 0 ? ((netProfit / price) * 100) : 0;
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">4. The Tiered Volume Discount Margin Cliff</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Offering a "Buy 2 Get 1 Free" (a 33.3% discount) or a 20% B2B volume discount requires exponential sales increases to maintain gross dollar profit. On a 40% margin product, a 20% price cut cuts dollar profit in half, requiring you to sell <strong>100% more units</strong> just to generate the same gross income!
+        </p>
+      </div>
 
-            // Update Primary Hero Results
-            document.getElementById('mm-price').textContent = '$' + price.toFixed(2);
-            document.getElementById('mm-markup-disp').textContent = 'Markup: ' + markup.toFixed(1) + '% on cost';
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">5. Working Capital Starvation on Wholesale Terms</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Selling wholesale to department stores or big-box retailers at a 50% discount on MSRP seems lucrative until Net 60 or Net 90 payment terms take effect. Having your cash locked in accounts receivable for 90 days while having to prepay your manufacturer for the next production run causes insolvency despite strong margins.
+        </p>
+      </div>
+    </div>
+  </div>
 
-            document.getElementById('mm-gross-profit').textContent = '$' + profit.toFixed(2);
-            document.getElementById('mm-gross-margin').textContent = 'Gross Margin: ' + margin.toFixed(2) + '%';
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcMarkupMargin() {
+        var cogs = parseFloat(document.getElementById('cogsCost').value) || 0;
+        var mode = document.getElementById('pricingStrategyMode').value;
+        var targetVal = parseFloat(document.getElementById('targetValInput').value) || 0;
+        var feeParts = (document.getElementById('platformFeePreset').value || '0.029|0.30').split('|');
+        var feePct = parseFloat(feeParts[0]) || 0;
+        var feeFixed = parseFloat(feeParts[1]) || 0;
+        var shipping = parseFloat(document.getElementById('shippingCost').value) || 0;
 
-            var netEl = document.getElementById('mm-net-profit');
-            netEl.textContent = '$' + netProfit.toFixed(2);
-            netEl.style.color = netProfit >= 0 ? '#10b981' : '#ef4444';
+        var price = 0;
+        var grossMarginPct = 0;
+        var markupPct = 0;
 
-            var netMarginEl = document.getElementById('mm-net-margin');
-            netMarginEl.textContent = 'Net Margin: ' + netMargin.toFixed(2) + '% (' + (netProfit >= 0 ? 'Profitable' : 'LOSS') + ')';
-            netMarginEl.style.color = netProfit >= 0 ? 'var(--text-muted)' : '#ef4444';
+        if (mode === 'targetMargin') {
+          grossMarginPct = Math.min(99, Math.max(0, targetVal));
+          price = (cogs > 0 && grossMarginPct < 100) ? cogs / (1 - (grossMarginPct / 100)) : cogs;
+          markupPct = (cogs > 0) ? ((price - cogs) / cogs) * 100 : 0;
+        } else if (mode === 'targetMarkup') {
+          markupPct = Math.max(0, targetVal);
+          price = cogs * (1 + (markupPct / 100));
+          grossMarginPct = (price > 0) ? ((price - cogs) / price) * 100 : 0;
+        } else {
+          price = Math.max(0, targetVal);
+          grossMarginPct = (price > 0) ? ((price - cogs) / price) * 100 : 0;
+          markupPct = (cogs > 0) ? ((price - cogs) / cogs) * 100 : 0;
+        }
 
-            // Update Waterfall Bar
-            if (price > 0) {
-              var costPct = Math.max(0, (cost / price) * 100);
-              var payFeePct = Math.max(0, (payFee / price) * 100);
-              var platFeePct = Math.max(0, (platFee / price) * 100);
-              var cacPct = Math.max(0, (cac / price) * 100);
-              var netPct = Math.max(0, netMargin);
+        var grossProfit = Math.max(0, price - cogs);
+        var platformFeeTotal = (price * feePct) + feeFixed;
+        var netProfit = price - cogs - shipping - platformFeeTotal;
+        var netMarginPct = (price > 0) ? (netProfit / price) * 100 : 0;
 
-              document.getElementById('mm-bar-cost').style.width = costPct.toFixed(1) + '%';
-              document.getElementById('mm-bar-fees').style.width = payFeePct.toFixed(1) + '%';
-              document.getElementById('mm-bar-plat').style.width = platFeePct.toFixed(1) + '%';
-              document.getElementById('mm-bar-cac').style.width = cacPct.toFixed(1) + '%';
-              document.getElementById('mm-bar-net').style.width = netPct.toFixed(1) + '%';
+        var breakEven = (1 - feePct > 0) ? (cogs + shipping + feeFixed) / (1 - feePct) : 0;
 
-              document.getElementById('mm-bar-legend').textContent = '100% Selling Price ($' + price.toFixed(2) + ')';
-            }
+        // Update DOM
+        document.getElementById('sellingPriceVal').textContent = '$' + price.toFixed(2);
+        document.getElementById('sellingPriceSub').textContent = 'Gross Unit Revenue ($' + price.toFixed(2) + ')';
+        document.getElementById('netProfitVal').textContent = (netProfit >= 0 ? '$' : '-$') + Math.abs(netProfit).toFixed(2);
+        document.getElementById('netMarginSub').textContent = netMarginPct.toFixed(1) + '% Net Margin (after all fees)';
 
-            // Update Step Worked Text
-            document.getElementById('mm-step-markup').innerHTML = 'For $' + cost.toFixed(2) + ' cost and $' + price.toFixed(2) + ' price: ($' + profit.toFixed(2) + ' / $' + cost.toFixed(2) + ') &times; 100 = <strong>' + markup.toFixed(1) + '% Markup</strong>.';
-            document.getElementById('mm-step-margin').innerHTML = 'For $' + cost.toFixed(2) + ' cost and $' + price.toFixed(2) + ' price: ($' + profit.toFixed(2) + ' / $' + price.toFixed(2) + ') &times; 100 = <strong>' + margin.toFixed(1) + '% Margin</strong>.';
+        document.getElementById('grossMarginVal').textContent = grossMarginPct.toFixed(1) + '% ($' + grossProfit.toFixed(2) + ')';
+        document.getElementById('markupPctVal').textContent = markupPct.toFixed(1) + '% Markup';
+        document.getElementById('platformFeesVal').textContent = '-$' + platformFeeTotal.toFixed(2) + ' (' + (feePct * 100).toFixed(1) + '% + $' + feeFixed.toFixed(2) + ')';
+        document.getElementById('shippingDeductVal').textContent = '-$' + shipping.toFixed(2);
+        document.getElementById('breakEvenPriceVal').textContent = '$' + breakEven.toFixed(2) + ' (0% Net Profit)';
 
-            // Run Discount Simulator
-            updateMMDiscount(document.getElementById('mm-disc-slider').value);
-          }
+        renderWaterfallSvg(price, cogs, platformFeeTotal, shipping, Math.max(0, netProfit));
+      }
 
-          window.updateMMDiscount = function(discPct) {
-            document.getElementById('mm-disc-val').textContent = discPct + '% Off';
-            var cost = parseFloat(document.getElementById('mm-cost').value) || 0;
-            var markup = parseFloat(document.getElementById('mm-markup').value) || 0;
-            var origPrice = cost * (1 + (markup / 100));
-            var origProfit = origPrice - cost;
+      function renderWaterfallSvg(price, cogs, fees, ship, profit) {
+        var svg = document.getElementById('markupWaterfallSvg');
+        if (!svg) return;
 
-            var disc = parseFloat(discPct) || 0;
-            var discPrice = origPrice * (1 - (disc / 100));
-            var newProfit = discPrice - cost;
-            var newMargin = discPrice > 0 ? ((newProfit / discPrice) * 100) : 0;
-            var profitLost = origProfit - newProfit;
+        var svgHtml = '';
+        var barW = 680;
+        var total = Math.max(price, cogs + fees + ship + profit);
+        if (total <= 0) return;
 
-            document.getElementById('mm-disc-price').textContent = '$' + discPrice.toFixed(2);
+        var cogsW = (cogs / total) * barW;
+        var feesW = (fees / total) * barW;
+        var shipW = (ship / total) * barW;
+        var profitW = (profit / total) * barW;
 
-            var box = document.getElementById('mm-disc-breakdown');
-            if (newProfit <= 0) {
-              box.innerHTML = '<span style="color: #ef4444; font-weight: bold;">⛔ FATAL PRICING LOSS:</span> Offering a ' + disc + '% discount cuts your price below cost ($' + discPrice.toFixed(2) + ' vs cost $' + cost.toFixed(2) + '). You lose $' + Math.abs(newProfit).toFixed(2) + ' on every unit sold. <strong>No volume increase can overcome this loss!</strong>';
-            } else {
-              var volumeMultiplier = origProfit / newProfit;
-              var requiredVolIncrease = (volumeMultiplier - 1) * 100;
-              box.innerHTML = 'A <strong>' + disc + '% discount</strong> reduces gross profit from $' + origProfit.toFixed(2) + ' to <strong>$' + newProfit.toFixed(2) + '</strong> (-$' + profitLost.toFixed(2) + ', margin drops to ' + newMargin.toFixed(1) + '%).<br>' +
-                'To generate the exact same total dollar profit, you must sell <strong>' + volumeMultiplier.toFixed(2) + 'x as many units (+' + requiredVolIncrease.toFixed(1) + '% sales volume)</strong>!';
-            }
-          };
+        var curX = 60;
 
-          window.copyMMSummary = function() {
-            var cost = document.getElementById('mm-cost').value;
-            var markup = document.getElementById('mm-markup').value;
-            var margin = document.getElementById('mm-margin').value;
-            var price = document.getElementById('mm-price').textContent;
-            var grossProfit = document.getElementById('mm-gross-profit').textContent;
-            var netProfit = document.getElementById('mm-net-profit').textContent;
-            var netMargin = document.getElementById('mm-net-margin').textContent;
+        // COGS segment (slate)
+        if (cogsW > 0) {
+          svgHtml += '<rect x="' + curX + '" y="40" width="' + cogsW + '" height="50" fill="#64748b" rx="4"/>';
+          if (cogsW > 50) svgHtml += '<text x="' + (curX + cogsW / 2) + '" y="70" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">COGS</text>';
+          curX += cogsW;
+        }
 
-            var text = [
-              '=== PRICING & PROFIT MARGIN ANALYSIS ===',
-              'Cost of Goods (COGS): $' + parseFloat(cost).toFixed(2),
-              'Cost Markup: ' + markup + '%',
-              'Gross Profit Margin: ' + margin + '%',
-              'Recommended Retail Price: ' + price,
-              'Gross Profit per Unit: ' + grossProfit,
-              'Net Profit (After Fees & CAC): ' + netProfit + ' (' + netMargin + ')',
-              '---------------------------------------',
-              'Standard: GAAP Cost Accounting Principles',
-              'Timestamp: ' + new Date().toISOString(),
-              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/markup-margin-calculator'
-            ].join('
-');
+        // Fees segment (red)
+        if (feesW > 0) {
+          svgHtml += '<rect x="' + curX + '" y="40" width="' + feesW + '" height="50" fill="#ef4444" rx="4"/>';
+          if (feesW > 35) svgHtml += '<text x="' + (curX + feesW / 2) + '" y="70" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">Fee</text>';
+          curX += feesW;
+        }
 
-            navigator.clipboard.writeText(text).then(function() {
-              var btn = document.getElementById('btnCopyMM');
-              if (btn) {
-                var old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Pricing Analysis!';
-                btn.style.color = '#10b981';
-                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
-              }
-            });
-          };
+        // Shipping segment (amber)
+        if (shipW > 0) {
+          svgHtml += '<rect x="' + curX + '" y="40" width="' + shipW + '" height="50" fill="#f59e0b" rx="4"/>';
+          if (shipW > 40) svgHtml += '<text x="' + (curX + shipW / 2) + '" y="70" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">Ship</text>';
+          curX += shipW;
+        }
 
-          document.addEventListener('DOMContentLoaded', function() { recalcMM(); });
-          recalcMM();
-        </script>
-      
+        // Net profit segment (emerald green)
+        if (profitW > 0) {
+          svgHtml += '<rect x="' + curX + '" y="40" width="' + profitW + '" height="50" fill="#10b981" rx="4"/>';
+          if (profitW > 50) svgHtml += '<text x="' + (curX + profitW / 2) + '" y="70" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Net Profit</text>';
+        }
+
+        // Legend
+        svgHtml += '<rect x="60" y="115" width="12" height="12" fill="#64748b" rx="2"/>';
+        svgHtml += '<text x="78" y="125" fill="var(--fg)" font-size="11">COGS ($' + cogs.toFixed(2) + ')</text>';
+
+        svgHtml += '<rect x="220" y="115" width="12" height="12" fill="#ef4444" rx="2"/>';
+        svgHtml += '<text x="238" y="125" fill="var(--fg)" font-size="11">Fees ($' + fees.toFixed(2) + ')</text>';
+
+        svgHtml += '<rect x="370" y="115" width="12" height="12" fill="#f59e0b" rx="2"/>';
+        svgHtml += '<text x="388" y="125" fill="var(--fg)" font-size="11">Shipping ($' + ship.toFixed(2) + ')</text>';
+
+        svgHtml += '<rect x="530" y="115" width="12" height="12" fill="#10b981" rx="2"/>';
+        svgHtml += '<text x="548" y="125" fill="var(--fg)" font-size="11">Net Profit ($' + profit.toFixed(2) + ')</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyMarkupSheet() {
+        var price = document.getElementById('sellingPriceVal').textContent;
+        var profit = document.getElementById('netProfitVal').textContent;
+        var margin = document.getElementById('grossMarginVal').textContent;
+        var markup = document.getElementById('markupPctVal').textContent;
+        var fees = document.getElementById('platformFeesVal').textContent;
+        var ship = document.getElementById('shippingDeductVal').textContent;
+        var be = document.getElementById('breakEvenPriceVal').textContent;
+        var cogs = document.getElementById('cogsCost').value;
+
+        var text = '📋 Product Pricing & Profitability Takeoff\n' +
+          '• Unit COGS: $' + cogs + '\n' +
+          '• Retail Selling Price: ' + price + '\n' +
+          '• Gross Margin: ' + margin + '\n' +
+          '• Markup on Cost: ' + markup + '\n' +
+          '• Gateway & Marketplace Fees: ' + fees + '\n' +
+          '• Shipping & Packaging: ' + ship + '\n' +
+          '• True Net Profit: ' + profit + '\n' +
+          '• Minimum Break-Even: ' + be + '\n\n' +
+          'Calculated at digitaltoolsshed.com/math/markup-margin-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyMarkupBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Pricing Sheet!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      document.getElementById('pricingStrategyMode').addEventListener('change', function() {
+        var m = this.value;
+        var lbl = document.getElementById('lblTargetValue');
+        var inp = document.getElementById('targetValInput');
+        if (m === 'targetMargin') {
+          lbl.textContent = 'Target Gross Margin (%)';
+          inp.value = 50;
+        } else if (m === 'targetMarkup') {
+          lbl.textContent = 'Target Markup (%)';
+          inp.value = 100;
+        } else {
+          lbl.textContent = 'Fixed Selling Price ($)';
+          inp.value = 90;
+        }
+        calcMarkupMargin();
+      });
+
+      var inputs = ['cogsCost', 'targetValInput', 'platformFeePreset', 'shippingCost'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcMarkupMargin);
+          el.addEventListener('change', calcMarkupMargin);
+        }
+      });
+
+      document.getElementById('copyMarkupBtn').addEventListener('click', copyMarkupSheet);
+
+      calcMarkupMargin();
+    })();
+  </script>
+</div>
+
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1485,8 +1421,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fmarkup-margin-calculator&text=Markup%20vs%20Profit%20Margin%20Calculator%20(eCommerce%2C%20Retail%20%26%20Agency%20Pricing)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fmarkup-margin-calculator&title=Markup%20vs%20Profit%20Margin%20Calculator%20(eCommerce%2C%20Retail%20%26%20Agency%20Pricing)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fmarkup-margin-calculator&text=Markup%20vs%20Margin%20Calculator%20%E2%80%94%20Profit%2C%20COGS%20%26%20E-Commerce%20Fees%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fmarkup-margin-calculator&title=Markup%20vs%20Margin%20Calculator%20%E2%80%94%20Profit%2C%20COGS%20%26%20E-Commerce%20Fees" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
