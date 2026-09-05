@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Trip Gas Cost Calculator: Road Trip Fuel & Mileage | Digital Tools Shed</title>
-  <meta name="description" content="Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, and cost-per-mile analysis.">
+  <meta name="description" content="Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, EV cost comparison, and cost-per-mile analysis.">
   <link rel="canonical" href="https://digitaltoolsshed.com/calc/gas-cost-calculator">
   <meta property="og:title" content="Trip Gas Cost Calculator: Road Trip Fuel & Mileage | Digital Tools Shed">
-  <meta property="og:description" content="Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, and cost-per-mile analysis.">
+  <meta property="og:description" content="Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, EV cost comparison, and cost-per-mile analysis.">
   <meta property="og:url" content="https://digitaltoolsshed.com/calc/gas-cost-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Trip Gas Cost Calculator: Road Trip Fuel & Mileage | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, and cost-per-mile analysis.">
+  <meta name="twitter:description" content="Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, EV cost comparison, and cost-per-mile analysis.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, and cost-per-mile analysis.",
+  "description": "Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, EV cost comparison, and cost-per-mile analysis.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -135,6 +135,14 @@
         "@type": "Answer",
         "text": "Below 45 mph (70 km/h), rolling down windows is more fuel-efficient. Above 45 mph on highways, aerodynamic drag caused by open windows consumes more fuel than running modern vehicle air conditioning."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "How does cargo weight, roof racks, and towing impact trip fuel cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vehicle aerodynamic drag and weight heavily degrade fuel economy. An empty roof rack increases aerodynamic drag by 5% to 10%, while a loaded roof cargo box or rooftop bicycles reduce highway fuel economy by 20% to 25%. Carrying 500 lbs of passenger or cargo payload adds another 5% to 8% penalty, and towing a travel trailer can cut MPG by 40% to 50%."
+      }
     }
   ]
 }
@@ -144,7 +152,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Trip Gas Cost Calculator: Road Trip Fuel & Mileage",
-  "description": "Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, and cost-per-mile analysis.",
+  "description": "Calculate road trip gas cost, fuel economy gallons, and cost per passenger. Features Metric/Imperial toggles, vehicle presets, aerodynamic drag penalties, EV cost comparison, and cost-per-mile analysis.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1041,7 +1049,7 @@
       <header style="margin-bottom: 2rem;">
         <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Trip Gas & Fuel Cost Calculator</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Accurately calculate road trip gas cost, fuel consumption, and passenger splits. Includes Metric/Imperial modes, realistic vehicle presets, aerodynamic drag & cargo penalties, and complete vehicle cost of ownership.
+          Accurately calculate road trip gas cost, fuel consumption, and passenger splits. Features Metric/Imperial modes, realistic vehicle presets, aerodynamic drag & cargo penalties, side-by-side EV cost comparison, and complete vehicle cost of ownership.
         </p>
       </header>
 
@@ -1060,228 +1068,281 @@
         <div style="margin-bottom: 1.5rem;">
           <label class="field-label" style="margin-bottom: 0.5rem; display: block;">Quick Vehicle Efficiency Presets</label>
           <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-            <button type="button" class="btn-sec" onclick="setVehiclePreset(34, 6.9, 'Compact Sedan (Civic / Corolla)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono);">🚗 Compact Sedan (34 MPG / 6.9L)</button>
-            <button type="button" class="btn-sec" onclick="setVehiclePreset(29, 8.1, 'Midsize Sedan (Camry / Accord)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono);">🚘 Midsize Sedan (29 MPG / 8.1L)</button>
+            <button type="button" class="btn-sec" onclick="setVehiclePreset(52, 4.5, 'Compact Hybrid (Prius / Ioniq)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono);">⚡ Hybrid (52 MPG / 4.5L)</button>
+            <button type="button" class="btn-sec" onclick="setVehiclePreset(34, 6.9, 'Compact Sedan (Civic / Corolla)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono);">🚗 Sedan (34 MPG / 6.9L)</button>
             <button type="button" class="btn-sec" onclick="setVehiclePreset(27, 8.7, 'Compact Crossover (RAV4 / CR-V)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono); border-color: #10b981; color: #10b981; font-weight: bold;">🚙 Crossover / SUV (27 MPG / 8.7L)</button>
             <button type="button" class="btn-sec" onclick="setVehiclePreset(21, 11.2, 'Large SUV / Minivan (Explorer / Odyssey)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono);">🚐 Large SUV (21 MPG / 11.2L)</button>
-            <button type="button" class="btn-sec" onclick="setVehiclePreset(17, 13.8, 'Full-Size Pickup (F-150 / Silverado)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono);">🛻 Pickup Truck (17 MPG / 13.8L)</button>
-            <button type="button" class="btn-sec" onclick="setVehiclePreset(52, 4.5, 'Hybrid (Prius / Ioniq)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono);">🔋 Hybrid (52 MPG / 4.5L)</button>
-          </div>
-          <div id="gas-vehicle-label" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem; font-family: var(--mono);">
-            Selected: Compact Crossover (RAV4 / CR-V)
+            <button type="button" class="btn-sec" onclick="setVehiclePreset(17, 13.8, 'Full-Size Pickup (F-150 / Silverado)')" style="padding: 0.35rem 0.65rem; font-size: 0.8rem; font-family: var(--mono);">🛻 Truck (17 MPG / 13.8L)</button>
           </div>
         </div>
 
-        <div class="grid-inputs">
-          <div class="field-group">
-            <label id="lbl-distance" class="field-label">Trip Distance (Miles)</label>
-            <input type="number" id="gas-dist" class="text-input" value="350" min="1" step="5" oninput="calcGas()" />
-            <div style="display: flex; gap: 0.3rem; margin-top: 0.35rem; flex-wrap: wrap;">
-              <button type="button" onclick="setDistPreset(100, 160)" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">100 mi (Getaway)</button>
-              <button type="button" onclick="setDistPreset(350, 560)" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">350 mi (Regional)</button>
-              <button type="button" onclick="setDistPreset(600, 960)" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">600 mi (Cross-State)</button>
-              <button type="button" onclick="setDistPreset(1200, 1930)" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">1200 mi (Road Trip)</button>
+        <!-- Primary Input Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label class="field-label" id="lbl-dist">Trip Distance (One-Way)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="gas-dist" value="350" min="1" step="any" class="input-field" oninput="calcGas()" style="flex: 1; font-family: var(--mono); font-size: 1.1rem; padding: 0.5rem;">
+              <span id="unit-dist-text" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">miles</span>
+            </div>
+            <div style="margin-top: 0.4rem;">
+              <label style="font-size: 0.8rem; font-family: var(--sans); cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem;">
+                <input type="checkbox" id="gas-round-trip" onchange="calcGas()" checked>
+                <span>Round Trip (2&times; distance)</span>
+              </label>
             </div>
           </div>
 
-          <div class="field-group">
-            <label id="lbl-economy" class="field-label">Fuel Economy (MPG)</label>
-            <input type="number" id="gas-efficiency" class="text-input" value="27" min="1" max="150" step="0.5" oninput="calcGas()" />
-            <small style="color: var(--text-muted); font-size: 0.75rem;">EPA highway rating</small>
+          <div>
+            <label class="field-label" id="lbl-efficiency">Fuel Economy (Base)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="gas-efficiency" value="27" min="1" step="any" class="input-field" oninput="calcGas()" style="flex: 1; font-family: var(--mono); font-size: 1.1rem; padding: 0.5rem;">
+              <span id="unit-efficiency-text" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">MPG</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem;" id="preset-active-label">Preset: Compact Crossover</div>
           </div>
 
-          <div class="field-group">
-            <label id="lbl-price" class="field-label">Gas Price ($ / Gallon)</label>
-            <input type="number" id="gas-price" class="text-input" value="3.55" min="0.1" max="30" step="0.05" oninput="calcGas()" />
-            <small style="color: var(--text-muted); font-size: 0.75rem;">Average local pump rate</small>
+          <div>
+            <label class="field-label" id="lbl-price">Gas Price</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span style="font-family: var(--mono); font-size: 1rem; color: var(--text-muted);">$</span>
+              <input type="number" id="gas-price" value="3.50" min="0.01" step="0.01" class="input-field" oninput="calcGas()" style="flex: 1; font-family: var(--mono); font-size: 1.1rem; padding: 0.5rem;">
+              <span id="unit-price-text" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">/ gal</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem;">National avg: ~$3.50/gal</div>
+          </div>
+
+          <div>
+            <label class="field-label">Passengers (Cost Split)</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <input type="number" id="gas-passengers" value="2" min="1" max="15" step="1" class="input-field" oninput="calcGas()" style="flex: 1; font-family: var(--mono); font-size: 1.1rem; padding: 0.5rem;">
+              <span style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">people</span>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.35rem;">Even split among riders</div>
           </div>
         </div>
 
-        <!-- Real-World Drag & Load Modifiers -->
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin: 1.25rem 0;">
-          <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--fg); display: flex; align-items: center; justify-content: space-between;">
-            <span>⚙️ Real-World Aerodynamic & Load Modifiers</span>
-            <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981;">Combats Lab-Only EPA Bias</span>
-          </div>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+        <!-- Highway & Cargo Modifiers Accordion -->
+        <details style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem 1rem; margin-bottom: 1.5rem;">
+          <summary style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold; cursor: pointer; color: var(--fg);">
+            ⚙️ Highway Speed, Aerodynamics & Cargo Modifiers (Real-World Drag)
+          </summary>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
             <div>
-              <label class="field-label" style="font-size: 0.75rem;">Cruising Speed (Aerodynamic Drag)</label>
-              <select id="gas-mod-speed" class="text-input" onchange="calcGas()" style="padding: 0.45rem; font-size: 0.85rem;">
-                <option value="0">55–65 mph / 90–105 km/h (EPA Baseline)</option>
-                <option value="0.12" selected>70–75 mph / 110–120 km/h (+12% Fuel)</option>
-                <option value="0.22">80+ mph / 130+ km/h (+22% Wind Drag)</option>
+              <label class="field-label" style="font-size: 0.75rem;">Cruising Speed Drag</label>
+              <select id="gas-mod-speed" onchange="calcGas()" class="input-field" style="width: 100%; padding: 0.4rem; font-size: 0.8rem; font-family: var(--sans);">
+                <option value="0">Moderate (55 - 65 mph / 90 - 105 km/h) [0% penalty]</option>
+                <option value="0.12" selected>Fast Highway (70 - 75 mph / 110 - 120 km/h) [+12% fuel]</option>
+                <option value="0.25">High Speed (80+ mph / 130+ km/h) [+25% fuel]</option>
               </select>
             </div>
+
             <div>
-              <label class="field-label" style="font-size: 0.75rem;">Air Conditioning (Compressor)</label>
-              <select id="gas-mod-ac" class="text-input" onchange="calcGas()" style="padding: 0.45rem; font-size: 0.85rem;">
-                <option value="0">A/C Off / Windows (+0%)</option>
-                <option value="0.05" selected>A/C Auto / Moderate (+5%)</option>
-                <option value="0.10">A/C Max Summer Heatwave (+10%)</option>
+              <label class="field-label" style="font-size: 0.75rem;">Climate Control (AC)</label>
+              <select id="gas-mod-ac" onchange="calcGas()" class="input-field" style="width: 100%; padding: 0.4rem; font-size: 0.8rem; font-family: var(--sans);">
+                <option value="0">AC Off / Mild Weather [0%]</option>
+                <option value="0.06" selected>AC Active / Hot Summer [+6% fuel]</option>
+                <option value="0.10">Max AC / Defrost / Freezing Winter [+10% fuel]</option>
               </select>
             </div>
+
             <div>
-              <label class="field-label" style="font-size: 0.75rem;">Roof Racks & Exterior Cargo</label>
-              <select id="gas-mod-cargo" class="text-input" onchange="calcGas()" style="padding: 0.45rem; font-size: 0.85rem;">
-                <option value="0" selected>Clean Roof / Aerodynamic (+0%)</option>
-                <option value="0.08">Hitch Bike Rack (+8%)</option>
-                <option value="0.18">Roof Cargo Box / Kayak (+18% Drag)</option>
+              <label class="field-label" style="font-size: 0.75rem;">Roof Rack & Aerodynamics</label>
+              <select id="gas-mod-cargo" onchange="calcGas()" class="input-field" style="width: 100%; padding: 0.4rem; font-size: 0.8rem; font-family: var(--sans);">
+                <option value="0" selected>Clean Roof Profile [0%]</option>
+                <option value="0.07">Empty Roof Rails / Crossbars [+7% fuel]</option>
+                <option value="0.18">Roof Cargo Box / Bicycles [+18% fuel]</option>
+                <option value="0.45">Towing Small Utility Trailer / Camper [+45% fuel]</option>
               </select>
             </div>
+
             <div>
-              <label class="field-label" style="font-size: 0.75rem;">Vehicle Payload & Passengers</label>
-              <select id="gas-mod-load" class="text-input" onchange="calcGas()" style="padding: 0.45rem; font-size: 0.85rem;">
-                <option value="0" selected>Driver & Light Gear (+0%)</option>
-                <option value="0.06">Full Passenger Load & Luggage (+6%)</option>
-                <option value="0.30">Towing Utility Trailer / Boat (+30%)</option>
+              <label class="field-label" style="font-size: 0.75rem;">Luggage & Cargo Payload</label>
+              <select id="gas-mod-load" onchange="calcGas()" class="input-field" style="width: 100%; padding: 0.4rem; font-size: 0.8rem; font-family: var(--sans);">
+                <option value="0" selected>Driver + Light Daypack [0%]</option>
+                <option value="0.04">Full Trunk & Gear (~250 lbs) [+4% fuel]</option>
+                <option value="0.08">Heavily Loaded Vehicle (500+ lbs) [+8% fuel]</option>
               </select>
+            </div>
+          </div>
+
+          <div style="margin-top: 0.85rem; padding-top: 0.75rem; border-top: 1px dashed var(--border); display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 180px;">
+              <label class="field-label" style="font-size: 0.75rem;" id="lbl-tank">Fuel Tank Capacity (for refueling stops)</label>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="number" id="gas-tank" value="14" min="1" step="any" class="input-field" oninput="calcGas()" style="padding: 0.35rem 0.5rem; font-family: var(--mono); width: 80px;">
+                <span id="unit-tank-text" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">gallons</span>
+              </div>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-muted); flex: 2; min-width: 220px;">
+              Enables the refuel stop counter and remaining range estimation based on penalized highway consumption.
+            </div>
+          </div>
+        </details>
+
+        <!-- Primary Output Display Badges -->
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <span style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Total Estimated Trip Fuel</span>
+              <div id="gas-total-miles-label" style="font-size: 0.88rem; color: var(--text-muted);">700 Total Miles (Round Trip)</div>
+            </div>
+            <div style="text-align: right;">
+              <div id="gas-total-cost" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; line-height: 1;">$89.44</div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--mono);">Gasoline Expense Only</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;">
+            <div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; text-align: center;">
+              <span style="color: var(--text-muted); font-size: 0.7rem; font-family: var(--mono); text-transform: uppercase;">Per Passenger</span>
+              <div id="gas-per-person" style="font-size: 1.25rem; font-weight: bold; color: #3b82f6; font-family: var(--mono);">$44.72</div>
+              <span style="font-size: 0.68rem; color: var(--text-muted);">Split 2 ways</span>
+            </div>
+
+            <div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; text-align: center;">
+              <span style="color: var(--text-muted); font-size: 0.7rem; font-family: var(--mono); text-transform: uppercase;">Fuel Consumed</span>
+              <div id="gas-fuel-volume" style="font-size: 1.25rem; font-weight: bold; color: var(--fg); font-family: var(--mono);">25.6 Gallons</div>
+              <span style="font-size: 0.68rem; color: var(--text-muted);" id="gas-fuel-efficiency-effective">27.3 Eff. MPG</span>
+            </div>
+
+            <div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; text-align: center;">
+              <span style="color: var(--text-muted); font-size: 0.7rem; font-family: var(--mono); text-transform: uppercase;">Fuel Cost / Distance</span>
+              <div id="gas-cost-per-dist" style="font-size: 1.25rem; font-weight: bold; color: var(--fg); font-family: var(--mono);">$0.128 / mi</div>
+              <span style="font-size: 0.68rem; color: var(--text-muted);">Pure fuel rate</span>
+            </div>
+
+            <div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; text-align: center;">
+              <span style="color: var(--text-muted); font-size: 0.7rem; font-family: var(--mono); text-transform: uppercase;">Refuel Stops</span>
+              <div id="gas-refuel-stops" style="font-size: 1.25rem; font-weight: bold; color: var(--fg); font-family: var(--mono);">1 Stop</div>
+              <span style="font-size: 0.68rem; color: var(--text-muted);" id="gas-range-per-tank">~382 mi / tank</span>
             </div>
           </div>
         </div>
 
-        <div class="grid-inputs" style="margin-bottom: 1rem;">
-          <div class="field-group">
-            <label class="field-label">Split Among Passengers</label>
-            <input type="number" id="gas-passengers" class="text-input" value="3" min="1" max="15" step="1" oninput="calcGas()" />
-            <small style="color: var(--text-muted); font-size: 0.75rem;">Diners / road trippers</small>
+        <!-- Pure SVG Route Expense Stack Visualizer -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.1rem; margin: 0; color: var(--fg);">Route Expense Stack & True Total Cost of Ownership (TCO)</h3>
+            <span id="tcoBadge" style="font-family: var(--mono); font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(59,130,246,0.15); color: #3b82f6; font-weight: bold;">
+              IRS Benchmark: $0.67/mi
+            </span>
           </div>
-          <div class="field-group" style="display: flex; align-items: center; gap: 0.75rem; margin-top: 1.5rem;">
-            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.95rem;">
-              <input type="checkbox" id="gas-round-trip" onchange="calcGas()" style="width: 18px; height: 18px; cursor: pointer;" />
-              <span style="font-weight: bold;">Round Trip (Double Distance)</span>
-            </label>
+          <div id="gasSvgContainer" style="width: 100%; overflow-x: auto;">
+            <!-- Injected dynamically by JS -->
           </div>
-          <div class="field-group">
-            <label class="field-label">Fuel Tank Capacity (Est. Stops)</label>
-            <input type="number" id="gas-tank" class="text-input" value="14" min="5" max="50" step="1" oninput="calcGas()" />
-            <small id="gas-tank-unit" style="color: var(--text-muted); font-size: 0.75rem;">Gallons (Avg compact/crossover = 13–16 gal)</small>
+          <div style="display: flex; justify-content: space-around; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <span><span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:2px; margin-right:4px;"></span>Fuel Cost</span>
+            <span><span style="display:inline-block; width:10px; height:10px; background:#3b82f6; border-radius:2px; margin-right:4px;"></span>Maintenance & Tires</span>
+            <span><span style="display:inline-block; width:10px; height:10px; background:#8b5cf6; border-radius:2px; margin-right:4px;"></span>Depreciation & Insurance</span>
           </div>
         </div>
 
-        <!-- Primary Calculation Results -->
-        <div class="result-card" style="margin-top: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
-            <div class="field-label">Total Estimated Fuel Cost</div>
-            <div id="gas-total-miles-label" style="font-family: var(--mono); font-size: 0.82rem; color: var(--text-muted);">350 Total Miles (One-Way)</div>
-          </div>
-          <div id="gas-total-cost" class="result-val">$51.52</div>
-          
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
-            <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
-              <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Cost Per Passenger (3 People)</span>
-              <div id="gas-per-person" style="font-size: 1.5rem; font-weight: bold; color: #10b981; font-family: var(--mono);">$17.17</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">Even Venmo split</div>
-            </div>
-
-            <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
-              <span id="gas-fuel-vol-label" style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Fuel Consumed</span>
-              <div id="gas-fuel-volume" style="font-size: 1.5rem; font-weight: bold; color: #3b82f6; font-family: var(--mono);">14.5 Gallons</div>
-              <div id="gas-effective-mpg" style="font-size: 0.75rem; color: var(--text-muted);">Eff. MPG: 24.1 (After drag)</div>
-            </div>
-
-            <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
-              <span id="gas-cpm-label" style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Cost Per Distance Unit</span>
-              <div id="gas-cpm" style="font-size: 1.5rem; font-weight: bold; color: var(--fg); font-family: var(--mono);">$0.147 / mi</div>
-              <div style="font-size: 0.75rem; color: var(--text-muted);">Fuel only (14.7¢)</div>
-            </div>
-
-            <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
-              <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Fuel Stops Needed</span>
-              <div id="gas-stops" style="font-size: 1.5rem; font-weight: bold; color: #f59e0b; font-family: var(--mono);">1 Stop</div>
-              <div id="gas-range" style="font-size: 0.75rem; color: var(--text-muted);">Tank Range: ~337 mi</div>
-            </div>
-          </div>
-
-          <!-- Total Cost of Ownership (IRS Rate Comparison) -->
-          <div style="margin-top: 1.25rem; padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 6px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-              <span style="font-family: var(--mono); font-size: 0.82rem; font-weight: bold; color: #3b82f6;">💡 Full Vehicle Ownership Cost (IRS Benchmark $0.67/mi):</span>
-              <span id="gas-tco-total" style="font-family: var(--mono); font-size: 1.1rem; font-weight: bold; color: var(--fg);">$234.50 Total</span>
-            </div>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0.35rem 0 0; line-height: 1.5;">
-              While fuel costs <strong>$51.52</strong>, vehicle wear (tire tread wear, brake friction, oil degradation, and vehicle depreciation) accounts for an additional <strong>~$182.98</strong>.
-            </p>
-          </div>
-
-          <button type="button" id="btnCopyTrip" onclick="copyTripSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-            📋 Copy Road Trip Fuel Expense Report
-          </button>
-        </div>
-
-        <!-- Step-by-Step Worked Mathematical Derivation -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+        <!-- Side-by-Side EV Road Trip Savings Comparison -->
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Road Trip Fuel Derivation</h3>
-            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Thermodynamic & Drag Physics</span>
+            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0; color: var(--fg);">⚡ Side-by-Side EV Road Trip Comparison</h3>
+            <span style="font-family: var(--mono); font-size: 0.75rem; background: rgba(16,185,129,0.15); color: #10b981; padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: bold;">
+              Benchmark: 3.5 mi/kWh (28 kWh/100mi)
+            </span>
           </div>
-          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-            Automotive engineering calculations apply aerodynamic drag coefficients and accessory power draw to compute actual volumetric fuel burn:
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 1rem; line-height: 1.5;">
+            Comparing this gasoline road trip against an average electric vehicle charged via public DC fast chargers ($0.38/kWh) or home Level 2 charging ($0.16/kWh):
           </p>
-          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-              <strong style="color: var(--fg);">Step 1: Total Distance Calculation</strong>
-              <div id="gas-step-1" style="color: var(--text-muted); margin-top: 0.25rem;">
-                Distance = 350 miles (One-Way) = <strong>350.0 miles</strong>
-              </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+            <div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); display: block; text-transform: uppercase;">EV Supercharging Cost</span>
+              <div id="evFastCost" style="font-family: var(--mono); font-size: 1.3rem; font-weight: bold; color: #3b82f6; margin: 0.2rem 0;">$76.00</div>
+              <span id="evFastSavings" style="font-size: 0.75rem; color: #10b981; font-family: var(--mono);">Saves $13.44 vs Gas</span>
             </div>
-            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-              <strong style="color: var(--fg);">Step 2: Real-World Efficiency Penalty Factor</strong>
-              <div id="gas-step-2" style="color: #3b82f6; margin-top: 0.25rem;">
-                Penalty = 1 + (Speed: +12%) + (A/C: +5%) + (Cargo: +0%) + (Load: +0%) = 1.17x<br>
-                Effective Fuel Economy = 27 MPG / 1.17 = <strong>23.08 MPG</strong>
-              </div>
+
+            <div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); display: block; text-transform: uppercase;">Home Charging Cost</span>
+              <div id="evHomeCost" style="font-family: var(--mono); font-size: 1.3rem; font-weight: bold; color: #10b981; margin: 0.2rem 0;">$32.00</div>
+              <span id="evHomeSavings" style="font-size: 0.75rem; color: #10b981; font-family: var(--mono);">Saves $57.44 vs Gas</span>
             </div>
-            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-              <strong style="color: var(--fg);">Step 3: Total Fuel Volume Consumed</strong>
-              <div id="gas-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
-                Gallons = Distance / Effective MPG = 350 / 23.08 = <strong>15.17 Gallons</strong>
-              </div>
-            </div>
-            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-              <strong style="color: #10b981; font-weight: 700;">Step 4: Total Financial Cost & Passenger Split</strong>
-              <div id="gas-step-4" style="color: #10b981; margin-top: 0.25rem;">
-                Fuel Cost = 15.17 gal &times; $3.55/gal = <strong>$53.84</strong><br>
-                Per Passenger (3 people) = $53.84 / 3 = <strong>$17.95 / person</strong>
-              </div>
+
+            <div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); display: block; text-transform: uppercase;">Tailpipe CO₂ Avoided</span>
+              <div id="evCo2Saved" style="font-family: var(--mono); font-size: 1.3rem; font-weight: bold; color: #10b981; margin: 0.2rem 0;">501 lbs CO₂</div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--mono);">19.6 lbs CO₂/gal gas</span>
             </div>
           </div>
         </div>
 
-        <!-- Critical Road Trip Traps & Driving Pitfalls -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Road Trip Fuel Traps & Aerodynamic Pitfalls</h3>
-          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
-            <li><strong>The Quadratic Aerodynamic Drag Law:</strong> Aerodynamic drag scales quadratically ($F_d propto v^2$), and engine horsepower required to overcome drag scales cubically ($P propto v^3$). Cruising at 80 mph requires ~35% more power than cruising at 65 mph. Slowing down from 80 to 68 mph saves between 15% and 22% in total gasoline expenses on long interstate journeys.</li>
-            <li><strong>The "AC vs. Windows Down" 45 MPH Crossover:</strong> Below 45 mph (70 km/h) in suburban traffic, rolling down windows consumes less fuel than powering the air conditioning compressor. Above 45 mph on highways, aerodynamic boundary layer disruption from open windows generates more turbulent drag than running modern variable-displacement A/C compressors. Keep windows up on highways!</li>
-            <li><strong>Underinflated Tire Rolling Resistance:</strong> The US Department of Energy warns that tires lose ~1 PSI per month and 1 PSI for every 10°F drop in ambient temperature. Driving with tires 5 PSI underinflated increases rolling resistance by 10% and reduces highway fuel economy by ~1%–2% while drastically accelerating tread wear.</li>
-            <li><strong>Interstate Highway Exit Gas Gouging:</strong> Gas stations situated directly on off-ramps of major interstates frequently charge a 25¢ to 55¢ per gallon convenience premium compared to fuel stations located just 1 to 2 miles off the highway into local neighborhoods.</li>
-            <li><strong>The "Fuel-Only" Road Trip Fallacy:</strong> Fuel represents only 20%–30% of your vehicle's true running expense. According to AAA and the IRS standard mileage rate ($0.67/mile in 2024), engine oil degradation, brake pad friction, tire wear, and vehicle mileage depreciation cost roughly 2 to 3 times more than the gasoline consumed.</li>
-          </ul>
+        <!-- Copy Trip Summary Action -->
+        <div>
+          <button type="button" id="btnCopyTrip" onclick="copyTripSummary()" class="btn" style="width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.9rem; font-weight: bold; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+            📋 Copy Complete Road Trip Fuel & Cost Takeoff
+          </button>
         </div>
       </div>
 
-      <div class="ad-blend-box" style="margin: 2rem 0;">
-        <span class="ad-label">Sponsored Resource</span>
-        <div class="ad-unit-300x250">
-          <script type="text/javascript">
-            atOptions = {
-              'key' : '335d807d460eaf2491fcca0f635474ce',
-              'format' : 'iframe',
-              'height' : 250,
-              'width' : 300,
-              'params' : {}
-            };
-          </script>
-          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+      <!-- Step-by-Step Mathematical Derivation -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Road Trip Fuel Derivation</h3>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); margin: 0.5rem 0 1rem;">
+          How vehicle aerodynamic drag, highway speed velocity squared ((v^2)), and passenger weight transform base fuel consumption into real-world cost:
+        </p>
+        <div id="gas-derivation" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; background: var(--surface-alt); padding: 1rem; border-radius: 4px; border: 1px solid var(--border);">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- 5 Fatal Pitfalls Section -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Road Trip Fuel Traps & Aerodynamic Pitfalls</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Drivers consistently underestimate road trip expenses by 20% to 40% because of dynamic aerodynamic and thermodynamic penalties. Avoid these five costly traps:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">1. The Aerodynamic Drag Velocity Squared ((v^2)) Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Aerodynamic drag does not increase linearly with speed; it increases with the <strong>square of velocity</strong> ((F_d = \frac{1}{2} \rho v^2 C_d A)). Increasing highway cruising speed from 60 mph to 75 mph increases aerodynamic resistance by <strong>56%</strong>, slashing fuel economy by 20% to 25%. Driving 80+ mph turns a 30 MPG vehicle into an 18-22 MPG fuel burner.
+            </p>
+          </div>
+
+          <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">2. Roof Racks and Cargo Carrier Parasitic Drag</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Even an empty factory crossbar roof rack degrades vehicle aerodynamics, causing a 5% to 10% penalty at 70 mph. A loaded rooftop hard-shell cargo box or bicycle rack creates severe turbulence, penalizing fuel economy by <strong>18% to 25%</strong>. On a 1,000-mile road trip, a roof box burns an extra $35 to $50 in wasted gasoline.
+            </p>
+          </div>
+
+          <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">3. Cold Tire Underinflation Rolling Resistance Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Tires lose approximately 1 PSI of pressure for every 10&deg;F drop in ambient temperature. For every 3 PSI below the manufacturer's door-jamb specification, rolling resistance increases by 6% and fuel economy drops by 1%. Driving on underinflated tires increases highway tire temperatures, accelerating tread wear and risking catastrophic blowout.
+            </p>
+          </div>
+
+          <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">4. The True Cost of Ownership (TCO) Blindspot</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Gasoline represents only <strong>30% to 40%</strong> of the true cost of driving. Every road trip mile inflicts tire tread wear, motor oil breakdown, brake pad friction, transmission shear, and vehicle depreciation. The IRS standard business mileage deduction rate is <strong>$0.67 per mile</strong>. A 1,000-mile road trip actually costs $670 in combined capital and operating wear.
+            </p>
+          </div>
+
+          <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">5. AC Compressor vs Highway Open Window Vortex Drag</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              At city speeds below 45 mph (70 km/h), rolling down windows is more efficient than running the air conditioning compressor. Above 50 mph on the highway, open windows disrupt the vehicle's aerodynamic slipstream, creating a turbulent low-pressure vortex that causes more engine load and burns more fuel than modern variable-displacement AC compressors.
+            </p>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
-      var gasUnitMode = 'imperial'; // 'imperial' or 'metric'
+      var gasUnitMode = 'imperial';
+      var currentTripData = null;
 
       function setGasUnit(mode) {
+        if (mode === gasUnitMode) return;
         gasUnitMode = mode;
+
         var btnImp = document.getElementById('btnGasImperial');
         var btnMet = document.getElementById('btnGasMetric');
 
@@ -1293,17 +1354,19 @@
           btnMet.style.color = 'var(--fg)';
           btnMet.style.fontWeight = 'normal';
 
-          document.getElementById('lbl-distance').textContent = 'Trip Distance (Miles)';
-          document.getElementById('lbl-economy').textContent = 'Fuel Economy (MPG)';
-          document.getElementById('lbl-price').textContent = 'Gas Price ($ / Gallon)';
-          document.getElementById('gas-tank-unit').textContent = 'Gallons (Avg compact/crossover = 13–16 gal)';
-          document.getElementById('gas-fuel-vol-label').textContent = 'FUEL CONSUMED (GALLONS)';
-          document.getElementById('gas-cpm-label').textContent = 'COST PER MILE';
+          document.getElementById('lbl-dist').textContent = 'Trip Distance (One-Way)';
+          document.getElementById('unit-dist-text').textContent = 'miles';
+          document.getElementById('lbl-efficiency').textContent = 'Fuel Economy (Base)';
+          document.getElementById('unit-efficiency-text').textContent = 'MPG';
+          document.getElementById('lbl-price').textContent = 'Gas Price';
+          document.getElementById('unit-price-text').textContent = '/ gal';
+          document.getElementById('lbl-tank').textContent = 'Fuel Tank Capacity (gallons)';
+          document.getElementById('unit-tank-text').textContent = 'gallons';
 
-          var curDist = parseFloat(document.getElementById('gas-dist').value) || 350;
-          if (curDist > 500) document.getElementById('gas-dist').value = Math.round(curDist * 0.621371);
+          var currDist = parseFloat(document.getElementById('gas-dist').value) || 350;
+          document.getElementById('gas-dist').value = Math.round(currDist * 0.621371) || 350;
           document.getElementById('gas-efficiency').value = 27;
-          document.getElementById('gas-price').value = 3.55;
+          document.getElementById('gas-price').value = '3.50';
           document.getElementById('gas-tank').value = 14;
         } else {
           btnMet.style.borderColor = '#3b82f6';
@@ -1313,36 +1376,34 @@
           btnImp.style.color = 'var(--fg)';
           btnImp.style.fontWeight = 'normal';
 
-          document.getElementById('lbl-distance').textContent = 'Trip Distance (Kilometers)';
-          document.getElementById('lbl-economy').textContent = 'Fuel Consumption (L / 100km)';
-          document.getElementById('lbl-price').textContent = 'Fuel Price (Currency / Liter)';
-          document.getElementById('gas-tank-unit').textContent = 'Liters (Avg compact/crossover = 50–60 L)';
-          document.getElementById('gas-fuel-vol-label').textContent = 'FUEL CONSUMED (LITERS)';
-          document.getElementById('gas-cpm-label').textContent = 'COST PER KILOMETER';
+          document.getElementById('lbl-dist').textContent = 'Trip Distance (One-Way)';
+          document.getElementById('unit-dist-text').textContent = 'km';
+          document.getElementById('lbl-efficiency').textContent = 'Fuel Economy (Base)';
+          document.getElementById('unit-efficiency-text').textContent = 'L / 100km';
+          document.getElementById('lbl-price').textContent = 'Fuel Price';
+          document.getElementById('unit-price-text').textContent = '/ Liter';
+          document.getElementById('lbl-tank').textContent = 'Fuel Tank Capacity (Liters)';
+          document.getElementById('unit-tank-text').textContent = 'liters';
 
-          var curDist2 = parseFloat(document.getElementById('gas-dist').value) || 350;
-          if (curDist2 < 500) document.getElementById('gas-dist').value = Math.round(curDist2 * 1.60934);
+          var currDistImp = parseFloat(document.getElementById('gas-dist').value) || 350;
+          document.getElementById('gas-dist').value = Math.round(currDistImp * 1.60934) || 550;
           document.getElementById('gas-efficiency').value = 8.7;
-          document.getElementById('gas-price').value = 1.75;
+          document.getElementById('gas-price').value = '1.75';
           document.getElementById('gas-tank').value = 55;
         }
+
         calcGas();
       }
 
-      window.setVehiclePreset = function(mpg, l100, label) {
+      function setVehiclePreset(mpg, l100km, label) {
         if (gasUnitMode === 'imperial') {
           document.getElementById('gas-efficiency').value = mpg;
         } else {
-          document.getElementById('gas-efficiency').value = l100;
+          document.getElementById('gas-efficiency').value = l100km;
         }
-        document.getElementById('gas-vehicle-label').textContent = 'Selected: ' + label;
+        document.getElementById('preset-active-label').textContent = 'Preset: ' + label;
         calcGas();
-      };
-
-      window.setDistPreset = function(mi, km) {
-        document.getElementById('gas-dist').value = (gasUnitMode === 'imperial') ? mi : km;
-        calcGas();
-      };
+      }
 
       function calcGas() {
         var dist = parseFloat(document.getElementById('gas-dist').value) || 0;
@@ -1389,69 +1450,148 @@
         // TCO Benchmark (IRS $0.67/mile or €0.41/km)
         var tcoPerDist = (gasUnitMode === 'imperial') ? 0.67 : 0.41;
         var totalTco = totalDist * tcoPerDist;
+        var maintenanceTco = Math.max(0, totalTco * 0.25);
+        var depreciationTco = Math.max(0, totalTco - totalCost - maintenanceTco);
+
+        // EV Comparison Math
+        // Average EV uses 28 kWh / 100 miles (3.57 miles / kWh) or 17.5 kWh / 100 km
+        var evKwh = 0;
+        var evFastRate = 0.38; // $0.38 / kWh average DC fast charger
+        var evHomeRate = 0.16; // $0.16 / kWh average home Level 2
+        var co2LbsSaved = 0;
+
+        if (gasUnitMode === 'imperial') {
+          evKwh = (totalDist / 3.5);
+          co2LbsSaved = fuelVol * 19.64; // 19.64 lbs CO2 per gallon gasoline
+        } else {
+          evKwh = (totalDist / 100) * 17.5;
+          co2LbsSaved = (fuelVol * 2.31) * 2.20462; // 2.31 kg CO2 per liter
+        }
+
+        var evFastCostVal = evKwh * evFastRate;
+        var evHomeCostVal = evKwh * evHomeRate;
+        var evFastSavingsVal = totalCost - evFastCostVal;
+        var evHomeSavingsVal = totalCost - evHomeCostVal;
 
         // Update DOM
         var distUnit = gasUnitMode === 'imperial' ? 'miles' : 'km';
         var volUnit = gasUnitMode === 'imperial' ? 'Gallons' : 'Liters';
         var cpmUnit = gasUnitMode === 'imperial' ? '/ mi' : '/ km';
+        var currSym = '$';
 
         document.getElementById('gas-total-miles-label').textContent = totalDist.toLocaleString('en-US') + ' Total ' + distUnit.charAt(0).toUpperCase() + distUnit.slice(1) + (isRound ? ' (Round Trip)' : ' (One-Way)');
-        document.getElementById('gas-total-cost').textContent = '$' + totalCost.toFixed(2);
-        document.getElementById('gas-per-person').textContent = '$' + costPerPerson.toFixed(2);
+        document.getElementById('gas-total-cost').textContent = currSym + totalCost.toFixed(2);
+        document.getElementById('gas-per-person').textContent = currSym + costPerPerson.toFixed(2);
         document.getElementById('gas-fuel-volume').textContent = fuelVol.toFixed(1) + ' ' + volUnit;
-        
+        document.getElementById('gas-fuel-efficiency-effective').textContent = effectiveEfficiency.toFixed(1) + (gasUnitMode === 'imperial' ? ' Eff. MPG' : ' Eff. L/100km');
+        document.getElementById('gas-cost-per-dist').textContent = currSym + costPerDist.toFixed(3) + ' ' + cpmUnit;
+        document.getElementById('gas-refuel-stops').textContent = stops === 0 ? '0 Stops (Direct)' : (stops + ' Stop' + (stops > 1 ? 's' : ''));
+        document.getElementById('gas-range-per-tank').textContent = '~' + Math.round(rangePerTank) + ' ' + distUnit + ' / tank';
+
+        // Update EV Badges
+        document.getElementById('evFastCost').textContent = currSym + evFastCostVal.toFixed(2);
+        document.getElementById('evFastSavings').textContent = (evFastSavingsVal >= 0 ? 'Saves ' + currSym + evFastSavingsVal.toFixed(2) + ' vs Gas' : 'Costs ' + currSym + Math.abs(evFastSavingsVal).toFixed(2) + ' more');
+        document.getElementById('evHomeCost').textContent = currSym + evHomeCostVal.toFixed(2);
+        document.getElementById('evHomeSavings').textContent = 'Saves ' + currSym + evHomeSavingsVal.toFixed(2) + ' vs Gas';
+        document.getElementById('evCo2Saved').textContent = Math.round(co2LbsSaved) + ' lbs CO₂';
+
+        // Update Derivation Formula
+        var deriv = document.getElementById('gas-derivation');
         if (gasUnitMode === 'imperial') {
-          document.getElementById('gas-effective-mpg').textContent = 'Eff. MPG: ' + effectiveEfficiency.toFixed(1) + ' (Base: ' + efficiency + ')';
+          deriv.innerHTML = 
+            '<div><strong>1. Real Highway Efficiency:</strong> ' + efficiency + ' Base MPG &divide; (1 + ' + totalPenalty.toFixed(2) + ' aerodynamic & cargo penalty) = <strong>' + effectiveEfficiency.toFixed(2) + ' Effective MPG</strong></div>' +
+            '<div><strong>2. Fuel Volume Required:</strong> ' + totalDist.toLocaleString('en-US') + ' miles &divide; ' + effectiveEfficiency.toFixed(2) + ' MPG = <strong>' + fuelVol.toFixed(2) + ' Gallons</strong></div>' +
+            '<div><strong>3. Total Fuel Expense:</strong> ' + fuelVol.toFixed(2) + ' Gallons &times; $' + price.toFixed(2) + '/gal = <strong>$' + totalCost.toFixed(2) + '</strong></div>' +
+            '<div><strong>4. Split Cost Per Rider:</strong> $' + totalCost.toFixed(2) + ' &divide; ' + pass + ' passengers = <strong>$' + costPerPerson.toFixed(2) + ' per person</strong></div>' +
+            '<div><strong>5. Comprehensive TCO Benchmark:</strong> ' + totalDist.toLocaleString('en-US') + ' miles &times; $0.67/mi IRS rate = <strong>$' + totalTco.toFixed(2) + ' true wear & operating cost</strong></div>';
         } else {
-          document.getElementById('gas-effective-mpg').textContent = 'Eff. Consumption: ' + effectiveEfficiency.toFixed(1) + ' L/100km (Base: ' + efficiency + ')';
+          deriv.innerHTML = 
+            '<div><strong>1. Real Highway Efficiency:</strong> ' + efficiency + ' Base L/100km &times; (1 + ' + totalPenalty.toFixed(2) + ' aerodynamic & cargo penalty) = <strong>' + effectiveEfficiency.toFixed(2) + ' Effective L/100km</strong></div>' +
+            '<div><strong>2. Fuel Volume Required:</strong> (' + totalDist.toLocaleString('en-US') + ' km &divide; 100) &times; ' + effectiveEfficiency.toFixed(2) + ' = <strong>' + fuelVol.toFixed(2) + ' Liters</strong></div>' +
+            '<div><strong>3. Total Fuel Expense:</strong> ' + fuelVol.toFixed(2) + ' Liters &times; $' + price.toFixed(2) + '/L = <strong>$' + totalCost.toFixed(2) + '</strong></div>' +
+            '<div><strong>4. Split Cost Per Rider:</strong> $' + totalCost.toFixed(2) + ' &divide; ' + pass + ' passengers = <strong>$' + costPerPerson.toFixed(2) + ' per person</strong></div>' +
+            '<div><strong>5. Comprehensive TCO Benchmark:</strong> ' + totalDist.toLocaleString('en-US') + ' km &times; $0.41/km rate = <strong>$' + totalTco.toFixed(2) + ' true wear & operating cost</strong></div>';
         }
 
-        document.getElementById('gas-cpm').textContent = '$' + costPerDist.toFixed(3) + ' ' + cpmUnit;
-        document.getElementById('gas-stops').textContent = (stops === 0 ? '0 Stops (Direct)' : stops + (stops === 1 ? ' Stop' : ' Stops'));
-        document.getElementById('gas-range').textContent = 'Tank Range: ~' + Math.round(rangePerTank) + ' ' + distUnit;
+        // Draw Pure SVG Expense Stack Visualizer
+        drawGasExpenseSvg(totalCost, maintenanceTco, depreciationTco, totalTco, pass, costPerPerson);
 
-        document.getElementById('gas-tco-total').textContent = '$' + totalTco.toFixed(2) + ' Total TCO';
+        currentTripData = {
+          dist: totalDist,
+          unit: distUnit,
+          fuelCost: totalCost.toFixed(2),
+          perPerson: costPerPerson.toFixed(2),
+          passengers: pass,
+          fuelVol: fuelVol.toFixed(1) + ' ' + volUnit,
+          evFastSavings: evFastSavingsVal.toFixed(2),
+          evHomeSavings: evHomeSavingsVal.toFixed(2),
+          co2Saved: Math.round(co2LbsSaved)
+        };
+      }
 
-        // Step-by-step math derivation
-        document.getElementById('gas-step-1').innerHTML = 'Distance = ' + dist + ' ' + distUnit + (isRound ? ' &times; 2 (Round Trip)' : '') + ' = <strong>' + totalDist.toFixed(1) + ' ' + distUnit + '</strong>';
-        
-        var penPct = Math.round(totalPenalty * 100);
-        if (gasUnitMode === 'imperial') {
-          document.getElementById('gas-step-2').innerHTML = 'Penalty Multiplier = 1 + ' + (totalPenalty > 0 ? '(+' + penPct + '% drag/load)' : '0%') + ' = ' + penaltyMult.toFixed(2) + 'x<br>Effective Fuel Economy = ' + efficiency + ' MPG / ' + penaltyMult.toFixed(2) + ' = <strong>' + effectiveEfficiency.toFixed(2) + ' MPG</strong>';
-          document.getElementById('gas-step-3').innerHTML = 'Gallons = Total Miles / Effective MPG = ' + totalDist.toFixed(1) + ' / ' + effectiveEfficiency.toFixed(2) + ' = <strong>' + fuelVol.toFixed(2) + ' Gallons</strong>';
-        } else {
-          document.getElementById('gas-step-2').innerHTML = 'Penalty Multiplier = 1 + ' + (totalPenalty > 0 ? '(+' + penPct + '% drag/load)' : '0%') + ' = ' + penaltyMult.toFixed(2) + 'x<br>Effective Fuel Consumption = ' + efficiency + ' &times; ' + penaltyMult.toFixed(2) + ' = <strong>' + effectiveEfficiency.toFixed(2) + ' L/100km</strong>';
-          document.getElementById('gas-step-3').innerHTML = 'Liters = (' + totalDist.toFixed(1) + ' km / 100) &times; ' + effectiveEfficiency.toFixed(2) + ' = <strong>' + fuelVol.toFixed(2) + ' Liters</strong>';
-        }
+      function drawGasExpenseSvg(fuelCost, maintCost, deprecCost, totalTco, passengers, costPerPerson) {
+        var container = document.getElementById('gasSvgContainer');
+        if (!container) return;
 
-        document.getElementById('gas-step-4').innerHTML = 'Total Fuel Cost = ' + fuelVol.toFixed(2) + ' ' + volUnit.toLowerCase() + ' &times; $' + price.toFixed(2) + ' = <strong>$' + totalCost.toFixed(2) + '</strong><br>Per Passenger (' + pass + ' ' + (pass > 1 ? 'passengers' : 'passenger') + ') = $' + totalCost.toFixed(2) + ' / ' + pass + ' = <strong>$' + costPerPerson.toFixed(2) + ' / person</strong>';
+        var safeTco = Math.max(totalTco, fuelCost * 1.5, 1);
+        var pFuel = Math.min(100, Math.max(5, (fuelCost / safeTco) * 100));
+        var pMaint = Math.min(100 - pFuel, Math.max(5, (maintCost / safeTco) * 100));
+        var pDeprec = Math.max(0, 100 - pFuel - pMaint);
+
+        var barW = 600;
+        var wFuel = (pFuel / 100) * barW;
+        var wMaint = (pMaint / 100) * barW;
+        var wDeprec = (pDeprec / 100) * barW;
+
+        var svg = 
+          '<svg viewBox="0 0 680 90" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Stacked Bar Container Background -->' +
+            '<rect x="40" y="20" width="' + barW + '" height="35" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1" />' +
+
+            '<!-- Fuel Segment (Green) -->' +
+            '<rect x="40" y="20" width="' + wFuel + '" height="35" rx="4" fill="#10b981" />' +
+
+            '<!-- Maintenance Segment (Blue) -->' +
+            '<rect x="' + (40 + wFuel) + '" y="20" width="' + wMaint + '" height="35" fill="#3b82f6" />' +
+
+            '<!-- Depreciation Segment (Purple) -->' +
+            '<rect x="' + (40 + wFuel + wMaint) + '" y="20" width="' + wDeprec + '" height="35" rx="4" fill="#8b5cf6" />' +
+
+            '<!-- Text Labels Inside / Above Bar -->' +
+            (wFuel > 70 ? '<text x="' + (40 + wFuel / 2) + '" y="42" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">$' + Math.round(fuelCost) + ' (' + Math.round(pFuel) + '%)</text>' : '') +
+            (wMaint > 70 ? '<text x="' + (40 + wFuel + wMaint / 2) + '" y="42" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">$' + Math.round(maintCost) + '</text>' : '') +
+            (wDeprec > 70 ? '<text x="' + (40 + wFuel + wMaint + wDeprec / 2) + '" y="42" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">$' + Math.round(deprecCost) + '</text>' : '') +
+
+            '<!-- Baseline Annotations -->' +
+            '<text x="40" y="72" fill="#10b981" font-size="11" font-weight="bold">Direct Gas: $' + fuelCost.toFixed(2) + '</text>' +
+            '<text x="' + (40 + barW) + '" y="72" fill="var(--text-muted)" font-size="11" text-anchor="end">IRS All-In TCO: $' + Math.round(totalTco) + '</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
       }
 
       function copyTripSummary() {
-        var totalDistLabel = document.getElementById('gas-total-miles-label').textContent;
-        var totalCost = document.getElementById('gas-total-cost').textContent;
-        var perPerson = document.getElementById('gas-per-person').textContent;
-        var fuelVol = document.getElementById('gas-fuel-volume').textContent;
-        var cpm = document.getElementById('gas-cpm').textContent;
-        var stops = document.getElementById('gas-stops').textContent;
-        var range = document.getElementById('gas-range').textContent;
-        var pass = document.getElementById('gas-passengers').value;
-
-        var text = '🚗 ROAD TRIP FUEL & EXPENSE REPORT\n' +
+        if (!currentTripData) return;
+        var d = currentTripData;
+        var text = 
+          'ROAD TRIP FUEL & COST TAKEOFF\n' +
+          '========================================\n' +
+          '• Total Distance: ' + d.dist.toLocaleString('en-US') + ' ' + d.unit + '\n' +
+          '• Total Fuel Consumed: ' + d.fuelVol + '\n' +
+          '• Total Gas Cost: $' + d.fuelCost + '\n' +
+          '• Cost Per Passenger (' + d.passengers + ' people): $' + d.perPerson + '\n' +
           '----------------------------------------\n' +
-          '• Trip Distance: ' + totalDistLabel + '\n' +
-          '• Estimated Gas Cost: ' + totalCost + '\n' +
-          '• Passenger Split: ' + perPerson + ' / person (' + pass + ' travelers)\n' +
-          '• Fuel Needed: ' + fuelVol + '\n' +
-          '• Cost Per Unit: ' + cpm + '\n' +
-          '• Refuel Stops Needed: ' + stops + ' (' + range + ')\n' +
-          '----------------------------------------\n' +
+          'EV COMPARISON SAVINGS:\n' +
+          '• DC Fast Supercharging Savings: $' + d.evFastSavings + ' vs Gas\n' +
+          '• Home Charging Savings: $' + d.evHomeSavings + ' vs Gas\n' +
+          '• Tailpipe CO2 Avoided: ' + d.co2Saved + ' lbs\n' +
+          '========================================\n' +
           'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/gas-cost-calculator';
 
         navigator.clipboard.writeText(text).then(function() {
           var btn = document.getElementById('btnCopyTrip');
           var old = btn.innerHTML;
-          btn.innerHTML = '✓ Copied Road Trip Summary!';
+          btn.innerHTML = '✓ Copied Road Trip Summary to Clipboard!';
           btn.style.background = '#10b981';
           btn.style.color = '#fff';
           setTimeout(function() {

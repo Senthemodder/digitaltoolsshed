@@ -109,7 +109,7 @@
       "name": "How many grams is 1 cup of all-purpose flour?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "1 level cup of spooned and leveled all-purpose flour equals 120 grams (4.23 ounces). If dipped and swept from the bag, it can weigh up to 140-150 grams."
+        "text": "1 level cup of spooned and leveled all-purpose flour equals 120 grams (4.23 ounces). If dipped and swept directly from the bag, it compacts and can weigh up to 140-155 grams."
       }
     },
     {
@@ -122,10 +122,10 @@
     },
     {
       "@type": "Question",
-      "name": "How many grams is 1 cup of butter?",
+      "name": "How many grams is 1 cup of butter (or 1 stick of butter)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "1 cup of butter (which equals 2 American sticks or 16 tablespoons) equals 227 grams (8 ounces)."
+        "text": "1 cup of butter (which equals 2 American sticks or 16 tablespoons) weighs 227 grams (8.0 ounces). A single stick of butter (1/2 cup or 8 tablespoons) weighs 113.4 grams (4.0 ounces)."
       }
     },
     {
@@ -133,7 +133,15 @@
       "name": "How many grams is 3/4 cup of brown sugar?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "3/4 cup of firmly packed brown sugar weighs 165 grams (5.82 ounces)."
+        "text": "3/4 cup of firmly packed brown sugar weighs 165 grams (5.82 ounces). If measured loose and unpacked, it weighs only approximately 109 grams."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I convert a recipe from cups to grams if my ingredient is not listed?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can determine the grams by multiplying the ingredient's bulk density in g/mL by the volume of your measuring cup in milliliters (e.g., 236.6 mL for a US Customary cup). For example, pure water has a density of 1.00 g/mL, yielding 236.6 grams per cup."
       }
     }
   ]
@@ -1033,7 +1041,7 @@
           
 
           
-    <div class="article-container" style="max-width: 900px;">
+    <div class="article-container" style="max-width: 950px;">
       <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
         <a href="/">Home</a> &gt; <a href="/calc/">Calculators</a> &gt; Cups to Grams
       </nav>
@@ -1041,136 +1049,236 @@
       <header style="margin-bottom: 2rem;">
         <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Cups to Grams Converter (By Ingredient & Standard)</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Convert US cups and recipe fractions to precision scale grams (g), ounces (oz), and pounds (lb) using calibrated USDA culinary bulk densities.
+          Convert US cups, recipe fractions, and spoons to precision digital scale grams (g), ounces (oz), and pounds (lb) using calibrated USDA culinary bulk densities and live measuring cup gauge.
         </p>
       </header>
 
       <!-- Key Callout -->
-      <div style="background: var(--surface-alt); border-left: 4px solid var(--border-strong); padding: 0.85rem 1.15rem; margin-bottom: 1.5rem; font-size: 1rem; font-family: var(--serif);">
+      <div style="background: var(--surface-alt); border-left: 4px solid var(--border-strong); padding: 0.85rem 1.15rem; margin-bottom: 1.5rem; font-size: 0.95rem; font-family: var(--serif);">
         <strong>Digital Scales Guarantee Bakery Consistency:</strong> Measuring by volume with cups introduces up to <strong>&plusmn;25% variance</strong> depending on humidity, packing technique, and scoop compaction. Converting cups to grams ensures every loaf, cookie, and pastry rises identically every single time.
       </div>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
         <!-- Input Card -->
         <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Ingredient & Cups</h3>
-          
-          <div style="margin-bottom: 1.25rem;">
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Select Ingredient</label>
-            <select id="ingredientSelectCups" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 0.95rem;" onchange="calcCupsToGrams()">
-              <optgroup label="Flours & Starches">
-                <option value="120|All-Purpose Flour (Spoon & Level)|0.507" selected>All-Purpose Flour (120g per cup)</option>
-                <option value="140|All-Purpose Flour (Compacted / Dipped)|0.592">All-Purpose Flour (Dipped/Compacted: 140g)</option>
-                <option value="110|All-Purpose Flour (Sifted)|0.465">All-Purpose Flour (Sifted: 110g)</option>
-                <option value="130|Bread Flour|0.549">Bread Flour (130g per cup)</option>
-                <option value="115|Cake & Pastry Flour|0.486">Cake Flour (115g per cup)</option>
-                <option value="120|Whole Wheat Flour|0.507">Whole Wheat Flour (120g per cup)</option>
-                <option value="96|Almond Flour (Blanched)|0.406">Almond Flour (96g per cup)</option>
-                <option value="112|Coconut Flour|0.473">Coconut Flour (112g per cup)</option>
-                <option value="128|Cornstarch|0.541">Cornstarch (128g per cup)</option>
-                <option value="120|Tapioca Starch|0.507">Tapioca Starch (120g per cup)</option>
-              </optgroup>
-              <optgroup label="Sugars & Sweeteners">
-                <option value="200|Granulated White Sugar|0.845">Granulated White Sugar (200g per cup)</option>
-                <option value="220|Brown Sugar (Firmly Packed)|0.930">Brown Sugar (Packed: 220g per cup)</option>
-                <option value="145|Brown Sugar (Loose / Unpacked)|0.613">Brown Sugar (Loose: 145g per cup)</option>
-                <option value="120|Powdered Sugar (Unsifted)|0.507">Powdered Sugar (Unsifted: 120g per cup)</option>
-                <option value="100|Powdered Sugar (Sifted)|0.423">Powdered Sugar (Sifted: 100g per cup)</option>
-                <option value="340|Honey (Pure)|1.437">Honey (340g per cup)</option>
-                <option value="322|Pure Maple Syrup|1.361">Maple Syrup (322g per cup)</option>
-                <option value="328|Molasses|1.386">Molasses (328g per cup)</option>
-              </optgroup>
-              <optgroup label="Dairy, Fats & Liquids">
-                <option value="227|Butter (Solid / 2 Sticks)|0.959">Butter (227g per cup = 2 sticks)</option>
-                <option value="218|Vegetable Oil / Canola|0.921">Vegetable Oil (218g per cup)</option>
-                <option value="216|Olive Oil|0.913">Olive Oil (216g per cup)</option>
-                <option value="240|Water / Milk|1.014">Water / Whole Milk (240g per cup)</option>
-                <option value="238|Heavy Cream|1.006">Heavy Cream (238g per cup)</option>
-                <option value="245|Sour Cream / Greek Yogurt|1.036">Sour Cream / Greek Yogurt (245g per cup)</option>
-                <option value="250|Peanut Butter|1.057">Peanut Butter (250g per cup)</option>
-              </optgroup>
-              <optgroup label="Grains & Mix-ins">
-                <option value="90|Rolled Oats|0.380">Rolled Oats (90g per cup)</option>
-                <option value="100|Dutch Cocoa Powder|0.423">Cocoa Powder (100g per cup)</option>
-                <option value="170|Chocolate Chips|0.719">Chocolate Chips (170g per cup)</option>
-                <option value="185|White Rice (Uncooked)|0.782">White Rice (185g per cup)</option>
-                <option value="115|Chopped Walnuts|0.486">Chopped Walnuts (115g per cup)</option>
-              </optgroup>
-            </select>
-          </div>
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem; color: var(--fg);">Ingredient & Cup Volume</h3>
 
           <div style="margin-bottom: 1.25rem;">
-            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Measuring Cup Standard</label>
-            <select id="cupStandardSelectReverse" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 0.95rem;" onchange="calcCupsToGrams()">
-              <option value="236.588|US Customary (236.6 mL)" selected>US Customary Cup (236.6 mL - American Recipes)</option>
-              <option value="240.000|US Legal (240.0 mL)">US Legal Cup (240.0 mL - Nutrition Labels)</option>
-              <option value="250.000|Metric Cup (250.0 mL)">Metric Cup (250.0 mL - UK, AU, NZ, CA)</option>
-              <option value="284.131|Imperial Cup (284.1 mL)">Imperial Cup (284.1 mL - Traditional UK)</option>
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Select Ingredient</label>
+            <select id="ingredientSelectCups" onchange="calcCupsToGrams()" style="width: 100%; padding: 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); font-family: var(--sans); border-radius: 4px; font-size: 0.95rem;">
+              
+              <optgroup label="Flours & Powders">
+                <option value="120|All-Purpose Flour (Spooned & Leveled)|0.507" selected>All-Purpose Flour (Spooned & Leveled) - 120g</option>
+                <option value="145|All-Purpose Flour (Dipped / Packed)|0.613">All-Purpose Flour (Dipped / Packed) - 145g</option>
+                <option value="127|Bread Flour|0.537">Bread Flour - 127g</option>
+                <option value="130|Whole Wheat Flour|0.549">Whole Wheat Flour - 130g</option>
+                <option value="114|Cake Flour (Sifted)|0.482">Cake Flour (Sifted) - 114g</option>
+                <option value="96|Almond Flour (Blanched)|0.406">Almond Flour (Blanched) - 96g</option>
+                <option value="112|Coconut Flour|0.473">Coconut Flour - 112g</option>
+                <option value="128|Cornstarch|0.541">Cornstarch - 128g</option>
+                <option value="85|Cocoa Powder (Unsweetened)|0.359">Cocoa Powder (Unsweetened) - 85g</option>
+                <option value="192|Baking Powder|0.812">Baking Powder - 192g</option>
+                <option value="220|Baking Soda|0.930">Baking Soda - 220g</option>
+              </optgroup>
+              <optgroup label="Sugars & Sweeteners">
+                <option value="200|Granulated White Sugar|0.845">Granulated White Sugar - 200g</option>
+                <option value="220|Brown Sugar (Firmly Packed)|0.930">Brown Sugar (Firmly Packed) - 220g</option>
+                <option value="145|Brown Sugar (Loose / Unpacked)|0.613">Brown Sugar (Loose / Unpacked) - 145g</option>
+                <option value="100|Powdered / Icing Sugar (Sifted)|0.423">Powdered / Icing Sugar (Sifted) - 100g</option>
+                <option value="125|Powdered Sugar (Unsifted)|0.528">Powdered Sugar (Unsifted) - 125g</option>
+                <option value="340|Honey / Molasses|1.437">Honey / Molasses - 340g</option>
+                <option value="312|Pure Maple Syrup|1.319">Pure Maple Syrup - 312g</option>
+              </optgroup>
+              <optgroup label="Dairy, Fats & Liquids">
+                <option value="227|Butter (Unsalted/Salted - 2 Sticks)|0.959">Butter (2 Sticks = 1 Cup) - 227g</option>
+                <option value="218|Vegetable / Canola Oil|0.921">Vegetable / Canola Oil - 218g</option>
+                <option value="216|Olive Oil|0.913">Olive Oil - 216g</option>
+                <option value="244|Whole Milk|1.031">Whole Milk - 244g</option>
+                <option value="238|Heavy Whipping Cream|1.006">Heavy Whipping Cream - 238g</option>
+                <option value="240|Sour Cream / Greek Yogurt|1.014">Sour Cream / Greek Yogurt - 240g</option>
+                <option value="270|Peanut Butter (Smooth)|1.141">Peanut Butter (Smooth) - 270g</option>
+                <option value="237|Water (Pure)|1.000">Water - 237g (236.6 mL)</option>
+              </optgroup>
+              <optgroup label="Grains, Seeds & Dry Goods">
+                <option value="90|Rolled Oats (Old Fashioned)|0.380">Rolled Oats (Old Fashioned) - 90g</option>
+                <option value="80|Quick Oats|0.338">Quick Oats - 80g</option>
+                <option value="160|Steel Cut Oats|0.676">Steel Cut Oats - 160g</option>
+                <option value="185|White Rice (Uncooked Long-Grain)|0.782">White Rice (Uncooked) - 185g</option>
+                <option value="190|Brown Rice (Uncooked)|0.803">Brown Rice (Uncooked) - 190g</option>
+                <option value="170|Quinoa (Uncooked)|0.719">Quinoa (Uncooked) - 170g</option>
+                <option value="112|Breadcrumbs (Dry)|0.473">Breadcrumbs (Dry) - 112g</option>
+              </optgroup>
+              <optgroup label="Salts">
+                <option value="288|Table Salt (Fine)|1.217">Table Salt (Fine) - 288g</option>
+                <option value="240|Morton Kosher Salt|1.014">Morton Kosher Salt - 240g</option>
+                <option value="144|Diamond Crystal Kosher Salt|0.609">Diamond Crystal Kosher Salt - 144g</option>
+              </optgroup>
+              <optgroup label="Mix-ins & Nuts">
+                <option value="170|Chocolate Chips (Semi-Sweet)|0.719">Chocolate Chips (Semi-Sweet) - 170g</option>
+                <option value="115|Walnuts / Pecans (Chopped)|0.486">Walnuts / Pecans (Chopped) - 115g</option>
+                <option value="150|Raisins (Seedless)|0.634">Raisins (Seedless) - 150g</option>
+              </optgroup>
+  
             </select>
           </div>
 
           <div style="margin-bottom: 1.25rem;">
             <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Number of Cups</label>
-            <input type="number" id="cupsInput" value="1" min="0.05" step="0.125" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCupsToGrams()" />
+            <input type="number" id="cupsInput" value="1.0" min="0.01" step="any" oninput="calcCupsToGrams()" style="width: 100%; padding: 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); font-family: var(--mono); font-size: 1.15rem; border-radius: 4px;">
+            <div style="display: flex; gap: 0.35rem; margin-top: 0.5rem; flex-wrap: wrap;">
+              <button type="button" onclick="setCupFraction(0.125)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">1/8</button>
+              <button type="button" onclick="setCupFraction(0.25)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">1/4</button>
+              <button type="button" onclick="setCupFraction(0.333)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">1/3</button>
+              <button type="button" onclick="setCupFraction(0.5)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">1/2</button>
+              <button type="button" onclick="setCupFraction(0.667)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">2/3</button>
+              <button type="button" onclick="setCupFraction(0.75)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">3/4</button>
+              <button type="button" onclick="setCupFraction(1.0)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">1 Cup</button>
+              <button type="button" onclick="setCupFraction(1.5)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">1.5</button>
+              <button type="button" onclick="setCupFraction(2.0)" class="btn-subtle" style="font-size: 0.75rem; padding: 0.2rem 0.5rem; font-family: var(--mono); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 3px; cursor: pointer;">2 Cups</button>
+            </div>
           </div>
 
-          <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.25rem;">
-            <span style="font-size: 0.75rem; color: var(--text-muted); width: 100%;">Recipe Cup Fractions:</span>
-            <button type="button" class="btn-sm" onclick="setCupFraction(0.125)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">1/8 Cup (2 tbsp)</button>
-            <button type="button" class="btn-sm" onclick="setCupFraction(0.25)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">1/4 Cup</button>
-            <button type="button" class="btn-sm" onclick="setCupFraction(0.333)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">1/3 Cup</button>
-            <button type="button" class="btn-sm" onclick="setCupFraction(0.5)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">1/2 Cup</button>
-            <button type="button" class="btn-sm" onclick="setCupFraction(0.667)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">2/3 Cup</button>
-            <button type="button" class="btn-sm" onclick="setCupFraction(0.75)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">3/4 Cup</button>
-            <button type="button" class="btn-sm" onclick="setCupFraction(1)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">1 Cup</button>
-            <button type="button" class="btn-sm" onclick="setCupFraction(1.5)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">1 1/2 Cups</button>
-            <button type="button" class="btn-sm" onclick="setCupFraction(2)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">2 Cups</button>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;">
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Cup Standard</label>
+              <select id="cupStandardSelectCups" onchange="calcCupsToGrams()" style="width: 100%; padding: 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); font-family: var(--sans); border-radius: 4px; font-size: 0.85rem;">
+                <option value="236.588|US Customary (236.6 mL)" selected>US Customary (236.6 mL)</option>
+                <option value="240.000|US Legal / Nutrition (240.0 mL)">US Legal (240.0 mL)</option>
+                <option value="250.000|Metric Cup (250.0 mL - UK/AU/NZ)">Metric Cup (250.0 mL)</option>
+                <option value="284.130|Imperial Cup (284.1 mL - Traditional UK)">Imperial Cup (284.1 mL)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Batch Multiplier</label>
+              <select id="batchMultiplierCups" onchange="calcCupsToGrams()" style="width: 100%; padding: 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); font-family: var(--sans); border-radius: 4px; font-size: 0.85rem;">
+                <option value="0.5">0.5× (Half Batch)</option>
+                <option value="1" selected>1× (Standard Recipe)</option>
+                <option value="1.5">1.5× (1.5× Recipe)</option>
+                <option value="2">2× (Double Batch)</option>
+                <option value="3">3× (Triple Batch)</option>
+              </select>
+            </div>
           </div>
 
-          <button type="button" class="btn-primary" onclick="calcCupsToGrams()" style="width: 100%; padding: 0.75rem; font-size: 1rem; cursor: pointer;">Calculate Grams</button>
+          <div style="font-family: var(--mono); font-size: 0.78rem; color: var(--text-muted); padding: 0.5rem; background: var(--surface-alt); border-radius: 4px; display: flex; justify-content: space-between;">
+            <span>Ingredient Density:</span>
+            <span id="densityBadgeCups" style="font-weight: bold; color: var(--fg);">-- g/mL</span>
+          </div>
         </div>
 
-        <!-- Output Card -->
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
+        <!-- Output & Visual Card -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
           <div>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0;">Scale Weight Results</h3>
-              <span id="scaleStatusBadge" style="font-family: var(--mono); font-size: 0.75rem; background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 4px; color: #10b981; font-weight: bold;">Digital Scale Target</span>
+            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem; color: var(--fg);">Precision Scale Weight</h3>
+            <div id="cupsResultsContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <!-- Populated by JS -->
             </div>
-            <div id="gramResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
           </div>
 
-          <!-- Copy Button -->
-          <div style="margin-top: 1.5rem; pt: 1rem; border-top: 1px solid var(--border);">
-            <button id="copyCupsBtn" onclick="copyCupsToGramsSummary()" class="btn-sec" style="width: 100%; padding: 0.65rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-              <span>📋 Copy Scale Recipe Line</span>
+          <!-- Pure SVG Measuring Cup Visualizer -->
+          <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Measuring Cup Fill Gauge</span>
+              <span id="cupFillBadgeCups" style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; font-weight: bold;">1.00 Cup</span>
+            </div>
+            <div id="cupSvgContainerCups">
+              <!-- SVG drawn by JS -->
+            </div>
+          </div>
+
+          <div style="margin-top: 1rem;">
+            <button type="button" id="copyCupsBtn" onclick="copyCupsTakeoff()" class="btn" style="width: 100%; padding: 0.65rem; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; background: var(--surface-alt); border: 1px solid var(--border); color: var(--fg); border-radius: 4px; cursor: pointer; transition: all 0.2s;">
+              📋 Copy Scale Measurement Line
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Step-by-Step Mathematical Derivation -->
+      <!-- Step-by-Step Mathematical & Physical Derivation -->
       <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.75rem;">📐 Volume to Mass Conversion Derivation</h3>
-        <div id="cupsDerivFormula" style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; overflow-x: auto; border: 1px solid var(--border);">
-          <!-- Populated by JavaScript -->
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.75rem; color: var(--fg);">📐 Bulk Density & Tare Mass Derivation</h3>
+        <p style="font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1rem;">
+          How the physical bulk density converts recipe volume fractions into grams and ounces:
+        </p>
+        <div id="derivationFormulaCups" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; background: var(--surface-alt); padding: 1rem; border-radius: 4px; border: 1px solid var(--border);">
+          <!-- Injected dynamically -->
         </div>
       </div>
 
-      <!-- Sponsored Ad Slot -->
-      <div class="ad-blend-box" style="margin: 2rem 0;">
-        <span class="ad-label">Sponsored Resource</span>
-        <div class="ad-unit-300x250">
-          <script type="text/javascript">
-            atOptions = {
-              'key' : '335d807d460eaf2491fcca0f635474ce',
-              'format' : 'iframe',
-              'height' : 250,
-              'width' : 300,
-              'params' : {}
-            };
-          </script>
-          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+      <!-- 5 Fatal Pitfalls Section -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Baking Pitfalls & Volumetric Measurement Traps</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Baking is strict chemical engineering. In chemistry, small volumetric deviations spoil pH, gluten hydration, and steam leavening. Avoid these 5 traps:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">1. The Scoop vs Spoon-and-Sweep Flour Compaction Shock</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Dipping a measuring cup directly into a bag of flour compacts the grain. A cup dipped and leveled weighs <strong>140g to 155g</strong>, whereas properly aerated flour (spooned into the cup and leveled) weighs <strong>120g</strong>. That extra 25g to 35g of flour per cup absorbs excessive liquid, turning tender cakes rubbery and artisan breads dense and dry.
+            </p>
+          </div>
+
+          <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">2. The Diamond Crystal vs Morton Kosher Salt Discrepancy</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Diamond Crystal kosher salt has hollow flaky crystals weighing only <strong>144g per cup</strong> (2.8g per tsp), whereas Morton kosher salt is dense rolled crystals weighing <strong>240g per cup</strong> (4.8g per tsp). Substituting Morton 1:1 by volume for Diamond Crystal makes your food nearly <strong>70% saltier</strong> than intended.
+            </p>
+          </div>
+
+          <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">3. The International Cup Volume Chasm (US vs Metric vs Imperial)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              A US Customary cup holds <strong>236.6 mL</strong> (8 fluid ounces), a US Legal nutrition cup holds <strong>240.0 mL</strong>, an Australian / New Zealand / UK Metric cup holds <strong>250.0 mL</strong>, and an archaic Imperial British cup holds <strong>284.1 mL</strong>. Baking a British or Australian recipe using an American cup creates a 5.7% to 20% shortage of flour and sugar.
+            </p>
+          </div>
+
+          <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">4. The Brown Sugar Entrapped Air Trap (Packed vs Loose)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Brown sugar contains sticky molasses that traps massive air pockets when scooped loosely, yielding only ~145g per cup. Standard baking recipes universally assume <strong>firmly packed brown sugar</strong> (pressed into the cup until it holds its shape like a sandcastle), which weighs <strong>220g per cup</strong>. Scooping loosely causes a disastrous 34% sugar deficit.
+            </p>
+          </div>
+
+          <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+            <strong style="color: var(--fg); font-size: 0.95rem;">5. Fluid Ounces (Volume) vs Avoirdupois Ounces (Weight) Confusion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              A "fluid ounce" is a unit of volume ($29.57\text{ mL}$), while an ounce is a unit of mass ($28.35\text{ g}$). Water is the only culinary substance where $1\text{ fl oz} \approx 1\text{ oz}$ mass. For dense honey, an 8 fl oz cup weighs over <strong>11.5 dry ounces (340 grams)</strong>. Weighing honey to "8 ounces" on a scale results in a 30% shortage.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Master Reference Table -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">📋 Master Baking Conversion Table (US Customary Cups to Grams)</h3>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; font-family: var(--sans); font-size: 0.85rem; text-align: left;">
+            <thead>
+              <tr style="background: var(--surface-alt); border-bottom: 2px solid var(--border);">
+                <th style="padding: 0.55rem 0.75rem;">Ingredient</th>
+                <th style="padding: 0.55rem 0.75rem;">1/4 Cup</th>
+                <th style="padding: 0.55rem 0.75rem;">1/3 Cup</th>
+                <th style="padding: 0.55rem 0.75rem;">1/2 Cup</th>
+                <th style="padding: 0.55rem 0.75rem;">3/4 Cup</th>
+                <th style="padding: 0.55rem 0.75rem; color: #10b981;">1 Cup</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">All-Purpose Flour (Spooned & Leveled)</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">30g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">40g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">60g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">90g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">120g</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Bread Flour</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">31.8g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">42.3g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">63.5g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">95.3g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">127g</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Granulated White Sugar</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">50g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">66.7g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">100g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">150g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">200g</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Brown Sugar (Packed)</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">55g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">73.3g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">110g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">165g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">220g</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Powdered Sugar (Sifted)</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">25g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">33.3g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">50g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">75g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">100g</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Butter (1 stick = 1/2 cup)</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">56.7g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">75.7g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">113.4g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">170.1g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">227g</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Vegetable / Canola Oil</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">54.5g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">72.7g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">109g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">163.5g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">218g</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Rolled Oats</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">22.5g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">30g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">45g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">67.5g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">90g</td></tr>
+              <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Cocoa Powder (Unsweetened)</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">21.3g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">28.3g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">42.5g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">63.8g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">85g</td></tr>
+              <tr><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Chocolate Chips (Semi-Sweet)</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">42.5g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">56.7g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">85g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">127.5g</td><td style="padding: 0.45rem 0.75rem; font-family: var(--mono); font-weight: bold; color: #10b981;">170g</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -1178,87 +1286,155 @@
     <script>
       var currentCupsData = null;
 
+      function setCupFraction(val) {
+        document.getElementById('cupsInput').value = val;
+        calcCupsToGrams();
+      }
+
       function calcCupsToGrams() {
-        var cups = parseFloat(document.getElementById('cupsInput').value) || 0;
+        var baseCups = parseFloat(document.getElementById('cupsInput').value) || 0;
+        var multiplier = parseFloat(document.getElementById('batchMultiplierCups').value) || 1.0;
+        var cups = baseCups * multiplier;
+
         var rawIng = document.getElementById('ingredientSelectCups').value.split('|');
         var baseCupWeight = parseFloat(rawIng[0]) || 120;
         var ingName = rawIng[1];
         var densityGmL = parseFloat(rawIng[2]) || (baseCupWeight / 236.588);
 
-        var rawStd = document.getElementById('cupStandardSelectReverse').value.split('|');
+        var rawStd = document.getElementById('cupStandardSelectCups').value.split('|');
         var cupVolumeMl = parseFloat(rawStd[0]) || 236.588;
         var stdName = rawStd[1];
 
         var adjustedCupWeight = baseCupWeight * (cupVolumeMl / 236.588);
+
         var grams = cups * adjustedCupWeight;
+        var kg = grams / 1000;
         var oz = grams / 28.34952;
         var lb = grams / 453.59237;
         var tbsp = cups * 16;
         var tsp = cups * 48;
-        var totalMl = cups * cupVolumeMl;
+        var ml = cups * cupVolumeMl;
 
-        var container = document.getElementById('gramResults');
+        document.getElementById('densityBadgeCups').textContent = densityGmL.toFixed(3) + ' g/mL';
+
+        var container = document.getElementById('cupsResultsContainer');
         container.innerHTML = 
-          '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Scale Mass in Grams</span>' +
-            '<div style="font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.2rem 0;">' + grams.toFixed(1) + ' g</div>' +
-            '<div style="font-size: 0.78rem; color: var(--text-muted);">Exact digital tare reading for baking accuracy</div>' +
+          '<div style="padding: 0.85rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px;">' +
+            '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Digital Scale Mass</span>' +
+            '<div style="font-size: 1.8rem; font-weight: bold; color: #10b981; margin: 0.2rem 0; font-family: var(--mono);">' + grams.toFixed(1) + ' grams</div>' +
+            '<div style="font-size: 0.78rem; color: var(--text-muted);">' + (multiplier !== 1 ? 'Scaled for ' + multiplier + '× batch (' + cups.toFixed(2) + ' cups total)' : 'Exact tare mass for digital scales') + '</div>' +
           '</div>' +
           '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">' +
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Ounces (Avoirdupois)</span>' +
-              '<div style="font-size: 1.25rem; font-weight: bold; color: var(--fg);">' + oz.toFixed(2) + ' oz</div>' +
-              '<div style="font-size: 0.72rem; color: var(--text-muted);">' + (lb >= 0.1 ? lb.toFixed(3) + ' lbs' : grams.toFixed(0) + ' g') + '</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Avoirdupois Ounces</span>' +
+              '<div style="font-size: 1.25rem; font-weight: bold; color: var(--fg); font-family: var(--mono);">' + oz.toFixed(2) + ' oz</div>' +
+              '<div style="font-size: 0.72rem; color: var(--text-muted);">' + (lb >= 0.1 ? lb.toFixed(3) + ' lbs' : kg.toFixed(3) + ' kg') + '</div>' +
             '</div>' +
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Equivalent Spoons</span>' +
-              '<div style="font-size: 1.25rem; font-weight: bold; color: #3b82f6;">' + tbsp.toFixed(1) + ' Tbsp</div>' +
-              '<div style="font-size: 0.72rem; color: var(--text-muted);">' + tsp.toFixed(0) + ' Teaspoons (tsp)</div>' +
+            '<div style="padding: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Spoons Equivalent</span>' +
+              '<div style="font-size: 1.25rem; font-weight: bold; color: #3b82f6; font-family: var(--mono);">' + tbsp.toFixed(1) + ' Tbsp</div>' +
+              '<div style="font-size: 0.72rem; color: var(--text-muted);">' + tsp.toFixed(0) + ' tsp (' + ml.toFixed(1) + ' mL)</div>' +
             '</div>' +
-          '</div>' +
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Metric Volume Displaced</span>' +
-            '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">' + totalMl.toFixed(1) + ' mL (' + (totalMl / 29.5735).toFixed(2) + ' fl oz)</div>' +
           '</div>';
 
-        var deriv = document.getElementById('cupsDerivFormula');
+        var deriv = document.getElementById('derivationFormulaCups');
         deriv.innerHTML = 
-          '<div><strong>1. Ingredient Bulk Density:</strong> &rho; = ' + densityGmL.toFixed(3) + ' g/mL (' + baseCupWeight + ' g per 236.6 mL US cup)</div>' +
-          '<div><strong>2. Cup Volume:</strong> ' + stdName + ' = ' + cupVolumeMl.toFixed(1) + ' mL</div>' +
-          '<div><strong>3. Single Cup Mass:</strong> 1 Cup = ' + adjustedCupWeight.toFixed(1) + ' grams</div>' +
-          '<div><strong>4. Total Scale Weight:</strong> ' + cups + ' Cups &times; ' + adjustedCupWeight.toFixed(1) + ' g = <strong>' + grams.toFixed(1) + ' grams (' + oz.toFixed(2) + ' oz)</strong></div>';
+          '<div><strong>1. Calibrated Density:</strong> &rho; = ' + densityGmL.toFixed(3) + ' g/mL (' + baseCupWeight + ' g per 236.6 mL US cup)</div>' +
+          '<div><strong>2. Cup Volume Standard:</strong> ' + stdName + ' = ' + cupVolumeMl.toFixed(1) + ' mL</div>' +
+          '<div><strong>3. Adjusted Single Cup Weight:</strong> W<sub>cup</sub> = ' + densityGmL.toFixed(3) + ' &times; ' + cupVolumeMl.toFixed(1) + ' mL = ' + adjustedCupWeight.toFixed(1) + ' g/cup</div>' +
+          '<div><strong>4. Scale Mass Calculation:</strong> Mass = ' + cups.toFixed(2) + ' cups &times; ' + adjustedCupWeight.toFixed(1) + ' g = <strong>' + grams.toFixed(1) + ' grams</strong> (' + oz.toFixed(2) + ' oz)</div>';
 
         currentCupsData = {
-          cups: cups,
+          cups: cups.toFixed(2),
           ingredient: ingName,
           grams: grams.toFixed(1),
           oz: oz.toFixed(2),
           tbsp: tbsp.toFixed(1),
           stdName: stdName
         };
+
+        document.getElementById('cupFillBadgeCups').textContent = cups.toFixed(2) + ' Cups';
+        renderCupSvgCups(cups, grams, oz);
       }
 
-      window.setCupFraction = function(c) {
-        document.getElementById('cupsInput').value = c;
-        calcCupsToGrams();
-      };
+      function renderCupSvgCups(cupFraction, grams, oz) {
+        var container = document.getElementById('cupSvgContainerCups');
+        if (!container) return;
 
-      window.copyCupsToGramsSummary = function() {
+        var clampedFraction = Math.min(Math.max(cupFraction, 0), 1.25);
+        var fillPct = Math.min(clampedFraction, 1.0);
+
+        var baseY = 175;
+        var topY = 55;
+        var cupH = baseY - topY;
+        var currentY = baseY - (fillPct * cupH);
+
+        var t = (baseY - currentY) / (baseY - topY);
+        var halfW = (65 + t * 25);
+        var leftX = 150 - halfW;
+        var rightX = 150 + halfW;
+
+        var baseLeftX = 85;
+        var baseRightX = 215;
+
+        var fillPath = '';
+        if (fillPct > 0.01) {
+          fillPath = 
+            '<path d="M ' + baseLeftX + ' ' + baseY + ' L ' + leftX + ' ' + currentY + ' Q 150 ' + (currentY + 4) + ' ' + rightX + ' ' + currentY + ' L ' + baseRightX + ' ' + baseY + ' Q 150 ' + (baseY + 4) + ' ' + baseLeftX + ' ' + baseY + ' Z" fill="rgba(16, 185, 129, 0.22)" stroke="#10b981" stroke-width="1.5" />' +
+            '<line x1="' + leftX + '" y1="' + currentY + '" x2="' + rightX + '" y2="' + currentY + '" stroke="#10b981" stroke-width="2" />';
+        }
+
+        var svg = 
+          '<svg viewBox="0 0 420 200" style="width: 100%; max-width: 480px; height: auto; display: block; font-family: var(--mono); margin: 0 auto;" xmlns="http://www.w3.org/2000/svg">' +
+            '<path d="M 235 70 C 280 70, 285 155, 215 160" fill="none" stroke="var(--border-strong)" stroke-width="8" stroke-linecap="round" />' +
+            '<path d="M 45 35 L 60 40 L 85 175 Q 150 183 215 175 L 240 40 L 245 35 Q 150 42 45 35 Z" fill="rgba(100, 116, 139, 0.05)" stroke="var(--border-strong)" stroke-width="2.5" />' +
+            fillPath +
+            '<line x1="190" y1="55" x2="235" y2="55" stroke="var(--fg)" stroke-width="2" />' +
+            '<text x="250" y="59" fill="var(--fg)" font-size="11" font-weight="bold">1 Cup</text>' +
+            '<line x1="195" y1="85" x2="230" y2="85" stroke="var(--text-muted)" stroke-width="1.5" />' +
+            '<text x="250" y="89" fill="var(--text-muted)" font-size="10">3/4 Cup</text>' +
+            '<line x1="197" y1="95" x2="228" y2="95" stroke="var(--border-strong)" stroke-dasharray="2,2" stroke-width="1" />' +
+            '<text x="250" y="99" fill="var(--text-muted)" font-size="9">2/3 Cup</text>' +
+            '<line x1="200" y1="115" x2="225" y2="115" stroke="var(--text-muted)" stroke-width="1.5" />' +
+            '<text x="250" y="119" fill="var(--text-muted)" font-size="10">1/2 Cup</text>' +
+            '<line x1="202" y1="135" x2="222" y2="135" stroke="var(--border-strong)" stroke-dasharray="2,2" stroke-width="1" />' +
+            '<text x="250" y="139" fill="var(--text-muted)" font-size="9">1/3 Cup</text>' +
+            '<line x1="204" y1="145" x2="220" y2="145" stroke="var(--text-muted)" stroke-width="1.5" />' +
+            '<text x="250" y="149" fill="var(--text-muted)" font-size="10">1/4 Cup</text>' +
+            '<rect x="295" y="110" width="115" height="55" rx="5" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1" />' +
+            '<text x="352" y="128" fill="var(--text-muted)" font-size="9" text-anchor="middle" text-transform="uppercase">Scale Readout</text>' +
+            '<text x="352" y="146" fill="#10b981" font-size="15" font-weight="bold" text-anchor="middle">' + grams.toFixed(1) + ' g</text>' +
+            '<text x="352" y="159" fill="var(--text-muted)" font-size="9" text-anchor="middle">' + oz.toFixed(2) + ' oz</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+      function copyCupsTakeoff() {
         if (!currentCupsData) return;
         var text = 
-          '[Scale Recipe Weight] ' + currentCupsData.cups + ' Cups ' + currentCupsData.ingredient + '\n' +
-          '• Digital Scale Weight: ' + currentCupsData.grams + ' g (' + currentCupsData.oz + ' oz)\n' +
+          'RECIPE MEASUREMENT CONVERSION\n' +
+          '• Ingredient: ' + currentCupsData.ingredient + '\n' +
+          '• Volume: ' + currentCupsData.cups + ' Cups\n' +
+          '• Scale Weight: ' + currentCupsData.grams + ' g (' + currentCupsData.oz + ' oz)\n' +
           '• Equivalent Spoons: ' + currentCupsData.tbsp + ' Tablespoons\n' +
           '• Cup Size Standard: ' + currentCupsData.stdName + '\n' +
+          '----------------------------------------\n' +
           'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/cups-to-grams';
 
         navigator.clipboard.writeText(text).then(function() {
           var btn = document.getElementById('copyCupsBtn');
           var orig = btn.innerHTML;
-          btn.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ Copied Scale Line!</span>';
-          setTimeout(function() { btn.innerHTML = orig; }, 2200);
+          btn.innerHTML = '✓ Copied Scale Line to Clipboard!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = 'var(--surface-alt)';
+            btn.style.color = 'var(--fg)';
+          }, 2200);
         });
-      };
+      }
 
       document.addEventListener('DOMContentLoaded', calcCupsToGrams);
       calcCupsToGrams();
