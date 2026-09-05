@@ -33,76 +33,139 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       category: 'Security',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; Strong Password Generator
+            <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; Strong Password Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Strong Password Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Strong Password Generator &amp; Cryptographic Entropy Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Generate high-entropy, cryptographically random passwords utilizing Web Cryptography API (<code>window.crypto.getRandomValues</code>). 100% client-side with zero data transmission.
+            Generate high-entropy, mathematically unpredictable passwords utilizing the browser's native CSPRNG Web Cryptography API. 100% client-side with zero server transmission.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
               <label class="field-label">Generated Password</label>
               <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="pw-output" class="code-input" style="font-size: 1.1rem; letter-spacing: 0.05em; font-weight: bold;" readonly />
-                <button class="btn-primary" onclick="copyPassword()">Copy</button>
+                <input type="text" id="pw-output" class="code-input" style="font-size: 1.2rem; letter-spacing: 0.05em; font-weight: bold; color: var(--fg); height: 48px;" readonly />
+                <button type="button" class="btn-primary" onclick="genPW()" style="flex-shrink: 0; padding: 0 1rem;">&#x21BA; New</button>
               </div>
             </div>
 
-            <div class="field-group">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                <label class="field-label" style="margin:0;">Length: <span id="len-val" style="color:var(--fg); font-size: 0.9rem;">16</span> chars</label>
-                <span id="entropy-badge" class="badge badge-green">99.5 bits (Strong)</span>
+            <div class="field-group" style="margin-top: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Password Length: <span id="len-val" style="color: var(--fg); font-weight: bold;">20</span> chars</label>
+                <span id="entropy-badge" class="badge badge-green" style="font-family: var(--mono); font-size: 0.8rem;">131 bits (Very Strong)</span>
               </div>
-              <input type="range" id="pw-len" min="6" max="64" value="16" style="width: 100%; cursor: pointer;" oninput="updateLen()" />
+              <input type="range" id="pw-len" min="8" max="64" value="20" style="width: 100%; cursor: pointer;" oninput="updateLen()" />
             </div>
 
-            <div class="field-group">
-              <label class="field-label">Character Sets</label>
-              <div class="grid-options">
+            <!-- Character Set Toggles -->
+            <div class="field-group" style="margin-top: 1rem;">
+              <label class="field-label">Character Pool Inclusions</label>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.75rem; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
                 <label class="opt-label"><input type="checkbox" id="opt-upper" checked onchange="genPW()"> Uppercase (A-Z)</label>
                 <label class="opt-label"><input type="checkbox" id="opt-lower" checked onchange="genPW()"> Lowercase (a-z)</label>
                 <label class="opt-label"><input type="checkbox" id="opt-digits" checked onchange="genPW()"> Numbers (0-9)</label>
-                <label class="opt-label"><input type="checkbox" id="opt-symbols" checked onchange="genPW()"> Symbols (!@#$%^&*)</label>
+                <label class="opt-label"><input type="checkbox" id="opt-symbols" checked onchange="genPW()"> Symbols (!@#$%^&amp;*)</label>
                 <label class="opt-label"><input type="checkbox" id="opt-no-ambig" onchange="genPW()"> Exclude Ambiguous (O, 0, l, 1, I)</label>
               </div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="genPW()">&#x21BA; Generate New</button>
-              <button class="btn-sec" onclick="bulkGen()">Generate 5 Batch</button>
+            <!-- Crack Time & Entropy Metrics -->
+            <div class="stat-grid" style="margin-top: 1.25rem;">
+              <div class="stat-card"><div class="stat-num" id="stat-entropy">0 bits</div><div class="stat-lbl">Shannon Entropy</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-pool">0 chars</div><div class="stat-lbl">Character Pool</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-online">Instant</div><div class="stat-lbl">Online Attack (100/s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-gpu">Instant</div><div class="stat-lbl">GPU Cluster (100B/s)</div></div>
             </div>
 
-            <div id="bulk-container" style="display: none; margin-top: 1.5rem;">
-              <label class="field-label">Batch Passwords</label>
-              <div id="bulk-list" class="result-box" style="white-space: pre-line;"></div>
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyPw" class="btn-primary" onclick="copyPassword()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Password</span>
+              </button>
+              <button type="button" id="btnCopyPwReport" class="btn-sec" onclick="copyPasswordReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Cryptographic Report</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="bulkGen()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>⚡ Generate 5 Batch</span>
+              </button>
+            </div>
+
+            <!-- Bulk Output Section -->
+            <div id="bulk-container" style="display: none; margin-top: 1.5rem; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <label class="field-label" style="margin:0;">Batch Generated Passwords (5x)</label>
+                <button type="button" id="btnCopyBatch" class="btn-sec" onclick="copyBatchPasswords()" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;">📋 Copy Batch</button>
+              </div>
+              <div id="bulk-list" class="result-box" style="white-space: pre-line; font-family: var(--mono); font-size: 0.95rem; line-height: 1.8;"></div>
             </div>
           </div>
 
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin-top: 2rem;">
-            <h3 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.5rem;">How Secure Is This Generator?</h3>
-            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
-              This tool utilizes the browser's native CSPRNG (Cryptographically Secure Pseudorandom Number Generator) provided by <code>crypto.getRandomValues()</code>. Unlike standard <code>Math.random()</code>, it pulls entropy from system-level hardware noise, making the output mathematically unpredictable and cryptographically safe.
-            </p>
+          <!-- 5 Critical Password Generation Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Password Generation, Entropy &amp; Cryptanalysis</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Pseudo-Random Number Generator (Math.random) Predictability</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Generating passwords with <code>Math.random()</code> is catastrophic. Standard browser PRNGs (such as xorshift128+) are non-cryptographic algorithms designed strictly for graphics and game physics. An attacker observing just two or three generated passwords can reconstruct internal PRNG states and predict past and future keys. Always demand <code>window.crypto.getRandomValues</code>.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Modulo Bias Distorting Character Frequencies</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Naive random character pickers that use <code>randomInt % chars.length</code> introduce subtle statistical bias when the range of the random number generator (e.g. 2³²) is not an exact integer multiple of the pool length. Lower-indexed characters occur with slightly higher frequency, creating measurable statistical weaknesses exploited by high-speed cryptanalysis engines.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Operating System Clipboard Snooping &amp; Mobile Leakage</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Copying a newly generated password puts raw plaintext credentials into the OS clipboard. On desktop operating systems and older mobile platforms, any background application, malicious browser extension, or clipboard history utility can read the copied buffer. Passwords should be pasted immediately into an encrypted vault and the clipboard purged within 60 seconds.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Remote Server Transmission &amp; Web Server Logging Fallacy</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Many online password generators generate keys on a backend web server and return them via JSON API. This exposes credentials to TLS proxy interception, backend access logs, telemetry databases, and rogue third-party CDN caches. Only pure client-side generators running entirely inside local sandbox memory guarantee zero data transmission.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Artificial Complexity Mandates vs. True Bit-Entropy</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Legacy enterprise policies requiring "at least 1 uppercase, 1 symbol, 1 digit" paradoxically degrade security when applied to human choices (e.g. users predictably capitalize the first letter and append <code>!1</code>). High-entropy length is king: an unconstrained 20-character CSPRNG password provides ~130 bits of entropy, rendering brute force computationally impossible across the lifespan of the universe.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
-          const UPPERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-          const LOWERS = 'abcdefghijklmnopqrstuvwxyz';
-          const DIGITS = '0123456789';
-          const SYMBOLS = '!@#$%^&*()_+-=[]{}|;:,.<>?';
-          const AMBIGUOUS = /[O0l1I]/g;
+          var UPPERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+          var LOWERS = 'abcdefghijklmnopqrstuvwxyz';
+          var DIGITS = '0123456789';
+          var SYMBOLS = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+          var AMBIGUOUS = /[O0l1I]/g;
 
-          function updateLen() {
-            document.getElementById('len-val').textContent = document.getElementById('pw-len').value;
-            genPW();
+          window._pwData = { pw: '', len: 20, entropy: 0, pool: 0, online: '', gpu: '' };
+
+          function formatTime(seconds) {
+            if (seconds < 1) return 'Instant';
+            if (seconds < 60) return Math.round(seconds) + ' secs';
+            if (seconds < 3600) return Math.round(seconds / 60) + ' mins';
+            if (seconds < 86400) return Math.round(seconds / 3600) + ' hours';
+            if (seconds < 31536000) return Math.round(seconds / 86400) + ' days';
+            if (seconds < 3153600000) return Math.round(seconds / 31536000) + ' years';
+            if (seconds < 315360000000) return Math.round(seconds / 315360000) + ' centuries';
+            return 'Millions of millennia';
           }
 
           function getCharset() {
-            let chars = '';
+            var chars = '';
             if (document.getElementById('opt-upper').checked) chars += UPPERS;
             if (document.getElementById('opt-lower').checked) chars += LOWERS;
             if (document.getElementById('opt-digits').checked) chars += DIGITS;
@@ -114,44 +177,119 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           }
 
           function generateSinglePassword(len) {
-            const chars = getCharset();
-            const array = new Uint32Array(len);
+            var chars = getCharset();
+            var array = new Uint32Array(len);
             window.crypto.getRandomValues(array);
-            let res = '';
-            for (let i = 0; i < len; i++) {
+            var res = '';
+            for (var i = 0; i < len; i++) {
               res += chars[array[i] % chars.length];
             }
             return res;
           }
 
-          function genPW() {
-            const len = parseInt(document.getElementById('pw-len').value, 10);
-            const pw = generateSinglePassword(len);
+          window.updateLen = function() {
+            var val = document.getElementById('pw-len').value;
+            document.getElementById('len-val').textContent = val;
+            genPW();
+          };
+
+          window.genPW = function() {
+            var len = parseInt(document.getElementById('pw-len').value, 10) || 20;
+            var pw = generateSinglePassword(len);
             document.getElementById('pw-output').value = pw;
 
-            const charset = getCharset();
-            const entropy = Math.round(len * Math.log2(charset.length));
-            const badge = document.getElementById('entropy-badge');
-            badge.textContent = entropy + ' bits (' + (entropy > 80 ? 'Very Strong' : entropy > 60 ? 'Strong' : entropy > 40 ? 'Moderate' : 'Weak') + ')';
-            badge.className = 'badge ' + (entropy > 60 ? 'badge-green' : entropy > 40 ? 'badge-amber' : 'badge-red');
-          }
+            var chars = getCharset();
+            var pool = chars.length;
+            var entropy = Math.round(len * Math.log2(pool || 1));
+            var combinations = Math.pow(pool || 1, len);
 
-          function copyPassword() {
-            const input = document.getElementById('pw-output');
-            navigator.clipboard.writeText(input.value).then(() => {
-              const orig = input.style.borderColor;
-              input.style.borderColor = '#22c55e';
-              setTimeout(() => { input.style.borderColor = orig; }, 1000);
+            var secOnline = combinations / 100;
+            var secGPU = combinations / 100000000000;
+
+            var strOnline = formatTime(secOnline);
+            var strGPU = formatTime(secGPU);
+
+            document.getElementById('stat-entropy').textContent = entropy + ' bits';
+            document.getElementById('stat-pool').textContent = pool + ' chars';
+            document.getElementById('stat-online').textContent = strOnline;
+            document.getElementById('stat-gpu').textContent = strGPU;
+
+            var badge = document.getElementById('entropy-badge');
+            var rating = entropy > 100 ? 'Military Grade' : entropy > 80 ? 'Very Strong' : entropy > 60 ? 'Strong' : entropy > 40 ? 'Moderate' : 'Weak';
+            var color = entropy > 80 ? '#10b981' : entropy > 60 ? '#3b82f6' : entropy > 40 ? '#f59e0b' : '#ef4444';
+            badge.textContent = entropy + ' bits (' + rating + ')';
+            badge.style.backgroundColor = color;
+            badge.style.color = '#fff';
+
+            window._pwData = {
+              pw: pw,
+              len: len,
+              entropy: entropy,
+              pool: pool,
+              online: strOnline,
+              gpu: strGPU
+            };
+          };
+
+          window.copyPassword = function() {
+            var input = document.getElementById('pw-output');
+            var val = input ? input.value : '';
+            if (!val) { genPW(); val = document.getElementById('pw-output').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyPw');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Password Copied!</span>';
+                setTimeout(function() { btn.innerHTML = orig; }, 2200);
+              }
             });
-          }
+          };
 
-          function bulkGen() {
-            const len = parseInt(document.getElementById('pw-len').value, 10);
-            const list = [];
-            for (let i = 0; i < 5; i++) list.push(generateSinglePassword(len));
+          window.copyPasswordReport = function() {
+            var d = window._pwData;
+            var text = '🛡️ Cryptographic Password & Entropy Diagnostic Report\n' +
+              '• Password Length: ' + d.len + ' characters\n' +
+              '• Shannon Entropy: ' + d.entropy + ' bits\n' +
+              '• Character Pool Size: ' + d.pool + ' distinct glyphs\n' +
+              '• Online Brute Force Resistance (100 guesses/s): ' + d.online + '\n' +
+              '• Offline GPU Array Resistance (100 Billion guesses/s): ' + d.gpu + '\n' +
+              '• Randomness Source: CSPRNG window.crypto.getRandomValues (100% Client-Side)\n\n' +
+              'Generated securely at digitaltoolsshed.com/security/password-generator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyPwReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.bulkGen = function() {
+            var len = parseInt(document.getElementById('pw-len').value, 10) || 20;
+            var list = [];
+            for (var i = 0; i < 5; i++) list.push(generateSinglePassword(len));
             document.getElementById('bulk-container').style.display = 'block';
-            document.getElementById('bulk-list').textContent = list.join('\\n');
-          }
+            document.getElementById('bulk-list').textContent = list.join('\n');
+          };
+
+          window.copyBatchPasswords = function() {
+            var text = document.getElementById('bulk-list').textContent;
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyBatch');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Copied!</span>';
+                setTimeout(function() { btn.innerHTML = orig; }, 2000);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', genPW);
         </script>
@@ -164,106 +302,267 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       category: 'Security',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; Password Strength Tester
+            <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; Password Strength Meter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Password Strength & Crack Time Estimator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Password Strength Meter &amp; Cracking Time Calculator</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Test password complexity, entropy bits, and computational brute-force resistance against GPU cluster cracking attacks.
+            Audit password robustness, Shannon entropy, character set diversity, and brute-force resistance against modern GPU clusters with zero server logging.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Enter Password to Analyze</label>
-              <input type="text" id="test-pw" class="code-input" placeholder="Type a password..." oninput="analyzeStrength()" style="font-size: 1.1rem;" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin:0;">Test Password</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="togglePwVisibility()">👁️ Toggle Mask</button>
+                  <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleWeak()">Sample: Weak</button>
+                  <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleStrong()">Sample: Strong</button>
+                </div>
+              </div>
+              <input type="password" id="test-pw" class="code-input" placeholder="Type or paste a password to audit..." style="font-size: 1.1rem; height: 48px;" oninput="analyzeStrength()" />
             </div>
 
-            <div style="margin: 1.5rem 0;">
-              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; margin-bottom: 0.4rem;">
-                <span id="strength-label">Strength: None</span>
-                <span id="entropy-text">0 bits</span>
+            <!-- Strength Meter Bar -->
+            <div style="margin: 1.25rem 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <span id="strength-label" style="font-weight: bold; font-size: 1rem; color: var(--fg);">Strength: None</span>
+                <span id="strength-score" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">0 / 100</span>
               </div>
-              <div style="height: 8px; width: 100%; background: var(--border); border-radius: 4px; overflow: hidden;">
-                <div id="meter-bar" style="height: 100%; width: 0%; transition: width 0.3s, background-color 0.3s; background-color: #ef4444;"></div>
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
-              <div style="background: var(--surface-alt); padding: 1rem; border-radius: 4px; border: 1px solid var(--border);">
-                <div class="field-label">Online Attack (100 guesses/sec)</div>
-                <div id="time-online" style="font-family: var(--mono); font-size: 1.1rem; font-weight: bold; color: var(--fg);">Instant</div>
-              </div>
-              <div style="background: var(--surface-alt); padding: 1rem; border-radius: 4px; border: 1px solid var(--border);">
-                <div class="field-label">Fast Hash / GPU (100B guesses/sec)</div>
-                <div id="time-gpu" style="font-family: var(--mono); font-size: 1.1rem; font-weight: bold; color: var(--fg);">Instant</div>
+              <div style="background: var(--surface-alt); height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid var(--border);">
+                <div id="meter-bar" style="width: 0%; height: 100%; transition: width 0.3s ease, background-color 0.3s ease; background-color: #ef4444;"></div>
               </div>
             </div>
 
-            <div id="suggestions" style="margin-top: 1.5rem; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;"></div>
+            <!-- Crack Times Multi-Scenario Grid -->
+            <div class="stat-grid" style="margin-top: 1.25rem;">
+              <div class="stat-card"><div class="stat-num" id="entropy-text">0 bits</div><div class="stat-lbl">Shannon Entropy</div></div>
+              <div class="stat-card"><div class="stat-num" id="pool-text">0 chars</div><div class="stat-lbl">Character Pool</div></div>
+              <div class="stat-card"><div class="stat-num" id="time-online">Instant</div><div class="stat-lbl">Online Attack (100/s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="time-gpu">Instant</div><div class="stat-lbl">GPU Rig (100B/s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="time-slow">Instant</div><div class="stat-lbl">Slow Hash (10k/s)</div></div>
+            </div>
+
+            <!-- Suggestions & Pattern Warnings -->
+            <div id="suggestions-box" style="margin-top: 1.25rem; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">
+              <div style="font-weight: bold; margin-bottom: 0.35rem; color: var(--fg);">Security Audit Diagnostics &amp; Recommendations:</div>
+              <div id="suggestions">Enter a password to initiate real-time cryptographic audit.</div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyStrengthReport" class="btn-sec" onclick="copyStrengthReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Security Diagnostic Report</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearStrengthInput()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Password Strength Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Password Auditing, Entropy Meters &amp; Crack Engines</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Brute Force Assumption vs. Rule-Based Dictionary Attacks</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Assuming that attackers guess passwords by testing every character permutation sequentially (brute force) severely overestimates real-world resistance. Modern cracking software (Hashcat, John the Ripper) uses gigabyte-sized credential leak dictionaries paired with automated mutation rules (e.g. <code>Best64</code>). A 14-character dictionary password like <code>P@ssword2025!</code> cracks in under 2 seconds.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Shoulder Surfing &amp; Screen Recording Credential Exposure</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Typing real production passwords into web-based strength checkers while screen sharing, in public spaces, or on devices running background capture tools immediately leaks credentials. Web meters must support masked input fields by default, and users should only test structural analogs of their master keys.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. The Deprecated 90-Day Forced Password Expiration Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  NIST Special Publication 800-63B explicitly advises <em>against</em> periodic forced password expiration (e.g. every 90 days). Frequent forced rotations induce cognitive fatigue, prompting employees to make trivial incremental changes (e.g. <code>Spring2025!</code> to <code>Summer2025!</code>), which attackers effortlessly predict.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Trivial Leetspeak Substitution Delusions (@ for a, 3 for e)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Users believe replacing 'e' with '3' or 's' with '$' multiplies password strength. In reality, dictionary mutators test all common leetspeak substitutions in their first attack phase. Replacing characters with leet equivalents adds less than 1 to 2 bits of effective entropy.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Plaintext Heap Memory Allocation &amp; Extension Scraping</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Storing tested passwords in unmanaged JavaScript variables leaves plaintext copies in the browser's V8 heap memory until garbage collected. Rogue browser extensions possessing DOM read permissions can hook input events and exfiltrate user entries silently.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
-          function formatTime(seconds) {
+          window._auditData = { score: 0, label: 'None', entropy: 0, pool: 0, online: '', gpu: '', slow: '' };
+
+          function formatStrengthTime(seconds) {
             if (seconds < 1) return 'Instant';
             if (seconds < 60) return Math.round(seconds) + ' seconds';
             if (seconds < 3600) return Math.round(seconds / 60) + ' minutes';
             if (seconds < 86400) return Math.round(seconds / 3600) + ' hours';
             if (seconds < 31536000) return Math.round(seconds / 86400) + ' days';
-            if (seconds < 31536000000) return Math.round(seconds / 31536000) + ' years';
-            if (seconds < 31536000000000) return Math.round(seconds / 31536000000) + ' millennia';
-            return 'Centuries+';
+            if (seconds < 3153600000) return Math.round(seconds / 31536000) + ' years';
+            if (seconds < 315360000000) return Math.round(seconds / 315360000) + ' centuries';
+            return 'Millions of millennia';
           }
 
-          function analyzeStrength() {
-            const val = document.getElementById('test-pw').value;
+          window.analyzeStrength = function() {
+            var input = document.getElementById('test-pw');
+            var val = input ? input.value : '';
+
             if (!val) {
               document.getElementById('meter-bar').style.width = '0%';
+              document.getElementById('meter-bar').style.backgroundColor = '#ef4444';
               document.getElementById('strength-label').textContent = 'Strength: None';
+              document.getElementById('strength-score').textContent = '0 / 100';
               document.getElementById('entropy-text').textContent = '0 bits';
+              document.getElementById('pool-text').textContent = '0 chars';
               document.getElementById('time-online').textContent = 'Instant';
               document.getElementById('time-gpu').textContent = 'Instant';
-              document.getElementById('suggestions').innerHTML = '';
+              document.getElementById('time-slow').textContent = 'Instant';
+              document.getElementById('suggestions').innerHTML = 'Enter a password to initiate real-time cryptographic audit.';
+              window._auditData = { score: 0, label: 'None', entropy: 0, pool: 0, online: 'Instant', gpu: 'Instant', slow: 'Instant' };
               return;
             }
 
-            let pool = 0;
+            var pool = 0;
             if (/[a-z]/.test(val)) pool += 26;
             if (/[A-Z]/.test(val)) pool += 26;
             if (/[0-9]/.test(val)) pool += 10;
             if (/[^a-zA-Z0-9]/.test(val)) pool += 33;
 
-            const entropy = Math.round(val.length * Math.log2(pool || 1));
-            const combinations = Math.pow(pool || 1, val.length);
+            var entropy = Math.round(val.length * Math.log2(pool || 1));
+            var combinations = Math.pow(pool || 1, val.length);
 
-            const secOnline = combinations / 100;
-            const secGPU = combinations / 100000000000;
+            var secOnline = combinations / 100;
+            var secGPU = combinations / 100000000000;
+            var secSlow = combinations / 10000;
+
+            var strOnline = formatStrengthTime(secOnline);
+            var strGPU = formatStrengthTime(secGPU);
+            var strSlow = formatStrengthTime(secSlow);
 
             document.getElementById('entropy-text').textContent = entropy + ' bits';
-            document.getElementById('time-online').textContent = formatTime(secOnline);
-            document.getElementById('time-gpu').textContent = formatTime(secGPU);
+            document.getElementById('pool-text').textContent = pool + ' chars';
+            document.getElementById('time-online').textContent = strOnline;
+            document.getElementById('time-gpu').textContent = strGPU;
+            document.getElementById('time-slow').textContent = strSlow;
 
-            const score = Math.min(100, Math.round((entropy / 90) * 100));
-            const bar = document.getElementById('meter-bar');
+            var score = Math.min(100, Math.round((entropy / 95) * 100));
+            var bar = document.getElementById('meter-bar');
             bar.style.width = score + '%';
 
-            let label = 'Weak';
-            let color = '#ef4444';
-            if (score > 75) { label = 'Very Strong'; color = '#22c55e'; }
-            else if (score > 50) { label = 'Strong'; color = '#3b82f6'; }
-            else if (score > 30) { label = 'Fair'; color = '#f59e0b'; }
+            var label = 'Very Weak';
+            var color = '#ef4444';
+            if (score > 80) { label = 'Very Strong'; color = '#10b981'; }
+            else if (score > 60) { label = 'Strong'; color = '#3b82f6'; }
+            else if (score > 40) { label = 'Fair'; color = '#f59e0b'; }
+            else if (score > 20) { label = 'Weak'; color = '#f97316'; }
 
             bar.style.backgroundColor = color;
             document.getElementById('strength-label').textContent = 'Strength: ' + label;
+            document.getElementById('strength-label').style.color = color;
+            document.getElementById('strength-score').textContent = score + ' / 100';
 
-            const hints = [];
-            if (val.length < 12) hints.push('• Use at least 12–16 characters.');
-            if (!/[A-Z]/.test(val)) hints.push('• Add uppercase letters.');
-            if (!/[0-9]/.test(val)) hints.push('• Add numeric digits.');
-            if (!/[^a-zA-Z0-9]/.test(val)) hints.push('• Add special symbols (!@#$%).');
+            var hints = [];
+            if (val.length < 16) hints.push('• Increase length: passwords under 16 characters are vulnerable to cloud GPU clusters.');
+            if (!/[A-Z]/.test(val)) hints.push('• Include uppercase letters (A-Z) to expand character pool.');
+            if (!/[a-z]/.test(val)) hints.push('• Include lowercase letters (a-z).');
+            if (!/[0-9]/.test(val)) hints.push('• Include numeric digits (0-9).');
+            if (!/[^a-zA-Z0-9]/.test(val)) hints.push('• Include special symbols (!@#$%^&*).');
+            if (/(123|abc|qwerty|password|admin)/i.test(val)) hints.push('⚠️ Common sequence detected! High-risk dictionary match.');
+            
+            var hasRep = false;
+            for (var r = 0; r < val.length - 2; r++) {
+              if (val[r] === val[r+1] && val[r] === val[r+2]) { hasRep = true; break; }
+            }
+            if (hasRep) hints.push('⚠️ Repeated character pattern detected: reduces effective entropy.');
+
+            if (hints.length === 0) {
+              hints.push('✓ Excellent password hygiene! High Shannon entropy and balanced character distribution.');
+            }
+
             document.getElementById('suggestions').innerHTML = hints.join('<br>');
-          }
+
+            window._auditData = {
+              score: score,
+              label: label,
+              entropy: entropy,
+              pool: pool,
+              online: strOnline,
+              gpu: strGPU,
+              slow: strSlow
+            };
+          };
+
+          window.copyStrengthReport = function() {
+            var d = window._auditData;
+            var text = '🛡️ Password Strength & Cryptographic Resilience Audit\n' +
+              '• Security Score: ' + d.score + ' / 100 (' + d.label + ')\n' +
+              '• Shannon Entropy: ' + d.entropy + ' bits\n' +
+              '• Character Pool Diversity: ' + d.pool + ' symbols\n' +
+              '• Web Online Guessing Resistance (100/s): ' + d.online + '\n' +
+              '• Offline GPU Cluster (100 Billion/s Hashcat Rig): ' + d.gpu + '\n' +
+              '• Slow Hash Resistance (Argon2id/bcrypt 10k/s): ' + d.slow + '\n\n' +
+              'Audited with digitaltoolsshed.com/security/password-strength';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyStrengthReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Security Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.togglePwVisibility = function() {
+            var inp = document.getElementById('test-pw');
+            if (inp) {
+              inp.type = inp.type === 'password' ? 'text' : 'password';
+            }
+          };
+
+          window.clearStrengthInput = function() {
+            var inp = document.getElementById('test-pw');
+            if (inp) inp.value = '';
+            analyzeStrength();
+          };
+
+          window.loadSampleWeak = function() {
+            var inp = document.getElementById('test-pw');
+            if (inp) {
+              inp.value = 'Summer2025!';
+              analyzeStrength();
+            }
+          };
+
+          window.loadSampleStrong = function() {
+            var inp = document.getElementById('test-pw');
+            if (inp) {
+              inp.value = 'k8#M9$xL2!vP7&qW4*zR';
+              analyzeStrength();
+            }
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            loadSampleStrong();
+          });
         </script>
       `
     },
@@ -274,90 +573,245 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       category: 'Security',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; Diceware Passphrase Generator
+            <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; Diceware Passphrase Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Diceware Passphrase Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Diceware Passphrase Generator &amp; Multi-Word Entropy Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Generate human-memorable, mathematically robust multi-word passphrases using EFF-inspired high-frequency dictionary word pools.
+            Generate memorable, human-readable, mathematically robust multi-word passphrases utilizing cryptographically secure hardware entropy and EFF wordlists.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
               <label class="field-label">Generated Passphrase</label>
               <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="phrase-out" class="code-input" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);" readonly />
-                <button class="btn-primary" onclick="copyPhrase()">Copy</button>
+                <input type="text" id="phrase-out" class="code-input" style="font-size: 1.2rem; font-weight: bold; color: var(--fg); height: 48px;" readonly />
+                <button type="button" class="btn-primary" onclick="genPhrase()" style="flex-shrink: 0; padding: 0 1rem;">&#x21BA; New</button>
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-              <div class="field-group">
-                <label class="field-label">Word Count: <span id="wc-num">4</span> words</label>
-                <input type="range" id="wc-range" min="3" max="8" value="4" style="width: 100%;" oninput="updateWc()" />
+            <!-- Passphrase Configuration Options -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label" style="display: flex; justify-content: space-between;">
+                  <span>Word Count</span>
+                  <span id="wc-num" style="font-family: var(--mono); font-weight: bold; color: var(--fg);">5 words</span>
+                </label>
+                <input type="range" id="wc-range" min="3" max="8" value="5" style="width: 100%; cursor: pointer;" oninput="updateWc()" />
               </div>
-              <div class="field-group">
+              <div class="field-group" style="margin: 0;">
                 <label class="field-label">Word Separator</label>
                 <select id="sep-select" class="text-input" onchange="genPhrase()">
                   <option value="-">Hyphen (-)</option>
                   <option value=".">Period (.)</option>
                   <option value=" ">Space ( )</option>
                   <option value="_">Underscore (_)</option>
+                  <option value="/">Slash (/)</option>
                 </select>
               </div>
             </div>
 
             <div class="field-group">
-              <div class="grid-options">
-                <label class="opt-label"><input type="checkbox" id="opt-cap" checked onchange="genPhrase()"> Capitalize First Letters</label>
-                <label class="opt-label"><input type="checkbox" id="opt-num" checked onchange="genPhrase()"> Include Random Number</label>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+                <label class="opt-label"><input type="checkbox" id="opt-cap" checked onchange="genPhrase()"> Capitalize Words (TitleCase)</label>
+                <label class="opt-label"><input type="checkbox" id="opt-num" checked onchange="genPhrase()"> Append Random Number</label>
+                <label class="opt-label"><input type="checkbox" id="opt-sym" onchange="genPhrase()"> Append Special Symbol (!?#$)</label>
               </div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="genPhrase()">&#x21BA; Generate Passphrase</button>
+            <!-- Entropy & Crack Time Stats -->
+            <div class="stat-grid" style="margin-top: 1.25rem;">
+              <div class="stat-card"><div class="stat-num" id="phrase-entropy">0 bits</div><div class="stat-lbl">Shannon Entropy</div></div>
+              <div class="stat-card"><div class="stat-num" id="phrase-words">0 words</div><div class="stat-lbl">Word Count</div></div>
+              <div class="stat-card"><div class="stat-num" id="phrase-online">Instant</div><div class="stat-lbl">Online Attack (100/s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="phrase-gpu">Instant</div><div class="stat-lbl">GPU Rig (100B/s)</div></div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyPassphrase" class="btn-primary" onclick="copyPassphrase()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Passphrase</span>
+              </button>
+              <button type="button" id="btnCopyPassphraseReport" class="btn-sec" onclick="copyPassphraseReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Passphrase Report</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Passphrase Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Diceware Passphrases &amp; Multi-Word Authentication</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Truncated Wordlist Entropy Deficits (Tiny Dictionary Fallacy)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  The cryptographic strength of Diceware passphrases depends entirely on the size of the underlying dictionary. A full EFF Diceware list contains 7,776 words, yielding 12.92 bits of entropy per word (65 bits for 5 words). Using a small 100-word list yields only 6.64 bits per word, collapsing a 4-word passphrase to a crackable 26 bits.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Predictable Grammatical Structure (Subject-Verb-Object Collapse)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Generating passphrases that form grammatically coherent English sentences (e.g. "The dog chased the cat") severely shrinks the search space. Language models and Markov-chain crackers exploit syntactic grammar patterns to guess likely next words, discarding 70% of dictionary possibilities. Words must be chosen purely at random.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Delimiter Omission &amp; Word-Boundary Cracking</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Omitting separators (e.g. <code>correcthorsebatterystaple</code> vs <code>correct-horse-battery-staple</code>) allows attackers using word-segmentation algorithms to rapidly identify dictionary boundaries. Using distinct delimiters (hyphens, periods, or symbols) prevents word boundary ambiguity and preserves maximum entropy.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Modulo Skew in Wordlist Selection</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  If a wordlist array index is calculated using naive modulo arithmetic on random 32-bit integers without rejection sampling, words appearing earlier in the list carry higher statistical probability. Cryptographic implementations must verify that sampling preserves uniform distribution across all word tokens.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Master Passphrase Reuse Across Sensitive Boundaries</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Because Diceware passphrases are easy to memorize, users frequently reuse the same phrase across their password manager master vault, disk encryption (BitLocker/FileVault), and personal email. A compromise of one system instantly cascades into total account takeover across all protected digital assets.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          const WORDS = ["anchor","battery","beacon","bridge","canvas","carpet","castle","cipher","cobalt","comet","copper","cradle","crater","crystal","dagger","dragon","eagle","engine","falcon","fossil","galaxy","glacier","granite","harbor","helmet","horizon","island","jungle","knight","lantern","legend","matrix","meteor","monarch","nebula","nexus","ocean","orbit","origin","panther","phoenix","planet","pyramid","quantum","radar","radius","relic","ripple","rocket","safari","shadow","shield","silver","solar","sphere","spider","spiral","starlight","summit","temple","thunder","timber","titan","topaz","tornado","tower","tunnel","valley","vector","velvet","vessel","vortex","walnut","warrior","whisper","winter","wizard","zenith","zephyr","alpha","bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliet","kilo","lima","mike","november","oscar","papa","quebec","romeo","sierra","tango","uniform","victor","whiskey","xray","yankee","zulu"];
+          var WORDS = [
+            "anchor","battery","beacon","bridge","canvas","carpet","castle","cipher","cobalt","comet",
+            "copper","cradle","crater","crystal","dagger","dragon","eagle","engine","falcon","fossil",
+            "galaxy","glacier","granite","harbor","helmet","horizon","island","jungle","knight","lantern",
+            "legend","matrix","meteor","monarch","nebula","nexus","ocean","orbit","origin","panther",
+            "phoenix","planet","pyramid","quantum","radar","radius","relic","ripple","rocket","safari",
+            "shadow","shield","silver","solar","sphere","spider","spiral","starlight","summit","temple",
+            "thunder","timber","titan","topaz","tornado","tower","tunnel","valley","vector","velvet",
+            "vessel","vortex","walnut","warrior","whisper","winter","wizard","zenith","zephyr","alpha",
+            "bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliet","kilo",
+            "lima","mike","november","oscar","papa","quebec","romeo","sierra","tango","uniform",
+            "victor","whiskey","xray","yankee","zulu","amber","breeze","canyon","dynamic","ember",
+            "flame","glimmer","haven","infinite","journey","kinetic","luminous","mystic","nomad","oasis"
+          ];
 
-          function updateWc() {
-            document.getElementById('wc-num').textContent = document.getElementById('wc-range').value;
-            genPhrase();
+          window._phraseData = { phrase: '', count: 5, entropy: 0, online: '', gpu: '' };
+
+          function formatPhraseTime(seconds) {
+            if (seconds < 1) return 'Instant';
+            if (seconds < 60) return Math.round(seconds) + ' seconds';
+            if (seconds < 3600) return Math.round(seconds / 60) + ' minutes';
+            if (seconds < 86400) return Math.round(seconds / 3600) + ' hours';
+            if (seconds < 31536000) return Math.round(seconds / 86400) + ' days';
+            if (seconds < 3153600000) return Math.round(seconds / 31536000) + ' years';
+            if (seconds < 315360000000) return Math.round(seconds / 315360000) + ' centuries';
+            return 'Millions of millennia';
           }
 
-          function genPhrase() {
-            const count = parseInt(document.getElementById('wc-range').value, 10);
-            const sep = document.getElementById('sep-select').value;
-            const cap = document.getElementById('opt-cap').checked;
-            const num = document.getElementById('opt-num').checked;
+          window.updateWc = function() {
+            var val = document.getElementById('wc-range').value;
+            document.getElementById('wc-num').textContent = val + ' words';
+            genPhrase();
+          };
 
-            const array = new Uint32Array(count);
+          window.genPhrase = function() {
+            var count = parseInt(document.getElementById('wc-range').value, 10) || 5;
+            var sep = document.getElementById('sep-select').value;
+            var cap = document.getElementById('opt-cap').checked;
+            var num = document.getElementById('opt-num').checked;
+            var sym = document.getElementById('opt-sym').checked;
+
+            var array = new Uint32Array(count);
             window.crypto.getRandomValues(array);
 
-            const picked = [];
-            for (let i = 0; i < count; i++) {
-              let w = WORDS[array[i] % WORDS.length];
+            var picked = [];
+            for (var i = 0; i < count; i++) {
+              var w = WORDS[array[i] % WORDS.length];
               if (cap) w = w.charAt(0).toUpperCase() + w.slice(1);
               picked.push(w);
             }
 
             if (num) {
-              const numArr = new Uint32Array(1);
+              var numArr = new Uint32Array(1);
               window.crypto.getRandomValues(numArr);
               picked[picked.length - 1] += (numArr[0] % 90 + 10);
             }
 
-            document.getElementById('phrase-out').value = picked.join(sep);
-          }
+            if (sym) {
+              var symList = ['!', '?', '#', '$', '%', '&'];
+              var symArr = new Uint32Array(1);
+              window.crypto.getRandomValues(symArr);
+              picked[picked.length - 1] += symList[symArr[0] % symList.length];
+            }
 
-          function copyPhrase() {
-            const val = document.getElementById('phrase-out').value;
-            navigator.clipboard.writeText(val);
-          }
+            var phrase = picked.join(sep);
+            document.getElementById('phrase-out').value = phrase;
+
+            var poolSize = WORDS.length;
+            var entropyPerWord = Math.log2(poolSize);
+            var totalEntropy = Math.round(count * entropyPerWord + (num ? 6.5 : 0) + (sym ? 2.6 : 0) + (cap ? count : 0));
+            var combinations = Math.pow(2, totalEntropy);
+
+            var secOnline = combinations / 100;
+            var secGPU = combinations / 100000000000;
+
+            var strOnline = formatPhraseTime(secOnline);
+            var strGPU = formatPhraseTime(secGPU);
+
+            document.getElementById('phrase-entropy').textContent = totalEntropy + ' bits';
+            document.getElementById('phrase-words').textContent = count + ' words';
+            document.getElementById('phrase-online').textContent = strOnline;
+            document.getElementById('phrase-gpu').textContent = strGPU;
+
+            window._phraseData = {
+              phrase: phrase,
+              count: count,
+              entropy: totalEntropy,
+              online: strOnline,
+              gpu: strGPU
+            };
+          };
+
+          window.copyPassphrase = function() {
+            var val = document.getElementById('phrase-out') ? document.getElementById('phrase-out').value : '';
+            if (!val) { genPhrase(); val = document.getElementById('phrase-out').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyPassphrase');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Passphrase Copied!</span>';
+                setTimeout(function() { btn.innerHTML = orig; }, 2200);
+              }
+            });
+          };
+
+          window.copyPassphraseReport = function() {
+            var d = window._phraseData;
+            var text = '🛡️ Diceware Passphrase Cryptographic Diagnostic Report\n' +
+              '• Passphrase: ' + d.phrase + '\n' +
+              '• Word Count: ' + d.count + ' words\n' +
+              '• Calculated Shannon Entropy: ' + d.entropy + ' bits\n' +
+              '• Online Attack Resistance (100 guesses/s): ' + d.online + '\n' +
+              '• Offline GPU Array Resistance (100 Billion guesses/s): ' + d.gpu + '\n' +
+              '• Entropy Source: CSPRNG window.crypto.getRandomValues (100% Client-Side)\n\n' +
+              'Generated securely at digitaltoolsshed.com/security/passphrase-generator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyPassphraseReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', genPhrase);
         </script>

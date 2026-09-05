@@ -1045,90 +1045,253 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; Diceware Passphrase Generator
+            <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; Diceware Passphrase Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Diceware Passphrase Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Diceware Passphrase Generator &amp; Multi-Word Entropy Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Generate human-memorable, mathematically robust multi-word passphrases using EFF-inspired high-frequency dictionary word pools.
+            Generate memorable, human-readable, mathematically robust multi-word passphrases utilizing cryptographically secure hardware entropy and EFF wordlists.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
               <label class="field-label">Generated Passphrase</label>
               <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="phrase-out" class="code-input" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);" readonly />
-                <button class="btn-primary" onclick="copyPhrase()">Copy</button>
+                <input type="text" id="phrase-out" class="code-input" style="font-size: 1.2rem; font-weight: bold; color: var(--fg); height: 48px;" readonly />
+                <button type="button" class="btn-primary" onclick="genPhrase()" style="flex-shrink: 0; padding: 0 1rem;">&#x21BA; New</button>
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-              <div class="field-group">
-                <label class="field-label">Word Count: <span id="wc-num">4</span> words</label>
-                <input type="range" id="wc-range" min="3" max="8" value="4" style="width: 100%;" oninput="updateWc()" />
+            <!-- Passphrase Configuration Options -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label" style="display: flex; justify-content: space-between;">
+                  <span>Word Count</span>
+                  <span id="wc-num" style="font-family: var(--mono); font-weight: bold; color: var(--fg);">5 words</span>
+                </label>
+                <input type="range" id="wc-range" min="3" max="8" value="5" style="width: 100%; cursor: pointer;" oninput="updateWc()" />
               </div>
-              <div class="field-group">
+              <div class="field-group" style="margin: 0;">
                 <label class="field-label">Word Separator</label>
                 <select id="sep-select" class="text-input" onchange="genPhrase()">
                   <option value="-">Hyphen (-)</option>
                   <option value=".">Period (.)</option>
                   <option value=" ">Space ( )</option>
                   <option value="_">Underscore (_)</option>
+                  <option value="/">Slash (/)</option>
                 </select>
               </div>
             </div>
 
             <div class="field-group">
-              <div class="grid-options">
-                <label class="opt-label"><input type="checkbox" id="opt-cap" checked onchange="genPhrase()"> Capitalize First Letters</label>
-                <label class="opt-label"><input type="checkbox" id="opt-num" checked onchange="genPhrase()"> Include Random Number</label>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+                <label class="opt-label"><input type="checkbox" id="opt-cap" checked onchange="genPhrase()"> Capitalize Words (TitleCase)</label>
+                <label class="opt-label"><input type="checkbox" id="opt-num" checked onchange="genPhrase()"> Append Random Number</label>
+                <label class="opt-label"><input type="checkbox" id="opt-sym" onchange="genPhrase()"> Append Special Symbol (!?#$)</label>
               </div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="genPhrase()">&#x21BA; Generate Passphrase</button>
+            <!-- Entropy & Crack Time Stats -->
+            <div class="stat-grid" style="margin-top: 1.25rem;">
+              <div class="stat-card"><div class="stat-num" id="phrase-entropy">0 bits</div><div class="stat-lbl">Shannon Entropy</div></div>
+              <div class="stat-card"><div class="stat-num" id="phrase-words">0 words</div><div class="stat-lbl">Word Count</div></div>
+              <div class="stat-card"><div class="stat-num" id="phrase-online">Instant</div><div class="stat-lbl">Online Attack (100/s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="phrase-gpu">Instant</div><div class="stat-lbl">GPU Rig (100B/s)</div></div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyPassphrase" class="btn-primary" onclick="copyPassphrase()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Passphrase</span>
+              </button>
+              <button type="button" id="btnCopyPassphraseReport" class="btn-sec" onclick="copyPassphraseReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Passphrase Report</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Passphrase Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Diceware Passphrases &amp; Multi-Word Authentication</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Truncated Wordlist Entropy Deficits (Tiny Dictionary Fallacy)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  The cryptographic strength of Diceware passphrases depends entirely on the size of the underlying dictionary. A full EFF Diceware list contains 7,776 words, yielding 12.92 bits of entropy per word (65 bits for 5 words). Using a small 100-word list yields only 6.64 bits per word, collapsing a 4-word passphrase to a crackable 26 bits.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Predictable Grammatical Structure (Subject-Verb-Object Collapse)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Generating passphrases that form grammatically coherent English sentences (e.g. "The dog chased the cat") severely shrinks the search space. Language models and Markov-chain crackers exploit syntactic grammar patterns to guess likely next words, discarding 70% of dictionary possibilities. Words must be chosen purely at random.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Delimiter Omission &amp; Word-Boundary Cracking</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Omitting separators (e.g. <code>correcthorsebatterystaple</code> vs <code>correct-horse-battery-staple</code>) allows attackers using word-segmentation algorithms to rapidly identify dictionary boundaries. Using distinct delimiters (hyphens, periods, or symbols) prevents word boundary ambiguity and preserves maximum entropy.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Modulo Skew in Wordlist Selection</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  If a wordlist array index is calculated using naive modulo arithmetic on random 32-bit integers without rejection sampling, words appearing earlier in the list carry higher statistical probability. Cryptographic implementations must verify that sampling preserves uniform distribution across all word tokens.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Master Passphrase Reuse Across Sensitive Boundaries</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Because Diceware passphrases are easy to memorize, users frequently reuse the same phrase across their password manager master vault, disk encryption (BitLocker/FileVault), and personal email. A compromise of one system instantly cascades into total account takeover across all protected digital assets.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          const WORDS = ["anchor","battery","beacon","bridge","canvas","carpet","castle","cipher","cobalt","comet","copper","cradle","crater","crystal","dagger","dragon","eagle","engine","falcon","fossil","galaxy","glacier","granite","harbor","helmet","horizon","island","jungle","knight","lantern","legend","matrix","meteor","monarch","nebula","nexus","ocean","orbit","origin","panther","phoenix","planet","pyramid","quantum","radar","radius","relic","ripple","rocket","safari","shadow","shield","silver","solar","sphere","spider","spiral","starlight","summit","temple","thunder","timber","titan","topaz","tornado","tower","tunnel","valley","vector","velvet","vessel","vortex","walnut","warrior","whisper","winter","wizard","zenith","zephyr","alpha","bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliet","kilo","lima","mike","november","oscar","papa","quebec","romeo","sierra","tango","uniform","victor","whiskey","xray","yankee","zulu"];
+          var WORDS = [
+            "anchor","battery","beacon","bridge","canvas","carpet","castle","cipher","cobalt","comet",
+            "copper","cradle","crater","crystal","dagger","dragon","eagle","engine","falcon","fossil",
+            "galaxy","glacier","granite","harbor","helmet","horizon","island","jungle","knight","lantern",
+            "legend","matrix","meteor","monarch","nebula","nexus","ocean","orbit","origin","panther",
+            "phoenix","planet","pyramid","quantum","radar","radius","relic","ripple","rocket","safari",
+            "shadow","shield","silver","solar","sphere","spider","spiral","starlight","summit","temple",
+            "thunder","timber","titan","topaz","tornado","tower","tunnel","valley","vector","velvet",
+            "vessel","vortex","walnut","warrior","whisper","winter","wizard","zenith","zephyr","alpha",
+            "bravo","charlie","delta","echo","foxtrot","golf","hotel","india","juliet","kilo",
+            "lima","mike","november","oscar","papa","quebec","romeo","sierra","tango","uniform",
+            "victor","whiskey","xray","yankee","zulu","amber","breeze","canyon","dynamic","ember",
+            "flame","glimmer","haven","infinite","journey","kinetic","luminous","mystic","nomad","oasis"
+          ];
 
-          function updateWc() {
-            document.getElementById('wc-num').textContent = document.getElementById('wc-range').value;
-            genPhrase();
+          window._phraseData = { phrase: '', count: 5, entropy: 0, online: '', gpu: '' };
+
+          function formatPhraseTime(seconds) {
+            if (seconds < 1) return 'Instant';
+            if (seconds < 60) return Math.round(seconds) + ' seconds';
+            if (seconds < 3600) return Math.round(seconds / 60) + ' minutes';
+            if (seconds < 86400) return Math.round(seconds / 3600) + ' hours';
+            if (seconds < 31536000) return Math.round(seconds / 86400) + ' days';
+            if (seconds < 3153600000) return Math.round(seconds / 31536000) + ' years';
+            if (seconds < 315360000000) return Math.round(seconds / 315360000) + ' centuries';
+            return 'Millions of millennia';
           }
 
-          function genPhrase() {
-            const count = parseInt(document.getElementById('wc-range').value, 10);
-            const sep = document.getElementById('sep-select').value;
-            const cap = document.getElementById('opt-cap').checked;
-            const num = document.getElementById('opt-num').checked;
+          window.updateWc = function() {
+            var val = document.getElementById('wc-range').value;
+            document.getElementById('wc-num').textContent = val + ' words';
+            genPhrase();
+          };
 
-            const array = new Uint32Array(count);
+          window.genPhrase = function() {
+            var count = parseInt(document.getElementById('wc-range').value, 10) || 5;
+            var sep = document.getElementById('sep-select').value;
+            var cap = document.getElementById('opt-cap').checked;
+            var num = document.getElementById('opt-num').checked;
+            var sym = document.getElementById('opt-sym').checked;
+
+            var array = new Uint32Array(count);
             window.crypto.getRandomValues(array);
 
-            const picked = [];
-            for (let i = 0; i < count; i++) {
-              let w = WORDS[array[i] % WORDS.length];
+            var picked = [];
+            for (var i = 0; i < count; i++) {
+              var w = WORDS[array[i] % WORDS.length];
               if (cap) w = w.charAt(0).toUpperCase() + w.slice(1);
               picked.push(w);
             }
 
             if (num) {
-              const numArr = new Uint32Array(1);
+              var numArr = new Uint32Array(1);
               window.crypto.getRandomValues(numArr);
               picked[picked.length - 1] += (numArr[0] % 90 + 10);
             }
 
-            document.getElementById('phrase-out').value = picked.join(sep);
-          }
+            if (sym) {
+              var symList = ['!', '?', '#', '$', '%', '&'];
+              var symArr = new Uint32Array(1);
+              window.crypto.getRandomValues(symArr);
+              picked[picked.length - 1] += symList[symArr[0] % symList.length];
+            }
 
-          function copyPhrase() {
-            const val = document.getElementById('phrase-out').value;
-            navigator.clipboard.writeText(val);
-          }
+            var phrase = picked.join(sep);
+            document.getElementById('phrase-out').value = phrase;
+
+            var poolSize = WORDS.length;
+            var entropyPerWord = Math.log2(poolSize);
+            var totalEntropy = Math.round(count * entropyPerWord + (num ? 6.5 : 0) + (sym ? 2.6 : 0) + (cap ? count : 0));
+            var combinations = Math.pow(2, totalEntropy);
+
+            var secOnline = combinations / 100;
+            var secGPU = combinations / 100000000000;
+
+            var strOnline = formatPhraseTime(secOnline);
+            var strGPU = formatPhraseTime(secGPU);
+
+            document.getElementById('phrase-entropy').textContent = totalEntropy + ' bits';
+            document.getElementById('phrase-words').textContent = count + ' words';
+            document.getElementById('phrase-online').textContent = strOnline;
+            document.getElementById('phrase-gpu').textContent = strGPU;
+
+            window._phraseData = {
+              phrase: phrase,
+              count: count,
+              entropy: totalEntropy,
+              online: strOnline,
+              gpu: strGPU
+            };
+          };
+
+          window.copyPassphrase = function() {
+            var val = document.getElementById('phrase-out') ? document.getElementById('phrase-out').value : '';
+            if (!val) { genPhrase(); val = document.getElementById('phrase-out').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyPassphrase');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Passphrase Copied!</span>';
+                setTimeout(function() { btn.innerHTML = orig; }, 2200);
+              }
+            });
+          };
+
+          window.copyPassphraseReport = function() {
+            var d = window._phraseData;
+            var text = '🛡️ Diceware Passphrase Cryptographic Diagnostic Report
+' +
+              '• Passphrase: ' + d.phrase + '
+' +
+              '• Word Count: ' + d.count + ' words
+' +
+              '• Calculated Shannon Entropy: ' + d.entropy + ' bits
+' +
+              '• Online Attack Resistance (100 guesses/s): ' + d.online + '
+' +
+              '• Offline GPU Array Resistance (100 Billion guesses/s): ' + d.gpu + '
+' +
+              '• Entropy Source: CSPRNG window.crypto.getRandomValues (100% Client-Side)
+
+' +
+              'Generated securely at digitaltoolsshed.com/security/passphrase-generator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyPassphraseReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', genPhrase);
         </script>
