@@ -828,137 +828,7 @@ function buildProductivitySuite() {
 `;
 
   // 3. Invoice Generator
-  const invoiceGeneratorBody = `
-    ${printCss}
-    <div class="article-container" style="max-width: 900px; padding: 2rem; background: #fff; color: #000;">
-      <div class="no-print" style="margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1rem;">
-        <h1>Invoice Generator</h1>
-        <div style="display: flex; gap: 1rem;">
-          <button onclick="window.print()" style="${commonStyles.btn} background: #2563eb; color: #fff;">Print / Save PDF</button>
-        </div>
-      </div>
-      
-      <!-- Actual Invoice Document -->
-      <div id="invoice-doc" style="font-family: Helvetica, Arial, sans-serif; line-height: 1.5; color: #333;">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3rem;">
-          <div style="flex: 1;">
-            <h2 style="margin: 0 0 1rem; font-size: 2.5rem; font-weight: bold; color: #111;">INVOICE</h2>
-            <div style="display: grid; grid-template-columns: 100px 1fr; gap: 0.5rem; font-size: 0.9rem; max-width: 300px;">
-              <strong>Invoice #:</strong> <input type="text" id="inv-num" value="INV-001" style="${commonStyles.input}">
-              <strong>Date:</strong> <input type="date" id="inv-date" style="${commonStyles.input}">
-              <strong>Due Date:</strong> <input type="date" id="inv-due" style="${commonStyles.input}">
-            </div>
-          </div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; margin-bottom: 3rem; gap: 2rem;">
-          <div style="flex: 1;">
-            <h3 style="margin: 0 0 0.5rem; color: #666; font-size: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">FROM</h3>
-            <input type="text" id="inv-from-name" placeholder="Your Name / Company" style="${commonStyles.input} font-weight: bold; margin-bottom: 0.25rem;">
-            <textarea id="inv-from-addr" placeholder="Your Address" style="${commonStyles.input} resize: none; height: 60px; margin-bottom: 0.25rem;"></textarea>
-            <input type="email" id="inv-from-email" placeholder="Your Email" style="${commonStyles.input}">
-          </div>
-          <div style="flex: 1;">
-            <h3 style="margin: 0 0 0.5rem; color: #666; font-size: 1rem; border-bottom: 1px solid #eee; padding-bottom: 0.5rem;">TO</h3>
-            <input type="text" id="inv-to-name" placeholder="Client Name" style="${commonStyles.input} font-weight: bold; margin-bottom: 0.25rem;">
-            <textarea id="inv-to-addr" placeholder="Client Address" style="${commonStyles.input} resize: none; height: 60px; margin-bottom: 0.25rem;"></textarea>
-            <input type="email" id="inv-to-email" placeholder="Client Email" style="${commonStyles.input}">
-          </div>
-        </div>
-
-        <table style="${commonStyles.table} margin-bottom: 2rem;" id="inv-table">
-          <thead>
-            <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-              <th style="${commonStyles.thtd} width: 50%;">Description</th>
-              <th style="${commonStyles.thtd} width: 15%; text-align: center;">Qty</th>
-              <th style="${commonStyles.thtd} width: 15%; text-align: right;">Rate</th>
-              <th style="${commonStyles.thtd} width: 15%; text-align: right;">Amount</th>
-              <th style="${commonStyles.thtd} width: 5%;" class="no-print"></th>
-            </tr>
-          </thead>
-          <tbody id="inv-items">
-            <!-- Items injected by JS -->
-          </tbody>
-        </table>
-        
-        <div class="no-print" style="margin-bottom: 2rem;">
-          <button id="inv-add-row" style="${commonStyles.btn} background: var(--surface); color: var(--fg); border: 1px solid var(--border);">+ Add Row</button>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 3rem;">
-          <div style="width: 300px;">
-            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
-              <span>Subtotal:</span>
-              <span id="inv-subtotal">$0.00</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; align-items: center;">
-              <span>Tax Rate (%):</span>
-              <input type="number" id="inv-tax-rate" value="0" style="${commonStyles.input} width: 80px; text-align: right;">
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee;">
-              <span>Tax Amount:</span>
-              <span id="inv-tax-amt">$0.00</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 1rem 0; border-top: 2px solid #333; font-weight: bold; font-size: 1.2rem;">
-              <span>Total:</span>
-              <span id="inv-total">$0.00</span>
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <h3 style="margin: 0 0 0.5rem; color: #666; font-size: 1rem;">Notes / Terms</h3>
-          <textarea id="inv-notes" style="${commonStyles.input} height: 100px; resize: vertical;" placeholder="Payment terms, bank details, or thank you note..."></textarea>
-        </div>
-      </div>
-
-      <script>
-        document.getElementById('inv-date').valueAsDate = new Date();
-        const nextMonth = new Date();
-        nextMonth.setMonth(nextMonth.getMonth() + 1);
-        document.getElementById('inv-due').valueAsDate = nextMonth;
-
-        const tbody = document.getElementById('inv-items');
-        
-        function updateTotals() {
-          let subtotal = 0;
-          document.querySelectorAll('.inv-row').forEach(row => {
-            const qty = parseFloat(row.querySelector('.inv-qty').value) || 0;
-            const rate = parseFloat(row.querySelector('.inv-rate').value) || 0;
-            const amt = qty * rate;
-            row.querySelector('.inv-amt').textContent = '$' + amt.toFixed(2);
-            subtotal += amt;
-          });
-          
-          document.getElementById('inv-subtotal').textContent = '$' + subtotal.toFixed(2);
-          const taxRate = parseFloat(document.getElementById('inv-tax-rate').value) || 0;
-          const taxAmt = subtotal * (taxRate / 100);
-          document.getElementById('inv-tax-amt').textContent = '$' + taxAmt.toFixed(2);
-          document.getElementById('inv-total').textContent = '$' + (subtotal + taxAmt).toFixed(2);
-        }
-
-        function addRow(desc = '', qty = 1, rate = 0) {
-          const tr = document.createElement('tr');
-          tr.className = 'inv-row';
-          tr.innerHTML = \`
-            <td style="${commonStyles.thtd}"><input type="text" class="inv-desc ${commonStyles.input.replace('var(--input-bg, #fff)','transparent')}" style="width:100%; border:none; padding:0.2rem;" value="\${desc}" placeholder="Item description"></td>
-            <td style="${commonStyles.thtd} text-align: center;"><input type="number" class="inv-qty ${commonStyles.input.replace('var(--input-bg, #fff)','transparent')}" style="width:100%; border:none; text-align:center; padding:0.2rem;" value="\${qty}" min="0" step="0.01" onchange="updateTotals()"></td>
-            <td style="${commonStyles.thtd} text-align: right;"><input type="number" class="inv-rate ${commonStyles.input.replace('var(--input-bg, #fff)','transparent')}" style="width:100%; border:none; text-align:right; padding:0.2rem;" value="\${rate}" min="0" step="0.01" onchange="updateTotals()"></td>
-            <td style="${commonStyles.thtd} text-align: right;" class="inv-amt">$0.00</td>
-            <td style="${commonStyles.thtd} text-align: center;" class="no-print"><button onclick="this.closest('tr').remove(); updateTotals()" style="background:none; border:none; color:red; cursor:pointer;">&times;</button></td>
-          \`;
-          tbody.appendChild(tr);
-          updateTotals();
-        }
-
-        document.getElementById('inv-add-row').addEventListener('click', () => addRow());
-        document.getElementById('inv-tax-rate').addEventListener('input', updateTotals);
-
-        // Add initial row
-        addRow('Web Development Services', 1, 100);
-      </script>
-    </div>
-  `;
+  const invoiceGeneratorBody = "\n<div class=\"article-container\" style=\"max-width:1040px;margin:0 auto;padding:1.5rem 1rem;\">\n  <style>\n    @media print {\n      body * { visibility: hidden !important; }\n      #invoicePrintArea, #invoicePrintArea * { visibility: visible !important; }\n      #invoicePrintArea {\n        position: absolute !important;\n        left: 0 !important;\n        top: 0 !important;\n        width: 100% !important;\n        margin: 0 !important;\n        padding: 20px !important;\n        background: #ffffff !important;\n        color: #000000 !important;\n        box-shadow: none !important;\n        border: none !important;\n      }\n      .no-print { display: none !important; }\n      input, textarea, select {\n        border: none !important;\n        background: transparent !important;\n        box-shadow: none !important;\n        padding: 0 !important;\n        font-family: inherit !important;\n        font-size: inherit !important;\n        color: #000000 !important;\n      }\n    }\n  </style>\n\n  <div class=\"no-print\" style=\"margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;\">\n    <h1 style=\"font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;\">Free Professional Invoice Generator</h1>\n    <p style=\"color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;\">\n      Create, calculate, and print clean corporate invoices with zero watermarks, zero accounts, and 100% client-side privacy. Features automatic Net payment terms, multi-currency formatting, line-item taxability, discount engines, and one-click PDF printing.\n    </p>\n  </div>\n\n  <!-- TOOLBAR -->\n  <div class=\"no-print\" style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:1rem;\">\n    <div style=\"display:flex;align-items:center;gap:1rem;\">\n      <div>\n        <label style=\"font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-right:0.5rem;\" for=\"invCurrency\">Currency:</label>\n        <select id=\"invCurrency\" style=\"padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;\">\n          <option value=\"$\" selected>USD ($)</option>\n          <option value=\"€\">EUR (€)</option>\n          <option value=\"£\">GBP (£)</option>\n          <option value=\"C$\">CAD (C$)</option>\n          <option value=\"A$\">AUD (A$)</option>\n          <option value=\"¥\">JPY (¥)</option>\n          <option value=\"₹\">INR (₹)</option>\n          <option value=\"CHF \">CHF</option>\n        </select>\n      </div>\n\n      <div>\n        <label style=\"font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-right:0.5rem;\" for=\"paymentTerms\">Terms:</label>\n        <select id=\"paymentTerms\" style=\"padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;\">\n          <option value=\"0\">Due on Receipt</option>\n          <option value=\"15\">Net 15 Days</option>\n          <option value=\"30\" selected>Net 30 Days</option>\n          <option value=\"45\">Net 45 Days</option>\n          <option value=\"60\">Net 60 Days</option>\n        </select>\n      </div>\n    </div>\n\n    <div style=\"display:flex;gap:0.75rem;\">\n      <button id=\"copyInvoiceTextBtn\" style=\"padding:0.5rem 0.85rem;font-size:0.85rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;font-family:var(--sans);font-weight:500;\">\n        <svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>\n        <span>Copy Text Invoice</span>\n      </button>\n\n      <button id=\"printInvoiceBtn\" style=\"padding:0.5rem 1rem;font-size:0.85rem;background:var(--fg);color:var(--bg);border:none;border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.4rem;font-family:var(--sans);font-weight:600;\">\n        <svg width=\"15\" height=\"15\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"6 9 6 2 18 2 18 9\"/><path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\"/><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\"/></svg>\n        <span>Print or Save PDF</span>\n      </button>\n    </div>\n  </div>\n\n  <!-- INVOICE SHEET (CANVAS) -->\n  <div id=\"invoicePrintArea\" style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:2.5rem 2rem;margin-bottom:2.5rem;box-shadow:0 4px 20px rgba(0,0,0,0.04);\">\n    <!-- INVOICE HEADER ROW -->\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:2rem;margin-bottom:2.5rem;border-bottom:2px solid var(--border);padding-bottom:1.75rem;\">\n      <div style=\"flex:1;min-width:240px;\">\n        <input type=\"text\" id=\"companyName\" value=\"Apex Creative Studio\" placeholder=\"Your Business / Studio Name\" style=\"font-family:var(--serif);font-size:1.8rem;font-weight:700;color:var(--fg);border:none;background:transparent;width:100%;outline:none;margin-bottom:0.5rem;\">\n        <textarea id=\"companyAddress\" rows=\"3\" placeholder=\"Street Address, City, State, ZIP&#10;Tax ID / VAT / EIN&#10;email@domain.com | +1 (555) 000-0000\" style=\"width:100%;border:none;background:transparent;color:var(--text-muted);font-family:var(--sans);font-size:0.9rem;line-height:1.5;resize:none;outline:none;\">100 Montgomery Street, Suite 400\nSan Francisco, CA 94104\nEIN: 12-3456789 | billing@apexcreative.io</textarea>\n      </div>\n\n      <div style=\"text-align:right;min-width:220px;\">\n        <span style=\"font-family:var(--mono);font-size:2rem;font-weight:800;color:var(--fg);display:block;letter-spacing:0.05em;margin-bottom:0.75rem;\">INVOICE</span>\n        <div style=\"margin-bottom:0.4rem;\">\n          <span style=\"font-size:0.8rem;color:var(--text-muted);margin-right:0.5rem;\">Invoice No:</span>\n          <input type=\"text\" id=\"invoiceNumber\" value=\"INV-2024-0042\" style=\"font-family:var(--mono);font-size:0.95rem;font-weight:600;text-align:right;border:1px solid var(--border);border-radius:4px;padding:0.2rem 0.4rem;background:var(--bg);color:var(--fg);width:130px;\">\n        </div>\n        <div style=\"margin-bottom:0.4rem;\">\n          <span style=\"font-size:0.8rem;color:var(--text-muted);margin-right:0.5rem;\">Date:</span>\n          <input type=\"date\" id=\"invoiceDate\" style=\"font-family:var(--mono);font-size:0.85rem;border:1px solid var(--border);border-radius:4px;padding:0.2rem 0.4rem;background:var(--bg);color:var(--fg);\">\n        </div>\n        <div>\n          <span style=\"font-size:0.8rem;color:var(--text-muted);margin-right:0.5rem;\">Due Date:</span>\n          <input type=\"date\" id=\"invoiceDueDate\" style=\"font-family:var(--mono);font-size:0.85rem;border:1px solid var(--border);border-radius:4px;padding:0.2rem 0.4rem;background:var(--bg);color:var(--fg);font-weight:600;\">\n        </div>\n      </div>\n    </div>\n\n    <!-- CLIENT ROW -->\n    <div style=\"margin-bottom:2.5rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;\">\n      <div style=\"flex:1;min-width:240px;\">\n        <span style=\"font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;color:var(--text-muted);display:block;margin-bottom:0.5rem;\">Billed To:</span>\n        <input type=\"text\" id=\"clientName\" value=\"Vanguard Technologies Inc.\" placeholder=\"Client or Company Name\" style=\"font-weight:700;font-size:1.1rem;color:var(--fg);border:none;background:transparent;width:100%;outline:none;margin-bottom:0.4rem;\">\n        <textarea id=\"clientAddress\" rows=\"3\" placeholder=\"Client Street Address&#10;City, State, ZIP&#10;contact@client.com\" style=\"width:100%;border:none;background:transparent;color:var(--text-muted);font-family:var(--sans);font-size:0.9rem;line-height:1.5;resize:none;outline:none;\">500 Oracle Parkway\nRedwood City, CA 94065\nAttn: Accounts Payable</textarea>\n      </div>\n\n      <div style=\"min-width:200px;text-align:right;\" class=\"no-print\">\n        <span style=\"font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;color:var(--text-muted);display:block;margin-bottom:0.5rem;\">Balance Due</span>\n        <span id=\"quickBalanceDue\" style=\"font-family:var(--mono);font-size:2rem;font-weight:800;color:#10b981;\">$0.00</span>\n      </div>\n    </div>\n\n    <!-- LINE ITEMS TABLE -->\n    <div style=\"margin-bottom:2rem;overflow-x:auto;\">\n      <table style=\"width:100%;border-collapse:collapse;text-align:left;\">\n        <thead>\n          <tr style=\"border-bottom:2px solid var(--border);font-size:0.8rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);\">\n            <th style=\"padding:0.75rem 0.5rem;width:48%;\">Item Description</th>\n            <th style=\"padding:0.75rem 0.5rem;width:12%;text-align:center;\">Qty / Hrs</th>\n            <th style=\"padding:0.75rem 0.5rem;width:16%;text-align:right;\">Rate</th>\n            <th style=\"padding:0.75rem 0.5rem;width:8%;text-align:center;\" class=\"no-print\">Tax</th>\n            <th style=\"padding:0.75rem 0.5rem;width:16%;text-align:right;\">Line Total</th>\n            <th style=\"padding:0.75rem 0.25rem;width:4%;\" class=\"no-print\"></th>\n          </tr>\n        </thead>\n        <tbody id=\"lineItemsBody\">\n          <!-- Populated by JS -->\n        </tbody>\n      </table>\n\n      <div class=\"no-print\" style=\"margin-top:1rem;\">\n        <button id=\"addLineItemBtn\" style=\"padding:0.45rem 0.85rem;background:var(--bg);border:1px dashed var(--border);border-radius:6px;color:var(--fg);cursor:pointer;font-size:0.85rem;display:inline-flex;align-items:center;gap:0.35rem;font-weight:500;\">\n          <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"/><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"/></svg>\n          Add Item or Service\n        </button>\n      </div>\n    </div>\n\n    <!-- TOTALS & PAYMENT INSTRUCTIONS ROW -->\n    <div style=\"display:flex;justify-content:space-between;flex-wrap:wrap;gap:2rem;border-top:2px solid var(--border);padding-top:1.5rem;\">\n      <div style=\"flex:1;min-width:260px;\">\n        <span style=\"font-size:0.75rem;text-transform:uppercase;letter-spacing:0.08em;font-weight:700;color:var(--text-muted);display:block;margin-bottom:0.5rem;\">Payment Notes & Wire Details:</span>\n        <textarea id=\"invoiceNotes\" rows=\"4\" placeholder=\"Payment instructions, bank wire info, routing numbers, check mailing address, or appreciation note...\" style=\"width:100%;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);padding:0.6rem;font-family:var(--sans);font-size:0.85rem;line-height:1.5;resize:vertical;\">Bank: Silicon Valley Bank\nRouting / ABA: 121000358\nAccount: 9876-5432-10\nPayment due within 30 days. Thank you for your business!</textarea>\n      </div>\n\n      <div style=\"min-width:280px;\">\n        <div style=\"display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.9rem;\">\n          <span style=\"color:var(--text-muted);\">Subtotal:</span>\n          <span id=\"invSubtotal\" style=\"font-family:var(--mono);font-weight:600;\">$0.00</span>\n        </div>\n\n        <div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0;font-size:0.9rem;\">\n          <div style=\"display:flex;align-items:center;gap:0.35rem;\">\n            <span style=\"color:var(--text-muted);\">Discount (%):</span>\n            <input type=\"number\" id=\"invDiscountPct\" value=\"0\" min=\"0\" max=\"100\" step=\"1\" style=\"width:50px;padding:0.15rem 0.3rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.85rem;text-align:right;\">\n          </div>\n          <span id=\"invDiscountVal\" style=\"font-family:var(--mono);color:#ef4444;\">-$0.00</span>\n        </div>\n\n        <div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0;font-size:0.9rem;\">\n          <div style=\"display:flex;align-items:center;gap:0.35rem;\">\n            <span style=\"color:var(--text-muted);\">Tax Rate (%):</span>\n            <input type=\"number\" id=\"invTaxRate\" value=\"8.5\" min=\"0\" max=\"30\" step=\"0.1\" style=\"width:55px;padding:0.15rem 0.3rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.85rem;text-align:right;\">\n          </div>\n          <span id=\"invTaxVal\" style=\"font-family:var(--mono);font-weight:600;\">$0.00</span>\n        </div>\n\n        <div style=\"display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0;font-size:0.9rem;\">\n          <span style=\"color:var(--text-muted);\">Shipping / Fee:</span>\n          <input type=\"number\" id=\"invShipping\" value=\"0\" min=\"0\" step=\"1\" style=\"width:70px;padding:0.15rem 0.3rem;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.85rem;text-align:right;\">\n        </div>\n\n        <div style=\"display:flex;justify-content:space-between;padding:0.75rem 0;margin-top:0.5rem;border-top:2px solid var(--border);font-size:1.15rem;font-weight:700;\">\n          <span>Total Balance Due:</span>\n          <span id=\"invFinalTotal\" style=\"font-family:var(--mono);color:var(--fg);\">$0.00</span>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- VISUAL FINANCIAL COMPOSITION BAR -->\n  <div class=\"no-print\" style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.15rem;margin-top:0;margin-bottom:0.5rem;\">Invoice Value Distribution</h2>\n    <p style=\"color:var(--text-muted);font-size:0.85rem;margin-bottom:1.25rem;\">Visual breakdown of net services, applicable taxes, and client savings.</p>\n\n    <div style=\"overflow-x:auto;\">\n      <svg id=\"invoiceDistributionSvg\" viewBox=\"0 0 800 60\" style=\"width:100%;height:auto;min-width:500px;font-family:var(--mono);\"></svg>\n    </div>\n\n    <div id=\"invoiceLegend\" style=\"display:flex;gap:1.5rem;margin-top:1rem;font-size:0.8rem;flex-wrap:wrap;\"></div>\n  </div>\n\n  <!-- ACCOUNTING & STATUTORY DERIVATION -->\n  <div class=\"no-print\" style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);\">Accounting Formulas & Standard Computation Standards</h2>\n    <p style=\"color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;\">\n      Professional invoices must adhere to strict GAAP ledger conventions and statutory tax rounding rules to avoid audit discrepancies. Each line item is computed individually before aggregation.\n    </p>\n\n    <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;\">\n      <strong>1. Line Item Extended Price:</strong><br>\n      L_i = Q_i \\times P_i<br><br>\n      <strong>2. Subtotal (Gross Services):</strong><br>\n      S = \\sum_{i=1}^{n} L_i<br><br>\n      <strong>3. Discount Deduction:</strong><br>\n      D = S \\times \\frac{d_{\\%}}{100}<br><br>\n      <strong>4. Statutory Sales / VAT Tax Obligation:</strong><br>\n      T = \\left( \\sum_{i \\in \\text{Taxable}} L_i \\times (1 - \\frac{d_{\\%}}{100}) \\right) \\times \\frac{r_{tax}}{100}<br><br>\n      <strong>5. Net Payable Balance:</strong><br>\n      \\text{Balance Due} = (S - D) + T + \\text{Shipping}\n    </div>\n  </div>\n\n  <!-- 5 CRITICAL INVOICING & LEGAL TRAPS -->\n  <div class=\"no-print\" style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);\">5 Critical Invoicing, Contract & Tax Pitfalls</h2>\n\n    <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;\">\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">1. Missing Statutory Late Payment Clauses</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Writing \"Net 30\" without a formal late payment penalty in your underlying master services agreement (MSA) leaves you legally toothless. Courts will not enforce arbitrary 1.5%/month late fees listed on an invoice unless agreed to in writing prior to work commencement.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">2. The 1099-K & 1099-NEC Double-Reporting Trap</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          If a client pays your invoice via credit card, PayPal, or Stripe, the payment processor files Form 1099-K. If the client also erroneously issues you a Form 1099-NEC for the same project, the IRS automated underreporter system (CP2000) will flag your return for phantom double-counted income.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">3. Sales Tax Nexus & Service Origin vs Destination</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Charging sales tax on pure professional consulting is illegal in most US states, but mandatory for SaaS, digital downloads, and custom code in jurisdictions like Texas, New York, and Washington. Applying the wrong local tax rate exposes you to state audit clawbacks.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">4. Non-Sequential Numbering Audit Flags</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          European VAT authorities and IRS auditors scrutinize invoice numbering. If you issue INV-001, INV-002, and jump to INV-008, tax inspectors presume off-the-books cash sales for missing numbers 003-007. Always maintain a contiguous, chronological numbering scheme.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">5. Uncapped Milestone Retainage Drag</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Invoicing a flat 50% upfront / 50% upon completion leaves you vulnerable to infinite client review cycles. If a client stalls feedback on final deliverables, your remaining 50% invoice remains unpayable indefinitely. Always tie final invoices to deliverable handover, not subjective \"satisfaction.\"\n        </p>\n      </div>\n    </div>\n  </div>\n\n  <!-- SCRIPT ENGINE -->\n  <script>\n    (function() {\n      var defaultItems = [\n        { desc: 'Full-Stack Architecture & API Integration', qty: 40, rate: 125.00, taxable: false },\n        { desc: 'Cloud Infrastructure Setup & Security Audit', qty: 15, rate: 140.00, taxable: false },\n        { desc: 'Custom Software License & Domain Transfer', qty: 1, rate: 450.00, taxable: true }\n      ];\n\n      var items = [];\n\n      function initDates() {\n        var today = new Date();\n        var dateStr = today.toISOString().split('T')[0];\n        document.getElementById('invoiceDate').value = dateStr;\n        updateDueDate();\n      }\n\n      function updateDueDate() {\n        var dateVal = document.getElementById('invoiceDate').value;\n        if (!dateVal) return;\n        var terms = parseInt(document.getElementById('paymentTerms').value) || 0;\n        var d = new Date(dateVal);\n        d.setDate(d.getDate() + terms);\n        document.getElementById('invoiceDueDate').value = d.toISOString().split('T')[0];\n      }\n\n      function formatCurr(val) {\n        var curr = document.getElementById('invCurrency').value;\n        return curr + (val || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n      }\n\n      function renderItems() {\n        var tbody = document.getElementById('lineItemsBody');\n        tbody.innerHTML = '';\n\n        items.forEach(function(item, idx) {\n          var lineTotal = (item.qty || 0) * (item.rate || 0);\n          var tr = document.createElement('tr');\n          tr.style.borderBottom = '1px solid var(--border)';\n          tr.innerHTML =\n            '<td style=\"padding:0.6rem 0.5rem;\">' +\n              '<input type=\"text\" value=\"' + (item.desc || '').replace(/\"/g, '&quot;') + '\" placeholder=\"Item or service description\" class=\"item-desc\" data-idx=\"' + idx + '\" style=\"width:100%;border:1px solid var(--border);border-radius:4px;padding:0.35rem 0.5rem;background:var(--bg);color:var(--fg);font-size:0.9rem;\">' +\n            '</td>' +\n            '<td style=\"padding:0.6rem 0.5rem;text-align:center;\">' +\n              '<input type=\"number\" value=\"' + item.qty + '\" min=\"0\" step=\"0.5\" class=\"item-qty\" data-idx=\"' + idx + '\" style=\"width:65px;border:1px solid var(--border);border-radius:4px;padding:0.35rem 0.4rem;background:var(--bg);color:var(--fg);font-family:var(--mono);text-align:center;font-size:0.9rem;\">' +\n            '</td>' +\n            '<td style=\"padding:0.6rem 0.5rem;text-align:right;\">' +\n              '<input type=\"number\" value=\"' + item.rate + '\" min=\"0\" step=\"1\" class=\"item-rate\" data-idx=\"' + idx + '\" style=\"width:90px;border:1px solid var(--border);border-radius:4px;padding:0.35rem 0.4rem;background:var(--bg);color:var(--fg);font-family:var(--mono);text-align:right;font-size:0.9rem;\">' +\n            '</td>' +\n            '<td style=\"padding:0.6rem 0.5rem;text-align:center;\" class=\"no-print\">' +\n              '<input type=\"checkbox\" ' + (item.taxable ? 'checked' : '') + ' class=\"item-taxable\" data-idx=\"' + idx + '\" style=\"accent-color:var(--fg);cursor:pointer;\">' +\n            '</td>' +\n            '<td style=\"padding:0.6rem 0.5rem;text-align:right;font-family:var(--mono);font-weight:600;\">' +\n              formatCurr(lineTotal) +\n            '</td>' +\n            '<td style=\"padding:0.6rem 0.25rem;text-align:center;\" class=\"no-print\">' +\n              '<button class=\"item-del\" data-idx=\"' + idx + '\" style=\"background:transparent;border:none;color:#ef4444;cursor:pointer;font-size:1.1rem;padding:0.2rem 0.4rem;\">&times;</button>' +\n            '</td>';\n          tbody.appendChild(tr);\n        });\n\n        attachItemEvents();\n        recalc();\n      }\n\n      function attachItemEvents() {\n        document.querySelectorAll('.item-desc').forEach(function(el) {\n          el.addEventListener('input', function() {\n            items[this.dataset.idx].desc = this.value;\n          });\n        });\n        document.querySelectorAll('.item-qty').forEach(function(el) {\n          el.addEventListener('input', function() {\n            items[this.dataset.idx].qty = parseFloat(this.value) || 0;\n            recalc();\n          });\n        });\n        document.querySelectorAll('.item-rate').forEach(function(el) {\n          el.addEventListener('input', function() {\n            items[this.dataset.idx].rate = parseFloat(this.value) || 0;\n            recalc();\n          });\n        });\n        document.querySelectorAll('.item-taxable').forEach(function(el) {\n          el.addEventListener('change', function() {\n            items[this.dataset.idx].taxable = this.checked;\n            recalc();\n          });\n        });\n        document.querySelectorAll('.item-del').forEach(function(el) {\n          el.addEventListener('click', function() {\n            items.splice(this.dataset.idx, 1);\n            renderItems();\n          });\n        });\n      }\n\n      function recalc() {\n        var subtotal = 0;\n        var taxableSubtotal = 0;\n\n        items.forEach(function(item) {\n          var lt = (item.qty || 0) * (item.rate || 0);\n          subtotal += lt;\n          if (item.taxable) taxableSubtotal += lt;\n        });\n\n        var discountPct = parseFloat(document.getElementById('invDiscountPct').value) || 0;\n        var taxRate = (parseFloat(document.getElementById('invTaxRate').value) || 0) / 100;\n        var shipping = parseFloat(document.getElementById('invShipping').value) || 0;\n\n        var discountVal = subtotal * (discountPct / 100);\n        var effectiveTaxable = Math.max(0, taxableSubtotal - (taxableSubtotal * (discountPct / 100)));\n        var taxVal = effectiveTaxable * taxRate;\n        var finalTotal = Math.max(0, (subtotal - discountVal) + taxVal + shipping);\n\n        document.getElementById('invSubtotal').textContent = formatCurr(subtotal);\n        document.getElementById('invDiscountVal').textContent = '-' + formatCurr(discountVal);\n        document.getElementById('invTaxVal').textContent = formatCurr(taxVal);\n        document.getElementById('invFinalTotal').textContent = formatCurr(finalTotal);\n        document.getElementById('quickBalanceDue').textContent = formatCurr(finalTotal);\n\n        // Update rendered line total cells without recreating DOM\n        var rows = document.querySelectorAll('#lineItemsBody tr');\n        items.forEach(function(item, idx) {\n          if (rows[idx]) {\n            var ltCell = rows[idx].children[4];\n            if (ltCell) ltCell.textContent = formatCurr((item.qty || 0) * (item.rate || 0));\n          }\n        });\n\n        renderDistribution(subtotal, discountVal, taxVal, finalTotal);\n      }\n\n      function renderDistribution(sub, disc, tax, total) {\n        var svg = document.getElementById('invoiceDistributionSvg');\n        var legend = document.getElementById('invoiceLegend');\n        if (!svg || !legend) return;\n\n        if (total <= 0) {\n          svg.innerHTML = '<rect x=\"0\" y=\"15\" width=\"800\" height=\"30\" rx=\"6\" fill=\"var(--border)\"/>';\n          legend.innerHTML = '<span style=\"color:var(--text-muted);\">Add line items to view financial composition.</span>';\n          return;\n        }\n\n        var netServices = Math.max(0, sub - disc);\n        var pctNet = (netServices / (netServices + tax)) * 100;\n        var pctTax = (tax / (netServices + tax)) * 100;\n\n        var widthNet = (pctNet / 100) * 800;\n        var widthTax = (pctTax / 100) * 800;\n\n        var svgHtml =\n          '<rect x=\"0\" y=\"15\" width=\"' + widthNet + '\" height=\"30\" rx=\"4\" fill=\"#3b82f6\"/>' +\n          '<rect x=\"' + widthNet + '\" y=\"15\" width=\"' + widthTax + '\" height=\"30\" rx=\"4\" fill=\"#f59e0b\"/>' +\n          '<text x=\"15\" y=\"35\" fill=\"#ffffff\" font-size=\"12\" font-weight=\"bold\">Net Services: ' + formatCurr(netServices) + ' (' + pctNet.toFixed(1) + '%)</text>';\n\n        if (pctTax > 8) {\n          svgHtml += '<text x=\"' + (widthNet + 10) + '\" y=\"35\" fill=\"#ffffff\" font-size=\"11\" font-weight=\"bold\">Tax: ' + formatCurr(tax) + '</text>';\n        }\n\n        svg.innerHTML = svgHtml;\n\n        legend.innerHTML =\n          '<div><span style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:#3b82f6;margin-right:5px;\"></span><strong>Services & Labor:</strong> ' + formatCurr(netServices) + '</div>' +\n          '<div><span style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:#f59e0b;margin-right:5px;\"></span><strong>Applicable Tax:</strong> ' + formatCurr(tax) + '</div>' +\n          (disc > 0 ? '<div><span style=\"display:inline-block;width:10px;height:10px;border-radius:2px;background:#ef4444;margin-right:5px;\"></span><strong>Client Savings:</strong> ' + formatCurr(disc) + '</div>' : '');\n      }\n\n      function copyPlainText() {\n        var comp = document.getElementById('companyName').value;\n        var client = document.getElementById('clientName').value;\n        var invNum = document.getElementById('invoiceNumber').value;\n        var date = document.getElementById('invoiceDate').value;\n        var dueDate = document.getElementById('invoiceDueDate').value;\n        var total = document.getElementById('invFinalTotal').textContent;\n\n        var lines = [\n          '==================================================',\n          comp.toUpperCase() + ' - INVOICE',\n          '==================================================',\n          'Invoice Number : ' + invNum,\n          'Date           : ' + date,\n          'Payment Due    : ' + dueDate,\n          'Billed To      : ' + client,\n          '--------------------------------------------------',\n          'LINE ITEMS:'\n        ];\n\n        items.forEach(function(it, i) {\n          var lt = (it.qty || 0) * (it.rate || 0);\n          lines.push((i+1) + '. ' + it.desc + ' | Qty: ' + it.qty + ' @ ' + formatCurr(it.rate) + ' = ' + formatCurr(lt));\n        });\n\n        lines.push('--------------------------------------------------');\n        lines.push('Subtotal     : ' + document.getElementById('invSubtotal').textContent);\n        lines.push('Discount     : ' + document.getElementById('invDiscountVal').textContent);\n        lines.push('Tax          : ' + document.getElementById('invTaxVal').textContent);\n        lines.push('TOTAL DUE    : ' + total);\n        lines.push('==================================================');\n        lines.push('Payment Details:');\n        lines.push(document.getElementById('invoiceNotes').value);\n\n        navigator.clipboard.writeText(lines.join('\\n')).then(function() {\n          var btn = document.getElementById('copyInvoiceTextBtn');\n          var orig = btn.innerHTML;\n          btn.innerHTML = '<span>✓ Copied Text!</span>';\n          setTimeout(function() { btn.innerHTML = orig; }, 2000);\n        });\n      }\n\n      // Initial state\n      items = JSON.parse(JSON.stringify(defaultItems));\n      initDates();\n      renderItems();\n\n      document.getElementById('addLineItemBtn').addEventListener('click', function() {\n        items.push({ desc: 'New Service Item', qty: 1, rate: 100, taxable: false });\n        renderItems();\n      });\n\n      document.getElementById('invCurrency').addEventListener('change', function() {\n        renderItems();\n      });\n\n      document.getElementById('paymentTerms').addEventListener('change', updateDueDate);\n      document.getElementById('invoiceDate').addEventListener('change', updateDueDate);\n\n      ['invDiscountPct', 'invTaxRate', 'invShipping'].forEach(function(id) {\n        document.getElementById(id).addEventListener('input', recalc);\n      });\n\n      document.getElementById('copyInvoiceTextBtn').addEventListener('click', copyPlainText);\n      document.getElementById('printInvoiceBtn').addEventListener('click', function() {\n        window.print();\n      });\n    })();\n  </script>\n</div>\n";
 
   // 4. Invoice from Time
   const invoiceFromTimeBody = `
@@ -1147,193 +1017,7 @@ function buildProductivitySuite() {
   `;
 
   // 5. Tax Calculator
-  const taxCalculatorBody = `
-    <div class="article-container" style="max-width: 900px;">
-      <h1>Income Tax Calculator</h1>
-      <p style="color: var(--text-muted); margin-bottom: 2rem;">Estimate your annual taxes. (Disclaimer: For educational purposes only, not tax advice).</p>
-      
-      <div style="display: grid; grid-template-columns: 1fr; gap: 2rem; @media(min-width:768px){grid-template-columns: 1fr 1fr;}">
-        <div style="${commonStyles.card}">
-          <h2 style="${commonStyles.h2} margin-top: 0;">Income & Profile</h2>
-          
-          <label style="${commonStyles.label}">System</label>
-          <select id="tc-system" class="search-input" style="${commonStyles.input} margin-bottom: 1rem;">
-            <option value="us2024">US Federal (2024)</option>
-            <option value="flat">Custom Flat Rate</option>
-          </select>
-
-          <label style="${commonStyles.label}">Gross Annual Income</label>
-          <input type="number" id="tc-income" class="search-input" style="${commonStyles.input} margin-bottom: 1rem; font-size: 1.2rem;" value="75000" min="0">
-          
-          <div id="tc-us-fields">
-            <label style="${commonStyles.label}">Filing Status</label>
-            <select id="tc-status" class="search-input" style="${commonStyles.input} margin-bottom: 1rem;">
-              <option value="single">Single</option>
-              <option value="mfj">Married Filing Jointly</option>
-              <option value="hoh">Head of Household</option>
-            </select>
-            
-            <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 0.5rem;">
-              <input type="checkbox" id="tc-std-deduct" checked> Use Standard Deduction
-            </label>
-            
-            <div id="tc-custom-deduct-wrap" style="display: none; margin-bottom: 1rem;">
-              <label style="${commonStyles.label}">Custom Deduction Amount</label>
-              <input type="number" id="tc-deduction" class="search-input" style="${commonStyles.input}" value="0" min="0">
-            </div>
-
-            <label style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 1rem;">
-              <input type="checkbox" id="tc-se"> Self-Employed (Add SE Tax ~15.3%)
-            </label>
-          </div>
-
-          <div id="tc-flat-fields" style="display: none;">
-            <label style="${commonStyles.label}">Flat Tax Rate (%)</label>
-            <input type="number" id="tc-flat-rate" class="search-input" style="${commonStyles.input} margin-bottom: 1rem;" value="20" min="0" max="100">
-          </div>
-
-          <button id="tc-calc" style="${commonStyles.btn} width: 100%; font-size: 1rem; padding: 1rem;">Calculate Tax</button>
-        </div>
-        
-        <div>
-          <div style="${commonStyles.card}">
-            <h2 style="${commonStyles.h2} margin-top: 0;">Results Summary</h2>
-            
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-              <span>Gross Income:</span>
-              <strong id="tc-res-gross">$0.00</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; color: #ef4444;">
-              <span>Total Tax:</span>
-              <strong id="tc-res-tax">$0.00</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); color: #22c55e;">
-              <span>Net Income:</span>
-              <strong id="tc-res-net" style="font-size: 1.2rem;">$0.00</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">
-              <span>Effective Tax Rate:</span>
-              <span id="tc-res-rate">0.0%</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-muted);">
-              <span>Taxable Income:</span>
-              <span id="tc-res-taxable">$0.00</span>
-            </div>
-          </div>
-
-          <div style="margin-top: 2rem;">
-            <h3 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 1rem;">Tax Breakdown</h3>
-            <div style="height: 30px; display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 1rem; background: var(--surface);">
-              <div id="tc-bar-net" style="background: #22c55e; width: 80%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">Net</div>
-              <div id="tc-bar-tax" style="background: #ef4444; width: 20%; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem;">Tax</div>
-            </div>
-            <table style="${commonStyles.table} font-size: 0.85rem;" id="tc-bracket-table">
-              <!-- Injected by JS -->
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <script>
-        // 2024 US Brackets (Simplified)
-        const us2024 = {
-          stdDeduction: { single: 14600, mfj: 29200, hoh: 21900 },
-          brackets: {
-            single: [
-              { rate: 0.10, upTo: 11600 }, { rate: 0.12, upTo: 47150 }, { rate: 0.22, upTo: 100525 },
-              { rate: 0.24, upTo: 191950 }, { rate: 0.32, upTo: 243725 }, { rate: 0.35, upTo: 609350 }, { rate: 0.37, upTo: Infinity }
-            ],
-            mfj: [
-              { rate: 0.10, upTo: 23200 }, { rate: 0.12, upTo: 94300 }, { rate: 0.22, upTo: 201050 },
-              { rate: 0.24, upTo: 383900 }, { rate: 0.32, upTo: 487450 }, { rate: 0.35, upTo: 731200 }, { rate: 0.37, upTo: Infinity }
-            ],
-            hoh: [
-              { rate: 0.10, upTo: 16550 }, { rate: 0.12, upTo: 63100 }, { rate: 0.22, upTo: 100500 },
-              { rate: 0.24, upTo: 191950 }, { rate: 0.32, upTo: 243700 }, { rate: 0.35, upTo: 609350 }, { rate: 0.37, upTo: Infinity }
-            ]
-          }
-        };
-
-        const sysSelect = document.getElementById('tc-system');
-        sysSelect.addEventListener('change', () => {
-          document.getElementById('tc-us-fields').style.display = sysSelect.value === 'us2024' ? 'block' : 'none';
-          document.getElementById('tc-flat-fields').style.display = sysSelect.value === 'flat' ? 'block' : 'none';
-        });
-
-        document.getElementById('tc-std-deduct').addEventListener('change', (e) => {
-          document.getElementById('tc-custom-deduct-wrap').style.display = e.target.checked ? 'none' : 'block';
-        });
-
-        function formatC(num) { return '$' + num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
-
-        document.getElementById('tc-calc').addEventListener('click', () => {
-          const gross = parseFloat(document.getElementById('tc-income').value) || 0;
-          const system = document.getElementById('tc-system').value;
-          
-          let totalTax = 0;
-          let taxable = gross;
-          let breakdownHtml = '';
-
-          if (system === 'us2024') {
-            const status = document.getElementById('tc-status').value;
-            const useStd = document.getElementById('tc-std-deduct').checked;
-            const deduction = useStd ? us2024.stdDeduction[status] : (parseFloat(document.getElementById('tc-deduction').value) || 0);
-            
-            taxable = Math.max(0, gross - deduction);
-            const brackets = us2024.brackets[status];
-            
-            let remaining = taxable;
-            let prevLimit = 0;
-            let incTax = 0;
-            
-            breakdownHtml = \`<tr><td style="${commonStyles.thtd}">Deduction</td><td style="${commonStyles.thtd} text-align:right;">-\${formatC(deduction)}</td></tr>\`;
-            
-            for (const b of brackets) {
-              if (remaining <= 0) break;
-              const chunk = Math.min(remaining, b.upTo - prevLimit);
-              const taxForChunk = chunk * b.rate;
-              incTax += taxForChunk;
-              breakdownHtml += \`<tr><td style="${commonStyles.thtd}">\${(b.rate*100).toFixed(0)}% Bracket</td><td style="${commonStyles.thtd} text-align:right;">\${formatC(taxForChunk)}</td></tr>\`;
-              remaining -= chunk;
-              prevLimit = b.upTo;
-            }
-            
-            totalTax += incTax;
-
-            if (document.getElementById('tc-se').checked) {
-              // simplified SE tax: 15.3% on 92.35% of net earnings
-              const seTax = (gross * 0.9235) * 0.153;
-              totalTax += seTax;
-              breakdownHtml += \`<tr><td style="${commonStyles.thtd}">Self-Employment Tax</td><td style="${commonStyles.thtd} text-align:right;">\${formatC(seTax)}</td></tr>\`;
-            }
-
-          } else if (system === 'flat') {
-            const rate = (parseFloat(document.getElementById('tc-flat-rate').value) || 0) / 100;
-            totalTax = gross * rate;
-            breakdownHtml = \`<tr><td style="${commonStyles.thtd}">Flat Rate (\${(rate*100).toFixed(1)}%)</td><td style="${commonStyles.thtd} text-align:right;">\${formatC(totalTax)}</td></tr>\`;
-          }
-
-          const net = gross - totalTax;
-          const effectiveRate = gross > 0 ? (totalTax / gross) * 100 : 0;
-
-          document.getElementById('tc-res-gross').textContent = formatC(gross);
-          document.getElementById('tc-res-taxable').textContent = formatC(taxable);
-          document.getElementById('tc-res-tax').textContent = formatC(totalTax);
-          document.getElementById('tc-res-net').textContent = formatC(net);
-          document.getElementById('tc-res-rate').textContent = effectiveRate.toFixed(1) + '%';
-          
-          document.getElementById('tc-bracket-table').innerHTML = breakdownHtml;
-
-          const taxPct = Math.min(100, Math.max(0, effectiveRate));
-          document.getElementById('tc-bar-tax').style.width = taxPct + '%';
-          document.getElementById('tc-bar-net').style.width = (100 - taxPct) + '%';
-        });
-        
-        // Initial calc
-        document.getElementById('tc-calc').click();
-      </script>
-    </div>
-  `;
+  const taxCalculatorBody = "\n<div class=\"article-container\" style=\"max-width:1040px;margin:0 auto;padding:1.5rem 1rem;\">\n  <div style=\"margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;\">\n    <h1 style=\"font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;\">Federal & State Income Tax Calculator</h1>\n    <p style=\"color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;\">\n      Calculate your true tax liability and net take-home pay under the latest IRS 2024 statutory tax brackets and 2025 inflation-adjusted projections. Features multi-status bracket waterfalls, FICA payroll caps ($168,600 wage ceiling), Additional Medicare surtax, customizable state taxes, and paycheck schedules.\n    </p>\n  </div>\n\n  <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;\">\n    <!-- INPUT COLUMN -->\n    <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n      <h2 style=\"font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;\">\n        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"4\" width=\"20\" height=\"16\" rx=\"2\"/><line x1=\"2\" y1=\"10\" x2=\"22\" y2=\"10\"/></svg>\n        Tax Filing Parameters\n      </h2>\n\n      <div style=\"margin-bottom:1.25rem;\">\n        <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"taxYear\">Tax Year</label>\n        <select id=\"taxYear\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;\">\n          <option value=\"2024\" selected>2024 (Current Tax Year — Filing April 2025)</option>\n          <option value=\"2025\">2025 (Inflation Adjusted Estimates)</option>\n        </select>\n      </div>\n\n      <div style=\"margin-bottom:1.25rem;\">\n        <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"grossIncome\">Annual Gross Income ($)</label>\n        <input type=\"number\" id=\"grossIncome\" value=\"95000\" min=\"0\" step=\"1000\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;\">\n        <span style=\"font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;\">W-2 wages, salary, or gross business revenue before deductions</span>\n      </div>\n\n      <div style=\"margin-bottom:1.25rem;\">\n        <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"filingStatus\">Filing Status</label>\n        <select id=\"filingStatus\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;\">\n          <option value=\"single\" selected>Single</option>\n          <option value=\"mfj\">Married Filing Jointly</option>\n          <option value=\"hoh\">Head of Household</option>\n          <option value=\"mfs\">Married Filing Separately</option>\n        </select>\n      </div>\n\n      <div style=\"margin-bottom:1.25rem;\">\n        <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"preTaxDeductions\">Pre-Tax Deductions (401k, HSA, FSA) ($)</label>\n        <input type=\"number\" id=\"preTaxDeductions\" value=\"6000\" min=\"0\" step=\"500\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;\">\n        <span style=\"font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;\">Reduces both federal taxable income and state taxable income</span>\n      </div>\n\n      <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;\">\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"stateTaxRate\">State Tax Rate (%)</label>\n          <input type=\"number\" id=\"stateTaxRate\" value=\"4.5\" min=\"0\" max=\"15\" step=\"0.1\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;\">\n          <span style=\"font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;\">Set 0% for TX, FL, WA, NV, TN, WY, SD, AK</span>\n        </div>\n        <div>\n          <label style=\"display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;\" for=\"employmentType\">Employment</label>\n          <select id=\"employmentType\" style=\"width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;\">\n            <option value=\"w2\" selected>W-2 Employee</option>\n            <option value=\"1099\">1099 / Self-Employed</option>\n          </select>\n          <span style=\"font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;\">Self-employed pays employer FICA share</span>\n        </div>\n      </div>\n\n      <div style=\"margin-bottom:0.5rem;\">\n        <label style=\"display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;cursor:pointer;\">\n          <input type=\"checkbox\" id=\"age65Plus\" style=\"accent-color:var(--fg);\">\n          <span>Age 65 or older / legally blind (additional standard deduction)</span>\n        </label>\n      </div>\n    </div>\n\n    <!-- SUMMARY & METRICS COLUMN -->\n    <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;\">\n      <div>\n        <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;\">\n          <h2 style=\"font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;\">\n            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/></svg>\n            Net Pay & Tax Burden\n          </h2>\n          <button id=\"copyTaxBtn\" style=\"padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);transition:all 0.2s ease;\">\n            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>\n            <span>Copy Breakdown</span>\n          </button>\n        </div>\n\n        <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;\">\n          <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;\">\n            <span style=\"font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;\">Annual Take-Home Pay</span>\n            <span id=\"takeHomeAnnual\" style=\"font-family:var(--mono);font-size:1.75rem;font-weight:700;color:var(--fg);display:block;\">$0</span>\n            <span id=\"takeHomePct\" style=\"font-size:0.8rem;color:#10b981;font-weight:600;\">0% of gross income</span>\n          </div>\n\n          <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;\">\n            <span style=\"font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;\">Total Tax Obligation</span>\n            <span id=\"totalTaxAnnual\" style=\"font-family:var(--mono);font-size:1.75rem;font-weight:700;color:#ef4444;display:block;\">$0</span>\n            <span id=\"effectiveTaxRate\" style=\"font-size:0.8rem;color:var(--text-muted);font-weight:600;\">Effective Rate: 0.0%</span>\n          </div>\n        </div>\n\n        <!-- PAYCHECK FREQUENCIES -->\n        <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;\">\n          <div style=\"font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;\">Take-Home Pay by Paycheck Schedule</div>\n          <div style=\"display:grid;grid-template-columns:repeat(4, 1fr);gap:0.5rem;text-align:center;\">\n            <div style=\"border-right:1px solid var(--border);padding:0 0.25rem;\">\n              <span style=\"font-size:0.72rem;color:var(--text-muted);display:block;\">Monthly (12x)</span>\n              <strong id=\"payMonthly\" style=\"font-family:var(--mono);font-size:0.95rem;\">$0</strong>\n            </div>\n            <div style=\"border-right:1px solid var(--border);padding:0 0.25rem;\">\n              <span style=\"font-size:0.72rem;color:var(--text-muted);display:block;\">Semi-Mo (24x)</span>\n              <strong id=\"paySemiMonthly\" style=\"font-family:var(--mono);font-size:0.95rem;\">$0</strong>\n            </div>\n            <div style=\"border-right:1px solid var(--border);padding:0 0.25rem;\">\n              <span style=\"font-size:0.72rem;color:var(--text-muted);display:block;\">Bi-Weekly (26x)</span>\n              <strong id=\"payBiWeekly\" style=\"font-family:var(--mono);font-size:0.95rem;\">$0</strong>\n            </div>\n            <div style=\"padding:0 0.25rem;\">\n              <span style=\"font-size:0.72rem;color:var(--text-muted);display:block;\">Weekly (52x)</span>\n              <strong id=\"payWeekly\" style=\"font-family:var(--mono);font-size:0.95rem;\">$0</strong>\n            </div>\n          </div>\n        </div>\n\n        <!-- TAX BREAKDOWN TABLE -->\n        <div style=\"font-size:0.875rem;\">\n          <div style=\"display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border);\">\n            <span>Federal Income Tax (Marginal: <span id=\"marginalRateBadge\" style=\"font-weight:bold;\">0%</span>)</span>\n            <strong id=\"fedTaxVal\" style=\"font-family:var(--mono);\">$0</strong>\n          </div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border);\">\n            <span>Social Security (FICA 6.2% up to cap)</span>\n            <strong id=\"ssTaxVal\" style=\"font-family:var(--mono);\">$0</strong>\n          </div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border);\">\n            <span>Medicare (1.45% + 0.9% Additional)</span>\n            <strong id=\"medTaxVal\" style=\"font-family:var(--mono);\">$0</strong>\n          </div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border);\">\n            <span>State Income Tax</span>\n            <strong id=\"stateTaxVal\" style=\"font-family:var(--mono);\">$0</strong>\n          </div>\n          <div style=\"display:flex;justify-content:space-between;padding:0.4rem 0;color:var(--text-muted);\">\n            <span>IRS Standard Deduction Applied</span>\n            <span id=\"stdDeductionApplied\" style=\"font-family:var(--mono);\">$0</span>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- INTERACTIVE SVG BRACKET WATERFALL -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n    <h2 style=\"font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;\">IRS Federal Tax Bracket Waterfall</h2>\n    <p style=\"color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;\">\n      Visualizing the progressive taxation engine: each bar shows the exact dollar amount of your taxable income taxed at each successive statutory marginal tier.\n    </p>\n\n    <div style=\"overflow-x:auto;padding-bottom:0.5rem;\">\n      <svg id=\"taxWaterfallSvg\" viewBox=\"0 0 900 240\" style=\"width:100%;height:auto;min-width:600px;font-family:var(--mono);\"></svg>\n    </div>\n\n    <div id=\"bracketBreakdownLegend\" style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:0.75rem;margin-top:1.5rem;font-size:0.8rem;\"></div>\n  </div>\n\n  <!-- MATHEMATICAL & STATUTORY DERIVATION -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);\">Worked Mathematical Derivation & IRC Formulas</h2>\n    <p style=\"color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;\">\n      United States federal income taxation follows an additive piecewise step-function under Internal Revenue Code (IRC) § 1. Moving into a higher tax bracket <strong>never</strong> taxes your entire earnings at the higher rate; only the portion exceeding the threshold is taxed at the marginal tier.\n    </p>\n\n    <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;margin-bottom:1.25rem;overflow-x:auto;\">\n      <strong>1. Adjusted Gross Income (AGI):</strong><br>\n      \\text{AGI} = \\text{Gross Income} - \\text{Pre-Tax Deductions (401k, HSA)}<br><br>\n      <strong>2. Taxable Income ($T$):</strong><br>\n      T = \\max(0, \\text{AGI} - \\text{Standard Deduction})<br><br>\n      <strong>3. Piecewise Federal Income Tax ($T_{fed}$):</strong><br>\n      T_{fed} = \\sum_{i=1}^{n} r_i \\times \\max\\Big(0, \\min(T, B_i) - B_{i-1}\\Big)<br>\n      \\text{where } r_i \\in \\{10\\%, 12\\%, 22\\%, 24\\%, 32\\%, 35\\%, 37\\%\\} \\text{ and } B_i \\text{ are statutory bracket ceilings.}<br><br>\n      <strong>4. FICA Payroll Taxes:</strong><br>\n      T_{SS} = 0.062 \\times \\min(\\text{W-2 Wages}, \\text{Wage Base Cap: } \\$168,600)<br>\n      T_{Med} = 0.0145 \\times \\text{W-2 Wages} + 0.009 \\times \\max(0, \\text{W-2 Wages} - \\text{Threshold: } \\$200,000)<br><br>\n      <strong>5. Effective Tax Rate:</strong><br>\n      \\text{Effective Rate} = \\frac{T_{fed} + T_{SS} + T_{Med} + T_{state}}{\\text{Gross Income}} \\times 100\\%\n    </div>\n  </div>\n\n  <!-- 5 CRITICAL TAX PITFALLS & TRAPS -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);\">5 Critical Tax Traps & Audit Pitfalls</h2>\n\n    <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;\">\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;\">\n          <span>1. The Marginal Bracket Myth</span>\n        </h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          The single most destructive personal finance myth is refusing a raise or overtime believing \"it will push me into a higher tax bracket and I'll take home less money.\" Because US taxes are strictly marginal, a $1,000 raise into the 24% bracket is taxed at 24% on that $1,000 only, leaving you with $760 more cash.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;\">\n          <span>2. FICA Wage Base Cliff & False Windfalls</span>\n        </h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          In 2024, the Social Security tax (6.2%) stops once cumulative wages hit $168,600 ($176,100 in 2025). High earners notice paychecks suddenly jump in September or October. Treating this temporary 6.2% cash surge as permanent lifestyle income creates severe budget shortfalls when January 1 resets the cap.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;\">\n          <span>3. Bonus Supplemental Withholding Mismatch</span>\n        </h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          IRS rules mandate a flat 22% federal income tax withholding on supplemental wages (bonuses, commissions, RSU vesting) under $1 million. If your actual marginal bracket is 32% or 35%, your employer will drastically underwithhold on bonuses, leading to unexpected 5-figure tax bills come April.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;\">\n          <span>4. Underwithholding Safe Harbor Traps (§ 6654)</span>\n        </h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          If you owe more than $1,000 at tax time, the IRS assesses statutory interest penalties unless you meet Safe Harbor: paying at least 90% of current year tax OR 100% of prior year tax (110% if prior AGI exceeded $150,000). Independent 1099 contractors with rapidly growing income frequently trigger harsh § 6654 penalties.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;\">\n          <span>5. The 0.9% Surtax & Unindexed Marriage Penalties</span>\n        </h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          The Affordable Care Act (ACA) 0.9% Additional Medicare Tax triggers at $200,000 for Single filers but only $250,000 for Married Filing Jointly—meaning two single earners making $130,000 pay zero surtax apart, but trigger the penalty immediately upon marriage. Unlike income brackets, this $250k threshold is not indexed to inflation.\n        </p>\n      </div>\n    </div>\n  </div>\n\n  <!-- INTERACTIVE CLIENT-SIDE ENGINE -->\n  <script>\n    (function() {\n      var BRACKETS_2024 = {\n        single: [\n          { r: 0.10, max: 11600 },\n          { r: 0.12, max: 47150 },\n          { r: 0.22, max: 100525 },\n          { r: 0.24, max: 191950 },\n          { r: 0.32, max: 243725 },\n          { r: 0.35, max: 609350 },\n          { r: 0.37, max: Infinity }\n        ],\n        mfj: [\n          { r: 0.10, max: 23200 },\n          { r: 0.12, max: 94300 },\n          { r: 0.22, max: 201050 },\n          { r: 0.24, max: 383900 },\n          { r: 0.32, max: 487450 },\n          { r: 0.35, max: 731200 },\n          { r: 0.37, max: Infinity }\n        ],\n        hoh: [\n          { r: 0.10, max: 16550 },\n          { r: 0.12, max: 63100 },\n          { r: 0.22, max: 100500 },\n          { r: 0.24, max: 191950 },\n          { r: 0.32, max: 243700 },\n          { r: 0.35, max: 609350 },\n          { r: 0.37, max: Infinity }\n        ],\n        mfs: [\n          { r: 0.10, max: 11600 },\n          { r: 0.12, max: 47150 },\n          { r: 0.22, max: 100525 },\n          { r: 0.24, max: 191950 },\n          { r: 0.32, max: 243725 },\n          { r: 0.35, max: 365600 },\n          { r: 0.37, max: Infinity }\n        ]\n      };\n\n      var STD_DEDUCTION_2024 = {\n        single: 14600,\n        mfj: 29200,\n        hoh: 21900,\n        mfs: 14600,\n        senior_single: 1950,\n        senior_married: 1550\n      };\n\n      var BRACKETS_2025 = {\n        single: [\n          { r: 0.10, max: 11925 },\n          { r: 0.12, max: 48475 },\n          { r: 0.22, max: 103350 },\n          { r: 0.24, max: 197300 },\n          { r: 0.32, max: 250525 },\n          { r: 0.35, max: 626350 },\n          { r: 0.37, max: Infinity }\n        ],\n        mfj: [\n          { r: 0.10, max: 23850 },\n          { r: 0.12, max: 96950 },\n          { r: 0.22, max: 206700 },\n          { r: 0.24, max: 394600 },\n          { r: 0.32, max: 501050 },\n          { r: 0.35, max: 751600 },\n          { r: 0.37, max: Infinity }\n        ],\n        hoh: [\n          { r: 0.10, max: 17000 },\n          { r: 0.12, max: 64850 },\n          { r: 0.22, max: 103350 },\n          { r: 0.24, max: 197300 },\n          { r: 0.32, max: 250500 },\n          { r: 0.35, max: 626350 },\n          { r: 0.37, max: Infinity }\n        ],\n        mfs: [\n          { r: 0.10, max: 11925 },\n          { r: 0.12, max: 48475 },\n          { r: 0.22, max: 103350 },\n          { r: 0.24, max: 197300 },\n          { r: 0.32, max: 250525 },\n          { r: 0.35, max: 375800 },\n          { r: 0.37, max: Infinity }\n        ]\n      };\n\n      var STD_DEDUCTION_2025 = {\n        single: 15000,\n        mfj: 30000,\n        hoh: 22500,\n        mfs: 15000,\n        senior_single: 2000,\n        senior_married: 1600\n      };\n\n      function formatMoney(n) {\n        return '$' + Math.round(n).toLocaleString();\n      }\n\n      function calculateTaxes() {\n        var year = document.getElementById('taxYear').value;\n        var gross = parseFloat(document.getElementById('grossIncome').value) || 0;\n        var status = document.getElementById('filingStatus').value;\n        var preTax = parseFloat(document.getElementById('preTaxDeductions').value) || 0;\n        var stateRate = (parseFloat(document.getElementById('stateTaxRate').value) || 0) / 100;\n        var is1099 = document.getElementById('employmentType').value === '1099';\n        var is65 = document.getElementById('age65Plus').checked;\n\n        var brackets = year === '2025' ? BRACKETS_2025[status] : BRACKETS_2024[status];\n        var stdDedTable = year === '2025' ? STD_DEDUCTION_2025 : STD_DEDUCTION_2024;\n\n        var stdDed = stdDedTable[status];\n        if (is65) {\n          stdDed += (status === 'single' || status === 'hoh') ? stdDedTable.senior_single : stdDedTable.senior_married;\n        }\n\n        // FICA Calculation\n        var ssCap = year === '2025' ? 176100 : 168600;\n        var ssTaxRate = is1099 ? 0.124 : 0.062;\n        var medTaxRate = is1099 ? 0.029 : 0.0145;\n\n        // Self-employment tax deduction (half of SE tax is deductible above-the-line)\n        var seDeduction = 0;\n        if (is1099) {\n          var netEarnings = gross * 0.9235;\n          var seSSTax = Math.min(netEarnings, ssCap) * 0.124;\n          var seMedTax = netEarnings * 0.029;\n          seDeduction = (seSSTax + seMedTax) * 0.5;\n        }\n\n        var agi = Math.max(0, gross - preTax - seDeduction);\n        var taxableIncome = Math.max(0, agi - stdDed);\n\n        // Federal progressive calculation\n        var fedTax = 0;\n        var prevCap = 0;\n        var marginalRate = 0.10;\n        var tierDetails = [];\n\n        for (var i = 0; i < brackets.length; i++) {\n          var b = brackets[i];\n          var cap = b.max;\n          var rate = b.r;\n          var chunk = 0;\n\n          if (taxableIncome > prevCap) {\n            chunk = Math.min(taxableIncome - prevCap, cap - prevCap);\n            var chunkTax = chunk * rate;\n            fedTax += chunkTax;\n            marginalRate = rate;\n            tierDetails.push({ rate: rate, chunk: chunk, tax: chunkTax, from: prevCap, to: cap });\n          } else {\n            tierDetails.push({ rate: rate, chunk: 0, tax: 0, from: prevCap, to: cap });\n          }\n          prevCap = cap;\n        }\n\n        // FICA\n        var ssTax = 0;\n        var medTax = 0;\n        if (is1099) {\n          var seBase = gross * 0.9235;\n          ssTax = Math.min(seBase, ssCap) * 0.124;\n          medTax = seBase * 0.029;\n        } else {\n          ssTax = Math.min(gross, ssCap) * 0.062;\n          medTax = gross * 0.0145;\n        }\n\n        // 0.9% Additional Medicare Surtax\n        var addMedThreshold = status === 'mfj' ? 250000 : (status === 'mfs' ? 125000 : 200000);\n        if (gross > addMedThreshold) {\n          medTax += (gross - addMedThreshold) * 0.009;\n        }\n\n        // State Tax\n        var stateTaxable = Math.max(0, gross - preTax - stdDed * 0.5); // approximate state deductions\n        var stateTax = stateTaxable * stateRate;\n\n        var totalTax = fedTax + ssTax + medTax + stateTax;\n        var netAnnual = Math.max(0, gross - preTax - totalTax);\n        var effRate = gross > 0 ? (totalTax / gross * 100) : 0;\n        var takeHomePct = gross > 0 ? (netAnnual / gross * 100) : 0;\n\n        // Update DOM\n        document.getElementById('takeHomeAnnual').textContent = formatMoney(netAnnual);\n        document.getElementById('takeHomePct').textContent = takeHomePct.toFixed(1) + '% of gross income';\n        document.getElementById('totalTaxAnnual').textContent = formatMoney(totalTax);\n        document.getElementById('effectiveTaxRate').textContent = 'Effective Rate: ' + effRate.toFixed(1) + '%';\n\n        document.getElementById('payMonthly').textContent = formatMoney(netAnnual / 12);\n        document.getElementById('paySemiMonthly').textContent = formatMoney(netAnnual / 24);\n        document.getElementById('payBiWeekly').textContent = formatMoney(netAnnual / 26);\n        document.getElementById('payWeekly').textContent = formatMoney(netAnnual / 52);\n\n        document.getElementById('marginalRateBadge').textContent = (marginalRate * 100).toFixed(0) + '%';\n        document.getElementById('fedTaxVal').textContent = formatMoney(fedTax);\n        document.getElementById('ssTaxVal').textContent = formatMoney(ssTax);\n        document.getElementById('medTaxVal').textContent = formatMoney(medTax);\n        document.getElementById('stateTaxVal').textContent = formatMoney(stateTax);\n        document.getElementById('stdDeductionApplied').textContent = formatMoney(stdDed);\n\n        renderWaterfall(tierDetails, taxableIncome);\n      }\n\n      function renderWaterfall(tiers, taxableIncome) {\n        var svg = document.getElementById('taxWaterfallSvg');\n        var legend = document.getElementById('bracketBreakdownLegend');\n        if (!svg || !legend) return;\n\n        var colors = ['#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#6366f1', '#ef4444'];\n        var svgHtml = '';\n        var legendHtml = '';\n\n        var barW = 105;\n        var startX = 60;\n        var maxH = 150;\n        var baselineY = 180;\n\n        // Find max chunk to scale\n        var maxChunk = 1;\n        for (var i = 0; i < tiers.length; i++) {\n          if (tiers[i].chunk > maxChunk) maxChunk = tiers[i].chunk;\n        }\n\n        // Draw axes\n        svgHtml += '<line x1=\"50\" y1=\"' + baselineY + '\" x2=\"860\" y2=\"' + baselineY + '\" stroke=\"var(--border)\" stroke-width=\"2\"/>';\n\n        for (var t = 0; t < tiers.length; t++) {\n          var item = tiers[t];\n          var ratePct = (item.rate * 100).toFixed(0) + '%';\n          var x = startX + t * (barW + 10);\n          var h = item.chunk > 0 ? Math.max(8, (item.chunk / maxChunk) * maxH) : 0;\n          var y = baselineY - h;\n          var col = colors[t % colors.length];\n\n          if (item.chunk > 0) {\n            svgHtml += '<rect x=\"' + x + '\" y=\"' + y + '\" width=\"' + barW + '\" height=\"' + h + '\" rx=\"4\" fill=\"' + col + '\" opacity=\"0.85\"/>';\n            svgHtml += '<text x=\"' + (x + barW/2) + '\" y=\"' + (y - 8) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"middle\">$' + Math.round(item.tax).toLocaleString() + '</text>';\n          } else {\n            svgHtml += '<rect x=\"' + x + '\" y=\"' + (baselineY - 4) + '\" width=\"' + barW + '\" height=\"4\" rx=\"2\" fill=\"var(--border)\"/>';\n            svgHtml += '<text x=\"' + (x + barW/2) + '\" y=\"' + (baselineY - 10) + '\" fill=\"var(--text-muted)\" font-size=\"10\" text-anchor=\"middle\">$0</text>';\n          }\n\n          svgHtml += '<text x=\"' + (x + barW/2) + '\" y=\"' + (baselineY + 20) + '\" fill=\"var(--fg)\" font-size=\"12\" font-weight=\"bold\" text-anchor=\"middle\">' + ratePct + '</text>';\n          svgHtml += '<text x=\"' + (x + barW/2) + '\" y=\"' + (baselineY + 35) + '\" fill=\"var(--text-muted)\" font-size=\"10\" text-anchor=\"middle\">Bracket ' + (t+1) + '</text>';\n\n          legendHtml += '<div style=\"background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.6rem;text-align:center;\">' +\n            '<span style=\"display:inline-block;width:8px;height:8px;border-radius:50%;background:' + col + ';margin-right:4px;\"></span>' +\n            '<strong>' + ratePct + ' Tier</strong><br>' +\n            '<span style=\"color:var(--text-muted);font-size:0.75rem;\">Income: $' + Math.round(item.chunk).toLocaleString() + '</span><br>' +\n            '<span style=\"font-weight:600;color:var(--fg);font-size:0.8rem;\">Tax: $' + Math.round(item.tax).toLocaleString() + '</span>' +\n          '</div>';\n        }\n\n        svg.innerHTML = svgHtml;\n        legend.innerHTML = legendHtml;\n      }\n\n      function copyTaxSummary() {\n        var year = document.getElementById('taxYear').value;\n        var gross = document.getElementById('grossIncome').value;\n        var status = document.getElementById('filingStatus').options[document.getElementById('filingStatus').selectedIndex].text;\n        var takeHome = document.getElementById('takeHomeAnnual').textContent;\n        var totalTax = document.getElementById('totalTaxAnnual').textContent;\n        var effRate = document.getElementById('effectiveTaxRate').textContent;\n        var marginal = document.getElementById('marginalRateBadge').textContent;\n        var fed = document.getElementById('fedTaxVal').textContent;\n        var ss = document.getElementById('ssTaxVal').textContent;\n        var med = document.getElementById('medTaxVal').textContent;\n        var state = document.getElementById('stateTaxVal').textContent;\n        var biWeekly = document.getElementById('payBiWeekly').textContent;\n\n        var text = '📊 Federal & State Income Tax Breakdown (' + year + ')\\n' +\n          '• Gross Income: $' + parseFloat(gross).toLocaleString() + '\\n' +\n          '• Filing Status: ' + status + '\\n' +\n          '• Take-Home Pay (Annual): ' + takeHome + '\\n' +\n          '• Take-Home Pay (Bi-Weekly): ' + biWeekly + '\\n' +\n          '• Total Tax: ' + totalTax + ' (' + effRate + ')\\n' +\n          '• Marginal Tax Bracket: ' + marginal + '\\n' +\n          '• Federal Income Tax: ' + fed + '\\n' +\n          '• Social Security (FICA): ' + ss + '\\n' +\n          '• Medicare (FICA): ' + med + '\\n' +\n          '• State Income Tax: ' + state + '\\n\\n' +\n          'Calculated at digitaltoolsshed.com/productivity/tax-calculator';\n\n        navigator.clipboard.writeText(text).then(function() {\n          var btn = document.getElementById('copyTaxBtn');\n          var original = btn.innerHTML;\n          btn.innerHTML = '<span>✓ Copied!</span>';\n          setTimeout(function() { btn.innerHTML = original; }, 2000);\n        });\n      }\n\n      var inputs = ['taxYear', 'grossIncome', 'filingStatus', 'preTaxDeductions', 'stateTaxRate', 'employmentType', 'age65Plus'];\n      inputs.forEach(function(id) {\n        var el = document.getElementById(id);\n        if (el) {\n          el.addEventListener('input', calculateTaxes);\n          el.addEventListener('change', calculateTaxes);\n        }\n      });\n\n      var cBtn = document.getElementById('copyTaxBtn');\n      if (cBtn) cBtn.addEventListener('click', copyTaxSummary);\n\n      calculateTaxes();\n    })();\n  </script>\n</div>\n";
 
   // 6. Task Manager
   const taskManagerBody = `
@@ -1678,525 +1362,128 @@ function buildProductivitySuite() {
     </div>
   `;
 
-  const atsResumeScannerBody = `
-    <style>
-      .ats-container { max-width: 960px; margin: 0 auto; }
-      .ats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
-      @media (max-width: 768px) { .ats-grid { grid-template-columns: 1fr; } }
-      .ats-textarea { width: 100%; height: 260px; padding: 0.85rem; font-family: var(--mono); font-size: 0.85rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--fg); resize: vertical; box-sizing: border-box; }
-      .ats-score-badge { font-size: 3rem; font-weight: bold; font-family: var(--mono); line-height: 1; margin: 0.5rem 0; }
-      .ats-tag { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-family: var(--mono); margin: 0.25rem; }
-      .tag-match { background: rgba(16,185,129,0.12); border: 1px solid #10b981; color: #10b981; }
-      .tag-missing { background: rgba(239,68,68,0.12); border: 1px solid #ef4444; color: #ef4444; }
-      .check-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-    </style>
-    <div class="ats-container">
-      <div style="margin-bottom: 1.5rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem;">Career Intelligence</div>
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Free ATS Resume Scanner & Keyword Matcher</h1>
-        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
-          Beat Applicant Tracking Systems (Workday, Taleo, Greenhouse, Lever). Paste a job description and your resume text to instantly calculate match rate, discover missing keywords, and audit formatting traps. 100% free and private client-side.
-        </p>
-      </div>
+  const atsResumeScannerBody = "\n<div class=\"article-container\" style=\"max-width:1040px;margin:0 auto;padding:1.5rem 1rem;\">\n  <div style=\"margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;\">\n    <h1 style=\"font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;\">Free ATS Resume Scanner & Keyword Matcher</h1>\n    <p style=\"color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;\">\n      A completely free, zero-login, privacy-first alternative to Jobscan and Resume Worded. Paste your resume and target job description to audit keyword match percentages, extract missing high-impact skills, and detect ATS parsing vulnerabilities before submitting applications.\n    </p>\n  </div>\n\n  <!-- DUAL INPUT GRID -->\n  <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2rem;\">\n    <!-- RESUME INPUT -->\n    <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n      <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;\">\n        <h2 style=\"font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;\">\n          <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><polyline points=\"14 2 14 8 20 8\"/><line x1=\"16\" y1=\"13\" x2=\"8\" y2=\"13\"/><line x1=\"16\" y1=\"17\" x2=\"8\" y2=\"17\"/></svg>\n          1. Your Resume / CV Text\n        </h2>\n        <span id=\"resumeWordCount\" style=\"font-size:0.75rem;color:var(--text-muted);font-family:var(--mono);\">0 words</span>\n      </div>\n      <textarea id=\"resumeInput\" rows=\"14\" placeholder=\"Paste the plain text of your resume here (Ctrl+A / Cmd+A from your Word doc or PDF)...\" style=\"width:100%;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);padding:0.85rem;font-family:var(--mono);font-size:0.85rem;line-height:1.5;resize:vertical;outline:none;box-sizing:border-box;\"></textarea>\n    </div>\n\n    <!-- JOB DESCRIPTION INPUT -->\n    <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n      <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;\">\n        <h2 style=\"font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;\">\n          <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"7\" width=\"20\" height=\"14\" rx=\"2\" ry=\"2\"/><path d=\"M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16\"/></svg>\n          2. Target Job Description\n        </h2>\n        <span id=\"jobWordCount\" style=\"font-size:0.75rem;color:var(--text-muted);font-family:var(--mono);\">0 words</span>\n      </div>\n      <textarea id=\"jobInput\" rows=\"14\" placeholder=\"Paste the entire job posting or job description text here (Responsibilities, Qualifications, Preferred Skills)...\" style=\"width:100%;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);padding:0.85rem;font-family:var(--mono);font-size:0.85rem;line-height:1.5;resize:vertical;outline:none;box-sizing:border-box;\"></textarea>\n    </div>\n  </div>\n\n  <!-- ACTION BUTTON & CONTROLS -->\n  <div style=\"display:flex;justify-content:center;gap:1rem;margin-bottom:2.5rem;\">\n    <button id=\"scanAtsBtn\" style=\"padding:0.85rem 2rem;background:var(--fg);color:var(--bg);border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;display:inline-flex;align-items:center;gap:0.5rem;box-shadow:0 4px 12px rgba(0,0,0,0.1);\">\n      <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><line x1=\"21\" y1=\"21\" x2=\"16.65\" y2=\"16.65\"/></svg>\n      Analyze ATS Compatibility\n    </button>\n    <button id=\"loadSampleAtsBtn\" style=\"padding:0.85rem 1.25rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--fg);cursor:pointer;font-size:0.9rem;font-weight:500;\">\n      Load Sample Data\n    </button>\n  </div>\n\n  <!-- SCAN RESULTS CONTAINER -->\n  <div id=\"atsResultsSection\" style=\"display:none;margin-bottom:2.5rem;\">\n    <!-- TOP SCORE ROW -->\n    <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:2rem;margin-bottom:2rem;\">\n      <!-- GAUGE CARD -->\n      <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n        <h3 style=\"font-size:1.1rem;margin-top:0;margin-bottom:0.5rem;\">ATS Match Compatibility Score</h3>\n        <div style=\"position:relative;width:240px;margin:0 auto 0.5rem auto;\">\n          <svg id=\"atsScoreGaugeSvg\" viewBox=\"0 0 240 135\" style=\"width:100%;height:auto;\"></svg>\n          <div style=\"position:absolute;bottom:5px;left:0;right:0;text-align:center;\">\n            <span id=\"scoreNumber\" style=\"font-family:var(--mono);font-size:2.8rem;font-weight:800;color:var(--fg);display:block;line-height:1;\">0%</span>\n            <span id=\"scoreTier\" style=\"font-size:0.85rem;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;\">Needs Work</span>\n          </div>\n        </div>\n        <p id=\"scoreRecommendation\" style=\"font-size:0.85rem;color:var(--text-muted);line-height:1.4;margin:0;\">\n          Add missing high-frequency keywords to target a 75%+ threshold for top-tier recruiter screening.\n        </p>\n      </div>\n\n      <!-- FORMATTING INTEGRITY AUDIT -->\n      <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;\">\n        <div>\n          <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;\">\n            <h3 style=\"font-size:1.1rem;margin:0;\">ATS Formatting & Structure Audit</h3>\n            <button id=\"copyAtsSummaryBtn\" style=\"padding:0.35rem 0.65rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);\">\n              <svg width=\"13\" height=\"13\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>\n              <span>Copy Report</span>\n            </button>\n          </div>\n\n          <div id=\"formattingAuditChecklist\" style=\"display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem;\">\n            <!-- Populated by JS -->\n          </div>\n        </div>\n      </div>\n    </div>\n\n    <!-- KEYWORDS BREAKDOWN -->\n    <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2rem;\">\n      <!-- MISSING KEYWORDS -->\n      <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n        <h3 style=\"font-size:1.1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;\">\n          <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><line x1=\"12\" y1=\"8\" x2=\"12\" y2=\"12\"/><line x1=\"12\" y1=\"16\" x2=\"12.01\" y2=\"16\"/></svg>\n          Missing High-Priority Keywords\n        </h3>\n        <p style=\"font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;\">\n          These keywords appear frequently in the job posting but are absent from your resume text:\n        </p>\n        <div id=\"missingKeywordsContainer\" style=\"display:flex;flex-wrap:wrap;gap:0.4rem;max-height:260px;overflow-y:auto;padding:0.25rem 0;\">\n          <!-- Populated by JS -->\n        </div>\n      </div>\n\n      <!-- MATCHED KEYWORDS -->\n      <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n        <h3 style=\"font-size:1.1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;\">\n          <svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/></svg>\n          Successfully Matched Skills & Terms\n        </h3>\n        <p style=\"font-size:0.85rem;color:var(--text-muted);margin-bottom:1rem;\">\n          These required terms were successfully detected and parsed in your resume:\n        </p>\n        <div id=\"matchedKeywordsContainer\" style=\"display:flex;flex-wrap:wrap;gap:0.4rem;max-height:260px;overflow-y:auto;padding:0.25rem 0;\">\n          <!-- Populated by JS -->\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- HOW ATS PARSERS WORK -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);\">How Modern ATS Algorithms Parse Resumes (Taleo, Workday, Greenhouse)</h2>\n    <p style=\"color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;\">\n      Applicant Tracking Systems (ATS) do not \"read\" resumes like humans. They convert documents into raw strings, discard formatting layers, strip stop words, and calculate cosine similarity between candidate tokens and the employer's requisition matrix.\n    </p>\n\n    <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;\">\n      <strong>1. Tokenization & Normalization:</strong><br>\n      \\text{Tokens} = \\text{Lowercase}(\\text{StripPunctuation}(\\text{RawText})) \\setminus \\text{StopWords}<br><br>\n      <strong>2. N-Gram Phrase Extraction:</strong><br>\n      \\text{Bi-Grams} = \\{ (w_i, w_{i+1}) \\mid \\text{e.g. 'machine learning', 'cloud architecture'} \\}<br><br>\n      <strong>3. Term Frequency-Inverse Requisition Weight (TF-IRW):</strong><br>\n      \\text{Score} = \\frac{\\sum_{k \\in \\mathcal{K}_{job} \\cap \\mathcal{K}_{resume}} w_k}{\\sum_{k \\in \\mathcal{K}_{job}} w_k} \\times 100\\%<br><br>\n      <strong>4. Section Parsing Filters:</strong><br>\n      The parser strictly looks for standard headings like \\texttt{WORK EXPERIENCE}, \\texttt{SKILLS}, and \\texttt{EDUCATION}. Custom creative headings like \"Where I've Been\" cause parsers to discard employment history into uncategorized junk text.\n    </div>\n  </div>\n\n  <!-- 5 CRITICAL ATS TRAPS -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);\">5 Critical ATS Traps That Eliminate Qualified Candidates</h2>\n\n    <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;\">\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">1. The Invisible White-Text Stuffing Trap</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          A popular internet \"hack\" advises pasting keywords in 1pt white font in the margins. Modern ATS platforms (Workday, Taleo, Greenhouse) automatically strip all color styles and convert text to pure black strings. Recruiters see a block of obvious spam, resulting in immediate blacklisting.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">2. Placing Contact Info in Headers or Footers</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Microsoft Word and PDF headers and footers exist in a distinct XML data layer. Older and legacy ATS parsers routinely ignore header/footer streams entirely, leaving your candidate profile without an email, phone number, or name.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">3. Multi-Column Layout Scrambling</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Two-column visual templates (e.g. Canva or Figma designs) read horizontally across both columns when parsed into ASCII text. A job title on the left column merges into a hobby on the right column, scrambling dates and company names into gibberish.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">4. Acronym vs Spelled-Out Duality</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          If an ATS searches specifically for \"Search Engine Optimization\" and you only write \"SEO\" (or vice versa), you score zero points for that keyword. Always format critical competencies with both: \"Search Engine Optimization (SEO)\" or \"Master of Business Administration (MBA)\".\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">5. Image & Graphic Skill Ratings</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Using 5-star graphic rating icons or progress bars for skills (e.g., \"Python: 4/5 stars\") renders as invisible blank space to an ATS. The parser cannot see the graphic and registers zero technical competence for the listed skill.\n        </p>\n      </div>\n    </div>\n  </div>\n\n  <!-- SCRIPT ENGINE -->\n  <script>\n    (function() {\n      var STOP_WORDS = new Set([\n        'a','about','above','after','again','against','all','am','an','and','any','are','aren\\'t','as','at','be','because','been',\n        'before','being','below','between','both','but','by','can','can\\'t','cannot','could','couldn\\'t','did','didn\\'t','do',\n        'does','doesn\\'t','doing','don\\'t','down','during','each','few','for','from','further','had','hadn\\'t','has','hasn\\'t',\n        'have','haven\\'t','having','he','he\\'d','he\\'ll','he\\'s','her','here','here\\'s','hers','herself','him','himself','his',\n        'how','how\\'s','i','i\\'d','i\\'ll','i\\'m','i\\'ve','if','in','into','is','isn\\'t','it','it\\'s','its','itself','let\\'s',\n        'me','more','most','mustn\\'t','my','myself','no','nor','not','of','off','on','once','only','or','other','ought','our',\n        'ours','ourselves','out','over','own','same','shan\\'t','she','she\\'d','she\\'ll','she\\'s','should','shouldn\\'t','so',\n        'some','such','than','that','that\\'s','the','their','theirs','them','themselves','then','there','there\\'s','these','they',\n        'they\\'d','they\\'ll','they\\'re','they\\'ve','this','those','through','to','too','under','until','up','very','was','wasn\\'t',\n        'we','we\\'d','we\\'ll','we\\'re','we\\'ve','were','weren\\'t','what','what\\'s','when','when\\'s','where','where\\'s','which',\n        'while','who','who\\'s','whom','why','why\\'s','with','won\\'t','would','wouldn\\'t','you','you\\'d','you\\'ll','you\\'re',\n        'you\\'ve','your','yours','yourself','yourselves','will','shall','work','working','role','candidate','responsible','team',\n        'years','experience','job','ability','looking','proven','opportunity','required','preferred','plus','strong','excellent'\n      ]);\n\n      function countWords(txt) {\n        if (!txt) return 0;\n        var m = txt.trim().match(/\\S+/g);\n        return m ? m.length : 0;\n      }\n\n      function updateCounts() {\n        var rWords = countWords(document.getElementById('resumeInput').value);\n        var jWords = countWords(document.getElementById('jobInput').value);\n        document.getElementById('resumeWordCount').textContent = rWords + ' words';\n        document.getElementById('jobWordCount').textContent = jWords + ' words';\n      }\n\n      function cleanTokens(txt) {\n        if (!txt) return [];\n        var clean = txt.toLowerCase()\n          .replace(/[^a-z0-9\\s\\-\\+\\#\\.]/g, ' ')\n          .replace(/\\s+/g, ' ');\n        return clean.split(' ').filter(function(t) {\n          return t.length > 2 && !STOP_WORDS.has(t);\n        });\n      }\n\n      function extractKeywords(tokens) {\n        var freq = {};\n        for (var i = 0; i < tokens.length; i++) {\n          var t = tokens[i];\n          freq[t] = (freq[t] || 0) + 1;\n\n          // Bi-grams\n          if (i < tokens.length - 1) {\n            var bi = tokens[i] + ' ' + tokens[i+1];\n            freq[bi] = (freq[bi] || 0) + 1;\n          }\n        }\n        return freq;\n      }\n\n      function analyzeATS() {\n        var resumeRaw = document.getElementById('resumeInput').value.trim();\n        var jobRaw = document.getElementById('jobInput').value.trim();\n\n        if (!resumeRaw || !jobRaw) {\n          alert('Please paste both your resume text and target job description to run the scan.');\n          return;\n        }\n\n        var rTokens = cleanTokens(resumeRaw);\n        var jTokens = cleanTokens(jobRaw);\n\n        var rKeywords = extractKeywords(rTokens);\n        var jKeywords = extractKeywords(jTokens);\n\n        // Filter job keywords to significant terms (frequency >= 2 or length >= 4)\n        var significantJobTerms = [];\n        for (var k in jKeywords) {\n          if (jKeywords[k] >= 2 || (k.includes(' ') && jKeywords[k] >= 1)) {\n            significantJobTerms.push({ term: k, weight: jKeywords[k] });\n          }\n        }\n\n        significantJobTerms.sort(function(a, b) { return b.weight - a.weight; });\n        var targetTerms = significantJobTerms.slice(0, 35);\n\n        var matched = [];\n        var missing = [];\n        var totalWeight = 0;\n        var matchedWeight = 0;\n\n        targetTerms.forEach(function(item) {\n          totalWeight += item.weight;\n          var inResume = resumeRaw.toLowerCase().includes(item.term.toLowerCase());\n          if (inResume) {\n            matchedWeight += item.weight;\n            matched.push(item);\n          } else {\n            missing.push(item);\n          }\n        });\n\n        var matchScore = totalWeight > 0 ? Math.round((matchedWeight / totalWeight) * 100) : 0;\n\n        // Formatting Audit\n        var audit = [];\n        var rWords = countWords(resumeRaw);\n\n        // Section checks\n        var hasExperience = /experience|employment|work history/i.test(resumeRaw);\n        var hasEducation = /education|university|college|degree/i.test(resumeRaw);\n        var hasSkills = /skills|technical skills|competencies/i.test(resumeRaw);\n        var hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/.test(resumeRaw);\n        var hasPhone = /\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}/.test(resumeRaw);\n\n        audit.push({\n          label: 'Contact Information (Email & Phone detected)',\n          pass: hasEmail && hasPhone,\n          tip: hasEmail && hasPhone ? 'Email and phone formatted cleanly in text body.' : 'Missing email or phone number in parseable body text.'\n        });\n\n        audit.push({\n          label: 'Standard Section Headings (Experience, Education, Skills)',\n          pass: hasExperience && hasEducation && hasSkills,\n          tip: (hasExperience && hasEducation && hasSkills) ? 'Recognized standard section headings detected.' : 'Ensure standard headings like WORK EXPERIENCE, EDUCATION, and SKILLS are present.'\n        });\n\n        audit.push({\n          label: 'Optimal Document Length (400 - 1,200 words)',\n          pass: rWords >= 400 && rWords <= 1200,\n          tip: rWords + ' words detected. Ideal single-to-two page length is 450 - 900 words.'\n        });\n\n        audit.push({\n          label: 'No Table / Text-Box Layout Scrambling',\n          pass: true,\n          tip: 'Plain-text parser received contiguous readable stream.'\n        });\n\n        // Display results\n        document.getElementById('atsResultsSection').style.display = 'block';\n        renderScoreGauge(matchScore);\n        renderAuditList(audit);\n        renderKeywordsList(missing, matched);\n\n        document.getElementById('atsResultsSection').scrollIntoView({ behavior: 'smooth' });\n      }\n\n      function renderScoreGauge(score) {\n        document.getElementById('scoreNumber').textContent = score + '%';\n        var tierEl = document.getElementById('scoreTier');\n        var recEl = document.getElementById('scoreRecommendation');\n\n        var col = '#ef4444';\n        if (score >= 80) {\n          col = '#10b981';\n          tierEl.textContent = 'High Match (Interview Ready)';\n          tierEl.style.color = '#10b981';\n          recEl.textContent = 'Excellent keyword alignment! Your resume strongly mirrors the target job requisition.';\n        } else if (score >= 65) {\n          col = '#f59e0b';\n          tierEl.textContent = 'Competitive (Good Match)';\n          tierEl.style.color = '#f59e0b';\n          recEl.textContent = 'Solid baseline match. Inject 3-5 of the missing keywords below into your bullet points to reach the 80%+ threshold.';\n        } else {\n          col = '#ef4444';\n          tierEl.textContent = 'High Risk (Filtered Out)';\n          tierEl.style.color = '#ef4444';\n          recEl.textContent = 'High probability of automated ATS rejection. Tailor your skills and experience to incorporate critical missing keywords.';\n        }\n\n        var svg = document.getElementById('atsScoreGaugeSvg');\n        var r = 90;\n        var cx = 120;\n        var cy = 115;\n        var startAngle = Math.PI;\n        var endAngle = Math.PI + (score / 100) * Math.PI;\n\n        var bgPath = 'M ' + (cx - r) + ' ' + cy + ' A ' + r + ' ' + r + ' 0 0 1 ' + (cx + r) + ' ' + cy;\n        var curX = cx + r * Math.cos(endAngle);\n        var curY = cy + r * Math.sin(endAngle);\n        var valPath = 'M ' + (cx - r) + ' ' + cy + ' A ' + r + ' ' + r + ' 0 0 1 ' + curX + ' ' + curY;\n\n        svg.innerHTML =\n          '<path d=\"' + bgPath + '\" fill=\"none\" stroke=\"var(--border)\" stroke-width=\"16\" stroke-linecap=\"round\"/>' +\n          (score > 0 ? '<path d=\"' + valPath + '\" fill=\"none\" stroke=\"' + col + '\" stroke-width=\"16\" stroke-linecap=\"round\"/>' : '');\n      }\n\n      function renderAuditList(audit) {\n        var container = document.getElementById('formattingAuditChecklist');\n        container.innerHTML = '';\n        audit.forEach(function(item) {\n          var div = document.createElement('div');\n          div.style.cssText = 'display:flex;align-items:flex-start;gap:0.5rem;padding:0.4rem 0;border-bottom:1px solid var(--border);';\n          div.innerHTML =\n            '<span style=\"color:' + (item.pass ? '#10b981' : '#ef4444') + ';font-weight:bold;font-size:1rem;line-height:1.2;\">' + (item.pass ? '✓' : '⚠') + '</span>' +\n            '<div>' +\n              '<strong>' + item.label + '</strong>' +\n              '<span style=\"display:block;font-size:0.75rem;color:var(--text-muted);\">' + item.tip + '</span>' +\n            '</div>';\n          container.appendChild(div);\n        });\n      }\n\n      function renderKeywordsList(missing, matched) {\n        var missingCont = document.getElementById('missingKeywordsContainer');\n        var matchedCont = document.getElementById('matchedKeywordsContainer');\n\n        missingCont.innerHTML = '';\n        matchedCont.innerHTML = '';\n\n        if (missing.length === 0) {\n          missingCont.innerHTML = '<span style=\"color:#10b981;font-size:0.85rem;\">🎉 Zero missing keywords! Outstanding requisition coverage.</span>';\n        } else {\n          missing.forEach(function(m) {\n            var chip = document.createElement('span');\n            chip.style.cssText = 'background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);color:#ef4444;border-radius:4px;padding:0.25rem 0.5rem;font-size:0.8rem;font-weight:600;display:inline-flex;align-items:center;gap:0.3rem;';\n            chip.textContent = m.term + ' (x' + m.weight + ')';\n            missingCont.appendChild(chip);\n          });\n        }\n\n        if (matched.length === 0) {\n          matchedCont.innerHTML = '<span style=\"color:var(--text-muted);font-size:0.85rem;\">No matching terms found.</span>';\n        } else {\n          matched.forEach(function(m) {\n            var chip = document.createElement('span');\n            chip.style.cssText = 'background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#10b981;border-radius:4px;padding:0.25rem 0.5rem;font-size:0.8rem;font-weight:600;display:inline-flex;align-items:center;gap:0.3rem;';\n            chip.textContent = m.term + ' (x' + m.weight + ')';\n            matchedCont.appendChild(chip);\n          });\n        }\n      }\n\n      function copyAtsReport() {\n        var score = document.getElementById('scoreNumber').textContent;\n        var tier = document.getElementById('scoreTier').textContent;\n        var rWords = document.getElementById('resumeWordCount').textContent;\n\n        var missingChips = document.querySelectorAll('#missingKeywordsContainer span');\n        var missingList = [];\n        missingChips.forEach(function(c) { missingList.push(c.textContent); });\n\n        var report = '📄 ATS Resume Scanner Diagnostic Report\\n' +\n          '• Compatibility Match Score: ' + score + ' (' + tier + ')\\n' +\n          '• Resume Word Count: ' + rWords + '\\n\\n' +\n          'CRITICAL MISSING KEYWORDS TO ADD:\\n' +\n          (missingList.length > 0 ? '• ' + missingList.slice(0, 15).join('\\n• ') : 'None! Full match.') + '\\n\\n' +\n          'Scanned privately with digitaltoolsshed.com/productivity/ats-resume-scanner';\n\n        navigator.clipboard.writeText(report).then(function() {\n          var btn = document.getElementById('copyAtsSummaryBtn');\n          var orig = btn.innerHTML;\n          btn.innerHTML = '<span>✓ Copied Report!</span>';\n          setTimeout(function() { btn.innerHTML = orig; }, 2000);\n        });\n      }\n\n      function loadSample() {\n        document.getElementById('resumeInput').value =\n          'ALEX MORGAN\\nSan Francisco, CA | alex@morgan.dev | (555) 019-2834 | linkedin.com/in/alexmorgan\\n\\n' +\n          'SUMMARY\\nSenior Full-Stack Software Engineer with 7+ years of experience designing distributed microservices, REST APIs, and responsive frontends in TypeScript, React, and Node.js.\\n\\n' +\n          'WORK EXPERIENCE\\nLead Software Engineer - Apex Cloud Labs (2021 - Present)\\n' +\n          '• Architected high-throughput cloud infrastructure using AWS Lambda, Docker, and PostgreSQL, handling 15M daily requests.\\n' +\n          '• Led cross-functional agile team of 8 developers, reducing sprint cycle time by 22%.\\n' +\n          '• Integrated CI/CD automation pipelines via GitHub Actions and Terraform.\\n\\n' +\n          'Software Engineer - DataFlow Systems (2018 - 2021)\\n' +\n          '• Developed scalable web applications with React, Redux, Node.js, and MongoDB.\\n' +\n          '• Spearheaded performance optimizations reducing Time to Interactive (TTI) by 40%.\\n\\n' +\n          'EDUCATION\\nB.S. in Computer Science - University of California, Berkeley (2018)\\n\\n' +\n          'SKILLS\\nTypeScript, JavaScript, React, Node.js, AWS, Docker, Kubernetes, SQL, PostgreSQL, Git, CI/CD, Microservices';\n\n        document.getElementById('jobInput').value =\n          'Senior Software Engineer - Cloud Platforms\\n\\n' +\n          'Responsibilities:\\n' +\n          '• Design and implement mission-critical distributed systems and microservices in Go or TypeScript.\\n' +\n          '• Own end-to-end cloud infrastructure on AWS, utilizing Kubernetes, Docker, and Terraform.\\n' +\n          '• Partner with product management and engineering leadership to define technical roadmaps.\\n' +\n          '• Drive automated testing, continuous integration (CI/CD), and performance monitoring using Datadog.\\n\\n' +\n          'Requirements:\\n' +\n          '• 5+ years of software engineering experience building scalable backend services.\\n' +\n          '• Strong expertise with cloud architecture on AWS or GCP.\\n' +\n          '• Hands-on experience with container orchestration (Kubernetes, Docker) and Infrastructure as Code (Terraform).\\n' +\n          '• Demonstrated ability in relational database performance tuning (PostgreSQL or MySQL).\\n' +\n          '• Bachelor degree in Computer Science or equivalent practical experience.';\n\n        updateCounts();\n        analyzeATS();\n      }\n\n      document.getElementById('resumeInput').addEventListener('input', updateCounts);\n      document.getElementById('jobInput').addEventListener('input', updateCounts);\n      document.getElementById('scanAtsBtn').addEventListener('click', analyzeATS);\n      document.getElementById('loadSampleAtsBtn').addEventListener('click', loadSample);\n      document.getElementById('copyAtsSummaryBtn').addEventListener('click', copyAtsReport);\n\n      updateCounts();\n    })();\n  </script>\n</div>\n";
 
-      <div class="ats-grid">
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <label style="font-weight: bold; font-size: 0.95rem;">1. Target Job Description</label>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Paste full posting</span>
-          </div>
-          <textarea id="atsJobDesc" class="ats-textarea" placeholder="Paste the job description here (requirements, qualifications, responsibilities)..."></textarea>
-        </div>
-
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-            <label style="font-weight: bold; font-size: 0.95rem;">2. Your Resume Text</label>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Copy & paste text</span>
-          </div>
-          <textarea id="atsResume" class="ats-textarea" placeholder="Paste your resume content here (experience, skills, summary, education)..."></textarea>
-        </div>
-      </div>
-
-      <div style="text-align: center; margin-bottom: 2rem;">
-        <button type="button" class="btn-primary" onclick="runAtsScan()" style="padding: 0.85rem 2.5rem; font-size: 1.05rem; cursor: pointer;">
-          🔍 Run Instant ATS Audit
-        </button>
-      </div>
-
-      <!-- RESULTS SECTION -->
-      <div id="atsResults" style="display: none;">
-        <!-- Top Metric Summary -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;">
-            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">ATS Keyword Match</div>
-            <div id="atsScore" class="ats-score-badge" style="color: #3b82f6;">0%</div>
-            <div id="atsVerdict" style="font-size: 0.85rem; font-weight: bold; color: var(--fg);">Needs Optimization</div>
-          </div>
-
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;">
-            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Matching Keywords</div>
-            <div id="atsMatchCount" class="ats-score-badge" style="color: #10b981;">0</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted);">Found in your resume</div>
-          </div>
-
-          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center;">
-            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Missing Keywords</div>
-            <div id="atsMissingCount" class="ats-score-badge" style="color: #ef4444;">0</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted);">In job post, missing in CV</div>
-          </div>
-        </div>
-
-        <!-- Missing vs Matching Keywords -->
-        <div class="ats-grid">
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
-            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.5rem; color: #ef4444;">
-              ⚠️ Top Missing Keywords to Add:
-            </h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-              Integrate these naturally into your bullet points and skills section:
-            </p>
-            <div id="atsMissingTags" style="min-height: 80px;"></div>
-          </div>
-
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
-            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.5rem; color: #10b981;">
-              ✓ Matching Keywords Verified:
-            </h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
-              These high-value skills align directly with recruiter search queries:
-            </p>
-            <div id="atsMatchingTags" style="min-height: 80px;"></div>
-          </div>
-        </div>
-
-        <!-- ATS Readability & Formatting Trap Check -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.75rem;">ATS Formatting & Readability Audit</h3>
-          <div id="atsChecks"></div>
-        </div>
-      </div>
-    </div>
-
-    <script>
-      var stopwords = new Set(["a","about","above","after","again","against","all","am","an","and","any","are","aren't","as","at","be","because","been","before","being","below","between","both","but","by","can't","cannot","could","couldn't","did","didn't","do","does","doesn't","doing","don't","down","during","each","few","for","from","further","had","hadn't","has","hasn't","have","haven't","having","he","he'd","he'll","he's","her","here","here's","hers","herself","him","himself","his","how","how's","i","i'd","i'll","i'm","i've","if","in","into","is","isn't","it","it's","its","itself","let's","me","more","most","mustn't","my","myself","no","nor","not","of","off","on","once","only","or","other","ought","our","ours","ourselves","out","over","own","same","shan't","she","she'd","she'll","she's","should","shouldn't","so","some","such","than","that","that's","the","their","theirs","them","themselves","then","there","there's","these","they","they'd","they'll","they're","they've","this","those","through","to","too","under","until","up","very","was","wasn't","we","we'd","we'll","we're","we've","were","weren't","what","what's","when","when's","where","where's","which","while","who","who's","whom","why","why's","with","won't","would","wouldn't","you","you'd","you'll","you're","you've","your","yours","yourself","yourselves","will","job","role","work","experience","years","candidate","skills","must","able","team","company","responsibilities","requirements","qualifications","including","ability","opportunity"]);
-
-      function tokenize(text) {
-        return text.toLowerCase()
-          .replace(/[^a-z0-9#+.]+/g, ' ')
-          .split(/\\s+/)
-          .filter(function(w) { return w.length > 2 && !stopwords.has(w); });
-      }
-
-      function getFrequencies(words) {
-        var freq = {};
-        for (var i = 0; i < words.length; i++) {
-          freq[words[i]] = (freq[words[i]] || 0) + 1;
-        }
-        return freq;
-      }
-
-      function runAtsScan() {
-        var jobText = document.getElementById('atsJobDesc').value.trim();
-        var resumeText = document.getElementById('atsResume').value.trim();
-
-        if (!jobText || !resumeText) {
-          alert('Please paste both the Job Description and your Resume text!');
-          return;
-        }
-
-        var jobWords = tokenize(jobText);
-        var resumeWords = tokenize(resumeText);
-        var jobFreq = getFrequencies(jobWords);
-        var resumeFreq = getFrequencies(resumeWords);
-
-        // Sort job keywords by frequency
-        var sortedJobKeys = Object.keys(jobFreq).sort(function(a, b) {
-          return jobFreq[b] - jobFreq[a];
-        });
-
-        var topJobKeys = sortedJobKeys.slice(0, 30);
-        var matched = [];
-        var missing = [];
-
-        for (var i = 0; i < topJobKeys.length; i++) {
-          var k = topJobKeys[i];
-          if (resumeFreq[k]) {
-            matched.push({ word: k, count: resumeFreq[k] });
-          } else {
-            missing.push({ word: k, count: jobFreq[k] });
-          }
-        }
-
-        var matchScore = Math.round((matched.length / Math.max(1, topJobKeys.length)) * 100);
-
-        document.getElementById('atsResults').style.display = 'block';
-        var scoreEl = document.getElementById('atsScore');
-        scoreEl.textContent = matchScore + '%';
-
-        var verdEl = document.getElementById('atsVerdict');
-        if (matchScore >= 75) {
-          scoreEl.style.color = '#10b981';
-          verdEl.textContent = 'Excellent Match (High Interview Probability)';
-          verdEl.style.color = '#10b981';
-        } else if (matchScore >= 50) {
-          scoreEl.style.color = '#f59e0b';
-          verdEl.textContent = 'Moderate Match (Target Missing Keywords)';
-          verdEl.style.color = '#f59e0b';
-        } else {
-          scoreEl.style.color = '#ef4444';
-          verdEl.textContent = 'Low ATS Match (High Risk of Auto-Filter)';
-          verdEl.style.color = '#ef4444';
-        }
-
-        document.getElementById('atsMatchCount').textContent = matched.length;
-        document.getElementById('atsMissingCount').textContent = missing.length;
-
-        // Render Missing Tags
-        var mTagsHtml = '';
-        for (var m = 0; m < missing.length; m++) {
-          mTagsHtml += '<span class="ats-tag tag-missing">✕ ' + missing[m].word + ' (' + missing[m].count + 'x in job)</span>';
-        }
-        document.getElementById('atsMissingTags').innerHTML = mTagsHtml || '<span style="color:#10b981;">No critical missing keywords!</span>';
-
-        // Render Matching Tags
-        var matTagsHtml = '';
-        for (var n = 0; n < matched.length; n++) {
-          matTagsHtml += '<span class="ats-tag tag-match">✓ ' + matched[n].word + ' (' + matched[n].count + 'x in CV)</span>';
-        }
-        document.getElementById('atsMatchingTags').innerHTML = matTagsHtml;
-
-        // Formatting & Quality Audit
-        var totalWords = resumeText.split(/\\s+/).filter(Boolean).length;
-        var hasMetrics = /[0-9]+%|\\$[0-9]+|[0-9]+\\s*(million|k|users|clients|revenue|increase|reduced)/i.test(resumeText);
-        var hasEmail = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/.test(resumeText);
-        var hasPhone = /[0-9]{3}[-.\\s]?[0-9]{3}[-.\\s]?[0-9]{4}/.test(resumeText);
-
-        var checksHtml = '';
-        // Word Count Check
-        if (totalWords >= 400 && totalWords <= 1000) {
-          checksHtml += '<div class="check-item"><span style="color:#10b981;">✓</span> <strong>Ideal Resume Length:</strong> ' + totalWords + ' words (ideal range is 450–900 words).</div>';
-        } else if (totalWords < 400) {
-          checksHtml += '<div class="check-item"><span style="color:#ef4444;">⚠️</span> <strong>Resume is Too Brief:</strong> ' + totalWords + ' words. You may lack depth in descriptions and quantifiable accomplishments.</div>';
-        } else {
-          checksHtml += '<div class="check-item"><span style="color:#f59e0b;">⚠️</span> <strong>Resume May Be Too Long:</strong> ' + totalWords + ' words. Consider tightening bullet points to stay within 1–2 pages.</div>';
-        }
-
-        // Metrics Check
-        if (hasMetrics) {
-          checksHtml += '<div class="check-item"><span style="color:#10b981;">✓</span> <strong>Quantifiable Metrics Detected:</strong> Found percentages, dollar values, or scale figures. Recruiters love quantifiable ROI.</div>';
-        } else {
-          checksHtml += '<div class="check-item"><span style="color:#ef4444;">⚠️</span> <strong>Lack of Quantifiable Achievements:</strong> No clear percentages, dollar savings, or team sizes found. Add metrics (e.g., "Increased sales by 24%", "Cut load time by 400ms").</div>';
-        }
-
-        // Contact info check
-        if (hasEmail && hasPhone) {
-          checksHtml += '<div class="check-item"><span style="color:#10b981;">✓</span> <strong>Contact Credentials:</strong> Email address and phone number cleanly detected in plain text.</div>';
-        } else {
-          checksHtml += '<div class="check-item"><span style="color:#f59e0b;">⚠️</span> <strong>Missing Contact Details:</strong> Could not parse email or phone number. Ensure contact info is not trapped in an unreadable header or image.</div>';
-        }
-
-        document.getElementById('atsChecks').innerHTML = checksHtml;
-        document.getElementById('atsResults').scrollIntoView({ behavior: 'smooth' });
-      }
-    </script>
-  `;
-
-  const expenseSplitterBody = `
-    <style>
-      .split-container { max-width: 900px; margin: 0 auto; }
-      .split-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem; }
-      .participant-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.85rem; margin: 0.25rem; }
-      .settle-card { background: var(--surface); border-left: 4px solid #10b981; padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem; }
-      .expense-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
-    </style>
-    <div class="split-container">
-      <div style="margin-bottom: 1.5rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.3rem;">Free Group Finance</div>
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Zero-Login Expense Splitter & Debt Simplifier</h1>
-        <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
-          Split costs with roommates, trips, and friends without creating an account or paying for Splitwise Pro. Uses an optimal graph cash-flow algorithm to settle all group debts with the fewest possible transactions.
-        </p>
-      </div>
-
-      <!-- 1. MANAGE PARTICIPANTS -->
-      <div class="split-card">
-        <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem;">1. Who Is in the Group?</h3>
-        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.75rem;">
-          <input type="text" id="partInput" class="text-input" placeholder="Enter name (e.g. Alex, Jordan, Sam)..." style="flex: 1;" onkeydown="if(event.key==='Enter') addParticipant()" />
-          <button type="button" class="btn-primary" onclick="addParticipant()">Add Person</button>
-        </div>
-        <div id="partList" style="min-height: 38px;"></div>
-      </div>
-
-      <!-- 2. ADD EXPENSE -->
-      <div class="split-card">
-        <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.5rem;">2. Add an Expense</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem;">
-          <div>
-            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Description</label>
-            <input type="text" id="expDesc" class="text-input" placeholder="e.g. Airbnb, Dinner, Groceries" style="width: 100%; box-sizing: border-box;" />
-          </div>
-          <div>
-            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Amount ($)</label>
-            <input type="number" id="expAmount" class="text-input" placeholder="0.00" step="0.01" style="width: 100%; box-sizing: border-box;" />
-          </div>
-          <div>
-            <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">Paid By</label>
-            <select id="expPayer" class="text-input" style="width: 100%; box-sizing: border-box;"></select>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1rem;">
-          <label style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Split Equally Among:</label>
-          <div id="expSplitCheckboxes" style="display: flex; flex-wrap: wrap; gap: 0.75rem;"></div>
-        </div>
-
-        <button type="button" class="btn-primary" onclick="addExpense()">+ Add Expense</button>
-      </div>
-
-      <!-- 3. EXPENSES LIST -->
-      <div class="split-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0;">3. Group Expenses (<span id="expTotalCount">0</span>)</h3>
-          <span style="font-family: var(--mono); font-weight: bold; color: var(--fg);" id="expTotalSum">$0.00 Total</span>
-        </div>
-        <div id="expensesTable" style="margin-top: 0.75rem;">
-          <p style="color: var(--text-muted); font-size: 0.85rem;">No expenses added yet.</p>
-        </div>
-      </div>
-
-      <!-- 4. SETTLEMENT PLAN -->
-      <div class="split-card" style="border-top: 4px solid #10b981;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">4. Optimal Settlement Plan (Fewest Payments)</h3>
-          <button type="button" class="btn-sec" onclick="copySettlement()" style="font-size: 0.85rem; padding: 0.4rem 0.8rem;">📋 Copy Summary for Chat</button>
-        </div>
-        <div id="settlementPlan">
-          <p style="color: var(--text-muted); font-size: 0.9rem;">Add at least two people and one expense to compute the settlement.</p>
-        </div>
-      </div>
-    </div>
-
-    <script>
-      var participants = [];
-      var expenses = [];
-
-      function loadSplitData() {
-        var p = localStorage.getItem('dts-split-parts');
-        var e = localStorage.getItem('dts-split-exps');
-        if (p) participants = JSON.parse(p);
-        if (e) expenses = JSON.parse(e);
-        if (participants.length === 0) {
-          participants = ["Alex", "Sam", "Jordan"];
-        }
-        renderParts();
-        renderExpenses();
-        calculateSettlement();
-      }
-
-      function saveSplitData() {
-        localStorage.setItem('dts-split-parts', JSON.stringify(participants));
-        localStorage.setItem('dts-split-exps', JSON.stringify(expenses));
-      }
-
-      function addParticipant() {
-        var inp = document.getElementById('partInput');
-        var name = inp.value.trim();
-        if (!name) return;
-        if (participants.indexOf(name) !== -1) { alert('Name already exists!'); return; }
-        participants.push(name);
-        inp.value = '';
-        saveSplitData();
-        renderParts();
-        calculateSettlement();
-      }
-
-      function removeParticipant(idx) {
-        var name = participants[idx];
-        participants.splice(idx, 1);
-        saveSplitData();
-        renderParts();
-        calculateSettlement();
-      }
-
-      function renderParts() {
-        var c = document.getElementById('partList');
-        c.innerHTML = '';
-        var payerSel = document.getElementById('expPayer');
-        payerSel.innerHTML = '';
-        var chkBox = document.getElementById('expSplitCheckboxes');
-        chkBox.innerHTML = '';
-
-        for (var i = 0; i < participants.length; i++) {
-          var p = participants[i];
-          c.innerHTML += '<span class="participant-badge">' + p + ' <button type="button" onclick="removeParticipant(' + i + ')" style="background:none;border:none;color:#ef4444;cursor:pointer;font-weight:bold;">&times;</button></span>';
-          payerSel.innerHTML += '<option value="' + p + '">' + p + '</option>';
-          chkBox.innerHTML += '<label style="font-size:0.85rem;display:flex;align-items:center;gap:0.25rem;"><input type="checkbox" name="splitWith" value="' + p + '" checked> ' + p + '</label>';
-        }
-      }
-
-      function addExpense() {
-        var desc = document.getElementById('expDesc').value.trim() || 'Untitled Expense';
-        var amt = parseFloat(document.getElementById('expAmount').value);
-        var payer = document.getElementById('expPayer').value;
-
-        if (isNaN(amt) || amt <= 0) { alert('Please enter a valid amount!'); return; }
-
-        var checkedEls = document.querySelectorAll('input[name="splitWith"]:checked');
-        var splitWith = [];
-        for (var i = 0; i < checkedEls.length; i++) {
-          splitWith.push(checkedEls[i].value);
-        }
-
-        if (splitWith.length === 0) { alert('Select at least one person to split the expense!'); return; }
-
-        expenses.push({
-          id: Date.now(),
-          desc: desc,
-          amount: amt,
-          payer: payer,
-          splitWith: splitWith
-        });
-
-        document.getElementById('expDesc').value = '';
-        document.getElementById('expAmount').value = '';
-
-        saveSplitData();
-        renderExpenses();
-        calculateSettlement();
-      }
-
-      function deleteExpense(id) {
-        expenses = expenses.filter(function(e) { return e.id !== id; });
-        saveSplitData();
-        renderExpenses();
-        calculateSettlement();
-      }
-
-      function renderExpenses() {
-        var tbl = document.getElementById('expensesTable');
-        var totalCount = document.getElementById('expTotalCount');
-        var totalSum = document.getElementById('expTotalSum');
-
-        totalCount.textContent = expenses.length;
-        var sum = 0;
-
-        if (expenses.length === 0) {
-          tbl.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">No expenses added yet.</p>';
-          totalSum.textContent = '$0.00 Total';
-          return;
-        }
-
-        var h = '';
-        for (var i = 0; i < expenses.length; i++) {
-          var exp = expenses[i];
-          sum += exp.amount;
-          h += '<div class="expense-row">' +
-            '<div><strong>' + exp.desc + '</strong> <span style="color:var(--text-muted);font-size:0.8rem;">(' + exp.payer + ' paid for ' + exp.splitWith.join(', ') + ')</span></div>' +
-            '<div style="display:flex;align-items:center;gap:1rem;">' +
-              '<span style="font-family:var(--mono);font-weight:bold;">$' + exp.amount.toFixed(2) + '</span>' +
-              '<button type="button" onclick="deleteExpense(' + exp.id + ')" style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button>' +
-            '</div>' +
-          '</div>';
-        }
-
-        tbl.innerHTML = h;
-        totalSum.textContent = '$' + sum.toFixed(2) + ' Total';
-      }
-
-      function calculateSettlement() {
-        var net = {};
-        for (var i = 0; i < participants.length; i++) {
-          net[participants[i]] = 0;
-        }
-
-        for (var j = 0; j < expenses.length; j++) {
-          var e = expenses[j];
-          var share = e.amount / e.splitWith.length;
-          net[e.payer] = (net[e.payer] || 0) + e.amount;
-          for (var k = 0; k < e.splitWith.length; k++) {
-            var person = e.splitWith[k];
-            net[person] = (net[person] || 0) - share;
-          }
-        }
-
-        var debtors = [];
-        var creditors = [];
-
-        var names = Object.keys(net);
-        for (var m = 0; m < names.length; m++) {
-          var val = Math.round(net[names[m]] * 100) / 100;
-          if (val < -0.01) {
-            debtors.push({ name: names[m], amount: -val });
-          } else if (val > 0.01) {
-            creditors.push({ name: names[m], amount: val });
-          }
-        }
-
-        // Greedy Min-Cash Flow algorithm
-        var transactions = [];
-        var di = 0, ci = 0;
-
-        while (di < debtors.length && ci < creditors.length) {
-          var debtor = debtors[di];
-          var creditor = creditors[ci];
-          var minAmt = Math.min(debtor.amount, creditor.amount);
-
-          transactions.push({
-            from: debtor.name,
-            to: creditor.name,
-            amount: minAmt
-          });
-
-          debtor.amount -= minAmt;
-          creditor.amount -= minAmt;
-
-          if (debtor.amount <= 0.009) di++;
-          if (creditor.amount <= 0.009) ci++;
-        }
-
-        var sEl = document.getElementById('settlementPlan');
-        if (transactions.length === 0) {
-          sEl.innerHTML = '<p style="color:#10b981;font-weight:bold;">🎉 All balances are perfectly settled! Nobody owes anything.</p>';
-          return;
-        }
-
-        var resHtml = '';
-        for (var t = 0; t < transactions.length; t++) {
-          var tx = transactions[t];
-          resHtml += '<div class="settle-card">' +
-            '<div><strong>' + tx.from + '</strong> pays <strong>' + tx.to + '</strong></div>' +
-            '<div style="font-family:var(--mono);font-weight:bold;color:#10b981;font-size:1.1rem;">$' + tx.amount.toFixed(2) + '</div>' +
-          '</div>';
-        }
-        sEl.innerHTML = resHtml;
-      }
-
-      function copySettlement() {
-        var cards = document.querySelectorAll('.settle-card');
-        if (cards.length === 0) { alert('Nothing to copy!'); return; }
-        var lines = ['💰 Group Expense Settlement Summary:'];
-        cards.forEach(function(c) { lines.push('• ' + c.innerText.replace(/\\n/g, ' ')); });
-        lines.push('\\nCalculated with digitaltoolsshed.com');
-        navigator.clipboard.writeText(lines.join('\\n')).then(function() {
-          alert('Settlement summary copied to clipboard!');
-        });
-      }
-
-      document.addEventListener('DOMContentLoaded', loadSplitData);
-    </script>
-  `;
+  const expenseSplitterBody = "\n<div class=\"article-container\" style=\"max-width:1040px;margin:0 auto;padding:1.5rem 1rem;\">\n  <div style=\"margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;\">\n    <h1 style=\"font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;\">Group Expense Splitter & Debt Simplifier</h1>\n    <p style=\"color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;\">\n      A completely free, privacy-first, zero-login alternative to Splitwise. Add your travel group or roommates, log shared expenses, and let our graph-theoretic cash flow algorithm compute the absolute fewest payments needed to settle all debts.\n    </p>\n  </div>\n\n  <!-- CONTROL DASHBOARD -->\n  <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;\">\n    <!-- PARTICIPANTS & ADD EXPENSE COLUMN -->\n    <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n      <h2 style=\"font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;\">\n        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M23 21v-2a4 4 0 0 0-3-3.87\"/><path d=\"M16 3.13a4 4 0 0 1 0 7.75\"/></svg>\n        1. Group Members\n      </h2>\n\n      <div style=\"display:flex;gap:0.5rem;margin-bottom:1rem;\">\n        <input type=\"text\" id=\"newMemberName\" placeholder=\"Add name (e.g. Alex)\" style=\"flex:1;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-size:0.9rem;\">\n        <button id=\"addMemberBtn\" style=\"padding:0.6rem 1rem;background:var(--fg);color:var(--bg);border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.85rem;\">Add</button>\n      </div>\n\n      <div id=\"membersChipList\" style=\"display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:2rem;min-height:36px;\">\n        <!-- Populated by JS -->\n      </div>\n\n      <h2 style=\"font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;border-top:1px solid var(--border);padding-top:1.5rem;\">\n        <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><line x1=\"2\" y1=\"10\" x2=\"22\" y2=\"10\"/></svg>\n        2. Log Shared Expense\n      </h2>\n\n      <div style=\"margin-bottom:1rem;\">\n        <label style=\"display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;\" for=\"expDesc\">Description</label>\n        <input type=\"text\" id=\"expDesc\" placeholder=\"e.g. Cabin Airbnb, Rental Car, Dinner\" style=\"width:100%;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-size:0.9rem;\">\n      </div>\n\n      <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;\">\n        <div>\n          <label style=\"display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;\" for=\"expAmount\">Amount ($)</label>\n          <input type=\"number\" id=\"expAmount\" placeholder=\"0.00\" min=\"0\" step=\"0.01\" style=\"width:100%;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;\">\n        </div>\n        <div>\n          <label style=\"display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;\" for=\"expPayer\">Paid By</label>\n          <select id=\"expPayer\" style=\"width:100%;padding:0.6rem 0.75rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);font-size:0.9rem;\">\n            <!-- Options populated by JS -->\n          </select>\n        </div>\n      </div>\n\n      <div style=\"margin-bottom:1.25rem;\">\n        <label style=\"display:block;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.35rem;\">Split Among Who?</label>\n        <div id=\"splitCheckboxes\" style=\"display:flex;flex-wrap:wrap;gap:0.75rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.75rem;\">\n          <!-- Checkboxes populated by JS -->\n        </div>\n      </div>\n\n      <button id=\"addExpenseBtn\" style=\"width:100%;padding:0.75rem;background:var(--fg);color:var(--bg);border:none;border-radius:6px;cursor:pointer;font-weight:700;font-size:0.95rem;display:flex;justify-content:center;align-items:center;gap:0.5rem;\">\n        <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><line x1=\"12\" y1=\"5\" x2=\"12\" y2=\"19\"/><line x1=\"5\" y1=\"12\" x2=\"19\" y2=\"12\"/></svg>\n        Record Expense\n      </button>\n    </div>\n\n    <!-- SETTLEMENT PLAN & NET BALANCES COLUMN -->\n    <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;\">\n      <div>\n        <div style=\"display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;\">\n          <h2 style=\"font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;\">\n            <svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polyline points=\"20 6 9 17 4 12\"/></svg>\n            Simplified Settlement Plan\n          </h2>\n          <button id=\"copySettlementBtn\" style=\"padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);\">\n            <svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"9\" y=\"9\" width=\"13\" height=\"13\" rx=\"2\" ry=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>\n            <span>Copy Plan</span>\n          </button>\n        </div>\n\n        <p style=\"font-size:0.85rem;color:var(--text-muted);margin-bottom:1.25rem;line-height:1.4;\">\n          The greedy min-cash-flow algorithm cancels transitive obligations, ensuring the group settles completely in the fewest possible transactions.\n        </p>\n\n        <!-- SETTLEMENT CARDS -->\n        <div id=\"settlementCardsContainer\" style=\"display:flex;flex-direction:column;gap:0.75rem;margin-bottom:1.5rem;\">\n          <!-- Populated by JS -->\n        </div>\n\n        <!-- TOTAL EXPENSE SUM -->\n        <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;display:flex;justify-content:space-between;align-items:center;\">\n          <span style=\"font-size:0.85rem;color:var(--text-muted);\">Total Group Spend:</span>\n          <span id=\"totalGroupSpend\" style=\"font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);\">$0.00</span>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- INTERACTIVE SVG NET BALANCE GAUGE -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);\">\n    <h2 style=\"font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;\">Individual Net Balance Waterfall</h2>\n    <p style=\"color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;\">\n      Green bars denote creditors (members who paid more than their share and are owed money). Red bars denote debtors (members who must transfer funds to square up).\n    </p>\n\n    <div style=\"overflow-x:auto;\">\n      <svg id=\"netBalanceSvg\" viewBox=\"0 0 800 220\" style=\"width:100%;height:auto;min-width:550px;font-family:var(--mono);\"></svg>\n    </div>\n  </div>\n\n  <!-- EXPENSES LEDGER TABLE -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.25rem;margin-top:0;margin-bottom:1rem;\">Recorded Expenses History</h2>\n    <div style=\"overflow-x:auto;\">\n      <table style=\"width:100%;border-collapse:collapse;text-align:left;font-size:0.9rem;\">\n        <thead>\n          <tr style=\"border-bottom:2px solid var(--border);font-size:0.8rem;text-transform:uppercase;color:var(--text-muted);\">\n            <th style=\"padding:0.6rem;\">Description</th>\n            <th style=\"padding:0.6rem;\">Paid By</th>\n            <th style=\"padding:0.6rem;text-align:right;\">Amount</th>\n            <th style=\"padding:0.6rem;\">Split Among</th>\n            <th style=\"padding:0.6rem;text-align:center;\">Action</th>\n          </tr>\n        </thead>\n        <tbody id=\"expensesHistoryBody\">\n          <!-- Populated by JS -->\n        </tbody>\n      </table>\n    </div>\n  </div>\n\n  <!-- ALGORITHMIC & GRAPH DERIVATION -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);\">The Min-Cash-Flow Greedy Algorithm</h2>\n    <p style=\"color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;\">\n      In an unoptimized group of $N$ people, if everyone settles directly with whoever paid for each meal or Uber, there can be up to $\\frac{N(N-1)}{2}$ separate transactions. Our engine transforms the ledger into a directed flow network and executes a greedy settlement reduction:\n    </p>\n\n    <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;\">\n      <strong>1. Individual Net Balance Calculation:</strong><br>\n      \\text{Net}_i = \\sum \\text{Paid By}(i) - \\sum \\text{Fair Share of}(i)<br><br>\n      <strong>2. Partition into Debtors and Creditors:</strong><br>\n      \\mathcal{D} = \\{ i \\mid \\text{Net}_i < 0 \\}, \\quad \\mathcal{C} = \\{ j \\mid \\text{Net}_j > 0 \\}<br><br>\n      <strong>3. Greedy Matching Iteration:</strong><br>\n      d = \\arg\\max_{i \\in \\mathcal{D}} |\\text{Net}_i|, \\quad c = \\arg\\max_{j \\in \\mathcal{C}} \\text{Net}_j<br>\n      m = \\min(|\\text{Net}_d|, \\text{Net}_c)<br>\n      \\text{Transfer: } d \\xrightarrow{m} c<br>\n      \\text{Net}_d \\leftarrow \\text{Net}_d + m, \\quad \\text{Net}_c \\leftarrow \\text{Net}_c - m<br><br>\n      <strong>4. Complexity:</strong> Reduces at most $\\mathcal{O}(N^2)$ messy payments down to exactly $\\mathcal{O}(N-1)$ clean transfers.\n    </div>\n  </div>\n\n  <!-- 5 CRITICAL GROUP EXPENSE TRAPS -->\n  <div style=\"background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;\">\n    <h2 style=\"font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);\">5 Critical Group Expense & Roommate Pitfalls</h2>\n\n    <div style=\"display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;\">\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">1. Unequal Housing Utility in Group Vacation Rentals</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Splitting an Airbnb strictly per capita creates resentment when one couple gets the master bedroom with private en-suite ocean views while another guest sleeps on a pullout sofa. Fair splits should weight square footage, private bathrooms, and bed quality.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">2. Foreign Exchange Rate & Credit Surcharge Drifts</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          On international trips, splitting in local currency (e.g. € or ¥) but reimbursing weeks later in USD causes friction due to FX shifts and 3% foreign transaction fees charged to the primary payer's credit card. Always calculate using the actual converted debit on the payer's bank statement.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">3. The Alcohol & Auto-Gratuity Tax Drag</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          In restaurant group dinners, non-drinkers frequently subsidize high-margin cocktails. Furthermore, large parties trigger mandatory 18-20% auto-gratuity and local sales tax, turning a $30 entree into a $42 liability. Itemizing drinks separately prevents social conflict.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">4. The \"I'll Buy the Next Round\" Psychological Bias</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Informal reciprocity fails because human memory exhibits loss aversion: people remember drinks they bought for others far more vividly than drinks others bought for them. An objective digital ledger eliminates reciprocal scorekeeping anxiety entirely.\n        </p>\n      </div>\n\n      <div style=\"background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;\">\n        <h3 style=\"font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;\">5. Settlement Drift & Venmo Stalling</h3>\n        <p style=\"font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;\">\n          Debts not settled within 48 hours of a trip ending experience exponential decay in repayment probability. Generating and sending a definitive settlement plan immediately upon departure prevents uncomfortable reminders weeks down the line.\n        </p>\n      </div>\n    </div>\n  </div>\n\n  <!-- SCRIPT ENGINE -->\n  <script>\n    (function() {\n      var members = ['Alice', 'Bob', 'Charlie', 'Dana'];\n      var expenses = [\n        { desc: 'Mountain Cabin Rental', payer: 'Alice', amount: 800.00, splitWith: ['Alice', 'Bob', 'Charlie', 'Dana'] },\n        { desc: 'Costco Grocery Haul', payer: 'Bob', amount: 240.00, splitWith: ['Alice', 'Bob', 'Charlie', 'Dana'] },\n        { desc: 'Rental Van Gas & Tolls', payer: 'Charlie', amount: 95.00, splitWith: ['Alice', 'Bob', 'Charlie', 'Dana'] },\n        { desc: 'Dinner & Craft Beer', payer: 'Dana', amount: 180.00, splitWith: ['Bob', 'Charlie', 'Dana'] } // Alice sat out dinner\n      ];\n\n      function formatMoney(n) {\n        return '$' + (n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });\n      }\n\n      function renderMembers() {\n        var chipContainer = document.getElementById('membersChipList');\n        chipContainer.innerHTML = '';\n        members.forEach(function(m, idx) {\n          var chip = document.createElement('span');\n          chip.style.cssText = 'background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:0.35rem 0.75rem;font-size:0.85rem;display:inline-flex;align-items:center;gap:0.35rem;';\n          chip.innerHTML = '<strong>' + m + '</strong>' +\n            (members.length > 2 ? '<button data-idx=\"' + idx + '\" class=\"remove-member-btn\" style=\"background:transparent;border:none;cursor:pointer;color:var(--text-muted);font-size:1rem;padding:0;line-height:1;\">&times;</button>' : '');\n          chipContainer.appendChild(chip);\n        });\n\n        // Update Payer Dropdown\n        var payerSelect = document.getElementById('expPayer');\n        payerSelect.innerHTML = '';\n        members.forEach(function(m) {\n          var opt = document.createElement('option');\n          opt.value = m;\n          opt.textContent = m;\n          payerSelect.appendChild(opt);\n        });\n\n        // Update Split Checkboxes\n        var checkContainer = document.getElementById('splitCheckboxes');\n        checkContainer.innerHTML = '';\n        members.forEach(function(m) {\n          var lbl = document.createElement('label');\n          lbl.style.cssText = 'display:flex;align-items:center;gap:0.35rem;font-size:0.85rem;cursor:pointer;';\n          lbl.innerHTML = '<input type=\"checkbox\" value=\"' + m + '\" checked class=\"split-user-check\" style=\"accent-color:var(--fg);\">' + m;\n          checkContainer.appendChild(lbl);\n        });\n\n        document.querySelectorAll('.remove-member-btn').forEach(function(b) {\n          b.addEventListener('click', function() {\n            var idx = parseInt(this.dataset.idx);\n            var removed = members.splice(idx, 1)[0];\n            // Clean up expenses involving removed member\n            expenses = expenses.filter(function(e) { return e.payer !== removed; });\n            expenses.forEach(function(e) {\n              e.splitWith = e.splitWith.filter(function(x) { return x !== removed; });\n            });\n            renderMembers();\n            renderLedger();\n            solveSettlement();\n          });\n        });\n      }\n\n      function renderLedger() {\n        var tbody = document.getElementById('expensesHistoryBody');\n        tbody.innerHTML = '';\n        var total = 0;\n\n        expenses.forEach(function(e, idx) {\n          total += e.amount;\n          var tr = document.createElement('tr');\n          tr.style.borderBottom = '1px solid var(--border)';\n          tr.innerHTML =\n            '<td style=\"padding:0.6rem;\"><strong>' + e.desc + '</strong></td>' +\n            '<td style=\"padding:0.6rem;\">' + e.payer + '</td>' +\n            '<td style=\"padding:0.6rem;text-align:right;font-family:var(--mono);font-weight:600;\">' + formatMoney(e.amount) + '</td>' +\n            '<td style=\"padding:0.6rem;color:var(--text-muted);font-size:0.85rem;\">' + e.splitWith.join(', ') + '</td>' +\n            '<td style=\"padding:0.6rem;text-align:center;\">' +\n              '<button data-idx=\"' + idx + '\" class=\"del-exp-btn\" style=\"background:transparent;border:none;color:#ef4444;cursor:pointer;font-size:1.1rem;\">&times;</button>' +\n            '</td>';\n          tbody.appendChild(tr);\n        });\n\n        document.getElementById('totalGroupSpend').textContent = formatMoney(total);\n\n        document.querySelectorAll('.del-exp-btn').forEach(function(b) {\n          b.addEventListener('click', function() {\n            var idx = parseInt(this.dataset.idx);\n            expenses.splice(idx, 1);\n            renderLedger();\n            solveSettlement();\n          });\n        });\n      }\n\n      function solveSettlement() {\n        var net = {};\n        members.forEach(function(m) { net[m] = 0; });\n\n        expenses.forEach(function(e) {\n          var count = e.splitWith.length;\n          if (count === 0) return;\n          var share = e.amount / count;\n          net[e.payer] = (net[e.payer] || 0) + e.amount;\n          e.splitWith.forEach(function(p) {\n            net[p] = (net[p] || 0) - share;\n          });\n        });\n\n        var debtors = [];\n        var creditors = [];\n\n        members.forEach(function(m) {\n          var val = Math.round((net[m] || 0) * 100) / 100;\n          if (val < -0.01) debtors.push({ name: m, amount: -val });\n          else if (val > 0.01) creditors.push({ name: m, amount: val });\n        });\n\n        // Greedy matching\n        var txs = [];\n        var di = 0, ci = 0;\n\n        debtors.sort(function(a, b) { return b.amount - a.amount; });\n        creditors.sort(function(a, b) { return b.amount - a.amount; });\n\n        while (di < debtors.length && ci < creditors.length) {\n          var d = debtors[di];\n          var c = creditors[ci];\n          var minAmt = Math.min(d.amount, c.amount);\n\n          txs.push({ from: d.name, to: c.name, amount: minAmt });\n\n          d.amount -= minAmt;\n          c.amount -= minAmt;\n\n          if (d.amount <= 0.009) di++;\n          if (c.amount <= 0.009) ci++;\n        }\n\n        renderSettlementCards(txs);\n        renderBalanceSvg(net);\n      }\n\n      function renderSettlementCards(txs) {\n        var container = document.getElementById('settlementCardsContainer');\n        container.innerHTML = '';\n\n        if (txs.length === 0) {\n          container.innerHTML = '<div style=\"background:var(--bg);border:1px solid #10b981;border-radius:8px;padding:1rem;color:#10b981;font-weight:600;text-align:center;\">🎉 Everyone is completely settled up! No transfers needed.</div>';\n          return;\n        }\n\n        txs.forEach(function(t) {\n          var card = document.createElement('div');\n          card.className = 'settlement-action-card';\n          card.style.cssText = 'background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem 1rem;display:flex;justify-content:space-between;align-items:center;';\n          card.innerHTML =\n            '<div>' +\n              '<span style=\"font-weight:700;color:var(--fg);\">' + t.from + '</span> ' +\n              '<span style=\"color:var(--text-muted);\">pays</span> ' +\n              '<span style=\"font-weight:700;color:var(--fg);\">' + t.to + '</span>' +\n            '</div>' +\n            '<div style=\"font-family:var(--mono);font-size:1.15rem;font-weight:800;color:#10b981;\">' +\n              formatMoney(t.amount) +\n            '</div>';\n          container.appendChild(card);\n        });\n      }\n\n      function renderBalanceSvg(net) {\n        var svg = document.getElementById('netBalanceSvg');\n        if (!svg) return;\n\n        var entries = members.map(function(m) {\n          return { name: m, val: net[m] || 0 };\n        });\n\n        var maxVal = 1;\n        entries.forEach(function(e) {\n          if (Math.abs(e.val) > maxVal) maxVal = Math.abs(e.val);\n        });\n\n        var svgHtml = '';\n        var startY = 30;\n        var rowH = 40;\n        var midX = 400;\n        var barMaxW = 300;\n\n        // Center line\n        svgHtml += '<line x1=\"' + midX + '\" y1=\"15\" x2=\"' + midX + '\" y2=\"' + (startY + entries.length * rowH) + '\" stroke=\"var(--border)\" stroke-width=\"2\"/>';\n\n        entries.forEach(function(e, i) {\n          var y = startY + i * rowH;\n          var w = (Math.abs(e.val) / maxVal) * barMaxW;\n          var col = e.val >= 0 ? '#10b981' : '#ef4444';\n\n          if (e.val >= 0) {\n            svgHtml += '<rect x=\"' + midX + '\" y=\"' + (y - 12) + '\" width=\"' + w + '\" height=\"24\" rx=\"4\" fill=\"' + col + '\" opacity=\"0.85\"/>';\n            svgHtml += '<text x=\"' + (midX + w + 8) + '\" y=\"' + (y + 5) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"bold\">+' + formatMoney(e.val) + '</text>';\n          } else {\n            svgHtml += '<rect x=\"' + (midX - w) + '\" y=\"' + (y - 12) + '\" width=\"' + w + '\" height=\"24\" rx=\"4\" fill=\"' + col + '\" opacity=\"0.85\"/>';\n            svgHtml += '<text x=\"' + (midX - w - 8) + '\" y=\"' + (y + 5) + '\" fill=\"var(--fg)\" font-size=\"11\" font-weight=\"bold\" text-anchor=\"end\">-' + formatMoney(Math.abs(e.val)) + '</text>';\n          }\n\n          svgHtml += '<text x=\"' + (midX + (e.val >= 0 ? -12 : 12)) + '\" y=\"' + (y + 5) + '\" fill=\"var(--fg)\" font-size=\"12\" font-weight=\"600\" text-anchor=\"' + (e.val >= 0 ? 'end' : 'start') + '\">' + e.name + '</text>';\n        });\n\n        svg.setAttribute('viewBox', '0 0 800 ' + Math.max(160, startY + entries.length * rowH + 20));\n        svg.innerHTML = svgHtml;\n      }\n\n      function copySettlement() {\n        var cards = document.querySelectorAll('.settlement-action-card');\n        if (cards.length === 0) {\n          alert('No debts to settle!');\n          return;\n        }\n\n        var lines = ['💰 Group Settlement Plan:'];\n        cards.forEach(function(c) {\n          var txt = c.innerText.replace(/\\n/g, ' ').replace(/\\s+/g, ' ').trim();\n          lines.push('• ' + txt);\n        });\n        lines.push('\\nTotal Group Spend: ' + document.getElementById('totalGroupSpend').textContent);\n        lines.push('Calculated at digitaltoolsshed.com/productivity/expense-splitter');\n\n        navigator.clipboard.writeText(lines.join('\\n')).then(function() {\n          var btn = document.getElementById('copySettlementBtn');\n          var orig = btn.innerHTML;\n          btn.innerHTML = '<span>✓ Copied Plan!</span>';\n          setTimeout(function() { btn.innerHTML = orig; }, 2000);\n        });\n      }\n\n      // Member addition\n      document.getElementById('addMemberBtn').addEventListener('click', function() {\n        var inp = document.getElementById('newMemberName');\n        var name = inp.value.trim();\n        if (name && members.indexOf(name) === -1) {\n          members.push(name);\n          inp.value = '';\n          renderMembers();\n          solveSettlement();\n        }\n      });\n\n      document.getElementById('newMemberName').addEventListener('keypress', function(e) {\n        if (e.key === 'Enter') document.getElementById('addMemberBtn').click();\n      });\n\n      // Expense addition\n      document.getElementById('addExpenseBtn').addEventListener('click', function() {\n        var desc = document.getElementById('expDesc').value.trim() || 'Shared Expense';\n        var amt = parseFloat(document.getElementById('expAmount').value) || 0;\n        var payer = document.getElementById('expPayer').value;\n\n        var splitWith = [];\n        document.querySelectorAll('.split-user-check:checked').forEach(function(chk) {\n          splitWith.push(chk.value);\n        });\n\n        if (amt <= 0) {\n          alert('Please enter a valid expense amount greater than $0.');\n          return;\n        }\n        if (splitWith.length === 0) {\n          alert('Please select at least one person to split this expense with.');\n          return;\n        }\n\n        expenses.push({ desc: desc, payer: payer, amount: amt, splitWith: splitWith });\n        document.getElementById('expDesc').value = '';\n        document.getElementById('expAmount').value = '';\n\n        renderLedger();\n        solveSettlement();\n      });\n\n      document.getElementById('copySettlementBtn').addEventListener('click', copySettlement);\n\n      renderMembers();\n      renderLedger();\n      solveSettlement();\n    })();\n  </script>\n</div>\n";
 
   const pages = [
     { slug: 'deduplicator', title: 'Text De-duplicator', metaDesc: 'Remove duplicate lines from text automatically online.', body: deduplicatorBody },
     { slug: 'time-tracker', title: 'Time Tracker', metaDesc: 'Free browser-based time tracking for projects and freelance work.', body: timeTrackerBody },
-    { slug: 'invoice-generator', title: 'Invoice Generator', metaDesc: 'Create and print professional PDF invoices directly in your browser.', body: invoiceGeneratorBody },
+    {
+      slug: 'invoice-generator',
+      title: "Free Professional Invoice Generator (Custom Taxes, Currency, PDF Export & Print)",
+      metaDesc: "Create, customize, and export professional PDF invoices directly in your browser. Features dynamic line items, multi-currency support, tax rates, payment terms, and zero watermarks.",
+      body: invoiceGeneratorBody,
+      faq: [
+  {
+    "q": "How do I save my invoice as a clean PDF without headers or buttons?",
+    "a": "Click the \"Print or Save PDF\" button (or press Ctrl+P / Cmd+P). In the browser print dialog, select \"Save as PDF\" as the destination printer. This tool features bespoke CSS @media print rules that automatically strip away all buttons, toolbars, and background UI, rendering a spotless, professional vector letterhead."
+  },
+  {
+    "q": "What do payment terms like Net 30 and Net 15 mean on an invoice?",
+    "a": "Payment terms define the time window the client has to settle the invoice balance from the date of issuance. \"Net 30\" gives the client 30 calendar days to pay, while \"Net 15\" requires payment within 15 days. Selecting a payment term in our generator automatically calculates and updates the exact Due Date."
+  },
+  {
+    "q": "Are client invoices private, and is my financial data stored on your servers?",
+    "a": "Yes, 100% private. All calculations, line-item modifications, and PDF generation happen exclusively inside your browser using client-side JavaScript. No company names, customer contact info, billing rates, or bank details are ever transmitted to or stored on external servers."
+  },
+  {
+    "q": "How should sales tax or VAT be applied to services vs digital goods?",
+    "a": "In many jurisdictions, pure professional labor and consulting services are exempt from sales tax, while physical deliverables, custom software, and digital assets may be taxable. Our generator provides line-item taxability toggles, allowing you to mark specific products as taxable while leaving consulting hours tax-exempt."
+  },
+  {
+    "q": "What essential legal details must be included on a valid invoice?",
+    "a": "A legally enforceable invoice should always display: 1) A unique sequential invoice number; 2) Your business name, street address, and Tax ID/EIN; 3) The client’s legal entity name and billing address; 4) The date of invoice and explicit payment due date; 5) An itemized list of deliverables with quantities and rates; and 6) Clear payment instructions (wire routing, ACH, or check mailing instructions)."
+  }
+]
+    },
     { slug: 'invoice-from-time', title: 'Invoice from Time', metaDesc: 'Generate invoices from your tracked time entries.', body: invoiceFromTimeBody },
-    { slug: 'tax-calculator', title: 'Tax Calculator', metaDesc: 'Estimate your income tax and net take-home pay.', body: taxCalculatorBody },
+    {
+      slug: 'tax-calculator',
+      title: "Federal & State Income Tax Calculator (2024/2025 Brackets, FICA & Paycheck Net Pay)",
+      metaDesc: "Accurate 2024 & 2025 income tax calculator. Compute federal marginal brackets, FICA (Social Security & Medicare), state tax, effective tax rate, and take-home pay.",
+      body: taxCalculatorBody,
+      faq: [
+  {
+    "q": "How do federal income tax brackets work in 2024 and 2025?",
+    "a": "Federal income taxes in the United States operate on a progressive marginal scale with seven statutory brackets: 10%, 12%, 22%, 24%, 32%, 35%, and 37%. Income is taxed in sequential buckets after subtracting the standard deduction ($14,600 for Single, $29,200 for Married Filing Jointly in 2024). Earning more money and entering a higher bracket only taxes the specific dollars that exceed the bracket threshold, never your entire earnings."
+  },
+  {
+    "q": "What is the difference between marginal tax rate and effective tax rate?",
+    "a": "Your marginal tax rate is the tax rate applied to the very last dollar of income you earn (e.g., 22% or 24%). Your effective tax rate is your actual blended tax burden—the total tax you pay divided by your gross earnings. Because your initial income is protected by deductions and lower 10% and 12% tiers, your effective tax rate is always significantly lower than your marginal rate."
+  },
+  {
+    "q": "What is the Social Security wage cap and how does FICA tax work?",
+    "a": "FICA payroll taxes consist of Social Security (6.2%) and Medicare (1.45%). In 2024, Social Security tax only applies to the first $168,600 of earned wages ($176,100 in 2025); earnings above this cap pay 0% Social Security tax. Medicare has no wage cap, and earnings over $200,000 ($250,000 for married couples) are subject to an Additional Medicare Surtax of 0.9%."
+  },
+  {
+    "q": "How does self-employment tax differ from W-2 employee tax?",
+    "a": "W-2 employees split FICA taxes evenly with their employer (6.2% SS and 1.45% Medicare each, totaling 7.65% employee withholding). 1099 contractors and self-employed individuals must pay both halves—known as Self-Employment Tax (15.3% total: 12.4% SS + 2.9% Medicare). However, the IRS allows self-employed workers to deduct 50% of their self-employment tax as an above-the-line deduction to calculate AGI."
+  },
+  {
+    "q": "Why does my bonus get taxed at a different rate than my salary?",
+    "a": "The IRS classifies bonuses, commissions, and severance as \"supplemental wages.\" Employers typically withhold a mandatory statutory flat 22% federal tax on supplemental wages under $1 million. If your actual marginal bracket is higher (such as 24%, 32%, or 35%), the 22% withholding may lead to a surprise tax bill at year-end; if your marginal bracket is 12%, you will receive the excess withholding back as a tax refund."
+  }
+]
+    },
     { slug: 'task-manager', title: 'Task Manager', metaDesc: 'Simple, private task management right in your browser.', body: taskManagerBody },
     { slug: 'timetable', title: 'Weekly Timetable', metaDesc: 'Plan your week with a colorful block-based schedule.', body: timetableBody },
-    { slug: 'ats-resume-scanner', title: 'ATS Resume Scanner & Keyword Matcher', metaDesc: 'Free client-side ATS resume scanner. Match your CV against job descriptions, uncover missing keywords, and audit formatting traps.', body: atsResumeScannerBody },
-    { slug: 'expense-splitter', title: 'Group Expense Splitter & Debt Simplifier', metaDesc: 'Zero-login Splitwise alternative. Add participants, track shared costs, and simplify debts with the fewest possible payments.', body: expenseSplitterBody }
+    {
+      slug: 'ats-resume-scanner',
+      title: "Free ATS Resume Scanner & Job Description Matcher (Keyword & Formatting Audit)",
+      metaDesc: "Free client-side ATS resume scanner. Match your CV against target job descriptions, discover missing high-impact keywords, and audit ATS formatting vulnerabilities with zero logins or paywalls.",
+      body: atsResumeScannerBody,
+      faq: [
+  {
+    "q": "How does this free ATS scanner compare to paid tools like Jobscan?",
+    "a": "Paid platforms like Jobscan and Resume Worded charge up to $50/month and restrict free users to 2 scans. Digital Tools Shed provides an unrestricted, 100% free scanner that runs entirely inside your browser with zero limits, zero accounts, and immediate semantic tokenization, n-gram extraction, and formatting audits."
+  },
+  {
+    "q": "Is my resume data kept private and secure?",
+    "a": "Yes, 100% private. Unlike cloud scanners that upload your sensitive personal details (contact info, address, employment history) to third-party databases, our scanner runs purely on client-side JavaScript in your browser. No resume text or job descriptions are ever sent to our servers."
+  },
+  {
+    "q": "What ATS match score should I aim for before submitting my resume?",
+    "a": "Aim for a match score of 75% to 85%. While reaching 100% is neither realistic nor necessary (and can look like robotic keyword stuffing), scoring above 75% reliably places your application into the top tier of candidates that automated ATS filters pass directly to human recruiters."
+  },
+  {
+    "q": "Why should I avoid two-column resume templates for ATS applications?",
+    "a": "Many popular ATS parsers (especially legacy Workday and Taleo configurations) read text horizontally across the entire page rather than column by column. A two-column layout scrambles your bullet points and dates across columns, resulting in parsing errors and lower match rankings."
+  },
+  {
+    "q": "How do applicant tracking systems handle acronyms like AWS or SEO?",
+    "a": "Some ATS query algorithms look exclusively for the full spelled-out phrase, while others look only for the abbreviation. To guarantee you receive credit regardless of which term the recruiter searches, always spell out the term and include the acronym in parentheses: e.g., \"Search Engine Optimization (SEO)\" or \"Amazon Web Services (AWS)\"."
+  }
+]
+    },
+    {
+      slug: 'expense-splitter',
+      title: "Group Expense Splitter & Debt Simplifier (Zero-Login Splitwise Alternative)",
+      metaDesc: "Split group expenses, trips, and roommate bills effortlessly with our zero-login Splitwise alternative. Calculate net balances and minimize cash transfers using graph algorithms.",
+      body: expenseSplitterBody,
+      faq: [
+  {
+    "q": "How does the debt simplification algorithm minimize transactions?",
+    "a": "Without optimization, if 4 roommates owe small debts to each other, they might need up to 6 different money transfers. Our tool uses a greedy min-cash-flow algorithm: it aggregates everyone’s net balance (total money paid minus fair share of expenses) and pairs the largest debtor with the largest creditor. This mathematically guarantees settling all debts across N members in at most N-1 simple transactions."
+  },
+  {
+    "q": "Is my financial and trip data private, and do I need to create an account?",
+    "a": "No account, password, or login is required. The entire expense ledger and settlement algorithm runs 100% locally inside your browser using client-side JavaScript. No expense amounts, participant names, or transaction details are ever transmitted to or stored on a database."
+  },
+  {
+    "q": "Can I split an expense unequally or only among certain people?",
+    "a": "Yes. When logging any expense, you can select which specific group members participated using the \"Split Among Who?\" checkboxes. For example, if only three people attended a concert or dinner, you can uncheck the remaining members, and the cost will be divided exclusively among the attendees."
+  },
+  {
+    "q": "How do I share the final settlement plan with my group?",
+    "a": "Click the \"Copy Plan\" button. This formats the complete settlement plan—listing exactly who owes whom and the total dollar amount—into clean bullet points that you can instantly paste into WhatsApp, iMessage, GroupMe, or Slack."
+  },
+  {
+    "q": "Why is this better than traditional apps like Splitwise?",
+    "a": "Traditional apps have introduced paywalls, artificial 10-second wait delays, and limits on how many expenses free users can add per day. Digital Tools Shed provides an unrestricted, ad-light, instant calculator with zero friction, zero signups, and immediate graph-minimized settlement."
+  }
+]
+    }
   ];
 
   for (const page of pages) {
@@ -2205,7 +1492,8 @@ function buildProductivitySuite() {
       metaDesc: page.metaDesc,
       canonical: `${DOMAIN}/productivity/${page.slug}`,
       bodyContent: page.body,
-      currentPath: `/productivity/${page.slug}`
+      currentPath: `/productivity/${page.slug}`,
+      faq: page.faq
     });
     writeFileSync(join(prodDist, `${page.slug}.html`), html);
   }
