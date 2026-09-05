@@ -1281,14 +1281,30 @@
           </div>
 
           <!-- Critical Statistical Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Statistical Pitfalls &amp; Bessel's Bias</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Bessel's Correction Trap:</strong> When analyzing a subset (sample) of a larger population, dividing by $N$ rather than $n - 1$ produces a mathematically biased underestimate of variance. This occurs because the sample mean $ar{x}$ is calculated from the sample itself, naturally lying closer to the sample observations than the true unknown population mean $mu$. Always use $n - 1$ for samples.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Standard Deviation vs Standard Error Confusion:</strong> Standard deviation ($s$) measures the dispersion of individual observations. Standard error ($	ext{SE} = s / sqrt{n}$) measures the precision of your sample mean. Confusing these leads to misleading scientific claims—increasing sample size makes SE smaller, but does NOT reduce the true standard deviation of the population.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Outlier Distortion Vulnerability:</strong> Because deviations are squared before summing, standard deviation is extraordinarily sensitive to outliers. A single extreme observation (e.g. data entry error or fat-tailed market crash) will artificially balloon $s$. For skewed or non-Gaussian data, report the Interquartile Range (IQR) or Median Absolute Deviation (MAD).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 68-95-99.7 Empirical Rule Limitation:</strong> The rule stating that 68% of data falls within $pm 1s$ and 95% within $pm 2s$ is <em>only valid for normal (Gaussian) bell-curve distributions</em>. For multimodal or heavily skewed distributions (such as wealth or website latency), Chebyshev's Inequality ($ge 75%$ within $pm 2s$) is the only mathematically guaranteed boundary.</li>
-            </ul>
+          <div style="margin: 2.5rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Critical Statistical Pitfalls &amp; Bessel's Bias</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📐 1. The Bessel's Correction Trap ($N$ vs $n - 1$ Sample Bias)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">When analyzing a sample subset of a larger population, dividing sum of squares by $N$ rather than $n - 1$ produces a mathematically biased underestimate of true variance. Because the sample mean $ar{x}$ is calculated directly from the sample data points, observations cluster unnaturally closer to $ar{x}$ than to the unknown true population mean $mu$. Dividing by $n - 1$ precisely corrects this degrees-of-freedom bias.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📊 2. Standard Deviation ($s$) vs Standard Error of the Mean (SEM) Confusion</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Standard deviation ($s$) measures the inherent dispersion of individual observations. Standard error of the mean ($	ext{SEM} = s / sqrt{n}$) measures the precision of the estimated sample mean. Increasing sample size $n$ drives SEM toward zero, but does <em>not</em> shrink the true underlying standard deviation of the population. Reporting SEM in place of SD deceptively masks genuine variance.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🎯 3. Outlier Sensitivity &amp; Squared Error Amplification</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Because deviations from the mean are squared before summing, standard deviation is extraordinarily sensitive to extreme values. A single data entry error or black-swan financial crash will artificially balloon $s$, rendering it non-representative. For skewed or heavy-tailed distributions, report robust nonparametric dispersion metrics like the Interquartile Range (IQR) or Median Absolute Deviation (MAD).</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔔 4. The 68-95-99.7 Empirical Rule Misapplication (Gaussian vs Chebyshev)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">The empirical rule stating that 68% of observations fall within $pm 1s$ and 95% within $pm 2s$ is <em>strictly valid only for symmetric, Gaussian normal bell curves</em>. For bimodal, power-law, or skewed datasets (such as wealth, web server latency, or software bugs), only Chebyshev's inequality ($ge 75%$ within $pm 2s$) mathematically holds across any arbitrary distribution.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🎲 5. Adding Standard Deviations Linearly (Variance Additivity Law)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A pervasive error in financial risk modeling and engineering tolerance stacks is adding standard deviations directly ($sigma_A + sigma_B$). For uncorrelated independent variables, standard deviations never sum linearly; variances add: $sigma_{	ext{total}} = sqrt{sigma_A^2 + sigma_B^2}$. Adding standard deviations directly exaggerates total portfolio volatility and leads to over-conservative, inefficient engineering tolerances.</p>
+              </div>
+            </div>
           </div>
         </div>
 

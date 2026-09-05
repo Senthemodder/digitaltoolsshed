@@ -1215,6 +1215,9 @@
               </div>
             </div>
 
+            <!-- Dynamic Powers of Ten Scale Ruler -->
+            <div id="sn-svg-container" style="margin: 1.5rem 0;"></div>
+
             <!-- Copy Summary Button -->
             <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
               <button type="button" class="btn-sec" onclick="copyFullSNSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
@@ -1263,7 +1266,85 @@
           </div>
         </div>
 
-        <script>
+        <!-- 5 Fatal Scientific Notation Traps & Engineering Pitfalls -->
+  <div style="margin: 2.5rem 0;">
+    <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Fatal Scientific Notation Traps &amp; Engineering Pitfalls</h2>
+    <div style="display: grid; gap: 1rem;">
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🚫 1. The "Ambiguous Trailing Zero" Significant Figures Trap</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Writing a decimal number like <code>4,500</code> leaves significant figures completely ambiguous—it could mean 2, 3, or 4 significant digits depending on measurement resolution. Scientific notation eliminates ambiguity entirely: <code>4.5 &times; 10³</code> has exactly 2 sig figs, whereas <code>4.500 &times; 10³</code> explicitly indicates 4 sig figs, signifying measurement certainty down to the exact unit.</p>
+      </div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">⚙️ 2. Engineering Notation Multiple-of-3 Violation</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Unlike pure scientific notation (where the coefficient is strictly between 1 and 10), engineering notation requires exponents of 10 to be exact multiples of 3 (10³, 10⁶, 10⁻⁹). This directly aligns with standard SI metric prefixes (kilo, mega, nano). Writing <code>45 &times; 10⁴</code> violates both conventions: it is neither normalized scientific nor valid engineering format (which should be <code>450 &times; 10³</code> or 450 kHz).</p>
+      </div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">💻 3. Floating-Point IEEE 754 Precision Drift in Software</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Standard computer hardware stores floating-point numbers in base-2 IEEE 754 format. Values with repeating binary representations (such as 0.1 or 0.0001) incur minute truncation errors (e.g. <code>0.1 + 0.2 = 0.30000000000000004</code>). When working with extreme scientific exponents (such as Planck lengths 10⁻³⁵ or cosmological masses 10⁵²), native floating-point math can lose significant figures or suffer underflow/overflow.</p>
+      </div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🧮 4. Order of Operations Negation Exponent Precedence</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A pervasive student error is confusing <code>-5.0 &times; 10²</code> with <code>(-5.0 &times; 10)²</code>. Under mathematical order of operations (PEMDAS), exponentiation takes precedence over unary negation. Similarly, entering scientific notation into legacy hand calculators without parentheses (e.g., typing <code>1 / 2 &times; 10³</code>) divides by 2 and then multiplies by 1,000 (result: 500), rather than dividing by 2,000 (result: 0.0005).</p>
+      </div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🛰️ 5. Dimensional Power Multiplier Errors in Unit Scaling</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Converting between metric prefixes in derived units requires raising the power of 10 to the dimension of the unit. While 1 m = 10² cm, area scales quadratically: 1 m² = (10² cm)² = 10⁴ cm². Volume scales cubically: 1 m³ = 10⁶ cm³. Forgetting to cube or square the exponent when converting densities or fluid volumes causes disastrous million-fold calculation errors.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+          function getScaleReference(exp) {
+            if (exp <= -18) return 'Subatomic / Quark radius scale (~10⁻¹⁸ m)';
+            if (exp <= -15) return 'Proton / Atomic nucleus scale (~10⁻¹⁵ m)';
+            if (exp <= -10) return 'Atom diameter / Ångström scale (~10⁻¹⁰ m)';
+            if (exp <= -7) return 'Visible light wavelength / Bacteria (~10⁻⁷ m)';
+            if (exp <= -4) return 'Dust speck / Paper thickness (~10⁻⁴ m)';
+            if (exp <= -1) return 'Centimeter / Finger width (~10⁻² m)';
+            if (exp <= 2) return 'Human scale / 1 to 100 meters';
+            if (exp <= 5) return 'City / Mountain scale (1 to 100 km)';
+            if (exp <= 7) return 'Earth radius scale (~6.4 × 10⁶ m)';
+            if (exp <= 9) return 'Earth-Moon distance / Gigabyte (~10⁹)';
+            if (exp <= 11) return 'Earth-Sun distance (1 AU ~ 1.5 × 10¹¹ m)';
+            if (exp <= 16) return 'Light-year distance (~9.46 × 10¹⁵ m)';
+            if (exp <= 21) return 'Milky Way Galaxy diameter (~10²¹ m)';
+            return 'Cosmic observable universe scale (>10²³)';
+          }
+
+          function generateSciSvg(exp) {
+            var minExp = -18;
+            var maxExp = 24;
+            var clamped = Math.max(minExp, Math.min(maxExp, exp));
+            var pct = (clamped - minExp) / (maxExp - minExp);
+            var pointerX = 50 + pct * 500;
+            var refText = getScaleReference(exp);
+
+            return '<svg id="snScaleSvg" viewBox="0 0 600 130" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 1.5rem auto; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+              '<rect x="50" y="45" width="500" height="8" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>' +
+              '<rect x="50" y="45" width="' + Math.max(0, pointerX - 50) + '" height="8" rx="4" fill="#3b82f6" opacity="0.75"/>' +
+              '<line x1="50" y1="40" x2="50" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="50" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10⁻¹⁸</text>' +
+              '<text x="50" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Atto</text>' +
+              '<line x1="157" y1="40" x2="157" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="157" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10⁻⁹</text>' +
+              '<text x="157" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Nano</text>' +
+              '<line x1="264" y1="40" x2="264" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="264" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10⁰</text>' +
+              '<text x="264" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Base (1)</text>' +
+              '<line x1="371" y1="40" x2="371" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="371" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10⁹</text>' +
+              '<text x="371" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Giga</text>' +
+              '<line x1="550" y1="40" x2="550" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="550" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10²⁴</text>' +
+              '<text x="550" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Yotta</text>' +
+              '<circle cx="' + pointerX + '" cy="49" r="7" fill="#3b82f6" stroke="#ffffff" stroke-width="2"/>' +
+              '<polygon points="' + (pointerX - 5) + ',41 ' + (pointerX + 5) + ',41 ' + pointerX + ',33" fill="#3b82f6"/>' +
+              '<rect x="' + Math.max(10, Math.min(450, pointerX - 70)) + '" y="88" width="140" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--border)"/>' +
+              '<text x="' + Math.max(80, Math.min(520, pointerX)) + '" y="104" font-family="var(--mono)" font-size="10" font-weight="bold" fill="#3b82f6" text-anchor="middle">Power: 10' + (exp >= 0 ? '+' : '') + exp + '</text>' +
+              '<text x="300" y="122" font-family="var(--serif)" font-size="10" font-style="italic" fill="var(--text-muted)" text-anchor="middle">' + refText + '</text>' +
+              '</svg>';
+          }
+
           var currentMode = 'single';
 
           function toSuperscript(num) {
@@ -1420,6 +1501,7 @@
               document.getElementById('sn-e-val').textContent = '0e+00';
               document.getElementById('sn-sig-val').textContent = sigFigs + ' Sig Figs';
               document.getElementById('sn-steps').innerHTML = 'Value is zero.';
+              var svgBox = document.getElementById('sn-svg-container'); if (svgBox) svgBox.innerHTML = generateSciSvg(0);
               return;
             }
 
@@ -1482,6 +1564,7 @@
             stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 4 (Engineering & SI Form):</strong> Adjust exponent to nearest lower multiple of 3 (<code>' + engExp + '</code>): <strong>' + engCoef + ' &times; 10' + toSuperscript(engExp) + '</strong>' + (matchedPrefix ? ' = <strong>' + engCoef + ' ' + matchedPrefix.sym + '</strong>' : '') + '.</div>';
 
             document.getElementById('sn-steps').innerHTML = stepsHtml;
+            var svgBox = document.getElementById('sn-svg-container'); if (svgBox) svgBox.innerHTML = generateSciSvg(exp);
           }
 
           function applyPreset(valStr, name) {

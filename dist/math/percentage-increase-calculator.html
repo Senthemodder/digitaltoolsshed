@@ -1162,44 +1162,30 @@
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Percentage Increase Calculations</h2>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">1. The Asymmetric Reversal Fallacy (Why a 50% Gain Needs Only a 33% Loss)</div>
-      <p class="pinc-trap-desc">
-        A dangerous misconception in finance is assuming that an increase of X% can be undone by a decrease of X%. Because percentages are calculated from their new starting points, gaining +50% on $100 yields $150. Losing 50% of $150 drops you to $75—a catastrophic 25% net loss! The reverse percentage drop required to restore the original baseline is <code>Reverse Drop = Increase / (1 + Increase)</code>.
-      </p>
-    </div>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">2. Percentage Points vs. Relative Percentage Increase</div>
-      <p class="pinc-trap-desc">
-        News outlets and corporate earnings reports routinely blur the line between percentage points and percentage increase. If a company's market share expands from 2% to 4%, it gained 2 percentage points. However, its business grew by an astounding +100% relative percentage increase! Conflating these two figures produces massive discrepancies in marketing claims and scientific studies.
-      </p>
-    </div>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">3. The Negative Starting Base Division Trap</div>
-      <p class="pinc-trap-desc">
-        When an initial number is negative (such as moving from -$10,000 net income to +$20,000 net income), standard formulas fail if they omit absolute value signs: <code>(20,000 - (-10,000)) / (-10,000) = 30,000 / -10,000 = -300%</code>. A profit turnaround displayed as negative 300% is nonsensical. Dividing by <code>|-10,000|</code> correctly reflects a +300% improvement.
-      </p>
-    </div>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">4. Multi-Period Compounding vs. Simple Summation</div>
-      <p class="pinc-trap-desc">
-        If a stock gains +10% in Year 1 and +10% in Year 2, simple addition predicts a +20% gain. In reality, compounding expands the portfolio: <code>$100 &times; 1.10 &times; 1.10 = $121.00</code>, representing a +21% cumulative increase. Over 10 years of +10% annual gains, simple addition yields +100%, whereas compound reality delivers an astounding +159.37% (a 2.59&times; multiple).
-      </p>
-    </div>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">5. Base Effect Skew (Cherry-Picking Depressed Reference Dates)</div>
-      <p class="pinc-trap-desc">
-        Economic metrics measured immediately following a crisis or lockdown often boast staggering percentage increases. For instance, airline travel surging +80% year-over-year following a pandemic trough may sound extraordinary, but if travel was initially down -70%, an 80% rebound still leaves total passengers 46% below pre-crisis operational capacity.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Percentage Increase Calculations</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📉 1. The Asymmetric Reversal Fallacy (Why a 50% Gain Needs Only a 33.3% Loss)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">A dangerous misconception in finance is assuming that an increase of X% can be undone by a decrease of X%. Because percentages are calculated from their new starting points, a +50% increase from $100 to $150 only requires a -33.3% drop ($50 / $150) to return to $100. Conversely, a +100% gain ($100 to $200) is wiped out by just a -50% decline. Percentage gains and losses are non-symmetric.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📊 2. Percentage Points vs. Relative Percentage Increase</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">If a mortgage interest rate rises from 4.0% to 6.0%, it has increased by <strong>2.0 percentage points</strong>, but the <strong>relative percentage increase is +50.0%</strong>: <code>((6.0 - 4.0) / 4.0) &times; 100 = 50%</code>. Conflating these two metrics leads to catastrophic miscalculations in loan amortizations, macroeconomic analysis, and revenue modeling.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🏷️ 3. The Negative Starting Base Division Trap</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Standard percentage change formulas <code>((New - Old) / Old) &times; 100</code> break down when the initial starting value is negative. If a company improves from -$50M net income to +$100M, applying the naive formula yields <code>(100 - (-50)) / (-50) = -300%</code>, falsely indicating a massive decline despite record profit turnaround. In corporate finance, always divide by the absolute value: <code>|Old|</code>, yielding +300% improvement.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🧮 4. Multi-Period Compounding vs. Simple Summation</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">If traffic increases 10% in Year 1 and 10% in Year 2, the total increase is not 20%. Because percentage increases compound exponentially, the real growth factor is <code>1.10 &times; 1.10 = 1.21</code> (+21.0% total increase). Over multi-year horizons, adding percentage increases linearly severely understates actual growth and capacity demands.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🛑 5. Base Effect Skew (Cherry-Picking Depressed Reference Dates)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">A metric that surges from 1 unit to 10 units exhibits an eye-popping +900% increase, while a mature metric growing from 10,000 to 12,000 shows only +20% growth despite adding 200 times more absolute volume. News headlines routinely exploit the "base effect" by calculating percentage increases against artificially depressed historical troughs to fabricate sensational growth narratives.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   var curPINCMode = 'diff';

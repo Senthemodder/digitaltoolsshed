@@ -3049,44 +3049,30 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Fraction Math</h2>
-
-    <div class="frac-trap-card">
-      <div class="frac-trap-title">1. The "Numerator &amp; Denominator Addition" Fallacy</div>
-      <p class="frac-trap-desc">
-        The most notorious arithmetic fallacy is adding numerators and denominators straight across: <code>1/2 + 1/3 = 2/5</code>. In reality, 1/2 (0.50) plus 1/3 (0.333) equals 5/6 (0.833). Adding denominators changes the fractional unit size rather than accumulating equal quantities. You must normalize denominators to the Least Common Denominator (LCD) before adding.
-      </p>
-    </div>
-
-    <div class="frac-trap-card">
-      <div class="frac-trap-title">2. Dividing Mixed Numbers Without Converting to Improper Fractions</div>
-      <p class="frac-trap-desc">
-        When dividing mixed numbers such as <code>4 1/2 &divide; 1 1/2</code>, novice students frequently divide the whole numbers (4 &divide; 1 = 4) and then divide the fractions (1/2 &divide; 1/2 = 1) to get an incorrect answer of 5. You must convert both operands into improper fractions first: <code>9/2 &divide; 3/2 = (9/2) &times; (2/3) = 18/6 = 3</code>.
-      </p>
-    </div>
-
-    <div class="frac-trap-card">
-      <div class="frac-trap-title">3. The Cross-Multiplication Overuse Confusion</div>
-      <p class="frac-trap-desc">
-        Cross-multiplication is a valid mathematical technique <em>only</em> for solving proportional equations (<code>A/B = C/D &rarr; A &times; D = B &times; C</code>) or testing inequality magnitudes. Using cross-multiplication when multiplying two fractions (e.g., cross-multiplying <code>2/3 &times; 4/5</code>) results in complete mathematical chaos; fraction multiplication requires multiplying straight across: <code>(2 &times; 4) / (3 &times; 5) = 8/15</code>.
-      </p>
-    </div>
-
-    <div class="frac-trap-card">
-      <div class="frac-trap-title">4. Negative Sign Distribution in Subtracted Fractions</div>
-      <p class="frac-trap-desc">
-        When subtracting an algebraic fraction with a compound numerator, such as <code>(X - 3) / 4</code>, the subtraction applies to the entire numerator. Neglecting to distribute the negative sign yields <code>-X - 3</code> instead of the mathematically correct <code>-X + 3</code>. Similarly, a negative fraction <code>-3/4</code> means either <code>(-3)/4</code> or <code>3/(-4)</code>, but not <code>(-3)/(-4)</code> which is positive <code>+3/4</code>.
-      </p>
-    </div>
-
-    <div class="frac-trap-card">
-      <div class="frac-trap-title">5. Tape Measure Imperial Conversion Rounding Tolerance</div>
-      <p class="frac-trap-desc">
-        Carpenters frequently convert engineering decimal specs (e.g., 0.350 inches) to ruler ticks. Rounding 0.350" directly to 3/8" (0.375") introduces a +0.025" (+25 thousandths of an inch) error. In precision joinery, cabinetry, and CNC milling, this exceeds allowable tolerance limits. Always verify the deviation delta between the exact decimal and the nearest 1/16" or 1/32" tick.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Fraction Math</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">💥 1. The "Numerator &amp; Denominator Addition" Fallacy (1/2 + 1/3 ≠ 2/5)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">The most notorious arithmetic fallacy is adding numerators and denominators straight across: <code>1/2 + 1/3 = 2/5</code>. In reality, 1/2 (0.50) plus 1/3 (0.333) equals 5/6 (0.833). Adding denominators changes the fractional unit size rather than accumulating equal quantities. You must normalize denominators to the Least Common Denominator (LCD) before adding.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">➗ 2. Dividing Mixed Numbers Without Converting to Improper Fractions</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">When dividing mixed numbers such as <code>4 1/2 &divide; 1 1/2</code>, novice students frequently divide the whole numbers (4 &divide; 1 = 4) and then divide the fractions (1/2 &divide; 1/2 = 1) to get an incorrect answer of 5. You must convert both operands into improper fractions first: <code>9/2 &divide; 3/2 = (9/2) &times; (2/3) = 18/6 = 3</code>.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🔄 3. The Cross-Multiplication Overuse Confusion</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Cross-multiplication is a valid mathematical technique <em>only</em> for solving proportional equations (<code>A/B = C/D &rarr; A &times; D = B &times; C</code>) or testing inequality magnitudes. Using cross-multiplication when multiplying two fractions (e.g., cross-multiplying <code>2/3 &times; 4/5</code>) results in complete mathematical chaos; fraction multiplication requires multiplying straight across: <code>(2 &times; 4) / (3 &times; 5) = 8/15</code>.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📏 4. Negative Sign Distribution in Subtracted Fractions</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">When subtracting an algebraic fraction with a compound numerator, such as <code>(X - 3) / 4</code>, the subtraction applies to the entire numerator. Neglecting to distribute the negative sign yields <code>-X - 3</code> instead of the mathematically correct <code>-X + 3</code>. Similarly, a negative fraction <code>-3/4</code> means either <code>(-3)/4</code> or <code>3/(-4)</code>, but never <code>(-3)/(-4)</code> (which is positive +3/4).</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📐 5. Tape Measure Imperial Conversion Rounding Tolerance</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Carpenters frequently convert engineering decimal specs (e.g., 0.350 inches) to ruler ticks. Rounding 0.350" directly to 3/8" (0.375") introduces a +0.025" (+25 thousandths of an inch) error. In precision joinery, cabinetry, and CNC milling, this exceeds allowable tolerance limits. Always verify the deviation delta between the exact decimal and the nearest 1/16" or 1/32" tick.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   function gcd(a, b) {
@@ -3511,6 +3497,9 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               </div>
             </div>
 
+            <!-- Dynamic Powers of Ten Scale Ruler -->
+            <div id="sn-svg-container" style="margin: 1.5rem 0;"></div>
+
             <!-- Copy Summary Button -->
             <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
               <button type="button" class="btn-sec" onclick="copyFullSNSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
@@ -3559,7 +3548,85 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           </div>
         </div>
 
-        <script>
+        <!-- 5 Fatal Scientific Notation Traps & Engineering Pitfalls -->
+  <div style="margin: 2.5rem 0;">
+    <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Fatal Scientific Notation Traps &amp; Engineering Pitfalls</h2>
+    <div style="display: grid; gap: 1rem;">
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🚫 1. The "Ambiguous Trailing Zero" Significant Figures Trap</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Writing a decimal number like <code>4,500</code> leaves significant figures completely ambiguous—it could mean 2, 3, or 4 significant digits depending on measurement resolution. Scientific notation eliminates ambiguity entirely: <code>4.5 &times; 10³</code> has exactly 2 sig figs, whereas <code>4.500 &times; 10³</code> explicitly indicates 4 sig figs, signifying measurement certainty down to the exact unit.</p>
+      </div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">⚙️ 2. Engineering Notation Multiple-of-3 Violation</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Unlike pure scientific notation (where the coefficient is strictly between 1 and 10), engineering notation requires exponents of 10 to be exact multiples of 3 (10³, 10⁶, 10⁻⁹). This directly aligns with standard SI metric prefixes (kilo, mega, nano). Writing <code>45 &times; 10⁴</code> violates both conventions: it is neither normalized scientific nor valid engineering format (which should be <code>450 &times; 10³</code> or 450 kHz).</p>
+      </div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">💻 3. Floating-Point IEEE 754 Precision Drift in Software</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Standard computer hardware stores floating-point numbers in base-2 IEEE 754 format. Values with repeating binary representations (such as 0.1 or 0.0001) incur minute truncation errors (e.g. <code>0.1 + 0.2 = 0.30000000000000004</code>). When working with extreme scientific exponents (such as Planck lengths 10⁻³⁵ or cosmological masses 10⁵²), native floating-point math can lose significant figures or suffer underflow/overflow.</p>
+      </div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🧮 4. Order of Operations Negation Exponent Precedence</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A pervasive student error is confusing <code>-5.0 &times; 10²</code> with <code>(-5.0 &times; 10)²</code>. Under mathematical order of operations (PEMDAS), exponentiation takes precedence over unary negation. Similarly, entering scientific notation into legacy hand calculators without parentheses (e.g., typing <code>1 / 2 &times; 10³</code>) divides by 2 and then multiplies by 1,000 (result: 500), rather than dividing by 2,000 (result: 0.0005).</p>
+      </div>
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+        <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🛰️ 5. Dimensional Power Multiplier Errors in Unit Scaling</h4>
+        <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Converting between metric prefixes in derived units requires raising the power of 10 to the dimension of the unit. While 1 m = 10² cm, area scales quadratically: 1 m² = (10² cm)² = 10⁴ cm². Volume scales cubically: 1 m³ = 10⁶ cm³. Forgetting to cube or square the exponent when converting densities or fluid volumes causes disastrous million-fold calculation errors.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+          function getScaleReference(exp) {
+            if (exp <= -18) return 'Subatomic / Quark radius scale (~10⁻¹⁸ m)';
+            if (exp <= -15) return 'Proton / Atomic nucleus scale (~10⁻¹⁵ m)';
+            if (exp <= -10) return 'Atom diameter / Ångström scale (~10⁻¹⁰ m)';
+            if (exp <= -7) return 'Visible light wavelength / Bacteria (~10⁻⁷ m)';
+            if (exp <= -4) return 'Dust speck / Paper thickness (~10⁻⁴ m)';
+            if (exp <= -1) return 'Centimeter / Finger width (~10⁻² m)';
+            if (exp <= 2) return 'Human scale / 1 to 100 meters';
+            if (exp <= 5) return 'City / Mountain scale (1 to 100 km)';
+            if (exp <= 7) return 'Earth radius scale (~6.4 × 10⁶ m)';
+            if (exp <= 9) return 'Earth-Moon distance / Gigabyte (~10⁹)';
+            if (exp <= 11) return 'Earth-Sun distance (1 AU ~ 1.5 × 10¹¹ m)';
+            if (exp <= 16) return 'Light-year distance (~9.46 × 10¹⁵ m)';
+            if (exp <= 21) return 'Milky Way Galaxy diameter (~10²¹ m)';
+            return 'Cosmic observable universe scale (>10²³)';
+          }
+
+          function generateSciSvg(exp) {
+            var minExp = -18;
+            var maxExp = 24;
+            var clamped = Math.max(minExp, Math.min(maxExp, exp));
+            var pct = (clamped - minExp) / (maxExp - minExp);
+            var pointerX = 50 + pct * 500;
+            var refText = getScaleReference(exp);
+
+            return '<svg id="snScaleSvg" viewBox="0 0 600 130" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 1.5rem auto; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+              '<rect x="50" y="45" width="500" height="8" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1"/>' +
+              '<rect x="50" y="45" width="' + Math.max(0, pointerX - 50) + '" height="8" rx="4" fill="#3b82f6" opacity="0.75"/>' +
+              '<line x1="50" y1="40" x2="50" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="50" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10⁻¹⁸</text>' +
+              '<text x="50" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Atto</text>' +
+              '<line x1="157" y1="40" x2="157" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="157" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10⁻⁹</text>' +
+              '<text x="157" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Nano</text>' +
+              '<line x1="264" y1="40" x2="264" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="264" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10⁰</text>' +
+              '<text x="264" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Base (1)</text>' +
+              '<line x1="371" y1="40" x2="371" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="371" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10⁹</text>' +
+              '<text x="371" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Giga</text>' +
+              '<line x1="550" y1="40" x2="550" y2="58" stroke="var(--text-muted)" stroke-width="1.5"/>' +
+              '<text x="550" y="32" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">10²⁴</text>' +
+              '<text x="550" y="70" font-family="var(--mono)" font-size="8" fill="var(--text-muted)" text-anchor="middle">Yotta</text>' +
+              '<circle cx="' + pointerX + '" cy="49" r="7" fill="#3b82f6" stroke="#ffffff" stroke-width="2"/>' +
+              '<polygon points="' + (pointerX - 5) + ',41 ' + (pointerX + 5) + ',41 ' + pointerX + ',33" fill="#3b82f6"/>' +
+              '<rect x="' + Math.max(10, Math.min(450, pointerX - 70)) + '" y="88" width="140" height="24" rx="4" fill="var(--surface-alt)" stroke="var(--border)"/>' +
+              '<text x="' + Math.max(80, Math.min(520, pointerX)) + '" y="104" font-family="var(--mono)" font-size="10" font-weight="bold" fill="#3b82f6" text-anchor="middle">Power: 10' + (exp >= 0 ? '+' : '') + exp + '</text>' +
+              '<text x="300" y="122" font-family="var(--serif)" font-size="10" font-style="italic" fill="var(--text-muted)" text-anchor="middle">' + refText + '</text>' +
+              '</svg>';
+          }
+
           var currentMode = 'single';
 
           function toSuperscript(num) {
@@ -3716,6 +3783,7 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               document.getElementById('sn-e-val').textContent = '0e+00';
               document.getElementById('sn-sig-val').textContent = sigFigs + ' Sig Figs';
               document.getElementById('sn-steps').innerHTML = 'Value is zero.';
+              var svgBox = document.getElementById('sn-svg-container'); if (svgBox) svgBox.innerHTML = generateSciSvg(0);
               return;
             }
 
@@ -3778,6 +3846,7 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 4 (Engineering & SI Form):</strong> Adjust exponent to nearest lower multiple of 3 (<code>' + engExp + '</code>): <strong>' + engCoef + ' &times; 10' + toSuperscript(engExp) + '</strong>' + (matchedPrefix ? ' = <strong>' + engCoef + ' ' + matchedPrefix.sym + '</strong>' : '') + '.</div>';
 
             document.getElementById('sn-steps').innerHTML = stepsHtml;
+            var svgBox = document.getElementById('sn-svg-container'); if (svgBox) svgBox.innerHTML = generateSciSvg(exp);
           }
 
           function applyPreset(valStr, name) {
@@ -3986,44 +4055,30 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Percentage Increase Calculations</h2>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">1. The Asymmetric Reversal Fallacy (Why a 50% Gain Needs Only a 33% Loss)</div>
-      <p class="pinc-trap-desc">
-        A dangerous misconception in finance is assuming that an increase of X% can be undone by a decrease of X%. Because percentages are calculated from their new starting points, gaining +50% on $100 yields $150. Losing 50% of $150 drops you to $75—a catastrophic 25% net loss! The reverse percentage drop required to restore the original baseline is <code>Reverse Drop = Increase / (1 + Increase)</code>.
-      </p>
-    </div>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">2. Percentage Points vs. Relative Percentage Increase</div>
-      <p class="pinc-trap-desc">
-        News outlets and corporate earnings reports routinely blur the line between percentage points and percentage increase. If a company's market share expands from 2% to 4%, it gained 2 percentage points. However, its business grew by an astounding +100% relative percentage increase! Conflating these two figures produces massive discrepancies in marketing claims and scientific studies.
-      </p>
-    </div>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">3. The Negative Starting Base Division Trap</div>
-      <p class="pinc-trap-desc">
-        When an initial number is negative (such as moving from -$10,000 net income to +$20,000 net income), standard formulas fail if they omit absolute value signs: <code>(20,000 - (-10,000)) / (-10,000) = 30,000 / -10,000 = -300%</code>. A profit turnaround displayed as negative 300% is nonsensical. Dividing by <code>|-10,000|</code> correctly reflects a +300% improvement.
-      </p>
-    </div>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">4. Multi-Period Compounding vs. Simple Summation</div>
-      <p class="pinc-trap-desc">
-        If a stock gains +10% in Year 1 and +10% in Year 2, simple addition predicts a +20% gain. In reality, compounding expands the portfolio: <code>$100 &times; 1.10 &times; 1.10 = $121.00</code>, representing a +21% cumulative increase. Over 10 years of +10% annual gains, simple addition yields +100%, whereas compound reality delivers an astounding +159.37% (a 2.59&times; multiple).
-      </p>
-    </div>
-
-    <div class="pinc-trap-card">
-      <div class="pinc-trap-title">5. Base Effect Skew (Cherry-Picking Depressed Reference Dates)</div>
-      <p class="pinc-trap-desc">
-        Economic metrics measured immediately following a crisis or lockdown often boast staggering percentage increases. For instance, airline travel surging +80% year-over-year following a pandemic trough may sound extraordinary, but if travel was initially down -70%, an 80% rebound still leaves total passengers 46% below pre-crisis operational capacity.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Percentage Increase Calculations</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📉 1. The Asymmetric Reversal Fallacy (Why a 50% Gain Needs Only a 33.3% Loss)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">A dangerous misconception in finance is assuming that an increase of X% can be undone by a decrease of X%. Because percentages are calculated from their new starting points, a +50% increase from $100 to $150 only requires a -33.3% drop ($50 / $150) to return to $100. Conversely, a +100% gain ($100 to $200) is wiped out by just a -50% decline. Percentage gains and losses are non-symmetric.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📊 2. Percentage Points vs. Relative Percentage Increase</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">If a mortgage interest rate rises from 4.0% to 6.0%, it has increased by <strong>2.0 percentage points</strong>, but the <strong>relative percentage increase is +50.0%</strong>: <code>((6.0 - 4.0) / 4.0) &times; 100 = 50%</code>. Conflating these two metrics leads to catastrophic miscalculations in loan amortizations, macroeconomic analysis, and revenue modeling.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🏷️ 3. The Negative Starting Base Division Trap</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Standard percentage change formulas <code>((New - Old) / Old) &times; 100</code> break down when the initial starting value is negative. If a company improves from -$50M net income to +$100M, applying the naive formula yields <code>(100 - (-50)) / (-50) = -300%</code>, falsely indicating a massive decline despite record profit turnaround. In corporate finance, always divide by the absolute value: <code>|Old|</code>, yielding +300% improvement.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🧮 4. Multi-Period Compounding vs. Simple Summation</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">If traffic increases 10% in Year 1 and 10% in Year 2, the total increase is not 20%. Because percentage increases compound exponentially, the real growth factor is <code>1.10 &times; 1.10 = 1.21</code> (+21.0% total increase). Over multi-year horizons, adding percentage increases linearly severely understates actual growth and capacity demands.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🛑 5. Base Effect Skew (Cherry-Picking Depressed Reference Dates)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">A metric that surges from 1 unit to 10 units exhibits an eye-popping +900% increase, while a mature metric growing from 10,000 to 12,000 shows only +20% growth despite adding 200 times more absolute volume. News headlines routinely exploit the "base effect" by calculating percentage increases against artificially depressed historical troughs to fabricate sensational growth narratives.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   var curPINCMode = 'diff';
@@ -4330,44 +4385,30 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Percentage Decrease Calculations</h2>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">1. The Asymmetric Drawdown Recovery Trap</div>
-      <p class="pdec-trap-desc">
-        The most punishing law of arithmetic is that losses require exponential percentage gains to break even. A -20% loss needs +25% to recover. A -50% crash cuts wealth in half, requiring a massive +100% gain to restore principal. A catastrophic -90% drop leaves only 10% of capital, requiring an almost insurmountable +900% gain just to return to the starting line.
-      </p>
-    </div>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">2. The Stacked Coupon Addition Illusion</div>
-      <p class="pdec-trap-desc">
-        Retailers frequently advertise "Take 30% off, plus an extra 20% off at checkout!". Shoppers often assume this equals a 50% discount. In reality, discounts compound sequentially: <code>(1 - 0.30) &times; (1 - 0.20) = 0.70 &times; 0.80 = 0.56</code>. You pay 56% of the original price, meaning the true cumulative discount is 44.0%, leaving you paying 6% more than expected.
-      </p>
-    </div>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">3. Margin Reduction vs. Retail Discount Inversion</div>
-      <p class="pdec-trap-desc">
-        A merchant selling a $100 item with a 40% gross margin makes $40 profit on a $60 cost of goods. If the merchant offers a seemingly modest 20% discount ($80 price), profit drops to $20. A 20% price cut cut gross dollar profits in half (-50% reduction in earnings)! Price discounts disproportionately crush net profit margins.
-      </p>
-    </div>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">4. The Negative Price / "Over 100% Decrease" Trap</div>
-      <p class="pdec-trap-desc">
-        Markdowns on retail goods, weight loss, or inventory units cannot logically exceed 100%. A 100% decrease means the item is completely free or the inventory is 0. Claiming an item is "120% off" would imply the retailer pays the customer to take the merchandise, which violates physical commercial constraints.
-      </p>
-    </div>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">5. Inflation Purchasing Power Decay</div>
-      <p class="pdec-trap-desc">
-        Holding uninvested cash during inflation creates a silent, guaranteed percentage decrease in purchasing power. At a 3.5% annual inflation rate, the purchasing power of $100,000 decays to $70,891 over 10 years—a -29.1% permanent erosion in real goods and services that your savings can purchase.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Percentage Decrease Calculations</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">💥 1. The Asymmetric Drawdown Recovery Trap (-50% Needs +100% to Break Even)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">The most punishing law of arithmetic is that losses require exponential percentage gains to recover. A -20% loss needs +25% to break even. A -50% portfolio crash cuts wealth in half, requiring a massive +100% gain just to get back to zero. A -90% collapse requires a staggering +900% return. Preserving principal is mathematically superior to chasing high-risk upside.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🛒 2. The Stacked Coupon Addition Illusion (20% + 20% ≠ 40% Off)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Retailers often promote "Take an extra 20% off already 20% discounted items." Shoppers naively assume they receive a 40% discount. In reality, sequential discounts multiply: <code>0.80 &times; 0.80 = 0.64</code>, delivering a net 36% discount. On a $100 item, you pay $64 rather than $60—a deceptive 10% premium over the consumer's mental estimate.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🏷️ 3. Margin Reduction vs. Retail Discount Inversion</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">A merchant whose cost of goods is $60 sells an item for $100 (40% gross margin). If they offer a 20% discount ($80 sale price), their dollar gross profit collapses from $40 down to $20—a catastrophic <strong>-50% reduction in gross profit</strong>. Retailers frequently destroy their operating profitability by confusing percentage price cuts with profit margin shrinkage.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🛑 4. The Negative Price / "Over 100% Decrease" Boundary Trap</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">For physical quantities, prices, mass, and human populations, a decrease cannot exceed 100%. A -100% reduction reduces the value to zero. Claiming a product costs "150% less" is mathematically nonsensical (implying the seller pays you 50% of the price to take the product). Only unbounded mathematical deltas (e.g. temperatures or debt balances) can decrease beyond 100%.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📉 5. Inflation Purchasing Power Decay & Real vs Nominal Loss</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">If cumulative consumer price inflation is +25% over a period, the purchasing power of cash does not decrease by 25%. It decreases by: <code>1 - (1 / 1.25) = 1 - 0.80 = 20.0%</code>. However, when combined with stagnant wages or low-yield savings, this hidden real percentage decrease severely degrades standard of living even when nominal bank balances remain unchanged.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   var curPDECMode = 'diff';
@@ -4781,14 +4822,30 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           </div>
 
           <!-- Critical Statistical Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Statistical Pitfalls &amp; Bessel\'s Bias</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Bessel\'s Correction Trap:</strong> When analyzing a subset (sample) of a larger population, dividing by $N$ rather than $n - 1$ produces a mathematically biased underestimate of variance. This occurs because the sample mean $\bar{x}$ is calculated from the sample itself, naturally lying closer to the sample observations than the true unknown population mean $\mu$. Always use $n - 1$ for samples.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Standard Deviation vs Standard Error Confusion:</strong> Standard deviation ($s$) measures the dispersion of individual observations. Standard error ($\text{SE} = s / \sqrt{n}$) measures the precision of your sample mean. Confusing these leads to misleading scientific claims—increasing sample size makes SE smaller, but does NOT reduce the true standard deviation of the population.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Outlier Distortion Vulnerability:</strong> Because deviations are squared before summing, standard deviation is extraordinarily sensitive to outliers. A single extreme observation (e.g. data entry error or fat-tailed market crash) will artificially balloon $s$. For skewed or non-Gaussian data, report the Interquartile Range (IQR) or Median Absolute Deviation (MAD).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 68-95-99.7 Empirical Rule Limitation:</strong> The rule stating that 68% of data falls within $\pm 1s$ and 95% within $\pm 2s$ is <em>only valid for normal (Gaussian) bell-curve distributions</em>. For multimodal or heavily skewed distributions (such as wealth or website latency), Chebyshev\'s Inequality ($\ge 75\%$ within $\pm 2s$) is the only mathematically guaranteed boundary.</li>
-            </ul>
+          <div style="margin: 2.5rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Critical Statistical Pitfalls &amp; Bessel's Bias</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📐 1. The Bessel's Correction Trap ($N$ vs $n - 1$ Sample Bias)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">When analyzing a sample subset of a larger population, dividing sum of squares by $N$ rather than $n - 1$ produces a mathematically biased underestimate of true variance. Because the sample mean $\bar{x}$ is calculated directly from the sample data points, observations cluster unnaturally closer to $\bar{x}$ than to the unknown true population mean $\mu$. Dividing by $n - 1$ precisely corrects this degrees-of-freedom bias.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📊 2. Standard Deviation ($s$) vs Standard Error of the Mean (SEM) Confusion</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Standard deviation ($s$) measures the inherent dispersion of individual observations. Standard error of the mean ($\text{SEM} = s / \sqrt{n}$) measures the precision of the estimated sample mean. Increasing sample size $n$ drives SEM toward zero, but does <em>not</em> shrink the true underlying standard deviation of the population. Reporting SEM in place of SD deceptively masks genuine variance.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🎯 3. Outlier Sensitivity &amp; Squared Error Amplification</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Because deviations from the mean are squared before summing, standard deviation is extraordinarily sensitive to extreme values. A single data entry error or black-swan financial crash will artificially balloon $s$, rendering it non-representative. For skewed or heavy-tailed distributions, report robust nonparametric dispersion metrics like the Interquartile Range (IQR) or Median Absolute Deviation (MAD).</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔔 4. The 68-95-99.7 Empirical Rule Misapplication (Gaussian vs Chebyshev)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">The empirical rule stating that 68% of observations fall within $\pm 1s$ and 95% within $\pm 2s$ is <em>strictly valid only for symmetric, Gaussian normal bell curves</em>. For bimodal, power-law, or skewed datasets (such as wealth, web server latency, or software bugs), only Chebyshev's inequality ($\ge 75\%$ within $\pm 2s$) mathematically holds across any arbitrary distribution.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🎲 5. Adding Standard Deviations Linearly (Variance Additivity Law)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A pervasive error in financial risk modeling and engineering tolerance stacks is adding standard deviations directly ($\sigma_A + \sigma_B$). For uncorrelated independent variables, standard deviations never sum linearly; variances add: $\sigma_{\text{total}} = \sqrt{\sigma_A^2 + \sigma_B^2}$. Adding standard deviations directly exaggerates total portfolio volatility and leads to over-conservative, inefficient engineering tolerances.</p>
+              </div>
+            </div>
           </div>
         </div>
 

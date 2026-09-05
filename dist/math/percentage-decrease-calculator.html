@@ -1163,44 +1163,30 @@
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Percentage Decrease Calculations</h2>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">1. The Asymmetric Drawdown Recovery Trap</div>
-      <p class="pdec-trap-desc">
-        The most punishing law of arithmetic is that losses require exponential percentage gains to break even. A -20% loss needs +25% to recover. A -50% crash cuts wealth in half, requiring a massive +100% gain to restore principal. A catastrophic -90% drop leaves only 10% of capital, requiring an almost insurmountable +900% gain just to return to the starting line.
-      </p>
-    </div>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">2. The Stacked Coupon Addition Illusion</div>
-      <p class="pdec-trap-desc">
-        Retailers frequently advertise "Take 30% off, plus an extra 20% off at checkout!". Shoppers often assume this equals a 50% discount. In reality, discounts compound sequentially: <code>(1 - 0.30) &times; (1 - 0.20) = 0.70 &times; 0.80 = 0.56</code>. You pay 56% of the original price, meaning the true cumulative discount is 44.0%, leaving you paying 6% more than expected.
-      </p>
-    </div>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">3. Margin Reduction vs. Retail Discount Inversion</div>
-      <p class="pdec-trap-desc">
-        A merchant selling a $100 item with a 40% gross margin makes $40 profit on a $60 cost of goods. If the merchant offers a seemingly modest 20% discount ($80 price), profit drops to $20. A 20% price cut cut gross dollar profits in half (-50% reduction in earnings)! Price discounts disproportionately crush net profit margins.
-      </p>
-    </div>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">4. The Negative Price / "Over 100% Decrease" Trap</div>
-      <p class="pdec-trap-desc">
-        Markdowns on retail goods, weight loss, or inventory units cannot logically exceed 100%. A 100% decrease means the item is completely free or the inventory is 0. Claiming an item is "120% off" would imply the retailer pays the customer to take the merchandise, which violates physical commercial constraints.
-      </p>
-    </div>
-
-    <div class="pdec-trap-card">
-      <div class="pdec-trap-title">5. Inflation Purchasing Power Decay</div>
-      <p class="pdec-trap-desc">
-        Holding uninvested cash during inflation creates a silent, guaranteed percentage decrease in purchasing power. At a 3.5% annual inflation rate, the purchasing power of $100,000 decays to $70,891 over 10 years—a -29.1% permanent erosion in real goods and services that your savings can purchase.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Percentage Decrease Calculations</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">💥 1. The Asymmetric Drawdown Recovery Trap (-50% Needs +100% to Break Even)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">The most punishing law of arithmetic is that losses require exponential percentage gains to recover. A -20% loss needs +25% to break even. A -50% portfolio crash cuts wealth in half, requiring a massive +100% gain just to get back to zero. A -90% collapse requires a staggering +900% return. Preserving principal is mathematically superior to chasing high-risk upside.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🛒 2. The Stacked Coupon Addition Illusion (20% + 20% ≠ 40% Off)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Retailers often promote "Take an extra 20% off already 20% discounted items." Shoppers naively assume they receive a 40% discount. In reality, sequential discounts multiply: <code>0.80 &times; 0.80 = 0.64</code>, delivering a net 36% discount. On a $100 item, you pay $64 rather than $60—a deceptive 10% premium over the consumer's mental estimate.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🏷️ 3. Margin Reduction vs. Retail Discount Inversion</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">A merchant whose cost of goods is $60 sells an item for $100 (40% gross margin). If they offer a 20% discount ($80 sale price), their dollar gross profit collapses from $40 down to $20—a catastrophic <strong>-50% reduction in gross profit</strong>. Retailers frequently destroy their operating profitability by confusing percentage price cuts with profit margin shrinkage.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🛑 4. The Negative Price / "Over 100% Decrease" Boundary Trap</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">For physical quantities, prices, mass, and human populations, a decrease cannot exceed 100%. A -100% reduction reduces the value to zero. Claiming a product costs "150% less" is mathematically nonsensical (implying the seller pays you 50% of the price to take the product). Only unbounded mathematical deltas (e.g. temperatures or debt balances) can decrease beyond 100%.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📉 5. Inflation Purchasing Power Decay & Real vs Nominal Loss</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">If cumulative consumer price inflation is +25% over a period, the purchasing power of cash does not decrease by 25%. It decreases by: <code>1 - (1 / 1.25) = 1 - 0.80 = 20.0%</code>. However, when combined with stagnant wages or low-yield savings, this hidden real percentage decrease severely degrades standard of living even when nominal bank balances remain unchanged.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   var curPDECMode = 'diff';
