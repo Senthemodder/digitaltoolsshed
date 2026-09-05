@@ -1386,111 +1386,171 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
     },
     {
       slug: 'sleep-calculator',
-      title: 'Sleep Cycle & Wake-Up Calculator (90-Minute REM Architecture)',
-      metaDesc: 'Calculate optimal bedtimes and wake-up times based on 90-minute REM ultradian cycles. Avoid sleep inertia and wake up feeling energized.',
+      title: 'Sleep Cycle & Wake-Up Calculator (90-Minute REM & NASA Nap Architecture)',
+      metaDesc: 'Calculate optimal bedtimes and wake-up times based on 90-minute REM ultradian cycles. Avoid sleep inertia, optimize circadian rhythm, and wake up refreshed.',
       category: 'Health & Sleep',
+      faq: [
+        { q: 'Why is waking up at the end of a 90-minute sleep cycle so important?', a: 'Human nocturnal sleep consists of 90- to 110-minute ultradian cycles oscillating through Light Sleep (N1, N2), Slow-Wave Deep Sleep (N3), and Rapid Eye Movement (REM). Waking up during Stage 3 Slow-Wave Deep Sleep causes severe sleep inertia—a prolonged period of grogginess, prefrontal cortex hypoperfusion, and impaired cognitive reaction time. Waking at the end of a cycle during light Stage 1 or REM allows you to feel alert almost immediately.' },
+        { q: 'What is sleep latency and why does the calculator include a buffer?', a: 'Sleep latency is the time it takes to transition from full wakefulness to clinical sleep onset. According to Stanford Sleep Medicine, the average healthy adult takes 14 to 20 minutes to fall asleep. If an alarm does not account for this latency buffer, you will wake up 15 minutes prematurely—directly in the middle of restorative deep slow-wave sleep.' },
+        { q: 'What is the NASA Astronaut Nap protocol?', a: 'In a landmark study conducted by the NASA Ames Research Center Fatigue Countermeasures Program, researchers evaluated commercial airline pilots and astronauts taking planned cockpit naps. The study found that a 26-minute nap improved cognitive performance by 34% and psychological alertness by 54% without inducing deep sleep inertia.' },
+        { q: 'How many sleep cycles should an adult aim for per night?', a: 'Clinical sleep guidelines recommend 5 complete cycles (7.5 hours of actual sleep) to 6 complete cycles (9.0 hours) for optimal endocrine regulation, cellular tissue repair, glymphatic brain clearance, and memory consolidation. 4 cycles (6.0 hours) provides functional survival baseline, while consistently sleeping 3 cycles or fewer (< 4.5 hours) accumulates dangerous cumulative sleep debt.' },
+        { q: 'What is the Circadian Temperature Minimum (Tmin) and how does it affect wakefulness?', a: 'The Circadian Temperature Minimum (Tmin) is the point in your 24-hour biological cycle when core body temperature drops to its lowest level, typically occurring approximately 1.5 to 2 hours before habitual wake time. Waking up prior to Tmin feels extraordinarily difficult, while exposure to natural bright morning sunlight immediately after Tmin triggers the Cortisol Awakening Response (CAR) and anchors your circadian clock.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Sleep Cycle Calculator
+            <a href="/">Home</a> &gt; <a href="/health/">Health &amp; Fitness</a> &gt; Sleep Cycle Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Sleep Cycle & Wake-Up Architecture Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Sleep Cycle &amp; Wake-Up Architecture Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Waking up in the middle of Stage 3 Slow-Wave Deep Sleep leaves you groggy and disoriented (sleep inertia). Calculate optimal bedtimes and wake times aligned with natural 90-minute ultradian sleep cycles.
+            Calculate optimal bedtimes and wake times aligned with 90-minute ultradian sleep cycles. Incorporates clinical sleep onset latency, NASA astronaut nap protocols, and circadian biology to eliminate sleep inertia.
           </p>
 
-          <!-- Mode Toggle -->
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
-            <button type="button" id="btnSleepModeWake" onclick="setSleepMode('targetWake')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">I Know When I Must Wake Up</button>
-            <button type="button" id="btnSleepModeNow" onclick="setSleepMode('sleepNow')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">If I Go to Sleep Right Now</button>
-          </div>
-
           <div class="tool-box">
+            <!-- Mode Toggle Tabs -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <button type="button" id="btnSleepWake" onclick="setSleepCalcMode('targetWake')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer; font-weight: 600;">I Need to Wake Up At...</button>
+              <button type="button" id="btnSleepNow" onclick="setSleepCalcMode('sleepNow')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">If I Sleep Right Now...</button>
+              <button type="button" id="btnSleepNap" onclick="setSleepCalcMode('powerNap')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">NASA &amp; Power Naps</button>
+            </div>
+
+            <!-- Primary Inputs Grid -->
             <div class="grid-inputs">
-              <div class="field-group" id="groupWakeTime">
+              <!-- Wake-up Time Picker (Target Wake Mode) -->
+              <div class="field-group" id="grp-wake-time">
                 <label class="field-label">Desired Wake-Up Time</label>
                 <div style="display: flex; gap: 0.5rem;">
-                  <select id="sleep-wake-hr" class="text-input" onchange="calcSleepCycles()">
-                    <option value="5">05</option>
-                    <option value="6">06</option>
-                    <option value="7" selected>07</option>
-                    <option value="8">08</option>
-                    <option value="9">09</option>
-                    <option value="10">10</option>
-                    <option value="11">11</option>
-                    <option value="12">12</option>
-                    <option value="1">01</option>
-                    <option value="2">02</option>
-                    <option value="3">03</option>
-                    <option value="4">04</option>
-                  </select>
-                  <select id="sleep-wake-min" class="text-input" onchange="calcSleepCycles()">
-                    <option value="0" selected>:00</option>
-                    <option value="15">:15</option>
-                    <option value="30">:30</option>
-                    <option value="45">:45</option>
-                  </select>
-                  <select id="sleep-wake-ampm" class="text-input" onchange="calcSleepCycles()">
-                    <option value="AM" selected>AM</option>
-                    <option value="PM">PM</option>
-                  </select>
+                  <input type="time" id="sleep-wake-time" class="code-input" value="07:00" oninput="calcSleepCycles()" style="font-size: 1.25rem;" />
                 </div>
               </div>
+
+              <!-- Sleep Latency (Fall Asleep Buffer) -->
               <div class="field-group">
-                <label class="field-label">Sleep Latency (Time to Fall Asleep)</label>
-                <select id="sleep-latency" class="text-input" onchange="calcSleepCycles()">
-                  <option value="10">10 Minutes (Fast Sleeper)</option>
-                  <option value="15" selected>15 Minutes (Average Healthy Latency)</option>
-                  <option value="25">25 Minutes (Mild Latency)</option>
-                  <option value="40">40 Minutes (Extended Latency)</option>
-                </select>
+                <label class="field-label">Time to Fall Asleep (Sleep Latency): <span id="sleep-latency-label" style="color: #3b82f6; font-weight: bold;">15 min</span></label>
+                <input type="range" id="sleep-latency" min="5" max="45" value="15" step="5" oninput="updateLatency(this.value)" style="width: 100%; cursor: pointer;" />
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Stanford average: 15 min (healthy: 10–20 min)</span>
               </div>
             </div>
 
-            <div style="margin-top: 1.5rem;">
-              <h3 id="sleep-results-title" style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">Recommended Bedtimes to Wake Up Refreshed:</h3>
-              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-                A standard sleep cycle takes approximately 90 minutes. Waking at the completion of a full cycle ensures you emerge from light Stage 1/REM sleep rather than deep restorative slow-wave delta sleep.
-              </p>
-              <div id="sleep-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;"></div>
+            <!-- Standard Cycle Results Cards -->
+            <div id="sleep-results-container" style="margin-top: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 id="sleep-results-title" style="font-family: var(--serif); font-size: 1.15rem; margin: 0; color: var(--fg);">
+                  Recommended Bedtimes to Wake Up at 7:00 AM:
+                </h3>
+                <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">90-min Ultradian Cycles + 15 min Buffer</span>
+              </div>
+
+              <div id="sleep-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+                <!-- Populated dynamically -->
+              </div>
             </div>
 
-            <button type="button" id="btnCopySleep" onclick="copySleepSchedule()" class="btn-sec" style="margin-top: 1.5rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Sleep Cycle Schedule
+            <!-- NASA & Power Nap Protocol Cards (Visible in Power Nap Mode) -->
+            <div id="sleep-nap-container" style="display: none; margin-top: 1.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">
+                🚀 Evidence-Based Daytime Nap Protocols:
+              </h3>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+                <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+                  <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">20-Minute Power Nap</div>
+                  <div id="nap-time-20" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">Wake at --:--</div>
+                  <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+                    Light NREM Stage 2 sleep only. Clears accumulated daytime adenosine without entering slow-wave sleep. Zero grogginess or sleep inertia.
+                  </div>
+                </div>
+
+                <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+                  <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">26-Minute NASA Astronaut Nap</div>
+                  <div id="nap-time-26" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">Wake at --:--</div>
+                  <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+                    NASA Ames Research standard: boosts cognitive performance by +34% and alertness by +54%. Perfect mid-afternoon recharge window.
+                  </div>
+                </div>
+
+                <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+                  <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">90-Minute Full Cycle Nap</div>
+                  <div id="nap-time-90" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">Wake at --:--</div>
+                  <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.5;">
+                    One complete ultradian cycle containing slow-wave deep sleep and REM. Synthesizes motor memory, repairs tissue, and wakes cleanly during REM.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Circadian Biology Timeline Schedule -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0; color: var(--fg);">
+                  ⏰ Biological 24-Hour Circadian Milestones (Based on Your Schedule):
+                </h4>
+                <span id="circadian-wake-label" style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6;">Wake: 7:00 AM</span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.82rem;">
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: #f59e0b; font-weight: bold;">Cortisol Awakening (CAR)</div>
+                  <div id="circ-car" style="font-size: 1.1rem; color: var(--fg); margin: 0.2rem 0;">7:30 AM – 8:00 AM</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted);">Get outdoor morning sunlight to anchor master SCN clock.</div>
+                </div>
+
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: #ec4899; font-weight: bold;">Peak Reaction &amp; Cognition</div>
+                  <div id="circ-peak" style="font-size: 1.1rem; color: var(--fg); margin: 0.2rem 0;">10:00 AM – 1:00 PM</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted);">High prefrontal dopamine &amp; acetylcholine synthesis.</div>
+                </div>
+
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: #8b5cf6; font-weight: bold;">Dim Light Melatonin Onset</div>
+                  <div id="circ-dlmo" style="font-size: 1.1rem; color: var(--fg); margin: 0.2rem 0;">9:30 PM</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted);">Pineal gland secretes melatonin. Dim overhead screens.</div>
+                </div>
+
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: #3b82f6; font-weight: bold;">Body Temp Minimum (Tmin)</div>
+                  <div id="circ-tmin" style="font-size: 1.1rem; color: var(--fg); margin: 0.2rem 0;">5:00 AM</div>
+                  <div style="font-size: 0.72rem; color: var(--text-muted);">Core temperature nadir (~2h prior to awakening).</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopySleep" onclick="copySleepSchedule()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Personalized Sleep &amp; Circadian Schedule
             </button>
           </div>
 
           <!-- Step-by-Step Sleep Architecture Breakdown -->
           <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🧠 The 4 Stages of a 90-Minute Sleep Cycle</h3>
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🧠 The 4 Physiological Stages of a 90-Minute Sleep Cycle</h3>
               <span style="font-family: var(--mono); font-size: 0.72rem; color: #8b5cf6; background: rgba(139, 92, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">AASM Polysomnography Standard</span>
             </div>
             <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Throughout the night, the brain oscillates through non-REM (NREM) and rapid eye movement (REM) stages every 90 to 110 minutes:
+              Throughout the night, the brain oscillates through non-REM (NREM) and rapid eye movement (REM) stages in repeated 90- to 110-minute ultradian cycles:
             </p>
             <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #3b82f6;">Stage N1 (Light Sleep & Hypnic Transition &bull; ~5% of Night)</strong>
+                <strong style="color: #3b82f6;">Stage N1 (Light Sleep &amp; Hypnic Transition &bull; ~5% of Night)</strong>
                 <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
-                  Brain waves decelerate from waking beta/alpha (8–12 Hz) to theta (4–7 Hz). Muscle tone relaxes; hypnic jerks (involuntary twitches) frequently occur during this transitional phase.
+                  Brain waves decelerate from waking beta/alpha (8–12 Hz) to theta (4–7 Hz). Muscle tone relaxes; hypnic jerks (involuntary myoclonic twitches) frequently occur during this transitional phase.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981;">Stage N2 (True Light Sleep & Motor Memory Consolidation &bull; ~50% of Night)</strong>
+                <strong style="color: #10b981;">Stage N2 (True Light Sleep &amp; Motor Memory Consolidation &bull; ~50% of Night)</strong>
                 <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
                   Marked by sleep spindles (11–16 Hz bursts) and K-complexes on EEG. Heart rate and core body temperature drop. Essential for synaptic pruning and procedural motor memory consolidation.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #f59e0b;">Stage N3 (Slow-Wave Deep Sleep & Glymphatic Clearance &bull; ~20% of Night)</strong>
+                <strong style="color: #f59e0b;">Stage N3 (Slow-Wave Deep Sleep &amp; Glymphatic Clearance &bull; ~20% of Night)</strong>
                 <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
-                  High-amplitude delta waves (&lt;4 Hz). Pituitary gland releases 70%+ of daily human growth hormone (HGH) for tissue repair. The brain's glymphatic system opens interstitial channels to flush beta-amyloid and tau proteins.
+                  High-amplitude delta waves (&lt;4 Hz). Pituitary gland releases 70%+ of daily human growth hormone (HGH) for tissue repair. The brain\'s glymphatic system opens interstitial channels to flush beta-amyloid and tau proteins.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #ec4899;">REM Sleep (Paradoxical Dreaming & Emotional Regulation &bull; ~25% of Night)</strong>
+                <strong style="color: #ec4899;">REM Sleep (Paradoxical Dreaming &amp; Emotional Equilibrium &bull; ~25% of Night)</strong>
                 <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
                   Rapid low-voltage EEG similar to wakefulness. Complete postural muscle atonia (paralysis) prevents acting out dreams. Critical for emotional processing, creative insight synthesis, and mood equilibrium.
                 </div>
@@ -1500,128 +1560,209 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
 
           <!-- Critical Sleep Traps & Circadian Pitfalls -->
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Sleep Traps & Circadian Pitfalls</h3>
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Sleep Traps &amp; Circadian Pitfalls</h3>
             <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
               <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Sleep Inertia Paradox (Why 8 Hours Can Feel Worse Than 7.5):</strong> If your alarm jolts you out of Stage N3 Slow-Wave Deep Sleep, prefrontal cortex hypoperfusion persists for 30 to 60 minutes, causing intense grogginess, slowed reaction times, and brain fog. Waking at 7.5 hours (at the conclusion of cycle 5 during light Stage 1/REM) often feels dramatically more alert than waking at 8.0 hours.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Weekend Social Jetlag Trap:</strong> Staying up 3 hours later on Friday and sleeping in Saturday shifts your peripheral circadian clock genes (CLOCK, BMAL1). When you try to sleep early on Sunday, your core temperature hasn't dropped and pineal melatonin has not secreted, resulting in debilitating "Sunday Night Insomnia".</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Weekend Social Jetlag Trap:</strong> Staying up 3 hours later on Friday and sleeping in Saturday shifts your peripheral circadian clock genes (CLOCK, BMAL1). When you try to sleep early on Sunday, your core temperature hasn\'t dropped and pineal melatonin has not secreted, resulting in debilitating "Sunday Night Insomnia".</li>
               <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Instant Sleep Fallacy:</strong> Falling asleep within 2–3 minutes of your head hitting the pillow is not a sign of great sleep health—it is a recognized clinical indicator of <strong>severe chronic sleep deprivation</strong> (excess adenosine buildup). Healthy sleep latency is 10 to 20 minutes.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Caffeine Clearance Half-Life Drag:</strong> With an average metabolic half-life of 5.7 hours, 200mg of caffeine consumed at 4 PM leaves ~50mg still circulating at 2 AM, actively blocking adenosine A1/A2A receptors and cutting deep Stage 3 slow-wave sleep by up to 30% even if you fall asleep.</li>
             </ul>
           </div>
         </div>
 
         <script>
-          let sleepCalcMode = 'targetWake';
+          let currentSleepMode = 'targetWake';
 
-          window.setSleepMode = function(mode) {
-            sleepCalcMode = mode;
-            const btnW = document.getElementById('btnSleepModeWake');
-            const btnN = document.getElementById('btnSleepModeNow');
-            const groupW = document.getElementById('groupWakeTime');
+          window.setSleepCalcMode = function(mode) {
+            currentSleepMode = mode;
+            const btnW = document.getElementById('btnSleepWake');
+            const btnN = document.getElementById('btnSleepNow');
+            const btnNap = document.getElementById('btnSleepNap');
+            const grpWake = document.getElementById('grp-wake-time');
+            const resContainer = document.getElementById('sleep-results-container');
+            const napContainer = document.getElementById('sleep-nap-container');
             const titleEl = document.getElementById('sleep-results-title');
 
+            // Reset buttons
+            [btnW, btnN, btnNap].forEach(function(b) {
+              b.style.background = 'var(--surface-alt)';
+              b.style.borderColor = 'var(--border)';
+              b.style.color = 'var(--fg)';
+            });
+
             if (mode === 'targetWake') {
-              btnW.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnW.style.background = 'rgba(59, 130, 246, 0.15)';
               btnW.style.borderColor = '#3b82f6';
               btnW.style.color = '#3b82f6';
-              btnN.style.background = 'var(--surface-alt)';
-              btnN.style.borderColor = 'var(--border)';
-              btnN.style.color = 'var(--fg)';
-              groupW.style.display = 'block';
+              grpWake.style.display = 'block';
+              resContainer.style.display = 'block';
+              napContainer.style.display = 'none';
               titleEl.textContent = 'Recommended Bedtimes to Wake Up Refreshed:';
-            } else {
-              btnN.style.background = 'rgba(59, 130, 246, 0.1)';
+            } else if (mode === 'sleepNow') {
+              btnN.style.background = 'rgba(59, 130, 246, 0.15)';
               btnN.style.borderColor = '#3b82f6';
               btnN.style.color = '#3b82f6';
-              btnW.style.background = 'var(--surface-alt)';
-              btnW.style.borderColor = 'var(--border)';
-              btnW.style.color = 'var(--fg)';
-              groupW.style.display = 'none';
-              titleEl.textContent = 'Optimal Times to Wake Up If You Sleep Now:';
+              grpWake.style.display = 'none';
+              resContainer.style.display = 'block';
+              napContainer.style.display = 'none';
+              titleEl.textContent = 'Optimal Times to Wake Up If You Sleep Right Now:';
+            } else {
+              btnNap.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnNap.style.borderColor = '#3b82f6';
+              btnNap.style.color = '#3b82f6';
+              grpWake.style.display = 'none';
+              resContainer.style.display = 'none';
+              napContainer.style.display = 'block';
             }
             calcSleepCycles();
           };
 
-          function formatSleepTime(d) {
-            let h = d.getHours();
-            const m = d.getMinutes().toString().padStart(2, '0');
+          window.updateLatency = function(val) {
+            document.getElementById('sleep-latency-label').textContent = val + ' min';
+            calcSleepCycles();
+          };
+
+          function formatTimeString(date) {
+            let h = date.getHours();
+            const m = date.getMinutes().toString().padStart(2, '0');
             const ampm = h >= 12 ? 'PM' : 'AM';
             h = h % 12 || 12;
             return h + ':' + m + ' ' + ampm;
           }
 
           function calcSleepCycles() {
-            const container = document.getElementById('sleep-cards-container');
-            if (!container) return;
-            container.innerHTML = '';
+            const latency = parseInt(document.getElementById('sleep-latency').value, 10) || 15;
+            const now = new Date();
 
-            const latency = parseInt(document.getElementById('sleep-latency').value) || 15;
+            if (currentSleepMode === 'powerNap') {
+              // Update Nap Wake Times
+              const t20 = new Date(now.getTime() + (20 + latency) * 60000);
+              const t26 = new Date(now.getTime() + (26 + latency) * 60000);
+              const t90 = new Date(now.getTime() + (90 + latency) * 60000);
+
+              document.getElementById('nap-time-20').textContent = 'Wake at ' + formatTimeString(t20);
+              document.getElementById('nap-time-26').textContent = 'Wake at ' + formatTimeString(t26);
+              document.getElementById('nap-time-90').textContent = 'Wake at ' + formatTimeString(t90);
+              return;
+            }
+
+            const cardsGrid = document.getElementById('sleep-cards-grid');
+            cardsGrid.innerHTML = '';
+
+            let targetWakeDate = new Date();
+            const wakeVal = document.getElementById('sleep-wake-time').value || '07:00';
+            const [wH, wM] = wakeVal.split(':').map(Number);
+            targetWakeDate.setHours(wH, wM, 0, 0);
+
+            // If wake time is earlier than current time today, assume tomorrow
+            if (targetWakeDate < now) {
+              targetWakeDate = new Date(targetWakeDate.getTime() + 24 * 60 * 60000);
+            }
+
             const cycles = [
-              { c: 6, hrs: '9.0 Hours', label: '6 Cycles', optimal: true, note: 'Ideal for athletes & cognitive recovery' },
-              { c: 5, hrs: '7.5 Hours', label: '5 Cycles', optimal: true, note: 'Gold standard adult benchmark' },
-              { c: 4, hrs: '6.0 Hours', label: '4 Cycles', optimal: false, note: 'Minimum acceptable restorative sleep' },
-              { c: 3, hrs: '4.5 Hours', label: '3 Cycles', optimal: false, note: 'Emergency short sleep (sleep debt accrues)' }
+              { count: 6, hours: 9.0, label: 'Optimal (6 Cycles)', color: '#10b981', note: 'Full restorative recovery' },
+              { count: 5, hours: 7.5, label: 'Recommended (5 Cycles)', color: '#3b82f6', note: 'Standard adult sweet spot' },
+              { count: 4, hours: 6.0, label: 'Functional (4 Cycles)', color: '#f59e0b', note: 'Minimum acceptable baseline' },
+              { count: 3, hours: 4.5, label: 'Survival (3 Cycles)', color: '#ef4444', note: 'Accumulates sleep debt' }
             ];
 
-            if (sleepCalcMode === 'targetWake') {
-              let targetHr = parseInt(document.getElementById('sleep-wake-hr').value) || 7;
-              const targetMin = parseInt(document.getElementById('sleep-wake-min').value) || 0;
-              const ampm = document.getElementById('sleep-wake-ampm').value;
+            let recommendedBedtimeDate = null;
 
-              if (ampm === 'PM' && targetHr < 12) targetHr += 12;
-              if (ampm === 'AM' && targetHr === 12) targetHr = 0;
+            if (currentSleepMode === 'targetWake') {
+              document.getElementById('sleep-results-title').textContent = 'Recommended Bedtimes to Wake Up at ' + formatTimeString(targetWakeDate) + ':';
 
-              const targetDate = new Date();
-              targetDate.setHours(targetHr, targetMin, 0, 0);
-
-              cycles.forEach(item => {
-                // Bedtime = WakeTime - (cycles * 90 mins) - latency
-                const totalMinsBack = (item.c * 90) + latency;
-                const bedDate = new Date(targetDate.getTime() - (totalMinsBack * 60 * 1000));
+              cycles.forEach(function(c, idx) {
+                const sleepMinutes = (c.count * 90) + latency;
+                const bedtime = new Date(targetWakeDate.getTime() - (sleepMinutes * 60000));
+                if (idx === 1) recommendedBedtimeDate = bedtime; // 5 cycles
 
                 const card = document.createElement('div');
-                card.style.cssText = 'background: var(--surface-alt); border: 1px solid ' + (item.optimal ? '#10b981' : 'var(--border)') + '; padding: 1rem; border-radius: 6px; text-align: center;';
+                card.style.background = 'var(--surface-alt)';
+                card.style.border = '1px solid var(--border)';
+                card.style.borderTop = '4px solid ' + c.color;
+                card.style.padding = '1.25rem';
+                card.style.borderRadius = '6px';
+                card.style.textAlign = 'center';
+
                 card.innerHTML = 
-                  '<div style="font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono); color: ' + (item.optimal ? '#10b981' : 'var(--text-muted)') + '; font-weight: 700;">' + item.label + ' (' + item.hrs + ')</div>' +
-                  '<div style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: ' + (item.optimal ? '#10b981' : 'var(--fg)') + '; margin: 0.35rem 0;">' + formatSleepTime(bedDate) + '</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">' + item.note + '</div>';
-                container.appendChild(card);
+                  '<div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">' + c.label + '</div>' +
+                  '<div style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: ' + c.color + '; margin: 0.25rem 0;">' + formatTimeString(bedtime) + '</div>' +
+                  '<div style="font-size: 0.8rem; color: var(--fg); font-weight: 600;">' + c.hours + ' hrs sleep</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem;">' + c.note + '</div>';
+
+                cardsGrid.appendChild(card);
               });
             } else {
-              const now = new Date();
-              now.setMinutes(now.getMinutes() + latency);
+              // Sleep Now Mode
+              document.getElementById('sleep-results-title').textContent = 'Optimal Wake Times If You Fall Asleep at ' + formatTimeString(now) + ':';
 
-              cycles.forEach(item => {
-                const wakeDate = new Date(now.getTime() + (item.c * 90 * 60 * 1000));
+              cycles.forEach(function(c, idx) {
+                const sleepMinutes = (c.count * 90) + latency;
+                const waketime = new Date(now.getTime() + (sleepMinutes * 60000));
+                if (idx === 1) targetWakeDate = waketime;
+
                 const card = document.createElement('div');
-                card.style.cssText = 'background: var(--surface-alt); border: 1px solid ' + (item.optimal ? '#10b981' : 'var(--border)') + '; padding: 1rem; border-radius: 6px; text-align: center;';
+                card.style.background = 'var(--surface-alt)';
+                card.style.border = '1px solid var(--border)';
+                card.style.borderTop = '4px solid ' + c.color;
+                card.style.padding = '1.25rem';
+                card.style.borderRadius = '6px';
+                card.style.textAlign = 'center';
+
                 card.innerHTML = 
-                  '<div style="font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono); color: ' + (item.optimal ? '#10b981' : 'var(--text-muted)') + '; font-weight: 700;">' + item.label + ' (' + item.hrs + ')</div>' +
-                  '<div style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: ' + (item.optimal ? '#10b981' : 'var(--fg)') + '; margin: 0.35rem 0;">' + formatSleepTime(wakeDate) + '</div>' +
-                  '<div style="font-size: 0.72rem; color: var(--text-muted);">' + item.note + '</div>';
-                container.appendChild(card);
+                  '<div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">' + c.label + '</div>' +
+                  '<div style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: ' + c.color + '; margin: 0.25rem 0;">' + formatTimeString(waketime) + '</div>' +
+                  '<div style="font-size: 0.8rem; color: var(--fg); font-weight: 600;">' + c.hours + ' hrs sleep</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem;">' + c.note + '</div>';
+
+                cardsGrid.appendChild(card);
               });
             }
+
+            // Update Circadian Milestones
+            const baseWake = currentSleepMode === 'targetWake' ? targetWakeDate : new Date(now.getTime() + (7.5 * 60 + latency) * 60000);
+            document.getElementById('circadian-wake-label').textContent = 'Target Wake: ' + formatTimeString(baseWake);
+
+            const carStart = new Date(baseWake.getTime() + 30 * 60000);
+            const carEnd = new Date(baseWake.getTime() + 60 * 60000);
+            document.getElementById('circ-car').textContent = formatTimeString(carStart) + ' – ' + formatTimeString(carEnd);
+
+            const peakStart = new Date(baseWake.getTime() + 3 * 3600000);
+            const peakEnd = new Date(baseWake.getTime() + 6 * 3600000);
+            document.getElementById('circ-peak').textContent = formatTimeString(peakStart) + ' – ' + formatTimeString(peakEnd);
+
+            const dlmo = new Date(baseWake.getTime() + 14.5 * 3600000);
+            document.getElementById('circ-dlmo').textContent = formatTimeString(dlmo);
+
+            const tmin = new Date(baseWake.getTime() - 2 * 3600000);
+            document.getElementById('circ-tmin').textContent = formatTimeString(tmin);
           }
 
           window.copySleepSchedule = function() {
-            const cards = document.querySelectorAll('#sleep-cards-container > div');
-            const lines = [];
-            lines.push('=== 90-MINUTE REM SLEEP ARCHITECTURE PLAN ===');
-            lines.push('Mode: ' + (sleepCalcMode === 'targetWake' ? 'Bedtimes for target wake-up' : 'Wake-up times for sleeping now'));
-            lines.push('Sleep Latency Buffer: ' + document.getElementById('sleep-latency').value + ' mins');
-            lines.push('----------------------------------------------');
-            cards.forEach(card => {
-              const label = card.children[0]?.textContent || '';
-              const time = card.children[1]?.textContent || '';
-              const note = card.children[2]?.textContent || '';
-              lines.push(label + ' &bull; ' + time + ' (' + note + ')');
-            });
-            lines.push('----------------------------------------------');
-            lines.push('Standard: American Academy of Sleep Medicine (AASM)');
-            lines.push('Timestamp: ' + new Date().toISOString());
-            lines.push('Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/sleep-calculator');
+            const wakeVal = document.getElementById('sleep-wake-time').value || '07:00';
+            const latency = document.getElementById('sleep-latency').value;
+            const title = document.getElementById('sleep-results-title').textContent;
 
-            navigator.clipboard.writeText(lines.join('\\n')).then(function() {
+            const cards = document.querySelectorAll('#sleep-cards-grid > div');
+            const cardTexts = [];
+            cards.forEach(function(c) {
+              const lines = c.innerText.split('\n').filter(Boolean);
+              cardTexts.push(lines.join(' | '));
+            });
+
+            const text = [
+              '=== CLINICAL SLEEP & CIRCADIAN SCHEDULE ===',
+              'Mode: ' + title,
+              'Sleep Latency Buffer: ' + latency + ' minutes',
+              '------------------------------------------',
+              cardTexts.join('\n'),
+              '------------------------------------------',
+              'Standards: American Academy of Sleep Medicine (AASM) & NASA Ames Protocol',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/sleep-calculator'
+            ].join('\n');
+
+            navigator.clipboard.writeText(text).then(function() {
               const btn = document.getElementById('btnCopySleep');
               if (btn) {
                 const old = btn.innerHTML;
@@ -1632,7 +1773,8 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcSleepCycles);
+          document.addEventListener('DOMContentLoaded', function() { calcSleepCycles(); });
+          calcSleepCycles();
         </script>
       `
     },
@@ -2633,112 +2775,234 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
     {
       slug: 'ideal-weight-calculator',
       title: 'Ideal Body Weight Calculator (Devine, Robinson, Miller & Hamwi Formulas)',
-      metaDesc: 'Compare your ideal body weight across 4 medical standards (Devine, Robinson, Miller, Hamwi) and WHO BMI thresholds with metric & imperial units.',
+      metaDesc: 'Compare your ideal body weight across 4 medical standards (Devine, Robinson, Miller, Hamwi), bone frame size adjustments, and WHO healthy BMI ranges.',
       category: 'Health & Fitness',
+      faq: [
+        { q: 'What is the Devine formula and why is it used as the medical gold standard?', a: 'Introduced by Dr. B.J. Devine in 1974, the Devine formula was originally developed to standardize creatinine clearance calculations and medication dosages (such as theophylline and aminoglycoside antibiotics) based on extracellular fluid volume. Today, it remains the most universally cited clinical baseline for Ideal Body Weight (IBW) in hospitals worldwide.' },
+        { q: 'How does body frame size (wrist circumference) affect ideal body weight?', a: 'Standard formulas assume a medium skeletal frame. Clinical anthropometry adjusts baseline IBW by approximately ±10% based on bone structure: small-framed individuals have a 10% lower target weight, while large-framed individuals have a 10% higher target weight. Frame size can be clinically estimated by measuring the circumference of the wrist at the styloid process.' },
+        { q: 'What is the difference between Devine, Robinson, Miller, and Hamwi formulas?', a: 'All four formulas use 5 feet (60 inches) as a baseline and add incremental weight per inch: Hamwi (1964) adds 5 lbs/in (men) or 4.5 lbs/in (women); Devine (1974) adds 2.3 kg/in; Robinson (1983) refined Devine using empirical insurance mortality data, adding 1.9 kg/in (men) or 1.7 kg/in (women); Miller (1983) uses a higher 5-foot base (56.2 kg men) but lower incremental scaling (1.41 kg/in), making it flatter across height extremes.' },
+        { q: 'Why do muscular athletes weigh significantly more than their \'Ideal Body Weight\'?', a: 'None of the clinical IBW formulas distinguish between skeletal muscle mass and adipose fat tissue. Because lean skeletal muscle is dense and heavy, drug-free natural athletes, weightlifters, and bodybuilders frequently weigh 15% to 35% above their calculated Devine ideal weight while maintaining single-digit body fat and optimal cardiovascular health.' },
+        { q: 'How does the WHO Healthy Weight BMI range compare to IBW formulas?', a: 'The World Health Organization defines a healthy weight range as a BMI between 18.5 and 24.9 kg/m². Unlike IBW formulas that output a single deterministic number, the WHO standard provides a broad healthy window (typically spanning a 15–20 kg / 35–45 lb spread for a given height), which accounts for natural variances in bone density and muscularity.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Ideal Weight
+            <a href="/">Home</a> &gt; <a href="/health/">Health &amp; Fitness</a> &gt; Ideal Weight Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Ideal Body Weight Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Ideal Body Weight (IBW) Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Compare your consensus healthy weight target across the 4 major clinical pharmacokinetic formulas (Devine, Robinson, Miller, Hamwi) alongside the WHO normal BMI range.
+            Compare your target weight across the 4 major clinical pharmacokinetic standards (Devine, Robinson, Miller, Hamwi) with bone frame size adjustments and the official WHO healthy BMI weight window.
           </p>
 
-          <!-- Unit Selector Toggle -->
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
-            <button type="button" id="btnIWMetric" onclick="setIWUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (cm)</button>
-            <button type="button" id="btnIWImperial" onclick="setIWUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (ft & in)</button>
+          <div class="tool-box">
+            <!-- Unit & Sex Controls -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
+              <div style="display: flex; gap: 0.5rem;">
+                <button type="button" id="btnIWMetric" onclick="setIWUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (cm / kg)</button>
+                <button type="button" id="btnIWImperial" onclick="setIWUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (ft/in / lbs)</button>
+              </div>
+
+              <!-- Sex Radio Buttons -->
+              <div style="display: flex; gap: 1rem; align-items: center; font-family: var(--mono); font-size: 0.9rem;">
+                <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                  <input type="radio" name="iw-gender" value="male" checked onchange="calcIW()" /> <strong>Male</strong>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                  <input type="radio" name="iw-gender" value="female" onchange="calcIW()" /> <strong>Female</strong>
+                </label>
+              </div>
+            </div>
+
+            <!-- Primary Inputs Grid -->
+            <div class="grid-inputs">
+              <!-- Height (Metric) -->
+              <div class="field-group" id="grp-iw-h-metric">
+                <label class="field-label">Height (cm)</label>
+                <input type="number" id="iw-height-cm" class="code-input" value="175" min="120" max="240" step="0.5" oninput="syncIWMetric()" style="font-size: 1.25rem;" />
+              </div>
+
+              <!-- Height (Imperial) -->
+              <div class="field-group" id="grp-iw-h-imperial" style="display: none;">
+                <label class="field-label">Height (Feet &amp; Inches)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="number" id="iw-height-ft" class="code-input" value="5" min="3" max="7" oninput="syncIWImperial()" style="font-size: 1.25rem;" placeholder="ft" />
+                  <input type="number" id="iw-height-in" class="code-input" value="9" min="0" max="11.9" step="0.5" oninput="syncIWImperial()" style="font-size: 1.25rem;" placeholder="in" />
+                </div>
+              </div>
+
+              <!-- Current Weight (Optional for Delta) -->
+              <div class="field-group">
+                <label class="field-label" id="lbl-iw-weight">Current Weight (kg) <span style="font-weight: normal; text-transform: none; color: var(--text-muted);">(Optional for Target Delta)</span></label>
+                <input type="number" id="iw-weight" class="code-input" value="78" min="30" max="300" step="0.5" oninput="calcIW()" style="font-size: 1.25rem;" />
+              </div>
+
+              <!-- Bone Frame Size Adjustment -->
+              <div class="field-group">
+                <label class="field-label">Skeletal Bone Frame Size</label>
+                <select id="iw-frame" class="code-input" onchange="calcIW()" style="font-size: 1rem;">
+                  <option value="small">Small Frame (-10% Target Weight)</option>
+                  <option value="medium" selected>Medium Frame (Baseline Standard)</option>
+                  <option value="large">Large Frame (+10% Target Weight)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Hero Output Results Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Consensus Ideal Weight</div>
+                <div id="iw-consensus-val" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">70.1 kg</div>
+                <div id="iw-consensus-sub" style="font-size: 0.85rem; color: #10b981; font-family: var(--mono);">154.5 lbs (Devine Baseline)</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Clinical Formula Range</div>
+                <div id="iw-range-val" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">67.3 – 72.4 kg</div>
+                <div id="iw-range-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Spread across 4 medical standards</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Current Weight Delta</div>
+                <div id="iw-delta-hero" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">+7.9 kg (+17.4 lbs)</div>
+                <div id="iw-delta-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Above consensus ideal weight</div>
+              </div>
+            </div>
+
+            <!-- Visual Target Weight Spectrum Bar -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Target Weight vs. WHO Healthy BMI Range (18.5 – 24.9):</span>
+                <span id="iw-who-window-label" style="color: var(--fg); font-weight: bold;">Healthy: 56.7 – 76.3 kg</span>
+              </div>
+
+              <!-- Multi-Segment Visual Spectrum Bar -->
+              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
+                <div style="width: 25%; background: #3b82f6;" title="Underweight (< 18.5 BMI)">Under (<18.5)</div>
+                <div style="width: 50%; background: #10b981;" title="Healthy Normal Weight (18.5–24.9 BMI)">WHO Healthy Weight Window (18.5 – 24.9)</div>
+                <div style="width: 25%; background: #f59e0b;" title="Overweight (≥ 25.0 BMI)">Over (&ge;25.0)</div>
+              </div>
+
+              <!-- Target Marker Needle -->
+              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
+                <div id="iw-marker" style="position: absolute; top: 0; left: 62%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
+              </div>
+
+              <div id="iw-marker-legend" style="margin-top: 0.5rem; font-family: var(--mono); font-size: 0.78rem; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <span>▲ Pointer: Consensus Ideal Weight (70.1 kg)</span>
+                <span id="iw-who-bounds">WHO Normal: 56.7 kg (125 lbs) &bull; 76.3 kg (168 lbs)</span>
+              </div>
+            </div>
+
+            <!-- 4 Clinical Formulas Detailed Breakdown Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
+                📋 Clinical Formula Breakdown (Adjusted for Frame Size):
+              </h4>
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: center;">
+                  <thead>
+                    <tr style="background: var(--surface); border-bottom: 1px solid var(--border);">
+                      <th style="padding: 0.5rem; text-align: left;">Clinical Standard</th>
+                      <th style="padding: 0.5rem; color: #10b981;">Target (kg)</th>
+                      <th style="padding: 0.5rem; color: #3b82f6;">Target (lbs)</th>
+                      <th style="padding: 0.5rem; color: var(--text-muted);">Clinical Application</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                      <td style="padding: 0.5rem; text-align: left; font-weight: bold; color: var(--fg);">Devine (1974)</td>
+                      <td id="iw-row-devine-kg" style="color: #10b981; font-weight: bold;">70.1 kg</td>
+                      <td id="iw-row-devine-lbs" style="color: #3b82f6; font-weight: bold;">154.5 lbs</td>
+                      <td style="color: var(--text-muted);">Gold standard for aminoglycoside &amp; theophylline dosing</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                      <td style="padding: 0.5rem; text-align: left; font-weight: bold; color: var(--fg);">Robinson (1983)</td>
+                      <td id="iw-row-robinson-kg" style="color: #10b981; font-weight: bold;">68.5 kg</td>
+                      <td id="iw-row-robinson-lbs" style="color: #3b82f6; font-weight: bold;">151.0 lbs</td>
+                      <td style="color: var(--text-muted);">Refined Devine using empirical insurance mortality tables</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                      <td style="padding: 0.5rem; text-align: left; font-weight: bold; color: var(--fg);">Miller (1983)</td>
+                      <td id="iw-row-miller-kg" style="color: #10b981; font-weight: bold;">68.4 kg</td>
+                      <td id="iw-row-miller-lbs" style="color: #3b82f6; font-weight: bold;">150.8 lbs</td>
+                      <td style="color: var(--text-muted);">Modified base &amp; slope for moderate height curves</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 0.5rem; text-align: left; font-weight: bold; color: var(--fg);">Hamwi (1964)</td>
+                      <td id="iw-row-hamwi-kg" style="color: #10b981; font-weight: bold;">71.6 kg</td>
+                      <td id="iw-row-hamwi-lbs" style="color: #3b82f6; font-weight: bold;">157.8 lbs</td>
+                      <td style="color: var(--text-muted);">American Diabetes Association clinical nutrition standard</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyIW" onclick="copyIdealWeightSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Ideal Weight &amp; Clinical Formulations Report
+            </button>
           </div>
 
-          <div class="tool-box">
-            <div style="display: flex; gap: 1.5rem; margin-bottom: 1.25rem;">
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold; font-family: var(--mono); font-size: 0.95rem;">
-                <input type="radio" name="iw-gender" value="male" checked onchange="calcIW()" /> Male
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold; font-family: var(--mono); font-size: 0.95rem;">
-                <input type="radio" name="iw-gender" value="female" onchange="calcIW()" /> Female
-              </label>
+          <!-- Step-by-Step Worked Derivations -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Mathematical Formulations for Ideal Body Weight (IBW)</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Clinical Pharmacokinetics Standard</span>
             </div>
-
-            <div class="field-group" id="groupIWCm">
-              <label class="field-label">Height (cm)</label>
-              <input type="number" id="iw-height-cm" class="code-input" value="175" min="140" max="230" oninput="calcIW()" style="font-size: 1.25rem;" />
-            </div>
-
-            <div class="field-group" id="groupIWFtIn" style="display: none;">
-              <label class="field-label">Height (Feet & Inches)</label>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="number" id="iw-height-ft" class="code-input" value="5" min="4" max="7" oninput="calcIW()" style="font-size: 1.25rem;" placeholder="ft" />
-                <input type="number" id="iw-height-in" class="code-input" value="9" min="0" max="11" oninput="calcIW()" style="font-size: 1.25rem;" placeholder="in" />
-              </div>
-            </div>
-
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Consensus Ideal Weight Range</div>
-              <div id="iw-range" class="result-val">68 – 73 kg</div>
-              <div id="iw-lbs" style="font-size: 1.15rem; color: #10b981; font-family: var(--mono); margin-top: 0.4rem;">150 – 161 lbs</div>
-              <div id="iw-who-bmi" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; font-family: var(--mono);">
-                WHO Healthy BMI (18.5–24.9): 56.7 – 76.3 kg (125 – 168 lbs)
-              </div>
-
-              <button type="button" id="btnCopyIW" onclick="copyIdealWeightSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy Ideal Weight Medical Report
-              </button>
-            </div>
-
-            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem;">Clinical Formula Comparison:</h4>
-              <div id="iw-details" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; color: var(--text-muted);"></div>
-            </div>
-
-            <!-- Step-by-Step Worked Derivations -->
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Medical Formulations for Ideal Body Weight (IBW)</h3>
-                <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Clinical Pharmacokinetics Standard</span>
-              </div>
-              <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-                All four clinical formulas standardize on a baseline weight for 5 feet (60 inches) of height, adding incremental mass per inch over 5 feet:
-              </p>
-              <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #3b82f6;">Devine Formula (1974):</strong>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                    Men: 50.0 kg + 2.3 kg &times; (Inches over 5ft) &bull; Women: 45.5 kg + 2.3 kg &times; (Inches over 5ft)
-                  </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              All four formulas standardize on a baseline weight for 5 feet (60 inches / 152.4 cm) of height, adding incremental mass per inch over 5 feet:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6;">Devine Formula (1974):</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Men: 50.0 kg + 2.3 kg &times; (Inches over 5ft) &bull; Women: 45.5 kg + 2.3 kg &times; (Inches over 5ft)
                 </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #10b981;">Robinson Formula (1983):</strong>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                    Men: 52.0 kg + 1.9 kg &times; (Inches over 5ft) &bull; Women: 49.0 kg + 1.7 kg &times; (Inches over 5ft)
-                  </div>
+                <div id="iw-step-devine" style="color: var(--fg); font-size: 0.8rem; margin-top: 0.25rem;">
+                  <!-- Populated dynamically -->
                 </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #f59e0b;">Miller Formula (1983):</strong>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                    Men: 56.2 kg + 1.41 kg &times; (Inches over 5ft) &bull; Women: 53.1 kg + 1.36 kg &times; (Inches over 5ft)
-                  </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981;">Robinson Formula (1983):</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Men: 52.0 kg + 1.9 kg &times; (Inches over 5ft) &bull; Women: 49.0 kg + 1.7 kg &times; (Inches over 5ft)
                 </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #ec4899;">Hamwi Formula (1964):</strong>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                    Men: 48.0 kg + 2.7 kg &times; (Inches over 5ft) &bull; Women: 45.5 kg + 2.2 kg &times; (Inches over 5ft)
-                  </div>
+                <div id="iw-step-robinson" style="color: var(--fg); font-size: 0.8rem; margin-top: 0.25rem;">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #f59e0b;">Miller Formula (1983):</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Men: 56.2 kg + 1.41 kg &times; (Inches over 5ft) &bull; Women: 53.1 kg + 1.36 kg &times; (Inches over 5ft)
+                </div>
+                <div id="iw-step-miller" style="color: var(--fg); font-size: 0.8rem; margin-top: 0.25rem;">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #ec4899;">Hamwi Formula (1964):</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Men: 48.0 kg + 2.7 kg &times; (Inches over 5ft) &bull; Women: 45.5 kg + 2.2 kg &times; (Inches over 5ft)
+                </div>
+                <div id="iw-step-hamwi" style="color: var(--fg); font-size: 0.8rem; margin-top: 0.25rem;">
+                  <!-- Populated dynamically -->
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- Critical Clinical Pitfalls -->
-            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls & Pharmacokinetic Origin</h3>
-              <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Medication Dosing Origin:</strong> Devine, Robinson, and Hamwi equations were originally created for <strong>pharmacokinetic clearance calculations</strong> (calculating intravenous aminoglycoside and theophylline clearance based on extracellular fluid volume). They were never intended to represent cosmetic ideals or athletic physique goals.</li>
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Linear Scaling Flaw:</strong> Human mass naturally scales cubically ($H^3$) rather than linearly with height. Consequently, these equations tend to underestimate healthy weights for individuals over 6'1" (185 cm) and overestimate weights for individuals under 5'2" (157 cm).</li>
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Bone Density & Muscle Disregard:</strong> None of these formulas account for bone frame size (wrist/elbow circumference) or lean muscle tissue. A lean, drug-free natural bodybuilder at 10% body fat will almost always weigh 15% to 30% above their Devine "ideal weight".</li>
-              </ul>
-            </div>
+          <!-- Critical Clinical Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls &amp; Pharmacokinetic Origin</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Medication Dosing Origin:</strong> Devine, Robinson, and Hamwi equations were originally created for <strong>pharmacokinetic clearance calculations</strong> (calculating intravenous aminoglycoside and theophylline clearance based on extracellular fluid volume). They were never intended to represent cosmetic ideals or athletic physique goals.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Linear Scaling Flaw:</strong> Human mass naturally scales cubically ($H^3$) rather than linearly with height. Consequently, these equations tend to underestimate healthy weights for individuals over 6\'1" (185 cm) and overestimate weights for individuals under 5\'2" (157 cm).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Bone Density &amp; Muscle Disregard:</strong> None of these formulas account for bone frame size (wrist/elbow circumference) or lean muscle tissue. A lean, drug-free natural bodybuilder at 10% body fat will almost always weigh 15% to 30% above their Devine \'ideal weight\'.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Age &amp; Sarcopenia Neglect:</strong> The equations assume a young adult reference patient. They do not account for natural age-related shifts in bone mineral density or metabolic body composition.</li>
+            </ul>
           </div>
         </div>
 
@@ -2749,105 +3013,234 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             iwUnitMode = mode;
             const btnM = document.getElementById('btnIWMetric');
             const btnI = document.getElementById('btnIWImperial');
-            const gCm = document.getElementById('groupIWCm');
-            const gFtIn = document.getElementById('groupIWFtIn');
+            const grpM = document.getElementById('grp-iw-h-metric');
+            const grpI = document.getElementById('grp-iw-h-imperial');
+            const lblW = document.getElementById('lbl-iw-weight');
+            const inpW = document.getElementById('iw-weight');
 
             if (mode === 'metric') {
-              btnM.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnM.style.background = 'rgba(59, 130, 246, 0.15)';
               btnM.style.borderColor = '#3b82f6';
               btnM.style.color = '#3b82f6';
               btnI.style.background = 'var(--surface-alt)';
               btnI.style.borderColor = 'var(--border)';
               btnI.style.color = 'var(--fg)';
-              gCm.style.display = 'block';
-              gFtIn.style.display = 'none';
+
+              grpM.style.display = 'block';
+              grpI.style.display = 'none';
+
+              lblW.innerHTML = 'Current Weight (kg) <span style="font-weight: normal; text-transform: none; color: var(--text-muted);">(Optional for Target Delta)</span>';
+              if (inpW.value) {
+                inpW.value = (parseFloat(inpW.value) * 0.453592).toFixed(1);
+              }
             } else {
-              btnI.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnI.style.background = 'rgba(59, 130, 246, 0.15)';
               btnI.style.borderColor = '#3b82f6';
               btnI.style.color = '#3b82f6';
               btnM.style.background = 'var(--surface-alt)';
               btnM.style.borderColor = 'var(--border)';
               btnM.style.color = 'var(--fg)';
-              gCm.style.display = 'none';
-              gFtIn.style.display = 'block';
+
+              grpM.style.display = 'none';
+              grpI.style.display = 'block';
+
+              lblW.innerHTML = 'Current Weight (lbs) <span style="font-weight: normal; text-transform: none; color: var(--text-muted);">(Optional for Target Delta)</span>';
+              if (inpW.value) {
+                inpW.value = (parseFloat(inpW.value) * 2.20462).toFixed(1);
+              }
             }
             calcIW();
           };
 
+          window.syncIWMetric = function() {
+            const hCm = parseFloat(document.getElementById('iw-height-cm').value) || 0;
+            const totalInches = hCm / 2.54;
+            const ft = Math.floor(totalInches / 12);
+            const inch = totalInches % 12;
+
+            document.getElementById('iw-height-ft').value = ft;
+            document.getElementById('iw-height-in').value = inch.toFixed(1);
+
+            calcIW();
+          };
+
+          window.syncIWImperial = function() {
+            const ft = parseFloat(document.getElementById('iw-height-ft').value) || 0;
+            const inch = parseFloat(document.getElementById('iw-height-in').value) || 0;
+            const totalInches = (ft * 12) + inch;
+            const hCm = totalInches * 2.54;
+
+            document.getElementById('iw-height-cm').value = hCm.toFixed(1);
+
+            calcIW();
+          };
+
           function calcIW() {
-            const isMale = document.querySelector('input[name="iw-gender"]:checked').value === 'male';
-            let cm = 175;
+            let hCm = 175;
+            let currentWeightKg = 78;
 
             if (iwUnitMode === 'metric') {
-              cm = parseFloat(document.getElementById('iw-height-cm').value) || 175;
+              hCm = parseFloat(document.getElementById('iw-height-cm').value) || 175;
+              currentWeightKg = parseFloat(document.getElementById('iw-weight').value) || 0;
             } else {
               const ft = parseFloat(document.getElementById('iw-height-ft').value) || 5;
               const inch = parseFloat(document.getElementById('iw-height-in').value) || 9;
-              cm = ((ft * 12) + inch) * 2.54;
+              hCm = ((ft * 12) + inch) * 2.54;
+              const curW = parseFloat(document.getElementById('iw-weight').value) || 0;
+              currentWeightKg = curW * 0.453592;
             }
 
-            const totalInches = cm / 2.54;
-            const over5Ft = Math.max(0, totalInches - 60);
+            let isMale = true;
+            const radios = document.getElementsByName('iw-gender');
+            for (let i = 0; i < radios.length; i++) {
+              if (radios[i].checked && radios[i].value === 'female') isMale = false;
+            }
 
-            // Devine
-            const devine = isMale ? (50 + (2.3 * over5Ft)) : (45.5 + (2.3 * over5Ft));
-            // Robinson
-            const robinson = isMale ? (52 + (1.9 * over5Ft)) : (49 + (1.7 * over5Ft));
-            // Miller
-            const miller = isMale ? (56.2 + (1.41 * over5Ft)) : (53.1 + (1.36 * over5Ft));
-            // Hamwi
-            const hamwi = isMale ? (48 + (2.7 * over5Ft)) : (45.5 + (2.2 * over5Ft));
+            const frame = document.getElementById('iw-frame').value;
+            let frameMultiplier = 1.0;
+            if (frame === 'small') frameMultiplier = 0.90;
+            else if (frame === 'large') frameMultiplier = 1.10;
 
-            const minK = Math.min(devine, robinson, miller, hamwi);
-            const maxK = Math.max(devine, robinson, miller, hamwi);
+            const totalInches = hCm / 2.54;
+            const inchesOver5Ft = Math.max(0, totalInches - 60);
 
-            const hM = cm / 100;
+            // 1. Devine Formula (1974)
+            let devine = isMale ? (50.0 + (2.3 * inchesOver5Ft)) : (45.5 + (2.3 * inchesOver5Ft));
+            // 2. Robinson Formula (1983)
+            let robinson = isMale ? (52.0 + (1.9 * inchesOver5Ft)) : (49.0 + (1.7 * inchesOver5Ft));
+            // 3. Miller Formula (1983)
+            let miller = isMale ? (56.2 + (1.41 * inchesOver5Ft)) : (53.1 + (1.36 * inchesOver5Ft));
+            // 4. Hamwi Formula (1964)
+            let hamwi = isMale ? (48.0 + (2.7 * inchesOver5Ft)) : (45.5 + (2.2 * inchesOver5Ft));
+
+            // Apply frame adjustment
+            devine *= frameMultiplier;
+            robinson *= frameMultiplier;
+            miller *= frameMultiplier;
+            hamwi *= frameMultiplier;
+
+            const formulas = [devine, robinson, miller, hamwi];
+            const minFormula = Math.min.apply(null, formulas);
+            const maxFormula = Math.max.apply(null, formulas);
+            const consensusKg = devine; // Devine is hospital baseline standard
+
+            const hM = hCm / 100;
             const whoMinKg = 18.5 * (hM * hM);
             const whoMaxKg = 24.9 * (hM * hM);
 
-            document.getElementById('iw-range').textContent = Math.round(minK) + ' – ' + Math.round(maxK) + ' kg';
-            document.getElementById('iw-lbs').textContent = Math.round(minK * 2.20462) + ' – ' + Math.round(maxK * 2.20462) + ' lbs';
+            // DOM Updates
+            if (iwUnitMode === 'metric') {
+              document.getElementById('iw-consensus-val').textContent = consensusKg.toFixed(1) + ' kg';
+              document.getElementById('iw-consensus-sub').textContent = (consensusKg * 2.20462).toFixed(1) + ' lbs (Devine Standard)';
+              document.getElementById('iw-range-val').textContent = minFormula.toFixed(1) + ' – ' + maxFormula.toFixed(1) + ' kg';
+              document.getElementById('iw-range-sub').textContent = (minFormula * 2.20462).toFixed(1) + ' – ' + (maxFormula * 2.20462).toFixed(1) + ' lbs';
+              document.getElementById('iw-who-window-label').textContent = 'WHO Normal: ' + whoMinKg.toFixed(1) + ' – ' + whoMaxKg.toFixed(1) + ' kg';
+              document.getElementById('iw-who-bounds').textContent = 'WHO Healthy: ' + whoMinKg.toFixed(1) + ' kg (' + (whoMinKg * 2.20462).toFixed(0) + ' lbs) – ' + whoMaxKg.toFixed(1) + ' kg (' + (whoMaxKg * 2.20462).toFixed(0) + ' lbs)';
 
-            document.getElementById('iw-who-bmi').textContent = 
-              'WHO Normal BMI (18.5–24.9): ' + whoMinKg.toFixed(1) + ' – ' + whoMaxKg.toFixed(1) + ' kg (' +
-              (whoMinKg * 2.20462).toFixed(1) + ' – ' + (whoMaxKg * 2.20462).toFixed(1) + ' lbs)';
+              if (currentWeightKg > 0) {
+                const deltaKg = currentWeightKg - consensusKg;
+                const sign = deltaKg >= 0 ? '+' : '';
+                document.getElementById('iw-delta-hero').textContent = sign + deltaKg.toFixed(1) + ' kg (' + (sign + (deltaKg * 2.20462).toFixed(1)) + ' lbs)';
+                document.getElementById('iw-delta-hero').style.color = Math.abs(deltaKg) <= 3 ? '#10b981' : (deltaKg > 0 ? '#f59e0b' : '#3b82f6');
+                document.getElementById('iw-delta-sub').textContent = deltaKg > 0 ? 'Above consensus target weight' : (deltaKg < 0 ? 'Below consensus target weight' : 'Exact match with consensus!');
+              } else {
+                document.getElementById('iw-delta-hero').textContent = '--';
+                document.getElementById('iw-delta-sub').textContent = 'Enter current weight above';
+              }
+            } else {
+              document.getElementById('iw-consensus-val').textContent = (consensusKg * 2.20462).toFixed(1) + ' lbs';
+              document.getElementById('iw-consensus-sub').textContent = consensusKg.toFixed(1) + ' kg (Devine Standard)';
+              document.getElementById('iw-range-val').textContent = (minFormula * 2.20462).toFixed(1) + ' – ' + (maxFormula * 2.20462).toFixed(1) + ' lbs';
+              document.getElementById('iw-range-sub').textContent = minFormula.toFixed(1) + ' – ' + maxFormula.toFixed(1) + ' kg';
+              document.getElementById('iw-who-window-label').textContent = 'WHO Normal: ' + (whoMinKg * 2.20462).toFixed(1) + ' – ' + (whoMaxKg * 2.20462).toFixed(1) + ' lbs';
+              document.getElementById('iw-who-bounds').textContent = 'WHO Healthy: ' + (whoMinKg * 2.20462).toFixed(0) + ' lbs (' + whoMinKg.toFixed(1) + ' kg) – ' + (whoMaxKg * 2.20462).toFixed(0) + ' lbs (' + whoMaxKg.toFixed(1) + ' kg)';
 
-            document.getElementById('iw-details').innerHTML = 
-              '• <strong>Devine Formula (1974):</strong> ' + devine.toFixed(1) + ' kg (' + (devine * 2.20462).toFixed(1) + ' lbs)<br>' +
-              '• <strong>Robinson Formula (1983):</strong> ' + robinson.toFixed(1) + ' kg (' + (robinson * 2.20462).toFixed(1) + ' lbs)<br>' +
-              '• <strong>Miller Formula (1983):</strong> ' + miller.toFixed(1) + ' kg (' + (miller * 2.20462).toFixed(1) + ' lbs)<br>' +
-              '• <strong>Hamwi Formula (1964):</strong> ' + hamwi.toFixed(1) + ' kg (' + (hamwi * 2.20462).toFixed(1) + ' lbs)';
+              if (currentWeightKg > 0) {
+                const deltaKg = currentWeightKg - consensusKg;
+                const deltaLbs = deltaKg * 2.20462;
+                const sign = deltaLbs >= 0 ? '+' : '';
+                document.getElementById('iw-delta-hero').textContent = sign + deltaLbs.toFixed(1) + ' lbs (' + (sign + deltaKg.toFixed(1)) + ' kg)';
+                document.getElementById('iw-delta-hero').style.color = Math.abs(deltaLbs) <= 7 ? '#10b981' : (deltaLbs > 0 ? '#f59e0b' : '#3b82f6');
+                document.getElementById('iw-delta-sub').textContent = deltaLbs > 0 ? 'Above consensus target weight' : (deltaLbs < 0 ? 'Below consensus target weight' : 'Exact match with consensus!');
+              } else {
+                document.getElementById('iw-delta-hero').textContent = '--';
+                document.getElementById('iw-delta-sub').textContent = 'Enter current weight above';
+              }
+            }
+
+            // Update Breakdown Table Rows
+            document.getElementById('iw-row-devine-kg').textContent = devine.toFixed(1) + ' kg';
+            document.getElementById('iw-row-devine-lbs').textContent = (devine * 2.20462).toFixed(1) + ' lbs';
+            document.getElementById('iw-row-robinson-kg').textContent = robinson.toFixed(1) + ' kg';
+            document.getElementById('iw-row-robinson-lbs').textContent = (robinson * 2.20462).toFixed(1) + ' lbs';
+            document.getElementById('iw-row-miller-kg').textContent = miller.toFixed(1) + ' kg';
+            document.getElementById('iw-row-miller-lbs').textContent = (miller * 2.20462).toFixed(1) + ' lbs';
+            document.getElementById('iw-row-hamwi-kg').textContent = hamwi.toFixed(1) + ' kg';
+            document.getElementById('iw-row-hamwi-lbs').textContent = (hamwi * 2.20462).toFixed(1) + ' lbs';
+
+            // Marker Needle Position on Spectrum Bar
+            // Left 25% = < 18.5, Middle 50% = 18.5 to 24.9, Right 25% = >= 25.0
+            let markerPct = 50;
+            if (consensusKg < whoMinKg) {
+              markerPct = Math.max(5, 25 * (consensusKg / whoMinKg));
+            } else if (consensusKg > whoMaxKg) {
+              markerPct = Math.min(95, 75 + (25 * Math.min(1, (consensusKg - whoMaxKg) / 20)));
+            } else {
+              markerPct = 25 + (50 * ((consensusKg - whoMinKg) / (whoMaxKg - whoMinKg)));
+            }
+            document.getElementById('iw-marker').style.left = markerPct.toFixed(1) + '%';
+            document.getElementById('iw-marker-legend').firstElementChild.textContent = '▲ Pointer: Consensus Ideal Weight (' + consensusKg.toFixed(1) + ' kg / ' + (consensusKg * 2.20462).toFixed(1) + ' lbs)';
+
+            // Worked step derivations
+            const inchText = inchesOver5Ft.toFixed(1) + ' inches over 5ft';
+            document.getElementById('iw-step-devine').innerHTML = (isMale ? '50.0' : '45.5') + ' kg + (2.3 &times; ' + inchesOver5Ft.toFixed(1) + ')' + (frameMultiplier !== 1.0 ? ' &times; ' + frameMultiplier : '') + ' = <strong>' + devine.toFixed(1) + ' kg (' + (devine * 2.20462).toFixed(1) + ' lbs)</strong>';
+            document.getElementById('iw-step-robinson').innerHTML = (isMale ? '52.0' : '49.0') + ' kg + (' + (isMale ? '1.9' : '1.7') + ' &times; ' + inchesOver5Ft.toFixed(1) + ')' + (frameMultiplier !== 1.0 ? ' &times; ' + frameMultiplier : '') + ' = <strong>' + robinson.toFixed(1) + ' kg (' + (robinson * 2.20462).toFixed(1) + ' lbs)</strong>';
+            document.getElementById('iw-step-miller').innerHTML = (isMale ? '56.2' : '53.1') + ' kg + (' + (isMale ? '1.41' : '1.36') + ' &times; ' + inchesOver5Ft.toFixed(1) + ')' + (frameMultiplier !== 1.0 ? ' &times; ' + frameMultiplier : '') + ' = <strong>' + miller.toFixed(1) + ' kg (' + (miller * 2.20462).toFixed(1) + ' lbs)</strong>';
+            document.getElementById('iw-step-hamwi').innerHTML = (isMale ? '48.0' : '45.5') + ' kg + (' + (isMale ? '2.7' : '2.2') + ' &times; ' + inchesOver5Ft.toFixed(1) + ')' + (frameMultiplier !== 1.0 ? ' &times; ' + frameMultiplier : '') + ' = <strong>' + hamwi.toFixed(1) + ' kg (' + (hamwi * 2.20462).toFixed(1) + ' lbs)</strong>';
           }
 
           window.copyIdealWeightSummary = function() {
-            const isMale = document.querySelector('input[name="iw-gender"]:checked').value === 'male';
-            const range = document.getElementById('iw-range').textContent;
-            const lbs = document.getElementById('iw-lbs').textContent;
-            const who = document.getElementById('iw-who-bmi').textContent;
+            const consensus = document.getElementById('iw-consensus-val').textContent;
+            const consensusSub = document.getElementById('iw-consensus-sub').textContent;
+            const range = document.getElementById('iw-range-val').textContent;
+            const rangeSub = document.getElementById('iw-range-sub').textContent;
+            const delta = document.getElementById('iw-delta-hero').textContent;
+            const devine = document.getElementById('iw-row-devine-kg').textContent + ' (' + document.getElementById('iw-row-devine-lbs').textContent + ')';
+            const robinson = document.getElementById('iw-row-robinson-kg').textContent + ' (' + document.getElementById('iw-row-robinson-lbs').textContent + ')';
+            const miller = document.getElementById('iw-row-miller-kg').textContent + ' (' + document.getElementById('iw-row-miller-lbs').textContent + ')';
+            const hamwi = document.getElementById('iw-row-hamwi-kg').textContent + ' (' + document.getElementById('iw-row-hamwi-lbs').textContent + ')';
+            const who = document.getElementById('iw-who-window-label').textContent;
 
             const text = [
-              '=== CLINICAL IDEAL WEIGHT REPORT ===',
-              'Biological Sex: ' + (isMale ? 'Male' : 'Female'),
-              'Consensus Formula Range: ' + range + ' (' + lbs + ')',
+              '=== CLINICAL IDEAL BODY WEIGHT (IBW) REPORT ===',
+              'Consensus Target: ' + consensus + ' (' + consensusSub + ')',
+              'Clinical Formula Spread: ' + range + ' (' + rangeSub + ')',
+              'Current Weight Delta: ' + delta,
               who,
-              '------------------------------------',
-              'Formula Reference: Devine (1974), Robinson (1983), Miller (1983), Hamwi (1964)',
+              '----------------------------------------------',
+              'Devine (1974): ' + devine,
+              'Robinson (1983): ' + robinson,
+              'Miller (1983): ' + miller,
+              'Hamwi (1964): ' + hamwi,
+              '----------------------------------------------',
+              'Standards: Devine Clinical Pharmacokinetics & WHO BMI (18.5-24.9)',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/ideal-weight-calculator'
-            ].join('\\n');
+            ].join('\n');
 
             navigator.clipboard.writeText(text).then(function() {
               const btn = document.getElementById('btnCopyIW');
               if (btn) {
                 const old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Ideal Weight Report!';
+                btn.innerHTML = '✓ Copied Medical IBW Report!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
               }
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcIW);
+          document.addEventListener('DOMContentLoaded', function() { calcIW(); });
+          calcIW();
         </script>
       `
     },

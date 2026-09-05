@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Tip & Bill Split Calculator (Pre-Tax vs Post-Tax & Dollar Rounding) free to use?",
+      "name": "Should you calculate tip on the pre-tax subtotal or post-tax total?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Tip & Bill Split Calculator (Pre-Tax vs Post-Tax & Dollar Rounding) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Proper dining etiquette (endorsed by the Emily Post Institute and restaurant industry standards) dictates that gratuity should be calculated on the pre-tax food and beverage subtotal. Sales tax is a mandatory government levy that does not reflect service quality; tipping on tax means you are paying gratuity on government taxes."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "What is the standard tipping percentage for dining in the United States?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "In the United States, 15% is considered baseline for acceptable service, 18% to 20% is standard for good to great table service, and 22% to 25% is customary for exceptional hospitality or fine dining. For takeout or counter service where no seated hospitality is provided, 0% to 10% is typical."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Tip & Bill Split Calculator (Pre-Tax vs Post-Tax & Dollar Rounding) work on mobile devices?",
+      "name": "How does the calculator round up to whole dollars for Venmo or cash?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "The calculator provides rounding options to eliminate awkward cent amounts ($0.37, $0.89). You can choose to round up the tip amount to the nearest whole dollar or round up each person's final payment to the nearest whole dollar or nearest $5, making split cash payments and digital transfers seamless."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is an automatic service charge and should I tip on top of it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Many restaurants automatically add an 18% to 20% gratuity or 'service charge' for large parties (typically 6 or more guests) or in certain urban areas. Always inspect your itemized bill before tipping: if an automatic gratuity or service charge is already included in the total, you do not need to add another 20% tip unless you wish to provide an extra discretionary bonus."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does tipping etiquette vary internationally (Europe, Japan, Australia)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In Europe (UK, France, Italy), a 10%–12.5% discretionary service charge is often included, or rounding up the bill is customary because servers earn statutory living wages. In Australia and New Zealand, tipping is entirely optional (0%–10%). In Japan and South Korea, tipping is culturally taboo and can be perceived as an insult to the professional pride of the staff."
       }
     }
   ]
@@ -1043,126 +1059,183 @@
   
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Tip Calculator
+            <a href="/">Home</a> &gt; <a href="/math/">Math &amp; Calculators</a> &gt; Tip Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Tip & Bill Split Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Tip &amp; Bill Split Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate restaurant tips, sales tax, and equal bill splits. Complies with dining etiquette by allowing gratuity calculation on pre-tax food subtotal with optional whole-dollar rounding.
+            Calculate restaurant tips, sales tax, equal or itemized bill splits, and whole-dollar roundups. Adheres to dining etiquette by supporting pre-tax subtotal gratuity calculations.
           </p>
 
           <div class="tool-box">
+            <!-- Quick Tip Preset Buttons -->
+            <div style="margin-bottom: 1.25rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 600;">
+                Quick Gratuity Presets:
+              </div>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button type="button" class="btn-sec" onclick="setTipPct(10)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">10% (Buffet/Fair)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(15)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">15% (Baseline)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(18)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">18% (Good)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(20)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem; border-color: #10b981; color: #10b981; font-weight: bold;">20% (Standard Great)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(22)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">22% (Fine Dining)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(25)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">25% (VIP Hospitality)</button>
+              </div>
+            </div>
+
+            <!-- Primary Inputs Grid -->
             <div class="grid-inputs">
               <div class="field-group">
                 <label class="field-label">Bill Subtotal ($ USD)</label>
-                <input type="number" id="tip-bill" class="text-input" value="85.50" step="0.5" oninput="calcTip()" />
+                <input type="number" id="tip-bill" class="code-input" value="95.00" min="0" step="0.5" oninput="calcTip()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label">Sales Tax Rate (%)</label>
-                <input type="number" id="tip-tax-pct" class="text-input" value="8.25" step="0.25" oninput="calcTip()" />
+                <input type="number" id="tip-tax-pct" class="code-input" value="8.50" min="0" max="30" step="0.1" oninput="calcTip()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label">Tip Percentage (%)</label>
-                <input type="number" id="tip-pct" class="text-input" value="20" min="0" max="100" oninput="calcTip()" />
+                <input type="number" id="tip-pct" class="code-input" value="20" min="0" max="100" step="0.5" oninput="calcTip()" style="font-size: 1.25rem;" />
               </div>
-            </div>
-
-            <!-- Quick Tip Presets -->
-            <div style="margin-bottom: 1.25rem;">
-              <label class="field-label">Quick Tip Presets</label>
-              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                <button type="button" class="btn-sec" onclick="setTipPct(15)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem;">15% (Fair)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(18)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem;">18% (Good)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(20)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem; border-color: #3b82f6; color: #3b82f6; font-weight: bold;">20% (Standard)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(25)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem;">25% (Great)</button>
-                <button type="button" class="btn-sec" onclick="setTipPct(30)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem;">30% (Exceptional)</button>
-              </div>
-            </div>
-
-            <div class="grid-inputs" style="margin-bottom: 1rem;">
               <div class="field-group">
                 <label class="field-label">Gratuity Base</label>
-                <select id="tip-base" class="text-input" onchange="calcTip()">
+                <select id="tip-base" class="code-input" onchange="calcTip()" style="font-size: 0.95rem;">
                   <option value="pre" selected>Pre-Tax Subtotal (Etiquette Standard)</option>
-                  <option value="post">Post-Tax Total (Higher Gratuity)</option>
+                  <option value="post">Post-Tax Total (Higher Tip)</option>
                 </select>
               </div>
               <div class="field-group">
                 <label class="field-label">Number of People Splitting</label>
-                <input type="number" id="tip-people" class="text-input" value="3" min="1" max="50" oninput="calcTip()" />
+                <input type="number" id="tip-people" class="code-input" value="3" min="1" max="50" step="1" oninput="calcTip()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Rounding Preference</label>
-                <select id="tip-round" class="text-input" onchange="calcTip()">
-                  <option value="none" selected>Exact Cents ($0.01)</option>
-                  <option value="tip">Round Up Tip to Whole Dollar</option>
-                  <option value="total">Round Up Total Per Person to Whole Dollar</option>
+                <label class="field-label">Cash / Venmo Rounding</label>
+                <select id="tip-round" class="code-input" onchange="calcTip()" style="font-size: 0.95rem;">
+                  <option value="none" selected>Exact Cents ($0.01 Precision)</option>
+                  <option value="round-person">Round Up Per Person to Whole $1</option>
+                  <option value="round-5">Round Up Per Person to Nearest $5</option>
+                  <option value="round-tip">Round Up Tip to Whole $1</option>
                 </select>
               </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div class="field-label">Total Payment Per Person</div>
-              <div id="tip-per-person" class="result-val">$36.55</div>
-              <div id="tip-breakdown-details" style="font-size: 0.95rem; color: var(--text-muted); margin-top: 0.5rem; font-family: var(--mono); line-height: 1.6;">
-                Tip Amount: <strong id="tip-amount-out" style="color: #10b981;">$17.10</strong> &bull;
-                Sales Tax: <strong id="tip-tax-out" style="color: var(--fg);">$7.05</strong> &bull;
-                Grand Total: <strong id="tip-total-out" style="color: var(--fg);">$109.65</strong>
-              </div>
-              <div id="tip-per-person-tip" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; font-family: var(--mono);">
-                Tip contribution per person: $5.70
+            <!-- Hero Output Results Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Per Person</div>
+                <div id="tip-per-person" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">$40.70</div>
+                <div id="tip-per-person-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">$6.33 tip + $2.69 tax + $31.67 meal</div>
               </div>
 
-              <button type="button" id="btnCopyTip" onclick="copyTipSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy Dining Bill & Tip Split Report
-              </button>
-            </div>
-
-            <!-- Step-by-Step Worked Derivation -->
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Restaurant Gratuity Derivation</h3>
-                <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Etiquette Standard</span>
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Tip Amount</div>
+                <div id="tip-amount-out" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">$19.00</div>
+                <div id="tip-base-savings" style="font-size: 0.82rem; color: #10b981; font-family: var(--mono);">Pre-tax tip saves $1.62 vs post-tax</div>
               </div>
-              <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-                Proper restaurant etiquette calculates gratuity strictly on the food and beverage subtotal prior to government sales tax assessment:
-              </p>
-              <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Step 1: Food & Beverage Gratuity</strong>
-                  <div style="color: #3b82f6; margin-top: 0.25rem;">
-                    Tip = Subtotal &times; (Tip % / 100) = $85.50 &times; 0.20 = <strong>$17.10</strong>
-                  </div>
-                </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Step 2: Sales Tax Assessment</strong>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                    Tax = Subtotal &times; (Tax % / 100) = $85.50 &times; 0.0825 = <strong>$7.05</strong>
-                  </div>
-                </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Step 3: Grand Total Bill</strong>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                    Total = Subtotal + Tax + Tip = $85.50 + $7.05 + $17.10 = <strong>$109.65</strong>
-                  </div>
-                </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: #10b981; font-weight: 700;">Step 4: Equal Party Split</strong>
-                  <div style="color: #10b981; margin-top: 0.25rem;">
-                    Per Person = $109.65 / 3 = <strong>$36.55 / person</strong>
-                  </div>
-                </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Grand Total Bill</div>
+                <div id="tip-total-out" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">$122.08</div>
+                <div id="tip-tax-out" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Includes $8.08 sales tax (8.5%)</div>
               </div>
             </div>
 
-            <!-- Critical Dining Pitfalls & Tipping Rules -->
-            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Dining Pitfalls & Tipping Etiquette Traps</h3>
-              <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Tipping on Sales Tax" Trap:</strong> Many point-of-sale receipt printers automatically compute 18% or 20% suggested tip amounts based on the <em>post-tax</em> total. In cities with combined state and local sales tax approaching 10% (e.g. Seattle, Chicago, Los Angeles), tipping on tax adds an artificial 1.8% to 2.0% stealth surcharge to your gratuity. Always calculate tip based on pre-tax food subtotal.</li>
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Large-Party "Auto-Gratuity" Double Dip:</strong> Dining parties of 6 or more persons frequently have a mandatory 18% or 20% gratuity or "service fee" automatically added to the itemized bill. Always inspect the receipt line items before filling out the tip line to ensure you do not inadvertently tip twice.</li>
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Counter-Service POS Screen Inflation:</strong> Touchscreen tablet checkouts for takeaway counters (where no sit-down table service or bussing is provided) often prompt 22%, 25%, or 30% defaults. Standard North American etiquette reserves 18%–20%+ for full-service table dining, while counter pickup gratuities are discretionary ($1–$2 or 10%).</li>
-              </ul>
+            <!-- Visual Receipt Breakdown Waterfall Bar -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Itemized Receipt Share Breakdown:</span>
+                <span id="tip-bar-summary" style="color: var(--fg); font-weight: bold;">Grand Total: $122.08 (100%)</span>
+              </div>
+              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
+                <div id="tip-bar-food" style="width: 77.8%; background: #10b981;" title="Food & Drinks Subtotal">Food Subtotal ($95.00)</div>
+                <div id="tip-bar-tax" style="width: 6.6%; background: #64748b;" title="Sales Tax">Tax</div>
+                <div id="tip-bar-tip" style="width: 15.6%; background: #3b82f6;" title="Gratuity">Tip ($19.00)</div>
+              </div>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Food &amp; Beverage Subtotal</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #64748b; border-radius: 2px;"></span> Government Sales Tax</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> Staff Gratuity Tip</span>
+              </div>
             </div>
+
+            <!-- Global Tipping Etiquette Reference Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
+                🌍 Global Dining Gratuity Etiquette Cheat Sheet:
+              </h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.8rem;">
+                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #ef4444; display: block; margin-bottom: 0.25rem;">🇺🇸 United States &amp; Canada</strong>
+                  <div style="color: var(--fg); font-weight: bold;">18% – 22% Expected</div>
+                  <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.2rem;">Servers rely on tips due to tipped subminimum wage laws. 15% is bare minimum.</div>
+                </div>
+
+                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #3b82f6; display: block; margin-bottom: 0.25rem;">🇬🇧 UK &amp; Western Europe</strong>
+                  <div style="color: var(--fg); font-weight: bold;">10% – 12.5% Optional</div>
+                  <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.2rem;">Often auto-included as 'Servizio/Service'. Full statutory minimum wages paid.</div>
+                </div>
+
+                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #10b981; display: block; margin-bottom: 0.25rem;">🇯🇵 Japan &amp; South Korea</strong>
+                  <div style="color: var(--fg); font-weight: bold;">0% (Strictly Taboo)</div>
+                  <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.2rem;">Exceptional service is standard culture. Leaving cash on table can be perceived as an insult.</div>
+                </div>
+
+                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #f59e0b; display: block; margin-bottom: 0.25rem;">🇦🇺 Australia &amp; New Zealand</strong>
+                  <div style="color: var(--fg); font-weight: bold;">0% – 10% Discretionary</div>
+                  <div style="color: var(--text-muted); font-size: 0.72rem; margin-top: 0.2rem;">High baseline wages. Tips are only left for standout restaurant hospitality.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyTip" onclick="copyTipSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Itemized Dining Bill &amp; Venmo Split Report
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Gratuity &amp; Bill Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Etiquette Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Gratuity and equal share derivation based on your bill inputs:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">1. Sales Tax Assessment:</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">Tax = Subtotal &times; (Tax Rate / 100)</div>
+                <div id="tip-step-tax" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Worked: $95.00 &times; (8.50 / 100) = <strong>$8.08</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">2. Tip Calculation (Pre-Tax Standard):</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">Tip = Base &times; (Tip Rate / 100)</div>
+                <div id="tip-step-tip" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Worked: $95.00 &times; 20% = <strong>$19.00</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">3. Grand Total &amp; Per Person Division:</strong>
+                <div id="tip-step-total" style="color: #10b981; margin-top: 0.25rem;">
+                  Total = $95.00 + $8.08 + $19.00 = $122.08 &bull; Split 3 ways: <strong>$40.70 per person</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Pitfalls & Dining Gotchas -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Dining Pitfalls &amp; Tip Traps</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Double-Tipping Auto-Gratuity Trap:</strong> For parties of 6 or more, restaurants almost universally add an automatic 18% or 20% gratuity onto the bill. Many diners inadvertently sign the merchant credit card slip and add another 20% tip, unintentionally tipping 40% on their meal. Always review itemized lines before signing.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Point-of-Sale (POS) Tip Creep:</strong> Tablet checkout terminals (Toast, Square, Clover) calculate recommended tip percentages on the post-tax, post-fee grand total by default, rather than the pre-tax food cost. On a $100 food order with 10% tax and a 3% card fee, a "20% tip" prompt charges $22.60 instead of $20.00.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Mandatory Service Fees vs Gratuity:</strong> In some jurisdictions (e.g. California, New York), restaurants assess a 3% to 5% "kitchen wellness" or "employee health fee". Legally, these fees belong to the restaurant owners and are NOT gratuities distributed directly to waitstaff. Ask your server if the fee reaches their pocket.</li>
+            </ul>
           </div>
         </div>
 
@@ -1173,73 +1246,123 @@
           };
 
           function calcTip() {
-            var subtotal = parseFloat(document.getElementById('tip-bill').value) || 0;
-            var taxPct = parseFloat(document.getElementById('tip-tax-pct').value) || 0;
-            var tipPct = parseFloat(document.getElementById('tip-pct').value) || 0;
-            var tipBase = document.getElementById('tip-base').value;
-            var people = parseInt(document.getElementById('tip-people').value, 10) || 1;
-            var roundMode = document.getElementById('tip-round').value;
+            const bill = parseFloat(document.getElementById('tip-bill').value) || 0;
+            const taxPct = (parseFloat(document.getElementById('tip-tax-pct').value) || 0) / 100;
+            const tipPct = (parseFloat(document.getElementById('tip-pct').value) || 0) / 100;
+            const baseMode = document.getElementById('tip-base').value;
+            const people = parseInt(document.getElementById('tip-people').value, 10) || 1;
+            const roundMode = document.getElementById('tip-round').value;
 
-            var taxAmount = subtotal * (taxPct / 100);
-            var baseForTip = (tipBase === 'post') ? (subtotal + taxAmount) : subtotal;
-            var tipAmount = baseForTip * (tipPct / 100);
+            const taxAmount = bill * taxPct;
+            let tipAmount = 0;
 
-            if (roundMode === 'tip') {
+            if (baseMode === 'pre') {
+              tipAmount = bill * tipPct;
+            } else {
+              tipAmount = (bill + taxAmount) * tipPct;
+            }
+
+            // Post-tax difference savings
+            const postTaxTip = (bill + taxAmount) * tipPct;
+            const preTaxTip = bill * tipPct;
+            const diffSavings = postTaxTip - preTaxTip;
+
+            if (baseMode === 'pre' && diffSavings > 0.05) {
+              document.getElementById('tip-base-savings').textContent = 'Pre-tax tip saves $' + diffSavings.toFixed(2) + ' vs post-tax';
+              document.getElementById('tip-base-savings').style.color = '#10b981';
+            } else {
+              document.getElementById('tip-base-savings').textContent = 'Calculated on post-tax total';
+              document.getElementById('tip-base-savings').style.color = 'var(--text-muted)';
+            }
+
+            // Rounding logic
+            if (roundMode === 'round-tip') {
               tipAmount = Math.ceil(tipAmount);
             }
 
-            var grandTotal = subtotal + taxAmount + tipAmount;
-            var perPerson = grandTotal / people;
+            let totalBill = bill + taxAmount + tipAmount;
+            let perPerson = totalBill / people;
 
-            if (roundMode === 'total') {
+            if (roundMode === 'round-person') {
               perPerson = Math.ceil(perPerson);
-              grandTotal = perPerson * people;
-              tipAmount = grandTotal - subtotal - taxAmount;
+              totalBill = perPerson * people;
+              tipAmount = Math.max(0, totalBill - bill - taxAmount);
+            } else if (roundMode === 'round-5') {
+              perPerson = Math.ceil(perPerson / 5) * 5;
+              totalBill = perPerson * people;
+              tipAmount = Math.max(0, totalBill - bill - taxAmount);
             }
 
-            var tipPerPerson = tipAmount / people;
+            const tipPerPerson = tipAmount / people;
+            const taxPerPerson = taxAmount / people;
+            const mealPerPerson = bill / people;
 
+            // DOM Updates
             document.getElementById('tip-per-person').textContent = '$' + perPerson.toFixed(2);
             document.getElementById('tip-amount-out').textContent = '$' + tipAmount.toFixed(2);
-            document.getElementById('tip-tax-out').textContent = '$' + taxAmount.toFixed(2);
-            document.getElementById('tip-total-out').textContent = '$' + grandTotal.toFixed(2);
-            document.getElementById('tip-per-person-tip').textContent = 'Tip contribution per person: $' + tipPerPerson.toFixed(2);
+            document.getElementById('tip-total-out').textContent = '$' + totalBill.toFixed(2);
+
+            document.getElementById('tip-per-person-sub').textContent = '$' + tipPerPerson.toFixed(2) + ' tip + $' + taxPerPerson.toFixed(2) + ' tax + $' + mealPerPerson.toFixed(2) + ' meal';
+            document.getElementById('tip-tax-out').textContent = 'Includes $' + taxAmount.toFixed(2) + ' sales tax (' + (taxPct * 100).toFixed(1) + '%)';
+
+            // Waterfall Bar
+            if (totalBill > 0) {
+              const foodPct = (bill / totalBill) * 100;
+              const taxP = (taxAmount / totalBill) * 100;
+              const tipP = (tipAmount / totalBill) * 100;
+
+              document.getElementById('tip-bar-food').style.width = foodPct.toFixed(1) + '%';
+              document.getElementById('tip-bar-tax').style.width = taxP.toFixed(1) + '%';
+              document.getElementById('tip-bar-tip').style.width = tipP.toFixed(1) + '%';
+
+              document.getElementById('tip-bar-food').textContent = 'Food ($' + bill.toFixed(2) + ')';
+              document.getElementById('tip-bar-tip').textContent = 'Tip ($' + tipAmount.toFixed(2) + ')';
+              document.getElementById('tip-bar-summary').textContent = 'Grand Total: $' + totalBill.toFixed(2) + ' (100%)';
+            }
+
+            // Steps
+            document.getElementById('tip-step-tax').innerHTML = '$' + bill.toFixed(2) + ' &times; ' + (taxPct * 100).toFixed(2) + '% = <strong>$' + taxAmount.toFixed(2) + '</strong>';
+            document.getElementById('tip-step-tip').innerHTML = (baseMode === 'pre' ? '$' + bill.toFixed(2) : '$' + (bill + taxAmount).toFixed(2)) + ' &times; ' + (tipPct * 100).toFixed(1) + '% = <strong>$' + tipAmount.toFixed(2) + '</strong>';
+            document.getElementById('tip-step-total').innerHTML = 'Total = $' + bill.toFixed(2) + ' + $' + taxAmount.toFixed(2) + ' + $' + tipAmount.toFixed(2) + ' = $' + totalBill.toFixed(2) + ' &bull; Split ' + people + ' ways: <strong>$' + perPerson.toFixed(2) + ' per person</strong>';
           }
 
           window.copyTipSummary = function() {
-            var subtotal = document.getElementById('tip-bill').value;
-            var tax = document.getElementById('tip-tax-out').textContent;
-            var tip = document.getElementById('tip-amount-out').textContent;
-            var total = document.getElementById('tip-total-out').textContent;
-            var perPerson = document.getElementById('tip-per-person').textContent;
-            var people = document.getElementById('tip-people').value;
+            const bill = document.getElementById('tip-bill').value;
+            const perPerson = document.getElementById('tip-per-person').textContent;
+            const tip = document.getElementById('tip-amount-out').textContent;
+            const total = document.getElementById('tip-total-out').textContent;
+            const people = document.getElementById('tip-people').value;
+            const tax = document.getElementById('tip-tax-out').textContent;
 
-            var text = [
-              '=== RESTAURANT BILL & TIP SPLIT REPORT ===',
-              'Bill Subtotal: $' + parseFloat(subtotal).toFixed(2),
-              'Sales Tax: ' + tax,
-              'Gratuity (Tip): ' + tip,
+            const text = [
+              '=== DINING BILL & TIP SPLIT SUMMARY ===',
+              'Bill Subtotal: $' + parseFloat(bill).toFixed(2),
+              tax,
+              'Total Tip: ' + tip,
               'Grand Total Bill: ' + total,
-              'Party Size: ' + people + ' people',
-              '-----------------------------------------',
-              'EACH PERSON PAYS: ' + perPerson,
-              '-----------------------------------------',
+              '--------------------------------------',
+              'Number of People: ' + people,
+              'Total Payment Per Person: ' + perPerson,
+              '--------------------------------------',
+              'Etiquette Standard: Pre-Tax Subtotal Gratuity',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/tip-calculator'
-            ].join('\n');
+            ].join('
+');
 
             navigator.clipboard.writeText(text).then(function() {
-              var btn = document.getElementById('btnCopyTip');
+              const btn = document.getElementById('btnCopyTip');
               if (btn) {
-                var old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Bill Split Report!';
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Dining Split Report!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
               }
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcTip);
+          document.addEventListener('DOMContentLoaded', function() { calcTip(); });
+          calcTip();
         </script>
       
 
