@@ -24,219 +24,479 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
   const tools = [
     {
       slug: 'bmi-calculator',
-      title: 'BMI (Body Mass Index) Calculator',
-      metaDesc: 'Calculate Body Mass Index (BMI) using metric (kg/cm) or imperial (lbs/inches) units with WHO health weight ranges.',
-      category: 'Health',
+      title: 'BMI Calculator (Standard & Oxford New BMI with Waist-to-Height Ratio)',
+      metaDesc: 'Calculate Body Mass Index (BMI), Oxford New BMI, Ponderal Index, and Waist-to-Height Ratio (WHtR) with WHO healthy weight ranges and metric & imperial units.',
+      category: 'Health & Fitness',
+      faq: [
+        { q: 'What is a healthy BMI range according to the World Health Organization (WHO)?', a: 'According to WHO clinical criteria for adults, a BMI between 18.5 and 24.9 is considered Normal / Healthy Weight. A BMI below 18.5 is Underweight, 25.0 to 29.9 is Overweight (Pre-obese), 30.0 to 34.9 is Obese Class I, 35.0 to 39.9 is Obese Class II, and 40.0 or higher is Obese Class III (Morbid Obesity).' },
+        { q: 'What is the Oxford \'New BMI\' formula and why is it more accurate?', a: 'Invented by Professor Nick Trefethen of Oxford University, the New BMI formula [New BMI = 1.3 × Weight (kg) / Height (m)^2.5] addresses the mathematical scaling flaw of the 1830s Quetelet formula (Weight / Height^2). In standard 2D BMI, taller people are artificially classified as heavier/more obese, while shorter individuals are made to appear leaner than they truly are. The 2.5 power aligns closer with 3D human volumetric mass.' },
+        { q: 'Why is Waist-to-Height Ratio (WHtR) often recommended over BMI alone?', a: 'In 2022, the UK National Institute for Health and Care Excellence (NICE) updated clinical guidelines recommending that adults keep their waist circumference to less than half their height (WHtR < 0.5). WHtR specifically measures central visceral adiposity—the fat stored around vital organs—which is far more predictive of type 2 diabetes, hypertension, and cardiovascular disease than total scale weight.' },
+        { q: 'Can BMI be inaccurate for muscular athletes and bodybuilders?', a: 'Yes. BMI measures total body mass divided by height squared without distinguishing between dense skeletal muscle and adipose fat tissue. Because muscle is approximately 18% denser than fat, muscular athletes frequently register as \'Overweight\' or \'Obese\' on BMI charts despite having sub-12% body fat and optimal metabolic health.' },
+        { q: 'How do I calculate how much weight I need to lose to reach a normal BMI?', a: 'Multiply the square of your height in meters by 24.9 to find your maximum normal weight limit: Max Healthy Weight = 24.9 × [Height (m)]^2. Subtract this value from your current weight to find the exact number of kilograms or pounds you must lose to enter the normal range.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; BMI Calculator
+            <a href="/">Home</a> &gt; <a href="/health/">Health &amp; Fitness</a> &gt; BMI Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">BMI (Body Mass Index) & Healthy Weight Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Assess your Body Mass Index (BMI), BMI Prime, Ponderal Index, and healthy weight range against official World Health Organization (WHO) and CDC standards.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">BMI Calculator (Standard &amp; Oxford New BMI)</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Assess your Body Mass Index (BMI), Oxford University New BMI, Ponderal Index, and clinical Waist-to-Height Ratio (WHtR) with simultaneous metric and imperial conversion.
           </p>
 
           <div class="tool-box">
+            <!-- Unit Selector -->
             <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
-              <button type="button" id="btnMetric" onclick="setBmiUnit('metric')" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.8rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer;">Metric (kg, cm)</button>
-              <button type="button" id="btnImperial" onclick="setBmiUnit('imperial')" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">US Imperial (lbs, ft/in)</button>
+              <button type="button" id="btnBmiMetric" onclick="setBmiUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (kg, cm)</button>
+              <button type="button" id="btnBmiImperial" onclick="setBmiUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">US Imperial (lbs, ft/in)</button>
             </div>
 
-            <div id="boxMetric" class="grid-inputs">
-              <div class="field-group">
-                <label class="field-label">Weight (kg)</label>
-                <input type="number" id="bmi-weight-kg" class="text-input" value="70" step="0.5" oninput="calcBMI()" />
+            <!-- Primary Inputs Grid -->
+            <div class="grid-inputs">
+              <!-- Metric Fields -->
+              <div class="field-group" id="bmi-grp-w-metric">
+                <label class="field-label">Current Weight (kg)</label>
+                <input type="number" id="bmi-w-kg" class="code-input" value="72" min="20" max="350" step="0.5" oninput="syncBmiFromMetric()" style="font-size: 1.15rem;" />
               </div>
-              <div class="field-group">
+              <div class="field-group" id="bmi-grp-h-metric">
                 <label class="field-label">Height (cm)</label>
-                <input type="number" id="bmi-height-cm" class="text-input" value="175" oninput="calcBMI()" />
+                <input type="number" id="bmi-h-cm" class="code-input" value="175" min="50" max="250" step="0.5" oninput="syncBmiFromMetric()" style="font-size: 1.15rem;" />
+              </div>
+
+              <!-- Imperial Fields -->
+              <div class="field-group" id="bmi-grp-w-imperial" style="display: none;">
+                <label class="field-label">Current Weight (lbs)</label>
+                <input type="number" id="bmi-w-lbs" class="code-input" value="158.7" min="45" max="750" step="0.5" oninput="syncBmiFromImperial()" style="font-size: 1.15rem;" />
+              </div>
+              <div class="field-group" id="bmi-grp-h-imperial" style="display: none;">
+                <label class="field-label">Height (Feet &amp; Inches)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="number" id="bmi-h-ft" class="code-input" value="5" min="2" max="8" placeholder="ft" oninput="syncBmiFromImperial()" style="font-size: 1.15rem;" />
+                  <input type="number" id="bmi-h-in" class="code-input" value="9" min="0" max="11" step="0.5" placeholder="in" oninput="syncBmiFromImperial()" style="font-size: 1.15rem;" />
+                </div>
+              </div>
+
+              <!-- Optional Central Adiposity (Waist) -->
+              <div class="field-group">
+                <label class="field-label" id="bmi-lbl-waist">Waist Circumference (cm) <span style="font-weight: normal; text-transform: none; color: var(--text-muted);">(Optional for WHtR)</span></label>
+                <input type="number" id="bmi-waist" class="code-input" value="82" min="30" max="200" step="0.5" oninput="calcBMI()" style="font-size: 1.15rem;" />
               </div>
             </div>
 
-            <div id="boxImperial" class="grid-inputs" style="display: none;">
-              <div class="field-group">
-                <label class="field-label">Weight (lbs)</label>
-                <input type="number" id="bmi-weight-lbs" class="text-input" value="154" step="1" oninput="calcBMI()" />
+            <!-- Hero Output Results Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Standard Quetelet BMI</div>
+                <div id="bmi-score" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">23.5</div>
+                <div id="bmi-cat-badge" style="font-size: 0.88rem; font-weight: bold; color: #10b981; font-family: var(--mono);">Normal Weight (18.5 – 24.9)</div>
               </div>
-              <div class="field-group">
-                <label class="field-label">Height (Feet & Inches)</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="number" id="bmi-height-ft" class="text-input" value="5" placeholder="ft" oninput="calcBMI()" />
-                  <input type="number" id="bmi-height-in" class="text-input" value="9" placeholder="in" oninput="calcBMI()" />
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Oxford "New BMI"</div>
+                <div id="bmi-new-score" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">23.1</div>
+                <div id="bmi-new-diff" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">-0.4 vs Standard (Height Adjusted)</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Waist-to-Height Ratio (WHtR)</div>
+                <div id="bmi-whtr-score" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">0.47</div>
+                <div id="bmi-whtr-status" style="font-size: 0.82rem; color: #10b981; font-family: var(--mono);">Healthy Central Adiposity (< 0.5)</div>
+              </div>
+            </div>
+
+            <!-- Visual Color Spectrum Gauge Bar -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>WHO Adult Weight Classification Spectrum:</span>
+                <span id="bmi-gauge-label" style="color: var(--fg); font-weight: bold;">Current: 23.5 (Normal)</span>
+              </div>
+              
+              <!-- Multi-Segment Spectrum Bar -->
+              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
+                <div style="width: 14%; background: #3b82f6;" title="Underweight (< 18.5)">Under</div>
+                <div style="width: 26%; background: #10b981;" title="Normal Weight (18.5–24.9)">Normal (18.5–24.9)</div>
+                <div style="width: 20%; background: #f59e0b;" title="Overweight (25.0–29.9)">Over (25–30)</div>
+                <div style="width: 20%; background: #ef4444;" title="Obese Class I (30.0–34.9)">Obese I</div>
+                <div style="width: 20%; background: #991b1b;" title="Obese Class II/III (≥ 35.0)">Class II/III</div>
+              </div>
+
+              <!-- Needle / Pointer Position Marker -->
+              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
+                <div id="bmi-needle" style="position: absolute; top: 0; left: 32%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
+              </div>
+
+              <!-- Healthy Target & Weight Delta Box -->
+              <div style="margin-top: 0.75rem; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border); font-family: var(--mono); font-size: 0.84rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <span style="color: var(--text-muted);">Normal Weight Range (BMI 18.5–24.9): </span>
+                  <strong id="bmi-healthy-range" style="color: var(--fg);">56.7 – 76.3 kg (124.9 – 168.1 lbs)</strong>
+                </div>
+                <div id="bmi-delta-box" style="color: #10b981; font-weight: bold;">
+                  ✓ You are within the healthy weight range
                 </div>
               </div>
             </div>
 
-            <div class="result-card">
-              <div class="field-label">Your Body Mass Index (BMI)</div>
-              <div id="bmi-score" class="result-val">22.9</div>
-              <div id="bmi-category" style="font-size: 1.15rem; font-weight: bold; color: #22c55e; margin-top: 0.4rem;">Normal Weight (18.5 – 24.9)</div>
-              
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.85rem; text-align: left;">
-                <div>Healthy Weight Target: <strong id="bmi-healthy-range" style="color: var(--fg);">56.7 – 76.3 kg</strong></div>
-                <div>BMI Prime: <strong id="bmi-prime" style="color: var(--fg);">0.91</strong></div>
-                <div>Ponderal Index: <strong id="bmi-ponderal" style="color: var(--fg);">13.07 kg/m³</strong></div>
+            <!-- Auxiliary Diagnostic Metrics Grid -->
+            <div style="margin-top: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.82rem;">
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted);">BMI Prime (Ratio to 25.0 Limit):</div>
+                <div id="bmi-prime-val" style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin-top: 0.2rem;">0.94</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">< 0.74 Under | 0.74–1.00 Normal | > 1.00 Over</div>
               </div>
-
-              <button type="button" id="btnCopyBMI" onclick="copyBMISummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy BMI & Health Assessment Report
-              </button>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted);">Ponderal Index (Corpulence W/H³):</div>
+                <div id="bmi-ponderal-val" style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin-top: 0.2rem;">13.43 kg/m³</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">Normal: 11.0 – 14.5 kg/m³ (3D scaling)</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted);">UK NICE Guidelines Risk:</div>
+                <div id="bmi-nice-risk" style="font-size: 1.2rem; font-weight: bold; color: #10b981; margin-top: 0.2rem;">Low Cardiometabolic Risk</div>
+                <div style="font-size: 0.72rem; color: var(--text-muted);">Based on combined BMI + WHtR</div>
+              </div>
             </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyBMI" onclick="copyBMISummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Comprehensive BMI &amp; Health Assessment
+            </button>
           </div>
 
-          <!-- Step-by-Step Worked Derivation -->
+          <!-- Step-by-Step Worked Derivations -->
           <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step BMI Mathematical Derivation</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">WHO Clinical Standard</span>
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Biometric Derivations</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">WHO &amp; Oxford Formulations</span>
             </div>
             <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Body Mass Index is an epidemiological screening metric established by Adolphe Quetelet that correlates body weight with height squared:
+              Standard BMI, Oxford New BMI, and Waist-to-Height Ratio derived with your live biometric measurements:
             </p>
             <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 1: Metric SI Formula</strong>
-                <div style="color: #3b82f6; margin-top: 0.25rem;">BMI = Weight (kg) / [Height (m)]² &bull; Worked: 70 kg / (1.75 m)² = 70 / 3.0625 = <strong>22.86 kg/m²</strong></div>
+                <strong style="color: var(--fg);">1. Standard Quetelet BMI (1832):</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">BMI = Weight (kg) / [Height (m)]²</div>
+                <div id="bmi-step-1" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  72 kg / (1.75 m)² = 72 / 3.0625 = <strong>23.51 kg/m²</strong>
+                </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 2: Imperial US Formula</strong>
-                <div style="color: #3b82f6; margin-top: 0.25rem;">BMI = 703 × Weight (lbs) / [Height (inches)]² &bull; Worked: 703 × 154 / 69² = 108,262 / 4,761 = <strong>22.74 kg/m²</strong></div>
+                <strong style="color: var(--fg);">2. Oxford University "New BMI" (Nick Trefethen):</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">New BMI = 1.3 &times; Weight (kg) / [Height (m)]<sup>2.5</sup></div>
+                <div id="bmi-step-2" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  1.3 &times; 72 / 1.75<sup>2.5</sup> = 93.6 / 4.045 = <strong>23.14 kg/m²</strong>
+                </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 3: BMI Prime & Ponderal Index</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  BMI Prime = BMI / 25 (Values < 1.0 indicate healthy weight) &bull; Ponderal Index = Weight (kg) / [Height (m)]³ (Accounts for 3D body volume).
+                <strong style="color: #10b981; font-weight: 700;">3. Waist-to-Height Ratio (WHtR) &amp; Central Adiposity:</strong>
+                <div style="color: #10b981; margin-top: 0.25rem;">WHtR = Waist Circumference / Total Height</div>
+                <div id="bmi-step-3" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  82 cm / 175 cm = <strong>0.469 (< 0.50 Healthy Threshold)</strong>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Critical Clinical Pitfalls & BMI Blind Spots -->
+          <!-- Clinical Pitfalls & Blind Spots -->
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls & BMI Blind Spots</h3>
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls &amp; BMI Blind Spots</h3>
             <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Athlete & Muscularity Paradox:</strong> BMI treats all body mass equally. Skeletal muscle is ~18% denser than adipose tissue. Bodybuilders and strength athletes with 10% body fat frequently score as "Overweight" (26–29) or "Obese" (>30) despite having excellent cardiovascular fitness and minimal visceral fat.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sarcopenic Obesity in Older Adults:</strong> As adults age past 60, loss of muscle mass (sarcopenia) combined with accumulation of abdominal visceral fat can keep BMI within the "Normal" (22–24) range despite high cardiometabolic risk. Waist-to-hip ratio or DEXA scans provide superior diagnostic clarity.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 2D vs 3D Height Distortion:</strong> Dividing by height squared rather than cubed artificially deflates BMI in short people (making them appear leaner than they are) and inflates BMI in tall individuals over 6'2" (188 cm).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Muscular Athlete False Positive:</strong> BMI cannot distinguish skeletal muscle mass from adipose fat. Because muscle tissue is ~18% denser than fat, strength athletes, bodybuilders, and rugby players frequently score in the \'Overweight\' (26–29) or \'Obese\' (>30) categories despite sub-12% body fat and superior cardiovascular markers.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sarcopenic Obesity in Older Adults:</strong> With age, skeletal muscle degrades (sarcopenia) and is replaced by visceral belly fat. An elderly person may maintain a \'Normal\' BMI of 22–24 while possessing dangerous levels of internal organ adiposity and elevated cardiovascular risk. WHtR or DEXA scans are essential here.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Mathematical Scaling Distortion:</strong> In classic BMI, dividing mass by height squared instead of cubed treats humans as flat 2D squares rather than 3D volumes. Consequently, standard BMI overestimates obesity in tall people (over 6\'0\') and underestimates fatness in shorter individuals. Oxford\'s 2.5 exponent resolves this distortion.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Ethnicity Cutoff Disparities:</strong> WHO and International Diabetes Federation studies show that people of South Asian, East Asian, and Black ethnic backgrounds face elevated type 2 diabetes risk at lower BMI cutoffs (overweight at BMI &ge; 23, obesity at BMI &ge; 27.5).</li>
             </ul>
           </div>
         </div>
 
         <script>
-          var bmiUnitMode = 'metric';
+          let bmiUnit = 'metric';
 
-          window.setBmiUnit = function(mode) {
-            bmiUnitMode = mode;
-            var boxM = document.getElementById('boxMetric');
-            var boxI = document.getElementById('boxImperial');
-            var btnM = document.getElementById('btnMetric');
-            var btnI = document.getElementById('btnImperial');
+          window.setBmiUnit = function(unit) {
+            bmiUnit = unit;
+            const btnM = document.getElementById('btnBmiMetric');
+            const btnI = document.getElementById('btnBmiImperial');
+            const grpWm = document.getElementById('bmi-grp-w-metric');
+            const grpHm = document.getElementById('bmi-grp-h-metric');
+            const grpWi = document.getElementById('bmi-grp-w-imperial');
+            const grpHi = document.getElementById('bmi-grp-h-imperial');
+            const lblWaist = document.getElementById('bmi-lbl-waist');
+            const inpWaist = document.getElementById('bmi-waist');
 
-            if (mode === 'metric') {
-              boxM.style.display = 'grid';
-              boxI.style.display = 'none';
+            if (unit === 'metric') {
               btnM.style.background = 'rgba(59, 130, 246, 0.15)';
               btnM.style.borderColor = '#3b82f6';
               btnM.style.color = '#3b82f6';
               btnI.style.background = 'var(--surface-alt)';
               btnI.style.borderColor = 'var(--border)';
               btnI.style.color = 'var(--fg)';
+
+              grpWm.style.display = 'block';
+              grpHm.style.display = 'block';
+              grpWi.style.display = 'none';
+              grpHi.style.display = 'none';
+
+              lblWaist.innerHTML = 'Waist Circumference (cm) <span style="font-weight: normal; text-transform: none; color: var(--text-muted);">(Optional for WHtR)</span>';
+              if (inpWaist.value) {
+                inpWaist.value = (parseFloat(inpWaist.value) * 2.54).toFixed(1);
+              }
             } else {
-              boxM.style.display = 'none';
-              boxI.style.display = 'grid';
               btnI.style.background = 'rgba(59, 130, 246, 0.15)';
               btnI.style.borderColor = '#3b82f6';
               btnI.style.color = '#3b82f6';
               btnM.style.background = 'var(--surface-alt)';
               btnM.style.borderColor = 'var(--border)';
               btnM.style.color = 'var(--fg)';
+
+              grpWm.style.display = 'none';
+              grpHm.style.display = 'none';
+              grpWi.style.display = 'block';
+              grpHi.style.display = 'block';
+
+              lblWaist.innerHTML = 'Waist Circumference (inches) <span style="font-weight: normal; text-transform: none; color: var(--text-muted);">(Optional for WHtR)</span>';
+              if (inpWaist.value) {
+                inpWaist.value = (parseFloat(inpWaist.value) / 2.54).toFixed(1);
+              }
             }
             calcBMI();
           };
 
+          window.syncBmiFromMetric = function() {
+            const wKg = parseFloat(document.getElementById('bmi-w-kg').value) || 0;
+            const hCm = parseFloat(document.getElementById('bmi-h-cm').value) || 0;
+
+            const wLbs = wKg * 2.20462;
+            const totalInches = hCm / 2.54;
+            const ft = Math.floor(totalInches / 12);
+            const inch = totalInches % 12;
+
+            document.getElementById('bmi-w-lbs').value = wLbs.toFixed(1);
+            document.getElementById('bmi-h-ft').value = ft;
+            document.getElementById('bmi-h-in').value = inch.toFixed(1);
+
+            calcBMI();
+          };
+
+          window.syncBmiFromImperial = function() {
+            const wLbs = parseFloat(document.getElementById('bmi-w-lbs').value) || 0;
+            const ft = parseFloat(document.getElementById('bmi-h-ft').value) || 0;
+            const inch = parseFloat(document.getElementById('bmi-h-in').value) || 0;
+
+            const totalInches = (ft * 12) + inch;
+            const wKg = wLbs / 2.20462;
+            const hCm = totalInches * 2.54;
+
+            document.getElementById('bmi-w-kg').value = wKg.toFixed(1);
+            document.getElementById('bmi-h-cm').value = hCm.toFixed(1);
+
+            calcBMI();
+          };
+
           function calcBMI() {
-            var wKg = 70;
-            var hM = 1.75;
+            let wKg = 72;
+            let hCm = 175;
+            let waistCm = 82;
 
-            if (bmiUnitMode === 'metric') {
-              wKg = parseFloat(document.getElementById('bmi-weight-kg').value) || 0;
-              var hCm = parseFloat(document.getElementById('bmi-height-cm').value) || 1;
-              hM = hCm / 100;
+            if (bmiUnit === 'metric') {
+              wKg = parseFloat(document.getElementById('bmi-w-kg').value) || 0;
+              hCm = parseFloat(document.getElementById('bmi-h-cm').value) || 1;
+              waistCm = parseFloat(document.getElementById('bmi-waist').value) || 0;
             } else {
-              var wLbs = parseFloat(document.getElementById('bmi-weight-lbs').value) || 0;
-              var hFt = parseFloat(document.getElementById('bmi-height-ft').value) || 0;
-              var hIn = parseFloat(document.getElementById('bmi-height-in').value) || 0;
-              var totalInches = (hFt * 12) + hIn;
-              wKg = wLbs * 0.453592;
-              hM = (totalInches * 2.54) / 100;
+              const wLbs = parseFloat(document.getElementById('bmi-w-lbs').value) || 0;
+              const ft = parseFloat(document.getElementById('bmi-h-ft').value) || 0;
+              const inch = parseFloat(document.getElementById('bmi-h-in').value) || 0;
+              const waistIn = parseFloat(document.getElementById('bmi-waist').value) || 0;
+
+              wKg = wLbs / 2.20462;
+              hCm = ((ft * 12) + inch) * 2.54;
+              waistCm = waistIn * 2.54;
             }
 
-            if (hM <= 0) hM = 1;
-            var bmi = wKg / (hM * hM);
-            var prime = bmi / 25;
-            var ponderal = wKg / (hM * hM * hM);
+            if (hCm <= 0) hCm = 1;
+            const hM = hCm / 100;
 
-            var minHealthyKg = 18.5 * (hM * hM);
-            var maxHealthyKg = 24.9 * (hM * hM);
+            // 1. Standard Quetelet BMI
+            const bmi = wKg / (hM * hM);
 
-            var scoreEl = document.getElementById('bmi-score');
-            var catEl = document.getElementById('bmi-category');
-            var rangeEl = document.getElementById('bmi-healthy-range');
-            var primeEl = document.getElementById('bmi-prime');
-            var pondEl = document.getElementById('bmi-ponderal');
+            // 2. Oxford New BMI (1.3 * weight / height^2.5)
+            const newBmi = (1.3 * wKg) / Math.pow(hM, 2.5);
+            const diffNew = newBmi - bmi;
 
-            scoreEl.textContent = bmi.toFixed(1);
-            primeEl.textContent = prime.toFixed(2);
-            pondEl.textContent = ponderal.toFixed(2) + ' kg/m³';
+            // 3. Waist-to-Height Ratio (WHtR)
+            let whtr = 0;
+            if (waistCm > 0) {
+              whtr = waistCm / hCm;
+            }
 
-            if (bmiUnitMode === 'metric') {
+            // 4. BMI Prime & Ponderal
+            const bmiPrime = bmi / 25;
+            const ponderal = wKg / Math.pow(hM, 3);
+
+            // 5. Healthy Weight Range (18.5 - 24.9)
+            const minHealthyKg = 18.5 * (hM * hM);
+            const maxHealthyKg = 24.9 * (hM * hM);
+            const minHealthyLbs = minHealthyKg * 2.20462;
+            const maxHealthyLbs = maxHealthyKg * 2.20462;
+
+            // Update DOM
+            document.getElementById('bmi-score').textContent = bmi.toFixed(1);
+            document.getElementById('bmi-new-score').textContent = newBmi.toFixed(1);
+            
+            const diffSign = diffNew >= 0 ? '+' : '';
+            document.getElementById('bmi-new-diff').textContent = diffSign + diffNew.toFixed(1) + ' vs Standard (Height Adjusted)';
+
+            // Category & Color
+            let catName = 'Normal Weight (18.5 – 24.9)';
+            let catColor = '#10b981';
+            let gaugePct = 0;
+
+            if (bmi < 16.0) {
+              catName = 'Severe Thinness (< 16.0)';
+              catColor = '#ef4444';
+              gaugePct = Math.max(2, (bmi / 16.0) * 14);
+            } else if (bmi < 18.5) {
+              catName = 'Underweight / Mild Thinness (16.0 – 18.4)';
+              catColor = '#3b82f6';
+              gaugePct = 14 + ((bmi - 16.0) / 2.5) * 12;
+            } else if (bmi < 25.0) {
+              catName = 'Normal Weight (18.5 – 24.9)';
+              catColor = '#10b981';
+              gaugePct = 26 + ((bmi - 18.5) / 6.4) * 20;
+            } else if (bmi < 30.0) {
+              catName = 'Overweight / Pre-Obese (25.0 – 29.9)';
+              catColor = '#f59e0b';
+              gaugePct = 46 + ((bmi - 25.0) / 4.9) * 20;
+            } else if (bmi < 35.0) {
+              catName = 'Obese Class I (30.0 – 34.9)';
+              catColor = '#ef4444';
+              gaugePct = 66 + ((bmi - 30.0) / 4.9) * 18;
+            } else {
+              catName = 'Obese Class II/III (≥ 35.0)';
+              catColor = '#991b1b';
+              gaugePct = Math.min(98, 84 + ((bmi - 35.0) / 10.0) * 14);
+            }
+
+            const scoreEl = document.getElementById('bmi-score');
+            const badgeEl = document.getElementById('bmi-cat-badge');
+            scoreEl.style.color = catColor;
+            badgeEl.textContent = catName;
+            badgeEl.style.color = catColor;
+
+            // Needle positioning
+            document.getElementById('bmi-needle').style.left = Math.min(98, Math.max(2, gaugePct)) + '%';
+            document.getElementById('bmi-gauge-label').textContent = 'Current: ' + bmi.toFixed(1) + ' (' + catName.split(' ')[0] + ')';
+
+            // WHtR Display
+            const whtrScoreEl = document.getElementById('bmi-whtr-score');
+            const whtrStatusEl = document.getElementById('bmi-whtr-status');
+            const niceRiskEl = document.getElementById('bmi-nice-risk');
+
+            if (whtr > 0) {
+              whtrScoreEl.textContent = whtr.toFixed(2);
+              if (whtr < 0.40) {
+                whtrStatusEl.textContent = 'Underweight / Very Lean (< 0.40)';
+                whtrStatusEl.style.color = '#3b82f6';
+                whtrScoreEl.style.color = '#3b82f6';
+                niceRiskEl.textContent = 'Very Low Visceral Fat';
+                niceRiskEl.style.color = '#3b82f6';
+              } else if (whtr <= 0.49) {
+                whtrStatusEl.textContent = 'Healthy Central Adiposity (0.40 – 0.49)';
+                whtrStatusEl.style.color = '#10b981';
+                whtrScoreEl.style.color = '#10b981';
+                niceRiskEl.textContent = 'Low Cardiometabolic Risk';
+                niceRiskEl.style.color = '#10b981';
+              } else if (whtr <= 0.59) {
+                whtrStatusEl.textContent = 'Increased Health Risk (0.50 – 0.59)';
+                whtrStatusEl.style.color = '#f59e0b';
+                whtrScoreEl.style.color = '#f59e0b';
+                niceRiskEl.textContent = 'Elevated Visceral Risk (NICE)';
+                niceRiskEl.style.color = '#f59e0b';
+              } else {
+                whtrStatusEl.textContent = 'Very High Risk (≥ 0.60)';
+                whtrStatusEl.style.color = '#ef4444';
+                whtrScoreEl.style.color = '#ef4444';
+                niceRiskEl.textContent = 'High Cardiometabolic Alert';
+                niceRiskEl.style.color = '#ef4444';
+              }
+            } else {
+              whtrScoreEl.textContent = 'N/A';
+              whtrStatusEl.textContent = 'Enter waist circumference above';
+              whtrStatusEl.style.color = 'var(--text-muted)';
+              niceRiskEl.textContent = 'Requires waist input';
+              niceRiskEl.style.color = 'var(--text-muted)';
+            }
+
+            // Normal Range & Delta
+            const rangeEl = document.getElementById('bmi-healthy-range');
+            const deltaEl = document.getElementById('bmi-delta-box');
+
+            if (bmiUnit === 'metric') {
               rangeEl.textContent = minHealthyKg.toFixed(1) + ' – ' + maxHealthyKg.toFixed(1) + ' kg';
+              if (wKg > maxHealthyKg) {
+                const toLose = wKg - maxHealthyKg;
+                deltaEl.innerHTML = '<span style="color: #f59e0b;">▼ Lose ' + toLose.toFixed(1) + ' kg to reach normal BMI (24.9)</span>';
+              } else if (wKg < minHealthyKg) {
+                const toGain = minHealthyKg - wKg;
+                deltaEl.innerHTML = '<span style="color: #3b82f6;">▲ Gain ' + toGain.toFixed(1) + ' kg to reach normal BMI (18.5)</span>';
+              } else {
+                deltaEl.innerHTML = '<span style="color: #10b981;">✓ You are in the healthy weight range</span>';
+              }
             } else {
-              var minLbs = minHealthyKg * 2.20462;
-              var maxLbs = maxHealthyKg * 2.20462;
-              rangeEl.textContent = minLbs.toFixed(1) + ' – ' + maxLbs.toFixed(1) + ' lbs';
+              rangeEl.textContent = minHealthyLbs.toFixed(1) + ' – ' + maxHealthyLbs.toFixed(1) + ' lbs';
+              const wLbs = wKg * 2.20462;
+              if (wLbs > maxHealthyLbs) {
+                const toLose = wLbs - maxHealthyLbs;
+                deltaEl.innerHTML = '<span style="color: #f59e0b;">▼ Lose ' + toLose.toFixed(1) + ' lbs to reach normal BMI (24.9)</span>';
+              } else if (wLbs < minHealthyLbs) {
+                const toGain = minHealthyLbs - wLbs;
+                deltaEl.innerHTML = '<span style="color: #3b82f6;">▲ Gain ' + toGain.toFixed(1) + ' lbs to reach normal BMI (18.5)</span>';
+              } else {
+                deltaEl.innerHTML = '<span style="color: #10b981;">✓ You are in the healthy weight range</span>';
+              }
             }
 
-            var cat = 'Normal Weight';
-            var color = '#22c55e';
-            if (bmi < 16) { cat = 'Severe Thinness (< 16.0)'; color = '#ef4444'; }
-            else if (bmi < 17) { cat = 'Moderate Thinness (16.0 – 16.9)'; color = '#f59e0b'; }
-            else if (bmi < 18.5) { cat = 'Mild Thinness (17.0 – 18.4)'; color = '#3b82f6'; }
-            else if (bmi >= 25 && bmi < 29.9) { cat = 'Overweight / Pre-Obese (25.0 – 29.9)'; color = '#f59e0b'; }
-            else if (bmi >= 30 && bmi < 34.9) { cat = 'Obese Class I (30.0 – 34.9)'; color = '#ef4444'; }
-            else if (bmi >= 35 && bmi < 39.9) { cat = 'Obese Class II (35.0 – 39.9)'; color = '#dc2626'; }
-            else if (bmi >= 40) { cat = 'Obese Class III Morbid (≥ 40.0)'; color = '#991b1b'; }
+            document.getElementById('bmi-prime-val').textContent = bmiPrime.toFixed(2);
+            document.getElementById('bmi-ponderal-val').textContent = ponderal.toFixed(2) + ' kg/m³';
 
-            catEl.textContent = cat;
-            catEl.style.color = color;
+            // Derivations
+            document.getElementById('bmi-step-1').innerHTML = wKg.toFixed(1) + ' kg / (' + hM.toFixed(2) + ' m)² = ' + wKg.toFixed(1) + ' / ' + (hM * hM).toFixed(4) + ' = <strong>' + bmi.toFixed(2) + ' kg/m²</strong>';
+            document.getElementById('bmi-step-2').innerHTML = '1.3 &times; ' + wKg.toFixed(1) + ' / ' + hM.toFixed(2) + '<sup>2.5</sup> = ' + (1.3 * wKg).toFixed(1) + ' / ' + Math.pow(hM, 2.5).toFixed(3) + ' = <strong>' + newBmi.toFixed(2) + ' kg/m²</strong>';
+            if (whtr > 0) {
+              document.getElementById('bmi-step-3').innerHTML = waistCm.toFixed(1) + ' cm / ' + hCm.toFixed(1) + ' cm = <strong>' + whtr.toFixed(3) + '</strong> (' + (whtr < 0.5 ? '< 0.50 Healthy' : '&ge; 0.50 Elevated') + ')';
+            } else {
+              document.getElementById('bmi-step-3').innerHTML = 'Optional waist measurement not provided.';
+            }
           }
 
           window.copyBMISummary = function() {
-            var score = document.getElementById('bmi-score').textContent;
-            var cat = document.getElementById('bmi-category').textContent;
-            var range = document.getElementById('bmi-healthy-range').textContent;
-            var prime = document.getElementById('bmi-prime').textContent;
-            var ponderal = document.getElementById('bmi-ponderal').textContent;
+            const score = document.getElementById('bmi-score').textContent;
+            const cat = document.getElementById('bmi-cat-badge').textContent;
+            const newScore = document.getElementById('bmi-new-score').textContent;
+            const whtr = document.getElementById('bmi-whtr-score').textContent;
+            const whtrStatus = document.getElementById('bmi-whtr-status').textContent;
+            const range = document.getElementById('bmi-healthy-range').textContent;
+            const prime = document.getElementById('bmi-prime-val').textContent;
+            const ponderal = document.getElementById('bmi-ponderal-val').textContent;
 
-            var report = [
+            const text = [
               '=== WHO BMI & HEALTH ASSESSMENT REPORT ===',
-              'Body Mass Index (BMI): ' + score + ' kg/m²',
-              'Classification: ' + cat,
-              'Healthy Weight Target for Height: ' + range,
-              'BMI Prime (Ratio to 25.0 Upper Normal): ' + prime,
-              'Ponderal Index (Volumetric Mass): ' + ponderal,
+              'Standard Quetelet BMI: ' + score + ' kg/m²',
+              'Weight Category: ' + cat,
+              'Oxford New BMI: ' + newScore + ' kg/m²',
+              'Waist-to-Height Ratio (WHtR): ' + whtr + ' (' + whtrStatus + ')',
+              'Healthy Weight Range: ' + range,
+              'BMI Prime: ' + prime + ' (Ratio to 25.0 threshold)',
+              'Ponderal Index: ' + ponderal,
               '------------------------------------------',
+              'Screening standards: World Health Organization (WHO) & UK NICE (2022)',
               'Timestamp: ' + new Date().toISOString(),
-              'Screening standards: World Health Organization (WHO) & CDC',
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/bmi-calculator'
-            ].join('\\n');
+            ].join('\n');
 
-            navigator.clipboard.writeText(report).then(function() {
-              var btn = document.getElementById('btnCopyBMI');
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyBMI');
               if (btn) {
-                var old = btn.innerHTML;
+                const old = btn.innerHTML;
                 btn.innerHTML = '✓ Copied Health Report!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
@@ -244,7 +504,8 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcBMI);
+          document.addEventListener('DOMContentLoaded', function() { calcBMI(); });
+          calcBMI();
         </script>
       `
     },
@@ -1378,122 +1639,219 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
     {
       slug: 'body-fat-calculator',
       title: 'US Navy Body Fat Calculator (Circumference Method & DoD Standards)',
-      metaDesc: 'Calculate body fat percentage, lean body mass, and fat mass using the official US Navy tape measure method (DoD 1308.3 standard) with metric & imperial units.',
+      metaDesc: 'Calculate body fat percentage, lean body mass, fat mass, and military readiness using the official US Navy tape method (DoD 1308.3 standard) with metric & imperial units.',
       category: 'Health & Fitness',
+      faq: [
+        { q: 'How accurate is the US Navy circumference body fat method?', a: 'The US Navy body fat formula (developed by Hodgdon and Beckett at the Naval Health Research Center in 1984) has an empirical standard error of estimate (SEE) of approximately ±3.0% to 3.5% when compared to hydrostatic underwater weighing and 4-compartment DEXA scans. It provides reliable tracking for active individuals without requiring expensive clinical equipment.' },
+        { q: 'What are the official Department of Defense (DoD) maximum body fat limits?', a: 'Under DoD Directive 1308.3 and military branch regulations (Army AR 600-9, Navy OPNAVINST 6110.1J, Air Force DAFMAN 36-2905), maximum allowable body fat percentages scale by age. For males: Age 17–20: 20–22%, Age 21–27: 22–24%, Age 28–39: 24–26%, Age 40+: 26%. For females: Age 17–20: 28–33%, Age 21–27: 30–34%, Age 28–39: 32–35%, Age 40+: 34–36% depending on specific branch service criteria.' },
+        { q: 'Where exactly should tape measurements be taken for the Navy tape test?', a: 'For men: Height (barefoot), Neck (horizontally just below the larynx/Adam\'s apple), and Waist (horizontally at the navel at the end of normal passive exhalation). For women: Height, Neck (below larynx), Waist (at the narrowest point between ribs and iliac crest), and Hips (at the widest protrusion of the buttocks viewed from the side). Tape must be level and taut against skin without indenting soft tissue.' },
+        { q: 'What is the absolute physiological essential fat floor?', a: 'Essential body fat is non-negotiable lipid mass required for brain function, cell membrane fluidity, steroid hormone production, and organ cushioning. The physiological minimum essential fat level is 2% to 5% for men and 10% to 13% for women. Dropping below these thresholds induces severe endocrine disruption, hypogonadism, amenorrhea, and cardiac arrhythmias.' },
+        { q: 'How do I calculate how much fat I need to lose to reach my target body fat percentage?', a: 'Calculate your current Lean Body Mass: LBM = Weight × (1 - (Current BF% / 100)). Then calculate your Goal Body Weight: Goal Weight = LBM / (1 - (Target BF% / 100)). The difference between your current weight and goal weight represents the exact pounds or kilograms of pure adipose fat you must lose while preserving muscle.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Body Fat Calculator
+            <a href="/">Home</a> &gt; <a href="/health/">Health &amp; Fitness</a> &gt; Body Fat Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">US Navy Body Fat Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">US Navy Body Fat &amp; DoD Readiness Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate your exact body fat percentage, lean tissue mass, and fat mass using the official circumference method developed by the US Navy and Department of Defense (DoD Directive 1308.3).
+            Determine your exact body fat percentage, lean tissue mass, fat mass, and official military tape test pass/fail status using the US Navy Circumference Method (DoD Directive 1308.3).
           </p>
 
-          <!-- Unit Selector Toggle -->
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
-            <button type="button" id="btnBFMetric" onclick="setBFUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (cm / kg)</button>
-            <button type="button" id="btnBFImperial" onclick="setBFUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (inches / lbs)</button>
-          </div>
-
           <div class="tool-box">
-            <div style="display: flex; gap: 1.5rem; margin-bottom: 1.25rem;">
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold; font-family: var(--mono); font-size: 0.95rem;">
-                <input type="radio" name="bf-gender" value="male" checked onchange="toggleBFGender()" /> Male
-              </label>
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold; font-family: var(--mono); font-size: 0.95rem;">
-                <input type="radio" name="bf-gender" value="female" onchange="toggleBFGender()" /> Female
-              </label>
+            <!-- Unit & Sex Controls -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem;">
+              <div style="display: flex; gap: 0.5rem;">
+                <button type="button" id="btnBFMetric" onclick="setBFUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (cm / kg)</button>
+                <button type="button" id="btnBFImperial" onclick="setBFUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (inches / lbs)</button>
+              </div>
+
+              <!-- Sex Radio Buttons -->
+              <div style="display: flex; gap: 1rem; align-items: center; font-family: var(--mono); font-size: 0.9rem;">
+                <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                  <input type="radio" name="bf-gender" value="male" checked onchange="toggleBFGender()" /> <strong>Male</strong>
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                  <input type="radio" name="bf-gender" value="female" onchange="toggleBFGender()" /> <strong>Female</strong>
+                </label>
+              </div>
             </div>
 
+            <!-- Primary Inputs Grid -->
             <div class="grid-inputs">
               <div class="field-group">
                 <label class="field-label" id="lblBFHeight">Height (cm)</label>
-                <input type="number" id="bf-height" class="code-input" value="178" step="0.5" oninput="calcBF()" />
+                <input type="number" id="bf-height" class="code-input" value="178" min="100" max="250" step="0.5" oninput="calcBF()" style="font-size: 1.15rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label" id="lblBFWeight">Weight (kg)</label>
-                <input type="number" id="bf-weight" class="code-input" value="80" step="0.5" oninput="calcBF()" />
+                <input type="number" id="bf-weight" class="code-input" value="80" min="30" max="300" step="0.5" oninput="calcBF()" style="font-size: 1.15rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label" id="lblBFNeck">Neck Circumference (cm)</label>
-                <input type="number" id="bf-neck" class="code-input" value="38" step="0.5" oninput="calcBF()" />
-                <span style="font-size: 0.72rem; color: var(--text-muted);">Below Adam's apple</span>
+                <input type="number" id="bf-neck" class="code-input" value="38" min="20" max="70" step="0.5" oninput="calcBF()" style="font-size: 1.15rem;" />
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Horizontally below Adam's apple</span>
               </div>
               <div class="field-group">
                 <label class="field-label" id="lblBFWaist">Waist Circumference (cm)</label>
-                <input type="number" id="bf-waist" class="code-input" value="86" step="0.5" oninput="calcBF()" />
-                <span style="font-size: 0.72rem; color: var(--text-muted);" id="noteBFWaist">Men: at navel level</span>
+                <input type="number" id="bf-waist" class="code-input" value="86" min="40" max="180" step="0.5" oninput="calcBF()" style="font-size: 1.15rem;" />
+                <span style="font-size: 0.72rem; color: var(--text-muted);" id="noteBFWaist">Men: at navel level (relaxed exhale)</span>
               </div>
               <div class="field-group" id="bf-hip-group" style="display: none;">
                 <label class="field-label" id="lblBFHip">Hip Circumference (cm)</label>
-                <input type="number" id="bf-hip" class="code-input" value="96" step="0.5" oninput="calcBF()" />
-                <span style="font-size: 0.72rem; color: var(--text-muted);">At widest buttocks point</span>
+                <input type="number" id="bf-hip" class="code-input" value="98" min="50" max="200" step="0.5" oninput="calcBF()" style="font-size: 1.15rem;" />
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Women: at widest buttocks point</span>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Age Bracket (DoD Standards)</label>
+                <select id="bf-age" class="code-input" onchange="calcBF()" style="font-size: 0.95rem;">
+                  <option value="17-20">Age 17 – 20 Years</option>
+                  <option value="21-27" selected>Age 21 – 27 Years</option>
+                  <option value="28-39">Age 28 – 39 Years</option>
+                  <option value="40+">Age 40+ Years</option>
+                </select>
               </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Estimated Body Fat Percentage</div>
-              <div id="bf-pct" class="result-val">16.8%</div>
-              <div id="bf-category" style="font-size: 1.15rem; font-weight: bold; color: #10b981; margin: 0.3rem 0;">Fitness Category</div>
-              <div id="bf-breakdown" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">
-                Fat Mass: 13.4 kg (29.6 lbs) | Lean Mass: 66.6 kg (146.8 lbs)
-              </div>
-              <div id="bf-threshold-note" style="margin-top: 0.75rem; font-size: 0.82rem; color: var(--text-muted); background: var(--surface); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
-                Target Healthy Range: 10%–20% (Men) &bull; 18%–28% (Women)
+            <!-- Hero Output Results Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Estimated Body Fat</div>
+                <div id="bf-pct" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">16.8%</div>
+                <div id="bf-category" style="font-size: 0.88rem; font-weight: bold; color: #10b981; font-family: var(--mono);">Fitness Level</div>
               </div>
 
-              <button type="button" id="btnCopyBF" onclick="copyBodyFatSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy US Navy Body Fat & Composition Report
-              </button>
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Fat Mass vs. Lean Mass</div>
+                <div id="bf-fat-mass-hero" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">13.4 kg Fat</div>
+                <div id="bf-lean-mass-sub" style="font-size: 0.82rem; color: #3b82f6; font-family: var(--mono); font-weight: bold;">66.6 kg Lean Tissue (LBM)</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Military Readiness (DoD 1308.3)</div>
+                <div id="bf-dod-status" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">PASSED ✓</div>
+                <div id="bf-dod-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">5.2% below age 21-27 limit (22%)</div>
+              </div>
             </div>
 
-            <!-- Step-by-Step Worked Derivation -->
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step US Navy Equation Derivation</h3>
-                <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Hodgdon & Beckett (1984) Standard</span>
+            <!-- Visual Body Fat Spectrum Bar -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>American Council on Exercise (ACE) Body Fat Spectrum:</span>
+                <span id="bf-spectrum-label" style="color: var(--fg); font-weight: bold;">16.8% (Fitness Category)</span>
               </div>
-              <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-                The US Navy formula calculates whole-body density ($D_B$) from log-transformed circumference measurements, then converts body density to body fat percentage via the Siri equation:
+
+              <!-- Multi-Segment Spectrum Bar -->
+              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
+                <div id="bf-seg-essential" style="width: 15%; background: #3b82f6;" title="Essential Fat">Essential</div>
+                <div id="bf-seg-athletes" style="width: 25%; background: #10b981;" title="Athletes">Athletes</div>
+                <div id="bf-seg-fitness" style="width: 20%; background: #059669;" title="Fitness">Fitness</div>
+                <div id="bf-seg-average" style="width: 20%; background: #f59e0b;" title="Average">Average</div>
+                <div id="bf-seg-obese" style="width: 20%; background: #ef4444;" title="Obese">Obese</div>
+              </div>
+
+              <!-- Needle / Pointer Position Marker -->
+              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
+                <div id="bf-needle" style="position: absolute; top: 0; left: 45%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
+              </div>
+
+              <!-- Body Fat Reference Legend -->
+              <div id="bf-legend-text" style="margin-top: 0.5rem; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <span>Essential: 2-5% (M) / 10-13% (F)</span>
+                <span>Athletes: 6-13% (M) / 14-20% (F)</span>
+                <span>Fitness: 14-17% (M) / 21-24% (F)</span>
+                <span>Average: 18-24% (M) / 25-31% (F)</span>
+                <span>Obese: ≥25% (M) / ≥32% (F)</span>
+              </div>
+            </div>
+
+            <!-- Target Body Fat Goal & Fat Loss Simulator -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0; color: var(--fg);">
+                  🎯 Target Body Fat Goal &amp; Lean Mass Retention Simulator:
+                </h4>
+                <span style="font-family: var(--mono); font-size: 0.75rem; color: #8b5cf6; font-weight: bold; background: rgba(139, 92, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Body Recomposition Engine</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Enter your desired target body fat % to calculate exactly how much pure fat mass you must burn while preserving your existing lean muscle tissue:
               </p>
-              <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Male Equation:</strong>
-                  <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
-                    %BF = 495 / [ 1.0324 - 0.19077 &times; log<sub>10</sub>(Waist - Neck) + 0.15456 &times; log<sub>10</sub>(Height) ] - 450
-                  </div>
+              
+              <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
+                <div>
+                  <label class="field-label">Target Body Fat: <span id="bf-target-pct-label" style="color: #8b5cf6; font-size: 1rem; font-weight: bold;">12.0%</span></label>
+                  <input type="range" id="bf-target-slider" min="5" max="35" value="12" step="0.5" oninput="updateBFTarget(this.value)" style="width: 100%; cursor: pointer;" />
                 </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Female Equation:</strong>
-                  <div style="color: #ec4899; margin-top: 0.25rem; word-break: break-all;">
-                    %BF = 495 / [ 1.29579 - 0.35004 &times; log<sub>10</sub>(Waist + Hip - Neck) + 0.22100 &times; log<sub>10</sub>(Height) ] - 450
-                  </div>
+                <div style="text-align: right; min-width: 150px;">
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">Goal Body Weight:</div>
+                  <div id="bf-goal-weight" style="font-family: var(--mono); font-size: 1.3rem; font-weight: bold; color: var(--fg);">75.7 kg</div>
                 </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Body Mass Partitioning:</strong>
-                  <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
-                    Fat Mass = Weight &times; (%BF / 100) &bull; Lean Body Mass (LBM) = Total Weight - Fat Mass
-                  </div>
-                </div>
+              </div>
+
+              <div id="bf-goal-summary-box" style="margin-top: 1rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.82rem; line-height: 1.5; color: var(--fg);">
+                <!-- Populated dynamically -->
               </div>
             </div>
 
-            <!-- Critical Pitfalls & Essential Fat Limits -->
-            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Body Composition Traps & Essential Fat Thresholds</h3>
-              <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Essential Fat Floor Danger:</strong> Essential fat is required for nerve myelin sheath insulation, hormone precursor synthesis, and bone marrow cellular integrity. The absolute physiological minimum is <strong>2% to 5% for men</strong> and <strong>10% to 13% for women</strong>. Dropping below these levels triggers hypogonadism, amenorrhea (menstrual cessation), immune suppression, and severe bone mineral loss.</li>
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Tape Measurement Standard Operating Protocol:</strong> Always measure the neck horizontally just below the larynx (Adam's apple) without compressing tissue. Men measure waist horizontally at the navel at the end of normal passive exhalation. Women measure at the narrowest circumference between ribs and iliac crest, with hips at the maximal gluteal extension.</li>
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">DEXA Scan vs Circumference Variance:</strong> The US Navy method has an empirical standard error of estimate (SEE) of approximately <strong>&plusmn;3.0% to 3.5%</strong> compared to dual-energy X-ray absorptiometry (DEXA) or hydrostatic 4-compartment weighing. Intestinal bloat or acute sodium water retention will artificially increase estimated body fat by expanding waist circumference.</li>
-              </ul>
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyBF" onclick="copyBodyFatSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy US Navy Body Fat &amp; Military Assessment Report
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step US Navy Equation Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Hodgdon &amp; Beckett Standard</span>
             </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              The US Navy formula calculates whole-body density (D<sub>B</sub>) from log-transformed circumference measurements, then converts body density to body fat percentage via the Siri equation:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">1. Logarithmic Circumference Equation:</strong>
+                <div id="bf-step-eq" style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
+                  %BF = 495 / [ 1.0324 - 0.19077 &times; log<sub>10</sub>(Waist - Neck) + 0.15456 &times; log<sub>10</sub>(Height) ] - 450
+                </div>
+                <div id="bf-step-1" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  <!-- Populated dynamically -->
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">2. Siri Formula Body Density Conversion:</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                  %BF = (4.95 / Density - 4.50) &times; 100%
+                </div>
+                <div id="bf-step-2" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Calculated Body Density D<sub>B</sub> = 1.061 g/cm³ &rarr; %BF = <strong>16.8%</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">3. Two-Compartment Body Mass Partitioning:</strong>
+                <div id="bf-step-3" style="color: #10b981; margin-top: 0.25rem;">
+                  Fat Mass = 80.0 kg &times; 16.8% = 13.4 kg &bull; Lean Body Mass = 80.0 kg - 13.4 kg = <strong>66.6 kg</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Pitfalls & Essential Fat Limits -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Body Composition Traps &amp; Essential Fat Limits</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Essential Fat Floor Danger:</strong> Essential fat is required for nerve myelin sheath insulation, hormone precursor synthesis, and bone marrow cellular integrity. The absolute physiological minimum is <strong>2% to 5% for men</strong> and <strong>10% to 13% for women</strong>. Dropping below these levels triggers hypogonadism, amenorrhea (menstrual cessation), immune suppression, and severe bone mineral loss.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Tape Measurement Standard Operating Protocol:</strong> Always measure the neck horizontally just below the larynx (Adam\'s apple) without compressing tissue. Men measure waist horizontally at the navel at the end of normal passive exhalation. Women measure at the narrowest circumference between ribs and iliac crest, with hips at the maximal gluteal extension.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">DEXA Scan vs Circumference Variance:</strong> The US Navy method has an empirical standard error of estimate (SEE) of approximately <strong>&plusmn;3.0% to 3.5%</strong> compared to dual-energy X-ray absorptiometry (DEXA) or hydrostatic 4-compartment weighing. Intestinal bloat or acute sodium water retention will artificially increase estimated body fat by expanding waist circumference.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Why Body Fat % Matters More Than Scale Weight:</strong> Scale weight fluctuates daily by 2 to 5 lbs due to glycogen storage (each gram of glycogen binds 3–4g of water), gut transit, and hydration. Tracking circumference measurements and body fat % verifies that lost weight is actually adipose tissue rather than metabolically active skeletal muscle.</li>
+            </ul>
           </div>
         </div>
 
         <script>
           let bfUnitMode = 'metric';
+          let bfGender = 'male';
 
           window.setBFUnit = function(mode) {
             bfUnitMode = mode;
@@ -1512,7 +1870,7 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             const inpHi = document.getElementById('bf-hip');
 
             if (mode === 'metric') {
-              btnM.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnM.style.background = 'rgba(59, 130, 246, 0.15)';
               btnM.style.borderColor = '#3b82f6';
               btnM.style.color = '#3b82f6';
               btnI.style.background = 'var(--surface-alt)';
@@ -1526,12 +1884,12 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               lblHi.textContent = 'Hip Circumference (cm)';
 
               inpH.value = (parseFloat(inpH.value) * 2.54).toFixed(1);
-              inpW.value = Math.round(parseFloat(inpW.value) * 0.453592);
+              inpW.value = (parseFloat(inpW.value) * 0.453592).toFixed(1);
               inpN.value = (parseFloat(inpN.value) * 2.54).toFixed(1);
               inpWa.value = (parseFloat(inpWa.value) * 2.54).toFixed(1);
               inpHi.value = (parseFloat(inpHi.value) * 2.54).toFixed(1);
             } else {
-              btnI.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnI.style.background = 'rgba(59, 130, 246, 0.15)';
               btnI.style.borderColor = '#3b82f6';
               btnI.style.color = '#3b82f6';
               btnM.style.background = 'var(--surface-alt)';
@@ -1545,7 +1903,7 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               lblHi.textContent = 'Hip Circumference (inches)';
 
               inpH.value = (parseFloat(inpH.value) / 2.54).toFixed(1);
-              inpW.value = Math.round(parseFloat(inpW.value) * 2.20462);
+              inpW.value = (parseFloat(inpW.value) / 0.453592).toFixed(1);
               inpN.value = (parseFloat(inpN.value) / 2.54).toFixed(1);
               inpWa.value = (parseFloat(inpWa.value) / 2.54).toFixed(1);
               inpHi.value = (parseFloat(inpHi.value) / 2.54).toFixed(1);
@@ -1553,119 +1911,253 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             calcBF();
           };
 
-          function toggleBFGender() {
-            const isFem = document.querySelector('input[name="bf-gender"]:checked').value === 'female';
-            document.getElementById('bf-hip-group').style.display = isFem ? 'block' : 'none';
-            document.getElementById('noteBFWaist').textContent = isFem ? 'Women: narrowest torso waist' : 'Men: at navel level';
+          window.toggleBFGender = function() {
+            const radios = document.getElementsByName('bf-gender');
+            for (let i = 0; i < radios.length; i++) {
+              if (radios[i].checked) bfGender = radios[i].value;
+            }
+
+            const hipGrp = document.getElementById('bf-hip-group');
+            const noteWaist = document.getElementById('noteBFWaist');
+            const targetSlider = document.getElementById('bf-target-slider');
+
+            if (bfGender === 'female') {
+              hipGrp.style.display = 'block';
+              noteWaist.textContent = 'Women: at narrowest waist point';
+              if (parseFloat(targetSlider.value) < 16) {
+                targetSlider.value = 20;
+                document.getElementById('bf-target-pct-label').textContent = '20.0%';
+              }
+            } else {
+              hipGrp.style.display = 'none';
+              noteWaist.textContent = 'Men: at navel level (relaxed exhale)';
+              if (parseFloat(targetSlider.value) > 25) {
+                targetSlider.value = 12;
+                document.getElementById('bf-target-pct-label').textContent = '12.0%';
+              }
+            }
             calcBF();
-          }
+          };
+
+          window.updateBFTarget = function(val) {
+            document.getElementById('bf-target-pct-label').textContent = parseFloat(val).toFixed(1) + '%';
+            calcBF();
+          };
+
+          let currentCalculatedBF = 16.8;
+          let currentWeightKg = 80;
+          let currentLbmKg = 66.6;
 
           function calcBF() {
-            const isFem = document.querySelector('input[name="bf-gender"]:checked').value === 'female';
-            let hCm = 178;
-            let wKg = 80;
-            let neckCm = 38;
-            let waistCm = 86;
-            let hipCm = 96;
+            let h = parseFloat(document.getElementById('bf-height').value) || 178;
+            let w = parseFloat(document.getElementById('bf-weight').value) || 80;
+            let n = parseFloat(document.getElementById('bf-neck').value) || 38;
+            let wa = parseFloat(document.getElementById('bf-waist').value) || 86;
+            let hi = parseFloat(document.getElementById('bf-hip').value) || 98;
+            const ageBracket = document.getElementById('bf-age').value;
 
-            if (bfUnitMode === 'metric') {
-              hCm = parseFloat(document.getElementById('bf-height').value) || 178;
-              wKg = parseFloat(document.getElementById('bf-weight').value) || 80;
-              neckCm = parseFloat(document.getElementById('bf-neck').value) || 38;
-              waistCm = parseFloat(document.getElementById('bf-waist').value) || 86;
-              hipCm = parseFloat(document.getElementById('bf-hip').value) || 96;
-            } else {
-              hCm = (parseFloat(document.getElementById('bf-height').value) || 70) * 2.54;
-              wKg = (parseFloat(document.getElementById('bf-weight').value) || 176) * 0.453592;
-              neckCm = (parseFloat(document.getElementById('bf-neck').value) || 15) * 2.54;
-              waistCm = (parseFloat(document.getElementById('bf-waist').value) || 34) * 2.54;
-              hipCm = (parseFloat(document.getElementById('bf-hip').value) || 38) * 2.54;
+            // Convert everything to cm & kg for internal standard equation
+            let hCm = h;
+            let wKg = w;
+            let nCm = n;
+            let waCm = wa;
+            let hiCm = hi;
+
+            if (bfUnitMode === 'imperial') {
+              hCm = h * 2.54;
+              wKg = w * 0.453592;
+              nCm = n * 2.54;
+              waCm = wa * 2.54;
+              hiCm = hi * 2.54;
             }
 
             let bf = 0;
-            if (!isFem) {
-              const diff = waistCm - neckCm;
-              if (diff <= 0) { bf = 3; } else {
-                bf = 495 / (1.0324 - (0.19077 * Math.log10(diff)) + (0.15456 * Math.log10(hCm))) - 450;
+            let stepText = '';
+
+            if (bfGender === 'male') {
+              document.getElementById('bf-step-eq').innerHTML = '%BF = 495 / [ 1.0324 - 0.19077 &times; log<sub>10</sub>(Waist - Neck) + 0.15456 &times; log<sub>10</sub>(Height) ] - 450';
+              const diff = waCm - nCm;
+              if (diff > 0 && hCm > 0) {
+                const logDiff = Math.log10(diff);
+                const logH = Math.log10(hCm);
+                const denom = 1.0324 - (0.19077 * logDiff) + (0.15456 * logH);
+                bf = (495 / denom) - 450;
+
+                stepText = 'Waist - Neck = ' + waCm.toFixed(1) + ' - ' + nCm.toFixed(1) + ' = ' + diff.toFixed(1) + ' cm &bull; log₁₀(' + diff.toFixed(1) + ') = ' + logDiff.toFixed(4) + ' &bull; log₁₀(' + hCm.toFixed(1) + ') = ' + logH.toFixed(4) + ' &bull; Denominator = ' + denom.toFixed(5);
               }
             } else {
-              const sum = waistCm + hipCm - neckCm;
-              if (sum <= 0) { bf = 10; } else {
-                bf = 495 / (1.29579 - (0.35004 * Math.log10(sum)) + (0.22100 * Math.log10(hCm))) - 450;
+              document.getElementById('bf-step-eq').innerHTML = '%BF = 495 / [ 1.29579 - 0.35004 &times; log<sub>10</sub>(Waist + Hip - Neck) + 0.22100 &times; log<sub>10</sub>(Height) ] - 450';
+              const sumDiff = (waCm + hiCm) - nCm;
+              if (sumDiff > 0 && hCm > 0) {
+                const logSum = Math.log10(sumDiff);
+                const logH = Math.log10(hCm);
+                const denom = 1.29579 - (0.35004 * logSum) + (0.22100 * logH);
+                bf = (495 / denom) - 450;
+
+                stepText = 'Waist + Hip - Neck = (' + waCm.toFixed(1) + ' + ' + hiCm.toFixed(1) + ') - ' + nCm.toFixed(1) + ' = ' + sumDiff.toFixed(1) + ' cm &bull; log₁₀(' + sumDiff.toFixed(1) + ') = ' + logSum.toFixed(4) + ' &bull; log₁₀(' + hCm.toFixed(1) + ') = ' + logH.toFixed(4) + ' &bull; Denominator = ' + denom.toFixed(5);
               }
             }
 
             if (isNaN(bf) || bf < 2) bf = 2;
             if (bf > 65) bf = 65;
 
-            const fatKg = wKg * (bf / 100);
-            const leanKg = wKg - fatKg;
-            const fatLbs = fatKg * 2.20462;
-            const leanLbs = leanKg * 2.20462;
+            currentCalculatedBF = bf;
+            currentWeightKg = wKg;
 
+            const fatMassKg = wKg * (bf / 100);
+            const leanMassKg = wKg - fatMassKg;
+            currentLbmKg = leanMassKg;
+
+            const fatMassLbs = fatMassKg * 2.20462;
+            const leanMassLbs = leanMassKg * 2.20462;
+            const totalLbs = wKg * 2.20462;
+
+            // Update UI elements
             document.getElementById('bf-pct').textContent = bf.toFixed(1) + '%';
-
-            let cat = 'Average';
-            let col = '#3b82f6';
-            if (!isFem) {
-              if (bf < 6) { cat = 'Essential Fat (< 6%)'; col = '#ef4444'; }
-              else if (bf <= 13) { cat = 'Athletes (6% – 13%)'; col = '#10b981'; }
-              else if (bf <= 17) { cat = 'Fitness (14% – 17%)'; col = '#10b981'; }
-              else if (bf <= 24) { cat = 'Average (18% – 24%)'; col = '#3b82f6'; }
-              else { cat = 'Overweight / Obese (≥ 25%)'; col = '#f59e0b'; }
+            
+            if (bfUnitMode === 'metric') {
+              document.getElementById('bf-fat-mass-hero').textContent = fatMassKg.toFixed(1) + ' kg Fat';
+              document.getElementById('bf-lean-mass-sub').textContent = leanMassKg.toFixed(1) + ' kg Lean Tissue (LBM)';
             } else {
-              if (bf < 14) { cat = 'Essential Fat (< 14%)'; col = '#ef4444'; }
-              else if (bf <= 20) { cat = 'Athletes (14% – 20%)'; col = '#10b981'; }
-              else if (bf <= 24) { cat = 'Fitness (21% – 24%)'; col = '#10b981'; }
-              else if (bf <= 31) { cat = 'Average (25% – 31%)'; col = '#3b82f6'; }
-              else { cat = 'Overweight / Obese (≥ 32%)'; col = '#f59e0b'; }
+              document.getElementById('bf-fat-mass-hero').textContent = fatMassLbs.toFixed(1) + ' lbs Fat';
+              document.getElementById('bf-lean-mass-sub').textContent = leanMassLbs.toFixed(1) + ' lbs Lean Tissue (LBM)';
+            }
+
+            // Categories (ACE Standards)
+            let cat = 'Average Fitness';
+            let catColor = '#10b981';
+            let needleLeft = 50;
+
+            if (bfGender === 'male') {
+              if (bf < 6) { cat = 'Essential Fat (2–5%)'; catColor = '#3b82f6'; needleLeft = 8; }
+              else if (bf < 14) { cat = 'Athletes (6–13%)'; catColor = '#10b981'; needleLeft = 28; }
+              else if (bf < 18) { cat = 'Fitness (14–17%)'; catColor = '#059669'; needleLeft = 48; }
+              else if (bf < 25) { cat = 'Average (18–24%)'; catColor = '#f59e0b'; needleLeft = 68; }
+              else { cat = 'Obese (≥ 25%)'; catColor = '#ef4444'; needleLeft = 88; }
+            } else {
+              if (bf < 14) { cat = 'Essential Fat (10–13%)'; catColor = '#3b82f6'; needleLeft = 8; }
+              else if (bf < 21) { cat = 'Athletes (14–20%)'; catColor = '#10b981'; needleLeft = 28; }
+              else if (bf < 25) { cat = 'Fitness (21–24%)'; catColor = '#059669'; needleLeft = 48; }
+              else if (bf < 32) { cat = 'Average (25–31%)'; catColor = '#f59e0b'; needleLeft = 68; }
+              else { cat = 'Obese (≥ 32%)'; catColor = '#ef4444'; needleLeft = 88; }
             }
 
             const catEl = document.getElementById('bf-category');
             catEl.textContent = cat;
-            catEl.style.color = col;
+            catEl.style.color = catColor;
+            document.getElementById('bf-pct').style.color = catColor;
+            document.getElementById('bf-needle').style.left = needleLeft + '%';
+            document.getElementById('bf-spectrum-label').textContent = bf.toFixed(1) + '% (' + cat + ')';
+
+            // DoD Standards Evaluation
+            let dodLimit = 22; // default
+            if (bfGender === 'male') {
+              if (ageBracket === '17-20') dodLimit = 20;
+              else if (ageBracket === '21-27') dodLimit = 22;
+              else if (ageBracket === '28-39') dodLimit = 24;
+              else dodLimit = 26;
+            } else {
+              if (ageBracket === '17-20') dodLimit = 28;
+              else if (ageBracket === '21-27') dodLimit = 30;
+              else if (ageBracket === '28-39') dodLimit = 32;
+              else dodLimit = 34;
+            }
+
+            const dodStatusEl = document.getElementById('bf-dod-status');
+            const dodSubEl = document.getElementById('bf-dod-sub');
+
+            if (bf <= dodLimit) {
+              const margin = dodLimit - bf;
+              dodStatusEl.textContent = 'PASSED ✓';
+              dodStatusEl.style.color = '#10b981';
+              dodSubEl.textContent = margin.toFixed(1) + '% below DoD ' + ageBracket + ' max (' + dodLimit + '%)';
+            } else {
+              const over = bf - dodLimit;
+              dodStatusEl.textContent = 'EXCEEDS ⚠️';
+              dodStatusEl.style.color = '#ef4444';
+              dodSubEl.textContent = over.toFixed(1) + '% above DoD ' + ageBracket + ' max (' + dodLimit + '%)';
+            }
+
+            // Target Body Fat Simulation
+            const targetBfPct = parseFloat(document.getElementById('bf-target-slider').value) || 12;
+            const targetBfDec = targetBfPct / 100;
+            const goalWeightKg = leanMassKg / (1 - targetBfDec);
+            const goalWeightLbs = goalWeightKg * 2.20462;
+            const fatDiffKg = wKg - goalWeightKg;
+            const fatDiffLbs = fatDiffKg * 2.20462;
 
             if (bfUnitMode === 'metric') {
-              document.getElementById('bf-breakdown').textContent = 
-                'Fat Mass: ' + fatKg.toFixed(1) + ' kg (' + fatLbs.toFixed(1) + ' lbs) | ' +
-                'Lean Mass: ' + leanKg.toFixed(1) + ' kg (' + leanLbs.toFixed(1) + ' lbs)';
+              document.getElementById('bf-goal-weight').textContent = goalWeightKg.toFixed(1) + ' kg';
             } else {
-              document.getElementById('bf-breakdown').textContent = 
-                'Fat Mass: ' + fatLbs.toFixed(1) + ' lbs (' + fatKg.toFixed(1) + ' kg) | ' +
-                'Lean Mass: ' + leanLbs.toFixed(1) + ' lbs (' + leanKg.toFixed(1) + ' kg)';
+              document.getElementById('bf-goal-weight').textContent = goalWeightLbs.toFixed(1) + ' lbs';
+            }
+
+            const summaryBox = document.getElementById('bf-goal-summary-box');
+            if (targetBfPct < bf) {
+              if (bfUnitMode === 'metric') {
+                summaryBox.innerHTML = 'To achieve <strong>' + targetBfPct.toFixed(1) + '% body fat</strong> while preserving your <strong>' + leanMassKg.toFixed(1) + ' kg of lean muscle</strong>, you need to lose <strong style="color: #10b981;">' + fatDiffKg.toFixed(1) + ' kg of pure adipose fat</strong>. Goal scale weight: <strong>' + goalWeightKg.toFixed(1) + ' kg</strong>.';
+              } else {
+                summaryBox.innerHTML = 'To achieve <strong>' + targetBfPct.toFixed(1) + '% body fat</strong> while preserving your <strong>' + leanMassLbs.toFixed(1) + ' lbs of lean muscle</strong>, you need to lose <strong style="color: #10b981;">' + fatDiffLbs.toFixed(1) + ' lbs of pure adipose fat</strong>. Goal scale weight: <strong>' + goalWeightLbs.toFixed(1) + ' lbs</strong>.';
+              }
+            } else if (targetBfPct > bf) {
+              const gainKg = goalWeightKg - wKg;
+              const gainLbs = gainKg * 2.20462;
+              if (bfUnitMode === 'metric') {
+                summaryBox.innerHTML = 'Your current body fat (' + bf.toFixed(1) + '%) is already below ' + targetBfPct.toFixed(1) + '%. Reaching ' + targetBfPct.toFixed(1) + '% at current lean mass allows adding <strong>' + gainKg.toFixed(1) + ' kg</strong> of mass.';
+              } else {
+                summaryBox.innerHTML = 'Your current body fat (' + bf.toFixed(1) + '%) is already below ' + targetBfPct.toFixed(1) + '%. Reaching ' + targetBfPct.toFixed(1) + '% at current lean mass allows adding <strong>' + gainLbs.toFixed(1) + ' lbs</strong> of mass.';
+              }
+            } else {
+              summaryBox.innerHTML = '✓ You are currently at your exact target body fat percentage of ' + targetBfPct.toFixed(1) + '%!';
+            }
+
+            // Update Derivation text
+            document.getElementById('bf-step-1').innerHTML = stepText;
+            document.getElementById('bf-step-2').innerHTML = 'Resulting US Navy Body Fat % = <strong>' + bf.toFixed(2) + '%</strong>';
+            if (bfUnitMode === 'metric') {
+              document.getElementById('bf-step-3').innerHTML = 'Fat Mass = ' + wKg.toFixed(1) + ' kg &times; ' + bf.toFixed(1) + '% = <strong>' + fatMassKg.toFixed(1) + ' kg</strong> &bull; Lean Mass (LBM) = ' + wKg.toFixed(1) + ' - ' + fatMassKg.toFixed(1) + ' = <strong>' + leanMassKg.toFixed(1) + ' kg</strong>';
+            } else {
+              document.getElementById('bf-step-3').innerHTML = 'Fat Mass = ' + totalLbs.toFixed(1) + ' lbs &times; ' + bf.toFixed(1) + '% = <strong>' + fatMassLbs.toFixed(1) + ' lbs</strong> &bull; Lean Mass (LBM) = ' + totalLbs.toFixed(1) + ' - ' + fatMassLbs.toFixed(1) + ' = <strong>' + leanMassLbs.toFixed(1) + ' lbs</strong>';
             }
           }
 
           window.copyBodyFatSummary = function() {
-            const gender = document.querySelector('input[name="bf-gender"]:checked').value;
-            const pct = document.getElementById('bf-pct').textContent;
+            const bf = document.getElementById('bf-pct').textContent;
             const cat = document.getElementById('bf-category').textContent;
-            const breakdown = document.getElementById('bf-breakdown').textContent;
+            const fatHero = document.getElementById('bf-fat-mass-hero').textContent;
+            const leanSub = document.getElementById('bf-lean-mass-sub').textContent;
+            const dod = document.getElementById('bf-dod-status').textContent;
+            const dodSub = document.getElementById('bf-dod-sub').textContent;
+            const goalWeight = document.getElementById('bf-goal-weight').textContent;
+            const targetPct = document.getElementById('bf-target-pct-label').textContent;
 
-            const text = [
-              '=== US NAVY BODY COMPOSITION REPORT ===',
-              'Biological Sex: ' + gender.toUpperCase(),
-              'Estimated Body Fat: ' + pct,
-              'Classification Category: ' + cat,
-              'Mass Partitioning: ' + breakdown,
-              '---------------------------------------',
-              'Governing Standard: DoD Directive 1308.3 / Hodgdon & Beckett',
+            const report = [
+              '=== US NAVY BODY FAT & MILITARY READINESS REPORT ===',
+              'Estimated Body Fat: ' + bf,
+              'Fitness Category: ' + cat,
+              'Fat Mass: ' + fatHero,
+              'Lean Body Mass (LBM): ' + leanSub,
+              '---------------------------------------------------',
+              'DoD Military Readiness Status: ' + dod + ' (' + dodSub + ')',
+              'Target Goal: ' + targetPct + ' Body Fat -> Goal Weight: ' + goalWeight,
+              'Standard: US Navy Circumference Method (DoD Directive 1308.3)',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/body-fat-calculator'
-            ].join('\\n');
+            ].join('\n');
 
-            navigator.clipboard.writeText(text).then(function() {
+            navigator.clipboard.writeText(report).then(function() {
               const btn = document.getElementById('btnCopyBF');
               if (btn) {
                 const old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Body Fat Report!';
+                btn.innerHTML = '✓ Copied Body Fat Assessment!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
               }
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcBF);
+          document.addEventListener('DOMContentLoaded', function() { calcBF(); });
+          calcBF();
         </script>
       `
     },
