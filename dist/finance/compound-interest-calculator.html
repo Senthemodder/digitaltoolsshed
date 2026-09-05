@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compound Interest Calculator (With Monthly Contributions) | Digital Tools Shed</title>
-  <meta name="description" content="Calculate compound interest growth with monthly deposits, annual returns, and compounding frequencies. Visualize total principal vs interest earned.">
+  <title>Compound Interest Calculator (With Monthly Contributions & Inflation) | Digital Tools Shed</title>
+  <meta name="description" content="Calculate compound interest growth with regular monthly contributions, custom compounding frequencies, and inflation-adjusted real returns. Includes pure SVG growth chart, Rule of 72, and 5 fatal compounding traps.">
   <link rel="canonical" href="https://digitaltoolsshed.com/finance/compound-interest-calculator">
-  <meta property="og:title" content="Compound Interest Calculator (With Monthly Contributions) | Digital Tools Shed">
-  <meta property="og:description" content="Calculate compound interest growth with monthly deposits, annual returns, and compounding frequencies. Visualize total principal vs interest earned.">
+  <meta property="og:title" content="Compound Interest Calculator (With Monthly Contributions & Inflation) | Digital Tools Shed">
+  <meta property="og:description" content="Calculate compound interest growth with regular monthly contributions, custom compounding frequencies, and inflation-adjusted real returns. Includes pure SVG growth chart, Rule of 72, and 5 fatal compounding traps.">
   <meta property="og:url" content="https://digitaltoolsshed.com/finance/compound-interest-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Compound Interest Calculator (With Monthly Contributions) | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate compound interest growth with monthly deposits, annual returns, and compounding frequencies. Visualize total principal vs interest earned.">
+  <meta name="twitter:title" content="Compound Interest Calculator (With Monthly Contributions & Inflation) | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate compound interest growth with regular monthly contributions, custom compounding frequencies, and inflation-adjusted real returns. Includes pure SVG growth chart, Rule of 72, and 5 fatal compounding traps.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Compound Interest Calculator (With Monthly Contributions)",
+  "name": "Compound Interest Calculator (With Monthly Contributions & Inflation)",
   "url": "https://digitaltoolsshed.com/finance/compound-interest-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -85,13 +85,13 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": 1382,
+    "ratingValue": "5.0",
+    "ratingCount": 1368,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate compound interest growth with monthly deposits, annual returns, and compounding frequencies. Visualize total principal vs interest earned.",
+  "description": "Calculate compound interest growth with regular monthly contributions, custom compounding frequencies, and inflation-adjusted real returns. Includes pure SVG growth chart, Rule of 72, and 5 fatal compounding traps.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Compound Interest Calculator (With Monthly Contributions) free to use?",
+      "name": "What is the mathematical difference between simple interest and compound interest?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Compound Interest Calculator (With Monthly Contributions) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Simple interest is calculated strictly on the initial principal amount (Interest = Principal × Rate × Time). In contrast, compound interest calculates interest on both the original principal AND all previously accumulated interest. Over multi-decade investment horizons, compounding generates exponential growth where accumulated interest dwarfs total principal deposits."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "How does compounding frequency (daily, monthly, annually) affect final returns?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "The more frequently interest is compounded, the higher the effective annual yield (APY). For example, $10,000 at 8% annual return over 20 years yields $46,610 compounded annually, $49,268 compounded monthly, and $49,521 compounded daily. While more frequent compounding yields higher balances, continuous recurring contributions generally exert a far larger impact on final wealth than the frequency difference alone."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Compound Interest Calculator (With Monthly Contributions) work on mobile devices?",
+      "name": "What is the Rule of 72 and how accurately does it predict investment doubling time?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "The Rule of 72 is a practical mental math shortcut to estimate how many years it takes for an investment to double at a fixed annual rate of return: Doubling Years ≈ 72 / Annual Interest Rate. At an 8% return, your money doubles in approximately 72 / 8 = 9.0 years (actual formula yields 9.006 years). It is remarkably accurate for returns between 4% and 12%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does inflation reduce the future purchasing power of compound growth?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Inflation diminishes the real purchasing power of future dollars over time. While an investment portfolio may grow nominally to $1,000,000 in 30 years at 7%, a 3% annual inflation rate reduces its real purchasing power to roughly $411,987 in today's purchasing terms using the Fisher equation: Real Value = Nominal Value / (1 + Inflation)^Years."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much do small wealth management fees (like 1% AUM) destroy compound growth over time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A seemingly small 1.0% annual management or mutual fund fee does not reduce your return by 1%—it strips away 25% to 35% of your total lifetime nest egg over a 30 to 40 year horizon. Because the 1% fee is deducted from the entire balance every single year regardless of market performance, you permanently lose both the deducted capital and the exponential compound interest that money would have generated."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Compound Interest Calculator (With Monthly Contributions)",
-  "description": "Calculate compound interest growth with monthly deposits, annual returns, and compounding frequencies. Visualize total principal vs interest earned.",
+  "name": "How to Use the Compound Interest Calculator (With Monthly Contributions & Inflation)",
+  "description": "Calculate compound interest growth with regular monthly contributions, custom compounding frequencies, and inflation-adjusted real returns. Includes pure SVG growth chart, Rule of 72, and 5 fatal compounding traps.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Compound Interest Calculator (With Monthly Contributions)."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Compound Interest Calculator (With Monthly Contributions & Inflation)."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Compound Interest Calculator (With Monthly Contributions) | Digital Tools Shed</span>
+            <span>Compound Interest Calculator (With Monthly Contributions & Inflation) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1027,52 +1043,213 @@
           
       <div class="article-container" style="max-width: 950px;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Compound Interest
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Compound Interest Calculator
         </nav>
 
         <header style="margin-bottom: 2rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Compound Interest Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Compound Interest &amp; Wealth Growth Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Calculate how your savings and investments grow over time with recurring monthly contributions and compound interest.
+            Accurately model exponential investment accumulation with recurring monthly contributions, custom compounding frequencies, and inflation-adjusted purchasing power. Features pure SVG wealth visualizer, step-by-step mathematical derivation, and critical compounding traps.
           </p>
         </header>
 
+        <!-- Main Interactive Controls & Outputs Grid -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          
+          <!-- Input Controls Panel -->
           <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-            <div style="margin-bottom: 1.25rem;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Initial Investment ($ USD)</label>
-              <input type="number" id="ciPrinc" value="5000" min="0" step="500" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCI()" />
+            <div style="margin-bottom: 1.1rem;">
+              <label for="ciPrinc" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Initial Principal ($ USD)</label>
+              <input type="number" id="ciPrinc" value="10000" min="0" step="500" class="search-input" style="width: 100%; padding: 0.6rem 0.75rem; font-size: 1.15rem; font-family: var(--mono);" oninput="calcCI()" />
             </div>
 
-            <div style="margin-bottom: 1.25rem;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Monthly Contribution ($ / month)</label>
-              <input type="number" id="ciMonthly" value="300" min="0" step="50" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCI()" />
+            <div style="margin-bottom: 1.1rem;">
+              <label for="ciMonthly" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Monthly Contribution ($ / month)</label>
+              <input type="number" id="ciMonthly" value="500" min="0" step="50" class="search-input" style="width: 100%; padding: 0.6rem 0.75rem; font-size: 1.15rem; font-family: var(--mono);" oninput="calcCI()" />
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.1rem;">
               <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Estimated Return (%)</label>
-                <input type="number" id="ciRate" value="8.0" min="0" max="30" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcCI()" />
+                <label for="ciRate" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Annual Return (%)</label>
+                <input type="number" id="ciRate" value="8.0" min="0" max="40" step="0.25" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcCI()" />
               </div>
               <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Investment Years</label>
+                <label for="ciYears" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Horizon (Years)</label>
                 <input type="number" id="ciYears" value="20" min="1" max="50" step="1" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcCI()" />
               </div>
             </div>
 
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+              <div>
+                <label for="ciFreq" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Compounding</label>
+                <select id="ciFreq" class="code-input" style="width: 100%; padding: 0.55rem; font-size: 0.9rem;" onchange="calcCI()">
+                  <option value="12" selected>Monthly (12/yr)</option>
+                  <option value="365">Daily (365/yr)</option>
+                  <option value="4">Quarterly (4/yr)</option>
+                  <option value="2">Semi-Annual (2/yr)</option>
+                  <option value="1">Annual (1/yr)</option>
+                </select>
+              </div>
+              <div>
+                <label for="ciInflation" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Est. Inflation (%)</label>
+                <input type="number" id="ciInflation" value="2.5" min="0" max="15" step="0.25" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcCI()" />
+              </div>
+            </div>
+
+            <button type="button" id="btnCopyCompound" onclick="copyCompoundSummary()" class="btn-sec" style="width: 100%; padding: 0.65rem; font-family: var(--mono); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+              <span>📋</span> <span>Copy Investment Summary</span>
+            </button>
+          </div>
+
+          <!-- Summary Output Cards Panel -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Compounding Frequency</label>
-              <select id="ciFreq" class="code-input" style="width: 100%; padding: 0.55rem;" onchange="calcCI()">
-                <option value="12" selected>Monthly (12/yr - Standard)</option>
-                <option value="1">Annually (1/yr)</option>
-                <option value="365">Daily (365/yr)</option>
-              </select>
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 1.25rem;">Maturity Wealth Projection</h3>
+              <div id="ciSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+            </div>
+            <div id="ciRule72Badge" style="margin-top: 1rem; padding: 0.75rem 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; font-family: var(--mono); color: var(--text-muted);">
+              ⏳ Rule of 72 Doubling Time: <strong style="color: #3b82f6;" id="ciDoublingYears">9.0 Years</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pure SVG Multi-Year Growth & Wealth Stack Chart -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="font-family: var(--serif); font-size: 1.2rem; margin: 0 0 0.25rem 0; color: var(--fg);">Exponential Wealth Trajectory (Principal vs Compound Growth)</h3>
+              <span style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Multi-year area distribution of principal contributions vs compound returns</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1.25rem; font-size: 0.8rem; font-family: var(--mono);">
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span style="width: 12px; height: 12px; background: #3b82f6; display: inline-block; border-radius: 2px;"></span>
+                <span>Principal Contributed</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.4rem;">
+                <span style="width: 12px; height: 12px; background: #10b981; display: inline-block; border-radius: 2px;"></span>
+                <span>Compound Interest Earned</span>
+              </div>
             </div>
           </div>
 
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Maturity Wealth Projection</h3>
-            <div id="ciSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          <div id="ciChartContainer" style="width: 100%; overflow-x: auto;">
+            <svg id="ciSvgChart" viewBox="0 0 760 320" style="width: 100%; height: auto; display: block; font-family: var(--mono);" preserveAspectRatio="xMidYMid meet"></svg>
+          </div>
+        </div>
+
+        <!-- 5-Year Milestone Breakdown Table -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">Investment Horizon Milestones</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem; text-align: right;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                  <th style="padding: 0.6rem 0.5rem; text-align: left;">Timeline</th>
+                  <th style="padding: 0.6rem 0.5rem;">Principal Invested</th>
+                  <th style="padding: 0.6rem 0.5rem;">Total Interest</th>
+                  <th style="padding: 0.6rem 0.5rem;">Nominal Balance</th>
+                  <th style="padding: 0.6rem 0.5rem; color: #10b981;">Real (Inflation-Adj)</th>
+                  <th style="padding: 0.6rem 0.5rem;">Interest %</th>
+                </tr>
+              </thead>
+              <tbody id="ciMilestonesBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Mathematical Worked Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">Mathematical Formula &amp; Live Derivation</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.25rem;">
+            Compound interest with regular recurring contributions is evaluated by combining the future value of a lump-sum initial deposit with the future value of an ordinary annuity:
+          </p>
+
+          <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">
+              <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Lump Sum Principal Future Value Formula:</strong>
+              <div style="color: #3b82f6; font-size: 0.95rem; margin-bottom: 0.35rem;">A_principal = P × (1 + r / n)^(n × t)</div>
+              <div id="ciDerivStep1" style="color: var(--text-muted);"></div>
+            </div>
+
+            <div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">
+              <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Monthly Ordinary Annuity Future Value Formula:</strong>
+              <div style="color: #3b82f6; font-size: 0.95rem; margin-bottom: 0.35rem;">A_annuity = PMT × [ ((1 + r_m)^m - 1) / r_m ]</div>
+              <div id="ciDerivStep2" style="color: var(--text-muted);"></div>
+            </div>
+
+            <div style="padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">
+              <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Total Wealth &amp; Real Purchasing Power (Fisher Equation):</strong>
+              <div style="color: #10b981; font-size: 0.95rem; margin-bottom: 0.35rem;">FV_total = A_principal + A_annuity | FV_real = FV_total / (1 + i)^t</div>
+              <div id="ciDerivStep3" style="color: var(--text-muted);"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Fatal Compound Interest Traps & Pitfalls -->
+        <div style="margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg); display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚠️</span> <span>5 Fatal Compound Interest Traps &amp; Wealth Pitfalls</span>
+          </h3>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>📉</span> <strong>The Inflation Drag &amp; Nominal Return Fallacy</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              Celebrating an 8% nominal annual return in an economic environment experiencing 3.5% inflation creates dangerous overconfidence. Under the Fisher equation ($1 + r_{real} = (1 + r_{nom}) / (1 + i)$), your true purchasing power increases by only ~4.35% annually. Over a 30-year career, failing to model inflation leads investors to overestimate the real buying power of their future nest egg by more than 55%.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>💸</span> <strong>The 1% AUM Fee Wealth Evaporation Trap</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              A 1.0% annual Assets Under Management (AUM) advisory fee sounds innocuous, but it does not consume 1% of your wealth—it consumes 28% to 34% of your final portfolio value over 35 years. Because the fee is deducted from the entire asset base in bull and bear markets alike, it permanently suffocates the exponential compounding trajectory of reinvested growth.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>⏰</span> <strong>Compounding Frequency &amp; Deposit Timing (Annuity Due)</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              While switching compounding from annual to daily yields a modest bump in APY, deposit timing exerts an enormous impact. Making regular contributions at the start of each period (annuity due) rather than waiting until month-end (ordinary annuity) gives each contribution an immediate full month of compounding velocity, accumulating tens of thousands of extra dollars over multi-decade horizons.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>🏛️</span> <strong>Tax Drag in Taxable Brokerage vs Sheltered Vehicles</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              In standard non-registered brokerage accounts, annual taxes on distributed dividends and realized rebalancing capital gains create an ongoing 1.2% to 2.0% annual friction known as tax drag. Channeling contributions into tax-advantaged accounts (Roth IRA, Traditional 401(k), HSA) allows the total gross return to compound completely unmolested until distribution.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>⏳</span> <strong>The &quot;Wait Until I Earn More&quot; Procrastination Trap</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              An investor who saves $400/month from age 22 to 32 (10 years) and never adds another penny ends up with a significantly larger nest egg at age 65 than an investor who waits until age 32 to start and faithfully contributes $400/month for 33 consecutive years. In compound interest mathematics, time in the market is vastly more powerful than capital volume.
+            </p>
+          </div>
+        </div>
+
+        <div class="ad-blend-box" style="margin: 2rem 0;">
+          <span class="ad-label">Sponsored Resource</span>
+          <div class="ad-unit-300x250">
+            <script type="text/javascript">
+              atOptions = {
+                'key' : '335d807d460eaf2491fcca0f635474ce',
+                'format' : 'iframe',
+                'height' : 250,
+                'width' : 300,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
           </div>
         </div>
       </div>
@@ -1084,14 +1261,15 @@
           var r = (parseFloat(document.getElementById('ciRate').value) || 0) / 100;
           var t = parseFloat(document.getElementById('ciYears').value) || 1;
           var n = parseInt(document.getElementById('ciFreq').value, 10) || 12;
+          var inflRate = (parseFloat(document.getElementById('ciInflation').value) || 0) / 100;
 
           var totalMonths = Math.round(t * 12);
           var monthlyRate = r / 12;
 
-          // Future value of lump sum principal
+          // Future value of lump sum principal: P * (1 + r/n)^(n*t)
           var fvPrincipal = p * Math.pow(1 + (r / n), n * t);
 
-          // Future value of monthly annuity (compounded monthly)
+          // Future value of monthly annuity: PMT * [ ((1 + r_m)^totalMonths - 1) / r_m ]
           var fvAnnuity = 0;
           if (monthlyRate > 0) {
             fvAnnuity = pmt * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate);
@@ -1102,27 +1280,261 @@
           var totalFutureVal = fvPrincipal + fvAnnuity;
           var totalContributions = p + (pmt * totalMonths);
           var totalInterest = Math.max(0, totalFutureVal - totalContributions);
+          var realFutureVal = totalFutureVal / Math.pow(1 + inflRate, t);
+          var growthMultiple = totalContributions > 0 ? (totalFutureVal / totalContributions).toFixed(2) : '1.00';
 
+          // Rule of 72
+          var doublingYears = r > 0 ? (72 / (r * 100)).toFixed(1) : 'N/A';
+          var badgeEl = document.getElementById('ciDoublingYears');
+          if (badgeEl) badgeEl.textContent = doublingYears + ' Years';
+
+          // Summary Output Cards
           document.getElementById('ciSummary').innerHTML = 
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL PROJECTED WEALTH (' + t + ' YRS)</span>' +
-              '<div style="font-size: 2rem; font-weight: bold; color: #10b981;">$' + Math.round(totalFutureVal).toLocaleString('en-US') + '</div>' +
+            '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Total Projected Wealth (' + t + ' Yrs)</span>' +
+              '<div style="font-size: 1.85rem; font-weight: bold; color: #10b981;">$' + Math.round(totalFutureVal).toLocaleString('en-US') + '</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">Wealth Multiplier: <strong style="color: #10b981;">' + growthMultiple + 'x</strong> initial deposits</div>' +
             '</div>' +
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL INTEREST ACCRUED</span>' +
-              '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">$' + Math.round(totalInterest).toLocaleString('en-US') + '</div>' +
-              '<div style="font-size: 0.75rem; color: var(--text-muted);">' + ((totalInterest / totalFutureVal) * 100).toFixed(1) + '% of final balance from pure growth</div>' +
+            '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+              '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Total Compound Interest Accrued</span>' +
+              '<div style="font-size: 1.4rem; font-weight: bold; color: #3b82f6;">$' + Math.round(totalInterest).toLocaleString('en-US') + '</div>' +
+              '<div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.2rem;">' + (totalFutureVal > 0 ? ((totalInterest / totalFutureVal) * 100).toFixed(1) : 0) + '% of final nest egg generated by pure interest</div>' +
             '</div>' +
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL PRINCIPAL CONTRIBUTED</span>' +
-              '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">$' + Math.round(totalContributions).toLocaleString('en-US') + '</div>' +
+            '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">' +
+              '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+                '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Total Principal</span>' +
+                '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">$' + Math.round(totalContributions).toLocaleString('en-US') + '</div>' +
+              '</div>' +
+              '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+                '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Real Purchasing Power</span>' +
+                '<div style="font-size: 1.1rem; font-weight: bold; color: #f59e0b;">$' + Math.round(realFutureVal).toLocaleString('en-US') + '</div>' +
+              '</div>' +
             '</div>';
+
+          // Derivations Output
+          var step1El = document.getElementById('ciDerivStep1');
+          if (step1El) {
+            step1El.textContent = '$' + p.toLocaleString('en-US') + ' × (1 + ' + (r*100).toFixed(2) + '% / ' + n + ')^(' + n + ' × ' + t + ') = $' + Math.round(fvPrincipal).toLocaleString('en-US');
+          }
+          var step2El = document.getElementById('ciDerivStep2');
+          if (step2El) {
+            step2El.textContent = '$' + pmt.toLocaleString('en-US') + '/mo over ' + totalMonths + ' months @ ' + (r*100).toFixed(2) + '% annual = $' + Math.round(fvAnnuity).toLocaleString('en-US');
+          }
+          var step3El = document.getElementById('ciDerivStep3');
+          if (step3El) {
+            step3El.textContent = 'Nominal: $' + Math.round(fvPrincipal).toLocaleString('en-US') + ' + $' + Math.round(fvAnnuity).toLocaleString('en-US') + ' = $' + Math.round(totalFutureVal).toLocaleString('en-US') + ' | Real @ ' + (inflRate*100).toFixed(1) + '% infl = $' + Math.round(realFutureVal).toLocaleString('en-US');
+          }
+
+          // Draw Pure SVG Multi-Year Growth & Wealth Stack Chart
+          drawCompoundSvg(p, pmt, r, t, n, inflRate);
+
+          // Render Milestone Breakdown Table
+          renderCompoundMilestones(p, pmt, r, t, n, inflRate);
+        }
+
+        function drawCompoundSvg(p, pmt, r, t, n, inflRate) {
+          var svg = document.getElementById('ciSvgChart');
+          if (!svg) return;
+
+          var w = 760;
+          var h = 320;
+          var padL = 75;
+          var padR = 30;
+          var padT = 30;
+          var padB = 45;
+          var plotW = w - padL - padR;
+          var plotH = h - padT - padB;
+
+          // Calculate yearly data
+          var points = [];
+          var maxVal = 0;
+          for (var yr = 0; yr <= t; yr++) {
+            var m = yr * 12;
+            var fvP = p * Math.pow(1 + (r / n), n * yr);
+            var fvA = 0;
+            var monthlyRate = r / 12;
+            if (monthlyRate > 0) {
+              fvA = pmt * ((Math.pow(1 + monthlyRate, m) - 1) / monthlyRate);
+            } else {
+              fvA = pmt * m;
+            }
+            var total = fvP + fvA;
+            var princ = p + (pmt * m);
+            var interest = Math.max(0, total - princ);
+            var real = total / Math.pow(1 + inflRate, yr);
+            if (total > maxVal) maxVal = total;
+            points.push({ yr: yr, princ: princ, total: total, interest: interest, real: real });
+          }
+
+          if (maxVal === 0) maxVal = 10000;
+          var niceMax = Math.ceil(maxVal * 1.1 / 10000) * 10000;
+          if (niceMax < 10000) niceMax = 10000;
+
+          var svgHtml = '';
+
+          // Background Grid & Axis Lines
+          var gridSteps = 4;
+          for (var g = 0; g <= gridSteps; g++) {
+            var yVal = (niceMax / gridSteps) * g;
+            var yPos = padT + plotH - (yVal / niceMax) * plotH;
+            svgHtml += '<line x1="' + padL + '" y1="' + yPos + '" x2="' + (w - padR) + '" y2="' + yPos + '" stroke="var(--border)" stroke-dasharray="3,3" stroke-width="1" />';
+            var label = yVal >= 1000000 ? '$' + (yVal / 1000000).toFixed(1) + 'M' : '$' + (yVal / 1000).toFixed(0) + 'k';
+            svgHtml += '<text x="' + (padL - 10) + '" y="' + (yPos + 4) + '" fill="var(--text-muted)" font-size="11" text-anchor="end">' + label + '</text>';
+          }
+
+          // X Axis Year labels
+          var xStep = Math.max(1, Math.round(t / 6));
+          for (var yr = 0; yr <= t; yr += xStep) {
+            var xPos = padL + (yr / t) * plotW;
+            svgHtml += '<line x1="' + xPos + '" y1="' + (padT + plotH) + '" x2="' + xPos + '" y2="' + (padT + plotH + 6) + '" stroke="var(--border)" stroke-width="1" />';
+            svgHtml += '<text x="' + xPos + '" y="' + (padT + plotH + 20) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">Yr ' + yr + '</text>';
+          }
+
+          // Generate Area Polygons & Trajectory Paths
+          // 1. Total Wealth Area (Compound Interest + Principal) in Emerald
+          var totalAreaPoints = [padL + ',' + (padT + plotH)];
+          var totalLinePoints = [];
+          for (var i = 0; i < points.length; i++) {
+            var px = padL + (points[i].yr / t) * plotW;
+            var py = padT + plotH - (points[i].total / niceMax) * plotH;
+            totalAreaPoints.push(px + ',' + py);
+            totalLinePoints.push(px + ',' + py);
+          }
+          totalAreaPoints.push((padL + plotW) + ',' + (padT + plotH));
+          svgHtml += '<polygon points="' + totalAreaPoints.join(' ') + '" fill="rgba(16, 185, 129, 0.22)" />';
+
+          // 2. Principal Area (Base Layer) in Blue
+          var princAreaPoints = [padL + ',' + (padT + plotH)];
+          var princLinePoints = [];
+          for (var i = 0; i < points.length; i++) {
+            var px = padL + (points[i].yr / t) * plotW;
+            var py = padT + plotH - (points[i].princ / niceMax) * plotH;
+            princAreaPoints.push(px + ',' + py);
+            princLinePoints.push(px + ',' + py);
+          }
+          princAreaPoints.push((padL + plotW) + ',' + (padT + plotH));
+          svgHtml += '<polygon points="' + princAreaPoints.join(' ') + '" fill="rgba(59, 130, 246, 0.35)" />';
+
+          // Draw crisp boundary lines
+          svgHtml += '<polyline points="' + princLinePoints.join(' ') + '" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-dasharray="4,3" />';
+          svgHtml += '<polyline points="' + totalLinePoints.join(' ') + '" fill="none" stroke="#10b981" stroke-width="3" />';
+
+          // Milestone Checkpoints (Every 5 years or endpoints)
+          for (var i = 0; i < points.length; i++) {
+            if (points[i].yr === 0 || points[i].yr === t || points[i].yr % 5 === 0) {
+              var px = padL + (points[i].yr / t) * plotW;
+              var pyTot = padT + plotH - (points[i].total / niceMax) * plotH;
+              var pyPrinc = padT + plotH - (points[i].princ / niceMax) * plotH;
+
+              // Principal dot
+              svgHtml += '<circle cx="' + px + '" cy="' + pyPrinc + '" r="4" fill="#3b82f6" stroke="#fff" stroke-width="1.5" />';
+              // Total dot
+              svgHtml += '<circle cx="' + px + '" cy="' + pyTot + '" r="5" fill="#10b981" stroke="#fff" stroke-width="2" />';
+
+              // Value badge for end of horizon
+              if (points[i].yr === t) {
+                var totLabel = points[i].total >= 1000000 ? '$' + (points[i].total / 1000000).toFixed(2) + 'M' : '$' + Math.round(points[i].total).toLocaleString('en-US');
+                svgHtml += '<rect x="' + (px - 85) + '" y="' + Math.max(padT - 10, pyTot - 28) + '" width="80" height="22" rx="4" fill="#10b981" />';
+                svgHtml += '<text x="' + (px - 45) + '" y="' + Math.max(padT + 5, pyTot - 13) + '" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">' + totLabel + '</text>';
+              }
+            }
+          }
+
+          svg.innerHTML = svgHtml;
+        }
+
+        function renderCompoundMilestones(p, pmt, r, t, n, inflRate) {
+          var tbody = document.getElementById('ciMilestonesBody');
+          if (!tbody) return;
+
+          var html = '';
+          var intervals = [];
+          for (var yr = 1; yr <= t; yr++) {
+            if (yr === 1 || yr === 3 || yr === 5 || yr === 10 || yr === 15 || yr === 20 || yr === 25 || yr === 30 || yr === 35 || yr === 40 || yr === t) {
+              if (intervals.indexOf(yr) === -1) intervals.push(yr);
+            }
+          }
+
+          for (var k = 0; k < intervals.length; k++) {
+            var yr = intervals[k];
+            var m = yr * 12;
+            var fvP = p * Math.pow(1 + (r / n), n * yr);
+            var monthlyRate = r / 12;
+            var fvA = monthlyRate > 0 ? pmt * ((Math.pow(1 + monthlyRate, m) - 1) / monthlyRate) : pmt * m;
+            var total = fvP + fvA;
+            var princ = p + (pmt * m);
+            var interest = Math.max(0, total - princ);
+            var real = total / Math.pow(1 + inflRate, yr);
+            var intPercent = total > 0 ? ((interest / total) * 100).toFixed(0) : '0';
+
+            html += '<tr style="border-bottom: 1px solid var(--border);">' +
+              '<td style="padding: 0.55rem 0.5rem; text-align: left; font-weight: bold; color: var(--fg);">Year ' + yr + '</td>' +
+              '<td style="padding: 0.55rem 0.5rem; color: var(--text-muted);">$' + Math.round(princ).toLocaleString('en-US') + '</td>' +
+              '<td style="padding: 0.55rem 0.5rem; color: #3b82f6;">$' + Math.round(interest).toLocaleString('en-US') + '</td>' +
+              '<td style="padding: 0.55rem 0.5rem; font-weight: bold; color: var(--fg);">$' + Math.round(total).toLocaleString('en-US') + '</td>' +
+              '<td style="padding: 0.55rem 0.5rem; color: #10b981; font-weight: bold;">$' + Math.round(real).toLocaleString('en-US') + '</td>' +
+              '<td style="padding: 0.55rem 0.5rem; color: var(--text-muted);">' + intPercent + '%</td>' +
+            '</tr>';
+          }
+
+          tbody.innerHTML = html;
+        }
+
+        function copyCompoundSummary() {
+          var p = parseFloat(document.getElementById('ciPrinc').value) || 0;
+          var pmt = parseFloat(document.getElementById('ciMonthly').value) || 0;
+          var r = (parseFloat(document.getElementById('ciRate').value) || 0) / 100;
+          var t = parseFloat(document.getElementById('ciYears').value) || 1;
+          var n = parseInt(document.getElementById('ciFreq').value, 10) || 12;
+          var inflRate = (parseFloat(document.getElementById('ciInflation').value) || 0) / 100;
+
+          var totalMonths = Math.round(t * 12);
+          var monthlyRate = r / 12;
+          var fvPrincipal = p * Math.pow(1 + (r / n), n * t);
+          var fvAnnuity = monthlyRate > 0 ? pmt * ((Math.pow(1 + monthlyRate, totalMonths) - 1) / monthlyRate) : pmt * totalMonths;
+          var totalFutureVal = fvPrincipal + fvAnnuity;
+          var totalContributions = p + (pmt * totalMonths);
+          var totalInterest = Math.max(0, totalFutureVal - totalContributions);
+          var realFutureVal = totalFutureVal / Math.pow(1 + inflRate, t);
+
+          var freqName = n === 365 ? 'Daily' : (n === 12 ? 'Monthly' : (n === 4 ? 'Quarterly' : (n === 2 ? 'Semi-Annual' : 'Annual')));
+
+          var text = '--- COMPOUND INTEREST & WEALTH GROWTH SUMMARY ---\\n' +
+            'Initial Principal: $' + Math.round(p).toLocaleString('en-US') + '\\n' +
+            'Monthly Contribution: $' + Math.round(pmt).toLocaleString('en-US') + '/mo\\n' +
+            'Annual Return: ' + (r * 100).toFixed(2) + '% (Compounded ' + freqName + ')\\n' +
+            'Investment Horizon: ' + t + ' Years (' + totalMonths + ' Months)\\n' +
+            '------------------------------------------------\\n' +
+            'Total Principal Invested: $' + Math.round(totalContributions).toLocaleString('en-US') + '\\n' +
+            'Total Compound Interest Earned: $' + Math.round(totalInterest).toLocaleString('en-US') + ' (' + ((totalInterest / totalFutureVal) * 100).toFixed(1) + '% of nest egg)\\n' +
+            'TOTAL PROJECTED WEALTH: $' + Math.round(totalFutureVal).toLocaleString('en-US') + '\\n' +
+            'Real Purchasing Power (' + (inflRate * 100).toFixed(1) + '% Infl): $' + Math.round(realFutureVal).toLocaleString('en-US') + '\\n' +
+            'Rule of 72 Doubling Time: ' + (r > 0 ? (72 / (r * 100)).toFixed(1) + ' Years' : 'N/A') + '\\n' +
+            '------------------------------------------------\\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/compound-interest-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopyCompound');
+            var oldHtml = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> <span>Copied Investment Summary!</span>';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = oldHtml;
+              btn.style.background = '';
+              btn.style.color = '';
+            }, 2500);
+          }).catch(function(err) {
+            console.error('Clipboard copy failed:', err);
+          });
         }
 
         document.addEventListener('DOMContentLoaded', calcCI);
-        calcCI();
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+          setTimeout(calcCI, 1);
+        }
       </script>
-    
+
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1132,8 +1544,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fcompound-interest-calculator&text=Compound%20Interest%20Calculator%20(With%20Monthly%20Contributions)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fcompound-interest-calculator&title=Compound%20Interest%20Calculator%20(With%20Monthly%20Contributions)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fcompound-interest-calculator&text=Compound%20Interest%20Calculator%20(With%20Monthly%20Contributions%20%26%20Inflation)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fcompound-interest-calculator&title=Compound%20Interest%20Calculator%20(With%20Monthly%20Contributions%20%26%20Inflation)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           

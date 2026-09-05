@@ -1228,14 +1228,55 @@
         </div>
 
         <!-- Critical RMD Traps & Tax Pitfalls -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical IRS RMD Traps & Penalties</h3>
-          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
-            <li><strong>The 25% Missed RMD Excise Tax (IRC § 4974):</strong> If you fail to withdraw the full mandatory RMD amount by December 31, the IRS imposes a severe 25% penalty tax on the shortfall. Under SECURE 2.0, this can be reduced to 10% if corrected in a timely manner and submitted with IRS Form 5329.</li>
-            <li><strong>The First-Year "April 1 Double Tax" Trap:</strong> You have until April 1 of the year <em>after</em> you reach your starting age to take your first RMD. However, doing so forces you to take TWO distributions in that calendar year (the deferred first RMD plus the second year's RMD by Dec 31), which frequently catapults retirees into higher federal and state tax brackets.</li>
-            <li><strong>The Medicare IRMAA Surcharge Cliff:</strong> RMD distributions flow directly into your Adjusted Gross Income (AGI). Crossing Income-Related Monthly Adjustment Amount (IRMAA) cliffs even by $1 triggers steep monthly surcharges on your Medicare Part B and Part D premiums two years later.</li>
-            <li><strong>Aggregation Trap (IRAs vs. Employer Plans):</strong> You can calculate the RMDs for all your Traditional IRAs and withdraw the total amount from one single IRA. However, <strong>401(k) and 403(b) accounts CANNOT be aggregated</strong> across separate employers; each workplace plan must have its own separate RMD withdrawn.</li>
-          </ul>
+        <div style="margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg); display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚠️</span> <span>5 Critical IRS RMD Traps &amp; Tax Penalties</span>
+          </h3>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>🚨</span> <strong>The 25% Missed RMD Excise Tax (IRC § 4974)</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              If you fail to withdraw your full required distribution by December 31, the IRS levies a punitive 25% excise tax on the shortfall. Under the SECURE 2.0 Act, this penalty is reduced to 10% if corrected in a timely manner within the two-year correction window and filed via IRS Form 5329. If the missed distribution was due to reasonable error, you can submit a written waiver request with reasonable cause documentation.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>📅</span> <strong>The First-Year &quot;April 1 Double Tax&quot; Bunching Trap</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              The IRS grants a grace period allowing you to delay your very first RMD until April 1 of the year following the year you reach your RMD age (73 or 75). However, waiting until April 1 forces you to take TWO mandatory distributions within that single tax year (your Year 1 deferred RMD plus your Year 2 RMD by December 31). This income bunching often thrusts seniors into significantly higher tax brackets and elevates Social Security taxation.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>🏥</span> <strong>The Medicare IRMAA Surcharge Cliff</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              Every dollar of your RMD increases your Modified Adjusted Gross Income (MAGI). Exceeding Medicare Income-Related Monthly Adjustment Amount (IRMAA) tier thresholds by even $1 triggers substantial monthly surcharges on both Medicare Part B medical insurance and Part D prescription drug plans for both spouses two years later, often adding thousands of dollars in unexpected annual healthcare costs.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚖️</span> <strong>Aggregation Rules: IRAs vs Workplace 401(k) / 403(b) Accounts</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              You are permitted to aggregate the total calculated RMD amounts across all your traditional, SEP, and SIMPLE IRAs and withdraw the entire sum from a single IRA. However, <strong>workplace plans like 401(k)s, 403(b)s, and 457(b)s cannot be cross-aggregated</strong>. Each active or rollover 401(k) must satisfy its own RMD individually from that specific plan; withdrawing extra from an IRA does not satisfy a 401(k) RMD.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>📜</span> <strong>The Inherited IRA 10-Year Depletion Mandate</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              Under the SECURE Act and SECURE 2.0 regulations, non-spouse designated beneficiaries can no longer &quot;stretch&quot; inherited IRA distributions over their lifetime. Instead, the entire account balance must be fully liquidated by December 31 of the 10th year following the owner&apos;s death, frequently forcing adult children in their peak earning years into the 32%, 35%, or 37% tax brackets if distributions are not proactively managed.
+            </p>
+          </div>
         </div>
 
         <div style="text-align: center; margin: 2rem 0;">
