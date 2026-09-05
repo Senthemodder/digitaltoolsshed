@@ -693,130 +693,740 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'roman-numerals',
-      title: 'Roman Numerals Converter',
-      metaDesc: 'Convert standard numbers to Roman numerals (e.g. 2026 to MMXXVI) and decode Roman numeral strings back to integers.',
-      category: 'Math & Finance',
+      title: 'Roman Numerals Converter & Decoder (Standard & Vinculum Extended)',
+      metaDesc: 'Convert numbers to Roman numerals and Roman numerals to numbers (1 to 3,999,999). Includes subtractive notation rules, Vinculum overline notation, and clockface IIII history.',
+      category: 'Math & History',
+      faq: [
+        { q: 'What are the 7 primary Roman numeral symbols and their values?', a: 'The seven classical Roman numerals are I (1), V (5), X (10), L (50), C (100), D (500), and M (1,000).' },
+        { q: 'Why do luxury clocks and watches use IIII instead of IV for four?', a: 'Watchmakers use IIII primarily for visual symmetry (balancing the four-character VIII on the opposite side of the dial), historical tradition dating back to King Charles V of France, and ancient Roman religious respect avoiding the prefix for Jupiter (IVPPITER).' },
+        { q: 'How do you write numbers larger than 3,999 in Roman numerals?', a: 'Numbers 4,000 and above use the Vinculum system—a horizontal bar placed above the numeral that multiplies its face value by 1,000. For example, V̄ represents 5,000 and X̄ represents 10,000.' },
+        { q: 'Did ancient Romans have a symbol for zero?', a: 'No. Ancient Roman numerals had no symbol for zero. In accounting and ledger records, the absence of an amount was represented with a blank space or the Latin word nulla (meaning "none").' },
+        { q: 'What are the strict subtractive notation rules in Roman numerals?', a: 'Subtractive prefixes are restricted to powers of ten (I, X, C). Each can only precede the next two higher symbols: I before V or X (IV=4, IX=9); X before L or C (XL=40, XC=90); C before D or M (CD=400, CM=900). You cannot subtract across multiple tiers (e.g. 99 is XCIX, never IC).' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Roman Numerals Converter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Roman Numerals Converter</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Convert any Arabic number (1 to 3,999,999) to Roman numerals or decode Roman strings to decimal values.
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Roman Numerals Converter & Decoder</h1>
+          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert any Arabic integer to Roman numerals or decode Roman text back to decimals. Supports both standard classical notation (1 to 3,999) and extended Vinculum overline notation (up to 3,999,999).
           </p>
 
           <div class="tool-box">
-            <div class="grid-inputs">
+            <!-- Input Grid -->
+            <div class="grid-inputs" style="margin-bottom: 1rem;">
               <div class="field-group">
-                <label class="field-label">Arabic Number (Integer)</label>
-                <input type="number" id="num-in" class="text-input" value="2026" min="1" oninput="intToRoman()" />
+                <label class="field-label" for="num-in">Standard Arabic Number (1 – 3,999,999)</label>
+                <input type="number" id="num-in" class="code-input" value="2026" min="1" max="3999999" oninput="intToRoman()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Roman Numeral</label>
-                <input type="text" id="roman-in" class="text-input" value="MMXXVI" oninput="romanToInt()" style="text-transform: uppercase;" />
+                <label class="field-label" for="roman-in">Roman Numeral String (e.g. MMXXVI or V̄)</label>
+                <input type="text" id="roman-in" class="code-input" value="MMXXVI" oninput="romanToInt()" style="text-transform: uppercase; font-size: 1.25rem; letter-spacing: 0.05em;" />
+              </div>
+            </div>
+
+            <!-- Quick Historical & Date Presets -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Historical & Calendar Milestones:</span>
+              <button type="button" class="btn-sec" onclick="setRomanPreset(2026)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">2026 (Current)</button>
+              <button type="button" class="btn-sec" onclick="setRomanPreset(1776)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1776 (MDCCLXXVI)</button>
+              <button type="button" class="btn-sec" onclick="setRomanPreset(1984)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1984 (MCMLXXXIV)</button>
+              <button type="button" class="btn-sec" onclick="setRomanPreset(1066)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1066 (MLXVI)</button>
+              <button type="button" class="btn-sec" onclick="setRomanPreset(476)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">476 (Fall of Rome)</button>
+              <button type="button" class="btn-sec" onclick="setRomanPreset(3999)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">3999 (Max Classical)</button>
+              <button type="button" class="btn-sec" onclick="setRomanPreset(10000)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">10,000 (X̄ Vinculum)</button>
+            </div>
+
+            <!-- Dynamic Result Card -->
+            <div class="result-card" style="margin-top: 1.25rem; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Roman Numeral Output</div>
+              <div id="roman-hero" class="result-val" style="font-size: 2.6rem; letter-spacing: 0.08em; word-break: break-all; margin: 0.35rem 0;">MMXXVI</div>
+              <div id="roman-expansion" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.35rem;">
+                2,000 (MM) + 20 (XX) + 6 (VI) = 2,026
+              </div>
+
+              <!-- One-Click Copy Report Button -->
+              <button type="button" id="btnCopyRoman" onclick="copyRomanSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy Roman Numeral & Breakdown
+              </button>
+            </div>
+          </div>
+
+          <!-- Extended Vinculum Notation Guide -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🏛️ The Vinculum System: Values 4,000 to 3,999,999</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Extended Roman Notation</span>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin: 0 0 1rem 0;">
+              Classical Roman numerals stop at <strong>MMMCMXCIX (3,999)</strong> because Roman scribes rarely repeated <em>M</em> more than three times. For larger demographic censuses, military legions, and imperial taxes, Romans used the <strong>Vinculum</strong>—a horizontal macron overline multiplying any base symbol by <strong>1,000</strong>:
+            </p>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.6rem; background: var(--surface-alt); border-radius: 4px; text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6;">V̄</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">5,000</div>
+              </div>
+              <div style="padding: 0.6rem; background: var(--surface-alt); border-radius: 4px; text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6;">X̄</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">10,000</div>
+              </div>
+              <div style="padding: 0.6rem; background: var(--surface-alt); border-radius: 4px; text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6;">L̄</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">50,000</div>
+              </div>
+              <div style="padding: 0.6rem; background: var(--surface-alt); border-radius: 4px; text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6;">C̄</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">100,000</div>
+              </div>
+              <div style="padding: 0.6rem; background: var(--surface-alt); border-radius: 4px; text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6;">D̄</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">500,000</div>
+              </div>
+              <div style="padding: 0.6rem; background: var(--surface-alt); border-radius: 4px; text-align: center; border: 1px solid var(--border);">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #3b82f6;">M̄</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">1,000,000</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Master Reference Table -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--fg);">📜 Master Roman Numeral Reference Chart</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Complete tier reference covering Classical and Vinculum symbols:
+            </p>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: left;">
+                <thead>
+                  <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+                    <th style="padding: 0.5rem 0.75rem;">Arabic</th>
+                    <th style="padding: 0.5rem 0.75rem;">Roman</th>
+                    <th style="padding: 0.5rem 0.75rem;">Subtractive Equivalent</th>
+                    <th style="padding: 0.5rem 0.75rem;">Tier</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">1</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">I</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">-</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Units</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">4</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">IV</td><td style="padding: 0.45rem 0.75rem;">5 - 1</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Units</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">5</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">V</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">-</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Units</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">9</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">IX</td><td style="padding: 0.45rem 0.75rem;">10 - 1</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Units</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">10</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">X</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">-</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Tens</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">40</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">XL</td><td style="padding: 0.45rem 0.75rem;">50 - 10</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Tens</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">50</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">L</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">-</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Tens</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">90</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">XC</td><td style="padding: 0.45rem 0.75rem;">100 - 10</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Tens</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">100</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">C</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">-</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Hundreds</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">400</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">CD</td><td style="padding: 0.45rem 0.75rem;">500 - 100</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Hundreds</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">500</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">D</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">-</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Hundreds</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">900</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">CM</td><td style="padding: 0.45rem 0.75rem;">1000 - 100</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Hundreds</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem;">1,000</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">M</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">-</td><td style="padding: 0.45rem 0.75rem; color: #3b82f6;">Thousands</td></tr>
+                  <tr><td style="padding: 0.45rem 0.75rem;">5,000</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #8b5cf6;">V̄</td><td style="padding: 0.45rem 0.75rem;">5 &times; 1,000</td><td style="padding: 0.45rem 0.75rem; color: #8b5cf6;">Vinculum</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3 Historical Gotchas & Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 3 Fascinating Historical Rules & Traps</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #f59e0b;">
+                <strong style="color: #f59e0b; font-size: 0.95rem;">1. The Watchmaker's "IIII" vs "IV" Tradition</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  Nearly all luxury analog timepieces (Rolex, Cartier, Patek Philippe) print <strong>IIII</strong> instead of <strong>IV</strong>. Horologists maintain this for three reasons: (1) <strong>Visual balance</strong> with the heavy four-character <em>VIII</em> on the opposite side; (2) Ancient Roman religious taboo, as <em>IV</em> was the Latin abbreviation for the supreme god <em>IVPPITER</em> (Jupiter); and (3) King Charles V of France famously declared in 1364 that he did not wish to subtract from his royal hours.
+                </p>
+              </div>
+
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #ef4444;">
+                <strong style="color: #ef4444; font-size: 0.95rem;">2. The Subtractive Distance Fallacy (99 is XCIX, NEVER IC)</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  A widespread misconception is that 99 can be written as <em>IC</em> (100 - 1). In classical Latin grammar, subtractive notation is strictly limited to powers of ten preceding the next two symbols within the same order of magnitude. <em>I</em> can only precede <em>V</em> or <em>X</em>; <em>X</em> can only precede <em>L</em> or <em>C</em>; <em>C</em> can only precede <em>D</em> or <em>M</em>. You can never subtract across two full tiers. Therefore, 99 is decomposed as (90) + (9) = <strong>XCIX</strong>.
+                </p>
+              </div>
+
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #3b82f6;">
+                <strong style="color: #3b82f6; font-size: 0.95rem;">3. The Non-Existence of Zero (Nulla)</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  Roman numerals have no character for zero. Because their numbering originated on tally sticks and merchant abacuses, there was no need to tally a quantity that did not exist. In accounting records, Roman bookkeepers left spaces blank or penned the word <em>nulla</em> (Latin for "none"). Zero as an operational placeholder only arrived in Western Europe with Fibonacci's 1202 translation of Arabic algebra (*Liber Abaci*).
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         <script>
-          const ROMAN_MAP = [
+          // Master numeral tables supporting up to 3,999,999 (with Unicode Vinculum)
+          const VINCULUM_MAP = [
+            [1000000, 'M̄'], [900000, 'C̄M̄'], [500000, 'D̄'], [400000, 'C̄D̄'],
+            [100000, 'C̄'], [90000, 'X̄C̄'], [50000, 'L̄'], [40000, 'X̄L̄'],
+            [10000, 'X̄'], [9000, 'ĪX̄'], [5000, 'V̄'], [4000, 'ĪV̄'],
             [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
             [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
             [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']
           ];
 
+          window.setRomanPreset = function(val) {
+            document.getElementById('num-in').value = val;
+            intToRoman();
+          };
+
           function intToRoman() {
             let num = parseInt(document.getElementById('num-in').value, 10);
-            if (isNaN(num) || num <= 0) { document.getElementById('roman-in').value = ''; return; }
+            if (isNaN(num) || num <= 0) {
+              document.getElementById('roman-in').value = '';
+              document.getElementById('roman-hero').textContent = '—';
+              document.getElementById('roman-expansion').textContent = 'Enter a positive whole number (1 - 3,999,999).';
+              return;
+            }
+            if (num > 3999999) {
+              document.getElementById('roman-hero').textContent = 'Max Exceeded';
+              document.getElementById('roman-expansion').textContent = 'Maximum Vinculum capacity is 3,999,999.';
+              return;
+            }
+
+            let remaining = num;
             let res = '';
-            for (const [val, sym] of ROMAN_MAP) {
-              while (num >= val) {
+            for (const [val, sym] of VINCULUM_MAP) {
+              while (remaining >= val) {
                 res += sym;
-                num -= val;
+                remaining -= val;
               }
             }
+
             document.getElementById('roman-in').value = res;
+            document.getElementById('roman-hero').textContent = res;
+            buildExpansion(num);
+          }
+
+          function buildExpansion(num) {
+            const thousands = Math.floor(num / 1000);
+            const hundreds = Math.floor((num % 1000) / 100);
+            const tens = Math.floor((num % 100) / 10);
+            const units = num % 10;
+
+            const parts = [];
+            if (thousands > 0) parts.push((thousands * 1000).toLocaleString('en-US') + ' (' + toRomanSub(thousands * 1000) + ')');
+            if (hundreds > 0) parts.push((hundreds * 100) + ' (' + toRomanSub(hundreds * 100) + ')');
+            if (tens > 0) parts.push((tens * 10) + ' (' + toRomanSub(tens * 10) + ')');
+            if (units > 0) parts.push(units + ' (' + toRomanSub(units) + ')');
+
+            document.getElementById('roman-expansion').textContent = parts.length ? parts.join(' + ') + ' = ' + num.toLocaleString('en-US') : num;
+          }
+
+          function toRomanSub(n) {
+            let s = '';
+            for (const [val, sym] of VINCULUM_MAP) {
+              while (n >= val) {
+                s += sym;
+                n -= val;
+              }
+            }
+            return s;
           }
 
           function romanToInt() {
-            const str = document.getElementById('roman-in').value.toUpperCase().trim();
-            const vals = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 };
+            let raw = document.getElementById('roman-in').value.trim();
+            if (!raw) {
+              document.getElementById('num-in').value = '';
+              document.getElementById('roman-hero').textContent = '—';
+              document.getElementById('roman-expansion').textContent = '';
+              return;
+            }
+
+            // Normalization: support ASCII notation like _V for V̄
+            raw = raw.replace(/_([IVXLCDM])/g, '$1̄');
+
+            // Values dictionary
+            const values = {
+              'M̄': 1000000, 'D̄': 500000, 'C̄': 100000, 'L̄': 50000, 'X̄': 10000, 'V̄': 5000, 'Ī': 1000,
+              'M': 1000, 'D': 500, 'C': 100, 'L': 50, 'X': 10, 'V': 5, 'I': 1
+            };
+
+            // Tokenize symbols considering combining macron
+            const tokens = [];
+            for (let i = 0; i < raw.length; i++) {
+              let ch = raw[i].toUpperCase();
+              if (raw[i + 1] === '\u0304' || raw[i + 1] === '̄') {
+                tokens.push(ch + '̄');
+                i++;
+              } else {
+                tokens.push(ch);
+              }
+            }
+
             let total = 0;
-            for (let i = 0; i < str.length; i++) {
-              const cur = vals[str[i]] || 0;
-              const next = vals[str[i+1]] || 0;
+            for (let i = 0; i < tokens.length; i++) {
+              const cur = values[tokens[i]] || 0;
+              const next = values[tokens[i + 1]] || 0;
               if (cur < next) {
                 total -= cur;
               } else {
                 total += cur;
               }
             }
-            document.getElementById('num-in').value = total || '';
+
+            if (total > 0 && total <= 3999999) {
+              document.getElementById('num-in').value = total;
+              document.getElementById('roman-hero').textContent = raw;
+              buildExpansion(total);
+            } else {
+              document.getElementById('roman-hero').textContent = 'Invalid String';
+              document.getElementById('roman-expansion').textContent = 'Unrecognized Roman numeral sequence.';
+            }
           }
+
+          window.copyRomanSummary = function() {
+            const btn = document.getElementById('btnCopyRoman');
+            const arabic = document.getElementById('num-in').value;
+            const roman = document.getElementById('roman-hero').textContent;
+            const expansion = document.getElementById('roman-expansion').textContent;
+
+            const text = '--- Roman Numeral Conversion ---\n' +
+              'Arabic Integer: ' + arabic + '\n' +
+              'Roman Numeral: ' + roman + '\n' +
+              'Expansion: ' + expansion + '\n' +
+              'Calculated on Digital Tools Shed (https://digitaltoolsshed.com/math/roman-numerals)';
+
+            navigator.clipboard.writeText(text).then(() => {
+              btn.textContent = '✓ Copied to Clipboard!';
+              btn.style.borderColor = '#10b981';
+              btn.style.color = '#10b981';
+              setTimeout(() => {
+                btn.textContent = '📋 Copy Roman Numeral & Breakdown';
+                btn.style.borderColor = 'var(--border)';
+                btn.style.color = 'var(--fg)';
+              }, 2500);
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', intToRoman);
+          intToRoman();
         </script>
       `
     },
     {
       slug: 'age-calculator',
-      title: 'Exact Age & Birthday Countdown Calculator',
-      metaDesc: 'Calculate your exact age in years, months, weeks, days, hours, and minutes, along with days until next birthday.',
-      category: 'Math & Finance',
+      title: 'Exact Age Calculator (Years, Months, Days, Lifetime Milestones & Next Birthday)',
+      metaDesc: 'Free exact age calculator: compute chronological age in years, months, days, hours, and seconds. Discover total heartbeats, planetary ages, astrological zodiac signs, and next birthday countdown.',
+      category: 'Math & Calculation',
+      faq: [
+        { q: 'How is exact chronological age calculated across leap years and variable month lengths?', a: 'Chronological age is calculated using calendar month and day borrowing. If the target day is smaller than the birth day, we borrow the exact number of days from the preceding month (28, 29, 30, or 31). If the target month is smaller than the birth month, we borrow 12 months from the year.' },
+        { q: 'What happens if I was born on Leap Day (February 29)? When is my legal birthday?', a: 'In non-leap years, legal maturity for leap day babies varies by jurisdiction. In the United Kingdom and common-law countries, statutory age increments on March 1st. In some US states (like California) and Taiwan, rights legally vest on February 28th.' },
+        { q: 'What is the difference between chronological age and biological age?', a: 'Chronological age measures the elapsed orbital cycles around the Sun since birth. Biological age reflects cellular senescence, DNA methylation (epigenetic clocks like Horvath\'s clock), telomere length, and cardiovascular health.' },
+        { q: 'Why did South Korea abolish its traditional East Asian age reckoning system?', a: 'Under traditional East Asian reckoning, a baby was considered 1 year old at birth and gained a year every January 1st (meaning a baby born on Dec 31 turned 2 the next day). South Korea officially abolished this in June 2023 to eliminate administrative and legal confusion.' },
+        { q: 'How are planetary ages (Mars, Venus, Jupiter) calculated?', a: 'Planetary age divides your total days alive by the orbital period of the planet. For example, a Mars year is 686.98 Earth days, so someone aged 30 on Earth is approximately 15.9 Mars years old.' }
+      ],
       body: `
-        ${commonStyle}
+        \${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Age Calculator
+            <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Age Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Exact Age & Birthday Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.85rem; margin-bottom: 0.5rem;">Exact Age Calculator & Lifetime Milestones</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Find out your precise age broken down into years, months, days, and total days lived.
+            Compute your exact chronological age in years, months, and days down to the second. Explore biological vitality milestones, planetary orbits, astrological signs, and live next-birthday countdowns.
           </p>
 
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Date of Birth</label>
-              <input type="date" id="dob-input" class="text-input" value="2000-01-01" onchange="calcAge()" />
+            <!-- Input Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+              <div>
+                <label class="field-label" for="dobInput">Date of Birth</label>
+                <input type="date" id="dobInput" class="text-input" value="1995-06-15" oninput="calcAge()" />
+                <span id="dobWeekdayLabel" style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;"></span>
+              </div>
+              <div>
+                <label class="field-label" for="ageAtDate">Age at Date (Target Date)</label>
+                <input type="date" id="ageAtDate" class="text-input" oninput="calcAge()" />
+                <span id="targetWeekdayLabel" style="display: block; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;"></span>
+              </div>
             </div>
 
-            <div class="result-card">
-              <div class="field-label">Exact Age</div>
-              <div id="age-out" class="result-val">-- Years</div>
-              <div id="age-breakdown" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;"></div>
+            <!-- Quick Presets -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <button type="button" class="btn" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="setDobPreset(2000, 0, 1)">Born Jan 1, 2000</button>
+              <button type="button" class="btn" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="setDobPreset(1990, 5, 15)">Born 1990</button>
+              <button type="button" class="btn" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="setDobPreset(1980, 9, 20)">Born 1980</button>
+              <button type="button" class="btn" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="resetTargetToToday()">Set Target to Today</button>
+            </div>
+
+            <!-- Live Results Container -->
+            <div id="ageResults" style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+
+            <!-- One-Click Copy Report Button -->
+            <div style="margin-top: 1.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <button type="button" id="copyAgeReportBtn" class="btn" style="background: #10b981; color: #fff; font-weight: 600; padding: 0.6rem 1.25rem; font-size: 0.85rem;" onclick="copyAgeReport()">
+                📋 Copy Complete Milestone Report
+              </button>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Derivation & Calendar Borrowing Math -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin: 1.5rem 0; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="font-weight: bold; color: var(--fg); margin-bottom: 0.5rem; font-size: 0.95rem;">Step-by-Step Calendar Borrowing Derivation</div>
+            <div id="ageDerivationBox" style="display: grid; gap: 0.4rem; color: var(--text-muted); line-height: 1.5;"></div>
+          </div>
+
+          <!-- 3 Real-World Pitfalls & Legal Gotchas -->
+          <div style="margin: 2rem 0; display: grid; gap: 1rem;">
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="font-weight: bold; color: #ef4444; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 1: The Leap Day Baby Legal Age Paradox (Feb 29)</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                If you were born on February 29th (a Leap Year), when do you legally turn 18 or 21 in non-leap years? Statutory laws diverge globally. Under English common law (rooted in <em>21 Henry III</em>) and UK precedent, legal age is attained on <strong>March 1st</strong>. Conversely, several US state administrative codes and Taiwan civil law declare legal rights vest on <strong>February 28th</strong>.
+              </p>
+            </div>
+
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="font-weight: bold; color: #eab308; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 2: East Asian Age Reckoning (Korean Age Abolition)</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                Traditionally in Korea, China, and Japan, babies were considered 1 year old on their day of birth, and everyone gained an additional year together on New Year\'s Day. Under this system, an infant born on December 31st would turn 2 years old on January 1st despite having lived for less than 24 hours. On June 28, 2023, South Korea officially abolished this legal standard, mandating international chronological age across all administrative contracts and civil law.
+              </p>
+            </div>
+
+            <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="font-weight: bold; color: #3b82f6; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Gotcha 3: Chronological Age vs Biological Epigenetic Age</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">
+                Chronological age is merely a measure of how many 365.2425-day astronomical orbits Earth has completed since your birth. In contrast, modern biomedical science evaluates <strong>Biological Age</strong> through epigenetic clocks (such as Steve Horvath\'s DNA methylation clock), telomere length attrition, and organ biomarkers. A 45-year-old marathon runner with optimal cardiovascular markers may register a biological age of 38, while chronic inflammation can elevate biological age far above calendar years.
+              </p>
+            </div>
+          </div>
+
+          <div class="ad-blend-box" style="margin: 2rem 0;">
+            <span class="ad-label">Sponsored Resource</span>
+            <div class="ad-unit-300x250">
+              <script type="text/javascript">
+                atOptions = {
+                  'key' : '335d807d460eaf2491fcca0f635474ce',
+                  'format' : 'iframe',
+                  'height' : 250,
+                  'width' : 300,
+                  'params' : {}
+                };
+              </script>
+              <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
             </div>
           </div>
         </div>
 
         <script>
+          var currentAgeData = null;
+          var weekdaysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+          function getWesternZodiac(m, d) {
+            if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return { sign: 'Aries ♈', element: 'Fire 🔥', dates: 'Mar 21 - Apr 19' };
+            if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return { sign: 'Taurus ♉', element: 'Earth 🌍', dates: 'Apr 20 - May 20' };
+            if ((m === 5 && d >= 21) || (m === 6 && d <= 20)) return { sign: 'Gemini ♊', element: 'Air 💨', dates: 'May 21 - Jun 20' };
+            if ((m === 6 && d >= 21) || (m === 7 && d <= 22)) return { sign: 'Cancer ♋', element: 'Water 💧', dates: 'Jun 21 - Jul 22' };
+            if ((m === 7 && d >= 23) || (m === 8 && d <= 22)) return { sign: 'Leo ♌', element: 'Fire 🔥', dates: 'Jul 23 - Aug 22' };
+            if ((m === 8 && d >= 23) || (m === 9 && d <= 22)) return { sign: 'Virgo ♍', element: 'Earth 🌍', dates: 'Aug 23 - Sep 22' };
+            if ((m === 9 && d >= 23) || (m === 10 && d <= 22)) return { sign: 'Libra ♎', element: 'Air 💨', dates: 'Sep 23 - Oct 22' };
+            if ((m === 10 && d >= 23) || (m === 11 && d <= 21)) return { sign: 'Scorpio ♏', element: 'Water 💧', dates: 'Oct 23 - Nov 21' };
+            if ((m === 11 && d >= 22) || (m === 12 && d <= 21)) return { sign: 'Sagittarius ♐', element: 'Fire 🔥', dates: 'Nov 22 - Dec 21' };
+            if ((m === 12 && d >= 22) || (m === 1 && d <= 19)) return { sign: 'Capricorn ♑', element: 'Earth 🌍', dates: 'Dec 22 - Jan 19' };
+            if ((m === 1 && d >= 20) || (m === 2 && d <= 18)) return { sign: 'Aquarius ♒', element: 'Air 💨', dates: 'Jan 20 - Feb 18' };
+            return { sign: 'Pisces ♓', element: 'Water 💧', dates: 'Feb 19 - Mar 20' };
+          }
+
+          function getChineseZodiac(year) {
+            var animals = [
+              { name: 'Rat 🐀', trait: 'Quick-witted & resourceful' },
+              { name: 'Ox 🐂', trait: 'Diligent & dependable' },
+              { name: 'Tiger 🐅', trait: 'Brave & confident' },
+              { name: 'Rabbit 🐇', trait: 'Quiet, elegant & kind' },
+              { name: 'Dragon 🐉', trait: 'Enthusiastic & bold' },
+              { name: 'Snake 🐍', trait: 'Wise & intuitive' },
+              { name: 'Horse 🐎', trait: 'Animated & energetic' },
+              { name: 'Goat 🐐', trait: 'Gentle & sympathetic' },
+              { name: 'Monkey 🐒', trait: 'Smart & curious' },
+              { name: 'Rooster 🐓', trait: 'Hardworking & observant' },
+              { name: 'Dog 🐕', trait: 'Honest & loyal' },
+              { name: 'Pig 🐖', trait: 'Compassionate & generous' }
+            ];
+            var idx = (year - 4) % 12;
+            if (idx < 0) idx += 12;
+            var animal = animals[idx];
+
+            var lastDigit = Math.abs(year) % 10;
+            var element = '';
+            if (lastDigit === 0 || lastDigit === 1) element = 'Metal';
+            else if (lastDigit === 2 || lastDigit === 3) element = 'Water';
+            else if (lastDigit === 4 || lastDigit === 5) element = 'Wood';
+            else if (lastDigit === 6 || lastDigit === 7) element = 'Fire';
+            else if (lastDigit === 8 || lastDigit === 9) element = 'Earth';
+
+            return { animal: animal.name, element: element, trait: animal.trait };
+          }
+
           function calcAge() {
-            const dobVal = document.getElementById('dob-input').value;
-            if (!dobVal) return;
+            var dobVal = document.getElementById('dobInput').value;
+            var atVal = document.getElementById('ageAtDate').value;
+            if (!dobVal || !atVal) return;
 
-            const dob = new Date(dobVal);
-            const now = new Date();
+            var dob = new Date(dobVal + 'T00:00:00');
+            var at = new Date(atVal + 'T00:00:00');
 
-            let years = now.getFullYear() - dob.getFullYear();
-            let months = now.getMonth() - dob.getMonth();
-            let days = now.getDate() - dob.getDate();
+            document.getElementById('dobWeekdayLabel').textContent = weekdaysArr[dob.getDay()] + ', ' + dob.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('targetWeekdayLabel').textContent = weekdaysArr[at.getDay()] + ', ' + at.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+            if (at < dob) {
+              document.getElementById('ageResults').innerHTML = '<div style="padding:1rem; background:#fee2e2; border:1px solid #ef4444; border-radius:4px; color:#b91c1c;">Target date cannot precede your date of birth! Please pick a date after ' + dobVal + '.</div>';
+              document.getElementById('ageDerivationBox').innerHTML = '<em>Awaiting valid forward chronological dates...</em>';
+              return;
+            }
+
+            var years = at.getFullYear() - dob.getFullYear();
+            var months = at.getMonth() - dob.getMonth();
+            var days = at.getDate() - dob.getDate();
+
+            var borrowedDays = 0;
+            var borrowedMonthDaysCount = 0;
             if (days < 0) {
               months--;
-              days += new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+              var prevMonth = new Date(at.getFullYear(), at.getMonth(), 0);
+              borrowedMonthDaysCount = prevMonth.getDate();
+              days += borrowedMonthDaysCount;
+              borrowedDays = 1;
             }
+            var borrowedMonths = 0;
             if (months < 0) {
               years--;
               months += 12;
+              borrowedMonths = 1;
             }
 
-            const diffMs = now - dob;
-            const totalDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            var totalMs = at.getTime() - dob.getTime();
+            var totalDays = Math.floor(totalMs / (1000 * 60 * 60 * 24));
+            var totalHours = totalDays * 24;
+            var totalMinutes = totalHours * 60;
+            var totalSeconds = totalMinutes * 60;
+            var totalWeeks = Math.floor(totalDays / 7);
+            var remWeekDays = totalDays % 7;
+            var decimalYears = (totalDays / 365.2425).toFixed(2);
 
-            document.getElementById('age-out').textContent = years + ' Years, ' + months + ' Months, ' + days + ' Days';
-            document.getElementById('age-breakdown').textContent = 'Total days lived: ' + totalDays.toLocaleString() + ' days';
+            // Weekday of birth
+            var bornWeekday = weekdaysArr[dob.getDay()];
+
+            // Next birthday countdown
+            var nextBday = new Date(at.getFullYear(), dob.getMonth(), dob.getDate());
+            var isLeapBaby = (dob.getMonth() === 1 && dob.getDate() === 29);
+            var checkLeapYear = function(y) { return (y % 4 === 0 && y % 100 !== 0) || (y % 400 === 0); };
+
+            if (isLeapBaby && !checkLeapYear(nextBday.getFullYear())) {
+              nextBday = new Date(nextBday.getFullYear(), 2, 1); // March 1st
+            }
+            if (nextBday < at) {
+              var nextYr = at.getFullYear() + 1;
+              nextBday = new Date(nextYr, dob.getMonth(), dob.getDate());
+              if (isLeapBaby && !checkLeapYear(nextYr)) {
+                nextBday = new Date(nextYr, 2, 1);
+              }
+            }
+            var msUntilBday = nextBday.getTime() - at.getTime();
+            var daysUntilBday = Math.ceil(msUntilBday / (1000 * 60 * 60 * 24));
+            var nextAge = (nextBday.getFullYear() - dob.getFullYear());
+            var nextBdayWeekday = weekdaysArr[nextBday.getDay()];
+
+            // Half-birthday calculation (6 months after birth month)
+            var halfBdayMonth = (dob.getMonth() + 6) % 12;
+            var halfBdayMonthName = new Date(2000, halfBdayMonth, 1).toLocaleDateString('en-US', { month: 'long' });
+
+            // Vitality Estimates
+            var totalHeartbeats = Math.round(totalDays * 103680); // 72 bpm avg
+            var totalBreaths = Math.round(totalDays * 23040); // 16 breaths/min
+            var sleepYears = (totalDays * (8 / 24) / 365.2425).toFixed(1);
+            var pctLifespan = Math.min(100, (totalDays / (73.4 * 365.2425)) * 100).toFixed(1);
+
+            // Zodiacs
+            var wz = getWesternZodiac(dob.getMonth() + 1, dob.getDate());
+            var cz = getChineseZodiac(dob.getFullYear());
+
+            // Planetary Ages
+            var mercuryAge = (totalDays / 87.97).toFixed(1);
+            var venusAge = (totalDays / 224.7).toFixed(1);
+            var marsAge = (totalDays / 686.98).toFixed(1);
+            var jupiterAge = (totalDays / 4332.59).toFixed(2);
+
+            var container = document.getElementById('ageResults');
+            container.innerHTML = 
+              '<!-- Primary Hero Card -->' +
+              '<div style="padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Exact Chronological Age</span>' +
+                  '<span style="font-size: 0.75rem; color: #10b981; font-weight: bold;">' + decimalYears + ' Solar Years</span>' +
+                '</div>' +
+                '<div style="font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">' + years + ' Years, ' + months + ' Months, ' + days + ' Days</div>' +
+                '<div style="font-size: 0.85rem; color: var(--fg);">' +
+                  'Born on a <strong>' + bornWeekday + '</strong>' + (isLeapBaby ? ' <span style="background:#fef3c7; color:#b45309; padding:2px 6px; border-radius:3px; font-size:0.75rem; font-weight:bold;">Leap Day Baby (Feb 29)</span>' : '') +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Next Birthday Card -->' +
+              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">' +
+                '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Next Birthday Countdown</span>' +
+                  '<div style="font-size: 1.4rem; font-weight: bold; color: #eab308; margin: 0.2rem 0;">' + (daysUntilBday === 0 ? 'Today! 🎂' : daysUntilBday + ' Days Away') + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">Turns ' + nextAge + ' on ' + nextBdayWeekday + ', ' + nextBday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + '</div>' +
+                '</div>' +
+                '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Annual Half-Birthday</span>' +
+                  '<div style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; margin: 0.2rem 0;">' + halfBdayMonthName + ' ' + dob.getDate() + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">Exact 6-month halfway milestone mark</div>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Lifetime Milestones Grid -->' +
+              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem;">' +
+                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Days</span>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalDays.toLocaleString() + '</div>' +
+                '</div>' +
+                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Weeks & Days</span>' +
+                  '<div style="font-size: 1.05rem; font-weight: bold; color: var(--fg);">' + totalWeeks.toLocaleString() + 'w ' + remWeekDays + 'd</div>' +
+                '</div>' +
+                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Hours</span>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalHours.toLocaleString() + 'h</div>' +
+                '</div>' +
+                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Minutes</span>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalMinutes.toLocaleString() + 'm</div>' +
+                '</div>' +
+                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Total Seconds</span>' +
+                  '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + totalSeconds.toLocaleString() + 's</div>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Biological & Physiological Vitality Stats -->' +
+              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Estimated Heartbeats</span>' +
+                  '<div style="font-size: 1.25rem; font-weight: bold; color: #ef4444; margin: 0.15rem 0;">' + totalHeartbeats.toLocaleString() + '</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Based on standard 72 bpm resting pulse</div>' +
+                '</div>' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Breaths Inhaled</span>' +
+                  '<div style="font-size: 1.25rem; font-weight: bold; color: #06b6d4; margin: 0.15rem 0;">' + totalBreaths.toLocaleString() + '</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Based on standard 16 breaths/minute</div>' +
+                '</div>' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Cumulative Sleep</span>' +
+                  '<div style="font-size: 1.25rem; font-weight: bold; color: #8b5cf6; margin: 0.15rem 0;">' + sleepYears + ' Years</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted);">~8 hours nightly restorative sleep</div>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Cosmic & Astrological Profile -->' +
+              '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Western Zodiac Sign</span>' +
+                  '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin: 0.15rem 0;">' + wz.sign + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + wz.element + ' • ' + wz.dates + '</div>' +
+                '</div>' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase;">Chinese Zodiac</span>' +
+                  '<div style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin: 0.15rem 0;">' + cz.element + ' ' + cz.animal + '</div>' +
+                  '<div style="font-size: 0.75rem; color: var(--text-muted);">' + cz.trait + '</div>' +
+                '</div>' +
+              '</div>' +
+
+              '<!-- Planetary Ages -->' +
+              '<div style="padding: 0.85rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">Planetary Orbits (Your Age on Other Worlds)</span>' +
+                '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; text-align: center;">' +
+                  '<div style="padding: 0.4rem; background: var(--bg); border-radius: 3px;">' +
+                    '<div style="font-size: 0.68rem; color: var(--text-muted);">Mercury ☿</div>' +
+                    '<div style="font-size: 1rem; font-weight: bold; color: #f59e0b;">' + mercuryAge + ' yrs</div>' +
+                  '</div>' +
+                  '<div style="padding: 0.4rem; background: var(--bg); border-radius: 3px;">' +
+                    '<div style="font-size: 0.68rem; color: var(--text-muted);">Venus ♀</div>' +
+                    '<div style="font-size: 1rem; font-weight: bold; color: #ec4899;">' + venusAge + ' yrs</div>' +
+                  '</div>' +
+                  '<div style="padding: 0.4rem; background: var(--bg); border-radius: 3px;">' +
+                    '<div style="font-size: 0.68rem; color: var(--text-muted);">Mars ♂</div>' +
+                    '<div style="font-size: 1rem; font-weight: bold; color: #ef4444;">' + marsAge + ' yrs</div>' +
+                  '</div>' +
+                  '<div style="padding: 0.4rem; background: var(--bg); border-radius: 3px;">' +
+                    '<div style="font-size: 0.68rem; color: var(--text-muted);">Jupiter ♃</div>' +
+                    '<div style="font-size: 1rem; font-weight: bold; color: #8b5cf6;">' + jupiterAge + ' yrs</div>' +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+
+            var deriv = document.getElementById('ageDerivationBox');
+            deriv.innerHTML = 
+              '<div><strong>1. Calendar Year Math:</strong> ' + at.getFullYear() + ' &minus; ' + dob.getFullYear() + ' = ' + (at.getFullYear() - dob.getFullYear()) + ' years' + (borrowedMonths ? ' &minus; 1 borrowed year = <strong>' + years + ' years</strong>' : '') + '</div>' +
+              '<div><strong>2. Month Borrowing Math:</strong> ' + at.getMonth() + ' &minus; ' + dob.getMonth() + ' = ' + (at.getMonth() - dob.getMonth()) + ' months' + (borrowedMonths ? ' + 12 = ' + (at.getMonth() - dob.getMonth() + 12) : '') + (borrowedDays ? ' &minus; 1 borrowed month = <strong>' + months + ' months</strong>' : '') + '</div>' +
+              '<div><strong>3. Day Borrowing Math:</strong> ' + at.getDate() + ' &minus; ' + dob.getDate() + ' = ' + (at.getDate() - dob.getDate()) + ' days' + (borrowedDays ? ' + ' + borrowedMonthDaysCount + ' (days in preceding month) = <strong>' + days + ' days</strong>' : '') + '</div>' +
+              '<div><strong>4. Epoch Duration:</strong> &Delta;T = ' + totalMs.toLocaleString() + ' ms &divide; 86,400,000 ms/day = <strong>' + totalDays.toLocaleString() + ' total days alive</strong></div>';
+
+            currentAgeData = {
+              dob: dobVal,
+              target: atVal,
+              years: years,
+              months: months,
+              days: days,
+              decimalYears: decimalYears,
+              bornWeekday: bornWeekday,
+              totalDays: totalDays,
+              totalWeeks: totalWeeks,
+              remWeekDays: remWeekDays,
+              totalHours: totalHours,
+              totalMinutes: totalMinutes,
+              totalHeartbeats: totalHeartbeats,
+              totalBreaths: totalBreaths,
+              sleepYears: sleepYears,
+              daysUntilBday: daysUntilBday,
+              nextAge: nextAge,
+              nextBdayWeekday: nextBdayWeekday,
+              nextBdayDateStr: nextBday.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+              zodiacWestern: wz.sign,
+              zodiacChinese: cz.element + ' ' + cz.animal
+            };
           }
-          document.addEventListener('DOMContentLoaded', calcAge);
+
+          window.setDobPreset = function(y, m, d) {
+            var dateObj = new Date(y, m, d);
+            document.getElementById('dobInput').value = dateObj.toISOString().slice(0, 10);
+            calcAge();
+          };
+
+          window.resetTargetToToday = function() {
+            document.getElementById('ageAtDate').value = new Date().toISOString().slice(0, 10);
+            calcAge();
+          };
+
+          window.copyAgeReport = function() {
+            if (!currentAgeData) return;
+            var text = 
+              '[Exact Chronological Age & Lifetime Milestone Report]\\n' +
+              '• Date of Birth: ' + currentAgeData.dob + ' (' + currentAgeData.bornWeekday + ')\\n' +
+              '• As of Date: ' + currentAgeData.target + '\\n' +
+              '• Exact Age: ' + currentAgeData.years + ' Years, ' + currentAgeData.months + ' Months, ' + currentAgeData.days + ' Days (' + currentAgeData.decimalYears + ' solar years)\\n' +
+              '• Lifetime Traversed: ' + currentAgeData.totalDays.toLocaleString() + ' Days (' + currentAgeData.totalWeeks.toLocaleString() + ' weeks, ' + currentAgeData.remWeekDays + ' days)\\n' +
+              '• Total Hours Lived: ' + currentAgeData.totalHours.toLocaleString() + ' Hours (' + currentAgeData.totalMinutes.toLocaleString() + ' minutes)\\n' +
+              '• Estimated Heartbeats: ~' + currentAgeData.totalHeartbeats.toLocaleString() + ' beats\\n' +
+              '• Restorative Sleep: ~' + currentAgeData.sleepYears + ' cumulative years\\n' +
+              '• Western Zodiac: ' + currentAgeData.zodiacWestern + '\\n' +
+              '• Chinese Zodiac: ' + currentAgeData.zodiacChinese + '\\n' +
+              '• Next Birthday: ' + (currentAgeData.daysUntilBday === 0 ? 'Today! 🎂' : currentAgeData.daysUntilBday + ' days away (Turns ' + currentAgeData.nextAge + ' on ' + currentAgeData.nextBdayWeekday + ', ' + currentAgeData.nextBdayDateStr + ')') + '\\n' +
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/age-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('copyAgeReportBtn');
+              var orig = btn.innerHTML;
+              btn.innerHTML = '<span style=\"color:#fff; font-weight:bold;\">✓ Copied Milestone Report!</span>';
+              setTimeout(function() { btn.innerHTML = orig; }, 2200);
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var today = new Date().toISOString().slice(0, 10);
+            document.getElementById('ageAtDate').value = today;
+            calcAge();
+          });
         </script>
       `
     },
@@ -1363,9 +1973,16 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'fraction-calculator',
-      title: 'Fraction Calculator (Add, Subtract, Multiply, Divide Fractions)',
-      metaDesc: 'Add, subtract, multiply, and divide fractions with step-by-step solutions, LCD least common denominator, and mixed number simplification.',
+      title: 'Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers)',
+      metaDesc: 'Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with LCD least common denominator, mixed number simplification, and one-click copy.',
       category: 'Math & Units',
+      faq: [
+        { q: 'How do you add or subtract fractions with different denominators?', a: 'Find the Least Common Denominator (LCD) of the fractions by calculating the Least Common Multiple (LCM) of the denominators. Multiply the numerator and denominator of each fraction by the factor needed to reach the LCD, add or subtract the adjusted numerators while keeping the common denominator, and simplify the final fraction using the Greatest Common Divisor (GCD).' },
+        { q: 'What is the Keep-Change-Flip rule for dividing fractions?', a: 'To divide two fractions (A/B ÷ C/D), keep the first fraction (A/B), change the division operator to multiplication (×), and flip the second fraction to its reciprocal (D/C). Then multiply straight across: (A × D) / (B × C), and reduce to lowest terms.' },
+        { q: 'What is the difference between a proper fraction, improper fraction, and mixed number?', a: 'A proper fraction has a numerator smaller than its denominator (e.g., 3/4). An improper fraction has a numerator equal to or greater than its denominator (e.g., 7/4). A mixed number expresses an improper fraction as an integer combined with a proper fraction (e.g., 1 3/4).' },
+        { q: 'Why can you not just add the numerators and denominators together directly?', a: 'Adding numerators and denominators directly (e.g., 1/2 + 1/3 = 2/5) is known as the "Freshman’s Dream" error. 2/5 (0.4) is smaller than 1/2 (0.5), which is impossible when adding two positive values. Adding top-and-bottom computes the mediant, which always falls strictly between the two fractions rather than calculating their combined sum (5/6 ≈ 0.833).' },
+        { q: 'How do you convert a mixed number to an improper fraction?', a: 'Multiply the whole integer part by the denominator, add the numerator to that product, and place the resulting sum over the original denominator: W N/D = (W × D + N) / D. For example, 3 2/5 = (3 × 5 + 2) / 5 = 17/5.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
@@ -1374,50 +1991,176 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           </nav>
           <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Fraction Arithmetic Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Add, subtract, multiply, and divide two fractions or mixed numbers with full step-by-step work and common denominator solving.
+            Add, subtract, multiply, and divide two fractions or mixed numbers with full step-by-step LCD solutions, improper conversions, decimal approximations, and tape measure markings.
           </p>
 
           <div class="tool-box">
+            <!-- Quick Presets -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Popular Problems & Quick Presets:</span>
+              <button type="button" class="btn-sec" onclick="setFracPreset(0, 1, 2, '+', 0, 3, 4)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1/2 + 3/4</button>
+              <button type="button" class="btn-sec" onclick="setFracPreset(2, 1, 3, '*', 1, 1, 2)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">2 1/3 &times; 1 1/2</button>
+              <button type="button" class="btn-sec" onclick="setFracPreset(0, 5, 6, '-', 0, 2, 3)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">5/6 &minus; 2/3</button>
+              <button type="button" class="btn-sec" onclick="setFracPreset(3, 3, 4, '/', 0, 1, 8)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">3 3/4 &divide; 1/8 (Carpentry)</button>
+              <button type="button" class="btn-sec" onclick="setFracPreset(0, 7, 8, '-', 0, 5, 16)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">7/8 &minus; 5/16 (Machining)</button>
+              <button type="button" class="btn-sec" onclick="setFracPreset(0, 1, 4, '+', 0, 1, 3)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1/4 + 1/3 (Freshman Trap)</button>
+            </div>
+
+            <!-- Input Grid -->
             <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center;">
               <!-- Fraction 1 -->
-              <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
-                <div class="field-label">Fraction 1</div>
-                <div style="display: flex; gap: 0.4rem; align-items: center;">
-                  <input type="number" id="fc-w1" class="code-input" placeholder="Whole" style="width: 70px;" oninput="calcFracCalc()" />
-                  <div style="display: flex; flex-direction: column; gap: 0.3rem;">
-                    <input type="number" id="fc-n1" class="code-input" value="1" style="width: 70px;" oninput="calcFracCalc()" />
-                    <input type="number" id="fc-d1" class="code-input" value="2" min="1" style="width: 70px;" oninput="calcFracCalc()" />
+              <div style="background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border);">
+                <div class="field-label">Fraction 1 (Mixed or Simple)</div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <div style="text-align: center;">
+                    <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--mono); display: block; margin-bottom: 0.2rem;">Whole</span>
+                    <input type="number" id="fc-w1" class="code-input" placeholder="0" style="width: 70px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" />
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: center;">
+                    <input type="number" id="fc-n1" class="code-input" value="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Numerator" />
+                    <div style="width: 100%; height: 2px; background: var(--border);"></div>
+                    <input type="number" id="fc-d1" class="code-input" value="2" min="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Denominator" />
                   </div>
                 </div>
               </div>
 
-              <!-- Operation -->
-              <div>
-                <select id="fc-op" class="code-input" style="font-size: 1.5rem; padding: 0.5rem; font-weight: bold; width: auto;" onchange="calcFracCalc()">
-                  <option value="+">+</option>
-                  <option value="-">−</option>
-                  <option value="*">×</option>
-                  <option value="/">÷</option>
+              <!-- Operator Selector -->
+              <div style="text-align: center;">
+                <label class="field-label" style="margin-bottom: 0.3rem;">Operator</label>
+                <select id="fc-op" class="code-input" style="font-size: 1.6rem; padding: 0.4rem 0.8rem; font-weight: bold; width: auto; text-align: center; cursor: pointer; border-color: #3b82f6;" onchange="calcFracCalc()">
+                  <option value="+">&plus;</option>
+                  <option value="-">&minus;</option>
+                  <option value="*">&times;</option>
+                  <option value="/">&divide;</option>
                 </select>
               </div>
 
               <!-- Fraction 2 -->
-              <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border: 1px solid var(--border);">
-                <div class="field-label">Fraction 2</div>
-                <div style="display: flex; gap: 0.4rem; align-items: center;">
-                  <input type="number" id="fc-w2" class="code-input" placeholder="Whole" style="width: 70px;" oninput="calcFracCalc()" />
-                  <div style="display: flex; flex-direction: column; gap: 0.3rem;">
-                    <input type="number" id="fc-n2" class="code-input" value="3" style="width: 70px;" oninput="calcFracCalc()" />
-                    <input type="number" id="fc-d2" class="code-input" value="4" min="1" style="width: 70px;" oninput="calcFracCalc()" />
+              <div style="background: var(--surface-alt); padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border);">
+                <div class="field-label">Fraction 2 (Mixed or Simple)</div>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <div style="text-align: center;">
+                    <span style="font-size: 0.68rem; color: var(--text-muted); font-family: var(--mono); display: block; margin-bottom: 0.2rem;">Whole</span>
+                    <input type="number" id="fc-w2" class="code-input" placeholder="0" style="width: 70px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" />
+                  </div>
+                  <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: center;">
+                    <input type="number" id="fc-n2" class="code-input" value="3" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Numerator" />
+                    <div style="width: 100%; height: 2px; background: var(--border);"></div>
+                    <input type="number" id="fc-d2" class="code-input" value="4" min="1" style="width: 75px; text-align: center; font-size: 1.15rem;" oninput="calcFracCalc()" title="Denominator" />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Result</div>
-              <div id="fc-res" class="result-val">1 1/4</div>
-              <div id="fc-steps" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Decimal: 1.25 | Improper Fraction: 5/4</div>
+            <!-- Dynamic Result Card -->
+            <div class="result-card" style="margin-top: 1.5rem; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Simplified Solution</div>
+              <div id="fc-res" class="result-val" style="font-size: 2.8rem; margin: 0.4rem 0; color: #10b981;">1 1/4</div>
+              <div id="fc-subtext" style="font-family: var(--mono); font-size: 1rem; color: var(--fg); margin-bottom: 0.75rem;">
+                1/2 &plus; 3/4 = 1 1/4
+              </div>
+
+              <!-- Multi-representation metrics -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Improper Fraction</div>
+                  <div id="fc-improper" style="font-weight: bold; color: #3b82f6; font-size: 1.05rem; margin-top: 0.2rem;">5/4</div>
+                </div>
+                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Decimal Value</div>
+                  <div id="fc-decimal" style="font-weight: bold; color: var(--fg); font-size: 1.05rem; margin-top: 0.2rem;">1.25</div>
+                </div>
+                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Percentage</div>
+                  <div id="fc-percent" style="font-weight: bold; color: var(--fg); font-size: 1.05rem; margin-top: 0.2rem;">125%</div>
+                </div>
+                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Reciprocal (Inverse)</div>
+                  <div id="fc-reciprocal" style="font-weight: bold; color: #8b5cf6; font-size: 1.05rem; margin-top: 0.2rem;">4/5 (0.8)</div>
+                </div>
+              </div>
+
+              <!-- One-Click Copy Button -->
+              <button type="button" id="btnCopyFrac" onclick="copyFractionSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy Complete Fraction Solution & Work
+              </button>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation Engine -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Algebraic Solution</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">LCD & Reduction Proof</span>
+            </div>
+            <div id="fc-steps-box" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <!-- Dynamic worked steps populated by calcFracCalc() -->
+            </div>
+          </div>
+
+          <!-- Master Reference Table: Imperial 16th Fractions to Decimals & Metric -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--fg);">📏 Imperial Tape Measure & Workshop Fraction Chart</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Exact decimal equivalents and millimeter conversions for standard 16th-inch increments used in carpentry, machining, and cooking:
+            </p>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: left;">
+                <thead>
+                  <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+                    <th style="padding: 0.5rem 0.75rem;">Fraction</th>
+                    <th style="padding: 0.5rem 0.75rem;">Decimal (in)</th>
+                    <th style="padding: 0.5rem 0.75rem;">Metric (mm)</th>
+                    <th style="padding: 0.5rem 0.75rem;">Percent (%)</th>
+                    <th style="padding: 0.5rem 0.75rem;">Workshop Benchmark</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/16"</td><td style="padding: 0.45rem 0.75rem;">0.0625"</td><td style="padding: 0.45rem 0.75rem;">1.588 mm</td><td style="padding: 0.45rem 0.75rem;">6.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Sheet steel gauge tolerance</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/8"</td><td style="padding: 0.45rem 0.75rem;">0.1250"</td><td style="padding: 0.45rem 0.75rem;">3.175 mm</td><td style="padding: 0.45rem 0.75rem;">12.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Hardboard / Table saw blade kerf</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/16"</td><td style="padding: 0.45rem 0.75rem;">0.1875"</td><td style="padding: 0.45rem 0.75rem;">4.763 mm</td><td style="padding: 0.45rem 0.75rem;">18.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Masonry screw pilot hole</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/4"</td><td style="padding: 0.45rem 0.75rem;">0.2500"</td><td style="padding: 0.45rem 0.75rem;">6.350 mm</td><td style="padding: 0.45rem 0.75rem;">25.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Standard plywood / 1/4 cup</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">5/16"</td><td style="padding: 0.45rem 0.75rem;">0.3125"</td><td style="padding: 0.45rem 0.75rem;">7.938 mm</td><td style="padding: 0.45rem 0.75rem;">31.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Lag bolt diameter</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/8"</td><td style="padding: 0.45rem 0.75rem;">0.3750"</td><td style="padding: 0.45rem 0.75rem;">9.525 mm</td><td style="padding: 0.45rem 0.75rem;">37.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Ratchet drive / Drywall sheathing</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">7/16"</td><td style="padding: 0.45rem 0.75rem;">0.4375"</td><td style="padding: 0.45rem 0.75rem;">11.113 mm</td><td style="padding: 0.45rem 0.75rem;">43.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">OSB roof sheathing</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">1/2"</td><td style="padding: 0.45rem 0.75rem;">0.5000"</td><td style="padding: 0.45rem 0.75rem;">12.700 mm</td><td style="padding: 0.45rem 0.75rem;">50.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Standard wall drywall / 1/2 cup</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">9/16"</td><td style="padding: 0.45rem 0.75rem;">0.5625"</td><td style="padding: 0.45rem 0.75rem;">14.288 mm</td><td style="padding: 0.45rem 0.75rem;">56.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Spark plug hex socket</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">5/8"</td><td style="padding: 0.45rem 0.75rem;">0.6250"</td><td style="padding: 0.45rem 0.75rem;">15.875 mm</td><td style="padding: 0.45rem 0.75rem;">62.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Type X fire-rated drywall</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">11/16"</td><td style="padding: 0.45rem 0.75rem;">0.6875"</td><td style="padding: 0.45rem 0.75rem;">17.463 mm</td><td style="padding: 0.45rem 0.75rem;">68.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Hardwood flooring tongue</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">3/4"</td><td style="padding: 0.45rem 0.75rem;">0.7500"</td><td style="padding: 0.45rem 0.75rem;">19.050 mm</td><td style="padding: 0.45rem 0.75rem;">75.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Subflooring / Cabinet carcase</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">13/16"</td><td style="padding: 0.45rem 0.75rem;">0.8125"</td><td style="padding: 0.45rem 0.75rem;">20.638 mm</td><td style="padding: 0.45rem 0.75rem;">81.25%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Rough sawn 4/4 lumber surfaced</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">7/8"</td><td style="padding: 0.45rem 0.75rem;">0.8750"</td><td style="padding: 0.45rem 0.75rem;">22.225 mm</td><td style="padding: 0.45rem 0.75rem;">87.50%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Heavy structural steel bolt</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #3b82f6;">15/16"</td><td style="padding: 0.45rem 0.75rem;">0.9375"</td><td style="padding: 0.45rem 0.75rem;">23.813 mm</td><td style="padding: 0.45rem 0.75rem;">93.75%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Plumbing union coupling</td></tr>
+                  <tr><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">1"</td><td style="padding: 0.45rem 0.75rem;">1.0000"</td><td style="padding: 0.45rem 0.75rem;">25.400 mm</td><td style="padding: 0.45rem 0.75rem;">100.00%</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Full imperial base unit</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3 Fraction Traps & Historical Gotchas -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 3 Critical Fraction Pitfalls & Common Mistakes</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #ef4444;">
+                <strong style="color: #ef4444; font-size: 0.95rem;">1. The Freshman's Dream: Adding Numerators and Denominators Directly</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  A frequent elementary mistake is writing <code style="color: var(--fg); font-family: var(--mono);">1/2 + 1/3 = 2/5</code>. Notice that 2/5 = 0.4, which is <em>smaller</em> than the 1/2 (0.5) you started with! In mathematics, <code style="color: var(--fg); font-family: var(--mono);">(a+c)/(b+d)</code> is known as the <strong>mediant</strong>—a weighted average that always lies strictly <em>between</em> the two values. To calculate the combined sum, denominators MUST be unified through the Least Common Denominator: <code style="color: var(--fg); font-family: var(--mono);">3/6 + 2/6 = 5/6 &approx; 0.833</code>.
+                </p>
+              </div>
+
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #f59e0b;">
+                <strong style="color: #f59e0b; font-size: 0.95rem;">2. Division by Zero & Reciprocal Singularities</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  Fractions represent division: <code style="color: var(--fg); font-family: var(--mono);">N / D</code>. Setting <code style="color: var(--fg); font-family: var(--mono);">D = 0</code> yields an undefined mathematical singularity because no real number multiplied by 0 can recreate N. Furthermore, when dividing by a fraction with a numerator of zero (<code style="color: var(--fg); font-family: var(--mono);">&divide; 0/D</code>), the Keep-Change-Flip rule attempts to multiply by its reciprocal <code style="color: var(--fg); font-family: var(--mono);">D/0</code>, immediately causing an illegal division by zero.
+                </p>
+              </div>
+
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #3b82f6;">
+                <strong style="color: #3b82f6; font-size: 0.95rem;">3. Floating-Point Binary Imprecision vs Exact Rational Arithmetic</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  In standard computer hardware (IEEE 754 double precision), fractions like 1/3 or 1/10 cannot be represented with finite binary bits. Evaluating <code style="color: var(--fg); font-family: var(--mono);">1/3 + 1/3 + 1/3</code> in raw floating-point code produces <code style="color: var(--fg); font-family: var(--mono);">0.9999999999999999</code> instead of <code style="color: var(--fg); font-family: var(--mono);">1.0</code>. Digital Tools Shed performs exact rational integer arithmetic behind the scenes, ensuring 100% precision with zero accumulated rounding error.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1430,68 +2173,211 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             return a;
           }
 
-          function calcFracCalc() {
-            var w1 = parseFloat(document.getElementById('fc-w1').value) || 0;
-            var n1 = parseFloat(document.getElementById('fc-n1').value) || 0;
-            var d1 = parseFloat(document.getElementById('fc-d1').value) || 1;
+          function lcmFrac(a, b) {
+            if (a === 0 || b === 0) return 0;
+            return Math.abs(a * b) / gcdFrac(a, b);
+          }
 
-            var w2 = parseFloat(document.getElementById('fc-w2').value) || 0;
-            var n2 = parseFloat(document.getElementById('fc-n2').value) || 0;
-            var d2 = parseFloat(document.getElementById('fc-d2').value) || 1;
+          window.setFracPreset = function(w1, n1, d1, op, w2, n2, d2) {
+            document.getElementById('fc-w1').value = w1 || '';
+            document.getElementById('fc-n1').value = n1;
+            document.getElementById('fc-d1').value = d1;
+            document.getElementById('fc-op').value = op;
+            document.getElementById('fc-w2').value = w2 || '';
+            document.getElementById('fc-n2').value = n2;
+            document.getElementById('fc-d2').value = d2;
+            calcFracCalc();
+          };
+
+          function calcFracCalc() {
+            var rawW1 = parseFloat(document.getElementById('fc-w1').value) || 0;
+            var rawN1 = parseFloat(document.getElementById('fc-n1').value) || 0;
+            var rawD1 = parseFloat(document.getElementById('fc-d1').value) || 1;
+
+            var rawW2 = parseFloat(document.getElementById('fc-w2').value) || 0;
+            var rawN2 = parseFloat(document.getElementById('fc-n2').value) || 0;
+            var rawD2 = parseFloat(document.getElementById('fc-d2').value) || 1;
 
             var op = document.getElementById('fc-op').value;
 
-            // Convert to improper fractions
-            var top1 = (w1 * d1) + n1;
-            var top2 = (w2 * d2) + n2;
-
-            var resNum = 0, resDen = 1;
-
-            if (op === '+') {
-              resNum = (top1 * d2) + (top2 * d1);
-              resDen = d1 * d2;
-            } else if (op === '-') {
-              resNum = (top1 * d2) - (top2 * d1);
-              resDen = d1 * d2;
-            } else if (op === '*') {
-              resNum = top1 * top2;
-              resDen = d1 * d2;
-            } else if (op === '/') {
-              resNum = top1 * d2;
-              resDen = d1 * top2;
-            }
-
-            if (resDen === 0) {
+            if (rawD1 === 0 || rawD2 === 0) {
               document.getElementById('fc-res').textContent = 'Undefined';
+              document.getElementById('fc-res').style.color = '#ef4444';
+              document.getElementById('fc-subtext').textContent = 'Denominator cannot be zero';
+              document.getElementById('fc-steps-box').innerHTML = '<div style="color: #ef4444;">Error: Denominator is 0. Division by zero is undefined.</div>';
               return;
             }
 
-            var g = gcdFrac(resNum, resDen);
-            resNum = resNum / g;
-            resDen = resDen / g;
+            // Convert to improper fractions
+            var top1 = (Math.abs(rawW1) * rawD1) + rawN1;
+            if (rawW1 < 0) top1 = -top1;
+            var d1 = rawD1;
+
+            var top2 = (Math.abs(rawW2) * rawD2) + rawN2;
+            if (rawW2 < 0) top2 = -top2;
+            var d2 = rawD2;
+
+            var resNum = 0, resDen = 1;
+            var stepHtml = '';
+
+            // Step 1: Improper Fractions
+            var f1Str = (rawW1 ? rawW1 + ' ' : '') + rawN1 + '/' + rawD1;
+            var f2Str = (rawW2 ? rawW2 + ' ' : '') + rawN2 + '/' + rawD2;
+            stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
+              '<strong style="color: var(--fg);">Step 1: Convert to Improper Fractions</strong>' +
+              '<div style="color: #3b82f6; margin-top: 0.25rem;">Fraction 1: ' + top1 + '/' + d1 + ' &bull; Fraction 2: ' + top2 + '/' + d2 + '</div>' +
+              '</div>';
+
+            // Step 2: Common Denominator & Calculation
+            if (op === '+' || op === '-') {
+              var lcd = lcmFrac(d1, d2);
+              var m1 = lcd / d1;
+              var m2 = lcd / d2;
+              var scaledTop1 = top1 * m1;
+              var scaledTop2 = top2 * m2;
+
+              if (op === '+') {
+                resNum = scaledTop1 + scaledTop2;
+              } else {
+                resNum = scaledTop1 - scaledTop2;
+              }
+              resDen = lcd;
+
+              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
+                '<strong style="color: var(--fg);">Step 2: Find Least Common Denominator (LCD)</strong>' +
+                '<div style="color: #3b82f6; margin-top: 0.25rem;">LCD(' + d1 + ', ' + d2 + ') = <strong>' + lcd + '</strong></div>' +
+                '<div style="margin-top: 0.25rem; color: var(--text-muted);">' +
+                  'Fraction 1: (' + top1 + ' &times; ' + m1 + ') / (' + d1 + ' &times; ' + m1 + ') = ' + scaledTop1 + '/' + lcd + '<br>' +
+                  'Fraction 2: (' + top2 + ' &times; ' + m2 + ') / (' + d2 + ' &times; ' + m2 + ') = ' + scaledTop2 + '/' + lcd +
+                '</div>' +
+                '</div>';
+
+              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
+                '<strong style="color: var(--fg);">Step 3: Perform Operation on Numerators</strong>' +
+                '<div style="color: #3b82f6; margin-top: 0.25rem;">' + scaledTop1 + ' ' + (op === '+' ? '&plus;' : '&minus;') + ' ' + scaledTop2 + ' = <strong>' + resNum + '</strong> &rarr; ' + resNum + '/' + resDen + '</div>' +
+                '</div>';
+            } else if (op === '*') {
+              resNum = top1 * top2;
+              resDen = d1 * d2;
+
+              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
+                '<strong style="color: var(--fg);">Step 2: Multiply Numerators and Denominators Straight Across</strong>' +
+                '<div style="color: #3b82f6; margin-top: 0.25rem;">' +
+                  'Numerators: ' + top1 + ' &times; ' + top2 + ' = <strong>' + resNum + '</strong><br>' +
+                  'Denominators: ' + d1 + ' &times; ' + d2 + ' = <strong>' + resDen + '</strong> &rarr; ' + resNum + '/' + resDen +
+                '</div>' +
+                '</div>';
+            } else if (op === '/') {
+              if (top2 === 0) {
+                document.getElementById('fc-res').textContent = 'Undefined';
+                document.getElementById('fc-res').style.color = '#ef4444';
+                document.getElementById('fc-subtext').textContent = 'Division by zero is undefined';
+                document.getElementById('fc-steps-box').innerHTML = '<div style="color: #ef4444;">Cannot divide by zero fraction (0/' + d2 + ').</div>';
+                return;
+              }
+              resNum = top1 * d2;
+              resDen = d1 * top2;
+
+              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
+                '<strong style="color: var(--fg);">Step 2: Keep, Change, Flip (Multiply by Reciprocal)</strong>' +
+                '<div style="color: #3b82f6; margin-top: 0.25rem;">' +
+                  '(' + top1 + '/' + d1 + ') &divide; (' + top2 + '/' + d2 + ') = (' + top1 + '/' + d1 + ') &times; (' + d2 + '/' + top2 + ')<br>' +
+                  '= (' + top1 + ' &times; ' + d2 + ') / (' + d1 + ' &times; ' + top2 + ') = <strong>' + resNum + '/' + resDen + '</strong>' +
+                '</div>' +
+                '</div>';
+            }
 
             if (resDen < 0) {
               resNum = -resNum;
               resDen = -resDen;
             }
 
-            var whole = Math.floor(Math.abs(resNum) / resDen);
-            var rem = Math.abs(resNum) % resDen;
-            var sign = resNum < 0 ? '-' : '';
+            // Step 4: Reduce via GCD
+            var g = gcdFrac(resNum, resDen);
+            var redNum = resNum / g;
+            var redDen = resDen / g;
 
-            var outStr = '';
+            stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
+              '<strong style="color: var(--fg);">Step ' + (op === '+' || op === '-' ? '4' : '3') + ': Simplify with Greatest Common Divisor (GCD)</strong>' +
+              '<div style="color: #3b82f6; margin-top: 0.25rem;">GCD(' + resNum + ', ' + resDen + ') = ' + g + ' &bull; (' + resNum + ' &divide; ' + g + ') / (' + resDen + ' &divide; ' + g + ') = <strong>' + redNum + '/' + redDen + '</strong></div>' +
+              '</div>';
+
+            // Step 5: Convert to Mixed
+            var whole = Math.floor(Math.abs(redNum) / redDen);
+            var rem = Math.abs(redNum) % redDen;
+            var isNeg = redNum < 0;
+
+            var mixedStr = '';
             if (rem === 0) {
-              outStr = (sign ? '-' : '') + whole;
+              mixedStr = (isNeg ? '-' : '') + whole;
             } else if (whole === 0) {
-              outStr = (sign ? '-' : '') + rem + '/' + resDen;
+              mixedStr = (isNeg ? '-' : '') + rem + '/' + redDen;
             } else {
-              outStr = (sign ? '-' : '') + whole + ' ' + rem + '/' + resDen;
+              mixedStr = (isNeg ? '-' : '') + whole + ' ' + rem + '/' + redDen;
             }
 
-            document.getElementById('fc-res').textContent = outStr;
-            var dec = (resNum / resDen).toFixed(4).replace(/0+$/, '').replace(/\\.$/, '');
-            document.getElementById('fc-steps').textContent = 'Decimal: ' + dec + ' | Improper Fraction: ' + resNum + '/' + resDen;
+            if (whole > 0 && rem > 0) {
+              stepHtml += '<div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">' +
+                '<strong style="color: var(--fg);">Step ' + (op === '+' || op === '-' ? '5' : '4') + ': Extract Whole Mixed Number</strong>' +
+                '<div style="color: #10b981; margin-top: 0.25rem;">' + Math.abs(redNum) + ' &divide; ' + redDen + ' = <strong>' + whole + '</strong> with remainder <strong>' + rem + '</strong> &rarr; <strong>' + mixedStr + '</strong></div>' +
+                '</div>';
+            }
+
+            // Render Results
+            var resEl = document.getElementById('fc-res');
+            resEl.textContent = mixedStr;
+            resEl.style.color = '#10b981';
+
+            var opSymbol = op === '+' ? '+' : (op === '-' ? '−' : (op === '*' ? '×' : '÷'));
+            document.getElementById('fc-subtext').textContent = f1Str + ' ' + opSymbol + ' ' + f2Str + ' = ' + mixedStr;
+
+            document.getElementById('fc-improper').textContent = redNum + '/' + redDen;
+            var decVal = redNum / redDen;
+            document.getElementById('fc-decimal').textContent = Number.isInteger(decVal) ? decVal.toString() : decVal.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+            document.getElementById('fc-percent').textContent = (decVal * 100).toFixed(2).replace(/\.00$/, '') + '%';
+
+            if (redNum !== 0) {
+              var recipNum = redDen;
+              var recipDen = redNum;
+              if (recipDen < 0) { recipNum = -recipNum; recipDen = -recipDen; }
+              var recipDec = (recipNum / recipDen).toFixed(3).replace(/0+$/, '').replace(/\.$/, '');
+              document.getElementById('fc-reciprocal').textContent = recipNum + '/' + recipDen + ' (' + recipDec + ')';
+            } else {
+              document.getElementById('fc-reciprocal').textContent = 'Undefined (0 has no inverse)';
+            }
+
+            document.getElementById('fc-steps-box').innerHTML = stepHtml;
           }
+
+          window.copyFractionSummary = function() {
+            var btn = document.getElementById('btnCopyFrac');
+            var res = document.getElementById('fc-res').textContent;
+            var eq = document.getElementById('fc-subtext').textContent;
+            var improper = document.getElementById('fc-improper').textContent;
+            var dec = document.getElementById('fc-decimal').textContent;
+            var pct = document.getElementById('fc-percent').textContent;
+            var recip = document.getElementById('fc-reciprocal').textContent;
+
+            var text = '--- Fraction Calculation Report ---\n' +
+              'Equation: ' + eq + '\n' +
+              'Simplified Result: ' + res + '\n' +
+              'Improper Fraction: ' + improper + '\n' +
+              'Decimal Value: ' + dec + '\n' +
+              'Percentage: ' + pct + '\n' +
+              'Reciprocal: ' + recip + '\n' +
+              'Calculated on Digital Tools Shed (https://digitaltoolsshed.com/math/fraction-calculator)';
+
+            navigator.clipboard.writeText(text).then(function() {
+              btn.textContent = '✓ Fraction Solution Copied!';
+              btn.style.borderColor = '#10b981';
+              btn.style.color = '#10b981';
+              setTimeout(function() {
+                btn.textContent = '📋 Copy Complete Fraction Solution & Work';
+                btn.style.borderColor = 'var(--border)';
+                btn.style.color = 'var(--fg)';
+              }, 2500);
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', calcFracCalc);
           calcFracCalc();
@@ -1500,45 +2386,208 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'aspect-ratio-calculator',
-      title: 'Aspect Ratio Calculator (16:9, 4:3, 21:9 & Pixel Resizer)',
-      metaDesc: 'Calculate aspect ratios, resize video resolutions, and scale image dimensions. Presets for 16:9 (YouTube), 9:16 (TikTok), 4:3, 1:1, and 21:9 ultrawide.',
+      title: 'Aspect Ratio Calculator & Resolution Scaler (16:9, 9:16, 4:3 & Ultrawide)',
+      metaDesc: 'Calculate aspect ratios, scale video resolutions, and calculate display PPI. Presets for 16:9 (YouTube), 9:16 (TikTok), 4:3, 1:1, and 21:9 ultrawide with live CSS visual preview.',
       category: 'Design & Media',
+      faq: [
+        { q: 'How do you calculate the aspect ratio from pixel width and height?', a: 'Find the Greatest Common Divisor (GCD) of width and height using the Euclidean algorithm, then divide both dimensions by that GCD. For example, for 1920 × 1080, GCD(1920, 1080) = 120. 1920 ÷ 120 = 16 and 1080 ÷ 120 = 9, yielding a 16:9 ratio.' },
+        { q: 'What is the difference between DAR, PAR, and SAR?', a: 'Storage Aspect Ratio (SAR) is the horizontal to vertical pixel count stored in the file (e.g. 720×480). Pixel Aspect Ratio (PAR) is the physical rectangular shape of individual pixels (square 1:1 in modern LCDs, but non-square in legacy DVDs). Display Aspect Ratio (DAR) is the actual geometric image shape rendered on screen (DAR = SAR × PAR).' },
+        { q: 'What is the difference between 16:9 and 9:16?', a: '16:9 is landscape widescreen orientation (1.778:1) standard for HDTV, YouTube desktop, television broadcasts, and computer monitors (e.g. 1920×1080). 9:16 is vertical portrait orientation (0.562:1) standard for mobile smartphones, TikTok, Instagram Reels, and YouTube Shorts (e.g. 1080×1920).' },
+        { q: 'Why are 21:9 ultrawide monitors actually 64:27?', a: '21:9 is a consumer marketing simplification. True 21 ÷ 9 is 2.333:1. However, standard ultrawide monitors have resolutions like 2560×1080 or 3440×1440. Reducing these reveals an exact mathematical aspect ratio of 64:27 (2.370:1), matching the ITU-R BT.709 cinema expansion ratio.' },
+        { q: 'How do you calculate display PPI (Pixels Per Inch) from diagonal screen size?', a: 'Using the Pythagorean theorem: d_pixels = √(width² + height²), then divide by diagonal screen inches: PPI = d_pixels / diagonal inches. For example, a 27-inch 2560×1440 monitor has 2937.2 ÷ 27 = 108.8 PPI.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Aspect Ratio Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Aspect Ratio & Resolution Scaler</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Aspect Ratio Calculator & Resolution Scaler</h1>
           <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Find aspect ratios from pixel dimensions or scale video/image resolutions proportionally without distortion.
+            Find aspect ratios from pixel dimensions, scale video and photography resolutions proportionally without distortion, and compute physical screen PPI density.
           </p>
 
           <div class="tool-box">
+            <!-- Popular Presets -->
             <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
-              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Popular Ratios:</span>
-              <button type="button" class="btn-sec" onclick="setRatio(16, 9, 1920, 1080)">16:9 (YouTube / 1080p)</button>
-              <button type="button" class="btn-sec" onclick="setRatio(9, 16, 1080, 1920)">9:16 (TikTok / Reels)</button>
-              <button type="button" class="btn-sec" onclick="setRatio(4, 3, 1024, 768)">4:3 (SD / iPad)</button>
-              <button type="button" class="btn-sec" onclick="setRatio(1, 1, 1080, 1080)">1:1 (Instagram)</button>
-              <button type="button" class="btn-sec" onclick="setRatio(21, 9, 2560, 1080)">21:9 (Ultrawide)</button>
+              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Popular Standards & Presets:</span>
+              <button type="button" class="btn-sec" onclick="setRatioPreset(16, 9, 1920, 1080, '16:9 (HDTV / YouTube)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">16:9 (1080p Full HD)</button>
+              <button type="button" class="btn-sec" onclick="setRatioPreset(9, 16, 1080, 1920, '9:16 (TikTok / Reels)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">9:16 (TikTok / Shorts)</button>
+              <button type="button" class="btn-sec" onclick="setRatioPreset(4, 3, 1024, 768, '4:3 (Classic TV / iPad)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">4:3 (SD / iPad)</button>
+              <button type="button" class="btn-sec" onclick="setRatioPreset(1, 1, 1080, 1080, '1:1 (Square Instagram)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">1:1 (Square)</button>
+              <button type="button" class="btn-sec" onclick="setRatioPreset(64, 27, 2560, 1080, '21:9 / 64:27 (Ultrawide)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">21:9 (Ultrawide Monitor)</button>
+              <button type="button" class="btn-sec" onclick="setRatioPreset(4, 5, 1080, 1350, '4:5 (Instagram Portrait)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">4:5 (IG Portrait)</button>
+              <button type="button" class="btn-sec" onclick="setRatioPreset(3, 2, 1080, 720, '3:2 (35mm Photography)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">3:2 (DSLR / 35mm)</button>
+              <button type="button" class="btn-sec" onclick="setRatioPreset(1920, 803, 1920, 803, '2.39:1 (CinemaScope)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">2.39:1 (CinemaScope)</button>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
-              <div class="field-group">
-                <label class="field-label">Width (Pixels)</label>
-                <input type="number" id="ar-w" class="code-input" value="1920" oninput="calcARWidth()" style="font-size: 1.25rem;" />
+            <!-- Inputs & Lock -->
+            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 1rem; align-items: center;">
+              <div class="field-group" style="margin-bottom: 0;">
+                <label class="field-label" for="ar-w">Width (Pixels)</label>
+                <input type="number" id="ar-w" class="code-input" value="1920" min="1" oninput="onWidthChange()" style="font-size: 1.25rem;" />
               </div>
-              <div class="field-group">
-                <label class="field-label">Height (Pixels)</label>
-                <input type="number" id="ar-h" class="code-input" value="1080" oninput="calcARHeight()" style="font-size: 1.25rem;" />
+
+              <!-- Lock Ratio Button -->
+              <div style="text-align: center; padding-top: 1.2rem;">
+                <button type="button" id="btnLockRatio" onclick="toggleLock()" class="btn-sec" style="padding: 0.5rem 0.75rem; font-family: var(--mono); font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; gap: 0.2rem; cursor: pointer; border-color: #3b82f6; color: #3b82f6;">
+                  <span id="lock-icon" style="font-size: 1.2rem;">🔒</span>
+                  <span id="lock-text" style="font-size: 0.68rem; font-weight: bold;">Locked</span>
+                </button>
+              </div>
+
+              <div class="field-group" style="margin-bottom: 0;">
+                <label class="field-label" for="ar-h">Height (Pixels)</label>
+                <input type="number" id="ar-h" class="code-input" value="1080" min="1" oninput="onHeightChange()" style="font-size: 1.25rem;" />
               </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Aspect Ratio</div>
-              <div id="ar-res" class="result-val">16:9</div>
-              <div id="ar-factor" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Decimal Factor: 1.778:1</div>
+            <!-- Live Visual Preview Box Container -->
+            <div style="margin-top: 1.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; background: var(--surface-alt); border: 1px dashed var(--border); border-radius: 8px; padding: 1.5rem; min-height: 220px;">
+              <div style="font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem; letter-spacing: 0.05em;">
+                Live Proportional Preview Frame
+              </div>
+              <div id="ar-preview-frame" style="max-width: 320px; max-height: 180px; width: 280px; height: 157.5px; background: rgba(59, 130, 246, 0.12); border: 2px solid #3b82f6; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.25s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 0.5rem; text-align: center;">
+                <div id="preview-ratio-label" style="font-family: var(--mono); font-size: 1.15rem; font-weight: bold; color: #3b82f6;">16:9</div>
+                <div id="preview-dim-label" style="font-family: var(--mono); font-size: 0.75rem; color: var(--fg); margin-top: 0.2rem;">1920 &times; 1080</div>
+                <div id="preview-orient-badge" style="font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted); background: var(--surface); padding: 0.15rem 0.4rem; border-radius: 3px; margin-top: 0.3rem; border: 1px solid var(--border);">Landscape</div>
+              </div>
+            </div>
+
+            <!-- Results Card -->
+            <div class="result-card" style="margin-top: 1.5rem; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Calculated Aspect Ratio</div>
+              <div id="ar-res" class="result-val" style="font-size: 2.8rem; margin: 0.4rem 0; color: #3b82f6;">16:9</div>
+              <div id="ar-factor" style="font-family: var(--mono); font-size: 1.05rem; color: var(--fg); margin-bottom: 0.75rem;">
+                Decimal Factor: 1.778 : 1 (Landscape)
+              </div>
+
+              <!-- Multi-representation metrics -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Total Pixels</div>
+                  <div id="ar-pixels" style="font-weight: bold; color: var(--fg); font-size: 1rem; margin-top: 0.2rem;">2,073,600 px</div>
+                </div>
+                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Megapixels (MP)</div>
+                  <div id="ar-mp" style="font-weight: bold; color: #10b981; font-size: 1rem; margin-top: 0.2rem;">2.07 MP</div>
+                </div>
+                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Inverse Ratio</div>
+                  <div id="ar-inverse" style="font-weight: bold; color: #8b5cf6; font-size: 1rem; margin-top: 0.2rem;">9:16 (0.563:1)</div>
+                </div>
+                <div style="background: var(--surface); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Industry Category</div>
+                  <div id="ar-cat" style="font-weight: bold; color: var(--fg); font-size: 1rem; margin-top: 0.2rem;">Standard HDTV</div>
+                </div>
+              </div>
+
+              <!-- One-Click Copy Button -->
+              <button type="button" id="btnCopyAR" onclick="copyARSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy Aspect Ratio & Dimension Specs
+              </button>
+            </div>
+          </div>
+
+          <!-- Physical Screen Size & PPI Calculator -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🖥️ Physical Display Dimensions & PPI Density</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Pythagorean Optics Engine</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Enter your monitor, TV, or phone screen diagonal size to calculate true physical inches, centimeters, and pixel density (PPI):
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: center;">
+              <div class="field-group" style="margin-bottom: 0;">
+                <label class="field-label" for="ar-diag">Diagonal Screen Size (Inches)</label>
+                <input type="number" id="ar-diag" class="code-input" value="27" step="0.1" min="1" oninput="calcPPI()" style="font-size: 1.15rem;" />
+              </div>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center;">
+                <span style="font-size: 0.75rem; color: var(--text-muted); width: 100%;">Device Presets:</span>
+                <button type="button" class="btn-sec" onclick="setDiagPreset(6.1)" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;">6.1" Phone</button>
+                <button type="button" class="btn-sec" onclick="setDiagPreset(13.3)" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;">13.3" Laptop</button>
+                <button type="button" class="btn-sec" onclick="setDiagPreset(15.6)" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;">15.6" Laptop</button>
+                <button type="button" class="btn-sec" onclick="setDiagPreset(24)" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;">24" Monitor</button>
+                <button type="button" class="btn-sec" onclick="setDiagPreset(27)" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;">27" Monitor</button>
+                <button type="button" class="btn-sec" onclick="setDiagPreset(34)" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;">34" Ultrawide</button>
+                <button type="button" class="btn-sec" onclick="setDiagPreset(55)" style="font-size: 0.72rem; padding: 0.3rem 0.5rem;">55" TV</button>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; margin-top: 1.25rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.72rem;">Pixel Density</div>
+                <div id="ppi-val" style="font-size: 1.25rem; font-weight: bold; color: #3b82f6; margin-top: 0.2rem;">81.6 PPI</div>
+                <div id="ppi-badge" style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;">Standard Desktop</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.72rem;">Physical Width</div>
+                <div id="ppi-w" style="font-size: 1.1rem; font-weight: bold; color: var(--fg); margin-top: 0.2rem;">23.53 in</div>
+                <div id="ppi-w-cm" style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;">59.77 cm</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.72rem;">Physical Height</div>
+                <div id="ppi-h" style="font-size: 1.1rem; font-weight: bold; color: var(--fg); margin-top: 0.2rem;">13.24 in</div>
+                <div id="ppi-h-cm" style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;">33.62 cm</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.72rem;">Screen Area</div>
+                <div id="ppi-area" style="font-size: 1.1rem; font-weight: bold; color: var(--fg); margin-top: 0.2rem;">311.5 sq in</div>
+                <div id="ppi-area-cm" style="font-size: 0.68rem; color: var(--text-muted); margin-top: 0.2rem;">2,009.7 cm&sup2;</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Standard Resolution Scaler Ladder Table -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--fg);">🪜 Standard Industry Resolution Ladder</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Common digital video, gaming, and broadcast dimensions dynamically matched to the active aspect ratio:
+            </p>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: left;">
+                <thead>
+                  <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+                    <th style="padding: 0.5rem 0.75rem;">Resolution Standard</th>
+                    <th style="padding: 0.5rem 0.75rem;">Dimensions (W &times; H)</th>
+                    <th style="padding: 0.5rem 0.75rem;">Total Pixels</th>
+                    <th style="padding: 0.5rem 0.75rem;">Megapixels</th>
+                    <th style="padding: 0.5rem 0.75rem;">Primary Use Case</th>
+                  </tr>
+                </thead>
+                <tbody id="res-ladder-body">
+                  <!-- Dynamically populated by updateLadder() -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3 Real-World Pitfalls -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 3 Common Video & Display Aspect Ratio Pitfalls</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #ef4444;">
+                <strong style="color: #ef4444; font-size: 0.95rem;">1. Non-Square Pixels: The PAR vs DAR vs SAR Trap</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  Modern screens have square pixels (Pixel Aspect Ratio 1:1). However, legacy DVD and broadcast video (like 720&times;480 NTSC) stored non-square rectangular pixels (PAR 0.912 for 4:3 or 1.212 for 16:9 anamorphic). If an editor assumes pixels are square, the raw 720&times;480 video appears squeezed at 3:2. Always distinguish between the Storage Aspect Ratio (720&times;480 = 3:2) and the rendered Display Aspect Ratio (16:9).
+                </p>
+              </div>
+
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #f59e0b;">
+                <strong style="color: #f59e0b; font-size: 0.95rem;">2. Letterboxing vs Pillarboxing vs Center Cropping</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  Fitting widescreen 16:9 video onto a 9:16 mobile screen requires a creative compromise: <strong>Pillarboxing/Letterboxing</strong> preserves 100% of the visual canvas by adding black bars at the top and bottom (shrinking content to 31.6% of screen area), whereas <strong>Center Cropping</strong> fills the phone screen completely but discards 68.4% of the original video canvas, cutting out flanking subjects.
+                </p>
+              </div>
+
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #3b82f6;">
+                <strong style="color: #3b82f6; font-size: 0.95rem;">3. The Marketing Myth of "21:9" Ultrawide Monitors</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  Display manufacturers advertise ultrawide gaming monitors as "21:9". But true 21 &divide; 9 is 2.333:1. Real ultrawide panels actually measure 2560&times;1080, 3440&times;1440, or 5120&times;2160. Reducing these dimensions by their GCD yields <strong>64:27</strong> (2.370:1)—which is noticeably wider than 21:9! The term "21:9" is solely a consumer marketing label designed to echo the familiar "16:9" nomenclature.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1551,37 +2600,221 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             return a;
           }
 
+          var isRatioLocked = true;
           var lockedRatio = 16 / 9;
 
-          function calcAR() {
+          window.toggleLock = function() {
+            isRatioLocked = !isRatioLocked;
+            var btn = document.getElementById('btnLockRatio');
+            var icon = document.getElementById('lock-icon');
+            var text = document.getElementById('lock-text');
+            if (isRatioLocked) {
+              var w = parseInt(document.getElementById('ar-w').value, 10) || 1920;
+              var h = parseInt(document.getElementById('ar-h').value, 10) || 1080;
+              lockedRatio = w / h;
+              btn.style.borderColor = '#3b82f6';
+              btn.style.color = '#3b82f6';
+              icon.textContent = '🔒';
+              text.textContent = 'Locked';
+            } else {
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--text-muted)';
+              icon.textContent = '🔓';
+              text.textContent = 'Unlocked';
+            }
+          };
+
+          window.setRatioPreset = function(rw, rh, defW, defH, label) {
+            lockedRatio = rw / rh;
+            isRatioLocked = true;
+            document.getElementById('lock-icon').textContent = '🔒';
+            document.getElementById('lock-text').textContent = 'Locked';
+            document.getElementById('btnLockRatio').style.borderColor = '#3b82f6';
+            document.getElementById('btnLockRatio').style.color = '#3b82f6';
+
+            document.getElementById('ar-w').value = defW;
+            document.getElementById('ar-h').value = defH;
+            calcAR();
+          };
+
+          window.onWidthChange = function() {
             var w = parseInt(document.getElementById('ar-w').value, 10) || 1;
+            if (isRatioLocked && lockedRatio > 0) {
+              document.getElementById('ar-h').value = Math.max(1, Math.round(w / lockedRatio));
+            } else {
+              var h = parseInt(document.getElementById('ar-h').value, 10) || 1;
+              lockedRatio = w / h;
+            }
+            calcAR();
+          };
+
+          window.onHeightChange = function() {
             var h = parseInt(document.getElementById('ar-h').value, 10) || 1;
+            if (isRatioLocked && lockedRatio > 0) {
+              document.getElementById('ar-w').value = Math.max(1, Math.round(h * lockedRatio));
+            } else {
+              var w = parseInt(document.getElementById('ar-w').value, 10) || 1;
+              lockedRatio = w / h;
+            }
+            calcAR();
+          };
+
+          function calcAR() {
+            var w = parseInt(document.getElementById('ar-w').value, 10) || 1920;
+            var h = parseInt(document.getElementById('ar-h').value, 10) || 1080;
 
             var g = gcdAR(w, h);
             var rw = w / g;
             var rh = h / g;
 
-            document.getElementById('ar-res').textContent = rw + ':' + rh;
-            document.getElementById('ar-factor').textContent = 'Decimal Factor: ' + (w / h).toFixed(3) + ':1';
+            var ratioStr = rw + ':' + rh;
+            document.getElementById('ar-res').textContent = ratioStr;
+
+            var dec = (w / h).toFixed(3);
+            var orient = w > h ? 'Landscape' : (w < h ? 'Portrait' : 'Square');
+            document.getElementById('ar-factor').textContent = 'Decimal Factor: ' + dec + ' : 1 (' + orient + ')';
+
+            var totalPx = w * h;
+            document.getElementById('ar-pixels').textContent = totalPx.toLocaleString('en-US') + ' px';
+            var mp = (totalPx / 1000000).toFixed(2);
+            document.getElementById('ar-mp').textContent = mp + ' MP';
+
+            var invDec = (h / w).toFixed(3);
+            document.getElementById('ar-inverse').textContent = rh + ':' + rw + ' (' + invDec + ':1)';
+
+            // Category classification
+            var cat = 'Custom Ratio';
+            if (rw === 16 && rh === 9) cat = 'Standard HDTV / YouTube';
+            else if (rw === 9 && rh === 16) cat = 'Mobile Vertical Video';
+            else if (rw === 4 && rh === 3) cat = 'Classic SD / iPad';
+            else if (rw === 1 && rh === 1) cat = 'Square Feed';
+            else if (rw === 64 && rh === 27) cat = 'Ultrawide 21:9 Monitor';
+            else if (rw === 4 && rh === 5) cat = 'Instagram Portrait';
+            else if (rw === 3 && rh === 2) cat = '35mm Film / Surface';
+            document.getElementById('ar-cat').textContent = cat;
+
+            // Live visual frame scaling
+            var maxBoxW = 280;
+            var maxBoxH = 160;
+            var frameW = maxBoxW;
+            var frameH = frameW * (h / w);
+            if (frameH > maxBoxH) {
+              frameH = maxBoxH;
+              frameW = frameH * (w / h);
+            }
+            frameW = Math.max(40, Math.round(frameW));
+            frameH = Math.max(40, Math.round(frameH));
+
+            var frame = document.getElementById('ar-preview-frame');
+            frame.style.width = frameW + 'px';
+            frame.style.height = frameH + 'px';
+            document.getElementById('preview-ratio-label').textContent = ratioStr;
+            document.getElementById('preview-dim-label').innerHTML = w + ' &times; ' + h;
+            document.getElementById('preview-orient-badge').textContent = orient;
+
+            calcPPI();
+            updateLadder(w / h);
           }
 
-          function calcARWidth() {
-            var w = parseInt(document.getElementById('ar-w').value, 10) || 1;
-            document.getElementById('ar-h').value = Math.round(w / lockedRatio);
-            calcAR();
+          window.setDiagPreset = function(diag) {
+            document.getElementById('ar-diag').value = diag;
+            calcPPI();
+          };
+
+          function calcPPI() {
+            var w = parseInt(document.getElementById('ar-w').value, 10) || 1920;
+            var h = parseInt(document.getElementById('ar-h').value, 10) || 1080;
+            var diag = parseFloat(document.getElementById('ar-diag').value) || 27;
+
+            var diagPx = Math.sqrt((w * w) + (h * h));
+            var ppi = diagPx / diag;
+
+            document.getElementById('ppi-val').textContent = ppi.toFixed(1) + ' PPI';
+
+            var badge = 'Standard Desktop (90-110 PPI)';
+            if (ppi < 90) badge = 'Low Density TV / Large Screen';
+            else if (ppi >= 110 && ppi < 160) badge = 'Sharp QHD / 2K Display';
+            else if (ppi >= 160 && ppi < 220) badge = 'Ultra-Sharp 4K UHD Desktop';
+            else if (ppi >= 220 && ppi < 320) badge = 'High-DPI Retina Laptop';
+            else if (ppi >= 320) badge = 'Ultra-High-DPI Mobile Retina';
+            document.getElementById('ppi-badge').textContent = badge;
+
+            // Physical width and height
+            var angle = Math.atan(h / w);
+            var physW = diag * Math.cos(angle);
+            var physH = diag * Math.sin(angle);
+            var physArea = physW * physH;
+
+            document.getElementById('ppi-w').textContent = physW.toFixed(2) + ' in';
+            document.getElementById('ppi-w-cm').textContent = (physW * 2.54).toFixed(2) + ' cm';
+
+            document.getElementById('ppi-h').textContent = physH.toFixed(2) + ' in';
+            document.getElementById('ppi-h-cm').textContent = (physH * 2.54).toFixed(2) + ' cm';
+
+            document.getElementById('ppi-area').textContent = physArea.toFixed(1) + ' sq in';
+            document.getElementById('ppi-area-cm').innerHTML = (physArea * 6.4516).toFixed(1) + ' cm&sup2;';
           }
 
-          function calcARHeight() {
-            var h = parseInt(document.getElementById('ar-h').value, 10) || 1;
-            document.getElementById('ar-w').value = Math.round(h * lockedRatio);
-            calcAR();
+          function updateLadder(ratio) {
+            var tbody = document.getElementById('res-ladder-body');
+            var heights = [360, 480, 720, 1080, 1440, 2160, 4320];
+            var names = ['360p (Mobile SD)', '480p (DVD Quality)', '720p (HD Ready)', '1080p (Full HD)', '1440p (2K QHD)', '2160p (4K UHD)', '4320p (8K UHD)'];
+            var html = '';
+
+            for (var i = 0; i < heights.length; i++) {
+              var ch = heights[i];
+              var cw = Math.round(ch * ratio);
+              // Ensure even numbers for video codecs
+              if (cw % 2 !== 0) cw++;
+              var px = cw * ch;
+              var mp = (px / 1000000).toFixed(2);
+
+              var isCurrent = (ch === parseInt(document.getElementById('ar-h').value, 10) && cw === parseInt(document.getElementById('ar-w').value, 10));
+              var rowBg = isCurrent ? 'background: rgba(59, 130, 246, 0.1); font-weight: bold;' : 'border-bottom: 1px solid var(--border);';
+
+              html += '<tr style="' + rowBg + '">' +
+                '<td style="padding: 0.45rem 0.75rem; color: #3b82f6;">' + names[i] + '</td>' +
+                '<td style="padding: 0.45rem 0.75rem; font-family: var(--mono);">' + cw + ' &times; ' + ch + (isCurrent ? ' <span style="color:#10b981;">(Active)</span>' : '') + '</td>' +
+                '<td style="padding: 0.45rem 0.75rem;">' + px.toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.45rem 0.75rem;">' + mp + ' MP</td>' +
+                '<td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">' + (ch >= 2160 ? 'Master Broadcast / Cinema' : (ch >= 1080 ? 'Web Streaming / Gaming' : 'Legacy / Bandwidth Saver')) + '</td>' +
+                '</tr>';
+            }
+            tbody.innerHTML = html;
           }
 
-          window.setRatio = function(rw, rh, defW, defH) {
-            lockedRatio = rw / rh;
-            document.getElementById('ar-w').value = defW;
-            document.getElementById('ar-h').value = defH;
-            calcAR();
+          window.copyARSummary = function() {
+            var btn = document.getElementById('btnCopyAR');
+            var w = document.getElementById('ar-w').value;
+            var h = document.getElementById('ar-h').value;
+            var ratio = document.getElementById('ar-res').textContent;
+            var factor = document.getElementById('ar-factor').textContent;
+            var px = document.getElementById('ar-pixels').textContent;
+            var mp = document.getElementById('ar-mp').textContent;
+            var ppi = document.getElementById('ppi-val').textContent;
+            var diag = document.getElementById('ar-diag').value;
+            var physW = document.getElementById('ppi-w').textContent;
+            var physH = document.getElementById('ppi-h').textContent;
+
+            var text = '--- Aspect Ratio & Resolution Report ---\n' +
+              'Dimensions: ' + w + ' x ' + h + ' px\n' +
+              'Aspect Ratio: ' + ratio + '\n' +
+              factor + '\n' +
+              'Total Pixels: ' + px + ' (' + mp + ')\n' +
+              'Physical Display Size: ' + diag + '" (' + physW + ' x ' + physH + ')\n' +
+              'Pixel Density: ' + ppi + '\n' +
+              'Calculated on Digital Tools Shed (https://digitaltoolsshed.com/math/aspect-ratio-calculator)';
+
+            navigator.clipboard.writeText(text).then(function() {
+              btn.textContent = '✓ Specs Copied!';
+              btn.style.borderColor = '#10b981';
+              btn.style.color = '#10b981';
+              setTimeout(function() {
+                btn.textContent = '📋 Copy Aspect Ratio & Dimension Specs';
+                btn.style.borderColor = 'var(--border)';
+                btn.style.color = 'var(--fg)';
+              }, 2500);
+            });
           };
 
           document.addEventListener('DOMContentLoaded', calcAR);
@@ -2280,54 +3513,262 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'birthday-paradox-calculator',
-      title: 'Birthday Paradox Calculator & Collision Simulator',
-      metaDesc: 'Why does a room of 23 people have a 50.7% chance of two sharing a birthday? Calculate probability and run live Monte Carlo collision simulations.',
+      title: 'Birthday Paradox Calculator & Monte Carlo Simulator (Collision Math)',
+      metaDesc: 'Why does a room of 23 people have a 50.7% chance of two sharing a birthday? Calculate probability, run 10,000-trial Monte Carlo simulations, and explore cryptographic hash collision attacks.',
       category: 'Math & Probability',
+      faq: [
+        { q: 'Why does a room of only 23 people have a 50% chance of two people sharing a birthday?', a: 'We are not asking if someone shares your specific birthday—we are checking if ANY two people in the room share a birthday. With 23 people, there are 23 × 22 / 2 = 253 unique comparison pairs. Each pair has a 364/365 chance of not sharing a birthday. Compounding these 253 independent comparisons yields (364/365)^253 ≈ 49.95% chance of no matches, meaning there is a 50.05% (exact: 50.73%) probability of at least one shared birthday.' },
+        { q: 'How many people are needed for a 50% chance of someone sharing MY specific birthday?', a: 'To have a 50% chance of someone matching a single targeted birthday, you need 253 people. The formula is 1 - (364/365)^n = 0.50, which solves to n = ln(0.5) / ln(364/365) ≈ 252.65.' },
+        { q: 'How is the Birthday Paradox used in cybersecurity and cryptographic hash functions?', a: 'The Birthday Attack shows that finding a collision between any two random hash outputs requires evaluating only roughly the square root of total hash possibilities (√N = 2^(b/2) for a b-bit hash). Consequently, a 128-bit hash (like MD5) only provides 64 bits of collision resistance (~2^64 operations), which is why modern cryptography requires 256-bit hashes (SHA-256) offering 128-bit collision resistance.' },
+        { q: 'Does the leap year (February 29) significantly alter the Birthday Paradox probability?', a: 'Incorporating leap years (366 possible days) changes the probability for 23 people from 50.73% to 50.63%—a negligible reduction of 0.1%. Furthermore, real-world birth rates are non-uniformly distributed (more births in September, fewer on weekends), and any deviation from uniform distribution actually increases the likelihood of a collision.' },
+        { q: 'What is the Taylor series approximation formula for the Birthday Problem?', a: 'The probability of at least one collision can be approximated as P(n) ≈ 1 - exp(-n² / (2 × d)), where d is the number of possible days (365). For n = 23: P(23) ≈ 1 - exp(-529 / 730) = 1 - exp(-0.7247) ≈ 1 - 0.4845 = 51.55%.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Birthday Paradox
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">The Birthday Paradox & Coincidence Simulator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">The Birthday Paradox & Collision Simulator</h1>
           <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            One of the most famous counter-intuitive probability problems: How many people must be in a room before there is at least a 50% chance two share the exact same birthday? (The answer is only <strong>23 people</strong>).
+            One of the most famous counter-intuitive probability problems: How many people must be in a room before there is at least a 50% chance two share the exact same birthday? (The answer is only <strong>23 people</strong>). Run high-speed Monte Carlo simulations and explore cryptographic hash collision bounds.
           </p>
 
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Number of People in Room (n): <span id="bp-n-val" style="color: #3b82f6; font-weight: bold;">23</span></label>
-              <input type="range" id="bp-range" min="2" max="100" value="23" oninput="updateBPSlider(this.value)" style="width: 100%; cursor: pointer;" />
+            <!-- Room Size Controls -->
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
+              <div>
+                <div class="field-label">Number of People in Room (n): <span id="bp-n-val" style="color: #3b82f6; font-size: 1.1rem; font-weight: bold;">23</span></div>
+                <input type="range" id="bp-range" min="2" max="100" value="23" oninput="updateBPSlider(this.value)" style="width: 100%; cursor: pointer;" />
+              </div>
+              <div>
+                <input type="number" id="bp-num-input" class="code-input" value="23" min="2" max="500" oninput="updateBPInput(this.value)" style="width: 80px; text-align: center; font-size: 1.15rem;" />
+              </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+            <!-- Quick Preset Room Buttons -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 1rem 0 1.25rem 0;">
+              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Milestone Room Sizes:</span>
+              <button type="button" class="btn-sec" onclick="setBPRoom(10)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">10 People (11.7%)</button>
+              <button type="button" class="btn-sec" onclick="setBPRoom(23)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem; border-color: #10b981; color: #10b981; font-weight: bold;">23 People (50.7% 50-50 Break-Even)</button>
+              <button type="button" class="btn-sec" onclick="setBPRoom(30)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">30 People (70.6%)</button>
+              <button type="button" class="btn-sec" onclick="setBPRoom(50)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">50 People (97.0%)</button>
+              <button type="button" class="btn-sec" onclick="setBPRoom(70)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">70 People (99.9% Near Certainty)</button>
+              <button type="button" class="btn-sec" onclick="setBPRoom(253)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">253 (50% Matches YOUR Birthday)</button>
+            </div>
+
+            <!-- Results Hero Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem;">
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Probability of Shared Birthday</div>
-                <div id="bp-prob" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">50.73%</div>
-                <div id="bp-odds" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Odds: 1.03 to 1 in favor</div>
+                <div id="bp-prob" style="font-family: var(--mono); font-size: 2.5rem; font-weight: bold; color: #10b981; margin: 0.3rem 0;">50.73%</div>
+                <div id="bp-odds" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Odds: 1.03 to 1 in favor</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Comparison Pairs</div>
-                <div id="bp-pairs" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">253 Pairs</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">n × (n - 1) / 2 unique pairings</div>
+                <div id="bp-pairs" style="font-family: var(--mono); font-size: 2.5rem; font-weight: bold; color: #3b82f6; margin: 0.3rem 0;">253 Pairs</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">n &times; (n &minus; 1) / 2 unique pairings</div>
               </div>
             </div>
 
-            <div style="margin-top: 1.5rem; text-align: center;">
-              <button type="button" class="btn-primary" onclick="runBPSimulation()" style="padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer;">
-                🎲 Run Live Random Monte Carlo Simulation
+            <!-- Detailed Sub-Metrics Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="background: var(--surface-alt); padding: 0.65rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">All Birthdays Unique</div>
+                <div id="bp-unique" style="font-weight: bold; color: var(--fg); font-size: 1.05rem; margin-top: 0.2rem;">49.27%</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.65rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Match YOUR Birthday</div>
+                <div id="bp-target" style="font-weight: bold; color: #f59e0b; font-size: 1.05rem; margin-top: 0.2rem;">6.12%</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.65rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Taylor Approximation</div>
+                <div id="bp-taylor" style="font-weight: bold; color: var(--fg); font-size: 1.05rem; margin-top: 0.2rem;">51.55%</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.65rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Collision Bound (d=365)</div>
+                <div style="font-weight: bold; color: #8b5cf6; font-size: 1.05rem; margin-top: 0.2rem;">&radic;(2 &times; 365) &approx; 27</div>
+              </div>
+            </div>
+
+            <!-- Action bar with One-Click Copy -->
+            <button type="button" id="btnCopyBP" onclick="copyBPSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Probability & Simulation Report
+            </button>
+          </div>
+
+          <!-- High-Speed Monte Carlo Simulation Engine -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🎲 High-Speed Monte Carlo Batch Simulator</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Empirical Law of Large Numbers</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+              Simulate thousands of real rooms filled with random birthdays directly in your browser. Watch the empirical match frequency converge to the theoretical 50.73% probability:
+            </p>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.25rem;">
+              <button type="button" class="btn-primary" onclick="runMonteCarlo(1000)" style="padding: 0.6rem 1.1rem; font-size: 0.85rem;">
+                Run 1,000 Trials
               </button>
-              <div id="bp-sim-result" style="margin-top: 0.75rem; font-family: var(--mono); font-size: 0.95rem; min-height: 24px;"></div>
+              <button type="button" class="btn-primary" onclick="runMonteCarlo(5000)" style="padding: 0.6rem 1.1rem; font-size: 0.85rem;">
+                Run 5,000 Trials
+              </button>
+              <button type="button" class="btn-primary" onclick="runMonteCarlo(10000)" style="padding: 0.6rem 1.2rem; font-size: 0.85rem; background: #10b981;">
+                Run 10,000 Trials (Flagship Benchmark)
+              </button>
+              <button type="button" class="btn-sec" onclick="runSingleRoomSim()" style="padding: 0.6rem 1rem; font-size: 0.85rem;">
+                🎲 Roll 1 Room (Visualizer)
+              </button>
+            </div>
+
+            <!-- Simulation Output Scoreboard -->
+            <div id="mc-scoreboard" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Simulated Rooms</div>
+                <div id="mc-trials" style="font-size: 1.2rem; font-weight: bold; color: var(--fg); margin-top: 0.2rem;">0</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Rooms with Shared Birthday</div>
+                <div id="mc-hits" style="font-size: 1.2rem; font-weight: bold; color: #10b981; margin-top: 0.2rem;">0</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Empirical Match Rate</div>
+                <div id="mc-rate" style="font-size: 1.2rem; font-weight: bold; color: #10b981; margin-top: 0.2rem;">0.00%</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Variance from Theory (&Delta;)</div>
+                <div id="mc-delta" style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; margin-top: 0.2rem;">0.00%</div>
+              </div>
+            </div>
+
+            <div id="bp-single-room-log" style="margin-top: 1rem; font-family: var(--mono); font-size: 0.85rem; padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border); min-height: 24px;">
+              Click "Roll 1 Room" or run a batch Monte Carlo simulation above to inspect individual collision mechanics.
+            </div>
+          </div>
+
+          <!-- Generalized Cryptographic Collision Space Explorer -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🔐 Cryptographic Collision Bounds (The Birthday Attack)</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #8b5cf6; background: rgba(139, 92, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">&radic;N Vulnerability Limit</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              The Birthday Paradox is the fundamental reason why cryptographic hashes must have double the intended security bits. To have a 50% probability of a hash collision, an attacker only needs approximately <strong>1.1774 &times; &radic;D</strong> attempts:
+            </p>
+
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <button type="button" class="btn-sec" onclick="setCryptoSpace(10000, '4-Digit PIN (10,000 Codes)')" style="font-size: 0.72rem; padding: 0.3rem 0.55rem;">4-Digit PIN (10k)</button>
+              <button type="button" class="btn-sec" onclick="setCryptoSpace(1000000, '6-Digit OTP (1M Codes)')" style="font-size: 0.72rem; padding: 0.3rem 0.55rem;">6-Digit OTP (1M)</button>
+              <button type="button" class="btn-sec" onclick="setCryptoSpace(65536, '16-Bit Token (65,536)')" style="font-size: 0.72rem; padding: 0.3rem 0.55rem;">16-Bit ID (65k)</button>
+              <button type="button" class="btn-sec" onclick="setCryptoSpace(4294967296, '32-Bit CRC32 / IPv4 (4.29B)')" style="font-size: 0.72rem; padding: 0.3rem 0.55rem;">32-Bit Hash (4.29B)</button>
+              <button type="button" class="btn-sec" onclick="setCryptoSpace(668, 'Martian Year (668 Sols)')" style="font-size: 0.72rem; padding: 0.3rem 0.55rem;">Mars Colony (668 Sols)</button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Target Keyspace (D)</div>
+                <div id="crypto-d" style="font-size: 1.1rem; font-weight: bold; color: var(--fg); margin-top: 0.2rem;">10,000 Codes</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">50% Collision Threshold (n)</div>
+                <div id="crypto-n" style="font-size: 1.1rem; font-weight: bold; color: #8b5cf6; margin-top: 0.2rem;">Only 119 Items!</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Effective Security Bits</div>
+                <div id="crypto-bits" style="font-size: 1.1rem; font-weight: bold; color: #ef4444; margin-top: 0.2rem;">&approx; 6.6 Bits</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Master Reference Table -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.5rem 0; color: var(--fg);">📊 Master Room Size vs Shared Birthday Probability Table</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Calculated exactly across standard room capacities from intimate gatherings to concert auditoriums:
+            </p>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: left;">
+                <thead>
+                  <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+                    <th style="padding: 0.5rem 0.75rem;">People in Room (n)</th>
+                    <th style="padding: 0.5rem 0.75rem;">Comparison Pairs</th>
+                    <th style="padding: 0.5rem 0.75rem;">Shared Probability (%)</th>
+                    <th style="padding: 0.5rem 0.75rem;">Odds in Favor</th>
+                    <th style="padding: 0.5rem 0.75rem;">Real-World Scenario</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">5 people</td><td style="padding: 0.45rem 0.75rem;">10 pairs</td><td style="padding: 0.45rem 0.75rem; color: #f59e0b;">2.71%</td><td style="padding: 0.45rem 0.75rem;">35.9 to 1 against</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Family dinner</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">10 people</td><td style="padding: 0.45rem 0.75rem;">45 pairs</td><td style="padding: 0.45rem 0.75rem; color: #f59e0b;">11.69%</td><td style="padding: 0.45rem 0.75rem;">7.5 to 1 against</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Startup team sprint</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">15 people</td><td style="padding: 0.45rem 0.75rem;">105 pairs</td><td style="padding: 0.45rem 0.75rem; color: #f59e0b;">25.29%</td><td style="padding: 0.45rem 0.75rem;">2.95 to 1 against</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Dinner party</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">20 people</td><td style="padding: 0.45rem 0.75rem;">190 pairs</td><td style="padding: 0.45rem 0.75rem; color: #f59e0b;">41.14%</td><td style="padding: 0.45rem 0.75rem;">1.43 to 1 against</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">College seminar</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border); background: rgba(16, 185, 129, 0.08);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">23 people (Milestone)</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">253 pairs</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">50.73%</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">1.03 to 1 in favor</td><td style="padding: 0.45rem 0.75rem; font-weight: bold;">Soccer squad + 1 ref (Break-even)</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">25 people</td><td style="padding: 0.45rem 0.75rem;">300 pairs</td><td style="padding: 0.45rem 0.75rem; color: #10b981;">56.87%</td><td style="padding: 0.45rem 0.75rem;">1.32 to 1 in favor</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Typical elementary classroom</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">30 people</td><td style="padding: 0.45rem 0.75rem;">435 pairs</td><td style="padding: 0.45rem 0.75rem; color: #10b981;">70.63%</td><td style="padding: 0.45rem 0.75rem;">2.40 to 1 in favor</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">High school classroom</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">40 people</td><td style="padding: 0.45rem 0.75rem;">780 pairs</td><td style="padding: 0.45rem 0.75rem; color: #10b981;">89.12%</td><td style="padding: 0.45rem 0.75rem;">8.19 to 1 in favor</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Tour bus group</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">50 people</td><td style="padding: 0.45rem 0.75rem;">1,225 pairs</td><td style="padding: 0.45rem 0.75rem; color: #10b981;">97.04%</td><td style="padding: 0.45rem 0.75rem;">32.8 to 1 in favor</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Corporate department</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold;">60 people</td><td style="padding: 0.45rem 0.75rem;">1,770 pairs</td><td style="padding: 0.45rem 0.75rem; color: #10b981;">99.41%</td><td style="padding: 0.45rem 0.75rem;">169.5 to 1 in favor</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Wedding guest hall</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">70 people</td><td style="padding: 0.45rem 0.75rem;">2,415 pairs</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">99.92%</td><td style="padding: 0.45rem 0.75rem;">1,190 to 1 in favor</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Airplane passenger cabin</td></tr>
+                  <tr><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">100 people</td><td style="padding: 0.45rem 0.75rem;">4,950 pairs</td><td style="padding: 0.45rem 0.75rem; font-weight: bold; color: #10b981;">99.99997%</td><td style="padding: 0.45rem 0.75rem;">3.3 million to 1 in favor</td><td style="padding: 0.45rem 0.75rem; color: var(--text-muted);">Lecture hall auditorium</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- 3 Real-World Paradox Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 3 Counter-Intuitive Traps of the Birthday Problem</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #ef4444;">
+                <strong style="color: #ef4444; font-size: 0.95rem;">1. The "Targeted Birthday" Fallacy: 23 vs 253 People</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  Human intuition expects the Birthday Paradox to answer: <em>"What are the chances someone shares MY birthday?"</em> If you ask about a single fixed date, each person has a 364/365 failure rate, requiring <strong>253 people</strong> before reaching a 50% probability. The paradox resolves because you are checking <strong>any two people</strong>: with 23 people, there are 253 pairwise comparisons, exactly matching the 253 individuals required in the single-target case!
+                </p>
+              </div>
+
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #f59e0b;">
+                <strong style="color: #f59e0b; font-size: 0.95rem;">2. Non-Uniform Real-World Birth Distribution</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  Standard textbook calculations assume births are evenly distributed across all 365 days (1/365 &approx; 0.274% per day). In reality, hospital birth records show significant non-uniformity: late September experiences a sharp birth peak (conceptions around the winter holidays), while weekends and federal holidays have significantly lower birth rates due to scheduled cesareans. According to mathematical probability theory, <em>any deviation from uniform distribution increases the likelihood of a birthday collision</em>—making 23 people even more likely to share a birthday in real life than on paper!
+                </p>
+              </div>
+
+              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #3b82f6;">
+                <strong style="color: #3b82f6; font-size: 0.95rem;">3. Cryptographic Hash Collisions and the Square Root Vulnerability</strong>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
+                  A naive engineer might assume that a 64-bit cryptographic hash requires 2^64 (18 quintillion) attempts to break. Due to the Birthday Paradox, finding <strong>any two messages with identical hashes</strong> (a collision attack) requires only &radic;(2^64) = 2^32 &approx; 4.29 billion operations—an effort easily executed on a consumer gaming PC in under 10 seconds. This is why standard cryptography mandates 256-bit hashes (SHA-256), which retain a safe 128-bit collision resistance floor.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
+          var curN = 23;
+
           function updateBPSlider(val) {
-            document.getElementById('bp-n-val').textContent = val;
-            calcBP(parseInt(val, 10));
+            curN = parseInt(val, 10);
+            document.getElementById('bp-n-val').textContent = curN;
+            document.getElementById('bp-num-input').value = curN;
+            calcBP(curN);
           }
+
+          function updateBPInput(val) {
+            curN = Math.max(2, Math.min(500, parseInt(val, 10) || 2));
+            document.getElementById('bp-n-val').textContent = curN;
+            if (curN <= 100) document.getElementById('bp-range').value = curN;
+            calcBP(curN);
+          }
+
+          window.setBPRoom = function(n) {
+            curN = n;
+            document.getElementById('bp-n-val').textContent = n;
+            document.getElementById('bp-num-input').value = n;
+            if (n <= 100) document.getElementById('bp-range').value = n;
+            calcBP(n);
+          };
 
           function calcBP(n) {
             var pairs = (n * (n - 1)) / 2;
@@ -2335,11 +3776,15 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
             if (n >= 365) {
               document.getElementById('bp-prob').textContent = '100.00%';
-              document.getElementById('bp-odds').textContent = 'Pigeonhole principle guaranteed';
+              document.getElementById('bp-prob').style.color = '#10b981';
+              document.getElementById('bp-odds').textContent = 'Pigeonhole principle: Guaranteed 100%';
+              document.getElementById('bp-unique').textContent = '0.00%';
+              document.getElementById('bp-target').textContent = (100 * (1 - Math.pow(364/365, n))).toFixed(2) + '%';
+              document.getElementById('bp-taylor').textContent = '100.00%';
               return;
             }
 
-            // Complement probability: P(all unique) = product_{i=0}^{n-1} (365 - i) / 365
+            // Exact calculation: P(unique) = product_{i=0}^{n-1} (365 - i) / 365
             var pUnique = 1.0;
             for (var i = 0; i < n; i++) {
               pUnique *= (365 - i) / 365;
@@ -2348,37 +3793,148 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             var pShared = (1 - pUnique) * 100;
             var probEl = document.getElementById('bp-prob');
             probEl.textContent = pShared.toFixed(2) + '%';
-            probEl.style.color = pShared >= 50 ? '#10b981' : '#f59e0b';
+            probEl.style.color = pShared >= 50 ? '#10b981' : (pShared >= 20 ? '#f59e0b' : 'var(--fg)');
+
+            document.getElementById('bp-unique').textContent = (pUnique * 100).toFixed(2) + '%';
+
+            // Targeted birthday: chance someone matches YOU
+            var pTarget = (1 - Math.pow(364 / 365, n)) * 100;
+            document.getElementById('bp-target').textContent = pTarget.toFixed(2) + '%';
+
+            // Taylor approximation: 1 - exp(-n^2 / (2 * 365))
+            var pTaylor = (1 - Math.exp(-(n * n) / (2 * 365))) * 100;
+            document.getElementById('bp-taylor').textContent = pTaylor.toFixed(2) + '%';
 
             var odds = pUnique > 0 ? ((1 - pUnique) / pUnique) : 999;
-            document.getElementById('bp-odds').textContent = pShared >= 50 ? 
-              ('Odds: ' + odds.toFixed(2) + ' to 1 in favor') : 
+            document.getElementById('bp-odds').textContent = pShared >= 50 ?
+              ('Odds: ' + odds.toFixed(2) + ' to 1 in favor') :
               ('Odds: ' + (1 / odds).toFixed(2) + ' to 1 against');
           }
 
-          function runBPSimulation() {
-            var n = parseInt(document.getElementById('bp-range').value, 10);
+          window.runMonteCarlo = function(trials) {
+            var n = curN;
+            var collisions = 0;
+            var startTime = performance.now();
+
+            for (var t = 0; t < trials; t++) {
+              var seen = new Uint8Array(366);
+              var hit = false;
+              for (var i = 0; i < n; i++) {
+                var day = Math.floor(Math.random() * 365);
+                if (seen[day]) {
+                  hit = true;
+                  break;
+                }
+                seen[day] = 1;
+              }
+              if (hit) collisions++;
+            }
+
+            var elapsed = (performance.now() - startTime).toFixed(1);
+            var rate = (collisions / trials) * 100;
+
+            // Theoretical
+            var pUnique = 1.0;
+            if (n < 365) {
+              for (var j = 0; j < n; j++) pUnique *= (365 - j) / 365;
+            } else {
+              pUnique = 0;
+            }
+            var pTheory = (1 - pUnique) * 100;
+            var delta = rate - pTheory;
+
+            document.getElementById('mc-trials').textContent = trials.toLocaleString('en-US');
+            document.getElementById('mc-hits').textContent = collisions.toLocaleString('en-US');
+            document.getElementById('mc-rate').textContent = rate.toFixed(2) + '%';
+
+            var deltaEl = document.getElementById('mc-delta');
+            deltaEl.textContent = (delta >= 0 ? '+' : '') + delta.toFixed(2) + '%';
+            deltaEl.style.color = Math.abs(delta) < 1.0 ? '#10b981' : '#f59e0b';
+
+            document.getElementById('bp-single-room-log').innerHTML = '<strong>' + trials.toLocaleString('en-US') + ' Monte Carlo Rooms Tested</strong> for n=' + n + ' people in ' + elapsed + ' ms.<br>' +
+              'Observed ' + collisions.toLocaleString('en-US') + ' rooms with collisions (' + rate.toFixed(2) + '%). Theoretical target was ' + pTheory.toFixed(2) + '%. Variance: ' + (delta >= 0 ? '+' : '') + delta.toFixed(2) + '%.';
+          };
+
+          window.runSingleRoomSim = function() {
+            var n = curN;
             var seen = {};
             var collision = false;
-            var collisionDay = null;
+            var colDay = -1;
+            var colPeople = [];
 
-            for (var i = 0; i < n; i++) {
-              var day = Math.floor(Math.random() * 365) + 1;
-              if (seen[day]) {
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            var daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+
+            function dayToDateStr(dayIndex) {
+              var d = dayIndex;
+              for (var m = 0; m < 12; m++) {
+                if (d < daysInMonth[m]) {
+                  return months[m] + ' ' + (d + 1);
+                }
+                d -= daysInMonth[m];
+              }
+              return 'Dec 31';
+            }
+
+            for (var i = 1; i <= n; i++) {
+              var day = Math.floor(Math.random() * 365);
+              if (seen[day] !== undefined) {
                 collision = true;
-                collisionDay = day;
+                colDay = day;
+                colPeople = [seen[day], i];
                 break;
               }
-              seen[day] = true;
+              seen[day] = i;
             }
 
-            var resEl = document.getElementById('bp-sim-result');
+            var logEl = document.getElementById('bp-single-room-log');
             if (collision) {
-              resEl.innerHTML = '<span style="color: #10b981; font-weight: bold;">✓ MATCH FOUND!</span> Two people shared day #' + collisionDay + ' of 365.';
+              var dateName = dayToDateStr(colDay);
+              logEl.innerHTML = '<span style="color: #10b981; font-weight: bold;">✓ SHARED BIRTHDAY FOUND!</span> Person #' + colPeople[0] + ' and Person #' + colPeople[1] + ' both share a birthday on <strong>' + dateName + '</strong> (Day #' + (colDay + 1) + ' of 365).';
             } else {
-              resEl.innerHTML = '<span style="color: #ef4444; font-weight: bold;">✗ NO MATCH!</span> All ' + n + ' people had completely distinct birthdays.';
+              logEl.innerHTML = '<span style="color: #ef4444; font-weight: bold;">✗ NO MATCH IN THIS ROOM:</span> All ' + n + ' people rolled completely distinct days of the year.';
             }
-          }
+          };
+
+          window.setCryptoSpace = function(d, label) {
+            document.getElementById('crypto-d').textContent = label;
+            var n50 = Math.round(1.1774 * Math.sqrt(d));
+            document.getElementById('crypto-n').textContent = 'Only ' + n50.toLocaleString('en-US') + ' Items!';
+            var bits = (Math.log2(n50)).toFixed(1);
+            document.getElementById('crypto-bits').textContent = '&approx; ' + bits + ' Bits of Collision Resistance';
+          };
+
+          window.copyBPSummary = function() {
+            var btn = document.getElementById('btnCopyBP');
+            var n = curN;
+            var prob = document.getElementById('bp-prob').textContent;
+            var pairs = document.getElementById('bp-pairs').textContent;
+            var odds = document.getElementById('bp-odds').textContent;
+            var unique = document.getElementById('bp-unique').textContent;
+            var target = document.getElementById('bp-target').textContent;
+            var mcTrials = document.getElementById('mc-trials').textContent;
+            var mcRate = document.getElementById('mc-rate').textContent;
+
+            var text = '--- Birthday Paradox & Collision Report ---\n' +
+              'Room Size (n): ' + n + ' people\n' +
+              'Comparison Pairs: ' + pairs + '\n' +
+              'Shared Birthday Probability: ' + prob + ' (' + odds + ')\n' +
+              'Probability All Unique: ' + unique + '\n' +
+              'Probability Someone Matches YOUR Birthday: ' + target + '\n' +
+              'Monte Carlo Simulation: ' + mcTrials + ' rooms tested -> ' + mcRate + ' empirical collision rate\n' +
+              'Calculated on Digital Tools Shed (https://digitaltoolsshed.com/math/birthday-paradox-calculator)';
+
+            navigator.clipboard.writeText(text).then(function() {
+              btn.textContent = '✓ Probability Report Copied!';
+              btn.style.borderColor = '#10b981';
+              btn.style.color = '#10b981';
+              setTimeout(function() {
+                btn.textContent = '📋 Copy Probability & Simulation Report';
+                btn.style.borderColor = 'var(--border)';
+                btn.style.color = 'var(--fg)';
+              }, 2500);
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', function() { calcBP(23); });
           calcBP(23);
