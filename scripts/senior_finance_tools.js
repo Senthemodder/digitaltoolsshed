@@ -366,10 +366,33 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
     `
   },
   {
-    "slug": "rmd-calculator",
-    "title": "IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III)",
-    "metaDesc": "Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, and QCD tax deductions.",
-    "body": `
+    slug: "rmd-calculator",
+    title: "IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III)",
+    metaDesc: "Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, missed RMD penalty estimator, and QCD deductions.",
+    category: "Finance",
+    faq: [
+      {
+            "q": "What is the RMD starting age under the SECURE 2.0 Act?",
+            "a": "Under the SECURE 2.0 Act passed by Congress, the mandatory starting age for Required Minimum Distributions (RMDs) is phased: individuals born between 1951 and 1959 must begin taking RMDs at age 73. Individuals born in 1960 or later begin taking RMDs at age 75. Those born in 1950 or earlier remain subject to the previous age 72 or 70½ rules."
+      },
+      {
+            "q": "How is an IRS Required Minimum Distribution calculated using Table III?",
+            "a": "The annual RMD is calculated by taking your pre-tax account balance as of December 31 of the prior calendar year and dividing it by your life expectancy factor from IRS Uniform Lifetime Table III (Treasury Reg. § 1.401(a)(9)-9). For example, at age 75, the factor is 24.6, requiring a distribution of approximately 4.065% of your prior year-end balance."
+      },
+      {
+            "q": "What is the penalty for missing an RMD deadline?",
+            "a": "Under Internal Revenue Code § 4974 as updated by SECURE 2.0, failing to withdraw your full RMD by December 31 incurs an excise tax penalty of 25% on the shortfall amount (down from 50% historically). If the error is corrected within the statutory correction window (generally 2 years) and submitted with IRS Form 5329, the penalty is reduced to 10%."
+      },
+      {
+            "q": "How do Qualified Charitable Distributions (QCDs) reduce RMD taxes?",
+            "a": "Individuals aged 70½ or older can donate up to $105,000 per year directly from a Traditional IRA to a qualified 501(c)(3) public charity as a Qualified Charitable Distribution (QCD). The donated amount counts directly toward satisfying your mandatory RMD but is 100% excluded from your Adjusted Gross Income (AGI), preventing tax bracket escalation and Medicare IRMAA surcharges."
+      },
+      {
+            "q": "Can I aggregate RMDs across multiple IRAs and workplace 401(k) plans?",
+            "a": "You can aggregate RMD calculations across all your Traditional IRAs, SEP IRAs, and SIMPLE IRAs and withdraw the entire cumulative sum from one single IRA account. However, you CANNOT aggregate workplace plans: each separate 401(k), 403(b), or 457(b) account requires its own distinct RMD distribution calculated and disbursed directly from that employer plan."
+      }
+],
+    body: `
       <div class="article-container" style="max-width: 950px;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
           <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; RMD Calculator
@@ -459,9 +482,40 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             </div>
           </div>
 
+          <!-- Copy Button -->
           <button type="button" id="btnCopyRMD" onclick="copyRMDSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
             📋 Copy Official IRS RMD Tax Worksheet
           </button>
+        </div>
+
+        <!-- Missed RMD Penalty Estimator Box (IRC § 4974) -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🚨 Missed RMD Excise Tax Penalty Estimator</h3>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">SECURE 2.0 / IRC § 4974</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
+            Calculate the exact IRS excise penalty if you failed to withdraw all or part of your mandatory distribution by December 31:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; align-items: end;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Unwithdrawn Shortfall Amount ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="rmd-shortfall" value="10000" min="0" step="500" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.05rem;" oninput="calcPenalty()" />
+              </div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Standard Statutory Penalty (25%)</div>
+              <div id="penStandard" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #ef4444; margin: 0.2rem 0;">$2,500</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">IRC § 4974 base excise tax</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Timely Corrected Penalty (10%)</div>
+              <div id="penCorrected" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #10b981; margin: 0.2rem 0;">$1,000</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Corrected within 2 yrs + Form 5329</div>
+            </div>
+          </div>
         </div>
 
         <!-- 5-Year Forward Schedule Projection -->
@@ -576,6 +630,14 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           return irsTable[age] || 24.6;
         }
 
+        function calcPenalty() {
+          var shortfall = parseFloat(document.getElementById('rmd-shortfall').value) || 0;
+          var stdPen = shortfall * 0.25;
+          var corrPen = shortfall * 0.10;
+          document.getElementById('penStandard').textContent = fmtUSD(stdPen);
+          document.getElementById('penCorrected').textContent = fmtUSD(corrPen);
+        }
+
         function calcRMD() {
           var bal = parseFloat(document.getElementById('rmd-bal').value) || 0;
           var startAge = parseInt(document.getElementById('rmd-birth').value, 10) || 73;
@@ -638,6 +700,8 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             curAge++;
           }
           tbody.innerHTML = html;
+
+          calcPenalty();
         }
 
         function copyRMDSummary() {
@@ -649,18 +713,18 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           var netSpend = document.getElementById('rmd-net-spend').textContent;
           var qcd = document.getElementById('rmd-qcd').value;
 
-          var text = '🏛️ IRS REQUIRED MINIMUM DISTRIBUTION (RMD) WORKSHEET\\n' +
-            '----------------------------------------\\n' +
-            '• Prior Dec 31 Pre-Tax Balance: $' + Number(bal).toLocaleString('en-US') + '\\n' +
-            '• Current Tax Year Age: ' + age + ' (SECURE 2.0 Compliant)\\n' +
-            '• IRS Table III Factor: ' + factor + '\\n' +
-            '----------------------------------------\\n' +
-            'DISTRIBUTION OBLIGATION:\\n' +
-            '• Gross Mandatory RMD: ' + gross + ' (' + document.getElementById('rmd-mo').textContent + ')\\n' +
-            '• Qualified Charitable Distribution (QCD): $' + Number(qcd).toLocaleString('en-US') + '\\n' +
-            '• Net Taxable RMD: ' + taxable + '\\n' +
-            '• Estimated Net Spendable: ' + netSpend + '\\n' +
-            '----------------------------------------\\n' +
+          var text = '🏛️ IRS REQUIRED MINIMUM DISTRIBUTION (RMD) WORKSHEET\n' +
+            '----------------------------------------\n' +
+            '• Prior Dec 31 Pre-Tax Balance: $' + Number(bal).toLocaleString('en-US') + '\n' +
+            '• Current Tax Year Age: ' + age + ' (SECURE 2.0 Compliant)\n' +
+            '• IRS Table III Factor: ' + factor + '\n' +
+            '----------------------------------------\n' +
+            'DISTRIBUTION OBLIGATION:\n' +
+            '• Gross Mandatory RMD: ' + gross + ' (' + document.getElementById('rmd-mo').textContent + ')\n' +
+            '• Qualified Charitable Distribution (QCD): $' + Number(qcd).toLocaleString('en-US') + '\n' +
+            '• Net Taxable RMD: ' + taxable + '\n' +
+            '• Estimated Net Spendable: ' + netSpend + '\n' +
+            '----------------------------------------\n' +
             'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/rmd-calculator';
 
           navigator.clipboard.writeText(text).then(function() {
@@ -679,13 +743,36 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 
         document.addEventListener('DOMContentLoaded', calcRMD);
       </script>
-    `
+  `
   },
   {
-    "slug": "retirement-calculator",
-    "title": "Retirement Nest Egg & Safe Withdrawal Calculator (Trinity 4% & Guardrails)",
-    "metaDesc": "Determine how long your retirement portfolio will last using the Trinity 4% rule, Guyton-Klinger guardrails, inflation adjustments, and Sequence of Returns Risk modeling.",
-    "body": `
+    slug: "retirement-calculator",
+    title: "Retirement Nest Egg & Safe Withdrawal Calculator (Trinity 4% & Guardrails)",
+    metaDesc: "Determine how long your retirement portfolio will last using the Trinity 4% rule, Guyton-Klinger guardrails, inflation adjustments, and Sequence of Returns Risk modeling.",
+    category: "Finance",
+    faq: [
+      {
+            "q": "What is the 4% rule and is it still safe for retirement?",
+            "a": "Originating from William Bengen (1994) and the Trinity Study (1998), the 4% rule states that withdrawing 4% of your initial portfolio in Year 1, and adjusting that dollar amount for inflation each subsequent year, had a 95%+ success rate over 30 years on a 50/50 to 75/25 stock/bond portfolio. For longer 40+ year retirements (FIRE), modern financial planners often recommend a safer 3.25% to 3.75% initial rate."
+      },
+      {
+            "q": "How does Sequence of Returns Risk (SRR) affect retirement portfolio longevity?",
+            "a": "Sequence of Returns Risk (SRR) is the danger that market downturns occur in the early years of decumulation. Experiencing bear market losses during the first 3 to 5 years forces you to sell equities at depressed prices to fund living expenses, permanently impairing your principal base and accelerating portfolio exhaustion decades earlier than projected by simple average returns."
+      },
+      {
+            "q": "What are Guyton-Klinger dynamic guardrails and how do they work?",
+            "a": "Guyton-Klinger guardrails adapt annual spending to market realities rather than blindly following rigid inflation increases. If a market rally drops your current withdrawal rate 20% below initial levels (the capital preservation boundary), you take an inflation raise; if a crash pushes your withdrawal rate 20% above the threshold, you trim spending by 10% to protect the nest egg."
+      },
+      {
+            "q": "How much retirement savings do I need to generate $5,000 per month?",
+            "a": "To generate $5,000 per month ($60,000 per year) entirely from investments using the 4% rule, you need a nest egg of $1,500,000 ($60,000 ÷ 0.04). If you receive $2,000 per month in guaranteed Social Security, you only need to draw $3,000 per month ($36,000/yr), reducing your required nest egg to $900,000 ($36,000 ÷ 0.04)."
+      },
+      {
+            "q": "How does inflation impact my retirement withdrawal strategy?",
+            "a": "Inflation compounds expenses over time: at a 3% historical inflation rate, $60,000 in annual spending doubles to $120,000 in roughly 24 years. If a portfolio is invested too conservatively in cash or low-yielding bonds, its purchasing power steadily erodes, making equity exposure necessary to maintain long-term solvency."
+      }
+],
+    body: `
       <div class="article-container" style="max-width: 950px;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
           <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Retirement Planner
@@ -789,6 +876,17 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           </button>
         </div>
 
+        <!-- Interactive SVG Portfolio Decumulation Trajectory Graph -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📈 30-Year Portfolio Balance Trajectory</h3>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Simulated account progression incorporating inflation-adjusted draws</span>
+          </div>
+          <div style="width: 100%; overflow-x: auto;">
+            <svg id="retTrajSvg" viewBox="0 0 600 240" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 0 auto; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);"></svg>
+          </div>
+        </div>
+
         <!-- Strategy Comparison Grid -->
         <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
           <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚖️ Withdrawal Strategy Benchmark Comparison</h3>
@@ -818,7 +916,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Trinity Study Methodology</span>
           </div>
           <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-            Portfolio decumulation is governed by the recurrence relation \( B_{t+1} = (B_t - W_t) \times (1 + r) \), where initial withdrawal \( W_0 \) indexes to inflation \( W_t = W_0 \times (1 + i)^t \):
+            Portfolio decumulation is governed by the recurrence relation ( B_{t+1} = (B_t - W_t) 	imes (1 + r) ), where initial withdrawal ( W_0 ) indexes to inflation ( W_t = W_0 	imes (1 + i)^t ):
           </p>
           <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
             <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
@@ -918,9 +1016,9 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           var balance = total;
           var curSpend = netDraw;
           var years = 0;
+          var yearlyBalances = [total];
 
-          for (var yr = 1; yr <= 60; yr++) {
-            if (balance <= 0) break;
+          for (var yr = 1; yr <= 40; yr++) {
             var yrReturn = rNom;
             if (srrMode === 'mild') {
               if (yr === 1) yrReturn = -0.08;
@@ -932,15 +1030,25 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
               else if (yr === 3) yrReturn = 0.02;
             }
 
-            balance = (balance - curSpend) * (1 + yrReturn);
-            curSpend = curSpend * (1 + inf);
-            if (balance > 0) years++;
+            if (balance > 0) {
+              balance = (balance - curSpend) * (1 + yrReturn);
+              curSpend = curSpend * (1 + inf);
+              if (balance > 0) {
+                years++;
+                yearlyBalances.push(balance);
+              } else {
+                yearlyBalances.push(0);
+                balance = 0;
+              }
+            } else {
+              yearlyBalances.push(0);
+            }
           }
 
           var yEl = document.getElementById('ret-years');
           var ySubEl = document.getElementById('ret-years-sub');
-          if (years >= 50) {
-            yEl.textContent = '50+ Years';
+          if (years >= 40) {
+            yEl.textContent = '40+ Years';
             yEl.style.color = '#10b981';
             ySubEl.textContent = 'Indefinite / Permanent Capital Preservation';
           } else if (years >= horizon) {
@@ -962,7 +1070,83 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           document.getElementById('ret-step-1').textContent = 'Net Annual Draw = ' + fmtUSD(spend) + ' (Living) - ' + fmtUSD(guar) + ' (Guaranteed) = ' + fmtUSD(netDraw) + ' / yr';
           document.getElementById('ret-step-2').textContent = 'Initial Draw Rate = (' + fmtUSD(netDraw) + ' ÷ ' + fmtUSD(total) + ') × 100 = ' + rate.toFixed(2) + '%';
           document.getElementById('ret-step-3').textContent = 'Real Growth = [(1 + ' + rNom.toFixed(3) + ') ÷ (1 + ' + inf.toFixed(3) + ')] - 1 = ' + (rReal >= 0 ? '+' : '') + (rReal * 100).toFixed(2) + '% purchasing power drift';
-          document.getElementById('ret-step-4').textContent = 'At ' + rate.toFixed(2) + '% initial draw, simulated longevity is ' + (years >= 50 ? '50+ Years (Permanent)' : years + ' Years') + ' under selected scenario.';
+          document.getElementById('ret-step-4').textContent = 'At ' + rate.toFixed(2) + '% initial draw, simulated longevity is ' + (years >= 40 ? '40+ Years (Permanent)' : years + ' Years') + ' under selected scenario.';
+
+          // SVG Trajectory Curve
+          renderRetSvg(yearlyBalances.slice(0, 31), total, years);
+        }
+
+        function renderRetSvg(balances, initialTotal, longevityYears) {
+          var svg = document.getElementById('retTrajSvg');
+          var w = 600;
+          var h = 240;
+          var padLeft = 65;
+          var padRight = 30;
+          var padTop = 30;
+          var padBottom = 40;
+
+          var plotW = w - padLeft - padRight;
+          var plotH = h - padTop - padBottom;
+
+          var maxVal = initialTotal;
+          for (var i = 0; i < balances.length; i++) {
+            if (balances[i] > maxVal) maxVal = balances[i];
+          }
+          if (maxVal <= 0) maxVal = 100000;
+
+          var points = [];
+          for (var yr = 0; yr <= 30; yr++) {
+            var x = padLeft + (yr / 30) * plotW;
+            var val = balances[yr] !== undefined ? balances[yr] : 0;
+            var y = padTop + plotH - (val / maxVal) * plotH;
+            points.push({ x: x, y: y, yr: yr, val: val });
+          }
+
+          var pathD = 'M ' + points[0].x + ' ' + points[0].y;
+          var areaD = 'M ' + points[0].x + ' ' + (padTop + plotH) + ' L ' + points[0].x + ' ' + points[0].y;
+          for (var p = 1; p < points.length; p++) {
+            pathD += ' L ' + points[p].x + ' ' + points[p].y;
+            areaD += ' L ' + points[p].x + ' ' + points[p].y;
+          }
+          areaD += ' L ' + points[points.length - 1].x + ' ' + (padTop + plotH) + ' Z';
+
+          var isSolvent = longevityYears >= 30;
+          var strokeColor = isSolvent ? '#10b981' : '#ef4444';
+          var fillColor = isSolvent ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+
+          var svgHtml = '';
+          // Grid lines & Y axis labels
+          for (var g = 0; g <= 4; g++) {
+            var gy = padTop + (g / 4) * plotH;
+            var gVal = maxVal * (1 - g / 4);
+            svgHtml += '<line x1="' + padLeft + '" y1="' + gy + '" x2="' + (w - padRight) + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3" />' +
+              '<text x="' + (padLeft - 8) + '" y="' + (gy + 4) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)" text-anchor="end">$' + Math.round(gVal / 1000) + 'k</text>';
+          }
+
+          // X axis labels
+          for (var yr = 0; yr <= 30; yr += 5) {
+            var gx = padLeft + (yr / 30) * plotW;
+            svgHtml += '<text x="' + gx + '" y="' + (h - 12) + '" font-family="var(--mono)" font-size="11" fill="var(--text-muted)" text-anchor="middle">Yr ' + yr + '</text>';
+          }
+
+          // Area & Line
+          svgHtml += '<path d="' + areaD + '" fill="' + fillColor + '" />';
+          svgHtml += '<path d="' + pathD + '" fill="none" stroke="' + strokeColor + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />';
+
+          // End point marker or Depletion marker
+          if (!isSolvent && longevityYears < 30) {
+            var depPt = points[longevityYears];
+            if (depPt) {
+              svgHtml += '<circle cx="' + depPt.x + '" cy="' + depPt.y + '" r="6" fill="#ef4444" stroke="var(--surface)" stroke-width="2" />' +
+                '<text x="' + depPt.x + '" y="' + (depPt.y - 10) + '" font-family="var(--mono)" font-size="10" font-weight="bold" fill="#ef4444" text-anchor="middle">Depleted (Yr ' + longevityYears + ')</text>';
+            }
+          } else {
+            var lastPt = points[30];
+            svgHtml += '<circle cx="' + lastPt.x + '" cy="' + lastPt.y + '" r="5" fill="#10b981" stroke="var(--surface)" stroke-width="2" />' +
+              '<text x="' + lastPt.x + '" y="' + (lastPt.y - 10) + '" font-family="var(--mono)" font-size="10" font-weight="bold" fill="#10b981" text-anchor="end">Yr 30: ' + fmtUSD(lastPt.val) + '</text>';
+          }
+
+          svg.innerHTML = svgHtml;
         }
 
         function copyRetirementSummary() {
@@ -974,19 +1158,19 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           var longevity = document.getElementById('ret-years').textContent;
           var safeCap = document.getElementById('ret-safe').textContent;
 
-          var text = '🏛️ RETIREMENT LONGEVITY & SAFE WITHDRAWAL REPORT\\n' +
-            '----------------------------------------\\n' +
-            '• Total Retirement Nest Egg: $' + Number(total).toLocaleString('en-US') + '\\n' +
-            '• Annual Living Expenses: $' + Number(spend).toLocaleString('en-US') + ' / yr\\n' +
-            '• Guaranteed Non-Portfolio Income: $' + Number(guar).toLocaleString('en-US') + ' / yr\\n' +
-            '• Net Portfolio Annual Draw: ' + netDraw + '\\n' +
-            '----------------------------------------\\n' +
-            'LONGEVITY & SUSTAINABILITY BENCHMARK:\\n' +
-            '• Initial Withdrawal Rate: ' + rate + '\\n' +
-            '• Trinity 4% Recommended Cap: ' + safeCap + '\\n' +
-            '• Projected Portfolio Longevity: ' + longevity + '\\n' +
-            '• Solvency Status: ' + document.getElementById('ret-rate-status').textContent + '\\n' +
-            '----------------------------------------\\n' +
+          var text = '🏛️ RETIREMENT LONGEVITY & SAFE WITHDRAWAL REPORT\n' +
+            '----------------------------------------\n' +
+            '• Total Retirement Nest Egg: $' + Number(total).toLocaleString('en-US') + '\n' +
+            '• Annual Living Expenses: $' + Number(spend).toLocaleString('en-US') + ' / yr\n' +
+            '• Guaranteed Non-Portfolio Income: $' + Number(guar).toLocaleString('en-US') + ' / yr\n' +
+            '• Net Portfolio Annual Draw: ' + netDraw + '\n' +
+            '----------------------------------------\n' +
+            'LONGEVITY & SUSTAINABILITY BENCHMARK:\n' +
+            '• Initial Withdrawal Rate: ' + rate + '\n' +
+            '• Trinity 4% Recommended Cap: ' + safeCap + '\n' +
+            '• Projected Portfolio Longevity: ' + longevity + '\n' +
+            '• Solvency Status: ' + document.getElementById('ret-rate-status').textContent + '\n' +
+            '----------------------------------------\n' +
             'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/retirement-calculator';
 
           navigator.clipboard.writeText(text).then(function() {
@@ -1005,7 +1189,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 
         document.addEventListener('DOMContentLoaded', calcRet);
       </script>
-    `
+  `
   },
   {
     "slug": "annuity-calculator",
@@ -1297,151 +1481,426 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
     `
   },
   {
-    slug: 'car-depreciation-calculator',
-    title: 'Car Depreciation Calculator (5-Year Value & Residual Loss)',
-    metaDesc: 'Estimate vehicle depreciation over 5 years. Calculate monthly depreciation cost, residual trade-in value, and resale price for cars, SUVs, trucks, and EVs.',
+    slug: "car-depreciation-calculator",
+    title: "Car Depreciation Calculator (5-Year & 10-Year Residual Value)",
+    metaDesc: "Estimate vehicle depreciation over 1 to 10 years. Calculate residual trade-in value, private party price, cost per mile, and monthly depreciation loss for cars, SUVs, trucks, and EVs.",
+    category: "Finance",
+    faq: [
+      {
+            "q": "How much value does a new car lose in its first year?",
+            "a": "A typical new vehicle loses between 15% and 25% of its total retail value in the first 12 months of ownership. The steepest drop occurs the moment the vehicle is driven off the dealer lot, commonly shedding 10% immediately due to retail-to-wholesale depreciation and non-recoverable registration fees."
+      },
+      {
+            "q": "What vehicle types hold their value the best over 5 years?",
+            "a": "Full-size pickup trucks (such as the Ford F-150 and Toyota Tundra) and body-on-frame SUVs (such as the Toyota 4Runner and Jeep Wrangler) historically retain the most value, often retaining 55% to 65% of their initial MSRP after 5 years. In contrast, luxury German sedans and rapid-turnover electric vehicles often retain only 35% to 45%."
+      },
+      {
+            "q": "Why do electric vehicles (EVs) depreciate faster than gas-powered cars?",
+            "a": "Electric vehicles experience accelerated initial depreciation due to three factors: rapid generational battery improvements that make older models technologically obsolete, aggressive price cuts from new EV manufacturers, and federal/state purchase tax credits which effectively discount the real starting purchase price for secondary buyers."
+      },
+      {
+            "q": "What is the difference between dealer trade-in value and private party resale value?",
+            "a": "Private party resale value is the price an individual buyer will pay on the open market, representing the vehicle's true market fair value. Dealer trade-in value is wholesale pricing, typically 12% to 18% lower than private party, allowing the dealership margin to recondition, detail, warrant, and retail the vehicle."
+      },
+      {
+            "q": "How does annual mileage impact a car's depreciation rate?",
+            "a": "The national standard baseline is 12,000 to 15,000 miles per year. Driving in excess of 18,000 miles per year increases annual depreciation by 10% to 25%, as major mechanical warranty thresholds (such as 36,000-mile bumper-to-bumper or 60,000-mile powertrain warranties) are breached prematurely, reducing buyer confidence."
+      }
+],
     body: `
       <div class="article-container" style="max-width: 950px;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Car Depreciation
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Car Depreciation Calculator
         </nav>
 
         <header style="margin-bottom: 2rem;">
           <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Car Depreciation & Residual Value Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Calculate how much your car loses in value each year. Discover your 5-year residual resale value, annual dollar loss, and true monthly ownership cost.
+            Calculate your vehicle's multi-year residual value, annual dollar loss, private party vs. dealer trade-in spread, and true ownership cost per mile across all major vehicle categories.
           </p>
         </header>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Vehicle Information</h3>
-            
-            <div style="margin-bottom: 1.25rem;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Purchase Price ($ USD)</label>
-              <input type="number" id="carPrice" value="38000" min="1000" step="500" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCarDeprec()" />
+        <!-- Main Calculator Controls Grid -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <!-- Purchase Price -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Purchase Price / MSRP ($ USD):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="carPrice" value="42000" min="1000" max="300000" step="500" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcCarDeprec()" />
+              </div>
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button type="button" onclick="setCarPrice(25000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$25k (Econ)</button>
+                <button type="button" onclick="setCarPrice(42000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$42k (SUV)</button>
+                <button type="button" onclick="setCarPrice(65000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$65k (Truck)</button>
+                <button type="button" onclick="setCarPrice(95000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$95k (Lux/EV)</button>
+              </div>
             </div>
 
-            <div style="margin-bottom: 1.25rem;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Vehicle Category</label>
-              <select id="carType" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 1rem;" onchange="calcCarDeprec()">
-                <option value="truck">Truck / Full-Size Pickup (Slowest Depreciation)</option>
-                <option value="suv" selected>Compact / Midsize SUV (Average Depreciation)</option>
-                <option value="sedan">Sedan / Hatchback (Moderate Depreciation)</option>
-                <option value="luxury">Luxury Vehicle (Rapid Depreciation)</option>
-                <option value="ev">Electric Vehicle EV (Rapid Battery Depreciation)</option>
+            <!-- Vehicle Category -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Vehicle Category & Retention:</label>
+              <select id="carType" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" onchange="calcCarDeprec()">
+                <option value="truck">Full-Size Truck / Van (Highest Retention ~60% @ 5yr)</option>
+                <option value="suv" selected>Compact / Midsize SUV (Average Retention ~50% @ 5yr)</option>
+                <option value="sedan">Economy Sedan / Hatchback (Moderate ~45% @ 5yr)</option>
+                <option value="luxury">Luxury / Executive Sedan (High Loss ~38% @ 5yr)</option>
+                <option value="ev">Electric Vehicle EV (Rapid Loss ~32% @ 5yr)</option>
+                <option value="sports">Sports & Enthusiast Car (Steady ~48% @ 5yr)</option>
               </select>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Based on 5-year iSeeCars & Black Book historical resale curves.</small>
             </div>
 
-            <div style="margin-bottom: 1.25rem;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Annual Mileage</label>
-              <select id="carMiles" class="search-input" style="width: 100%; padding: 0.65rem; font-size: 1rem;" onchange="calcCarDeprec()">
-                <option value="0.95">Low Mileage (&lt; 10,000 miles/yr)</option>
-                <option value="1.0" selected>Average (12,000 to 15,000 miles/yr)</option>
-                <option value="1.08">High Mileage (18,000+ miles/yr)</option>
+            <!-- Annual Mileage -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Annual Driving Mileage:</label>
+              <select id="carMiles" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" onchange="calcCarDeprec()">
+                <option value="8000">Low Mileage (8,000 mi/yr - Weekend Car)</option>
+                <option value="12000" selected>Average Mileage (12,000 mi/yr - US Median)</option>
+                <option value="15000">Above Average (15,000 mi/yr - Commuter)</option>
+                <option value="20000">High Mileage (20,000 mi/yr - Long Haul)</option>
+                <option value="25000">Extreme Mileage (25,000 mi/yr - Rideshare)</option>
               </select>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Adjusts mechanical wear factor & warranty cliff.</small>
+            </div>
+
+            <!-- Horizon Slider -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <label style="font-size: 0.85rem; font-weight: bold;">Ownership Period:</label>
+                <span id="horizonLabel" style="font-family: var(--mono); font-size: 0.85rem; color: #3b82f6; font-weight: bold;">5 Years</span>
+              </div>
+              <input type="range" id="carHorizon" min="1" max="10" value="5" step="1" style="width: 100%; accent-color: #3b82f6; cursor: pointer;" oninput="onHorizonChange()" />
+              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted);">
+                <span>1 Yr</span><span>3 Yr</span><span>5 Yr</span><span>7 Yr</span><span>10 Yr</span>
+              </div>
             </div>
           </div>
 
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">5-Year Ownership Loss</h3>
-            <div id="carSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          <!-- Hero Metrics Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Projected Resale (Private)</div>
+              <div id="carResale" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$21,420</div>
+              <div id="carRetainedPct" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">51.0% of MSRP retained</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Dealer Trade-In Value</div>
+              <div id="carTradeIn" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$18,421</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Wholesale liquidation (~86%)</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Depreciation Loss</div>
+              <div id="carTotalLoss" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #ef4444; margin: 0.35rem 0;">-$20,580</div>
+              <div id="carLossPct" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">49.0% value lost</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Depreciation Per Mile</div>
+              <div id="carPerMile" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$0.343 / mi</div>
+              <div id="carMonthly" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">$343 / mo hidden cost</div>
+            </div>
           </div>
+
+          <!-- Copy Button -->
+          <button type="button" id="btnCopyCar" onclick="copyCarSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+            📋 Copy Vehicle Valuation & Depreciation Report
+          </button>
         </div>
 
-        <div class="ad-blend-box" style="margin: 2rem 0;">
-          <span class="ad-label">Sponsored Resource</span>
-          <div class="ad-unit-300x250">
-            <script type="text/javascript">
-              atOptions = {
-                'key' : '335d807d460eaf2491fcca0f635474ce',
-                'format' : 'iframe',
-                'height' : 250,
-                'width' : 300,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
-          </div>
-        </div>
-
+        <!-- Interactive SVG Depreciation Curve -->
         <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem;">Year-by-Year Depreciation Schedule</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📈 10-Year Residual Value Trajectory</h3>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Green: Retained Value | Red Dotted: Target Horizon</span>
+          </div>
+          <div style="width: 100%; overflow-x: auto;">
+            <svg id="carDeprecSvg" viewBox="0 0 600 240" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 0 auto; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);"></svg>
+          </div>
+        </div>
+
+        <!-- Year-by-Year Depreciation Schedule -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">📅 Full 10-Year Ownership Schedule</h3>
           <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
+            <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem; text-align: left;">
               <thead>
-                <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
-                  <th style="padding: 0.5rem 0.75rem;">Year</th>
-                  <th style="padding: 0.5rem 0.75rem;">Residual Value</th>
-                  <th style="padding: 0.5rem 0.75rem;">Annual Loss ($)</th>
-                  <th style="padding: 0.5rem 0.75rem;">Total % Depreciated</th>
+                <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.6rem;">Year</th>
+                  <th style="padding: 0.5rem 0.6rem;">Start Value</th>
+                  <th style="padding: 0.5rem 0.6rem;">Annual Loss ($)</th>
+                  <th style="padding: 0.5rem 0.6rem;">Private Resale</th>
+                  <th style="padding: 0.5rem 0.6rem;">Trade-In</th>
+                  <th style="padding: 0.5rem 0.6rem;">Cumulative Loss</th>
                 </tr>
               </thead>
-              <tbody id="deprecTableBody"></tbody>
+              <tbody id="carScheduleBody"></tbody>
             </table>
           </div>
+        </div>
+
+        <!-- Step-by-Step Worked Algebraic Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Depreciation Mathematics</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Residual Compounding Model</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            Vehicle residual value is computed via discrete non-linear compounding where the annual decay factor ( d_t ) scales with category characteristics and annual mileage exposure:
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Baseline Purchase Basis & Category Rate</strong>
+              <div id="carStep1" style="color: #3b82f6; margin-top: 0.25rem;">Purchase Basis = $42,000.00. Category: Midsize SUV (Year 1 Base Loss = 20.0%).</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Mileage Scaling Factor Adjustment</strong>
+              <div id="carStep2" style="color: var(--text-muted); margin-top: 0.25rem;">Mileage Multiplier = 1.00x (Standard 12,000 mi/yr baseline).</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Compounded Residual Valuation</strong>
+              <div id="carStep3" style="color: var(--text-muted); margin-top: 0.25rem;">V(5) = $42,000 × (1 - 0.200) × (1 - 0.130) × (1 - 0.110) × (1 - 0.090) × (1 - 0.080) = $21,420.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #10b981; font-weight: 700;">Step 4: True Operating Burden Derivation</strong>
+              <div id="carStep4" style="color: #10b981; margin-top: 0.25rem;">Depreciation Loss = $20,580 over 60,000 total miles = $0.343 / mile ($343.00 / month).</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Critical Car Depreciation Traps -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Critical Vehicle Depreciation Traps</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>The "Drive-Off Lot" Immediate 10% Cliff:</strong> The instant a new car drives off a dealership lot, its title converts from Manufacturer Statement of Origin (MSO) to used. It instantly sheds dealer prep charges, retail markup, and destination fees—money you can never recover upon resale.</li>
+            <li><strong>The 72 to 84-Month "Negative Equity" Trap:</strong> Long loan terms mean the outstanding loan balance drops slower than the car depreciates. Buyers who finance over 6 or 7 years remain "underwater" for 4+ years. If the vehicle is totaled, insurance pays market fair value, leaving a multi-thousand-dollar balance unless GAP coverage is active.</li>
+            <li><strong>The EV Battery Obsolescence & Subsidy Distortion:</strong> Rapid advances in battery chemistries and charging architectures make earlier EV generations technologically inferior within 3 to 4 years. Furthermore, original buyers capture federal tax credits ($7,500), which used car buyers price in as an automatic discount.</li>
+            <li><strong>Out-of-Warranty Luxury Depreciation Acceleration:</strong> German luxury brands (BMW, Mercedes, Audi) experience steep secondary depreciation cliffs starting at Year 4 or Year 5 when the original factory warranty expires, as secondary buyers fear high maintenance and specialized repair costs.</li>
+            <li><strong>The High-Mileage Compounding Curve:</strong> Exceeding 15,000 miles/yr accelerates mechanical depreciation faster than simple linear wear, as psychological odometer milestones (36k, 60k, 100k miles) trigger sharp valuation step-downs in dealer valuation algorithms (Black Book & Manheim).</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Vehicle Depreciation Worksheet
+          </button>
         </div>
       </div>
 
       <script>
         var deprecRates = {
-          truck: [0.17, 0.12, 0.10, 0.09, 0.08],
-          suv: [0.20, 0.14, 0.12, 0.10, 0.09],
-          sedan: [0.22, 0.15, 0.13, 0.11, 0.10],
-          luxury: [0.26, 0.18, 0.15, 0.13, 0.11],
-          ev: [0.28, 0.19, 0.16, 0.13, 0.12]
+          truck:  [0.16, 0.10, 0.09, 0.08, 0.07, 0.06, 0.06, 0.05, 0.05, 0.05],
+          suv:    [0.20, 0.13, 0.11, 0.09, 0.08, 0.07, 0.07, 0.06, 0.06, 0.05],
+          sedan:  [0.22, 0.14, 0.12, 0.10, 0.09, 0.08, 0.07, 0.06, 0.06, 0.05],
+          luxury: [0.27, 0.18, 0.15, 0.12, 0.10, 0.09, 0.08, 0.07, 0.07, 0.06],
+          ev:     [0.30, 0.20, 0.16, 0.13, 0.11, 0.10, 0.09, 0.08, 0.07, 0.06],
+          sports: [0.23, 0.15, 0.12, 0.10, 0.08, 0.08, 0.07, 0.06, 0.06, 0.05]
+        };
+
+        function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+        window.setCarPrice = function(p) {
+          document.getElementById('carPrice').value = p;
+          calcCarDeprec();
+        };
+
+        window.onHorizonChange = function() {
+          var h = document.getElementById('carHorizon').value;
+          document.getElementById('horizonLabel').textContent = h + (h === '1' ? ' Year' : ' Years');
+          calcCarDeprec();
         };
 
         function calcCarDeprec() {
           var price = parseFloat(document.getElementById('carPrice').value) || 0;
           var cat = document.getElementById('carType').value || 'suv';
-          var milesMult = parseFloat(document.getElementById('carMiles').value) || 1.0;
+          var miles = parseInt(document.getElementById('carMiles').value, 10) || 12000;
+          var horizon = parseInt(document.getElementById('carHorizon').value, 10) || 5;
 
-          var rates = deprecRates[cat];
-          var currentVal = price;
-          var totalLost = 0;
-          var rowsHtml = '';
+          // Mileage multiplier relative to 12k baseline
+          var milesMult = 1.0 + (miles - 12000) / 45000;
+          if (milesMult < 0.85) milesMult = 0.85;
+          if (milesMult > 1.30) milesMult = 1.30;
 
-          for (var i = 0; i < 5; i++) {
-            var yearRate = Math.min(0.35, rates[i] * milesMult);
-            var annualLoss = currentVal * yearRate;
-            currentVal -= annualLoss;
-            totalLost += annualLoss;
-            var pctLost = ((totalLost / price) * 100).toFixed(0);
+          var rates = deprecRates[cat] || deprecRates.suv;
+          var curVal = price;
+          var totalLoss = 0;
+          var scheduleHtml = '';
+          var yearlyVals = [price]; // Year 0 = initial price
 
-            rowsHtml += 
-              '<tr style="border-bottom: 1px solid var(--border);">' +
-                '<td style="padding: 0.5rem 0.75rem; font-weight: bold;">Year ' + (i + 1) + '</td>' +
-                '<td style="padding: 0.5rem 0.75rem; font-family: var(--mono); color: #22c55e; font-weight: bold;">$' + Math.round(currentVal).toLocaleString('en-US') + '</td>' +
-                '<td style="padding: 0.5rem 0.75rem; font-family: var(--mono); color: #ef4444;">-$' + Math.round(annualLoss).toLocaleString('en-US') + '</td>' +
-                '<td style="padding: 0.5rem 0.75rem; font-family: var(--mono);">' + pctLost + '%</td>' +
+          var targetResale = price;
+          var targetLoss = 0;
+
+          for (var i = 0; i < 10; i++) {
+            var yr = i + 1;
+            var startYrVal = curVal;
+            var yrRate = Math.min(0.40, rates[i] * milesMult);
+            var annualLoss = curVal * yrRate;
+            curVal -= annualLoss;
+            totalLoss += annualLoss;
+            yearlyVals.push(curVal);
+
+            var tradeInVal = curVal * 0.86; // Wholesale margin (~14% haircut)
+            var cumPct = price > 0 ? ((totalLoss / price) * 100).toFixed(1) : '0.0';
+
+            var isSelected = (yr === horizon);
+            var rowBg = isSelected ? 'background: rgba(59, 130, 246, 0.08);' : '';
+
+            scheduleHtml += '<tr style="border-bottom: 1px solid var(--border); ' + rowBg + '">' +
+              '<td style="padding: 0.5rem 0.6rem; font-weight: bold;">Year ' + yr + (isSelected ? ' ⭐' : '') + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem;">' + fmtUSD(startYrVal) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: #ef4444;">-' + fmtUSD(annualLoss) + ' (' + (yrRate * 100).toFixed(1) + '%)</td>' +
+              '<td style="padding: 0.5rem 0.6rem; font-weight: bold; color: #10b981;">' + fmtUSD(curVal) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: #3b82f6;">' + fmtUSD(tradeInVal) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: var(--text-muted);">' + cumPct + '%</td>' +
               '</tr>';
+
+            if (yr === horizon) {
+              targetResale = curVal;
+              targetLoss = totalLoss;
+            }
           }
 
-          document.getElementById('deprecTableBody').innerHTML = rowsHtml;
+          document.getElementById('carScheduleBody').innerHTML = scheduleHtml;
 
-          var monthlyCost = totalLost / 60;
-          document.getElementById('carSummary').innerHTML = 
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">5-YEAR RESALE VALUE</span>' +
-              '<div style="font-size: 1.8rem; font-weight: bold; color: #22c55e;">$' + Math.round(currentVal).toLocaleString('en-US') + '</div>' +
-              '<div style="font-size: 0.75rem; color: var(--text-muted);">' + (100 - Math.round((totalLost / price) * 100)) + '% of original purchase price retained</div>' +
-            '</div>' +
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL 5-YEAR DEPRECIATION LOSS</span>' +
-              '<div style="font-size: 1.3rem; font-weight: bold; color: #ef4444;">-$' + Math.round(totalLost).toLocaleString('en-US') + '</div>' +
-            '</div>' +
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">AVERAGE MONTHLY DEPRECIATION COST</span>' +
-              '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">$' + Math.round(monthlyCost) + ' / month</div>' +
-              '<div style="font-size: 0.75rem; color: var(--text-muted);">Hidden ownership cost beyond gas and insurance</div>' +
-            '</div>';
+          // Hero metrics
+          var tradeIn = targetResale * 0.86;
+          var retainedPct = price > 0 ? ((targetResale / price) * 100).toFixed(1) : 0;
+          var lossPct = price > 0 ? ((targetLoss / price) * 100).toFixed(1) : 0;
+          var totalMilesDriven = miles * horizon;
+          var perMile = totalMilesDriven > 0 ? (targetLoss / totalMilesDriven) : 0;
+          var monthlyCost = targetLoss / (horizon * 12);
+
+          document.getElementById('carResale').textContent = fmtUSD(targetResale);
+          document.getElementById('carRetainedPct').textContent = retainedPct + '% of MSRP retained';
+          document.getElementById('carTradeIn').textContent = fmtUSD(tradeIn);
+          document.getElementById('carTotalLoss').textContent = '-' + fmtUSD(targetLoss);
+          document.getElementById('carLossPct').textContent = lossPct + '% value lost';
+          document.getElementById('carPerMile').textContent = '$' + perMile.toFixed(3) + ' / mi';
+          document.getElementById('carMonthly').textContent = fmtUSD(monthlyCost) + ' / mo hidden cost';
+
+          // Step derivations
+          var catLabels = { truck: 'Full-Size Truck', suv: 'Midsize SUV', sedan: 'Economy Sedan', luxury: 'Luxury Sedan', ev: 'Electric Vehicle (EV)', sports: 'Sports Car' };
+          document.getElementById('carStep1').textContent = 'Purchase Basis = ' + fmtUSD(price) + '. Category: ' + (catLabels[cat] || cat) + ' (Year 1 base loss = ' + (rates[0] * 100).toFixed(1) + '%).';
+          document.getElementById('carStep2').textContent = 'Mileage Multiplier = ' + milesMult.toFixed(2) + 'x based on ' + miles.toLocaleString('en-US') + ' miles/year baseline exposure.';
+          document.getElementById('carStep3').textContent = 'V(' + horizon + ') = ' + fmtUSD(targetResale) + ' private party market value (' + retainedPct + '% retained).';
+          document.getElementById('carStep4').textContent = 'Total loss of ' + fmtUSD(targetLoss) + ' over ' + totalMilesDriven.toLocaleString('en-US') + ' total miles = $' + perMile.toFixed(3) + ' / mile (' + fmtUSD(monthlyCost) + ' / month).';
+
+          // SVG rendering
+          renderCarSvg(yearlyVals, horizon, price);
+        }
+
+        function renderCarSvg(vals, horizon, maxPrice) {
+          var svg = document.getElementById('carDeprecSvg');
+          var w = 600;
+          var h = 240;
+          var padLeft = 65;
+          var padRight = 30;
+          var padTop = 30;
+          var padBottom = 40;
+
+          var plotW = w - padLeft - padRight;
+          var plotH = h - padTop - padBottom;
+
+          var maxY = maxPrice > 0 ? maxPrice : 100;
+          var points = [];
+
+          for (var yr = 0; yr <= 10; yr++) {
+            var x = padLeft + (yr / 10) * plotW;
+            var val = vals[yr] || 0;
+            var y = padTop + plotH - (val / maxY) * plotH;
+            points.push({ x: x, y: y, yr: yr, val: val });
+          }
+
+          var pathD = 'M ' + points[0].x + ' ' + points[0].y;
+          var areaD = 'M ' + points[0].x + ' ' + (padTop + plotH) + ' L ' + points[0].x + ' ' + points[0].y;
+          for (var p = 1; p < points.length; p++) {
+            pathD += ' L ' + points[p].x + ' ' + points[p].y;
+            areaD += ' L ' + points[p].x + ' ' + points[p].y;
+          }
+          areaD += ' L ' + points[points.length - 1].x + ' ' + (padTop + plotH) + ' Z';
+
+          var svgHtml = '';
+          // Grid lines & Y axis labels
+          for (var g = 0; g <= 4; g++) {
+            var gy = padTop + (g / 4) * plotH;
+            var gVal = maxY * (1 - g / 4);
+            svgHtml += '<line x1="' + padLeft + '" y1="' + gy + '" x2="' + (w - padRight) + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3" />' +
+              '<text x="' + (padLeft - 8) + '" y="' + (gy + 4) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)" text-anchor="end">$' + Math.round(gVal / 1000) + 'k</text>';
+          }
+
+          // X axis labels
+          for (var yr = 0; yr <= 10; yr += 2) {
+            var gx = padLeft + (yr / 10) * plotW;
+            svgHtml += '<text x="' + gx + '" y="' + (h - 12) + '" font-family="var(--mono)" font-size="11" fill="var(--text-muted)" text-anchor="middle">Yr ' + yr + '</text>';
+          }
+
+          // Area fill
+          svgHtml += '<path d="' + areaD + '" fill="rgba(16, 185, 129, 0.12)" />';
+          // Line path
+          svgHtml += '<path d="' + pathD + '" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />';
+
+          // Target horizon vertical dashed line
+          var targetPt = points[horizon];
+          if (targetPt) {
+            svgHtml += '<line x1="' + targetPt.x + '" y1="' + padTop + '" x2="' + targetPt.x + '" y2="' + (padTop + plotH) + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,4" />' +
+              '<text x="' + targetPt.x + '" y="' + (padTop - 8) + '" font-family="var(--mono)" font-size="11" font-weight="bold" fill="#ef4444" text-anchor="middle">Selected: Yr ' + horizon + ' (' + fmtUSD(targetPt.val) + ')</text>';
+          }
+
+          // Points
+          for (var i = 0; i < points.length; i++) {
+            var pt = points[i];
+            var isHorizon = (pt.yr === horizon);
+            svgHtml += '<circle cx="' + pt.x + '" cy="' + pt.y + '" r="' + (isHorizon ? 6 : 4) + '" fill="' + (isHorizon ? '#ef4444' : '#10b981') + '" stroke="var(--surface)" stroke-width="2" />';
+          }
+
+          svg.innerHTML = svgHtml;
+        }
+
+        function copyCarSummary() {
+          var price = document.getElementById('carPrice').value;
+          var typeEl = document.getElementById('carType');
+          var typeText = typeEl.options[typeEl.selectedIndex].text;
+          var miles = document.getElementById('carMiles').value;
+          var horizon = document.getElementById('carHorizon').value;
+          var resale = document.getElementById('carResale').textContent;
+          var tradeIn = document.getElementById('carTradeIn').textContent;
+          var loss = document.getElementById('carTotalLoss').textContent;
+          var perMile = document.getElementById('carPerMile').textContent;
+          var monthly = document.getElementById('carMonthly').textContent;
+
+          var text = '🚗 VEHICLE DEPRECIATION & RESIDUAL LOSS REPORT\n' +
+            '----------------------------------------\n' +
+            '• Initial Purchase Price: $' + Number(price).toLocaleString('en-US') + '\n' +
+            '• Vehicle Category: ' + typeText + '\n' +
+            '• Annual Mileage: ' + Number(miles).toLocaleString('en-US') + ' miles/year\n' +
+            '• Ownership Horizon: ' + horizon + ' Years\n' +
+            '----------------------------------------\n' +
+            'VALUATION & RESIDUAL METRICS:\n' +
+            '• Projected Resale Value (Private): ' + resale + ' (' + document.getElementById('carRetainedPct').textContent + ')\n' +
+            '• Estimated Dealer Trade-In: ' + tradeIn + '\n' +
+            '• Total Cumulative Loss: ' + loss + ' (' + document.getElementById('carLossPct').textContent + ')\n' +
+            '• Depreciation Cost Per Mile: ' + perMile + '\n' +
+            '• Monthly Depreciation Burden: ' + monthly + '\n' +
+            '----------------------------------------\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/car-depreciation-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopyCar');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Vehicle Valuation Report!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
         }
 
         document.addEventListener('DOMContentLoaded', calcCarDeprec);
-        calcCarDeprec();
       </script>
-    `
+  `
   },
   {
     slug: 'hourly-to-salary-calculator',
@@ -2824,10 +3283,32 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
     `
   },
   {
-    slug: 'net-worth-calculator',
-    title: 'Net Worth Calculator (Assets minus Liabilities)',
-    metaDesc: 'Calculate your total personal net worth by tallying cash, real estate, stocks, and retirement accounts against mortgages, student loans, and debt.',
-    category: 'Finance',
+    slug: "net-worth-calculator",
+    title: "Net Worth Calculator (Liquid vs Illiquid Wealth & Age Benchmarks)",
+    metaDesc: "Calculate personal net worth, liquid wealth, and debt-to-asset solvency ratio. Benchmark your finances against US Federal Reserve Survey of Consumer Finances percentiles by age.",
+    category: "Finance",
+    faq: [
+      {
+            "q": "What is the difference between total net worth and liquid net worth?",
+            "a": "Total net worth includes all assets (real estate equity, vehicles, personal property, and locked retirement accounts) minus all liabilities. Liquid net worth counts only cash, checking/savings, taxable brokerage holdings, and liquid investments that can be converted to cash within 3 to 5 business days without statutory early-withdrawal penalties or forced real estate liquidation."
+      },
+      {
+            "q": "What is the median and average net worth by age in the United States?",
+            "a": "According to the Federal Reserve Survey of Consumer Finances (SCF): Under 35 median is $39,000 (average $183,500); ages 35–44 median is $135,600 (average $549,600); ages 45–54 median is $247,200 (average $975,800); ages 55–64 median is $364,500 (average $1,566,900); and ages 65–74 median is $409,900 (average $1,794,600)."
+      },
+      {
+            "q": "Should I include my primary home and personal vehicle in my net worth?",
+            "a": "Yes, but strictly at realistic fair market resale value—never purchase price or replacement cost. For your primary home, subtract expected selling costs (~6% to 8% for real estate commissions and transfer taxes). For vehicles, use Black Book or Kelley Blue Book private party value rather than original MSRP to prevent artificial wealth inflation."
+      },
+      {
+            "q": "What is a healthy debt-to-asset ratio?",
+            "a": "A debt-to-asset ratio under 25% is considered exceptionally strong and low-risk. Ratios between 25% and 50% are healthy for young households financing primary real estate. Ratios exceeding 60% indicate elevated leverage, while ratios above 100% mean negative net worth (liabilities exceed total assets)."
+      },
+      {
+            "q": "Why is median net worth so much lower than average (mean) net worth?",
+            "a": "Wealth distribution in the United States is heavily right-skewed. The top 10% and top 1% of households hold disproportionately large concentrations of equities, businesses, and commercial real estate, which pulls the mathematical average (mean) upwards by several hundred percent. Median represents the true 50th percentile midpoint of the American population."
+      }
+],
     body: `
       <div class="article-container" style="max-width: 950px;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
@@ -2835,98 +3316,416 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         </nav>
 
         <header style="margin-bottom: 2rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Personal Net Worth Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Personal Net Worth & Financial Solvency Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Calculate your true financial standing: tally what you own (assets) and subtract what you owe (liabilities).
+            Calculate your total net worth, liquid net worth, and debt-to-asset leverage ratio. Benchmark your financial position directly against US Federal Reserve Survey of Consumer Finances (SCF) percentiles for your age group.
           </p>
         </header>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-          <!-- Assets -->
+        <!-- Demographic Benchmarking Selector -->
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 8px; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <strong style="font-size: 0.95rem; color: var(--fg); display: block;">Select Your Age Bracket for Federal Reserve Benchmarking:</strong>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Compares your holdings to US Federal Reserve Survey of Consumer Finances (SCF) medians.</span>
+          </div>
+          <select id="nwAgeBracket" style="padding: 0.5rem 0.75rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.9rem;" onchange="calcNW()">
+            <option value="under35">Under 35 (Median: $39k | Top 10%: $450k)</option>
+            <option value="35to44" selected>Age 35–44 (Median: $135k | Top 10%: $1.25M)</option>
+            <option value="45to54">Age 45–54 (Median: $247k | Top 10%: $2.40M)</option>
+            <option value="55to64">Age 55–64 (Median: $364k | Top 10%: $3.80M)</option>
+            <option value="65to74">Age 65–74 (Median: $410k | Top 10%: $4.20M)</option>
+            <option value="75plus">Age 75+ (Median: $336k | Top 10%: $3.90M)</option>
+          </select>
+        </div>
+
+        <!-- Inputs: Two Columns (Assets vs Liabilities) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <!-- Assets Column -->
           <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.5rem; border-radius: 8px;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem; color: #10b981;">Assets (What You Own)</h3>
-            <div style="display: grid; gap: 0.85rem;">
-              <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Cash & Bank Accounts ($)</label>
-                <input type="number" id="nwCash" value="25000" min="0" step="500" class="search-input nw-asset" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: #10b981;">Assets (What You Own)</h3>
+              <span id="subtotalAssets" style="font-family: var(--mono); font-weight: bold; color: #10b981; font-size: 1.1rem;">$555,000</span>
+            </div>
+
+            <!-- Liquid Financial Assets -->
+            <div style="margin-bottom: 1.25rem;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">1. Liquid & Cash Assets</span>
+              <div style="display: grid; gap: 0.65rem;">
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Checking, Savings & CDs ($):</label>
+                  <input type="number" id="nwCash" value="25000" min="0" step="1000" class="nw-asset nw-liquid" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Taxable Brokerage (Stocks, ETFs, Funds) ($):</label>
+                  <input type="number" id="nwStocks" value="45000" min="0" step="2000" class="nw-asset nw-liquid" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Cryptocurrency & Gold ($):</label>
+                  <input type="number" id="nwCrypto" value="5000" min="0" step="500" class="nw-asset nw-liquid" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
               </div>
-              <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Retirement (401k, IRA) ($)</label>
-                <input type="number" id="nwRet" value="120000" min="0" step="1000" class="search-input nw-asset" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+            </div>
+
+            <!-- Retirement Assets -->
+            <div style="margin-bottom: 1.25rem;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">2. Retirement Accounts</span>
+              <div style="display: grid; gap: 0.65rem;">
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Pre-Tax 401(k), 403(b), Traditional IRA ($):</label>
+                  <input type="number" id="nwPreRet" value="85000" min="0" step="2500" class="nw-asset" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Roth IRA, Roth 401(k) & HSA ($):</label>
+                  <input type="number" id="nwRoth" value="35000" min="0" step="1000" class="nw-asset" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
               </div>
-              <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Real Estate Market Value ($)</label>
-                <input type="number" id="nwHome" value="380000" min="0" step="5000" class="search-input nw-asset" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
-              </div>
-              <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Vehicles & Personal Property ($)</label>
-                <input type="number" id="nwVeh" value="30000" min="0" step="1000" class="search-input nw-asset" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+            </div>
+
+            <!-- Physical / Illiquid Assets -->
+            <div>
+              <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">3. Real Estate & Physical Property</span>
+              <div style="display: grid; gap: 0.65rem;">
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Primary Residence Market Value ($):</label>
+                  <input type="number" id="nwHome" value="325000" min="0" step="5000" class="nw-asset" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Vehicles (KBB Resale Value) ($):</label>
+                  <input type="number" id="nwVeh" value="25000" min="0" step="1000" class="nw-asset" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Business Equity & Personal Property ($):</label>
+                  <input type="number" id="nwOtherProp" value="10000" min="0" step="1000" class="nw-asset" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Liabilities -->
+          <!-- Liabilities Column -->
           <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.5rem; border-radius: 8px;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem; color: #ef4444;">Liabilities (What You Owe)</h3>
-            <div style="display: grid; gap: 0.85rem;">
-              <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Mortgage Balance ($)</label>
-                <input type="number" id="nwMort" value="240000" min="0" step="2000" class="search-input nw-debt" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: #ef4444;">Liabilities (What You Owe)</h3>
+              <span id="subtotalLiabilities" style="font-family: var(--mono); font-weight: bold; color: #ef4444; font-size: 1.1rem;">$270,000</span>
+            </div>
+
+            <!-- Secured Real Estate Debt -->
+            <div style="margin-bottom: 1.25rem;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">1. Mortgages & Secured Loans</span>
+              <div style="display: grid; gap: 0.65rem;">
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Primary Mortgage Principal Balance ($):</label>
+                  <input type="number" id="nwMort" value="230000" min="0" step="5000" class="nw-debt" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Auto Loans Balance ($):</label>
+                  <input type="number" id="nwAuto" value="14000" min="0" step="500" class="nw-debt" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
               </div>
-              <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Auto Loans ($)</label>
-                <input type="number" id="nwAuto" value="12000" min="0" step="500" class="search-input nw-debt" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
-              </div>
-              <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Student Loans ($)</label>
-                <input type="number" id="nwStudent" value="15000" min="0" step="500" class="search-input nw-debt" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
-              </div>
-              <div>
-                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block;">Credit Cards & Other Debt ($)</label>
-                <input type="number" id="nwCards" value="3000" min="0" step="200" class="search-input nw-debt" style="width: 100%; padding: 0.45rem;" oninput="calcNW()" />
+            </div>
+
+            <!-- Unsecured & Consumer Debt -->
+            <div>
+              <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">2. Consumer & Student Debt</span>
+              <div style="display: grid; gap: 0.65rem;">
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Student Loan Debt ($):</label>
+                  <input type="number" id="nwStudent" value="21000" min="0" step="1000" class="nw-debt" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Credit Card Balances ($):</label>
+                  <input type="number" id="nwCards" value="3500" min="0" step="250" class="nw-debt nw-unsecured" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
+                <div>
+                  <label style="font-size: 0.8rem; display: block; margin-bottom: 0.2rem;">Personal Loans & Medical Debt ($):</label>
+                  <input type="number" id="nwPersonal" value="1500" min="0" step="250" class="nw-debt nw-unsecured" style="width: 100%; padding: 0.45rem 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcNW()" />
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-align: center; margin-bottom: 2rem;">
-          <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Total Net Worth</div>
-          <div id="nwTotal" style="font-family: var(--mono); font-size: 2.8rem; font-weight: bold; color: #10b981; margin: 0.5rem 0;">$285,000</div>
-          <div id="nwRatios" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono);">
-            Total Assets: $555,000 | Total Liabilities: $270,000 | Debt Ratio: 48.6%
+        <!-- Hero Results Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Net Worth</div>
+            <div id="nwTotal" style="font-family: var(--mono); font-size: 2.3rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$285,000</div>
+            <div id="nwSolvencyStatus" style="font-size: 0.85rem; color: #10b981; font-weight: bold;">Positive Financial Standing</div>
           </div>
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Liquid Net Worth</div>
+            <div id="nwLiquidTotal" style="font-family: var(--mono); font-size: 2.3rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$70,000</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Immediate Cash / Capital Buffer</div>
+          </div>
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Debt-to-Asset Leverage</div>
+            <div id="nwDebtRatio" style="font-family: var(--mono); font-size: 2.3rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">48.6%</div>
+            <div id="nwRatioStatus" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Healthy Mortgage Leverage</div>
+          </div>
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Fed SCF Age Benchmark</div>
+            <div id="nwFedBenchmark" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">+110%</div>
+            <div id="nwFedDetails" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Above Age 35–44 Median ($135k)</div>
+          </div>
+        </div>
+
+        <!-- Copy Button -->
+        <button type="button" id="btnCopyNW" onclick="copyNWSummary()" class="btn-sec" style="width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s; margin-bottom: 2rem;">
+          📋 Copy Full Net Worth & Solvency Report
+        </button>
+
+        <!-- Visual Asset Allocation & Debt Stack Bar -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">📊 Asset Distribution & Debt Load</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+            Proportional composition of your asset portfolio vs. liability claims against total wealth:
+          </p>
+
+          <!-- Segmented Asset Bar -->
+          <div style="height: 28px; width: 100%; display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 0.6rem; border: 1px solid var(--border);">
+            <div id="barLiquid" style="width: 13%; background: #3b82f6; transition: width 0.3s;" title="Cash & Liquid Brokerage"></div>
+            <div id="barRet" style="width: 22%; background: #10b981; transition: width 0.3s;" title="Retirement Accounts"></div>
+            <div id="barHome" style="width: 58%; background: #06b6d4; transition: width 0.3s;" title="Primary Real Estate"></div>
+            <div id="barOther" style="width: 7%; background: #f59e0b; transition: width 0.3s;" title="Vehicles & Property"></div>
+          </div>
+
+          <!-- Legend -->
+          <div style="display: flex; gap: 1rem; font-family: var(--mono); font-size: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+            <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> <span id="legLiquid">Liquid (13.5%)</span></span>
+            <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #10b981; border-radius: 2px;"></span> <span id="legRet">Retirement (21.6%)</span></span>
+            <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #06b6d4; border-radius: 2px;"></span> <span id="legHome">Real Estate (58.6%)</span></span>
+            <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #f59e0b; border-radius: 2px;"></span> <span id="legOther">Vehicles/Other (6.3%)</span></span>
+          </div>
+
+          <!-- Debt Burden Sub-Bar -->
+          <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 0.35rem;">Total Liabilities (% of Gross Assets)</span>
+          <div style="height: 14px; width: 100%; background: var(--surface-alt); border-radius: 3px; overflow: hidden; border: 1px solid var(--border);">
+            <div id="barDebt" style="height: 100%; width: 48.6%; background: #ef4444; transition: width 0.3s;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+            <span id="txtDebtPct">Debt Burden: 48.6%</span>
+            <span id="txtEquityPct">Net Equity Retained: 51.4%</span>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Worked Algebraic Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Net Worth Derivation</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">GAAP Personal Balance Sheet</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            Personal financial standing is derived by aggregating asset claims against debt obligations across liquidity tiers:
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Gross Asset Summation</strong>
+              <div id="nwStep1" style="color: #10b981; margin-top: 0.25rem;">Total Assets = $75,000 (Liquid) + $120,000 (Retirement) + $360,000 (Property) = $555,000.00</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Total Liability Aggregation</strong>
+              <div id="nwStep2" style="color: #ef4444; margin-top: 0.25rem;">Total Liabilities = $244,000 (Secured Mortgages/Auto) + $26,000 (Student/Cards) = $270,000.00</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Total Net Worth Calculation</strong>
+              <div id="nwStep3" style="color: var(--fg); margin-top: 0.25rem;">Net Worth = $555,000.00 (Assets) - $270,000.00 (Liabilities) = $285,000.00</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #3b82f6; font-weight: 700;">Step 4: Liquid Solvency & Leverage Ratio</strong>
+              <div id="nwStep4" style="color: #3b82f6; margin-top: 0.25rem;">Liquid Net Worth = $75,000 - $5,000 (Unsecured) = $70,000.00. Leverage Ratio = ($270,000 ÷ $555,000) × 100 = 48.65%.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Critical Net Worth Traps -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Critical Net Worth Traps & Distortions</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>The "House-Rich, Cash-Poor" Trap:</strong> Primary residence equity represents paper wealth that cannot pay for healthcare, groceries, or emergencies without taking on a second mortgage (HELOC) or selling the home. A high net worth dominated 80%+ by real estate often creates acute cash flow vulnerability.</li>
+            <li><strong>The Pre-Tax Retirement Haircut:</strong> A $500,000 Traditional 401(k) or IRA is not $500,000 in your pocket. The IRS holds an embedded tax lien of 15% to 32% (plus state income tax). Net spendable wealth in pre-tax accounts is only $350,000 to $400,000 after mandatory tax withholding.</li>
+            <li><strong>Depreciating Asset Inflation (Vehicles & Goods):</strong> Listing cars, boats, and electronics at purchase price artificially inflates net worth. Vehicles lose 15% to 25% in Year 1 alone. Always record personal property at conservative wholesale liquidation values.</li>
+            <li><strong>High-Interest Credit Card Compounding Drag:</strong> A $10,000 credit card balance at 24% APR costs $2,400 per year in interest drain, wiping out the entire investment return of a $25,000 index fund portfolio. Consumer debt represents an asymmetric negative compound interest drag.</li>
+            <li><strong>Ignoring Friction & Real Estate Liquidation Costs:</strong> Converting $400,000 of real estate equity to cash costs approximately 6% to 8% in Realtor commissions, transfer fees, and staging, deducting $24,000 to $32,000 off your paper net worth upon actual realization.</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Net Worth Statement
+          </button>
         </div>
       </div>
 
       <script>
+        var fedScfData = {
+          under35: { label: 'Under 35', median: 39000, mean: 183500, top10: 450000 },
+          '35to44': { label: 'Age 35–44', median: 135600, mean: 549600, top10: 1250000 },
+          '45to54': { label: 'Age 45–54', median: 247200, mean: 975800, top10: 2400000 },
+          '55to64': { label: 'Age 55–64', median: 364500, mean: 1566900, top10: 3800000 },
+          '65to74': { label: 'Age 65–74', median: 409900, mean: 1794600, top10: 4200000 },
+          '75plus': { label: 'Age 75+', median: 335600, mean: 1624100, top10: 3900000 }
+        };
+
+        function fmtUSD(n) {
+          var sign = n < 0 ? '-$' : '$';
+          return sign + Math.abs(Math.round(n)).toLocaleString('en-US');
+        }
+
         function calcNW() {
-          var assets = 0;
-          document.querySelectorAll('.nw-asset').forEach(function(el) {
-            assets += parseFloat(el.value) || 0;
+          var cash = parseFloat(document.getElementById('nwCash').value) || 0;
+          var stocks = parseFloat(document.getElementById('nwStocks').value) || 0;
+          var crypto = parseFloat(document.getElementById('nwCrypto').value) || 0;
+          var preRet = parseFloat(document.getElementById('nwPreRet').value) || 0;
+          var roth = parseFloat(document.getElementById('nwRoth').value) || 0;
+          var home = parseFloat(document.getElementById('nwHome').value) || 0;
+          var veh = parseFloat(document.getElementById('nwVeh').value) || 0;
+          var otherProp = parseFloat(document.getElementById('nwOtherProp').value) || 0;
+
+          var mort = parseFloat(document.getElementById('nwMort').value) || 0;
+          var auto = parseFloat(document.getElementById('nwAuto').value) || 0;
+          var student = parseFloat(document.getElementById('nwStudent').value) || 0;
+          var cards = parseFloat(document.getElementById('nwCards').value) || 0;
+          var personal = parseFloat(document.getElementById('nwPersonal').value) || 0;
+
+          var liquidAssets = cash + stocks + crypto;
+          var retAssets = preRet + roth;
+          var propAssets = home + veh + otherProp;
+          var totalAssets = liquidAssets + retAssets + propAssets;
+
+          var unsecuredDebt = cards + personal;
+          var securedDebt = mort + auto + student;
+          var totalDebts = unsecuredDebt + securedDebt;
+
+          var netWorth = totalAssets - totalDebts;
+          var liquidNW = liquidAssets - unsecuredDebt;
+          var debtRatio = totalAssets > 0 ? ((totalDebts / totalAssets) * 100) : 0;
+
+          // Update subtotals
+          document.getElementById('subtotalAssets').textContent = fmtUSD(totalAssets);
+          document.getElementById('subtotalLiabilities').textContent = fmtUSD(totalDebts);
+
+          // Hero Total Net Worth
+          var nwTotalEl = document.getElementById('nwTotal');
+          nwTotalEl.textContent = fmtUSD(netWorth);
+          nwTotalEl.style.color = netWorth >= 0 ? '#10b981' : '#ef4444';
+
+          var solStatusEl = document.getElementById('nwSolvencyStatus');
+          if (netWorth >= 1000000) {
+            solStatusEl.textContent = '🏆 High Net Worth Status ($1M+)';
+            solStatusEl.style.color = '#10b981';
+          } else if (netWorth > 0) {
+            solStatusEl.textContent = '✓ Positive Balance Sheet Equity';
+            solStatusEl.style.color = '#10b981';
+          } else {
+            solStatusEl.textContent = '⚠️ Negative Net Worth (Underwater)';
+            solStatusEl.style.color = '#ef4444';
+          }
+
+          // Liquid Net Worth
+          var liqEl = document.getElementById('nwLiquidTotal');
+          liqEl.textContent = fmtUSD(liquidNW);
+          liqEl.style.color = liquidNW >= 0 ? '#3b82f6' : '#ef4444';
+
+          // Debt Ratio
+          document.getElementById('nwDebtRatio').textContent = debtRatio.toFixed(1) + '%';
+          var ratioStatusEl = document.getElementById('nwRatioStatus');
+          if (debtRatio <= 25) {
+            ratioStatusEl.textContent = 'Pristine Low Leverage (<25%)';
+            ratioStatusEl.style.color = '#10b981';
+          } else if (debtRatio <= 50) {
+            ratioStatusEl.textContent = 'Healthy Prudent Leverage (25–50%)';
+            ratioStatusEl.style.color = '#3b82f6';
+          } else if (debtRatio <= 75) {
+            ratioStatusEl.textContent = 'Elevated Debt Burden (50–75%)';
+            ratioStatusEl.style.color = '#f59e0b';
+          } else {
+            ratioStatusEl.textContent = 'High Financial Risk (>75%)';
+            ratioStatusEl.style.color = '#ef4444';
+          }
+
+          // Federal Reserve Benchmark
+          var ageKey = document.getElementById('nwAgeBracket').value;
+          var bench = fedScfData[ageKey] || fedScfData['35to44'];
+          var diffMedian = netWorth - bench.median;
+          var pctMedian = bench.median > 0 ? ((diffMedian / bench.median) * 100) : 0;
+
+          var benchEl = document.getElementById('nwFedBenchmark');
+          var benchDetailsEl = document.getElementById('nwFedDetails');
+          if (pctMedian >= 0) {
+            benchEl.textContent = '+' + Math.round(pctMedian) + '%';
+            benchEl.style.color = '#10b981';
+            benchDetailsEl.textContent = 'Above ' + bench.label + ' Median (' + fmtUSD(bench.median) + ')';
+          } else {
+            benchEl.textContent = Math.round(pctMedian) + '%';
+            benchEl.style.color = '#ef4444';
+            benchDetailsEl.textContent = 'Below ' + bench.label + ' Median (' + fmtUSD(bench.median) + ')';
+          }
+
+          // Visual Bars
+          var pLiq = totalAssets > 0 ? (liquidAssets / totalAssets) * 100 : 25;
+          var pRet = totalAssets > 0 ? (retAssets / totalAssets) * 100 : 25;
+          var pHome = totalAssets > 0 ? (home / totalAssets) * 100 : 25;
+          var pOther = totalAssets > 0 ? ((veh + otherProp) / totalAssets) * 100 : 25;
+
+          document.getElementById('barLiquid').style.width = pLiq.toFixed(1) + '%';
+          document.getElementById('barRet').style.width = pRet.toFixed(1) + '%';
+          document.getElementById('barHome').style.width = pHome.toFixed(1) + '%';
+          document.getElementById('barOther').style.width = pOther.toFixed(1) + '%';
+
+          document.getElementById('legLiquid').textContent = 'Liquid (' + pLiq.toFixed(1) + '%)';
+          document.getElementById('legRet').textContent = 'Retirement (' + pRet.toFixed(1) + '%)';
+          document.getElementById('legHome').textContent = 'Real Estate (' + pHome.toFixed(1) + '%)';
+          document.getElementById('legOther').textContent = 'Property (' + pOther.toFixed(1) + '%)';
+
+          var barDebtPct = Math.min(100, debtRatio);
+          document.getElementById('barDebt').style.width = barDebtPct.toFixed(1) + '%';
+          document.getElementById('txtDebtPct').textContent = 'Debt Burden: ' + debtRatio.toFixed(1) + '%';
+          document.getElementById('txtEquityPct').textContent = 'Net Equity Retained: ' + (100 - debtRatio).toFixed(1) + '%';
+
+          // Step Derivations
+          document.getElementById('nwStep1').textContent = 'Total Assets = ' + fmtUSD(liquidAssets) + ' (Liquid) + ' + fmtUSD(retAssets) + ' (Retirement) + ' + fmtUSD(propAssets) + ' (Physical) = ' + fmtUSD(totalAssets);
+          document.getElementById('nwStep2').textContent = 'Total Liabilities = ' + fmtUSD(mort + auto) + ' (Mortgage/Auto) + ' + fmtUSD(student + cards + personal) + ' (Student/Unsecured) = ' + fmtUSD(totalDebts);
+          document.getElementById('nwStep3').textContent = 'Net Worth = ' + fmtUSD(totalAssets) + ' (Assets) - ' + fmtUSD(totalDebts) + ' (Liabilities) = ' + fmtUSD(netWorth);
+          document.getElementById('nwStep4').textContent = 'Liquid Net Worth = ' + fmtUSD(liquidNW) + '. Leverage Ratio = (' + fmtUSD(totalDebts) + ' ÷ ' + fmtUSD(totalAssets) + ') × 100 = ' + debtRatio.toFixed(2) + '%.';
+        }
+
+        function copyNWSummary() {
+          var nw = document.getElementById('nwTotal').textContent;
+          var liq = document.getElementById('nwLiquidTotal').textContent;
+          var ratio = document.getElementById('nwDebtRatio').textContent;
+          var bench = document.getElementById('nwFedDetails').textContent;
+          var assets = document.getElementById('subtotalAssets').textContent;
+          var debts = document.getElementById('subtotalLiabilities').textContent;
+
+          var text = '📊 PERSONAL BALANCE SHEET & NET WORTH REPORT\n' +
+            '----------------------------------------\n' +
+            '• Total Gross Assets: ' + assets + '\n' +
+            '• Total Outstanding Liabilities: ' + debts + '\n' +
+            '----------------------------------------\n' +
+            'NET WORTH & LIQUIDITY METRICS:\n' +
+            '• Total Personal Net Worth: ' + nw + '\n' +
+            '• Liquid Net Worth (Immediate Capital): ' + liq + '\n' +
+            '• Debt-to-Asset Leverage Ratio: ' + ratio + '\n' +
+            '• Federal Reserve Benchmark: ' + bench + '\n' +
+            '----------------------------------------\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/net-worth-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopyNW');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Net Worth Statement!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
           });
-
-          var debts = 0;
-          document.querySelectorAll('.nw-debt').forEach(function(el) {
-            debts += parseFloat(el.value) || 0;
-          });
-
-          var netWorth = assets - debts;
-          var debtRatio = assets > 0 ? ((debts / assets) * 100) : 0;
-
-          var totalEl = document.getElementById('nwTotal');
-          totalEl.textContent = (netWorth >= 0 ? '$' : '-$') + Math.abs(Math.round(netWorth)).toLocaleString('en-US');
-          totalEl.style.color = netWorth >= 0 ? '#10b981' : '#ef4444';
-
-          document.getElementById('nwRatios').textContent = 
-            'Total Assets: $' + Math.round(assets).toLocaleString('en-US') + ' | ' +
-            'Total Liabilities: $' + Math.round(debts).toLocaleString('en-US') + ' | ' +
-            'Debt Ratio: ' + debtRatio.toFixed(1) + '%';
         }
 
         document.addEventListener('DOMContentLoaded', calcNW);
-        calcNW();
       </script>
-    `
+  `
   },
   {
     slug: 'compound-interest-calculator',

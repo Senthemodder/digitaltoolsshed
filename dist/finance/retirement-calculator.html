@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Retirement Nest Egg & Safe Withdrawal Calculator (Trinity 4% & Guardrails) free to use?",
+      "name": "What is the 4% rule and is it still safe for retirement?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Retirement Nest Egg & Safe Withdrawal Calculator (Trinity 4% & Guardrails) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Originating from William Bengen (1994) and the Trinity Study (1998), the 4% rule states that withdrawing 4% of your initial portfolio in Year 1, and adjusting that dollar amount for inflation each subsequent year, had a 95%+ success rate over 30 years on a 50/50 to 75/25 stock/bond portfolio. For longer 40+ year retirements (FIRE), modern financial planners often recommend a safer 3.25% to 3.75% initial rate."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "How does Sequence of Returns Risk (SRR) affect retirement portfolio longevity?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Sequence of Returns Risk (SRR) is the danger that market downturns occur in the early years of decumulation. Experiencing bear market losses during the first 3 to 5 years forces you to sell equities at depressed prices to fund living expenses, permanently impairing your principal base and accelerating portfolio exhaustion decades earlier than projected by simple average returns."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Retirement Nest Egg & Safe Withdrawal Calculator (Trinity 4% & Guardrails) work on mobile devices?",
+      "name": "What are Guyton-Klinger dynamic guardrails and how do they work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Guyton-Klinger guardrails adapt annual spending to market realities rather than blindly following rigid inflation increases. If a market rally drops your current withdrawal rate 20% below initial levels (the capital preservation boundary), you take an inflation raise; if a crash pushes your withdrawal rate 20% above the threshold, you trim spending by 10% to protect the nest egg."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much retirement savings do I need to generate $5,000 per month?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "To generate $5,000 per month ($60,000 per year) entirely from investments using the 4% rule, you need a nest egg of $1,500,000 ($60,000 ÷ 0.04). If you receive $2,000 per month in guaranteed Social Security, you only need to draw $3,000 per month ($36,000/yr), reducing your required nest egg to $900,000 ($36,000 ÷ 0.04)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does inflation impact my retirement withdrawal strategy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Inflation compounds expenses over time: at a 3% historical inflation rate, $60,000 in annual spending doubles to $120,000 in roughly 24 years. If a portfolio is invested too conservatively in cash or low-yielding bonds, its purchasing power steadily erodes, making equity exposure necessary to maintain long-term solvency."
       }
     }
   ]
@@ -608,7 +624,7 @@
 
       <!-- MIND & PSYCHOLOGICAL ARCHETYPES -->
       <div class="nav-group-title">
-        undefined
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         <span>Mind & Intelligence (500)</span>
       </div>
       <a href="/mind/" class="nav-link ">
@@ -658,7 +674,7 @@
 
       <!-- GEN Z DOPAMINE & REALITY CHECKS -->
       <div class="nav-group-title">
-        undefined
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span>Dopamine & Reality (500)</span>
       </div>
       <a href="/dopamine/" class="nav-link ">
@@ -683,7 +699,7 @@
 
       <!-- CURIOUS SCIENCE & BIZARRE PHYSICS -->
       <div class="nav-group-title">
-        undefined
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         <span>Curious Physics (500)</span>
       </div>
       <a href="/curious/" class="nav-link ">
@@ -1128,6 +1144,17 @@
           </button>
         </div>
 
+        <!-- Interactive SVG Portfolio Decumulation Trajectory Graph -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📈 30-Year Portfolio Balance Trajectory</h3>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Simulated account progression incorporating inflation-adjusted draws</span>
+          </div>
+          <div style="width: 100%; overflow-x: auto;">
+            <svg id="retTrajSvg" viewBox="0 0 600 240" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 0 auto; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);"></svg>
+          </div>
+        </div>
+
         <!-- Strategy Comparison Grid -->
         <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
           <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚖️ Withdrawal Strategy Benchmark Comparison</h3>
@@ -1257,9 +1284,9 @@
           var balance = total;
           var curSpend = netDraw;
           var years = 0;
+          var yearlyBalances = [total];
 
-          for (var yr = 1; yr <= 60; yr++) {
-            if (balance <= 0) break;
+          for (var yr = 1; yr <= 40; yr++) {
             var yrReturn = rNom;
             if (srrMode === 'mild') {
               if (yr === 1) yrReturn = -0.08;
@@ -1271,15 +1298,25 @@
               else if (yr === 3) yrReturn = 0.02;
             }
 
-            balance = (balance - curSpend) * (1 + yrReturn);
-            curSpend = curSpend * (1 + inf);
-            if (balance > 0) years++;
+            if (balance > 0) {
+              balance = (balance - curSpend) * (1 + yrReturn);
+              curSpend = curSpend * (1 + inf);
+              if (balance > 0) {
+                years++;
+                yearlyBalances.push(balance);
+              } else {
+                yearlyBalances.push(0);
+                balance = 0;
+              }
+            } else {
+              yearlyBalances.push(0);
+            }
           }
 
           var yEl = document.getElementById('ret-years');
           var ySubEl = document.getElementById('ret-years-sub');
-          if (years >= 50) {
-            yEl.textContent = '50+ Years';
+          if (years >= 40) {
+            yEl.textContent = '40+ Years';
             yEl.style.color = '#10b981';
             ySubEl.textContent = 'Indefinite / Permanent Capital Preservation';
           } else if (years >= horizon) {
@@ -1301,7 +1338,83 @@
           document.getElementById('ret-step-1').textContent = 'Net Annual Draw = ' + fmtUSD(spend) + ' (Living) - ' + fmtUSD(guar) + ' (Guaranteed) = ' + fmtUSD(netDraw) + ' / yr';
           document.getElementById('ret-step-2').textContent = 'Initial Draw Rate = (' + fmtUSD(netDraw) + ' ÷ ' + fmtUSD(total) + ') × 100 = ' + rate.toFixed(2) + '%';
           document.getElementById('ret-step-3').textContent = 'Real Growth = [(1 + ' + rNom.toFixed(3) + ') ÷ (1 + ' + inf.toFixed(3) + ')] - 1 = ' + (rReal >= 0 ? '+' : '') + (rReal * 100).toFixed(2) + '% purchasing power drift';
-          document.getElementById('ret-step-4').textContent = 'At ' + rate.toFixed(2) + '% initial draw, simulated longevity is ' + (years >= 50 ? '50+ Years (Permanent)' : years + ' Years') + ' under selected scenario.';
+          document.getElementById('ret-step-4').textContent = 'At ' + rate.toFixed(2) + '% initial draw, simulated longevity is ' + (years >= 40 ? '40+ Years (Permanent)' : years + ' Years') + ' under selected scenario.';
+
+          // SVG Trajectory Curve
+          renderRetSvg(yearlyBalances.slice(0, 31), total, years);
+        }
+
+        function renderRetSvg(balances, initialTotal, longevityYears) {
+          var svg = document.getElementById('retTrajSvg');
+          var w = 600;
+          var h = 240;
+          var padLeft = 65;
+          var padRight = 30;
+          var padTop = 30;
+          var padBottom = 40;
+
+          var plotW = w - padLeft - padRight;
+          var plotH = h - padTop - padBottom;
+
+          var maxVal = initialTotal;
+          for (var i = 0; i < balances.length; i++) {
+            if (balances[i] > maxVal) maxVal = balances[i];
+          }
+          if (maxVal <= 0) maxVal = 100000;
+
+          var points = [];
+          for (var yr = 0; yr <= 30; yr++) {
+            var x = padLeft + (yr / 30) * plotW;
+            var val = balances[yr] !== undefined ? balances[yr] : 0;
+            var y = padTop + plotH - (val / maxVal) * plotH;
+            points.push({ x: x, y: y, yr: yr, val: val });
+          }
+
+          var pathD = 'M ' + points[0].x + ' ' + points[0].y;
+          var areaD = 'M ' + points[0].x + ' ' + (padTop + plotH) + ' L ' + points[0].x + ' ' + points[0].y;
+          for (var p = 1; p < points.length; p++) {
+            pathD += ' L ' + points[p].x + ' ' + points[p].y;
+            areaD += ' L ' + points[p].x + ' ' + points[p].y;
+          }
+          areaD += ' L ' + points[points.length - 1].x + ' ' + (padTop + plotH) + ' Z';
+
+          var isSolvent = longevityYears >= 30;
+          var strokeColor = isSolvent ? '#10b981' : '#ef4444';
+          var fillColor = isSolvent ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)';
+
+          var svgHtml = '';
+          // Grid lines & Y axis labels
+          for (var g = 0; g <= 4; g++) {
+            var gy = padTop + (g / 4) * plotH;
+            var gVal = maxVal * (1 - g / 4);
+            svgHtml += '<line x1="' + padLeft + '" y1="' + gy + '" x2="' + (w - padRight) + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3" />' +
+              '<text x="' + (padLeft - 8) + '" y="' + (gy + 4) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)" text-anchor="end">$' + Math.round(gVal / 1000) + 'k</text>';
+          }
+
+          // X axis labels
+          for (var yr = 0; yr <= 30; yr += 5) {
+            var gx = padLeft + (yr / 30) * plotW;
+            svgHtml += '<text x="' + gx + '" y="' + (h - 12) + '" font-family="var(--mono)" font-size="11" fill="var(--text-muted)" text-anchor="middle">Yr ' + yr + '</text>';
+          }
+
+          // Area & Line
+          svgHtml += '<path d="' + areaD + '" fill="' + fillColor + '" />';
+          svgHtml += '<path d="' + pathD + '" fill="none" stroke="' + strokeColor + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />';
+
+          // End point marker or Depletion marker
+          if (!isSolvent && longevityYears < 30) {
+            var depPt = points[longevityYears];
+            if (depPt) {
+              svgHtml += '<circle cx="' + depPt.x + '" cy="' + depPt.y + '" r="6" fill="#ef4444" stroke="var(--surface)" stroke-width="2" />' +
+                '<text x="' + depPt.x + '" y="' + (depPt.y - 10) + '" font-family="var(--mono)" font-size="10" font-weight="bold" fill="#ef4444" text-anchor="middle">Depleted (Yr ' + longevityYears + ')</text>';
+            }
+          } else {
+            var lastPt = points[30];
+            svgHtml += '<circle cx="' + lastPt.x + '" cy="' + lastPt.y + '" r="5" fill="#10b981" stroke="var(--surface)" stroke-width="2" />' +
+              '<text x="' + lastPt.x + '" y="' + (lastPt.y - 10) + '" font-family="var(--mono)" font-size="10" font-weight="bold" fill="#10b981" text-anchor="end">Yr 30: ' + fmtUSD(lastPt.val) + '</text>';
+          }
+
+          svg.innerHTML = svgHtml;
         }
 
         function copyRetirementSummary() {
@@ -1313,19 +1426,32 @@
           var longevity = document.getElementById('ret-years').textContent;
           var safeCap = document.getElementById('ret-safe').textContent;
 
-          var text = '🏛️ RETIREMENT LONGEVITY & SAFE WITHDRAWAL REPORT\n' +
-            '----------------------------------------\n' +
-            '• Total Retirement Nest Egg: $' + Number(total).toLocaleString('en-US') + '\n' +
-            '• Annual Living Expenses: $' + Number(spend).toLocaleString('en-US') + ' / yr\n' +
-            '• Guaranteed Non-Portfolio Income: $' + Number(guar).toLocaleString('en-US') + ' / yr\n' +
-            '• Net Portfolio Annual Draw: ' + netDraw + '\n' +
-            '----------------------------------------\n' +
-            'LONGEVITY & SUSTAINABILITY BENCHMARK:\n' +
-            '• Initial Withdrawal Rate: ' + rate + '\n' +
-            '• Trinity 4% Recommended Cap: ' + safeCap + '\n' +
-            '• Projected Portfolio Longevity: ' + longevity + '\n' +
-            '• Solvency Status: ' + document.getElementById('ret-rate-status').textContent + '\n' +
-            '----------------------------------------\n' +
+          var text = '🏛️ RETIREMENT LONGEVITY & SAFE WITHDRAWAL REPORT
+' +
+            '----------------------------------------
+' +
+            '• Total Retirement Nest Egg: $' + Number(total).toLocaleString('en-US') + '
+' +
+            '• Annual Living Expenses: $' + Number(spend).toLocaleString('en-US') + ' / yr
+' +
+            '• Guaranteed Non-Portfolio Income: $' + Number(guar).toLocaleString('en-US') + ' / yr
+' +
+            '• Net Portfolio Annual Draw: ' + netDraw + '
+' +
+            '----------------------------------------
+' +
+            'LONGEVITY & SUSTAINABILITY BENCHMARK:
+' +
+            '• Initial Withdrawal Rate: ' + rate + '
+' +
+            '• Trinity 4% Recommended Cap: ' + safeCap + '
+' +
+            '• Projected Portfolio Longevity: ' + longevity + '
+' +
+            '• Solvency Status: ' + document.getElementById('ret-rate-status').textContent + '
+' +
+            '----------------------------------------
+' +
             'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/retirement-calculator';
 
           navigator.clipboard.writeText(text).then(function() {
@@ -1344,7 +1470,7 @@
 
         document.addEventListener('DOMContentLoaded', calcRet);
       </script>
-    
+  
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

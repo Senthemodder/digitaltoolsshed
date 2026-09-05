@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III) | Digital Tools Shed</title>
-  <meta name="description" content="Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, and QCD tax deductions.">
+  <meta name="description" content="Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, missed RMD penalty estimator, and QCD deductions.">
   <link rel="canonical" href="https://digitaltoolsshed.com/finance/rmd-calculator">
   <meta property="og:title" content="IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III) | Digital Tools Shed">
-  <meta property="og:description" content="Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, and QCD tax deductions.">
+  <meta property="og:description" content="Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, missed RMD penalty estimator, and QCD deductions.">
   <meta property="og:url" content="https://digitaltoolsshed.com/finance/rmd-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III) | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, and QCD tax deductions.">
+  <meta name="twitter:description" content="Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, missed RMD penalty estimator, and QCD deductions.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, and QCD tax deductions.",
+  "description": "Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, missed RMD penalty estimator, and QCD deductions.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III) free to use?",
+      "name": "What is the RMD starting age under the SECURE 2.0 Act?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Under the SECURE 2.0 Act passed by Congress, the mandatory starting age for Required Minimum Distributions (RMDs) is phased: individuals born between 1951 and 1959 must begin taking RMDs at age 73. Individuals born in 1960 or later begin taking RMDs at age 75. Those born in 1950 or earlier remain subject to the previous age 72 or 70½ rules."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "How is an IRS Required Minimum Distribution calculated using Table III?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "The annual RMD is calculated by taking your pre-tax account balance as of December 31 of the prior calendar year and dividing it by your life expectancy factor from IRS Uniform Lifetime Table III (Treasury Reg. § 1.401(a)(9)-9). For example, at age 75, the factor is 24.6, requiring a distribution of approximately 4.065% of your prior year-end balance."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III) work on mobile devices?",
+      "name": "What is the penalty for missing an RMD deadline?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Under Internal Revenue Code § 4974 as updated by SECURE 2.0, failing to withdraw your full RMD by December 31 incurs an excise tax penalty of 25% on the shortfall amount (down from 50% historically). If the error is corrected within the statutory correction window (generally 2 years) and submitted with IRS Form 5329, the penalty is reduced to 10%."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do Qualified Charitable Distributions (QCDs) reduce RMD taxes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Individuals aged 70½ or older can donate up to $105,000 per year directly from a Traditional IRA to a qualified 501(c)(3) public charity as a Qualified Charitable Distribution (QCD). The donated amount counts directly toward satisfying your mandatory RMD but is 100% excluded from your Adjusted Gross Income (AGI), preventing tax bracket escalation and Medicare IRMAA surcharges."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I aggregate RMDs across multiple IRAs and workplace 401(k) plans?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can aggregate RMD calculations across all your Traditional IRAs, SEP IRAs, and SIMPLE IRAs and withdraw the entire cumulative sum from one single IRA account. However, you CANNOT aggregate workplace plans: each separate 401(k), 403(b), or 457(b) account requires its own distinct RMD distribution calculated and disbursed directly from that employer plan."
       }
     }
   ]
@@ -136,7 +152,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III)",
-  "description": "Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, and QCD tax deductions.",
+  "description": "Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, missed RMD penalty estimator, and QCD deductions.",
   "step": [
     {
       "@type": "HowToStep",
@@ -608,7 +624,7 @@
 
       <!-- MIND & PSYCHOLOGICAL ARCHETYPES -->
       <div class="nav-group-title">
-        undefined
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         <span>Mind & Intelligence (500)</span>
       </div>
       <a href="/mind/" class="nav-link ">
@@ -658,7 +674,7 @@
 
       <!-- GEN Z DOPAMINE & REALITY CHECKS -->
       <div class="nav-group-title">
-        undefined
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         <span>Dopamine & Reality (500)</span>
       </div>
       <a href="/dopamine/" class="nav-link ">
@@ -683,7 +699,7 @@
 
       <!-- CURIOUS SCIENCE & BIZARRE PHYSICS -->
       <div class="nav-group-title">
-        undefined
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         <span>Curious Physics (500)</span>
       </div>
       <a href="/curious/" class="nav-link ">
@@ -1114,9 +1130,40 @@
             </div>
           </div>
 
+          <!-- Copy Button -->
           <button type="button" id="btnCopyRMD" onclick="copyRMDSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
             📋 Copy Official IRS RMD Tax Worksheet
           </button>
+        </div>
+
+        <!-- Missed RMD Penalty Estimator Box (IRC § 4974) -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🚨 Missed RMD Excise Tax Penalty Estimator</h3>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">SECURE 2.0 / IRC § 4974</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
+            Calculate the exact IRS excise penalty if you failed to withdraw all or part of your mandatory distribution by December 31:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; align-items: end;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Unwithdrawn Shortfall Amount ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="rmd-shortfall" value="10000" min="0" step="500" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.05rem;" oninput="calcPenalty()" />
+              </div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Standard Statutory Penalty (25%)</div>
+              <div id="penStandard" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #ef4444; margin: 0.2rem 0;">$2,500</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">IRC § 4974 base excise tax</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Timely Corrected Penalty (10%)</div>
+              <div id="penCorrected" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #10b981; margin: 0.2rem 0;">$1,000</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Corrected within 2 yrs + Form 5329</div>
+            </div>
+          </div>
         </div>
 
         <!-- 5-Year Forward Schedule Projection -->
@@ -1231,6 +1278,14 @@
           return irsTable[age] || 24.6;
         }
 
+        function calcPenalty() {
+          var shortfall = parseFloat(document.getElementById('rmd-shortfall').value) || 0;
+          var stdPen = shortfall * 0.25;
+          var corrPen = shortfall * 0.10;
+          document.getElementById('penStandard').textContent = fmtUSD(stdPen);
+          document.getElementById('penCorrected').textContent = fmtUSD(corrPen);
+        }
+
         function calcRMD() {
           var bal = parseFloat(document.getElementById('rmd-bal').value) || 0;
           var startAge = parseInt(document.getElementById('rmd-birth').value, 10) || 73;
@@ -1293,6 +1348,8 @@
             curAge++;
           }
           tbody.innerHTML = html;
+
+          calcPenalty();
         }
 
         function copyRMDSummary() {
@@ -1304,18 +1361,30 @@
           var netSpend = document.getElementById('rmd-net-spend').textContent;
           var qcd = document.getElementById('rmd-qcd').value;
 
-          var text = '🏛️ IRS REQUIRED MINIMUM DISTRIBUTION (RMD) WORKSHEET\n' +
-            '----------------------------------------\n' +
-            '• Prior Dec 31 Pre-Tax Balance: $' + Number(bal).toLocaleString('en-US') + '\n' +
-            '• Current Tax Year Age: ' + age + ' (SECURE 2.0 Compliant)\n' +
-            '• IRS Table III Factor: ' + factor + '\n' +
-            '----------------------------------------\n' +
-            'DISTRIBUTION OBLIGATION:\n' +
-            '• Gross Mandatory RMD: ' + gross + ' (' + document.getElementById('rmd-mo').textContent + ')\n' +
-            '• Qualified Charitable Distribution (QCD): $' + Number(qcd).toLocaleString('en-US') + '\n' +
-            '• Net Taxable RMD: ' + taxable + '\n' +
-            '• Estimated Net Spendable: ' + netSpend + '\n' +
-            '----------------------------------------\n' +
+          var text = '🏛️ IRS REQUIRED MINIMUM DISTRIBUTION (RMD) WORKSHEET
+' +
+            '----------------------------------------
+' +
+            '• Prior Dec 31 Pre-Tax Balance: $' + Number(bal).toLocaleString('en-US') + '
+' +
+            '• Current Tax Year Age: ' + age + ' (SECURE 2.0 Compliant)
+' +
+            '• IRS Table III Factor: ' + factor + '
+' +
+            '----------------------------------------
+' +
+            'DISTRIBUTION OBLIGATION:
+' +
+            '• Gross Mandatory RMD: ' + gross + ' (' + document.getElementById('rmd-mo').textContent + ')
+' +
+            '• Qualified Charitable Distribution (QCD): $' + Number(qcd).toLocaleString('en-US') + '
+' +
+            '• Net Taxable RMD: ' + taxable + '
+' +
+            '• Estimated Net Spendable: ' + netSpend + '
+' +
+            '----------------------------------------
+' +
             'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/rmd-calculator';
 
           navigator.clipboard.writeText(text).then(function() {
@@ -1334,7 +1403,7 @@
 
         document.addEventListener('DOMContentLoaded', calcRMD);
       </script>
-    
+  
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
