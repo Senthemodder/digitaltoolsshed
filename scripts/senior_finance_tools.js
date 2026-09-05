@@ -2703,614 +2703,910 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       </script>
   `
   },
-  {
-    slug: 'hourly-to-salary-calculator',
-    title: 'Hourly to Salary Calculator (Annual, Monthly & Take-Home Paycheck)',
-    metaDesc: 'Convert hourly wage to annual salary, monthly income, and bi-weekly paychecks. Features overtime, paid PTO, unpaid vacation, and estimated FICA payroll tax deductions.',
-    category: 'Finance & Career',
+    {
+    slug: "hourly-to-salary-calculator",
+    title: "Hourly to Salary Calculator — 26 Bi-Weekly vs 24 Semi-Monthly Paychecks",
+    metaDesc: "Free contractor-grade hourly to salary converter. Converts hourly wages to exact annual, monthly, bi-weekly (26 paychecks), and weekly earnings with overtime, unpaid PTO, and tax withholding.",
+    category: "Finance",
     faq: [
-      { q: 'How do you convert an hourly wage to an annual salary?', a: 'Multiply your hourly wage by the number of hours worked per week, then multiply by the number of weeks worked per year: Annual Salary = Hourly Wage × Hours/Week × Weeks/Year. For standard full-time employment (40 hours/week, 52 weeks/year = 2,080 hours), multiply your hourly rate by 2,080. For example, $25/hr × 2,080 hours = $52,000/year.' },
-      { q: 'What is the standard number of working hours in a year (2,080 vs 2,000)?', a: 'A full calendar year contains 52 weeks × 40 hours = 2,080 total working hours (assuming paid holidays and paid vacation). However, if your employer offers 2 weeks of unpaid vacation or you take 10 unpaid holidays, you work 50 weeks × 40 hours = 2,000 hours per year. 2,000 hours is also a common rule of thumb: simply double your hourly rate and add three zeros (e.g. $30/hr × 2,000 = $60,000).' },
-      { q: 'How much is $25 an hour annually, monthly, and bi-weekly?', a: 'At standard 40 hours per week (2,080 hours/year), $25 per hour equals: Annual Salary: $52,000; Monthly Gross: $4,333.33; Bi-Weekly Paycheck (26 pay periods): $2,000.00; Weekly Paycheck: $1,000.00; Daily (8 hours): $200.00.' },
-      { q: 'What mandatory payroll taxes (FICA) are deducted from my salary?', a: 'Federal Insurance Contributions Act (FICA) taxes are automatically deducted from all employee wages: Social Security tax is 6.2% (up to the annual wage cap of $168,600+), and Medicare tax is 1.45% (with an additional 0.9% for high earners over $200,000), totaling 7.65% in mandatory federal payroll taxes before federal and state income taxes.' },
-      { q: 'How does overtime affect annual salary calculation?', a: 'Under the federal Fair Labor Standards Act (FLSA), non-exempt employees must be paid 1.5× their regular hourly rate for all hours worked beyond 40 in a workweek. If you earn $20/hr and work 5 hours of overtime weekly, your regular pay is $41,600 and your overtime pay is 5 hrs × $30/hr × 52 wks = $7,800, boosting your total annual gross to $49,400.' }
+        {
+            "q": "How do you calculate annual salary from an hourly wage?",
+            "a": "For a standard 40-hour workweek, multiply your hourly wage by 2,080 hours (40 hours × 52 weeks): Annual Salary = Hourly Wage × 2,080. For quick mental math, multiply your hourly rate by 2 and add three zeros (e.g. $35/hour × 2 = ~$70,000/year; exactly $72,800)."
+        },
+        {
+            "q": "What is the difference between bi-weekly and semi-monthly paychecks?",
+            "a": "Bi-weekly employees are paid every two weeks (26 paychecks per year), meaning two months per year contain three paychecks. Semi-monthly employees are paid twice per month, typically on the 15th and last day of the month (24 paychecks per year). While the annual salary is identical, semi-monthly paychecks are larger because the salary is divided by 24 instead of 26."
+        },
+        {
+            "q": "How many work hours are in a year for full-time employment?",
+            "a": "Under standard US employment standards, a full-time employee working 40 hours per week works exactly 2,080 hours in a 52-week year (260 working days × 8 hours per day). Leap years can contain 261 or 262 workdays (2,088 to 2,096 hours)."
+        },
+        {
+            "q": "How does unpaid time off impact an hourly worker's annual income?",
+            "a": "Because hourly workers only get paid for hours on the clock, taking two weeks of unpaid vacation reduces paid weeks from 52 to 50 (2,000 hours instead of 2,080). On a $30/hour wage, two unpaid weeks reduces gross annual income by $2,400 (from $62,400 to $60,000)."
+        },
+        {
+            "q": "Does working overtime push my entire salary into a higher tax bracket?",
+            "a": "No. The United States uses a progressive marginal tax bracket system. When your earnings move into a higher tax bracket due to overtime, only the dollars earned above the bracket threshold are taxed at the higher percentage rate. Your baseline income is taxed at the exact same lower rate as before."
+        }
     ],
     body: `
-      <style>
-        .hs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
-        .hs-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; text-align: center; }
-        .hs-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.84rem; margin-top: 1rem; }
-        .hs-table th, .hs-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
-        .hs-table th { background: var(--surface-alt); font-weight: 600; }
-        .hs-tab-btn { background: var(--surface-alt); border: 1px solid var(--border); padding: 0.45rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
-        .hs-tab-btn.active { background: var(--surface); border-color: var(--fg); font-weight: 600; color: var(--fg); }
-      </style>
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Hourly to Salary Calculator
+  </nav>
 
-      <div class="article-container" style="max-width: 950px;">
-        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Hourly to Salary
-        </nav>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Hourly Wage to Annual Salary Converter</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:780px;margin:0 auto;line-height:1.6;">
+      Convert hourly pay rates into comprehensive annual, monthly, semi-monthly (24 checks), and bi-weekly (26 checks) income schedules. Accounts for standard 40-hour weeks, overtime multipliers, unpaid PTO, and tax withholding.
+    </p>
+  </header>
 
-        <header style="margin-bottom: 1.75rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Hourly to Salary Wage Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Convert hourly pay into annual salary and vice versa. Adjust hours per week, unpaid time off, 1.5&times; overtime boosts, and estimate mandatory FICA payroll tax deductions.
-          </p>
-        </header>
+  <div style="display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:2.5rem;" class="calc-grid">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Wage Rate &amp; Work Schedule
+      </h2>
 
-        <div class="tool-box">
-          <!-- Mode Switcher -->
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
-            <button type="button" class="hs-tab-btn active" id="btn-hs-hourly" onclick="switchHSMode('hourly')">Hourly Rate &rarr; Annual Salary</button>
-            <button type="button" class="hs-tab-btn" id="btn-hs-salary" onclick="switchHSMode('salary')">Annual Salary &rarr; Hourly Wage</button>
-          </div>
-
-          <!-- Mode 1: Hourly Input -->
-          <div id="hs-sec-hourly">
-            <div class="field-group">
-              <label class="field-label" for="hs-wage-input">Hourly Wage ($ USD / hr)</label>
-              <input type="number" id="hs-wage-input" class="code-input" value="25" min="1" step="0.5" oninput="runHSCalc()" style="font-size: 1.3rem; font-weight: bold;" />
-            </div>
-          </div>
-
-          <!-- Mode 2: Salary Input -->
-          <div id="hs-sec-salary" style="display: none;">
-            <div class="field-group">
-              <label class="field-label" for="hs-salary-input">Annual Salary ($ USD / yr)</label>
-              <input type="number" id="hs-salary-input" class="code-input" value="52000" min="1000" step="1000" oninput="runHSSalaryCalc()" style="font-size: 1.3rem; font-weight: bold;" />
-            </div>
-          </div>
-
-          <!-- Work Schedule Customizer Grid -->
-          <div class="grid-inputs" style="margin-top: 1rem;">
-            <div class="field-group">
-              <label class="field-label" for="hs-hrs-wk">Hours Worked / Week</label>
-              <input type="number" id="hs-hrs-wk" class="code-input" value="40" min="1" max="80" step="1" oninput="triggerHSRecal()" />
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="hs-wks-yr">Working Weeks / Year</label>
-              <select id="hs-wks-yr" class="code-input" onchange="triggerHSRecal()">
-                <option value="52" selected>52 Weeks (Full Year, Paid PTO / Vacation)</option>
-                <option value="50">50 Weeks (2 Weeks Unpaid Vacation = 2,000 hrs)</option>
-                <option value="48">48 Weeks (4 Weeks Unpaid Time Off)</option>
-                <option value="46">46 Weeks (School Year / Academic Schedule)</option>
-              </select>
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="hs-ot-hrs">Weekly Overtime Hours (1.5&times;)</label>
-              <input type="number" id="hs-ot-hrs" class="code-input" value="0" min="0" max="40" step="1" oninput="triggerHSRecal()" />
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="hs-bonus">Annual Bonus / Tips ($)</label>
-              <input type="number" id="hs-bonus" class="code-input" value="0" min="0" step="250" oninput="triggerHSRecal()" />
-            </div>
-          </div>
-
-          <!-- Quick Presets -->
-          <div style="margin-top: 0.75rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Popular Benchmarks:</span>
-            <button type="button" class="btn-sec" onclick="setHSPreset(15)">$15/hr ($31.2k)</button>
-            <button type="button" class="btn-sec" onclick="setHSPreset(20)">$20/hr ($41.6k)</button>
-            <button type="button" class="btn-sec" onclick="setHSPreset(25)">$25/hr ($52.0k)</button>
-            <button type="button" class="btn-sec" onclick="setHSPreset(35)">$35/hr ($72.8k)</button>
-            <button type="button" class="btn-sec" onclick="setHSPreset(50)">$50/hr ($104.0k)</button>
-            <button type="button" class="btn-sec" onclick="setHSPreset(75)">$75/hr ($156.0k)</button>
-          </div>
-
-          <!-- Hero Metrics Cards -->
-          <div class="hs-grid">
-            <div class="hs-card" style="border-top: 4px solid #10b981;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Annual Gross Salary</div>
-              <div id="hs-res-annual" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$52,000</div>
-              <div id="hs-res-hrs-total" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">2,080 working hours/yr</div>
-            </div>
-
-            <div class="hs-card" style="border-top: 4px solid #3b82f6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Monthly Gross Pay</div>
-              <div id="hs-res-monthly" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$4,333</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">12 equal monthly paychecks</div>
-            </div>
-
-            <div class="hs-card" style="border-top: 4px solid #8b5cf6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Bi-Weekly Paycheck</div>
-              <div id="hs-res-biweekly" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #8b5cf6; margin: 0.35rem 0;">$2,000</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">26 paychecks per year</div>
-            </div>
-
-            <div class="hs-card" style="border-top: 4px solid #f59e0b;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Est. FICA Deductions</div>
-              <div id="hs-res-fica" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">-$3,978</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">7.65% Social Security & Medicare</div>
-            </div>
-          </div>
-
-          <!-- Comprehensive Frequency Breakdown Table -->
-          <div style="margin-top: 1.5rem;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">Pay Frequency Schedule Breakdown</h3>
-            <div style="overflow-x: auto;">
-              <table class="hs-table">
-                <thead>
-                  <tr>
-                    <th>Pay Frequency</th>
-                    <th>Gross Pay</th>
-                    <th>FICA Taxes (7.65%)</th>
-                    <th>Est. Net (Pre-Income Tax)</th>
-                  </tr>
-                </thead>
-                <tbody id="hs-freq-tbody"></tbody>
-              </table>
-            </div>
-          </div>
-
-          <!-- Step-by-Step Derivation Box -->
-          <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
-            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Mathematical Derivation:</div>
-            <div id="hs-steps" style="font-family: var(--mono); color: var(--fg);"></div>
-          </div>
-
-          <!-- Copy Button -->
-          <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
-            <button type="button" class="btn-sec" onclick="copyHSSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
-              📋 Copy Wage & Salary Summary
-            </button>
-          </div>
+      <!-- WAGE INPUT & PRESETS -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hourlyWage">Hourly Base Rate ($ / Hour)</label>
+        <input type="number" id="hourlyWage" value="35.00" min="1" step="0.50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.2rem;">
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.5rem;">
+          <button type="button" class="wage-preset" onclick="setWage(20)" style="padding:0.3rem 0.6rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:0.8rem;cursor:pointer;">$20/hr</button>
+          <button type="button" class="wage-preset" onclick="setWage(25)" style="padding:0.3rem 0.6rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:0.8rem;cursor:pointer;">$25/hr</button>
+          <button type="button" class="wage-preset" onclick="setWage(35)" style="padding:0.3rem 0.6rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:0.8rem;cursor:pointer;">$35/hr</button>
+          <button type="button" class="wage-preset" onclick="setWage(50)" style="padding:0.3rem 0.6rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:0.8rem;cursor:pointer;">$50/hr</button>
+          <button type="button" class="wage-preset" onclick="setWage(75)" style="padding:0.3rem 0.6rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;font-family:var(--mono);font-size:0.8rem;cursor:pointer;">$75/hr</button>
         </div>
       </div>
 
-      <script>
-        var activeHSMode = 'hourly';
+      <!-- HOURS PER WEEK & OVERTIME -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="hoursPerWeek">Standard Hours / Week</label>
+          <input type="number" id="hoursPerWeek" value="40" min="1" max="80" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="overtimeHours">Weekly Overtime (1.5×)</label>
+          <input type="number" id="overtimeHours" value="0" min="0" max="40" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+      </div>
 
-        function switchHSMode(mode) {
-          activeHSMode = mode;
-          document.getElementById('hs-sec-hourly').style.display = mode === 'hourly' ? 'block' : 'none';
-          document.getElementById('hs-sec-salary').style.display = mode === 'salary' ? 'block' : 'none';
-          document.getElementById('btn-hs-hourly').className = 'hs-tab-btn' + (mode === 'hourly' ? ' active' : '');
-          document.getElementById('btn-hs-salary').className = 'hs-tab-btn' + (mode === 'salary' ? ' active' : '');
-          if (mode === 'hourly') runHSCalc(); else runHSSalaryCalc();
+      <!-- WORK WEEKS PER YEAR & UNPAID PTO -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="weeksPerYear">Paid Weeks / Year</label>
+          <select id="weeksPerYear" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="52" selected>52 Weeks (Full Year Paid)</option>
+            <option value="50">50 Weeks (2 Weeks Unpaid Time Off)</option>
+            <option value="48">48 Weeks (4 Weeks Unpaid Time Off)</option>
+            <option value="40">40 Weeks (School / Academic Year)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="taxEstimateRate">Est. Total Tax Withholding (%)</label>
+          <input type="number" id="taxEstimateRate" value="22" min="0" max="50" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">(Federal + FICA 7.65% + State)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUMMARY & OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Annual &amp; Paycheck Takeoff
+          </h2>
+          <button id="copySalaryBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Takeoff</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Gross Annual Salary</span>
+            <span id="grossAnnualVal" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#3b82f6;display:block;">$72,800</span>
+            <span id="hoursPerYearVal" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">2,080 billable hours</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Est. Net Take-Home</span>
+            <span id="netAnnualVal" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#10b981;display:block;">$56,784</span>
+            <span id="estTaxDeductVal" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">-$16,016 est. tax</span>
+          </div>
+        </div>
+
+        <!-- PAYCHECK FREQUENCY LEDGER -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Paycheck Frequency Comparison</div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Bi-Weekly (26 Paychecks / Year):</span>
+            <strong id="biWeeklyVal" style="font-family:var(--mono);color:#3b82f6;">$2,800 gross / check</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Semi-Monthly (24 Paychecks / 15th &amp; 30th):</span>
+            <strong id="semiMonthlyVal" style="font-family:var(--mono);color:var(--fg);">$3,033 gross / check</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Monthly (12 Paychecks / Year):</span>
+            <strong id="monthlyVal" style="font-family:var(--mono);color:var(--fg);">$6,067 gross / mo</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span>Weekly (52 Paychecks / Year):</span>
+            <strong id="weeklyVal" style="font-family:var(--mono);color:var(--fg);">$1,400 gross / wk</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG PAYCHECK DISTRIBUTION WATERFALL -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Annual Gross Earnings vs Net Take-Home Distribution
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Visual proportional allocation of gross annual earnings between net take-home pay (emerald green) and estimated tax withholdings (red).
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="salaryDistributionSvg" viewBox="0 0 800 160" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Hourly to Salary Derivation Formulas</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Under federal Fair Labor Standards Act (FLSA) guidelines, standard full-time employment assumes 2,080 annual working hours (40 hours per week across 52 weeks). Conversion formulas account for regular pay, 1.5× overtime rates, and paycheck frequencies:
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Total Annual Gross Salary:</strong><br>
+      \text{Gross Annual} = W_{\text{paid}} \times \Big[ (H_{\text{reg}} \times R_{\text{base}}) + (H_{\text{OT}} \times 1.5 \times R_{\text{base}}) \Big]<br>
+      \text{Where } W_{\text{paid}} \text{ is paid weeks per year (typically 52).}<br><br>
+      <strong>2. Paycheck Frequency Allocations:</strong><br>
+      \text{Bi-Weekly (26 checks)} = \frac{\text{Gross Annual}}{26}, \qquad \text{Semi-Monthly (24 checks)} = \frac{\text{Gross Annual}}{24}<br>
+      \text{Monthly (12 checks)} = \frac{\text{Gross Annual}}{12}, \qquad \text{Weekly (52 checks)} = \frac{\text{Gross Annual}}{52}<br><br>
+      <strong>3. Reverse: Annual Salary to Hourly Equivalent:</strong><br>
+      R_{\text{hourly}} = \frac{\text{Annual Salary}}{H_{\text{annual}}} = \frac{\text{Annual Salary}}{2,080}
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL HOURLY / SALARY TRAPS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Hourly vs. Salary Pitfalls &amp; Traps</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. The Bi-Weekly vs Semi-Monthly Paycheck Confusion</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Bi-weekly employees receive 26 paychecks per year (every other Friday), meaning two months every year have <strong>three paychecks</strong> instead of two. Semi-monthly employees receive exactly 24 paychecks per year (e.g. 15th and last day of the month). A $60,000 salary pays $2,307 per bi-weekly check versus $2,500 per semi-monthly check.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">2. Unpaid PTO &amp; Holiday Salary Erosion</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Contractors and temp workers earning $40/hour often multiply by 2,080 to estimate an $83,200 salary. However, contractors rarely receive paid holidays (10 days) or paid vacation (10 days). Taking four weeks of unpaid time off reduces paid weeks from 52 down to 48, slashing actual annual earnings by $6,400.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">3. The "Exempt Salary" Overtime Trap</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Switching from $25/hour non-exempt to a $55,000 exempt salary sounds like a raise until you work 50 hours a week. At 50 hours/week, a $55,000 salary dilutes to an effective rate of just $21.15/hour—and eliminates all 1.5× overtime pay. Under FLSA, workers earning below federal salary thresholds remain legally entitled to overtime.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">4. 1099 Self-Employment Tax Shock</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          W-2 employees pay 7.65% for FICA (Social Security and Medicare), and their employer matches the other 7.65%. 1099 independent contractors must pay the full <strong>15.3% Self-Employment Tax (SECA)</strong> themselves. An hourly 1099 rate must be at least 25% to 30% higher than a W-2 rate to achieve equivalent net take-home.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">5. The "Higher Tax Bracket" Overtime Myth</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Workers often refuse overtime hours out of fear that extra pay will "bump them into a higher tax bracket and cause them to make less money." This is mathematically impossible under the US progressive tax code. Only the dollars earned <em>above</em> the bracket threshold are taxed at the higher marginal rate; previous earnings are completely untouched.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcSalary() {
+        var wage = parseFloat(document.getElementById('hourlyWage').value) || 0;
+        var regHours = parseFloat(document.getElementById('hoursPerWeek').value) || 0;
+        var otHours = parseFloat(document.getElementById('overtimeHours').value) || 0;
+        var weeks = parseFloat(document.getElementById('weeksPerYear').value) || 52;
+        var taxRate = parseFloat(document.getElementById('taxEstimateRate').value) || 0;
+
+        var weeklyReg = regHours * wage;
+        var weeklyOT = otHours * (wage * 1.5);
+        var weeklyGross = weeklyReg + weeklyOT;
+
+        var grossAnnual = weeklyGross * weeks;
+        var totalHours = (regHours + otHours) * weeks;
+
+        var biWeekly = grossAnnual / 26;
+        var semiMonthly = grossAnnual / 24;
+        var monthly = grossAnnual / 12;
+        var weekly = grossAnnual / 52;
+
+        var taxDeductions = grossAnnual * (taxRate / 100);
+        var netAnnual = Math.max(0, grossAnnual - taxDeductions);
+
+        // Update DOM
+        document.getElementById('grossAnnualVal').textContent = '$' + Math.round(grossAnnual).toLocaleString();
+        document.getElementById('hoursPerYearVal').textContent = Math.round(totalHours).toLocaleString() + ' billable hours / year';
+        document.getElementById('netAnnualVal').textContent = '$' + Math.round(netAnnual).toLocaleString();
+        document.getElementById('estTaxDeductVal').textContent = '-$' + Math.round(taxDeductions).toLocaleString() + ' est. tax (' + taxRate + '%)';
+
+        document.getElementById('biWeeklyVal').textContent = '$' + Math.round(biWeekly).toLocaleString() + ' gross / check';
+        document.getElementById('semiMonthlyVal').textContent = '$' + Math.round(semiMonthly).toLocaleString() + ' gross / check';
+        document.getElementById('monthlyVal').textContent = '$' + Math.round(monthly).toLocaleString() + ' gross / mo';
+        document.getElementById('weeklyVal').textContent = '$' + Math.round(weekly).toLocaleString() + ' gross / wk';
+
+        renderSalarySvg(grossAnnual, netAnnual, taxDeductions);
+      }
+
+      function renderSalarySvg(gross, net, tax) {
+        var svg = document.getElementById('salaryDistributionSvg');
+        if (!svg) return;
+
+        var svgHtml = '';
+        var barW = 680;
+        if (gross <= 0) return;
+
+        var netW = (net / gross) * barW;
+        var taxW = (tax / gross) * barW;
+
+        // Net Pay Bar (Emerald)
+        svgHtml += '<rect x="60" y="40" width="' + netW + '" height="45" fill="#10b981" rx="4"/>';
+        svgHtml += '<text x="' + (60 + netW / 2) + '" y="68" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="bold">Net Take-Home (' + Math.round((net / gross) * 100) + '%)</text>';
+
+        // Tax Bar (Red)
+        if (taxW > 0) {
+          svgHtml += '<rect x="' + (60 + netW) + '" y="40" width="' + taxW + '" height="45" fill="#ef4444" rx="4"/>';
+          if (taxW > 60) {
+            svgHtml += '<text x="' + (60 + netW + taxW / 2) + '" y="68" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Taxes (' + Math.round((tax / gross) * 100) + '%)</text>';
+          }
         }
 
-        function triggerHSRecal() {
-          if (activeHSMode === 'hourly') runHSCalc(); else runHSSalaryCalc();
+        // Legend
+        svgHtml += '<rect x="60" y="105" width="12" height="12" fill="#10b981" rx="2"/>';
+        svgHtml += '<text x="78" y="115" fill="var(--fg)" font-size="11">Net Take-Home Pay ($' + Math.round(net).toLocaleString() + ')</text>';
+
+        svgHtml += '<rect x="320" y="105" width="12" height="12" fill="#ef4444" rx="2"/>';
+        svgHtml += '<text x="338" y="115" fill="var(--fg)" font-size="11">Estimated Tax Withholding ($' + Math.round(tax).toLocaleString() + ')</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copySalaryTakeoff() {
+        var annual = document.getElementById('grossAnnualVal').textContent;
+        var net = document.getElementById('netAnnualVal').textContent;
+        var biw = document.getElementById('biWeeklyVal').textContent;
+        var semi = document.getElementById('semiMonthlyVal').textContent;
+        var mon = document.getElementById('monthlyVal').textContent;
+        var rate = document.getElementById('hourlyWage').value;
+        var regH = document.getElementById('hoursPerWeek').value;
+        var otH = document.getElementById('overtimeHours').value;
+
+        var text = '📋 Hourly Wage to Salary Takeoff\n' +
+          '• Base Rate: $' + rate + ' / hour (' + regH + ' hrs/wk' + (otH > 0 ? ' + ' + otH + ' OT hrs' : '') + ')\n' +
+          '• Gross Annual Salary: ' + annual + '\n' +
+          '• Est. Net Take-Home: ' + net + '\n' +
+          '• Bi-Weekly (26 Checks): ' + biw + '\n' +
+          '• Semi-Monthly (24 Checks): ' + semi + '\n' +
+          '• Monthly (12 Checks): ' + mon + '\n\n' +
+          'Calculated at digitaltoolsshed.com/finance/hourly-to-salary-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copySalaryBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Takeoff!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      window.setWage = function(w) {
+        document.getElementById('hourlyWage').value = w;
+        calcSalary();
+      };
+
+      var inputs = ['hourlyWage', 'hoursPerWeek', 'overtimeHours', 'weeksPerYear', 'taxEstimateRate'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcSalary);
+          el.addEventListener('change', calcSalary);
         }
+      });
 
-        function runHSCalc() {
-          var hourly = parseFloat(document.getElementById('hs-wage-input').value) || 0;
-          var hrsWk = parseFloat(document.getElementById('hs-hrs-wk').value) || 0;
-          var wksYr = parseFloat(document.getElementById('hs-wks-yr').value) || 52;
-          var otHrs = parseFloat(document.getElementById('hs-ot-hrs').value) || 0;
-          var bonus = parseFloat(document.getElementById('hs-bonus').value) || 0;
+      document.getElementById('copySalaryBtn').addEventListener('click', copySalaryTakeoff);
 
-          var regHoursAnnual = hrsWk * wksYr;
-          var regPayAnnual = regHoursAnnual * hourly;
-          var otPayAnnual = otHrs * (hourly * 1.5) * wksYr;
-          var grossAnnual = regPayAnnual + otPayAnnual + bonus;
-
-          renderHSResults(grossAnnual, hourly, regHoursAnnual + (otHrs * wksYr), hrsWk, wksYr, otHrs, bonus);
-        }
-
-        function runHSSalaryCalc() {
-          var salary = parseFloat(document.getElementById('hs-salary-input').value) || 0;
-          var hrsWk = parseFloat(document.getElementById('hs-hrs-wk').value) || 40;
-          var wksYr = parseFloat(document.getElementById('hs-wks-yr').value) || 52;
-          var bonus = parseFloat(document.getElementById('hs-bonus').value) || 0;
-
-          var baseSalary = Math.max(0, salary - bonus);
-          var totalHours = hrsWk * wksYr;
-          var hourly = totalHours > 0 ? (baseSalary / totalHours) : 0;
-
-          renderHSResults(salary, hourly, totalHours, hrsWk, wksYr, 0, bonus);
-        }
-
-        function renderHSResults(grossAnnual, hourly, totalHours, hrsWk, wksYr, otHrs, bonus) {
-          var ficaAnnual = grossAnnual * 0.0765;
-          var netAnnual = grossAnnual - ficaAnnual;
-
-          var monthly = grossAnnual / 12;
-          var biweekly = grossAnnual / 26;
-          var semimonthly = grossAnnual / 24;
-          var weekly = grossAnnual / wksYr;
-          var daily = hrsWk > 0 ? (weekly / 5) : 0;
-
-          document.getElementById('hs-res-annual').textContent = '$' + Math.round(grossAnnual).toLocaleString('en-US');
-          document.getElementById('hs-res-hrs-total').textContent = totalHours.toLocaleString('en-US') + ' working hours/yr ($' + hourly.toFixed(2) + '/hr)';
-          document.getElementById('hs-res-monthly').textContent = '$' + Math.round(monthly).toLocaleString('en-US');
-          document.getElementById('hs-res-biweekly').textContent = '$' + Math.round(biweekly).toLocaleString('en-US');
-          document.getElementById('hs-res-fica').textContent = '-$' + Math.round(ficaAnnual).toLocaleString('en-US');
-
-          // Build Table
-          var freqs = [
-            { name: 'Annual (1 Year)', gross: grossAnnual, div: 1 },
-            { name: 'Monthly (12 Paychecks)', gross: monthly, div: 12 },
-            { name: 'Semi-Monthly (24 Paychecks)', gross: semimonthly, div: 24 },
-            { name: 'Bi-Weekly (26 Paychecks)', gross: biweekly, div: 26 },
-            { name: 'Weekly (52 Paychecks)', gross: weekly, div: 52 },
-            { name: 'Daily (8-Hour Day)', gross: daily, div: 52 * 5 },
-            { name: 'Hourly Wage', gross: hourly, div: totalHours }
-          ];
-
-          var rows = '';
-          freqs.forEach(function(f) {
-            var fFica = f.gross * 0.0765;
-            var fNet = f.gross - fFica;
-            rows += '<tr>' +
-              '<td><strong>' + f.name + '</strong></td>' +
-              '<td>$' + f.gross.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-              '<td style="color:#ef4444;">-$' + fFica.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-              '<td style="color:#10b981; font-weight:bold;">$' + fNet.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-              '</tr>';
-          });
-          document.getElementById('hs-freq-tbody').innerHTML = rows;
-
-          // Derivation Steps
-          var steps = [
-            '1. Base Hours Calculation: ' + hrsWk + ' hrs/wk &times; ' + wksYr + ' wks/yr = ' + (hrsWk * wksYr).toLocaleString('en-US') + ' standard working hours.',
-            '2. Regular Base Pay: ' + (hrsWk * wksYr).toLocaleString('en-US') + ' hrs &times; $' + hourly.toFixed(2) + '/hr = $' + Math.round(hrsWk * wksYr * hourly).toLocaleString('en-US'),
-            otHrs > 0 ? ('3. Overtime Pay (1.5&times; @ $' + (hourly * 1.5).toFixed(2) + '/hr): ' + otHrs + ' hrs/wk &times; $' + (hourly * 1.5).toFixed(2) + ' &times; ' + wksYr + ' wks = +$' + Math.round(otHrs * hourly * 1.5 * wksYr).toLocaleString('en-US')) : '3. Overtime: 0 overtime hours.',
-            bonus > 0 ? ('4. Annual Bonus / Tips Added: +$' + bonus.toLocaleString('en-US')) : '4. Bonuses: None added.',
-            '5. Total Annual Gross: $' + Math.round(grossAnnual).toLocaleString('en-US') + ' &rarr; Monthly: $' + Math.round(monthly).toLocaleString('en-US') + ' &bull; Bi-Weekly: $' + Math.round(biweekly).toLocaleString('en-US'),
-            '6. Mandatory FICA Payroll Taxes (6.2% Social Security + 1.45% Medicare = 7.65%): -$' + Math.round(ficaAnnual).toLocaleString('en-US') + ' &rarr; Net Pre-Income Tax: $' + Math.round(netAnnual).toLocaleString('en-US')
-          ].join('<br>');
-          document.getElementById('hs-steps').innerHTML = steps;
-        }
-
-        function setHSPreset(rate) {
-          switchHSMode('hourly');
-          document.getElementById('hs-wage-input').value = rate;
-          runHSCalc();
-        }
-
-        function copyHSSummary(btn) {
-          var ann = document.getElementById('hs-res-annual').textContent.trim();
-          var mo = document.getElementById('hs-res-monthly').textContent.trim();
-          var bi = document.getElementById('hs-res-biweekly').textContent.trim();
-          var fica = document.getElementById('hs-res-fica').textContent.trim();
-          var hrs = document.getElementById('hs-res-hrs-total').textContent.trim();
-
-          var summary = [
-            '=== Hourly to Salary Breakdown ===',
-            'Annual Gross Salary : ' + ann,
-            'Monthly Gross       : ' + mo,
-            'Bi-Weekly Paycheck  : ' + bi,
-            'Work Schedule       : ' + hrs,
-            'Est. FICA (7.65%)   : ' + fica,
-            'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/finance/hourly-to-salary-calculator.html)'
-          ].join('\n');
-
-          navigator.clipboard.writeText(summary).then(function() {
-            var old = btn.textContent;
-            btn.textContent = '✅ Copied to Clipboard!';
-            btn.style.borderColor = '#10b981';
-            setTimeout(function() {
-              btn.textContent = old;
-              btn.style.borderColor = '';
-            }, 2000);
-          });
-        }
-
-        document.addEventListener('DOMContentLoaded', function() { runHSCalc(); });
-        runHSCalc();
-      </script>
-    `
+      calcSalary();
+    })();
+  </script>
+</div>
+`
   },
-  {
-    slug: 'sales-tax-calculator',
-    title: 'Sales Tax Calculator (Add Tax, Reverse Tax & 50 US State Rates)',
-    metaDesc: 'Calculate exact sales tax, checkout totals, or reverse calculate pre-tax prices. Includes state tax presets, local county surtaxes, and 50-state reference tables.',
-    category: 'Finance & Tax',
+    {
+    slug: "sales-tax-calculator",
+    title: "Sales Tax Calculator (Add Tax, Reverse Tax & 50 US State Rates)",
+    metaDesc: "Calculate exact checkout sales tax, back out pre-tax prices from receipts, and compare combined state and county surtaxes across all 50 US states with interactive visual breakdowns.",
+    category: "Finance & Tax",
     faq: [
-      { q: 'How do you calculate sales tax on a purchase?', a: 'To calculate sales tax: Multiply the pre-tax price by the sales tax percentage rate divided by 100: Sales Tax = Pre-Tax Price × (Tax Rate / 100). Then add the tax to the original price to find the total: Total Amount = Pre-Tax Price + Sales Tax. For example, on a $120 item with an 8.25% tax rate, Sales Tax = $120 × 0.0825 = $9.90, and Total = $129.90.' },
-      { q: 'How do you reverse calculate (back out) sales tax from a receipt total?', a: 'To find the original pre-tax price from a total receipt: Divide the total by 1 plus the sales tax rate in decimal form: Pre-Tax Price = Total Paid / (1 + Tax Rate / 100). The sales tax paid is then Total Paid minus Pre-Tax Price. For example, if you paid $108.00 total in a state with an 8% tax rate, Pre-Tax Price = $108.00 / 1.08 = $100.00, and Tax Paid = $8.00.' },
-      { q: 'Which US states have no state sales tax?', a: 'Five US states do not levy a statewide sales tax, known as the "NOMAD" states: New Hampshire, Oregon, Montana, Alaska, and Delaware. Note that in Alaska, while there is no state-level sales tax, individual local municipalities and boroughs are permitted to levy local sales taxes up to 7.85%.' },
-      { q: 'Why is my local sales tax higher than my state sales tax rate?', a: 'Most US states allow local jurisdictions (counties, cities, transit authorities, and special taxing districts) to levy local option sales taxes on top of the state baseline rate. For example, in California the state base rate is 7.25%, but local municipal district taxes in cities like Los Angeles and San Francisco push the combined rate to 9.50% or higher.' },
-      { q: 'Are groceries and prescription drugs subject to sales tax?', a: 'In the majority of US states, unprepared food and groceries for home consumption and prescription medications are exempt from state sales tax or taxed at a reduced rate. However, prepared hot foods at restaurants and candy/sodas are generally subject to full sales tax.' }
+        {
+            "q": "How do you calculate sales tax on a purchase?",
+            "a": "To calculate sales tax, convert the sales tax percentage to a decimal by dividing by 100, then multiply by the pre-tax price: Sales Tax = Pre-Tax Price × (Tax Rate / 100). To determine the final register total, add the tax to the base price: Total = Pre-Tax Price + Sales Tax = Pre-Tax Price × (1 + Tax Rate / 100). For example, on a $120.00 purchase with an 8.25% combined tax rate: Tax = $120.00 × 0.0825 = $9.90, and the total checkout cost is $129.90."
+        },
+        {
+            "q": "How do you reverse calculate (back out) sales tax from a receipt total?",
+            "a": "To find the original pre-tax price from a gross receipt total, divide the total by 1 plus the sales tax rate in decimal format: Pre-Tax Price = Total Paid / (1 + Tax Rate / 100). Then subtract the pre-tax price from the total to isolate the tax paid: Sales Tax = Total Paid - Pre-Tax Price. For example, if you paid $108.00 total in a state with an 8.00% tax rate: Pre-Tax Price = $108.00 / 1.08 = $100.00, and Tax = $8.00. (Never subtract 8% directly from $108.00, which yields an incorrect $99.36)."
+        },
+        {
+            "q": "Which US states have no statewide sales tax?",
+            "a": "Five US states do not levy a statewide sales tax, frequently remembered by the acronym \"NOMAD\": New Hampshire, Oregon, Montana, Alaska, and Delaware. However, purchasers must note that in Alaska, individual municipalities and boroughs are permitted to levy local sales taxes up to 7.85% (such as Juneau at 5% and Homer at 7.85%), and Montana allows designated tourist resort communities to impose local sales taxes up to 3%."
+        },
+        {
+            "q": "Why does my checkout sales tax differ from my state baseline rate?",
+            "a": "Under United States sales tax law, taxing authority is decentralized. Forty-five states plus Washington D.C. levy a statewide baseline sales tax, but 38 states also authorize counties, cities, transit districts, and special fire/water authorities to levy local option sales taxes (surtaxes). For instance, California has a statewide base rate of 7.25%, but local district add-ons in Los Angeles County push the combined checkout tax rate to 9.50% or higher."
+        },
+        {
+            "q": "Are groceries, clothing, and prescription medications exempt from sales tax?",
+            "a": "In 37 states and Washington D.C., unprepared groceries purchased for home consumption are 100% exempt from statewide sales tax, while 13 states tax groceries at either the full rate or a reduced rate (e.g., Illinois at 1%, Missouri at 1.225%, Tennessee at 4%). Prescription drugs are 100% tax-exempt in 49 states (Illinois taxes Rx at 1%). Essential clothing is exempt from sales tax up to statutory thresholds in states like Pennsylvania, New York, New Jersey, Massachusetts, Minnesota, Rhode Island, and Vermont."
+        }
     ],
     body: `
-      <style>
-        .st-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
-        .st-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; text-align: center; }
-        .st-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
-        .st-table th, .st-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
-        .st-table th { background: var(--surface-alt); font-weight: 600; }
-      </style>
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Sales Tax Calculator
+  </nav>
 
-      <div class="article-container" style="max-width: 950px;">
-        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Sales Tax Calculator
-        </nav>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Sales Tax &amp; Reverse Tax Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Compute checkout sales tax, back out pre-tax prices from gross receipts, and inspect state baseline vs local county surtax allocations across all 50 US states.
+    </p>
+  </header>
 
-        <header style="margin-bottom: 1.75rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Sales Tax & Reverse Tax Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Calculate checkout sales tax, back out the pre-tax price from receipt totals, and explore state and local county surtaxes for all 50 US states.
-          </p>
-        </header>
+  <style>
+    .st-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .st-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .st-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .st-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .st-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .st-tab-btn { background:var(--surface-alt); border:1px solid var(--border); color:var(--text-muted); padding:0.6rem 1.25rem; font-family:var(--mono); font-size:0.85rem; border-radius:6px; cursor:pointer; transition:all 0.15s ease; }
+    .st-tab-btn.active { background:#3b82f6; border-color:#2563eb; color:#ffffff; font-weight:600; }
+    .st-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .st-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .st-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .st-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
 
-        <div class="tool-box">
-          <!-- Calculation Mode Switcher -->
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
-            <button type="button" class="hs-tab-btn active" id="btn-st-add" onclick="switchSTMode('add')">Mode 1: Add Sales Tax (Pre-Tax &rarr; Total)</button>
-            <button type="button" class="hs-tab-btn" id="btn-st-reverse" onclick="switchSTMode('reverse')">Mode 2: Reverse Tax (Total Paid &rarr; Pre-Tax)</button>
-          </div>
+  <div class="st-box">
+    <!-- Mode Switcher -->
+    <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <button type="button" class="st-tab-btn active" id="btn-st-add" onclick="setSTMode('add')">Mode 1: Add Sales Tax (Pre-Tax &rarr; Total)</button>
+      <button type="button" class="st-tab-btn" id="btn-st-reverse" onclick="setSTMode('reverse')">Mode 2: Reverse Tax (Total Paid &rarr; Pre-Tax)</button>
+    </div>
 
-          <!-- Inputs -->
-          <div class="grid-inputs">
-            <div class="field-group">
-              <label class="field-label" id="st-amount-label" for="st-amount">Pre-Tax Purchase Price ($ USD)</label>
-              <input type="number" id="st-amount" class="code-input" value="100.00" min="0" step="0.5" oninput="runSTCalc()" style="font-size: 1.3rem; font-weight: bold;" />
-            </div>
-
-            <div class="field-group">
-              <label class="field-label" for="st-state-select">Select US State (Auto-Sets Rates)</label>
-              <select id="st-state-select" class="code-input" onchange="onStateSelectChange()">
-                <option value="custom">-- Custom Rate --</option>
-                <option value="AL">Alabama (4.00% State + 5.29% Avg Local = 9.29%)</option>
-                <option value="AK">Alaska (0.00% State + 1.82% Avg Local = 1.82%)</option>
-                <option value="AZ">Arizona (5.60% State + 2.80% Avg Local = 8.40%)</option>
-                <option value="AR">Arkansas (6.50% State + 2.94% Avg Local = 9.44%)</option>
-                <option value="CA" selected>California (7.25% State + 1.60% Avg Local = 8.85%)</option>
-                <option value="CO">Colorado (2.90% State + 4.91% Avg Local = 7.81%)</option>
-                <option value="CT">Connecticut (6.35% State, No Local = 6.35%)</option>
-                <option value="DE">Delaware (0.00% - No Sales Tax)</option>
-                <option value="FL">Florida (6.00% State + 1.02% Avg Local = 7.02%)</option>
-                <option value="GA">Georgia (4.00% State + 3.40% Avg Local = 7.40%)</option>
-                <option value="HI">Hawaii (4.00% State + 0.50% Avg Local = 4.50%)</option>
-                <option value="ID">Idaho (6.00% State + 0.03% Avg Local = 6.03%)</option>
-                <option value="IL">Illinois (6.25% State + 2.65% Avg Local = 8.90%)</option>
-                <option value="IN">Indiana (7.00% State, No Local = 7.00%)</option>
-                <option value="IA">Iowa (6.00% State + 0.94% Avg Local = 6.94%)</option>
-                <option value="KS">Kansas (6.50% State + 2.21% Avg Local = 8.71%)</option>
-                <option value="KY">Kentucky (6.00% State, No Local = 6.00%)</option>
-                <option value="LA">Louisiana (4.45% State + 5.10% Avg Local = 9.55%)</option>
-                <option value="ME">Maine (5.50% State, No Local = 5.50%)</option>
-                <option value="MD">Maryland (6.00% State, No Local = 6.00%)</option>
-                <option value="MA">Massachusetts (6.25% State, No Local = 6.25%)</option>
-                <option value="MI">Michigan (6.00% State, No Local = 6.00%)</option>
-                <option value="MN">Minnesota (6.875% State + 0.65% Avg Local = 7.525%)</option>
-                <option value="MS">Mississippi (7.00% State + 0.07% Avg Local = 7.07%)</option>
-                <option value="MO">Missouri (4.225% State + 4.16% Avg Local = 8.385%)</option>
-                <option value="MT">Montana (0.00% - No Sales Tax)</option>
-                <option value="NE">Nebraska (5.50% State + 1.47% Avg Local = 6.97%)</option>
-                <option value="NV">Nevada (6.85% State + 1.39% Avg Local = 8.24%)</option>
-                <option value="NH">New Hampshire (0.00% - No Sales Tax)</option>
-                <option value="NJ">New Jersey (6.625% State - 3.313% in UEZ)</option>
-                <option value="NM">New Mexico (4.875% State + 2.75% Avg Local = 7.625%)</option>
-                <option value="NY">New York (4.00% State + 4.53% Avg Local = 8.53%)</option>
-                <option value="NC">North Carolina (4.75% State + 2.25% Avg Local = 7.00%)</option>
-                <option value="ND">North Dakota (5.00% State + 2.04% Avg Local = 7.04%)</option>
-                <option value="OH">Ohio (5.75% State + 1.50% Avg Local = 7.25%)</option>
-                <option value="OK">Oklahoma (4.50% State + 4.49% Avg Local = 8.99%)</option>
-                <option value="OR">Oregon (0.00% - No Sales Tax)</option>
-                <option value="PA">Pennsylvania (6.00% State + 1.00% Alleg / 2.0% Phila)</option>
-                <option value="RI">Rhode Island (7.00% State, No Local = 7.00%)</option>
-                <option value="SC">South Carolina (6.00% State + 1.44% Avg Local = 7.44%)</option>
-                <option value="SD">South Dakota (4.20% State + 1.91% Avg Local = 6.11%)</option>
-                <option value="TN">Tennessee (7.00% State + 2.55% Avg Local = 9.55%)</option>
-                <option value="TX">Texas (6.25% State + 2.00% Max Local = 8.25%)</option>
-                <option value="UT">Utah (6.10% State + 1.10% Avg Local = 7.20%)</option>
-                <option value="VT">Vermont (6.00% State + 0.30% Avg Local = 6.30%)</option>
-                <option value="VA">Virginia (5.30% State + 0.45% Avg Local = 5.75%)</option>
-                <option value="WA">Washington (6.50% State + 2.79% Avg Local = 9.29%)</option>
-                <option value="WV">West Virginia (6.00% State + 0.57% Avg Local = 6.57%)</option>
-                <option value="WI">Wisconsin (5.00% State + 0.43% Avg Local = 5.43%)</option>
-                <option value="WY">Wyoming (4.00% State + 1.36% Avg Local = 5.36%)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Rates Breakdown Fields -->
-          <div class="grid-inputs" style="margin-top: 1rem;">
-            <div class="field-group">
-              <label class="field-label" for="st-rate-state">State Tax Rate (%)</label>
-              <input type="number" id="st-rate-state" class="code-input" value="7.25" min="0" max="25" step="0.01" oninput="onCustomRateInput()" />
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="st-rate-local">Local / County Surtax (%)</label>
-              <input type="number" id="st-rate-local" class="code-input" value="1.60" min="0" max="15" step="0.01" oninput="onCustomRateInput()" />
-            </div>
-            <div class="field-group">
-              <label class="field-label" for="st-rate-total">Combined Total Rate (%)</label>
-              <input type="number" id="st-rate-total" class="code-input" value="8.85" min="0" max="40" step="0.01" oninput="onCombinedRateInput()" style="font-weight: bold;" />
-            </div>
-          </div>
-
-          <!-- Hero Metrics Cards -->
-          <div class="st-grid">
-            <div class="st-card" style="border-top: 4px solid #10b981;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Checkout Price</div>
-              <div id="st-res-total" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$108.85</div>
-              <div id="st-res-total-sub" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Including 8.85% total tax</div>
-            </div>
-
-            <div class="st-card" style="border-top: 4px solid #3b82f6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Sales Tax Paid</div>
-              <div id="st-res-tax" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$8.85</div>
-              <div id="st-res-tax-sub" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">State: $7.25 | Local: $1.60</div>
-            </div>
-
-            <div class="st-card" style="border-top: 4px solid #8b5cf6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Pre-Tax Subtotal Price</div>
-              <div id="st-res-pretax" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$100.00</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Base price before tax</div>
-            </div>
-          </div>
-
-          <!-- Step-by-Step Derivation Box -->
-          <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #3b82f6; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
-            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Mathematical Solution:</div>
-            <div id="st-steps" style="font-family: var(--mono); color: var(--fg);"></div>
-          </div>
-
-          <!-- Copy Button -->
-          <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
-            <button type="button" class="btn-sec" onclick="copySTSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
-              📋 Copy Sales Tax Receipt Breakdown
-            </button>
-          </div>
-        </div>
+    <!-- Inputs Row 1 -->
+    <div class="st-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;" id="lbl-st-amt">Pre-Tax Purchase Price ($ USD)</label>
+        <input type="number" id="st-amt" value="100.00" min="0" step="1" oninput="calcST()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.3rem;font-weight:bold;box-sizing:border-box;">
       </div>
 
-      <script>
-        var activeSTMode = 'add';
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Select US State Preset</label>
+        <select id="st-state" onchange="onSTStateChange()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:0.95rem;box-sizing:border-box;">
+          <option value="custom">-- Custom Rate / Manual Override --</option>
+          <option value="AL">Alabama (4.00% State + 5.29% Local = 9.29%)</option>
+          <option value="AK">Alaska (0.00% State + 1.82% Avg Local = 1.82%)</option>
+          <option value="AZ">Arizona (5.60% State + 2.80% Local = 8.40%)</option>
+          <option value="AR">Arkansas (6.50% State + 2.94% Local = 9.44%)</option>
+          <option value="CA" selected>California (7.25% State + 1.60% Avg Local = 8.85%)</option>
+          <option value="CO">Colorado (2.90% State + 4.91% Local = 7.81%)</option>
+          <option value="CT">Connecticut (6.35% State, No Local = 6.35%)</option>
+          <option value="DE">Delaware (0.00% - No Sales Tax)</option>
+          <option value="DC">District of Columbia (6.00% Uniform Rate)</option>
+          <option value="FL">Florida (6.00% State + 1.02% Local = 7.02%)</option>
+          <option value="GA">Georgia (4.00% State + 3.40% Local = 7.40%)</option>
+          <option value="HI">Hawaii (4.00% State + 0.50% Surtax = 4.50% GET)</option>
+          <option value="ID">Idaho (6.00% State + 0.03% Local = 6.03%)</option>
+          <option value="IL">Illinois (6.25% State + 2.65% Local = 8.90%)</option>
+          <option value="IN">Indiana (7.00% State, No Local = 7.00%)</option>
+          <option value="IA">Iowa (6.00% State + 0.94% Local = 6.94%)</option>
+          <option value="KS">Kansas (6.50% State + 2.21% Local = 8.71%)</option>
+          <option value="KY">Kentucky (6.00% State, No Local = 6.00%)</option>
+          <option value="LA">Louisiana (4.45% State + 5.10% Local = 9.55%)</option>
+          <option value="ME">Maine (5.50% State, No Local = 5.50%)</option>
+          <option value="MD">Maryland (6.00% State, No Local = 6.00%)</option>
+          <option value="MA">Massachusetts (6.25% State, No Local = 6.25%)</option>
+          <option value="MI">Michigan (6.00% State, No Local = 6.00%)</option>
+          <option value="MN">Minnesota (6.875% State + 0.65% Local = 7.525%)</option>
+          <option value="MS">Mississippi (7.00% State + 0.07% Local = 7.07%)</option>
+          <option value="MO">Missouri (4.225% State + 4.16% Local = 8.385%)</option>
+          <option value="MT">Montana (0.00% - No Sales Tax)</option>
+          <option value="NE">Nebraska (5.50% State + 1.47% Local = 6.97%)</option>
+          <option value="NV">Nevada (6.85% State + 1.39% Local = 8.24%)</option>
+          <option value="NH">New Hampshire (0.00% - No Sales Tax)</option>
+          <option value="NJ">New Jersey (6.625% State, 3.313% in UEZ)</option>
+          <option value="NM">New Mexico (4.875% State + 2.75% Local = 7.625%)</option>
+          <option value="NY">New York (4.00% State + 4.53% Local = 8.53%)</option>
+          <option value="NC">North Carolina (4.75% State + 2.25% Local = 7.00%)</option>
+          <option value="ND">North Dakota (5.00% State + 2.04% Local = 7.04%)</option>
+          <option value="OH">Ohio (5.75% State + 1.50% Local = 7.25%)</option>
+          <option value="OK">Oklahoma (4.50% State + 4.49% Local = 8.99%)</option>
+          <option value="OR">Oregon (0.00% - No Sales Tax)</option>
+          <option value="PA">Pennsylvania (6.00% State + 1.00% Alleg / 2.0% Phila)</option>
+          <option value="RI">Rhode Island (7.00% State, No Local = 7.00%)</option>
+          <option value="SC">South Carolina (6.00% State + 1.44% Local = 7.44%)</option>
+          <option value="SD">South Dakota (4.20% State + 1.91% Local = 6.11%)</option>
+          <option value="TN">Tennessee (7.00% State + 2.55% Local = 9.55%)</option>
+          <option value="TX">Texas (6.25% State + 2.00% Max Local = 8.25%)</option>
+          <option value="UT">Utah (6.10% State + 1.10% Local = 7.20%)</option>
+          <option value="VT">Vermont (6.00% State + 0.30% Local = 6.30%)</option>
+          <option value="VA">Virginia (5.30% State + 0.45% Local = 5.75%)</option>
+          <option value="WA">Washington (6.50% State + 2.79% Local = 9.29%)</option>
+          <option value="WV">West Virginia (6.00% State + 0.57% Local = 6.57%)</option>
+          <option value="WI">Wisconsin (5.00% State + 0.43% Local = 5.43%)</option>
+          <option value="WY">Wyoming (4.00% State + 1.36% Local = 5.36%)</option>
+        </select>
+      </div>
 
-        var stateTaxData = {
-          AL: { state: 4.00, local: 5.29 },
-          AK: { state: 0.00, local: 1.82 },
-          AZ: { state: 5.60, local: 2.80 },
-          AR: { state: 6.50, local: 2.94 },
-          CA: { state: 7.25, local: 1.60 },
-          CO: { state: 2.90, local: 4.91 },
-          CT: { state: 6.35, local: 0.00 },
-          DE: { state: 0.00, local: 0.00 },
-          FL: { state: 6.00, local: 1.02 },
-          GA: { state: 4.00, local: 3.40 },
-          HI: { state: 4.00, local: 0.50 },
-          ID: { state: 6.00, local: 0.03 },
-          IL: { state: 6.25, local: 2.65 },
-          IN: { state: 7.00, local: 0.00 },
-          IA: { state: 6.00, local: 0.94 },
-          KS: { state: 6.50, local: 2.21 },
-          KY: { state: 6.00, local: 0.00 },
-          LA: { state: 4.45, local: 5.10 },
-          ME: { state: 5.50, local: 0.00 },
-          MD: { state: 6.00, local: 0.00 },
-          MA: { state: 6.25, local: 0.00 },
-          MI: { state: 6.00, local: 0.00 },
-          MN: { state: 6.875, local: 0.65 },
-          MS: { state: 7.00, local: 0.07 },
-          MO: { state: 4.225, local: 4.16 },
-          MT: { state: 0.00, local: 0.00 },
-          NE: { state: 5.50, local: 1.47 },
-          NV: { state: 6.85, local: 1.39 },
-          NH: { state: 0.00, local: 0.00 },
-          NJ: { state: 6.625, local: 0.00 },
-          NM: { state: 4.875, local: 2.75 },
-          NY: { state: 4.00, local: 4.53 },
-          NC: { state: 4.75, local: 2.25 },
-          ND: { state: 5.00, local: 2.04 },
-          OH: { state: 5.75, local: 1.50 },
-          OK: { state: 4.50, local: 4.49 },
-          OR: { state: 0.00, local: 0.00 },
-          PA: { state: 6.00, local: 0.34 },
-          RI: { state: 7.00, local: 0.00 },
-          SC: { state: 6.00, local: 1.44 },
-          SD: { state: 4.20, local: 1.91 },
-          TN: { state: 7.00, local: 2.55 },
-          TX: { state: 6.25, local: 2.00 },
-          UT: { state: 6.10, local: 1.10 },
-          VT: { state: 6.00, local: 0.30 },
-          VA: { state: 5.30, local: 0.45 },
-          WA: { state: 6.50, local: 2.79 },
-          WV: { state: 6.00, local: 0.57 },
-          WI: { state: 5.00, local: 0.43 },
-          WY: { state: 4.00, local: 1.36 }
-        };
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Product Exemption Category</label>
+        <select id="st-category" onchange="onSTCategoryChange()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:0.95rem;box-sizing:border-box;">
+          <option value="general" selected>General Merchandise (Standard Full Rate)</option>
+          <option value="grocery">Groceries / Unprepared Food (State Exempt / Reduced)</option>
+          <option value="rx">Prescription Drugs (Exempt in 49 States)</option>
+          <option value="clothing">Apparel / Clothing (Standard or Threshold Rule)</option>
+        </select>
+      </div>
+    </div>
 
-        function switchSTMode(mode) {
-          activeSTMode = mode;
-          document.getElementById('btn-st-add').className = 'hs-tab-btn' + (mode === 'add' ? ' active' : '');
-          document.getElementById('btn-st-reverse').className = 'hs-tab-btn' + (mode === 'reverse' ? ' active' : '');
-          document.getElementById('st-amount-label').textContent = mode === 'add' ? 'Pre-Tax Purchase Price ($ USD)' : 'Total Paid (Including Tax) ($ USD)';
-          runSTCalc();
-        }
+    <!-- Inputs Row 2: Rates breakdown -->
+    <div class="st-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">State Tax Rate (%)</label>
+        <input type="number" id="st-rate-state" value="7.25" min="0" max="30" step="0.01" oninput="onSTRateInput()" style="width:100%;padding:0.6rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1rem;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">County / Local Surtax (%)</label>
+        <input type="number" id="st-rate-local" value="1.60" min="0" max="20" step="0.01" oninput="onSTRateInput()" style="width:100%;padding:0.6rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1rem;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Combined Effective Rate (%)</label>
+        <input type="number" id="st-rate-total" value="8.85" min="0" max="50" step="0.01" oninput="onSTTotalRateInput()" style="width:100%;padding:0.6rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+    </div>
 
-        function onStateSelectChange() {
-          var code = document.getElementById('st-state-select').value;
-          if (stateTaxData[code]) {
-            document.getElementById('st-rate-state').value = stateTaxData[code].state;
-            document.getElementById('st-rate-local').value = stateTaxData[code].local;
-            document.getElementById('st-rate-total').value = (stateTaxData[code].state + stateTaxData[code].local).toFixed(3);
-          }
-          runSTCalc();
-        }
+    <!-- Hero Cards -->
+    <div class="st-grid-4">
+      <div class="st-card" style="border-top:4px solid #10b981;">
+        <span class="st-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Final Out-of-Pocket</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Register Price</div>
+        <div id="card-st-total" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#10b981;">$108.85</div>
+        <div id="card-st-total-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">With 8.85% total sales tax</div>
+      </div>
 
-        function onCustomRateInput() {
-          var st = parseFloat(document.getElementById('st-rate-state').value) || 0;
-          var loc = parseFloat(document.getElementById('st-rate-local').value) || 0;
-          document.getElementById('st-rate-total').value = (st + loc).toFixed(3);
-          document.getElementById('st-state-select').value = 'custom';
-          runSTCalc();
-        }
+      <div class="st-card" style="border-top:4px solid #3b82f6;">
+        <span class="st-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Tax Paid</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Total Sales Tax</div>
+        <div id="card-st-tax" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#3b82f6;">$8.85</div>
+        <div id="card-st-tax-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">State: $7.25 | Local: $1.60</div>
+      </div>
 
-        function onCombinedRateInput() {
-          document.getElementById('st-state-select').value = 'custom';
-          runSTCalc();
-        }
+      <div class="st-card" style="border-top:4px solid #8b5cf6;">
+        <span class="st-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Base Cost</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Pre-Tax Subtotal</div>
+        <div id="card-st-pretax" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:var(--fg);">$100.00</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Direct merchant revenue</div>
+      </div>
 
-        function runSTCalc() {
-          var amt = parseFloat(document.getElementById('st-amount').value) || 0;
-          var totalRate = parseFloat(document.getElementById('st-rate-total').value) || 0;
-          var stateRate = parseFloat(document.getElementById('st-rate-state').value) || 0;
-          var localRate = parseFloat(document.getElementById('st-rate-local').value) || 0;
+      <div class="st-card" style="border-top:4px solid #f59e0b;">
+        <span class="st-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Tax Burden</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Effective Tax Rate</div>
+        <div id="card-st-eff-rate" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#f59e0b;">8.85%</div>
+        <div id="card-st-eff-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Tax per dollar spent: 8.85&cent;</div>
+      </div>
+    </div>
 
-          var rateDec = totalRate / 100;
-          var preTax = 0, taxTotal = 0, finalTotal = 0;
+    <!-- Pure SVG Stacked Visual Breakdown -->
+    <div class="st-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Transaction Capital Stack</span>
+        <span style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Proportional Cost Composition</span>
+      </div>
+      <div id="st-svg-container" style="width:100%;height:75px;"></div>
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#64748b;border-radius:2px;"></span> Pre-Tax Subtotal</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#3b82f6;border-radius:2px;"></span> State Sales Tax</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#10b981;border-radius:2px;"></span> Local / County Surtax</span>
+      </div>
+    </div>
 
-          if (activeSTMode === 'add') {
-            preTax = amt;
-            taxTotal = preTax * rateDec;
-            finalTotal = preTax + taxTotal;
-          } else {
-            finalTotal = amt;
-            preTax = rateDec > 0 ? (finalTotal / (1 + rateDec)) : finalTotal;
-            taxTotal = finalTotal - preTax;
-          }
+    <!-- Live Step-by-Step Derivation -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #3b82f6;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Mathematical Derivation:</div>
+      <div id="st-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
 
-          var stateTaxPortion = (totalRate > 0) ? (taxTotal * (stateRate / totalRate)) : 0;
-          var localTaxPortion = taxTotal - stateTaxPortion;
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copySTBreakdown(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Sales Tax Receipt Breakdown
+      </button>
+    </div>
+  </div>
 
-          document.getElementById('st-res-total').textContent = '$' + finalTotal.toFixed(2);
-          document.getElementById('st-res-total-sub').textContent = 'Combined rate: ' + totalRate.toFixed(2) + '%';
-          document.getElementById('st-res-tax').textContent = '$' + taxTotal.toFixed(2);
-          document.getElementById('st-res-tax-sub').textContent = 'State: $' + stateTaxPortion.toFixed(2) + ' | Local: $' + localTaxPortion.toFixed(2);
-          document.getElementById('st-res-pretax').textContent = '$' + preTax.toFixed(2);
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Sales Tax Calculations</h2>
 
-          var steps = [];
-          if (activeSTMode === 'add') {
-            steps.push('1. Convert combined rate to decimal: ' + totalRate.toFixed(3) + '% &divide; 100 = ' + rateDec.toFixed(5));
-            steps.push('2. Compute total sales tax: $' + preTax.toFixed(2) + ' &times; ' + rateDec.toFixed(5) + ' = $' + taxTotal.toFixed(2));
-            steps.push('3. Add sales tax to subtotal: $' + preTax.toFixed(2) + ' + $' + taxTotal.toFixed(2) + ' = <strong>$' + finalTotal.toFixed(2) + ' total price</strong>');
-            if (stateRate > 0 && localRate > 0) {
-              steps.push('4. Jurisdictional Allocation: State (' + stateRate + '%) = $' + stateTaxPortion.toFixed(2) + ' &bull; Local/County (' + localRate + '%) = $' + localTaxPortion.toFixed(2));
-            }
-          } else {
-            steps.push('1. Reverse Tax Formula: Pre-Tax Price = Total Paid &divide; (1 + Tax Rate)');
-            steps.push('2. Compute divisor: 1 + (' + totalRate.toFixed(3) + '% &divide; 100) = ' + (1 + rateDec).toFixed(5));
-            steps.push('3. Divide register total: $' + finalTotal.toFixed(2) + ' &divide; ' + (1 + rateDec).toFixed(5) + ' = <strong>$' + preTax.toFixed(2) + ' original pre-tax price</strong>');
-            steps.push('4. Difference is sales tax paid: $' + finalTotal.toFixed(2) + ' - $' + preTax.toFixed(2) + ' = <strong>$' + taxTotal.toFixed(2) + ' tax amount</strong>');
-          }
-          document.getElementById('st-steps').innerHTML = steps.join('<br>');
-        }
+    <div class="st-trap-card">
+      <div class="st-trap-title">1. The "Back-Out Subtraction" Mathematical Fallacy</div>
+      <p class="st-trap-desc">
+        A disastrous retail accounting error is trying to back out sales tax by subtracting the tax rate from the total paid. If you paid $108.00 in an 8% tax jurisdiction, calculating <code>$108.00 - 8% = $99.36</code> is mathematically wrong. The correct pre-tax price is <code>$108.00 / 1.08 = $100.00</code>. Subtraction applies the percentage to the inflated gross amount rather than the initial base, underreporting legitimate revenue and overpaying sales tax liabilities.
+      </p>
+    </div>
 
-        function copySTSummary(btn) {
-          var tot = document.getElementById('st-res-total').textContent.trim();
-          var tax = document.getElementById('st-res-tax').textContent.trim();
-          var pre = document.getElementById('st-res-pretax').textContent.trim();
-          var rate = document.getElementById('st-rate-total').value;
+    <div class="st-trap-card">
+      <div class="st-trap-title">2. Origin-Based vs. Destination-Based Sourcing (Wayfair Economic Nexus)</div>
+      <p class="st-trap-desc">
+        Since the landmark Supreme Court ruling in <em>South Dakota v. Wayfair (2018)</em>, interstate sellers must collect tax based on the buyer's delivery address (destination-based sourcing) in 38+ states once statutory economic nexus thresholds ($100k in gross sales or 200 transactions) are breached. However, intrastate sales in origin-based states (such as Texas, Ohio, and Pennsylvania) source sales tax to the seller's physical warehouse or storefront rather than the shipping destination.
+      </p>
+    </div>
 
-          var summary = [
-            '=== Sales Tax Receipt Breakdown ===',
-            'Pre-Tax Subtotal : ' + pre,
-            'Tax Rate Applied : ' + rate + '%',
-            'Sales Tax Paid   : ' + tax,
-            'Final Total Paid : ' + tot,
-            'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/finance/sales-tax-calculator.html)'
-          ].join('\n');
+    <div class="st-trap-card">
+      <div class="st-trap-title">3. The Shipping, Handling &amp; Freight Tax Trap</div>
+      <p class="st-trap-desc">
+        Whether delivery charges are subject to sales tax varies drastically by state jurisdiction. In states like California and Florida, freight is exempt from sales tax only if it is separately itemized on the invoice and delivery occurs via common carrier (USPS, FedEx, UPS). In states like New York and Washington, shipping charges are fully taxable whenever the underlying item being shipped is taxable, regardless of itemization.
+      </p>
+    </div>
 
-          navigator.clipboard.writeText(summary).then(function() {
-            var old = btn.textContent;
-            btn.textContent = '✅ Copied to Clipboard!';
-            btn.style.borderColor = '#10b981';
-            setTimeout(function() {
-              btn.textContent = old;
-              btn.style.borderColor = '';
-            }, 2000);
-          });
-        }
+    <div class="st-trap-card">
+      <div class="st-trap-title">4. The "NOMAD" State Illusion (Alaska &amp; Montana Local Surtaxes)</div>
+      <p class="st-trap-desc">
+        While Alaska levies no statewide sales tax (0%), its constitution grants home-rule boroughs and municipalities broad taxation powers. Over 100 Alaskan municipalities impose local sales taxes, ranging from 2% to 7.85% (e.g., Juneau 5%, Wasilla 3%). Similarly, Montana allows designated high-volume resort communities (e.g., Whitefish, Big Sky, Red Lodge) to levy a 3% local option resort tax on lodging, dining, and retail luxuries.
+      </p>
+    </div>
 
-        document.addEventListener('DOMContentLoaded', function() { onStateSelectChange(); });
-        onStateSelectChange();
-      </script>
-    `
+    <div class="st-trap-card">
+      <div class="st-trap-title">5. Vehicle &amp; Equipment Trade-In Value Credits</div>
+      <p class="st-trap-desc">
+        When purchasing a vehicle, boat, or heavy industrial machinery, 42 states permit a trade-in tax credit where the value of your trade-in vehicle is deducted from the purchase price before sales tax is calculated. On a $40,000 vehicle with a $15,000 trade-in at an 8% tax rate, you are taxed only on the $25,000 difference ($2,000 tax instead of $3,200), generating $1,200 in instant tax savings. However, states like California, Hawaii, and the District of Columbia disallow trade-in credits, taxing the full gross sticker price.
+      </p>
+    </div>
+  </div>
+
+  <!-- State Sales Tax Reference Table -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">All 50 US States Sales Tax &amp; Average Local Surtaxes</h2>
+    <div style="overflow-x:auto;border:1px solid var(--border);border-radius:6px;">
+      <table style="width:100%;border-collapse:collapse;font-family:var(--mono);font-size:0.82rem;text-align:left;">
+        <thead>
+          <tr style="background:var(--surface-alt);border-bottom:1px solid var(--border);">
+            <th style="padding:0.6rem 0.85rem;color:var(--text-muted);">State / Jurisdiction</th>
+            <th style="padding:0.6rem 0.85rem;color:var(--text-muted);text-align:right;">State Base Rate</th>
+            <th style="padding:0.6rem 0.85rem;color:var(--text-muted);text-align:right;">Avg Local Surtax</th>
+            <th style="padding:0.6rem 0.85rem;color:var(--text-muted);text-align:right;">Combined Avg Rate</th>
+            <th style="padding:0.6rem 0.85rem;color:var(--text-muted);">Grocery Exemption</th>
+          </tr>
+        </thead>
+        <tbody id="st-table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  var curSTMode = 'add';
+
+  var US_TAX_DATA = {
+    AL: { name: 'Alabama', state: 4.00, local: 5.29, grocery: 'Taxed (3.00% reduced)' },
+    AK: { name: 'Alaska', state: 0.00, local: 1.82, grocery: 'Exempt (No state tax; local applies)' },
+    AZ: { name: 'Arizona', state: 5.60, local: 2.80, grocery: '100% Exempt' },
+    AR: { name: 'Arkansas', state: 6.50, local: 2.94, grocery: 'Taxed (0.125% reduced)' },
+    CA: { name: 'California', state: 7.25, local: 1.60, grocery: '100% Exempt' },
+    CO: { name: 'Colorado', state: 2.90, local: 4.91, grocery: '100% Exempt' },
+    CT: { name: 'Connecticut', state: 6.35, local: 0.00, grocery: '100% Exempt' },
+    DE: { name: 'Delaware', state: 0.00, local: 0.00, grocery: 'No Sales Tax' },
+    DC: { name: 'District of Columbia', state: 6.00, local: 0.00, grocery: '100% Exempt' },
+    FL: { name: 'Florida', state: 6.00, local: 1.02, grocery: '100% Exempt' },
+    GA: { name: 'Georgia', state: 4.00, local: 3.40, grocery: '100% State Exempt (Local applies)' },
+    HI: { name: 'Hawaii (GET)', state: 4.00, local: 0.50, grocery: 'Taxed (4.00% GET)' },
+    ID: { name: 'Idaho', state: 6.00, local: 0.03, grocery: 'Taxed (Grocery credit on income tax)' },
+    IL: { name: 'Illinois', state: 6.25, local: 2.65, grocery: 'Taxed (1.00% reduced state rate)' },
+    IN: { name: 'Indiana', state: 7.00, local: 0.00, grocery: '100% Exempt' },
+    IA: { name: 'Iowa', state: 6.00, local: 0.94, grocery: '100% Exempt' },
+    KS: { name: 'Kansas', state: 6.50, local: 2.21, grocery: '100% Exempt (Phased out 2025)' },
+    KY: { name: 'Kentucky', state: 6.00, local: 0.00, grocery: '100% Exempt' },
+    LA: { name: 'Louisiana', state: 4.45, local: 5.10, grocery: '100% State Exempt (Local applies)' },
+    ME: { name: 'Maine', state: 5.50, local: 0.00, grocery: '100% Exempt' },
+    MD: { name: 'Maryland', state: 6.00, local: 0.00, grocery: '100% Exempt' },
+    MA: { name: 'Massachusetts', state: 6.25, local: 0.00, grocery: '100% Exempt' },
+    MI: { name: 'Michigan', state: 6.00, local: 0.00, grocery: '100% Exempt' },
+    MN: { name: 'Minnesota', state: 6.875, local: 0.65, grocery: '100% Exempt' },
+    MS: { name: 'Mississippi', state: 7.00, local: 0.07, grocery: 'Taxed (Full 7.00% rate)' },
+    MO: { name: 'Missouri', state: 4.225, local: 4.16, grocery: 'Taxed (1.225% reduced state rate)' },
+    MT: { name: 'Montana', state: 0.00, local: 0.00, grocery: 'No Sales Tax' },
+    NE: { name: 'Nebraska', state: 5.50, local: 1.47, grocery: '100% Exempt' },
+    NV: { name: 'Nevada', state: 6.85, local: 1.39, grocery: '100% Exempt' },
+    NH: { name: 'New Hampshire', state: 0.00, local: 0.00, grocery: 'No Sales Tax' },
+    NJ: { name: 'New Jersey', state: 6.625, local: 0.00, grocery: '100% Exempt' },
+    NM: { name: 'New Mexico', state: 4.875, local: 2.75, grocery: '100% Exempt (Gross receipts ded.)' },
+    NY: { name: 'New York', state: 4.00, local: 4.53, grocery: '100% Exempt' },
+    NC: { name: 'North Carolina', state: 4.75, local: 2.25, grocery: '100% State Exempt (2.00% Local)' },
+    ND: { name: 'North Dakota', state: 5.00, local: 2.04, grocery: '100% Exempt' },
+    OH: { name: 'Ohio', state: 5.75, local: 1.50, grocery: '100% Exempt' },
+    OK: { name: 'Oklahoma', state: 4.50, local: 4.49, grocery: 'State Exempt (Local surtax applies)' },
+    OR: { name: 'Oregon', state: 0.00, local: 0.00, grocery: 'No Sales Tax' },
+    PA: { name: 'Pennsylvania', state: 6.00, local: 0.34, grocery: '100% Exempt' },
+    RI: { name: 'Rhode Island', state: 7.00, local: 0.00, grocery: '100% Exempt' },
+    SC: { name: 'South Carolina', state: 6.00, local: 1.44, grocery: '100% Exempt' },
+    SD: { name: 'South Dakota', state: 4.20, local: 1.91, grocery: 'Taxed (Full 4.20% rate)' },
+    TN: { name: 'Tennessee', state: 7.00, local: 2.55, grocery: 'Taxed (4.00% reduced state rate)' },
+    TX: { name: 'Texas', state: 6.25, local: 2.00, grocery: '100% Exempt' },
+    UT: { name: 'Utah', state: 6.10, local: 1.10, grocery: 'Taxed (1.75% state rate + local)' },
+    VT: { name: 'Vermont', state: 6.00, local: 0.30, grocery: '100% Exempt' },
+    VA: { name: 'Virginia', state: 5.30, local: 0.45, grocery: 'Taxed (1.00% local only)' },
+    WA: { name: 'Washington', state: 6.50, local: 2.79, grocery: '100% Exempt' },
+    WV: { name: 'West Virginia', state: 6.00, local: 0.57, grocery: '100% Exempt' },
+    WI: { name: 'Wisconsin', state: 5.00, local: 0.43, grocery: '100% Exempt' },
+    WY: { name: 'Wyoming', state: 4.00, local: 1.36, grocery: '100% Exempt' }
+  };
+
+  function setSTMode(m) {
+    curSTMode = m;
+    document.getElementById('btn-st-add').className = 'st-tab-btn' + (m === 'add' ? ' active' : '');
+    document.getElementById('btn-st-reverse').className = 'st-tab-btn' + (m === 'reverse' ? ' active' : '');
+    document.getElementById('lbl-st-amt').textContent = m === 'add' ? 'Pre-Tax Purchase Price ($ USD)' : 'Total Paid at Register ($ USD)';
+    calcST();
+  }
+
+  function onSTStateChange() {
+    var code = document.getElementById('st-state').value;
+    if (code && US_TAX_DATA[code]) {
+      var d = US_TAX_DATA[code];
+      applyCategoryRates(d.state, d.local);
+    }
+    calcST();
+  }
+
+  function onSTCategoryChange() {
+    var code = document.getElementById('st-state').value;
+    if (code && US_TAX_DATA[code]) {
+      var d = US_TAX_DATA[code];
+      applyCategoryRates(d.state, d.local);
+    }
+    calcST();
+  }
+
+  function applyCategoryRates(baseState, baseLocal) {
+    var cat = document.getElementById('st-category').value;
+    var stateRate = baseState;
+    var localRate = baseLocal;
+
+    if (cat === 'grocery') {
+      var code = document.getElementById('st-state').value;
+      if (code === 'AL') stateRate = 3.00;
+      else if (code === 'AR') stateRate = 0.125;
+      else if (code === 'IL') stateRate = 1.00;
+      else if (code === 'MO') stateRate = 1.225;
+      else if (code === 'TN') stateRate = 4.00;
+      else if (code === 'UT') stateRate = 1.75;
+      else if (code === 'VA') stateRate = 0.00; // VA only levies 1% local
+      else if (code === 'MS' || code === 'SD' || code === 'HI' || code === 'ID') {
+        // Full rate applies
+      } else {
+        stateRate = 0.00;
+      }
+    } else if (cat === 'rx') {
+      var code = document.getElementById('st-state').value;
+      stateRate = (code === 'IL') ? 1.00 : 0.00;
+      localRate = 0.00;
+    }
+
+    document.getElementById('st-rate-state').value = stateRate.toFixed(2);
+    document.getElementById('st-rate-local').value = localRate.toFixed(2);
+    document.getElementById('st-rate-total').value = (stateRate + localRate).toFixed(3);
+  }
+
+  function onSTRateInput() {
+    var s = parseFloat(document.getElementById('st-rate-state').value) || 0;
+    var l = parseFloat(document.getElementById('st-rate-local').value) || 0;
+    document.getElementById('st-rate-total').value = (s + l).toFixed(3);
+    document.getElementById('st-state').value = 'custom';
+    calcST();
+  }
+
+  function onSTTotalRateInput() {
+    document.getElementById('st-state').value = 'custom';
+    calcST();
+  }
+
+  function calcST() {
+    var amt = parseFloat(document.getElementById('st-amt').value) || 0;
+    var totalRate = parseFloat(document.getElementById('st-rate-total').value) || 0;
+    var stateRate = parseFloat(document.getElementById('st-rate-state').value) || 0;
+    var localRate = parseFloat(document.getElementById('st-rate-local').value) || 0;
+
+    var rateDec = totalRate / 100;
+    var preTax = 0, taxTotal = 0, finalTotal = 0;
+
+    if (curSTMode === 'add') {
+      preTax = amt;
+      taxTotal = preTax * rateDec;
+      finalTotal = preTax + taxTotal;
+    } else {
+      finalTotal = amt;
+      preTax = rateDec > 0 ? (finalTotal / (1 + rateDec)) : finalTotal;
+      taxTotal = finalTotal - preTax;
+    }
+
+    var stateTaxShare = (totalRate > 0) ? (taxTotal * (stateRate / totalRate)) : 0;
+    var localTaxShare = taxTotal - stateTaxShare;
+
+    document.getElementById('card-st-total').textContent = '$' + finalTotal.toFixed(2);
+    document.getElementById('card-st-total-sub').textContent = 'With ' + totalRate.toFixed(2) + '% total tax';
+
+    document.getElementById('card-st-tax').textContent = '$' + taxTotal.toFixed(2);
+    document.getElementById('card-st-tax-sub').textContent = 'State: $' + stateTaxShare.toFixed(2) + ' | Local: $' + localTaxShare.toFixed(2);
+
+    document.getElementById('card-st-pretax').textContent = '$' + preTax.toFixed(2);
+
+    var effRate = (preTax > 0) ? ((taxTotal / preTax) * 100) : 0;
+    document.getElementById('card-st-eff-rate').textContent = effRate.toFixed(2) + '%';
+    document.getElementById('card-st-eff-sub').textContent = 'Tax per dollar spent: ' + effRate.toFixed(1) + '¢';
+
+    renderSTVisual(preTax, stateTaxShare, localTaxShare, finalTotal);
+
+    // Derivations
+    var deriv = [];
+    if (curSTMode === 'add') {
+      deriv.push('1. Decimal Tax Multiplier: ' + totalRate.toFixed(3) + '% &divide; 100 = ' + rateDec.toFixed(5));
+      deriv.push('2. Sales Tax Calculation: $' + preTax.toFixed(2) + ' &times; ' + rateDec.toFixed(5) + ' = <strong>$' + taxTotal.toFixed(2) + ' sales tax</strong>');
+      deriv.push('3. Register Checkout Total: $' + preTax.toFixed(2) + ' + $' + taxTotal.toFixed(2) + ' = <strong>$' + finalTotal.toFixed(2) + ' total paid</strong>');
+      if (stateRate > 0 || localRate > 0) {
+        deriv.push('4. Jurisdictional Apportionment: State (' + stateRate.toFixed(2) + '%) = $' + stateTaxShare.toFixed(2) + ' &bull; Local/County (' + localRate.toFixed(2) + '%) = $' + localTaxShare.toFixed(2));
+      }
+    } else {
+      deriv.push('1. Reverse Tax Divisor: 1 + (' + totalRate.toFixed(3) + '% &divide; 100) = ' + (1 + rateDec).toFixed(5));
+      deriv.push('2. Back Out Pre-Tax Base: $' + finalTotal.toFixed(2) + ' &divide; ' + (1 + rateDec).toFixed(5) + ' = <strong>$' + preTax.toFixed(2) + ' original pre-tax price</strong>');
+      deriv.push('3. Isolated Sales Tax: $' + finalTotal.toFixed(2) + ' - $' + preTax.toFixed(2) + ' = <strong>$' + taxTotal.toFixed(2) + ' tax paid</strong>');
+      deriv.push('4. Verification: $' + preTax.toFixed(2) + ' &times; ' + (1 + rateDec).toFixed(5) + ' = $' + finalTotal.toFixed(2));
+    }
+    document.getElementById('st-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderSTVisual(preTax, stateTax, localTax, total) {
+    var c = document.getElementById('st-svg-container');
+    if (!c || total <= 0) return;
+
+    var w = c.clientWidth || 600;
+    var h = 65;
+
+    var pctPre = (preTax / total);
+    var pctState = (stateTax / total);
+    var pctLocal = (localTax / total);
+
+    var barH = 26;
+    var y = 14;
+
+    var wPre = Math.max(1, pctPre * (w - 4));
+    var wState = Math.max(0, pctState * (w - 4));
+    var wLocal = Math.max(0, pctLocal * (w - 4));
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Bar background
+    svg += '<rect x="2" y="' + y + '" width="' + (w - 4) + '" height="' + barH + '" rx="4" fill="#334155" />';
+
+    // Pre-Tax segment
+    svg += '<rect x="2" y="' + y + '" width="' + wPre + '" height="' + barH + '" rx="4" fill="#64748b" />';
+
+    // State tax segment
+    if (wState > 0) {
+      svg += '<rect x="' + (2 + wPre) + '" y="' + y + '" width="' + wState + '" height="' + barH + '" fill="#3b82f6" />';
+    }
+
+    // Local tax segment
+    if (wLocal > 0) {
+      svg += '<rect x="' + (2 + wPre + wState) + '" y="' + y + '" width="' + wLocal + '" height="' + barH + '" rx="4" fill="#10b981" />';
+    }
+
+    // Labels below bar
+    svg += '<text x="4" y="' + (y + barH + 16) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Pre-Tax: $' + preTax.toFixed(2) + ' (' + (pctPre * 100).toFixed(1) + '%)</text>';
+
+    var rightText = 'Total Tax: $' + (stateTax + localTax).toFixed(2) + ' (' + ((pctState + pctLocal) * 100).toFixed(1) + '%)';
+    svg += '<text x="' + (w - 4) + '" y="' + (y + barH + 16) + '" fill="#3b82f6" font-family="var(--mono)" font-size="11" text-anchor="end">' + rightText + '</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copySTBreakdown(btn) {
+    var tot = document.getElementById('card-st-total').textContent.trim();
+    var tax = document.getElementById('card-st-tax').textContent.trim();
+    var pre = document.getElementById('card-st-pretax').textContent.trim();
+    var rate = document.getElementById('st-rate-total').value;
+    var stateRate = document.getElementById('st-rate-state').value;
+    var localRate = document.getElementById('st-rate-local').value;
+
+    var lines = [
+      '========================================',
+      '     SALES TAX RECEIPT BREAKDOWN',
+      '========================================',
+      'Pre-Tax Subtotal   : ' + pre,
+      'State Tax (' + stateRate + '%)   : ' + document.getElementById('card-st-tax-sub').textContent.split('|')[0].trim(),
+      'Local Surtax (' + localRate + '%) : ' + (document.getElementById('card-st-tax-sub').textContent.split('|')[1] || '').trim(),
+      'Combined Tax Rate  : ' + rate + '%',
+      'Total Sales Tax    : ' + tax,
+      '----------------------------------------',
+      'FINAL REGISTER TOTAL : ' + tot,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/finance/sales-tax-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Receipt Breakdown!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  function populateSTTable() {
+    var tb = document.getElementById('st-table-body');
+    if (!tb) return;
+    var rows = [];
+    var keys = Object.keys(US_TAX_DATA).sort();
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      var d = US_TAX_DATA[k];
+      var comb = (d.state + d.local).toFixed(2);
+      rows.push(
+        '<tr style="border-bottom:1px solid var(--border);">' +
+        '<td style="padding:0.5rem 0.85rem;color:var(--fg);font-weight:500;">' + d.name + ' (' + k + ')</td>' +
+        '<td style="padding:0.5rem 0.85rem;text-align:right;">' + d.state.toFixed(2) + '%</td>' +
+        '<td style="padding:0.5rem 0.85rem;text-align:right;color:var(--text-muted);">' + (d.local > 0 ? ('+' + d.local.toFixed(2) + '%') : '0.00%') + '</td>' +
+        '<td style="padding:0.5rem 0.85rem;text-align:right;font-weight:bold;color:#3b82f6;">' + comb + '%</td>' +
+        '<td style="padding:0.5rem 0.85rem;color:var(--text-muted);font-size:0.75rem;">' + d.grocery + '</td>' +
+        '</tr>'
+      );
+    }
+    tb.innerHTML = rows.join('');
+  }
+
+  window.addEventListener('resize', calcST);
+  document.addEventListener('DOMContentLoaded', function() {
+    populateSTTable();
+    onSTStateChange();
+  });
+  populateSTTable();
+  onSTStateChange();
+</script>
+`
   },
   {
     slug: 'simple-interest-calculator',
@@ -3643,445 +3939,743 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       </script>
     `
   },
-  {
-    slug: 'overtime-calculator',
-    title: 'Overtime Pay Calculator (1.5x Time & a Half, Double Time & FLSA Rules)',
-    metaDesc: 'Calculate overtime wages, 1.5x time-and-a-half rate, 2.0x double-time holiday pay, and California daily overtime thresholds under federal FLSA rules.',
-    category: 'Finance & Career',
+    {
+    slug: "overtime-calculator",
+    title: "Overtime Calculator — FLSA Time-and-a-Half, Double Time & Blended Rates",
+    metaDesc: "Free contractor and employee overtime calculator. Computes exact FLSA 1.5× time-and-a-half, California daily 2.0× double-time, 7th consecutive day overtime, and blended multi-rate regular pay.",
+    category: "Finance",
     faq: [
-      { q: 'What is the federal Fair Labor Standards Act (FLSA) rule for overtime?', a: 'Under federal FLSA rules, covered non-exempt employees must receive overtime pay for all hours worked beyond 40 hours in a single workweek. Overtime must be paid at a rate not less than time-and-a-half (1.5 times) the regular hourly rate of pay.' },
-      { q: 'When is double-time (2.0x) mandatory by law?', a: 'Federal US law does NOT mandate double time; it only mandates 1.5× for hours over 40. However, California law strictly mandates double-time pay (2.0×) for all hours worked beyond 12 hours in a single workday, and for all hours worked beyond 8 hours on the 7th consecutive workday of a workweek. Many union collective bargaining agreements also mandate double-time for major federal holidays and Sundays.' },
-      { q: 'How does California daily overtime differ from federal overtime?', a: 'Under federal law, overtime is measured strictly on a weekly basis (after 40 total hours in a workweek). In California, daily overtime rules also apply: non-exempt employees must be paid 1.5× for all hours worked over 8 up to 12 hours in a single day, and 2.0× for all hours beyond 12 in a single day.' },
-      { q: 'Can an employer offer compensatory ("comp") time instead of paying overtime?', a: 'In the private sector, federal FLSA law strictly prohibits private employers from substituting compensatory time off ("comp time") in lieu of paying cash overtime to non-exempt employees. Comp time is only legally permitted for state, local government, and municipal public-sector agencies under specific conditions.' },
-      { q: 'How is overtime calculated when an employee has two different hourly rates?', a: 'Under FLSA regulations (29 C.F.R. § 778.115), when an employee performs two different jobs at different pay rates in the same workweek, their regular rate is the weighted average: Total Regular Earnings divided by Total Hours Worked. Overtime is then paid at 0.5× this blended regular rate for each overtime hour on top of the base pay.' }
+        {
+            "q": "How is overtime calculated under the federal Fair Labor Standards Act (FLSA)?",
+            "a": "Under the federal FLSA, non-exempt employees must receive overtime pay for hours worked over 40 in a workweek at a rate not less than one-and-one-half times (1.5×) their regular rate of pay: Overtime Rate = Regular Hourly Rate × 1.5. FLSA does not require overtime pay for work on weekends or holidays unless those hours exceed 40 for the week."
+        },
+        {
+            "q": "What is a \"blended regular rate\" and why must bonuses be included?",
+            "a": "Under 29 CFR § 778.200, non-discretionary bonuses (such as shift differentials, production bonuses, and attendance awards) must be added to straight-time wages and divided by total hours worked to calculate the true Regular Rate of Pay (RRP). Failing to include bonuses before calculating the 1.5× multiplier is a federal wage violation."
+        },
+        {
+            "q": "How does California daily overtime differ from federal overtime?",
+            "a": "Under California Labor Code § 510, non-exempt employees earn 1.5× overtime for all hours worked past 8 hours in a single workday and for the first 8 hours worked on the 7th consecutive day. Any hours worked past 12 in a single day (and past 8 on the 7th day) must be paid at 2.0× double-time."
+        },
+        {
+            "q": "Can private employers offer comp time instead of paying cash overtime?",
+            "a": "No. Comp time (compensatory time off) in lieu of monetary overtime pay is strictly prohibited for private-sector employers under the FLSA. Comp time is only legal for public agency employees (police, fire, municipal government)."
+        },
+        {
+            "q": "Must employers pay overtime if the extra hours were not approved in advance?",
+            "a": "Yes. Under federal law, if an employer \"suffers or permits\" an employee to work overtime, the employee must be paid for those hours at overtime rates regardless of whether the overtime was authorized. Employers can discipline employees for violating policy, but they cannot withhold earned overtime wages."
+        }
     ],
     body: `
-      <style>
-        .ot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
-        .ot-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; text-align: center; }
-        .ot-bar { height: 26px; border-radius: 6px; overflow: hidden; display: flex; width: 100%; margin-top: 1rem; border: 1px solid var(--border); background: var(--surface-alt); }
-        .ot-bar-reg { background: #3b82f6; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-        .ot-bar-ot { background: #10b981; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-        .ot-bar-dbl { background: #f59e0b; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-      </style>
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Overtime Calculator
+  </nav>
 
-      <div class="article-container" style="max-width: 950px;">
-        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Overtime Calculator
-        </nav>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">FLSA Overtime &amp; Double-Time Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:780px;margin:0 auto;line-height:1.6;">
+      Compute exact weekly overtime earnings under federal FLSA and California state daily labor laws. Features 1.5× time-and-a-half, 2.0× double-time, and blended regular rate of pay calculations for shift bonuses.
+    </p>
+  </header>
 
-        <header style="margin-bottom: 1.75rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Overtime & Double Time Pay Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Calculate time-and-a-half (1.5&times;) overtime, double-time (2.0&times;), California daily rules, and effective blended wage rates under federal Fair Labor Standards Act (FLSA) guidelines.
-          </p>
-        </header>
+  <div style="display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:2.5rem;" class="calc-grid">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Hours Logged &amp; Compensation Rates
+      </h2>
 
-        <div class="tool-box">
-          <div class="grid-inputs">
-            <div class="field-group">
-              <label class="field-label" for="ot-base-rate">Regular Hourly Wage ($ / hr)</label>
-              <input type="number" id="ot-base-rate" class="code-input" value="25.00" min="1" step="0.5" oninput="runOTCalc()" style="font-size: 1.25rem; font-weight: bold;" />
-            </div>
+      <!-- BASE HOURLY RATE -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="otBaseRate">Base Hourly Pay Rate ($ / Hour)</label>
+        <input type="number" id="otBaseRate" value="28.00" min="1" step="0.50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.2rem;">
+      </div>
 
-            <div class="field-group">
-              <label class="field-label" for="ot-reg-hrs">Regular Hours (≤ 40 / wk)</label>
-              <input type="number" id="ot-reg-hrs" class="code-input" value="40" min="0" max="40" step="1" oninput="runOTCalc()" style="font-size: 1.25rem;" />
-            </div>
+      <!-- OVERTIME JURISDICTION / RULES -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="otJurisdiction">Overtime Rule Standard</label>
+        <select id="otJurisdiction" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+          <option value="flsa" selected>Federal FLSA (Over 40 Hours per Workweek = 1.5×)</option>
+          <option value="california">California Daily (>8h = 1.5×, >12h = 2.0×, 7th Day)</option>
+          <option value="unionSunday">Union / Custom (1.5× Weekday Overtime + 2.0× Sunday/Holiday)</option>
+        </select>
+      </div>
 
-            <div class="field-group">
-              <label class="field-label" for="ot-15-hrs">Overtime Hours (1.5&times; Rate)</label>
-              <input type="number" id="ot-15-hrs" class="code-input" value="10" min="0" max="60" step="1" oninput="runOTCalc()" style="font-size: 1.25rem;" />
-            </div>
-
-            <div class="field-group">
-              <label class="field-label" for="ot-20-hrs">Double Time Hours (2.0&times; Rate)</label>
-              <input type="number" id="ot-20-hrs" class="code-input" value="0" min="0" max="40" step="1" oninput="runOTCalc()" style="font-size: 1.25rem;" />
-            </div>
-          </div>
-
-          <!-- Quick Presets -->
-          <div style="margin-top: 1rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Common Overtime Shifts:</span>
-            <button type="button" class="btn-sec" onclick="setOTPreset(22, 40, 5, 0)">5h OT (45h week)</button>
-            <button type="button" class="btn-sec" onclick="setOTPreset(25, 40, 10, 0)">10h OT (50h week)</button>
-            <button type="button" class="btn-sec" onclick="setOTPreset(28, 40, 15, 8)">15h OT + 8h Holiday Double</button>
-            <button type="button" class="btn-sec" onclick="setOTPreset(35, 40, 20, 0)">60h Intensive Workweek</button>
-          </div>
-
-          <!-- Hero Metrics Cards -->
-          <div class="ot-grid">
-            <div class="ot-card" style="border-top: 4px solid #10b981;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Gross Paycheck</div>
-              <div id="ot-res-total" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$1,375.00</div>
-              <div id="ot-res-hrs-desc" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">50.0 total hours worked</div>
-            </div>
-
-            <div class="ot-card" style="border-top: 4px solid #3b82f6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Time-and-a-Half Pay (1.5&times;)</div>
-              <div id="ot-res-15-pay" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$375.00</div>
-              <div id="ot-res-15-rate" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">10h @ $37.50 / hr</div>
-            </div>
-
-            <div class="ot-card" style="border-top: 4px solid #f59e0b;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Effective Hourly Rate</div>
-              <div id="ot-res-effective" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">$27.50 / hr</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">+$2.50/hr blended premium</div>
-            </div>
-          </div>
-
-          <!-- Visual Distribution Bar -->
-          <div style="margin-top: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-              <span>Earnings Composition Breakdown</span>
-              <span id="ot-legend-text">Regular $1,000 : OT $375</span>
-            </div>
-            <div class="ot-bar">
-              <div id="ot-bar-reg" class="ot-bar-reg" style="width: 72.7%;">Regular ($1,000)</div>
-              <div id="ot-bar-ot" class="ot-bar-ot" style="width: 27.3%;">OT ($375)</div>
-              <div id="ot-bar-dbl" class="ot-bar-dbl" style="width: 0%; display: none;">Double</div>
-            </div>
-          </div>
-
-          <!-- Step-by-Step Derivation Box -->
-          <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
-            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Mathematical Derivation:</div>
-            <div id="ot-steps" style="font-family: var(--mono); color: var(--fg);"></div>
-          </div>
-
-          <!-- Copy Button -->
-          <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
-            <button type="button" class="btn-sec" onclick="copyOTSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
-              📋 Copy Overtime Pay Breakdown
-            </button>
-          </div>
+      <!-- HOURS LOGGED -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.4rem;" for="otRegHours">Regular Hours (1.0×)</label>
+          <input type="number" id="otRegHours" value="40" min="0" max="80" step="0.5" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.4rem;" for="ot15Hours">Overtime Hours (1.5×)</label>
+          <input type="number" id="ot15Hours" value="10" min="0" max="60" step="0.5" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.8rem;margin-bottom:0.4rem;" for="ot20Hours">Double-Time (2.0×)</label>
+          <input type="number" id="ot20Hours" value="2" min="0" max="40" step="0.5" style="width:100%;padding:0.6rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
         </div>
       </div>
 
-      <script>
-        function runOTCalc() {
-          var rate = parseFloat(document.getElementById('ot-base-rate').value) || 0;
-          var regHrs = parseFloat(document.getElementById('ot-reg-hrs').value) || 0;
-          var otHrs = parseFloat(document.getElementById('ot-15-hrs').value) || 0;
-          var dblHrs = parseFloat(document.getElementById('ot-20-hrs').value) || 0;
+      <!-- NON-DISCRETIONARY BONUS (BLENDED RATE) -->
+      <div>
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="otBonusAmount">Weekly Non-Discretionary Bonus ($)</label>
+        <input type="number" id="otBonusAmount" value="150.00" min="0" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Attendance bonuses, shift differentials, and production bonuses must be blended into regular rate</span>
+      </div>
+    </div>
 
-          var regPay = regHrs * rate;
-          var otRate = rate * 1.5;
-          var otPay = otHrs * otRate;
-          var dblRate = rate * 2.0;
-          var dblPay = dblHrs * dblRate;
+    <!-- SUMMARY & OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Weekly Overtime Paycheck Takeoff
+          </h2>
+          <button id="copyOvertimeBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Takeoff</span>
+          </button>
+        </div>
 
-          var totalPay = regPay + otPay + dblPay;
-          var totalHrs = regHrs + otHrs + dblHrs;
-          var effectiveRate = totalHrs > 0 ? (totalPay / totalHrs) : rate;
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Gross Weekly Pay</span>
+            <span id="grossWeeklyPayVal" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#3b82f6;display:block;">$1,833.08</span>
+            <span id="totalHoursVal" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">52 Total Hours Logged</span>
+          </div>
 
-          document.getElementById('ot-res-total').textContent = '$' + totalPay.toFixed(2);
-          document.getElementById('ot-res-hrs-desc').textContent = totalHrs.toFixed(1) + ' total hours worked';
-          document.getElementById('ot-res-15-pay').textContent = '$' + otPay.toFixed(2);
-          document.getElementById('ot-res-15-rate').textContent = otHrs + 'h @ $' + otRate.toFixed(2) + ' / hr';
-          document.getElementById('ot-res-effective').textContent = '$' + effectiveRate.toFixed(2) + ' / hr';
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Blended Regular Rate (RRP)</span>
+            <span id="blendedRateVal" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#10b981;display:block;">$30.88 / hr</span>
+            <span id="blendedBonusSub" style="font-size:0.8rem;color:#10b981;font-weight:600;">+$2.88/hr from bonus</span>
+          </div>
+        </div>
 
-          // Update Bar
-          if (totalPay > 0) {
-            var pReg = (regPay / totalPay) * 100;
-            var pOt = (otPay / totalPay) * 100;
-            var pDbl = (dblPay / totalPay) * 100;
+        <!-- BREAKDOWN LEDGER -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Earnings Component Ledger</div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Straight-Time Regular Pay (40 hrs @ $28):</span>
+            <strong id="regPayVal" style="font-family:var(--mono);color:var(--fg);">$1,120.00</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>1.5× Overtime Premium Pay (10 hrs):</span>
+            <strong id="ot15PayVal" style="font-family:var(--mono);color:#f59e0b;">$463.27 ($46.33/hr)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>2.0× Double-Time Pay (2 hrs):</span>
+            <strong id="ot20PayVal" style="font-family:var(--mono);color:#ef4444;">$123.54 ($61.77/hr)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span>Non-Discretionary Incentive Bonus:</span>
+            <strong id="bonusPayVal" style="font-family:var(--mono);color:var(--fg);">$150.00</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            document.getElementById('ot-bar-reg').style.width = pReg + '%';
-            document.getElementById('ot-bar-reg').textContent = 'Regular ($' + Math.round(regPay) + ')';
-            document.getElementById('ot-bar-ot').style.width = pOt + '%';
-            document.getElementById('ot-bar-ot').textContent = otHrs > 0 ? 'OT ($' + Math.round(otPay) + ')' : '';
-            
-            var dblBar = document.getElementById('ot-bar-dbl');
-            if (dblHrs > 0) {
-              dblBar.style.display = 'flex';
-              dblBar.style.width = pDbl + '%';
-              dblBar.textContent = '2&times; ($' + Math.round(dblPay) + ')';
-            } else {
-              dblBar.style.display = 'none';
-            }
+  <!-- INTERACTIVE SVG TIMESHEET DISTRIBUTION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Weekly Hours &amp; Earnings Composition
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Visual breakdown illustrating how straight-time hours (blue), 1.5× overtime (amber), 2.0× double-time (crimson), and non-discretionary bonuses assemble into gross paycheck income.
+    </p>
 
-            document.getElementById('ot-legend-text').textContent = 'Regular $' + regPay.toFixed(0) + ' : OT $' + otPay.toFixed(0) + (dblHrs > 0 ? (' : Double $' + dblPay.toFixed(0)) : '');
-          }
+    <div style="overflow-x:auto;">
+      <svg id="overtimeDistributionSvg" viewBox="0 0 800 160" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
 
-          var steps = [
-            '1. Regular Earnings: ' + regHrs + ' hrs &times; $' + rate.toFixed(2) + '/hr = $' + regPay.toFixed(2),
-            '2. Time-and-a-Half Rate: $' + rate.toFixed(2) + ' &times; 1.5 = $' + otRate.toFixed(2) + '/hr',
-            '3. Overtime Earnings: ' + otHrs + ' hrs &times; $' + otRate.toFixed(2) + '/hr = $' + otPay.toFixed(2),
-            dblHrs > 0 ? ('4. Double Time Earnings (2.0&times; @ $' + dblRate.toFixed(2) + '/hr): ' + dblHrs + ' hrs &times; $' + dblRate.toFixed(2) + ' = $' + dblPay.toFixed(2)) : '4. Double Time: 0 hours.',
-            '5. Total Gross Pay: $' + regPay.toFixed(2) + ' + $' + otPay.toFixed(2) + (dblHrs > 0 ? (' + $' + dblPay.toFixed(2)) : '') + ' = <strong>$' + totalPay.toFixed(2) + '</strong>',
-            '6. Effective Blended Hourly Rate: $' + totalPay.toFixed(2) + ' &divide; ' + totalHrs + ' hrs = <strong>$' + effectiveRate.toFixed(2) + ' / hr</strong>'
-          ];
-          document.getElementById('ot-steps').innerHTML = steps.join('<br>');
+  <!-- MATHEMATICAL & STATUTORY DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">FLSA Regular Rate &amp; Overtime Statutory Formulas</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Under the federal Fair Labor Standards Act (29 U.S.C. § 207(a)(1) and 29 CFR § 778.109), overtime cannot simply be calculated on the base hourly wage if an employee receives bonuses or differential pay. The "Regular Rate of Pay" (RRP) must be established first:
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. FLSA Blended Regular Rate of Pay (RRP):</strong><br>
+      \text{Total Straight Earnings} = (H_{\text{total}} \times R_{\text{base}}) + \text{Bonus}_{\text{non-discretionary}}<br>
+      RRP = \frac{\text{Total Straight Earnings}}{H_{\text{total}}}<br><br>
+      <strong>2. Overtime Premium Calculation:</strong><br>
+      \text{Gross Pay} = \text{Total Straight Earnings} + (H_{\text{OT}} \times 0.5 \times RRP) + (H_{\text{DT}} \times 1.0 \times RRP)<br>
+      \text{Notice: Straight time is already paid in Step 1; Step 2 adds the 0.5× and 1.0× overtime uplift!}<br><br>
+      <strong>3. California Labor Code § 510 Daily Overtime Standards:</strong><br>
+      \text{Daily Hours 0 to 8} = 1.0\times, \qquad \text{Daily Hours 8 to 12} = 1.5\times, \qquad \text{Daily Hours } > 12 = 2.0\times<br>
+      \text{7th Consecutive Day: First 8 hours = } 1.5\times, \quad \text{Beyond 8 hours = } 2.0\times
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL OVERTIME TRAPS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Overtime Wage &amp; Hour Violations</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. Excluding Non-Discretionary Bonuses from the Regular Rate</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          This is the most common Department of Labor wage violation. When employers pay attendance, production, or safety bonuses, they cannot calculate overtime strictly on the base wage. Bonuses must be divided by total hours worked to boost the "Regular Rate of Pay" before applying the 1.5× multiplier.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">2. Illegal "Comp Time" Substitution in the Private Sector</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Private employers frequently tell employees they will give them 1.5 hours of paid time off ("comp time") instead of paying cash overtime. Under the federal FLSA, comp time in lieu of cash overtime is <strong>strictly illegal for private employers</strong>; it is only permitted for government and public sector agencies.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">3. Refusing to Pay "Unauthorized" Overtime</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Company policy may state that overtime must be pre-approved by a supervisor. However, if an employee works overtime without authorization, federal law mandates that the employer <strong>must still pay the overtime rate</strong> for all hours worked. The employer may issue disciplinary action for policy violation, but withholding earned wages is illegal.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">4. Overlooking Off-the-Clock "De Minimis" Duties</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Time spent attending mandatory morning safety briefings, donning specialized protective gear, booting up computer terminals, or locking up warehouse doors at closing is legally compensable working time. If these daily 15-minute tasks push total weekly hours past 40, they must be paid at 1.5× overtime.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">5. Misapplying Federal vs California Daily Overtime</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Under federal FLSA, overtime triggers only after an employee exceeds 40 hours in a 7-day workweek (working four 10-hour days earns zero overtime). In California, Alaska, and Nevada, state law mandates 1.5× overtime for any hours worked <strong>past 8 in a single day</strong>, and 2.0× double-time past 12 hours in a single day.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      function calcOvertime() {
+        var baseRate = parseFloat(document.getElementById('otBaseRate').value) || 0;
+        var regH = parseFloat(document.getElementById('otRegHours').value) || 0;
+        var ot15H = parseFloat(document.getElementById('ot15Hours').value) || 0;
+        var ot20H = parseFloat(document.getElementById('ot20Hours').value) || 0;
+        var bonus = parseFloat(document.getElementById('otBonusAmount').value) || 0;
+
+        var totalH = regH + ot15H + ot20H;
+
+        // FLSA Blended Rate calculation
+        var straightPay = totalH * baseRate;
+        var totalStraight = straightPay + bonus;
+        var rrp = (totalH > 0) ? (totalStraight / totalH) : baseRate;
+
+        // Overtime premiums (straight time already accounted for in totalStraight)
+        var ot15Premium = ot15H * (0.5 * rrp);
+        var ot20Premium = ot20H * (1.0 * rrp);
+
+        var grossTotal = totalStraight + ot15Premium + ot20Premium;
+
+        var regPayStandard = regH * baseRate;
+        var ot15PayFull = ot15H * (1.5 * rrp);
+        var ot20PayFull = ot20H * (2.0 * rrp);
+
+        var bonusDelta = (totalH > 0) ? (bonus / totalH) : 0;
+
+        // Update DOM
+        document.getElementById('grossWeeklyPayVal').textContent = '$' + grossTotal.toFixed(2);
+        document.getElementById('totalHoursVal').textContent = totalH + ' Total Hours Logged';
+        document.getElementById('blendedRateVal').textContent = '$' + rrp.toFixed(2) + ' / hr';
+        document.getElementById('blendedBonusSub').textContent = (bonus > 0) ? '+$' + bonusDelta.toFixed(2) + '/hr from bonus' : 'Standard statutory rate';
+
+        document.getElementById('regPayVal').textContent = '$' + regPayStandard.toFixed(2);
+        document.getElementById('ot15PayVal').textContent = '$' + ot15PayFull.toFixed(2) + ' ($' + (1.5 * rrp).toFixed(2) + '/hr)';
+        document.getElementById('ot20PayVal').textContent = '$' + ot20PayFull.toFixed(2) + ' ($' + (2.0 * rrp).toFixed(2) + '/hr)';
+        document.getElementById('bonusPayVal').textContent = '$' + bonus.toFixed(2);
+
+        renderOvertimeSvg(grossTotal, regPayStandard, ot15PayFull, ot20PayFull, bonus);
+      }
+
+      function renderOvertimeSvg(gross, reg, ot15, ot20, bonus) {
+        var svg = document.getElementById('overtimeDistributionSvg');
+        if (!svg) return;
+
+        var svgHtml = '';
+        var barW = 680;
+        if (gross <= 0) return;
+
+        var regW = (reg / gross) * barW;
+        var ot15W = (ot15 / gross) * barW;
+        var ot20W = (ot20 / gross) * barW;
+        var bonusW = (bonus / gross) * barW;
+
+        var curX = 60;
+
+        // Regular (Blue)
+        if (regW > 0) {
+          svgHtml += '<rect x="' + curX + '" y="40" width="' + regW + '" height="45" fill="#3b82f6" rx="4"/>';
+          if (regW > 50) svgHtml += '<text x="' + (curX + regW / 2) + '" y="68" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Regular</text>';
+          curX += regW;
         }
 
-        function setOTPreset(rate, reg, ot, dbl) {
-          document.getElementById('ot-base-rate').value = rate;
-          document.getElementById('ot-reg-hrs').value = reg;
-          document.getElementById('ot-15-hrs').value = ot;
-          document.getElementById('ot-20-hrs').value = dbl;
-          runOTCalc();
+        // OT 1.5x (Amber)
+        if (ot15W > 0) {
+          svgHtml += '<rect x="' + curX + '" y="40" width="' + ot15W + '" height="45" fill="#f59e0b" rx="4"/>';
+          if (ot15W > 40) svgHtml += '<text x="' + (curX + ot15W / 2) + '" y="68" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">1.5×</text>';
+          curX += ot15W;
         }
 
-        function copyOTSummary(btn) {
-          var tot = document.getElementById('ot-res-total').textContent.trim();
-          var ot = document.getElementById('ot-res-15-pay').textContent.trim();
-          var eff = document.getElementById('ot-res-effective').textContent.trim();
-          var hrs = document.getElementById('ot-res-hrs-desc').textContent.trim();
-
-          var summary = [
-            '=== Overtime Pay Summary ===',
-            'Total Gross Paycheck : ' + tot,
-            'Total Hours Worked   : ' + hrs,
-            'Overtime Earnings    : ' + ot,
-            'Effective Hourly Rate: ' + eff,
-            'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/finance/overtime-calculator.html)'
-          ].join('\n');
-
-          navigator.clipboard.writeText(summary).then(function() {
-            var old = btn.textContent;
-            btn.textContent = '✅ Copied to Clipboard!';
-            btn.style.borderColor = '#10b981';
-            setTimeout(function() {
-              btn.textContent = old;
-              btn.style.borderColor = '';
-            }, 2000);
-          });
+        // Double Time 2.0x (Red)
+        if (ot20W > 0) {
+          svgHtml += '<rect x="' + curX + '" y="40" width="' + ot20W + '" height="45" fill="#ef4444" rx="4"/>';
+          if (ot20W > 35) svgHtml += '<text x="' + (curX + ot20W / 2) + '" y="68" text-anchor="middle" fill="#ffffff" font-size="11" font-weight="bold">2.0×</text>';
+          curX += ot20W;
         }
 
-        document.addEventListener('DOMContentLoaded', function() { runOTCalc(); });
-        runOTCalc();
-      </script>
-    `
+        // Bonus (Green)
+        if (bonusW > 0) {
+          svgHtml += '<rect x="' + curX + '" y="40" width="' + bonusW + '" height="45" fill="#10b981" rx="4"/>';
+          if (bonusW > 40) svgHtml += '<text x="' + (curX + bonusW / 2) + '" y="68" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">Bonus</text>';
+        }
+
+        // Legend
+        svgHtml += '<rect x="60" y="105" width="12" height="12" fill="#3b82f6" rx="2"/>';
+        svgHtml += '<text x="78" y="115" fill="var(--fg)" font-size="11">Regular ($' + reg.toFixed(2) + ')</text>';
+
+        svgHtml += '<rect x="230" y="105" width="12" height="12" fill="#f59e0b" rx="2"/>';
+        svgHtml += '<text x="248" y="115" fill="var(--fg)" font-size="11">1.5× Overtime ($' + ot15.toFixed(2) + ')</text>';
+
+        svgHtml += '<rect x="420" y="105" width="12" height="12" fill="#ef4444" rx="2"/>';
+        svgHtml += '<text x="438" y="115" fill="var(--fg)" font-size="11">2.0× Double ($' + ot20.toFixed(2) + ')</text>';
+
+        svgHtml += '<rect x="580" y="105" width="12" height="12" fill="#10b981" rx="2"/>';
+        svgHtml += '<text x="598" y="115" fill="var(--fg)" font-size="11">Bonus ($' + bonus.toFixed(2) + ')</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyOvertimeTakeoff() {
+        var gross = document.getElementById('grossWeeklyPayVal').textContent;
+        var rrp = document.getElementById('blendedRateVal').textContent;
+        var reg = document.getElementById('regPayVal').textContent;
+        var ot15 = document.getElementById('ot15PayVal').textContent;
+        var ot20 = document.getElementById('ot20PayVal').textContent;
+        var bonus = document.getElementById('bonusPayVal').textContent;
+        var base = document.getElementById('otBaseRate').value;
+        var regH = document.getElementById('otRegHours').value;
+        var ot15H = document.getElementById('ot15Hours').value;
+        var ot20H = document.getElementById('ot20Hours').value;
+
+        var text = '📋 Overtime Wage & Hour Paycheck Takeoff\n' +
+          '• Base Rate: $' + base + ' / hour\n' +
+          '• Hours Logged: ' + regH + ' Regular + ' + ot15H + ' Overtime (1.5×) + ' + ot20H + ' Double Time (2.0×)\n' +
+          '• Blended Regular Rate: ' + rrp + '\n' +
+          '• Total Gross Pay: ' + gross + '\n' +
+          '• Straight Pay: ' + reg + '\n' +
+          '• 1.5× Overtime: ' + ot15 + '\n' +
+          '• 2.0× Double Time: ' + ot20 + '\n' +
+          '• Incentive Bonus: ' + bonus + '\n\n' +
+          'Calculated at digitaltoolsshed.com/finance/overtime-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyOvertimeBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Takeoff!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['otBaseRate', 'otRegHours', 'ot15Hours', 'ot20Hours', 'otBonusAmount', 'otJurisdiction'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcOvertime);
+          el.addEventListener('change', calcOvertime);
+        }
+      });
+
+      document.getElementById('copyOvertimeBtn').addEventListener('click', copyOvertimeTakeoff);
+
+      calcOvertime();
+    })();
+  </script>
+</div>
+`
   },
-  {
-    slug: 'cagr-calculator',
-    title: 'CAGR Calculator (Compound Annual Growth Rate & Real Return)',
-    metaDesc: 'Calculate Compound Annual Growth Rate (CAGR) for investment portfolios, stocks, and revenue. Features inflation adjustment, Rule of 72 doubling timeline, and SVG growth charts.',
-    category: 'Finance & Investments',
+    {
+    slug: "cagr-calculator",
+    title: "CAGR Calculator (Compound Annual Growth Rate, Real Return & Volatility Drag)",
+    metaDesc: "Calculate Compound Annual Growth Rate (CAGR) for investment portfolios, stocks, and revenue. Features inflation adjustment, volatility drag, Rule of 72 doubling timeline, and SVG compounding trajectories.",
+    category: "Finance & Investments",
     faq: [
-      { q: 'What is Compound Annual Growth Rate (CAGR)?', a: 'Compound Annual Growth Rate (CAGR) measures the smoothed annualized rate of return of an investment or business metric over an investment period longer than one year. It describes the constant year-over-year rate at which an asset would have grown if it expanded at a steady rate with annual compounding.' },
-      { q: 'What is the mathematical formula for CAGR?', a: 'The formula for CAGR is: CAGR = [(Ending Value / Beginning Value)^(1 / t)] - 1, where Ending Value is the final balance, Beginning Value is the initial capital, and t is the time horizon in years. Multiply the result by 100 to express it as an annualized percentage.' },
-      { q: 'What is the difference between Total Return and CAGR?', a: 'Total Return calculates the absolute cumulative percentage gain across the entire multi-year holding period: Total Return = ((Ending - Beginning) / Beginning) × 100%. In contrast, CAGR normalizes this cumulative growth into a per-year compounding rate, enabling fair comparisons across investments with different time horizons.' },
-      { q: 'How does inflation affect CAGR (Real CAGR vs Nominal CAGR)?', a: 'Nominal CAGR reflects raw dollar growth without adjusting for currency depreciation. Real CAGR accounts for inflation using the Fisher Equation: Real CAGR = [(1 + Nominal CAGR) / (1 + Inflation Rate)] - 1. For example, an 8% nominal CAGR during a period of 3% annual inflation yields a true purchasing-power growth rate of 4.85% per year.' },
-      { q: 'How is the Rule of 72 doubling time calculated from CAGR?', a: 'The Rule of 72 provides a quick mental estimate of the number of years required for an asset to double in value at a constant compounding rate: Doubling Years ≈ 72 / CAGR. The exact logarithmic formula is: Exact Doubling Time = ln(2) / ln(1 + CAGR / 100). For example, at a 10% CAGR, an asset doubles in approximately 7.2 years (exact: 7.27 years).' }
+        {
+            "q": "What is Compound Annual Growth Rate (CAGR) and how is it calculated?",
+            "a": "Compound Annual Growth Rate (CAGR) measures the geometric annualized rate of return of an investment over a multi-year time horizon. It represents the hypothetical constant annual growth rate that would take an initial investment from its beginning balance to its ending balance, assuming all profits were reinvested. The mathematical formula is: CAGR = [(Ending Value / Beginning Value)^(1 / t)] - 1, where t is the duration in years."
+        },
+        {
+            "q": "What is the difference between CAGR and Average (Arithmetic) Annual Return?",
+            "a": "Arithmetic mean return simply sums each year's percentage return and divides by the number of years. CAGR is a geometric mean that accounts for compounding and sequence of returns. For example, if a portfolio gains +50% in year one and loses -50% in year two, its arithmetic average return is 0.0% [(50 - 50) / 2], but the investor actually lost 25% of their capital ($100 → $150 → $75), resulting in a negative CAGR of -13.4% per year."
+        },
+        {
+            "q": "What is \"Volatility Drag\" and how does it reduce long-term wealth?",
+            "a": "Volatility drag (or variance drain) is the mathematical divergence between the average arithmetic return of an asset and its true compounded geometric growth rate (CAGR). As a statistical rule of thumb derived from Taylor series expansion: CAGR ≈ Arithmetic Return - (Variance / 2) = Arithmetic Return - (σ² / 2). The higher the asset's annualized volatility (σ), the wider this penalty becomes, causing volatile assets to significantly underperform steady compounders over decades."
+        },
+        {
+            "q": "How does inflation impact CAGR (Real CAGR vs Nominal CAGR)?",
+            "a": "Nominal CAGR measures unadjusted dollar balance growth, while Real CAGR measures true purchasing power expansion after accounting for currency inflation. To calculate Real CAGR accurately without the common additive error, use the Fisher Equation: Real CAGR = [(1 + Nominal CAGR) / (1 + Annual Inflation Rate)] - 1. For instance, a 9.0% nominal CAGR during a 3.5% inflation environment yields a true real growth rate of 5.31% per year."
+        },
+        {
+            "q": "What is the Rule of 72 and how accurately does it predict doubling time?",
+            "a": "The Rule of 72 is a financial shortcut used to estimate the number of years required for an investment to double at a given compounding rate: Doubling Years ≈ 72 / CAGR. The mathematically exact formula derived from logarithms is: Exact Doubling Years = ln(2) / ln(1 + CAGR / 100). For an 8% CAGR, the Rule of 72 predicts 9.00 years (exact: 9.01 years); for a 12% CAGR, it predicts 6.00 years (exact: 6.12 years)."
+        }
     ],
     body: `
-      <style>
-        .cagr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
-        .cagr-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; text-align: center; }
-        .cagr-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
-        .cagr-table th, .cagr-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
-        .cagr-table th { background: var(--surface-alt); font-weight: 600; }
-      </style>
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; CAGR Calculator
+  </nav>
 
-      <div class="article-container" style="max-width: 950px;">
-        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; CAGR Calculator
-        </nav>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Compound Annual Growth Rate (CAGR) Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Determine annualized geometric returns, compare real purchasing-power gains against inflation, quantify volatility drag, and inspect exponential compounding curves.
+    </p>
+  </header>
 
-        <header style="margin-bottom: 1.75rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">CAGR (Compound Annual Growth Rate) Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Determine the smoothed annualized rate of return for stock portfolios, real estate properties, and company revenue with inflation-adjusted real yields and SVG growth curves.
-          </p>
-        </header>
+  <style>
+    .cagr-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .cagr-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .cagr-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .cagr-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .cagr-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .cagr-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .cagr-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .cagr-chart-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
 
-        <div class="tool-box">
-          <div class="grid-inputs">
-            <div class="field-group">
-              <label class="field-label" for="cagr-start">Beginning / Initial Value ($ USD)</label>
-              <input type="number" id="cagr-start" class="code-input" value="10000" min="1" step="500" oninput="runCAGRCalc()" style="font-size: 1.25rem;" />
-            </div>
-
-            <div class="field-group">
-              <label class="field-label" for="cagr-end">Ending / Final Value ($ USD)</label>
-              <input type="number" id="cagr-end" class="code-input" value="25000" min="1" step="500" oninput="runCAGRCalc()" style="font-size: 1.25rem;" />
-            </div>
-
-            <div class="field-group">
-              <label class="field-label" for="cagr-years">Time Period (Years)</label>
-              <input type="number" id="cagr-years" class="code-input" value="5" min="0.1" max="100" step="0.5" oninput="runCAGRCalc()" style="font-size: 1.25rem;" />
-            </div>
-
-            <div class="field-group">
-              <label class="field-label" for="cagr-inflation">Annual Inflation Rate (%) [Optional]</label>
-              <input type="number" id="cagr-inflation" class="code-input" value="2.5" min="0" max="25" step="0.1" oninput="runCAGRCalc()" style="font-size: 1.25rem;" />
-            </div>
-          </div>
-
-          <!-- Quick Presets -->
-          <div style="margin-top: 0.75rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
-            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Popular Investment Scenarios:</span>
-            <button type="button" class="btn-sec" onclick="setCAGRPreset(10000, 25000, 5)">$10k &rarr; $25k in 5 Yrs</button>
-            <button type="button" class="btn-sec" onclick="setCAGRPreset(50000, 100000, 7.2)">Doubling in 7.2 Yrs (10% CAGR)</button>
-            <button type="button" class="btn-sec" onclick="setCAGRPreset(100000, 350000, 10)">$100k &rarr; $350k in 10 Yrs</button>
-            <button type="button" class="btn-sec" onclick="setCAGRPreset(10000, 20000, 10)">S&amp;P 500 Historical (7% Real)</button>
-          </div>
-
-          <!-- Hero Metrics Cards -->
-          <div class="cagr-grid">
-            <div class="cagr-card" style="border-top: 4px solid #10b981;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Compound Annual Growth (CAGR)</div>
-              <div id="cagr-res-cagr" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">+20.11%</div>
-              <div id="cagr-res-real" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Real CAGR: +17.18% (Post-Inflation)</div>
-            </div>
-
-            <div class="cagr-card" style="border-top: 4px solid #3b82f6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Cumulative Return</div>
-              <div id="cagr-res-total" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">+150.00%</div>
-              <div id="cagr-res-gain-sub" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">+$15,000 capital gain (2.50&times;)</div>
-            </div>
-
-            <div class="cagr-card" style="border-top: 4px solid #f59e0b;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Rule of 72 Doubling Time</div>
-              <div id="cagr-res-double" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">3.6 Years</div>
-              <div id="cagr-res-double-sub" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Exact: 3.78 years to double capital</div>
-            </div>
-          </div>
-
-          <!-- Interactive Projected SVG Growth Curve -->
-          <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
-              <span style="font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Exponential Compound Trajectory</span>
-              <span style="font-family: var(--mono); font-size: 0.75rem; color: #10b981;">Smoothed Geometric Growth Curve</span>
-            </div>
-            <div id="cagr-svg-container" style="width: 100%; height: 160px;"></div>
-          </div>
-
-          <!-- Step-by-Step Derivation Box -->
-          <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
-            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Mathematical Derivation:</div>
-            <div id="cagr-steps" style="font-family: var(--mono); color: var(--fg);"></div>
-          </div>
-
-          <!-- Copy Button -->
-          <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
-            <button type="button" class="btn-sec" onclick="copyCAGRSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
-              📋 Copy CAGR Investment Report
-            </button>
-          </div>
-        </div>
+  <div class="cagr-box">
+    <!-- Inputs Row 1 -->
+    <div class="cagr-grid-4">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Beginning Value ($ USD)</label>
+        <input type="number" id="cagr-start" value="10000" min="1" step="500" oninput="calcCAGR()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.2rem;font-weight:bold;box-sizing:border-box;">
       </div>
 
-      <script>
-        function runCAGRCalc() {
-          var bv = parseFloat(document.getElementById('cagr-start').value) || 1;
-          var ev = parseFloat(document.getElementById('cagr-end').value) || 1;
-          var t = parseFloat(document.getElementById('cagr-years').value) || 1;
-          var infRate = (parseFloat(document.getElementById('cagr-inflation').value) || 0) / 100;
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Ending Value ($ USD)</label>
+        <input type="number" id="cagr-end" value="25000" min="1" step="500" oninput="calcCAGR()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.2rem;font-weight:bold;box-sizing:border-box;">
+      </div>
 
-          var cagrDec = Math.pow(ev / bv, 1 / t) - 1;
-          var cagrPct = cagrDec * 100;
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Investment Horizon (Years)</label>
+        <input type="number" id="cagr-years" value="5" min="0.1" max="100" step="0.5" oninput="calcCAGR()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.2rem;font-weight:bold;box-sizing:border-box;">
+      </div>
 
-          var totalReturnPct = ((ev - bv) / bv) * 100;
-          var multiplier = ev / bv;
-          var netGain = ev - bv;
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Annual Inflation Rate (%)</label>
+        <input type="number" id="cagr-inf" value="2.5" min="0" max="30" step="0.1" oninput="calcCAGR()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.2rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+    </div>
 
-          // Real CAGR post-inflation
-          var realCAGRDec = (1 + cagrDec) / (1 + infRate) - 1;
-          var realCAGRPct = realCAGRDec * 100;
+    <!-- Quick Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Market Benchmarks:</span>
+      <button type="button" class="btn-sec" onclick="loadCAGRPreset(10000, 25000, 5, 2.5)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">$10k &rarr; $25k in 5 Yrs</button>
+      <button type="button" class="btn-sec" onclick="loadCAGRPreset(10000, 174494, 30, 3.0)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">S&amp;P 500 (10% 30-Yr)</button>
+      <button type="button" class="btn-sec" onclick="loadCAGRPreset(50000, 100000, 7.2, 2.5)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Rule of 72 Doubling (7.2 Yrs)</button>
+      <button type="button" class="btn-sec" onclick="loadCAGRPreset(100000, 320000, 12, 3.2)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Real Estate Equity (12 Yrs)</button>
+      <button type="button" class="btn-sec" onclick="loadCAGRPreset(25000, 250000, 8, 2.5)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Tech Growth 10&times; (8 Yrs)</button>
+    </div>
 
-          // Doubling time
-          var rule72 = cagrPct > 0 ? (72 / cagrPct) : 0;
-          var exactDouble = cagrDec > 0 ? (Math.log(2) / Math.log(1 + cagrDec)) : 0;
+    <!-- Hero Cards Grid -->
+    <div class="cagr-grid-4">
+      <div class="cagr-card" style="border-top:4px solid #10b981;">
+        <span class="cagr-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Annualized Rate</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Compound Annual Growth (CAGR)</div>
+        <div id="card-cagr-rate" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#10b981;">+20.11%</div>
+        <div id="card-cagr-rate-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Per year compounded</div>
+      </div>
 
-          document.getElementById('cagr-res-cagr').textContent = (cagrPct >= 0 ? '+' : '') + cagrPct.toFixed(2) + '%';
-          document.getElementById('cagr-res-cagr').style.color = cagrPct >= 0 ? '#10b981' : '#ef4444';
-          document.getElementById('cagr-res-real').textContent = 'Real CAGR: ' + (realCAGRPct >= 0 ? '+' : '') + realCAGRPct.toFixed(2) + '% (Post-Inflation)';
+      <div class="cagr-card" style="border-top:4px solid #3b82f6;">
+        <span class="cagr-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Total Return</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Cumulative Total Return</div>
+        <div id="card-cagr-total-pct" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#3b82f6;">+150.00%</div>
+        <div id="card-cagr-total-gain" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">+$15,000 gain (2.50&times;)</div>
+      </div>
 
-          document.getElementById('cagr-res-total').textContent = (totalReturnPct >= 0 ? '+' : '') + totalReturnPct.toFixed(2) + '%';
-          document.getElementById('cagr-res-gain-sub').textContent = (netGain >= 0 ? '+$' : '-$') + Math.abs(Math.round(netGain)).toLocaleString('en-US') + ' gain (' + multiplier.toFixed(2) + '×)';
+      <div class="cagr-card" style="border-top:4px solid #8b5cf6;">
+        <span class="cagr-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Inflation-Adjusted</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Real CAGR (Purchasing Power)</div>
+        <div id="card-cagr-real" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#8b5cf6;">+17.18%</div>
+        <div id="card-cagr-real-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Fisher equation adjustment</div>
+      </div>
 
-          document.getElementById('cagr-res-double').textContent = rule72 > 0 ? rule72.toFixed(1) + ' Years' : 'N/A';
-          document.getElementById('cagr-res-double-sub').textContent = exactDouble > 0 ? ('Exact: ' + exactDouble.toFixed(2) + ' years to double capital') : 'Negative or zero growth';
+      <div class="cagr-card" style="border-top:4px solid #f59e0b;">
+        <span class="cagr-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Doubling Horizon</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Rule of 72 Doubling Time</div>
+        <div id="card-cagr-double" style="font-family:var(--mono);font-size:1.85rem;font-weight:bold;color:#f59e0b;">3.6 Years</div>
+        <div id="card-cagr-double-exact" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Exact logarithmic: 3.78 yrs</div>
+      </div>
+    </div>
 
-          renderCAGRSVG(bv, ev, cagrDec, t);
+    <!-- Trajectory SVG Visualizer -->
+    <div class="cagr-chart-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Geometric Compounding Curve vs. Linear Arithmetic Return</span>
+        <span style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Year-by-Year Capital Trajectory</span>
+      </div>
+      <div id="cagr-svg-plot" style="width:100%;height:180px;"></div>
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:3px;background:#10b981;display:inline-block;"></span> True Compound Growth (CAGR)</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:0;border-top:2px dashed #3b82f6;display:inline-block;"></span> Arithmetic Linear Average</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:12px;height:0;border-top:2px dotted #8b5cf6;display:inline-block;"></span> Real Return (Post-Inflation)</span>
+      </div>
+    </div>
 
-          var steps = [
-            '1. Calculate Growth Multiple: Ending Value &divide; Beginning Value = $' + ev.toLocaleString('en-US') + ' &divide; $' + bv.toLocaleString('en-US') + ' = ' + multiplier.toFixed(4) + '&times;',
-            '2. Exponent Factor (1 / t): 1 &divide; ' + t + ' years = ' + (1 / t).toFixed(4),
-            '3. Compound Annual Rate: (' + multiplier.toFixed(4) + ')^' + (1 / t).toFixed(4) + ' - 1 = ' + (1 + cagrDec).toFixed(5) + ' - 1 = <strong>' + (cagrPct >= 0 ? '+' : '') + cagrPct.toFixed(2) + '% / year</strong>',
-            '4. Total Cumulative Expansion: (($' + ev.toLocaleString('en-US') + ' - $' + bv.toLocaleString('en-US') + ') &divide; $' + bv.toLocaleString('en-US') + ') &times; 100% = <strong>+' + totalReturnPct.toFixed(2) + '%</strong>',
-            infRate > 0 ? ('5. Fisher Real CAGR Adjustment (at ' + (infRate * 100).toFixed(1) + '% inflation): ((1 + ' + cagrDec.toFixed(4) + ') &divide; (1 + ' + infRate.toFixed(4) + ')) - 1 = <strong>' + (realCAGRPct >= 0 ? '+' : '') + realCAGRPct.toFixed(2) + '% Real Return</strong>') : '5. Inflation: None applied.',
-            exactDouble > 0 ? ('6. Capital Doubling Time: ln(2) &divide; ln(1 + ' + cagrDec.toFixed(4) + ') = <strong>' + exactDouble.toFixed(2) + ' Years</strong> (Rule of 72 estimate: ' + rule72.toFixed(1) + ' yrs)') : ''
-          ].filter(Boolean);
-          document.getElementById('cagr-steps').innerHTML = steps.join('<br>');
-        }
+    <!-- Live Step-by-Step Derivation -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #10b981;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Actuarial &amp; Mathematical Derivation:</div>
+      <div id="cagr-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
 
-        function renderCAGRSVG(bv, ev, cagrDec, t) {
-          var container = document.getElementById('cagr-svg-container');
-          var w = container.clientWidth || 500;
-          var h = 160;
-          var pad = 24;
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyCAGRReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy CAGR Investment Report
+      </button>
+    </div>
+  </div>
 
-          var maxVal = Math.max(bv, ev) * 1.05;
-          var minVal = Math.min(bv, ev) * 0.95;
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in CAGR &amp; Return Analysis</h2>
 
-          function getY(val) {
-            return h - pad - ((val - minVal) / (maxVal - minVal)) * (h - pad * 2);
-          }
+    <div class="cagr-trap-card">
+      <div class="cagr-trap-title">1. The Volatility Drag &amp; Asymmetric Recovery Trap</div>
+      <p class="cagr-trap-desc">
+        Arithmetic averages hide catastrophic drawdowns. If a $100,000 portfolio suffers a -50% decline in Year 1 to $50,000, it requires an astounding +100% gain in Year 2 just to break even ($100,000). While the arithmetic average return is +25.0% [(-50% + 100%) / 2], the true 2-year CAGR is exactly 0.00%. Volatility drag (approximately half the return variance, &sigma;&sup2; / 2) quietly drains long-term wealth from high-beta holdings.
+      </p>
+    </div>
 
-          var points = [];
-          var steps = 20;
-          for (var i = 0; i <= steps; i++) {
-            var frac = i / steps;
-            var curT = t * frac;
-            var curVal = bv * Math.pow(1 + cagrDec, curT);
-            var x = pad + frac * (w - pad * 2);
-            var y = getY(curVal);
-            points.push((i === 0 ? 'M ' : 'L ') + x.toFixed(1) + ' ' + y.toFixed(1));
-          }
+    <div class="cagr-trap-card">
+      <div class="cagr-trap-title">2. Endpoint Sensitivity (Cherry-Picking Starting &amp; Ending Dates)</div>
+      <p class="cagr-trap-desc">
+        CAGR is acutely sensitive to the exact starting and ending dates selected. Measuring a technology portfolio from the March 2000 dot-com peak to the October 2002 bottom yields a horrific -45% CAGR, whereas measuring from the March 2009 Great Financial Crisis bottom to December 2021 yields an extraordinary +18% CAGR. Institutional fund managers frequently manipulate marketing pitchbooks by shifting calculation anchor dates by a single quarter.
+      </p>
+    </div>
 
-          var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">' +
-            '<line x1="' + pad + '" y1="' + (h - pad) + '" x2="' + (w - pad) + '" y2="' + (h - pad) + '" stroke="var(--border)" stroke-width="1" />' +
-            '<path d="' + points.join(' ') + '" fill="none" stroke="#10b981" stroke-width="3" />' +
-            '<circle cx="' + pad + '" cy="' + getY(bv) + '" r="4" fill="#3b82f6" />' +
-            '<circle cx="' + (w - pad) + '" cy="' + getY(ev) + '" r="4" fill="#10b981" />' +
-            '<text x="' + pad + '" y="' + (h - 8) + '" fill="var(--text-muted)" font-family="monospace" font-size="10">Start ($' + Math.round(bv).toLocaleString('en-US') + ')</text>' +
-            '<text x="' + (w - pad - 70) + '" y="' + (h - 8) + '" fill="var(--text-muted)" font-family="monospace" font-size="10">End ($' + Math.round(ev).toLocaleString('en-US') + ')</text>' +
-            '</svg>';
+    <div class="cagr-trap-card">
+      <div class="cagr-trap-title">3. The Cash Flow Neglect Trap (Lump Sum vs. Dollar-Cost Averaging)</div>
+      <p class="cagr-trap-desc">
+        CAGR assumes a single initial lump-sum deposit with zero subsequent cash infusions or capital withdrawals over the holding period. If you invest $1,000 every month (dollar-cost averaging) into a 401(k) or brokerage account, CAGR will produce highly inaccurate results. In the presence of ongoing capital flows, you must compute the Money-Weighted Return (Internal Rate of Return / IRR) or Time-Weighted Rate of Return (TWRR).
+      </p>
+    </div>
 
-          container.innerHTML = svg;
-        }
+    <div class="cagr-trap-card">
+      <div class="cagr-trap-title">4. The Nominal Purchasing Power Mirage (Inflation Erosion)</div>
+      <p class="cagr-trap-desc">
+        A 7.0% nominal CAGR sounds impressive on paper, but if average annual inflation runs at 4.5%, your real purchasing-power expansion is only 2.39% per year [1.07 / 1.045 - 1]. Over a 20-year retirement accumulation phase, taxes on nominal phantom gains combined with compound inflation can completely erase what appeared to be substantial wealth generation.
+      </p>
+    </div>
 
-        function setCAGRPreset(bv, ev, t) {
-          document.getElementById('cagr-start').value = bv;
-          document.getElementById('cagr-end').value = ev;
-          document.getElementById('cagr-years').value = t;
-          runCAGRCalc();
-        }
+    <div class="cagr-trap-card">
+      <div class="cagr-trap-title">5. Price CAGR vs. Total Return CAGR (The Missing Dividend Trap)</div>
+      <p class="cagr-trap-desc">
+        Comparing stock price changes alone severely underestimates true compounded wealth. For the S&amp;P 500 index from 1960 to 2024, reinvested dividends accounted for approximately 84% of total cumulative returns! A "Price Return CAGR" of 6.8% compares dismally against a "Total Return CAGR" of 10.2% with reinvested dividends; over 35 years, that 3.4% annual difference results in a portfolio that is more than triple in final balance.
+      </p>
+    </div>
+  </div>
+</div>
 
-        function copyCAGRSummary(btn) {
-          var cagr = document.getElementById('cagr-res-cagr').textContent.trim();
-          var real = document.getElementById('cagr-res-real').textContent.trim();
-          var tot = document.getElementById('cagr-res-total').textContent.trim();
-          var dbl = document.getElementById('cagr-res-double').textContent.trim();
+<script>
+  function loadCAGRPreset(start, end, yrs, inf) {
+    document.getElementById('cagr-start').value = start;
+    document.getElementById('cagr-end').value = end;
+    document.getElementById('cagr-years').value = yrs;
+    document.getElementById('cagr-inf').value = inf;
+    calcCAGR();
+  }
 
-          var summary = [
-            '=== Compound Annual Growth Rate (CAGR) ===',
-            'Annualized CAGR  : ' + cagr,
-            real,
-            'Total Return     : ' + tot,
-            'Doubling Time    : ' + dbl,
-            'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/finance/cagr-calculator.html)'
-          ].join('\n');
+  function calcCAGR() {
+    var bv = parseFloat(document.getElementById('cagr-start').value) || 1;
+    var ev = parseFloat(document.getElementById('cagr-end').value) || 1;
+    var t = parseFloat(document.getElementById('cagr-years').value) || 1;
+    var infRate = (parseFloat(document.getElementById('cagr-inf').value) || 0) / 100;
 
-          navigator.clipboard.writeText(summary).then(function() {
-            var old = btn.textContent;
-            btn.textContent = '✅ Copied to Clipboard!';
-            btn.style.borderColor = '#10b981';
-            setTimeout(function() {
-              btn.textContent = old;
-              btn.style.borderColor = '';
-            }, 2000);
-          });
-        }
+    if (bv <= 0) bv = 1;
+    if (ev <= 0) ev = 0.01;
+    if (t <= 0) t = 0.1;
 
-        document.addEventListener('DOMContentLoaded', function() { runCAGRCalc(); });
-        runCAGRCalc();
-      </script>
-    `
+    var mult = ev / bv;
+    var cagrDec = Math.pow(mult, 1 / t) - 1;
+    var cagrPct = cagrDec * 100;
+
+    var totalRetPct = (mult - 1) * 100;
+    var netGain = ev - bv;
+
+    // Real CAGR via Fisher Equation
+    var realDec = (1 + cagrDec) / (1 + infRate) - 1;
+    var realPct = realDec * 100;
+
+    // Arithmetic average annual rate
+    var arithPct = totalRetPct / t;
+
+    // Rule of 72 & exact doubling
+    var rule72 = cagrPct > 0 ? (72 / cagrPct) : 0;
+    var exactDouble = cagrDec > 0 ? (Math.log(2) / Math.log(1 + cagrDec)) : 0;
+
+    // Display Hero cards
+    var cagrEl = document.getElementById('card-cagr-rate');
+    cagrEl.textContent = (cagrPct >= 0 ? '+' : '') + cagrPct.toFixed(2) + '%';
+    cagrEl.style.color = cagrPct >= 0 ? '#10b981' : '#ef4444';
+
+    var totEl = document.getElementById('card-cagr-total-pct');
+    totEl.textContent = (totalRetPct >= 0 ? '+' : '') + totalRetPct.toFixed(2) + '%';
+    totEl.style.color = totalRetPct >= 0 ? '#3b82f6' : '#ef4444';
+
+    var gainPrefix = netGain >= 0 ? '+$' : '-$';
+    document.getElementById('card-cagr-total-gain').textContent = gainPrefix + Math.abs(Math.round(netGain)).toLocaleString('en-US') + ' net gain (' + mult.toFixed(2) + '×)';
+
+    var realEl = document.getElementById('card-cagr-real');
+    realEl.textContent = (realPct >= 0 ? '+' : '') + realPct.toFixed(2) + '%';
+    realEl.style.color = realPct >= 0 ? '#8b5cf6' : '#ef4444';
+
+    var dblEl = document.getElementById('card-cagr-double');
+    if (rule72 > 0 && rule72 < 1000) {
+      dblEl.textContent = rule72.toFixed(1) + ' Years';
+      document.getElementById('card-cagr-double-exact').textContent = 'Exact logarithmic: ' + exactDouble.toFixed(2) + ' yrs';
+    } else {
+      dblEl.textContent = 'N/A';
+      document.getElementById('card-cagr-double-exact').textContent = 'Capital does not double (zero or negative growth)';
+    }
+
+    renderCAGRPlot(bv, ev, cagrDec, realDec, arithPct / 100, t);
+
+    // Derivations
+    var deriv = [
+      '1. Cumulative Growth Multiple: Ending Balance &divide; Beginning Balance = $' + ev.toLocaleString('en-US') + ' &divide; $' + bv.toLocaleString('en-US') + ' = <strong>' + mult.toFixed(4) + '&times;</strong>',
+      '2. Annualizing Exponent (1 / t): 1 &divide; ' + t + ' years = <strong>' + (1 / t).toFixed(4) + '</strong>',
+      '3. Compound Annual Growth Rate: (' + mult.toFixed(4) + ')^' + (1 / t).toFixed(4) + ' - 1 = ' + (1 + cagrDec).toFixed(5) + ' - 1 = <strong>' + (cagrPct >= 0 ? '+' : '') + cagrPct.toFixed(2) + '% / year</strong>',
+      '4. Fisher Equation Real CAGR: [(1 + ' + (cagrPct / 100).toFixed(4) + ') &divide; (1 + ' + infRate.toFixed(4) + ')] - 1 = <strong>' + (realPct >= 0 ? '+' : '') + realPct.toFixed(2) + '% real return</strong>',
+      '5. Arithmetic Average Comparison: Cumulative ' + (totalRetPct >= 0 ? '+' : '') + totalRetPct.toFixed(2) + '% &divide; ' + t + ' yrs = <strong>' + (arithPct >= 0 ? '+' : '') + arithPct.toFixed(2) + '% / yr</strong> (Annual Volatility/Compounding Divergence: ' + Math.abs(arithPct - cagrPct).toFixed(2) + '%)'
+    ];
+    document.getElementById('cagr-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderCAGRPlot(bv, ev, cagrDec, realDec, arithDec, t) {
+    var c = document.getElementById('cagr-svg-plot');
+    if (!c) return;
+
+    var w = c.clientWidth || 650;
+    var h = 180;
+    var padLeft = 65, padRight = 30, padTop = 25, padBottom = 30;
+    var plotW = w - padLeft - padRight;
+    var plotH = h - padTop - padBottom;
+
+    // Points over 20 intervals
+    var intervals = 20;
+    var maxVal = Math.max(bv, ev, bv * (1 + arithDec * t));
+    var minVal = Math.min(0, bv, ev);
+
+    function getX(yr) { return padLeft + (yr / t) * plotW; }
+    function getY(v) { return padTop + plotH - ((v - minVal) / (maxVal - minVal || 1)) * plotH; }
+
+    var cagrPts = [];
+    var arithPts = [];
+    var realPts = [];
+
+    for (var i = 0; i <= intervals; i++) {
+      var curYr = (i / intervals) * t;
+      var curCAGRVal = bv * Math.pow(1 + cagrDec, curYr);
+      var curArithVal = bv * (1 + (arithDec * curYr));
+      var curRealVal = bv * Math.pow(1 + realDec, curYr);
+
+      cagrPts.push(getX(curYr).toFixed(1) + ',' + getY(curCAGRVal).toFixed(1));
+      arithPts.push(getX(curYr).toFixed(1) + ',' + getY(curArithVal).toFixed(1));
+      realPts.push(getX(curYr).toFixed(1) + ',' + getY(curRealVal).toFixed(1));
+    }
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Gridlines
+    svg += '<line x1="' + padLeft + '" y1="' + padTop + '" x2="' + (padLeft + plotW) + '" y2="' + padTop + '" stroke="var(--border)" stroke-dasharray="3,3" />';
+    svg += '<line x1="' + padLeft + '" y1="' + (padTop + plotH / 2) + '" x2="' + (padLeft + plotW) + '" y2="' + (padTop + plotH / 2) + '" stroke="var(--border)" stroke-dasharray="3,3" />';
+    svg += '<line x1="' + padLeft + '" y1="' + (padTop + plotH) + '" x2="' + (padLeft + plotW) + '" y2="' + (padTop + plotH) + '" stroke="var(--border)" />';
+
+    // Y Axis Labels
+    svg += '<text x="' + (padLeft - 8) + '" y="' + (padTop + 4) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="10" text-anchor="end">$' + Math.round(maxVal).toLocaleString('en-US') + '</text>';
+    svg += '<text x="' + (padLeft - 8) + '" y="' + (padTop + plotH / 2 + 4) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="10" text-anchor="end">$' + Math.round((maxVal + minVal) / 2).toLocaleString('en-US') + '</text>';
+    svg += '<text x="' + (padLeft - 8) + '" y="' + (padTop + plotH + 4) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="10" text-anchor="end">$' + Math.round(minVal).toLocaleString('en-US') + '</text>';
+
+    // X Axis Labels
+    svg += '<text x="' + padLeft + '" y="' + (h - 8) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="10">Yr 0</text>';
+    svg += '<text x="' + (padLeft + plotW / 2) + '" y="' + (h - 8) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="10" text-anchor="middle">Yr ' + (t / 2).toFixed(1) + '</text>';
+    svg += '<text x="' + (padLeft + plotW) + '" y="' + (h - 8) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="10" text-anchor="end">Yr ' + t + '</text>';
+
+    // Real CAGR line (purple dotted)
+    svg += '<polyline points="' + realPts.join(' ') + '" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3,3" opacity="0.8" />';
+
+    // Arithmetic line (blue dashed)
+    svg += '<polyline points="' + arithPts.join(' ') + '" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,4" opacity="0.8" />';
+
+    // True CAGR line (green solid)
+    svg += '<polyline points="' + cagrPts.join(' ') + '" fill="none" stroke="#10b981" stroke-width="2.5" />';
+
+    // End point circles
+    var endY = getY(ev);
+    svg += '<circle cx="' + (padLeft + plotW) + '" cy="' + endY + '" r="4" fill="#10b981" />';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyCAGRReport(btn) {
+    var cagr = document.getElementById('card-cagr-rate').textContent.trim();
+    var tot = document.getElementById('card-cagr-total-pct').textContent.trim();
+    var gain = document.getElementById('card-cagr-total-gain').textContent.trim();
+    var real = document.getElementById('card-cagr-real').textContent.trim();
+    var dbl = document.getElementById('card-cagr-double').textContent.trim();
+    var bv = document.getElementById('cagr-start').value;
+    var ev = document.getElementById('cagr-end').value;
+    var yrs = document.getElementById('cagr-years').value;
+    var inf = document.getElementById('cagr-inf').value;
+
+    var lines = [
+      '========================================',
+      '      CAGR INVESTMENT GROWTH REPORT',
+      '========================================',
+      'Beginning Capital    : $' + Number(bv).toLocaleString('en-US'),
+      'Ending Portfolio     : $' + Number(ev).toLocaleString('en-US'),
+      'Investment Horizon   : ' + yrs + ' Years',
+      'Inflation Rate (CPI) : ' + inf + '% / Year',
+      '----------------------------------------',
+      'Compound Annual Growth (CAGR) : ' + cagr,
+      'Cumulative Total Return       : ' + tot + ' (' + gain + ')',
+      'Real Purchasing-Power CAGR    : ' + real,
+      'Rule of 72 Doubling Time      : ' + dbl,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/finance/cagr-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Investment Report!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcCAGR);
+  document.addEventListener('DOMContentLoaded', calcCAGR);
+  calcCAGR();
+</script>
+`
   },
   {
     slug: "net-worth-calculator",
