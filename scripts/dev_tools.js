@@ -340,9 +340,82 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
               <div><label class="field-label">SHA-256</label><input type="text" id="h-sha256" class="code-input" readonly /></div>
               <div><label class="field-label">SHA-512</label><input type="text" id="h-sha512" class="code-input" readonly /></div>
             </div>
+
+            <!-- Copy Hashes -->
+            <button type="button" id="btnCopyHashReport" onclick="copyHashReport()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Cryptographic Hashes (SHA-256 &amp; SHA-512)</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical Cryptographic Hashing Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Cryptographic Hashes &amp; Data Integrity</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Storing Passwords with Fast General Hashes (SHA-256 / MD5 Rainbow Tables)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  General-purpose cryptographic hashes like SHA-256 are engineered for blinding speed (>10 billion hashes/sec on modern consumer GPUs). Using plain SHA-256 to hash passwords permits attackers with leaked databases to crack 8-character passwords in minutes via GPU rainbow tables. Passwords MUST be hashed with slow, memory-hard algorithms (Argon2id, bcrypt, or scrypt).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Length Extension Attacks on Merkle-Damgård Construction</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Algorithms like MD5, SHA-1, and SHA-256 process input in sequential blocks. If an API verifies signatures via naive concatenation <code>Hash(secret + message)</code>, an attacker knowing the message length can append malicious payload (e.g. <code>&amp;role=admin</code>) and compute a valid hash WITHOUT ever discovering the secret. Always use HMAC (<code>HMAC-SHA256</code>) for message signing.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Timing Attack Vulnerabilities in Hash String Comparison (===)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Comparing authentication tokens or HMACs using standard equality operators (<code>token === expected</code>) terminates at the first non-matching byte. By measuring microsecond latency differences across thousands of requests, remote attackers can reconstruct valid tokens byte by byte. Always use constant-time comparison (<code>crypto.timingSafeEqual</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The Broken Collision Resistance of MD5 &amp; SHA-1</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Google demonstrated practical SHA-1 collisions in 2017 (the SHAttered attack: two distinct PDFs sharing identical SHA-1 hashes), while MD5 was completely broken in 2004. Neither algorithm provides collision resistance; never use MD5 or SHA-1 for digital signatures, software integrity manifests, or Git security.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Confusing Cryptographic Hashing with Reversible Encryption</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Cryptographic hashing is a one-way irreversible compression function; you CANNOT "decrypt" a SHA-256 hash back into its original plaintext. Developers who mistakenly hash sensitive data that their system later needs to retrieve (such as API keys or billing addresses) permanently destroy the data. Use AES-GCM for reversible encryption.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+
         <script>
+          
+          window.copyHashReport = function() {
+            var input = document.getElementById('hash-in') ? document.getElementById('hash-in').value : '';
+            var sha256 = document.getElementById('h-sha256') ? document.getElementById('h-sha256').value : '';
+            var sha512 = document.getElementById('h-sha512') ? document.getElementById('h-sha512').value : '';
+
+            var text = '🔐 Cryptographic Hash Digest Record\n' +
+              '• Input String: \"' + input + '\" (' + input.length + ' chars)\n' +
+              '• SHA-256: ' + sha256 + '\n' +
+              '• SHA-512: ' + sha512 + '\n\n' +
+              'Generated at digitaltoolsshed.com/dev/hash-generator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyHashReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Hashes Copied to Clipboard!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           async function computeHash(algo, text) {
             const enc = new TextEncoder();
             const buf = await window.crypto.subtle.digest(algo, enc.encode(text));
@@ -412,16 +485,118 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
               <div><label class="field-label">Group</label><label><input type="checkbox" id="gr" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="gw" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="gx" checked onchange="ch()"> Exec (1)</label></div>
               <div><label class="field-label">Others</label><label><input type="checkbox" id="or" checked onchange="ch()"> Read (4)</label><br><label><input type="checkbox" id="ow" onchange="ch()"> Write (2)</label><br><label><input type="checkbox" id="ox" checked onchange="ch()"> Exec (1)</label></div>
             </div>
-            <div class="field-group" style="margin-top: 1.5rem;"><label class="field-label">Command</label><input type="text" id="ch-cmd" class="code-input" readonly /></div>
+            <div class="field-group" style="margin-top: 1.5rem;"><label class="field-label">Command</label><input type="text" id="ch-cmd" class="code-input" readonly />
+            </div>
+
+            <!-- Copy Chmod Command -->
+            <button type="button" id="btnCopyChmod" onclick="copyChmodCommand()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Linux Chmod Command &amp; Symbolic Notation</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical Linux File Permission Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Linux File Permissions &amp; Chmod Security</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The 'chmod 777' Production Security Suicide</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Running <code>chmod -R 777</code> to quickly resolve web server write errors grants read, write, and arbitrary execution permissions to EVERY system user and daemon (e.g. <code>www-data</code>, <code>nobody</code>). Any file upload vulnerability or compromised process immediately achieves remote code execution (RCE) and local root persistence. Use granular group ownership (<code>chown -R www-data:www-data</code>) and <code>755</code>/<code>644</code> instead.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Capital 'X' vs. Lowercase 'x' Directory Traversal Blunder</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Executing recursive <code>chmod -R +x .</code> dangerously makes every text, configuration, and image file executable. Conversely, using <code>chmod -R +X .</code> (capital X) intelligently applies execution rights ONLY to directories (which require the execute bit to allow <code>cd</code> folder traversal) while leaving standard files non-executable.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. SUID / SGID Privilege Escalation Hazards (Octal 4000 &amp; 2000)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Setting the SUID bit (<code>chmod 4755</code>) on a custom executable allows any unprivileged user to execute it with the owner's (often <code>root</code>) full administrative authority. If that binary invokes shell commands without absolute paths or environment sanitation, attackers can exploit <code>PATH</code> spoofing for instant root takeover.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Umask Subtraction Misunderstandings (Base 0666 vs 0777)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  The system <code>umask</code> does not specify file permissions; it specifies bits to REMOVE from initial creation masks. Files are created from base <code>0666</code> (no execute), so a umask of <code>0022</code> produces <code>0644</code> (<code>-rw-r--r--</code>). Directories are created from base <code>0777</code>, yielding <code>0755</code> (<code>drwxr-xr-x</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. SSH Private Key Permissive Lockout ('UNPROTECTED PRIVATE KEY')</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  OpenSSH clients automatically refuse connection and abort authentication if private key files in <code>~/.ssh/</code> are readable by group or others (e.g. <code>0644</code> triggers <code>WARNING: UNPROTECTED PRIVATE KEY FILE!</code>). Private keys must always be restricted to <code>chmod 0600</code> and the <code>~/.ssh</code> directory to <code>chmod 0700</code>.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+
         <script>
-          function ch() {
-            const u = (document.getElementById('ur').checked?4:0)+(document.getElementById('uw').checked?2:0)+(document.getElementById('ux').checked?1:0);
-            const g = (document.getElementById('gr').checked?4:0)+(document.getElementById('gw').checked?2:0)+(document.getElementById('gx').checked?1:0);
-            const o = (document.getElementById('or').checked?4:0)+(document.getElementById('ow').checked?2:0)+(document.getElementById('ox').checked?1:0);
-            document.getElementById('ch-cmd').value = 'chmod ' + u + g + o + ' filename';
+          function getSymbolic(r, w, x) {
+            return (r ? 'r' : '-') + (w ? 'w' : '-') + (x ? 'x' : '-');
           }
+
+          function ch() {
+            var ur = document.getElementById('ur').checked;
+            var uw = document.getElementById('uw').checked;
+            var ux = document.getElementById('ux').checked;
+
+            var gr = document.getElementById('gr').checked;
+            var gw = document.getElementById('gw').checked;
+            var gx = document.getElementById('gx').checked;
+
+            var or_ = document.getElementById('or').checked;
+            var ow = document.getElementById('ow').checked;
+            var ox = document.getElementById('ox').checked;
+
+            var u = (ur ? 4 : 0) + (uw ? 2 : 0) + (ux ? 1 : 0);
+            var g = (gr ? 4 : 0) + (gw ? 2 : 0) + (gx ? 1 : 0);
+            var o = (or_ ? 4 : 0) + (ow ? 2 : 0) + (ox ? 1 : 0);
+
+            var octal = '' + u + g + o;
+            var sym = '-' + getSymbolic(ur, uw, ux) + getSymbolic(gr, gw, gx) + getSymbolic(or_, ow, ox);
+
+            document.getElementById('ch-cmd').value = 'chmod ' + octal + ' filename';
+
+            window._chmodData = {
+              octal: octal,
+              sym: sym,
+              cmd: 'chmod ' + octal + ' filename',
+              u: u,
+              g: g,
+              o: o
+            };
+          }
+
+          window.copyChmodCommand = function() {
+            if (!window._chmodData) ch();
+            var d = window._chmodData;
+            var text = '🔒 Linux/Unix File Permissions Diagnostic\n' +
+              '• Command: ' + d.cmd + '\n' +
+              '• Octal Code: 0' + d.octal + '\n' +
+              '• Symbolic Notation: ' + d.sym + '\n' +
+              '• Breakdown: User=' + d.u + ', Group=' + d.g + ', Others=' + d.o + '\n\n' +
+              'Calculated at digitaltoolsshed.com/dev/chmod-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyChmod');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Chmod Command Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', ch);
         </script>
       `
@@ -472,9 +647,74 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
               <label class="field-label">Formatted SQL</label>
               <textarea id="sql-out" class="code-input" style="height: 160px;" readonly></textarea>
             </div>
+
+            <!-- Copy Formatted SQL -->
+            <button type="button" id="btnCopySql" onclick="copySql()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Formatted SQL Query</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical SQL & Query Optimization Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in SQL Performance &amp; Relational Architecture</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The 'SELECT *' Production Memory &amp; Index Saturation Anti-Pattern</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using <code>SELECT *</code> forces the database engine to perform expensive disk reads for wide columns (like <code>TEXT</code> or <code>JSONB</code>), exhausts application memory, saturates network bandwidth, and prevents the optimizer from executing blazing-fast covering index scans. Always enumerate only the required column projections.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The N+1 Query Cascade (ORM Lazy-Loading Bottleneck)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Fetching 100 parent records and then querying child entities inside an application loop triggers 101 separate round-trip database requests. This exhausts database connection pools and increases latency exponentially. Resolve via eager loading, SQL <code>JOIN</code>s, or batch <code>WHERE id IN (...)</code> lookups.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. String Concatenation &amp; SQL Injection (SQLi) Vulnerabilities</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Dynamically concatenating unsanitized user inputs into SQL strings (<code>"SELECT * FROM users WHERE user = '" + input + "'"</code>) opens catastrophic SQL injection. Attackers can execute administrative commands, dump full databases, or drop tables. Always bind inputs using parameterized prepared statements (e.g. <code>$1</code>, <code>?</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Leading Wildcard '%term' B-Tree Index Invalidation</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Writing queries like <code>WHERE email LIKE '%@domain.com'</code> prevents database engines from using standard B-Tree indexes, forcing a full sequential scan across millions of disk blocks. For fast prefix and substring searching, use PostgreSQL trigram indexes (<code>pg_trgm</code>) or dedicated full-text search engines.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Deep Pagination Offset Scans (OFFSET 500000 Sluggishness)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using <code>LIMIT 20 OFFSET 500000</code> forces the database to read and discard 500,000 physical rows before returning the 20 requested records, degrading linearly to multi-second delays. High-scale architectures use cursor-based (keyset) pagination (<code>WHERE id &gt; last_seen_id LIMIT 20</code>) for constant \(O(1)\) index lookups.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+
         <script>
+          
+          window.copySql = function() {
+            var sql = document.getElementById('sql-out') ? document.getElementById('sql-out').value : '';
+
+            navigator.clipboard.writeText(sql).then(function() {
+              var btn = document.getElementById('btnCopySql');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Formatted SQL Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function formatSql() {
             let sql = document.getElementById('sql-in').value.trim();
             const keywords = ['SELECT','FROM','WHERE','AND','OR','GROUP BY','ORDER BY','HAVING','JOIN','LEFT JOIN','RIGHT JOIN','INNER JOIN','OUTER JOIN','LIMIT','OFFSET','INSERT INTO','VALUES','UPDATE','SET','DELETE'];
@@ -1317,6 +1557,52 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
             </div>
           </div>
 
+          <!-- Copy Epoch Summary -->
+          <button type="button" id="btnCopyEpoch" onclick="copyEpochSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+            <span>📋 Copy Epoch Timestamp Diagnostic Summary</span>
+          </button>
+
+          <!-- 5 Critical Epoch Engineering Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Epoch Timestamps &amp; Time APIs</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Year 2038 Problem (Y2038 32-Bit Signed Integer Overflow)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Unix time stored as a 32-bit signed integer (<code>int32_t</code>) tops out at 2,147,483,647 seconds on January 19, 2038, at 03:14:07 UTC. At that exact second, the integer overflows to -2,147,483,648, jumping backwards to December 13, 1901. Embedded devices, older database schemas, and legacy C binaries that fail to migrate to 64-bit timestamps will crash globally.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Seconds vs. Milliseconds Magnitude Drift (10^10 vs 10^13)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  POSIX, Python, and Go standard libraries default to integer seconds (e.g. <code>1725580800</code>, 10 digits). JavaScript <code>Date.now()</code> and Java <code>currentTimeMillis()</code> default to milliseconds (13 digits). Passing a millisecond timestamp into a seconds-based API causes the parser to register the year 56,600+ AD! Always verify timestamp scale.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Leap Second Desynchronization &amp; Server Panics</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  International Earth Rotation services occasionally add leap seconds (e.g. 23:59:60) to align astronomical time with atomic clocks. POSIX Unix time strictly assumes exactly 86,400 SI seconds per day, repeating or freezing second 86,400. Unpatched Linux kernels suffer deadlocks unless "leap smearing" NTP daemons (e.g. Google/Amazon NTP) gradually smear the extra second across 24 hours.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The JavaScript 'YYYY-MM-DD' Midnight UTC Offset Bug</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In JavaScript, passing an ISO date string without time (<code>new Date("2026-09-06")</code>) is parsed strictly as UTC midnight (00:00:00 UTC). When rendered in local time for US timezones (e.g. EDT UTC-4), it rolls back to 8:00 PM on September 5th! In contrast, <code>new Date("2026/09/06")</code> parses as local midnight.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Negative Epoch Timestamps &amp; Pre-1970 Historical Dates</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Dates before January 1, 1970, are represented by negative integer seconds (e.g. July 20, 1969 Apollo landing is <code>-14159040</code>). Systems storing timestamps as unsigned integers (<code>uint32</code> or <code>uint64</code>) underflow negative values into massive future dates around year 2106 or beyond.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div class="ad-blend-box" style="margin: 2rem 0;">
             <span class="ad-label">Sponsored Resource</span>
             <div class="ad-unit-300x250">
@@ -1335,6 +1621,36 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
         </div>
 
         <script>
+          
+          window.copyEpochSummary = function() {
+            var raw = (document.getElementById('tsInput') ? document.getElementById('tsInput').value : '').trim();
+            var nowSec = Math.floor(Date.now() / 1000);
+            var num = parseFloat(raw) || nowSec;
+            var isMs = num > 1e11;
+            var ms = isMs ? num : num * 1000;
+            var d = new Date(ms);
+
+            var text = '⏱️ Unix Epoch Timestamp Conversion Summary\n' +
+              '• Unix Timestamp: ' + num + (isMs ? ' (ms)' : ' (seconds)') + '\n' +
+              '• GMT / UTC: ' + d.toUTCString() + '\n' +
+              '• Local Time: ' + d.toString() + '\n' +
+              '• ISO 8601: ' + d.toISOString() + '\n\n' +
+              'Converted at digitaltoolsshed.com/dev/epoch-converter';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyEpoch');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Epoch Summary Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function updateLiveClock() {
             var now = new Date();
             var sec = Math.floor(now.getTime() / 1000);

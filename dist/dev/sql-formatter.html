@@ -1057,9 +1057,74 @@
               <label class="field-label">Formatted SQL</label>
               <textarea id="sql-out" class="code-input" style="height: 160px;" readonly></textarea>
             </div>
+
+            <!-- Copy Formatted SQL -->
+            <button type="button" id="btnCopySql" onclick="copySql()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Formatted SQL Query</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical SQL & Query Optimization Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in SQL Performance &amp; Relational Architecture</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The 'SELECT *' Production Memory &amp; Index Saturation Anti-Pattern</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using <code>SELECT *</code> forces the database engine to perform expensive disk reads for wide columns (like <code>TEXT</code> or <code>JSONB</code>), exhausts application memory, saturates network bandwidth, and prevents the optimizer from executing blazing-fast covering index scans. Always enumerate only the required column projections.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The N+1 Query Cascade (ORM Lazy-Loading Bottleneck)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Fetching 100 parent records and then querying child entities inside an application loop triggers 101 separate round-trip database requests. This exhausts database connection pools and increases latency exponentially. Resolve via eager loading, SQL <code>JOIN</code>s, or batch <code>WHERE id IN (...)</code> lookups.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. String Concatenation &amp; SQL Injection (SQLi) Vulnerabilities</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Dynamically concatenating unsanitized user inputs into SQL strings (<code>"SELECT * FROM users WHERE user = '" + input + "'"</code>) opens catastrophic SQL injection. Attackers can execute administrative commands, dump full databases, or drop tables. Always bind inputs using parameterized prepared statements (e.g. <code>$1</code>, <code>?</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Leading Wildcard '%term' B-Tree Index Invalidation</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Writing queries like <code>WHERE email LIKE '%@domain.com'</code> prevents database engines from using standard B-Tree indexes, forcing a full sequential scan across millions of disk blocks. For fast prefix and substring searching, use PostgreSQL trigram indexes (<code>pg_trgm</code>) or dedicated full-text search engines.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Deep Pagination Offset Scans (OFFSET 500000 Sluggishness)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using <code>LIMIT 20 OFFSET 500000</code> forces the database to read and discard 500,000 physical rows before returning the 20 requested records, degrading linearly to multi-second delays. High-scale architectures use cursor-based (keyset) pagination (<code>WHERE id &gt; last_seen_id LIMIT 20</code>) for constant (O(1)) index lookups.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+
         <script>
+          
+          window.copySql = function() {
+            var sql = document.getElementById('sql-out') ? document.getElementById('sql-out').value : '';
+
+            navigator.clipboard.writeText(sql).then(function() {
+              var btn = document.getElementById('btnCopySql');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Formatted SQL Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function formatSql() {
             let sql = document.getElementById('sql-in').value.trim();
             const keywords = ['SELECT','FROM','WHERE','AND','OR','GROUP BY','ORDER BY','HAVING','JOIN','LEFT JOIN','RIGHT JOIN','INNER JOIN','OUTER JOIN','LIMIT','OFFSET','INSERT INTO','VALUES','UPDATE','SET','DELETE'];

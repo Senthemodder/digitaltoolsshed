@@ -1106,6 +1106,52 @@
             </div>
           </div>
 
+          <!-- Copy Epoch Summary -->
+          <button type="button" id="btnCopyEpoch" onclick="copyEpochSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+            <span>📋 Copy Epoch Timestamp Diagnostic Summary</span>
+          </button>
+
+          <!-- 5 Critical Epoch Engineering Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Epoch Timestamps &amp; Time APIs</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Year 2038 Problem (Y2038 32-Bit Signed Integer Overflow)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Unix time stored as a 32-bit signed integer (<code>int32_t</code>) tops out at 2,147,483,647 seconds on January 19, 2038, at 03:14:07 UTC. At that exact second, the integer overflows to -2,147,483,648, jumping backwards to December 13, 1901. Embedded devices, older database schemas, and legacy C binaries that fail to migrate to 64-bit timestamps will crash globally.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Seconds vs. Milliseconds Magnitude Drift (10^10 vs 10^13)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  POSIX, Python, and Go standard libraries default to integer seconds (e.g. <code>1725580800</code>, 10 digits). JavaScript <code>Date.now()</code> and Java <code>currentTimeMillis()</code> default to milliseconds (13 digits). Passing a millisecond timestamp into a seconds-based API causes the parser to register the year 56,600+ AD! Always verify timestamp scale.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Leap Second Desynchronization &amp; Server Panics</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  International Earth Rotation services occasionally add leap seconds (e.g. 23:59:60) to align astronomical time with atomic clocks. POSIX Unix time strictly assumes exactly 86,400 SI seconds per day, repeating or freezing second 86,400. Unpatched Linux kernels suffer deadlocks unless "leap smearing" NTP daemons (e.g. Google/Amazon NTP) gradually smear the extra second across 24 hours.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The JavaScript 'YYYY-MM-DD' Midnight UTC Offset Bug</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In JavaScript, passing an ISO date string without time (<code>new Date("2026-09-06")</code>) is parsed strictly as UTC midnight (00:00:00 UTC). When rendered in local time for US timezones (e.g. EDT UTC-4), it rolls back to 8:00 PM on September 5th! In contrast, <code>new Date("2026/09/06")</code> parses as local midnight.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Negative Epoch Timestamps &amp; Pre-1970 Historical Dates</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Dates before January 1, 1970, are represented by negative integer seconds (e.g. July 20, 1969 Apollo landing is <code>-14159040</code>). Systems storing timestamps as unsigned integers (<code>uint32</code> or <code>uint64</code>) underflow negative values into massive future dates around year 2106 or beyond.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div class="ad-blend-box" style="margin: 2rem 0;">
             <span class="ad-label">Sponsored Resource</span>
             <div class="ad-unit-300x250">
@@ -1124,6 +1170,42 @@
         </div>
 
         <script>
+          
+          window.copyEpochSummary = function() {
+            var raw = (document.getElementById('tsInput') ? document.getElementById('tsInput').value : '').trim();
+            var nowSec = Math.floor(Date.now() / 1000);
+            var num = parseFloat(raw) || nowSec;
+            var isMs = num > 1e11;
+            var ms = isMs ? num : num * 1000;
+            var d = new Date(ms);
+
+            var text = '⏱️ Unix Epoch Timestamp Conversion Summary
+' +
+              '• Unix Timestamp: ' + num + (isMs ? ' (ms)' : ' (seconds)') + '
+' +
+              '• GMT / UTC: ' + d.toUTCString() + '
+' +
+              '• Local Time: ' + d.toString() + '
+' +
+              '• ISO 8601: ' + d.toISOString() + '
+
+' +
+              'Converted at digitaltoolsshed.com/dev/epoch-converter';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyEpoch');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Epoch Summary Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function updateLiveClock() {
             var now = new Date();
             var sec = Math.floor(now.getTime() / 1000);
