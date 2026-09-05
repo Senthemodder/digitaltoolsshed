@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this BMI Calculator (Standard & Oxford New BMI with Waist-to-Height Ratio) free to use?",
+      "name": "What is a healthy BMI range according to the World Health Organization (WHO)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this BMI Calculator (Standard & Oxford New BMI with Waist-to-Height Ratio) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "According to WHO clinical criteria for adults, a BMI between 18.5 and 24.9 is considered Normal / Healthy Weight. A BMI below 18.5 is Underweight, 25.0 to 29.9 is Overweight (Pre-obese), 30.0 to 34.9 is Obese Class I, 35.0 to 39.9 is Obese Class II, and 40.0 or higher is Obese Class III (Morbid Obesity)."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "What is the Oxford 'New BMI' formula and why is it more accurate?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Invented by Professor Nick Trefethen of Oxford University, the New BMI formula [New BMI = 1.3 × Weight (kg) / Height (m)^2.5] addresses the mathematical scaling flaw of the 1830s Quetelet formula (Weight / Height^2). In standard 2D BMI, taller people are artificially classified as heavier/more obese, while shorter individuals are made to appear leaner than they truly are. The 2.5 power aligns closer with 3D human volumetric mass."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this BMI Calculator (Standard & Oxford New BMI with Waist-to-Height Ratio) work on mobile devices?",
+      "name": "Why is Waist-to-Height Ratio (WHtR) often recommended over BMI alone?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "In 2022, the UK National Institute for Health and Care Excellence (NICE) updated clinical guidelines recommending that adults keep their waist circumference to less than half their height (WHtR < 0.5). WHtR specifically measures central visceral adiposity—the fat stored around vital organs—which is far more predictive of type 2 diabetes, hypertension, and cardiovascular disease than total scale weight."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can BMI be inaccurate for muscular athletes and bodybuilders?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. BMI measures total body mass divided by height squared without distinguishing between dense skeletal muscle and adipose fat tissue. Because muscle is approximately 18% denser than fat, muscular athletes frequently register as 'Overweight' or 'Obese' on BMI charts despite having sub-12% body fat and optimal metabolic health."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I calculate how much weight I need to lose to reach a normal BMI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Multiply the square of your height in meters by 24.9 to find your maximum normal weight limit: Max Healthy Weight = 24.9 × [Height (m)]^2. Subtract this value from your current weight to find the exact number of kilograms or pounds you must lose to enter the normal range."
       }
     }
   ]

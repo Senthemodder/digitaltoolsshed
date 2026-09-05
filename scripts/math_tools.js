@@ -4239,199 +4239,1186 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'scientific-notation-converter',
-      title: 'Scientific Notation Converter (Standard & Engineering E-Notation)',
-      metaDesc: 'Convert scientific notation (1.23 × 10^6) to standard decimal numbers and E-notation. Includes order of magnitude and metric prefix steps.',
+      title: 'Scientific Notation Converter (Standard, E-Notation & Metric Prefixes)',
+      metaDesc: 'Convert between standard decimal numbers, scientific notation (a × 10^b), engineering notation, and SI metric prefixes with significant figures and step-by-step math.',
       category: 'Math & Science',
+      faq: [
+        { q: 'What is the difference between scientific notation and engineering notation?', a: 'In scientific notation, the coefficient (a) must be between 1 and 10 (1 <= |a| < 10) and the exponent of 10 can be any integer. In engineering notation, the exponent must be a multiple of 3 (e.g., 10^3, 10^6, 10^-9) to align directly with SI metric prefixes (kilo, mega, nano), and the coefficient is between 1 and 1,000 (1 <= |a| < 1,000).' },
+        { q: 'How do you count significant figures in scientific notation?', a: 'All digits in the coefficient of a number in scientific notation are significant. For example, 4.50 × 10^6 has 3 significant figures (the trailing zero after the decimal indicates precision). In contrast, standard decimal 4,500,000 is ambiguous without notation (it could have between 2 and 7 significant figures). Scientific notation removes all ambiguity.' },
+        { q: 'What does E-notation mean (e.g., 4.5e+06)?', a: 'E-notation is a shorthand computer format for scientific notation where "e" or "E" stands for "exponent of 10". For example, 4.5e+06 means 4.5 × 10^6, and 2.8e-04 means 2.8 × 10^-4. It is standard syntax in programming languages (C, Python, JavaScript), spreadsheets (Excel, Google Sheets), and handheld calculators.' },
+        { q: 'How do you convert a decimal number to scientific notation manually?', a: 'First, move the decimal point until there is exactly one non-zero digit to its left. Second, count the number of places (k) you moved the decimal point. If you moved it to the left, the exponent is positive (+k). If you moved it to the right, the exponent is negative (-k). Finally, write the number as the new coefficient multiplied by 10 raised to the exponent.' },
+        { q: 'What are the SI metric prefixes from nano to giga?', a: 'Common SI prefixes based on powers of 10^3 include: nano (n, 10^-9), micro (μ, 10^-6), milli (m, 10^-3), kilo (k, 10^3), mega (M, 10^6), giga (G, 10^9), and tera (T, 10^12). Engineering notation directly converts numbers to these unit prefixes.' }
+      ],
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <style>
+          .sn-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+          .sn-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: border-color 0.2s; }
+          .sn-card:hover { border-color: var(--fg); }
+          .sn-tag { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center; }
+          .sn-val { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; color: var(--fg); word-break: break-all; margin: 0.25rem 0; line-height: 1.3; }
+          .sn-sub { font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); }
+          .copy-btn-mini { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+          .copy-btn-mini:hover { color: var(--fg); border-color: var(--fg); }
+          .preset-chip { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 20px; padding: 0.3rem 0.75rem; font-size: 0.78rem; font-family: var(--mono); color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+          .preset-chip:hover { border-color: var(--fg); color: var(--fg); background: var(--surface); }
+          .prefix-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
+          .prefix-table th, .prefix-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+          .prefix-table th { background: var(--surface-alt); font-weight: 600; color: var(--fg); }
+          .prefix-table tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+          .step-box { background: var(--surface-alt); border-left: 3px solid var(--fg); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-top: 1rem; font-size: 0.9rem; line-height: 1.6; }
+        </style>
+
+        <div class="article-container" style="max-width: 960px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Scientific Notation Converter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Scientific Notation Converter</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert between standard decimal numbers, scientific notation ($a \\times 10^b$), and engineering E-notation.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Scientific Notation Converter</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert seamlessly between standard decimal numbers, scientific notation (\(a \times 10^b\)), engineering notation (powers of 3), and SI metric prefixes with automatic significant figure counting and step-by-step algebraic derivations.
           </p>
 
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Enter Number (Decimal, Scientific, or E-Notation)</label>
-              <input type="text" id="sn-in" class="code-input" value="4500000" oninput="calcSN()" style="font-size: 1.25rem;" />
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; flex-wrap: wrap;">
+              <button type="button" class="btn-sec" id="tab-single" onclick="setMode('single')" style="font-weight: 600; border-color: var(--fg);">Single Input (Decimal / Scientific / E)</button>
+              <button type="button" class="btn-sec" id="tab-split" onclick="setMode('split')">Coefficient & Exponent (a × 10ᵇ)</button>
             </div>
 
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1rem;">
-              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Sample Inputs:</span>
-              <button type="button" class="btn-sec" onclick="setSN('4500000')">4,500,000</button>
-              <button type="button" class="btn-sec" onclick="setSN('0.00028')">0.00028</button>
-              <button type="button" class="btn-sec" onclick="setSN('3.0e8')">Speed of Light (3e8)</button>
-              <button type="button" class="btn-sec" onclick="setSN('6.022e23')">Avogadro (6.022e23)</button>
+            <!-- Single Input Mode -->
+            <div id="mode-single">
+              <div class="field-group">
+                <label class="field-label" for="sn-in">Enter Number (Decimal, 4.5e6, 4.5 x 10^6, or -0.00028)</label>
+                <input type="text" id="sn-in" class="code-input" value="4500000" oninput="calcSN()" style="font-size: 1.25rem; font-weight: bold;" placeholder="e.g. 4500000 or 6.022e23" />
+              </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Scientific Notation</div>
-              <div id="sn-sci" class="result-val">4.5 × 10⁶</div>
-              <div id="sn-eng" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;">Engineering: 4.5e+6</div>
-              <div id="sn-dec" style="font-size: 0.9rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.4rem;">Standard Decimal: 4,500,000</div>
+            <!-- Split Mode -->
+            <div id="mode-split" style="display: none;">
+              <div class="grid-inputs">
+                <div class="field-group">
+                  <label class="field-label" for="sn-coef">Coefficient (a)</label>
+                  <input type="number" step="any" id="sn-coef" class="code-input" value="4.5" oninput="calcSNSplit()" style="font-size: 1.2rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="sn-exp">Exponent of 10 (b)</label>
+                  <input type="number" step="1" id="sn-exp" class="code-input" value="6" oninput="calcSNSplit()" style="font-size: 1.2rem;" />
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="sn-sigfigs" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">Significant Figures:</label>
+                <select id="sn-sigfigs" onchange="calcSN()" class="code-input" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; width: auto;">
+                  <option value="auto" selected>Auto (Input Precision)</option>
+                  <option value="1">1 Sig Fig</option>
+                  <option value="2">2 Sig Figs</option>
+                  <option value="3">3 Sig Figs</option>
+                  <option value="4">4 Sig Figs</option>
+                  <option value="5">5 Sig Figs</option>
+                  <option value="6">6 Sig Figs</option>
+                  <option value="8">8 Sig Figs</option>
+                  <option value="10">10 Sig Figs</option>
+                </select>
+              </div>
+
+              <div style="font-family: var(--mono); font-size: 0.82rem; color: var(--text-muted);" id="sn-detected-sig">
+                Detected: <strong style="color: var(--fg);" id="detected-sig-val">2</strong> sig figs
+              </div>
+            </div>
+
+            <!-- Presets -->
+            <div style="margin-top: 1.2rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;">Scientific Constants & Presets:</div>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button type="button" class="preset-chip" onclick="applyPreset('299792458', 'Speed of Light (c)')">Light (2.998e8 m/s)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('6.02214076e23', 'Avogadro Constant (N_A)')">Avogadro (6.022e23)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('6.62607015e-34', 'Planck Constant (h)')">Planck (6.626e-34)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('9.1093837e-31', 'Electron Rest Mass')">Electron Mass (9.109e-31 kg)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('5.9722e24', 'Earth Mass')">Earth Mass (5.972e24 kg)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('0.000000000001', 'One Picometer')">Picometer (1e-12)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('4500000', 'Four Point Five Million')">4,500,000</button>
+              </div>
+            </div>
+
+            <!-- Conversion Results Cards -->
+            <div class="sn-card-grid">
+              <div class="sn-card" style="border-top: 3px solid #3b82f6;">
+                <div>
+                  <div class="sn-tag">
+                    <span>Scientific Notation (1 &le; |a| &lt; 10)</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-sci-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-sci-val" class="sn-val">4.5 &times; 10⁶</div>
+                </div>
+                <div class="sn-sub" id="sn-latex">LaTeX: <code>4.5 \times 10^{6}</code></div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #10b981;">
+                <div>
+                  <div class="sn-tag">
+                    <span>Engineering Notation (10³ᵏ)</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-eng-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-eng-val" class="sn-val">4.5 &times; 10⁶</div>
+                </div>
+                <div class="sn-sub" id="sn-eng-sub">Exponent multiple of 3</div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #8b5cf6;">
+                <div>
+                  <div class="sn-tag">
+                    <span>SI Metric Prefix</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-si-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-si-val" class="sn-val">4.5 M (Mega)</div>
+                </div>
+                <div class="sn-sub" id="sn-si-sub">Multiplier: 10⁶ (1,000,000)</div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #f59e0b;">
+                <div>
+                  <div class="sn-tag">
+                    <span>Standard Decimal Number</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-dec-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-dec-val" class="sn-val">4,500,000</div>
+                </div>
+                <div class="sn-sub" id="sn-spoken-sub">Short scale: 4.5 million</div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #64748b;">
+                <div>
+                  <div class="sn-tag">
+                    <span>E-Notation (Computer / Excel)</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-e-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-e-val" class="sn-val">4.5e+06</div>
+                </div>
+                <div class="sn-sub">Order of magnitude: ~10⁶</div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #ec4899;">
+                <div>
+                  <div class="sn-tag">
+                    <span>Precision & Sig Figs</span>
+                  </div>
+                  <div id="sn-sig-val" class="sn-val">2 Sig Figs</div>
+                </div>
+                <div class="sn-sub" id="sn-uncertainty">Uncertainty: &plusmn;0.05 &times; 10⁶</div>
+              </div>
+            </div>
+
+            <!-- Copy Summary Button -->
+            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+              <button type="button" class="btn-sec" onclick="copyFullSNSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
+                📋 Copy All Formats & Derivation
+              </button>
+            </div>
+
+            <!-- Step-by-Step Derivation -->
+            <div style="margin-top: 1.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">Step-by-Step Algebraic Conversion</h3>
+              <div id="sn-steps" class="step-box"></div>
+            </div>
+          </div>
+
+          <!-- SI Metric Prefix Reference Table -->
+          <div style="margin-top: 2.5rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 0.75rem;">SI Metric Prefixes Reference Guide</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+              Engineering notation groups numbers into exponents divisible by three (\(10^{3k}\)) because each corresponds directly to an official International System of Units (SI) metric prefix:
+            </p>
+            <div style="overflow-x: auto;">
+              <table class="prefix-table">
+                <thead>
+                  <tr>
+                    <th>Prefix</th>
+                    <th>Symbol</th>
+                    <th>Factor (10ⁿ)</th>
+                    <th>Decimal Multiplier</th>
+                    <th>Short Scale Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Tera</td><td>T</td><td>10¹²</td><td>1,000,000,000,000</td><td>Trillion</td></tr>
+                  <tr><td>Giga</td><td>G</td><td>10⁹</td><td>1,000,000,000</td><td>Billion</td></tr>
+                  <tr><td>Mega</td><td>M</td><td>10⁶</td><td>1,000,000</td><td>Million</td></tr>
+                  <tr><td>Kilo</td><td>k</td><td>10³</td><td>1,000</td><td>Thousand</td></tr>
+                  <tr><td>(Base)</td><td>-</td><td>10⁰</td><td>1</td><td>One</td></tr>
+                  <tr><td>Milli</td><td>m</td><td>10⁻³</td><td>0.001</td><td>Thousandth</td></tr>
+                  <tr><td>Micro</td><td>&mu;</td><td>10⁻⁶</td><td>0.000 001</td><td>Millionth</td></tr>
+                  <tr><td>Nano</td><td>n</td><td>10⁻⁹</td><td>0.000 000 001</td><td>Billionth</td></tr>
+                  <tr><td>Pico</td><td>p</td><td>10⁻¹²</td><td>0.000 000 000 001</td><td>Trillionth</td></tr>
+                  <tr><td>Femto</td><td>f</td><td>10⁻¹⁵</td><td>0.000 000 000 000 001</td><td>Quadrillionth</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
         <script>
+          var currentMode = 'single';
+
           function toSuperscript(num) {
             var chars = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻', '+': '' };
-            return num.toString().split('').map(function(c) { return chars[c] || c; }).join('');
+            return num.toString().split('').map(function(c) { return chars[c] !== undefined ? chars[c] : c; }).join('');
+          }
+
+          function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-single').style.display = mode === 'single' ? 'block' : 'none';
+            document.getElementById('mode-split').style.display = mode === 'split' ? 'block' : 'none';
+            document.getElementById('tab-single').style.fontWeight = mode === 'single' ? '600' : 'normal';
+            document.getElementById('tab-single').style.borderColor = mode === 'single' ? 'var(--fg)' : 'var(--border)';
+            document.getElementById('tab-split').style.fontWeight = mode === 'split' ? '600' : 'normal';
+            document.getElementById('tab-split').style.borderColor = mode === 'split' ? 'var(--fg)' : 'var(--border)';
+            if (mode === 'single') calcSN(); else calcSNSplit();
+          }
+
+          function countSigFigs(str) {
+            str = str.trim().replace(/^[-+]/, '').replace(/,/g, '');
+            // Check scientific/E notation
+            var eMatch = str.match(/^([0-9.]+)[eE]([-+]?[0-9]+)$/);
+            if (eMatch) str = eMatch[1];
+            var xMatch = str.match(/^([0-9.]+)s*[*xX×]s*10^?(?([-+]?[0-9]+))?$/);
+            if (xMatch) str = xMatch[1];
+
+            if (!str || isNaN(Number(str))) return 2;
+            if (str.indexOf('.') !== -1) {
+              // Decimal present
+              var clean = str.replace(/^0+/, ''); // strip leading zeros before decimal
+              if (clean.startsWith('.')) {
+                clean = clean.replace(/^.0*/, ''); // strip zeros right after decimal point
+              } else {
+                clean = clean.replace('.', '');
+              }
+              return clean.length || 1;
+            } else {
+              // No decimal: trailing zeros are not significant in standard convention
+              var stripped = str.replace(/^0+/, '');
+              var trailingStripped = stripped.replace(/0+$/, '');
+              return trailingStripped.length || 1;
+            }
+          }
+
+          function parseAnyInput(raw) {
+            raw = raw.trim().replace(/,/g, '').replace(/\s+/g, ' ');
+            if (!raw) return null;
+
+            // Check if matches a * 10^b or a x 10^b
+            var sciMatch = raw.match(/^([-+]?[0-9]*\.?[0-9]+)\s*(?:\*|[xX×]|&times;)\s*10\^?\(?([-+]?[0-9]+)\)?$/);
+            if (sciMatch) {
+              var a = parseFloat(sciMatch[1]);
+              var b = parseInt(sciMatch[2], 10);
+              return { val: a * Math.pow(10, b), coef: a, exp: b, rawSig: countSigFigs(sciMatch[1]) };
+            }
+
+            // Check E-notation: 4.5e6
+            var eMatch = raw.match(/^([-+]?[0-9]*\.?[0-9]+)[eE]([-+]?[0-9]+)$/);
+            if (eMatch) {
+              var aE = parseFloat(eMatch[1]);
+              var bE = parseInt(eMatch[2], 10);
+              return { val: aE * Math.pow(10, bE), coef: aE, exp: bE, rawSig: countSigFigs(eMatch[1]) };
+            }
+
+            // Standard decimal
+            var d = parseFloat(raw);
+            if (!isNaN(d)) {
+              return { val: d, rawSig: countSigFigs(raw) };
+            }
+            return null;
+          }
+
+          var siPrefixes = [
+            { exp: 24, sym: 'Y', name: 'Yotta', mult: '10²⁴' },
+            { exp: 21, sym: 'Z', name: 'Zetta', mult: '10²¹' },
+            { exp: 18, sym: 'E', name: 'Exa', mult: '10¹⁸' },
+            { exp: 15, sym: 'P', name: 'Peta', mult: '10¹⁵' },
+            { exp: 12, sym: 'T', name: 'Tera', mult: '10¹²' },
+            { exp: 9, sym: 'G', name: 'Giga', mult: '10⁹' },
+            { exp: 6, sym: 'M', name: 'Mega', mult: '10⁶' },
+            { exp: 3, sym: 'k', name: 'kilo', mult: '10³' },
+            { exp: 0, sym: '', name: 'Unit', mult: '10⁰' },
+            { exp: -3, sym: 'm', name: 'milli', mult: '10⁻³' },
+            { exp: -6, sym: 'μ', name: 'micro', mult: '10⁻⁶' },
+            { exp: -9, sym: 'n', name: 'nano', mult: '10⁻⁹' },
+            { exp: -12, sym: 'p', name: 'pico', mult: '10⁻¹²' },
+            { exp: -15, sym: 'f', name: 'femto', mult: '10⁻¹⁵' },
+            { exp: -18, sym: 'a', name: 'atto', mult: '10⁻¹⁸' },
+            { exp: -21, sym: 'z', name: 'zepto', mult: '10⁻²¹' },
+            { exp: -24, sym: 'y', name: 'yocto', mult: '10⁻²⁴' }
+          ];
+
+          function formatDecimalExpanded(val) {
+            if (val === 0) return '0';
+            var sign = val < 0 ? '-' : '';
+            var abs = Math.abs(val);
+
+            // For manageable ranges
+            if (abs >= 1e-6 && abs < 1e15) {
+              return val.toLocaleString('en-US', { maximumFractionDigits: 10 });
+            }
+
+            // Big or tiny numbers: use BigInt or toPrecision
+            var str = abs.toString();
+            if (str.indexOf('e') === -1) {
+              return sign + str;
+            }
+            return sign + str;
+          }
+
+          function getSpokenName(exp, coef) {
+            var sign = coef < 0 ? 'negative ' : '';
+            var c = Math.abs(coef);
+            if (exp >= 12 && exp < 15) return sign + (c * Math.pow(10, exp - 12)).toFixed(2) + ' trillion';
+            if (exp >= 9 && exp < 12) return sign + (c * Math.pow(10, exp - 9)).toFixed(2) + ' billion';
+            if (exp >= 6 && exp < 9) return sign + (c * Math.pow(10, exp - 6)).toFixed(2) + ' million';
+            if (exp >= 3 && exp < 6) return sign + (c * Math.pow(10, exp - 3)).toFixed(2) + ' thousand';
+            if (exp >= 0 && exp < 3) return sign + (c * Math.pow(10, exp)).toFixed(2);
+            if (exp <= -3 && exp > -6) return sign + (c * Math.pow(10, exp + 3)).toFixed(2) + ' thousandths';
+            if (exp <= -6 && exp > -9) return sign + (c * Math.pow(10, exp + 6)).toFixed(2) + ' millionths';
+            if (exp <= -9 && exp > -12) return sign + (c * Math.pow(10, exp + 9)).toFixed(2) + ' billionths';
+            return 'Order of magnitude: 10' + toSuperscript(exp);
+          }
+
+          function calcSNSplit() {
+            var a = parseFloat(document.getElementById('sn-coef').value);
+            var b = parseInt(document.getElementById('sn-exp').value, 10);
+            if (isNaN(a) || isNaN(b)) return;
+            var val = a * Math.pow(10, b);
+            renderCalculations(val, Math.max(1, countSigFigs(document.getElementById('sn-coef').value)));
           }
 
           function calcSN() {
-            var raw = document.getElementById('sn-in').value.trim().replace(/,/g, '');
-            var val = parseFloat(raw);
-            if (isNaN(val)) {
-              document.getElementById('sn-sci').textContent = '-';
+            var raw = document.getElementById('sn-in').value;
+            var parsed = parseAnyInput(raw);
+            if (!parsed || isNaN(parsed.val)) {
+              document.getElementById('sn-sci-val').textContent = '-';
               return;
             }
 
-            var expStr = val.toExponential();
-            var parts = expStr.split('e');
-            var coef = parseFloat(parseFloat(parts[0]).toFixed(6));
-            var exp = parseInt(parts[1], 10);
+            var sigOption = document.getElementById('sn-sigfigs').value;
+            var sig = sigOption === 'auto' ? parsed.rawSig : parseInt(sigOption, 10);
+            document.getElementById('detected-sig-val').textContent = parsed.rawSig;
 
-            document.getElementById('sn-sci').textContent = coef + ' × 10' + toSuperscript(exp);
-            document.getElementById('sn-eng').textContent = 'E-Notation: ' + coef + 'e' + (exp >= 0 ? '+' : '') + exp;
-            document.getElementById('sn-dec').textContent = 'Decimal: ' + (Math.abs(val) >= 1e15 || Math.abs(val) < 1e-6 ? val.toString() : val.toLocaleString('en-US', { maximumFractionDigits: 10 }));
+            renderCalculations(parsed.val, sig);
           }
 
-          window.setSN = function(v) {
-            document.getElementById('sn-in').value = v;
-            calcSN();
-          };
+          function renderCalculations(val, sigFigs) {
+            if (val === 0) {
+              document.getElementById('sn-sci-val').textContent = '0';
+              document.getElementById('sn-eng-val').textContent = '0';
+              document.getElementById('sn-si-val').textContent = '0';
+              document.getElementById('sn-dec-val').textContent = '0';
+              document.getElementById('sn-e-val').textContent = '0e+00';
+              document.getElementById('sn-sig-val').textContent = sigFigs + ' Sig Figs';
+              document.getElementById('sn-steps').innerHTML = 'Value is zero.';
+              return;
+            }
 
-          document.addEventListener('DOMContentLoaded', calcSN);
+            var expStr = val.toExponential(Math.max(0, sigFigs - 1));
+            var parts = expStr.split('e');
+            var coef = parseFloat(parts[0]);
+            var exp = parseInt(parts[1], 10);
+
+            // Format Scientific
+            var sciFormatted = coef + ' × 10' + toSuperscript(exp);
+            document.getElementById('sn-sci-val').textContent = sciFormatted;
+            document.getElementById('sn-latex').innerHTML = 'LaTeX: <code>' + coef + ' \\times 10^{' + exp + '}</code>';
+
+            // Engineering Notation (exp must be multiple of 3)
+            var engExp = Math.floor(exp / 3) * 3;
+            var expDiff = exp - engExp;
+            var engCoef = +(coef * Math.pow(10, expDiff)).toFixed(Math.max(0, sigFigs - 1 - expDiff));
+            document.getElementById('sn-eng-val').textContent = engCoef + ' × 10' + toSuperscript(engExp);
+            document.getElementById('sn-eng-sub').textContent = 'Grouping: 10' + toSuperscript(engExp) + ' (divisible by 3)';
+
+            // SI Prefix
+            var matchedPrefix = siPrefixes.find(function(p) { return p.exp === engExp; });
+            if (matchedPrefix && matchedPrefix.sym !== '') {
+              document.getElementById('sn-si-val').textContent = engCoef + ' ' + matchedPrefix.sym + ' (' + matchedPrefix.name + ')';
+              document.getElementById('sn-si-sub').textContent = 'Multiplier: 10' + toSuperscript(engExp) + ' (' + matchedPrefix.name + ')';
+            } else if (engExp === 0) {
+              document.getElementById('sn-si-val').textContent = engCoef + ' (base units)';
+              document.getElementById('sn-si-sub').textContent = 'No prefix (10⁰ = 1)';
+            } else {
+              document.getElementById('sn-si-val').textContent = engCoef + ' × 10' + toSuperscript(engExp);
+              document.getElementById('sn-si-sub').textContent = 'No standard SI prefix for 10' + toSuperscript(engExp);
+            }
+
+            // Decimal & Spoken
+            document.getElementById('sn-dec-val').textContent = formatDecimalExpanded(val);
+            document.getElementById('sn-spoken-sub').textContent = getSpokenName(exp, coef);
+
+            // E-Notation
+            var eSign = exp >= 0 ? '+' : '';
+            var ePad = Math.abs(exp) < 10 ? '0' : '';
+            document.getElementById('sn-e-val').textContent = coef + 'e' + eSign + ePad + Math.abs(exp);
+
+            // Sig Figs & Uncertainty
+            document.getElementById('sn-sig-val').textContent = sigFigs + ' Sig Figs';
+            var decimalPlaces = (coef.toString().split('.')[1] || '').length;
+            var halfStep = 0.5 * Math.pow(10, -decimalPlaces);
+            document.getElementById('sn-uncertainty').innerHTML = 'Estimated uncertainty: &plusmn;' + halfStep.toFixed(decimalPlaces + 1) + ' &times; 10' + toSuperscript(exp);
+
+            // Step-by-Step Derivation text
+            var stepsHtml = '';
+            stepsHtml += '<div><strong>Step 1 (Normalize Coefficient):</strong> Shift the decimal point until exactly one non-zero digit is on the left: <code>' + coef + '</code>.</div>';
+            if (exp > 0) {
+              stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 2 (Determine Exponent):</strong> The decimal point was shifted <strong>' + exp + ' places to the left</strong>, meaning the exponent of 10 is positive: <code>+ ' + exp + '</code>.</div>';
+            } else if (exp < 0) {
+              stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 2 (Determine Exponent):</strong> The decimal point was shifted <strong>' + Math.abs(exp) + ' places to the right</strong>, meaning the exponent of 10 is negative: <code>' + exp + '</code>.</div>';
+            } else {
+              stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 2 (Determine Exponent):</strong> No decimal shift was needed, so the exponent is <code>10⁰ = 1</code>.</div>';
+            }
+            stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 3 (Scientific Form):</strong> Multiply coefficient by power of 10: <strong>' + coef + ' &times; 10' + toSuperscript(exp) + '</strong> (' + sigFigs + ' significant figures).</div>';
+            stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 4 (Engineering & SI Form):</strong> Adjust exponent to nearest lower multiple of 3 (<code>' + engExp + '</code>): <strong>' + engCoef + ' &times; 10' + toSuperscript(engExp) + '</strong>' + (matchedPrefix ? ' = <strong>' + engCoef + ' ' + matchedPrefix.sym + '</strong>' : '') + '.</div>';
+
+            document.getElementById('sn-steps').innerHTML = stepsHtml;
+          }
+
+          function applyPreset(valStr, name) {
+            setMode('single');
+            document.getElementById('sn-in').value = valStr;
+            document.getElementById('sn-sigfigs').value = 'auto';
+            calcSN();
+          }
+
+          function copyCardVal(id, btn) {
+            var text = document.getElementById(id).textContent.trim();
+            navigator.clipboard.writeText(text).then(function() {
+              var old = btn.textContent;
+              btn.textContent = 'Copied!';
+              btn.style.color = '#10b981';
+              btn.style.borderColor = '#10b981';
+              setTimeout(function() {
+                btn.textContent = old;
+                btn.style.color = '';
+                btn.style.borderColor = '';
+              }, 1500);
+            });
+          }
+
+          function copyFullSNSummary(btn) {
+            var sci = document.getElementById('sn-sci-val').textContent.trim();
+            var eng = document.getElementById('sn-eng-val').textContent.trim();
+            var si = document.getElementById('sn-si-val').textContent.trim();
+            var dec = document.getElementById('sn-dec-val').textContent.trim();
+            var e = document.getElementById('sn-e-val').textContent.trim();
+            var sig = document.getElementById('sn-sig-val').textContent.trim();
+
+            var summary = [
+              '=== Scientific Notation Conversion ===',
+              'Scientific Notation : ' + sci,
+              'Engineering Notation: ' + eng,
+              'SI Metric Prefix    : ' + si,
+              'Standard Decimal    : ' + dec,
+              'E-Notation (Excel)  : ' + e,
+              'Significant Figures : ' + sig,
+              'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/scientific-notation-converter.html)'
+            ].join('\n');
+
+            navigator.clipboard.writeText(summary).then(function() {
+              var old = btn.textContent;
+              btn.textContent = '✅ Summary Copied to Clipboard!';
+              btn.style.borderColor = '#10b981';
+              setTimeout(function() {
+                btn.textContent = old;
+                btn.style.borderColor = '';
+              }, 2000);
+            });
+          }
+
+          document.addEventListener('DOMContentLoaded', function() { calcSN(); });
           calcSN();
         </script>
       `
     },
     {
       slug: 'percentage-increase-calculator',
-      title: 'Percentage Increase Calculator (Formula & Steps)',
-      metaDesc: 'Calculate percentage increase from starting value to final value. Includes difference, growth factor multiplier, and step-by-step formula solution.',
+      title: 'Percentage Increase Calculator (Formula, Steps & Multi-Period Projections)',
+      metaDesc: 'Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains.',
       category: 'Math & Finance',
+      faq: [
+        { q: 'What is the formula for percentage increase?', a: 'The formula for percentage increase is: Percentage Increase = ((New Value - Initial Value) / |Initial Value|) × 100%. If the starting value is 80 and the final value is 120, the increase is ((120 - 80) / 80) × 100% = (40 / 80) × 100% = +50%.' },
+        { q: 'What is the Reversal Trap in percentage changes?', a: 'Because percentage changes are relative to their current baseline, a percentage increase is never canceled out by the same percentage decrease. For example, a +50% gain on $100 takes you to $150. But to get back to $100, you only need a -33.33% drop ($50 / $150). Similarly, a +100% gain ($100 to $200) is completely wiped out by just a -50% loss.' },
+        { q: 'How do you convert percentage increase to a multiplier factor?', a: 'To find the growth multiplier, divide the percentage increase by 100 and add 1: Multiplier = 1 + (Percentage / 100). For example, a 25% increase equals a multiplier of 1.25. Multiply any starting amount by 1.25 to instantly find the increased value.' },
+        { q: 'Can percentage increase exceed 100%?', a: 'Yes. Any time a value more than doubles, the percentage increase exceeds 100%. For example, an increase from 50 to 150 is a +200% increase (the value tripled). There is no upper limit on percentage increase.' },
+        { q: 'How does compound percentage increase work over multiple periods?', a: 'Compound percentage increase applies each period\'s growth rate to the newly accumulated total rather than the original principal. It follows the exponential formula: Final Amount = Initial Amount × (1 + r)^n, where r is the growth rate per period and n is the number of periods.' }
+      ],
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <style>
+          .pi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+          .pi-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
+          .pi-ratio-bar { height: 26px; border-radius: 6px; overflow: hidden; display: flex; width: 100%; margin-top: 1rem; border: 1px solid var(--border); background: var(--surface-alt); }
+          .ratio-base { background: #3b82f6; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
+          .ratio-growth { background: #10b981; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
+          .mode-tab-btn { background: var(--surface-alt); border: 1px solid var(--border); padding: 0.45rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+          .mode-tab-btn.active { background: var(--surface); border-color: var(--fg); font-weight: 600; color: var(--fg); }
+          .compound-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
+          .compound-table th, .compound-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+          .compound-table th { background: var(--surface-alt); font-weight: 600; }
+        </style>
+
+        <div class="article-container" style="max-width: 960px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Increase
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Percentage Increase Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate percentage growth, price rises, and revenue increases between two numbers with full formula breakdown.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Percentage Increase Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate percentage growth between two numbers, add percentage increases to baseline prices, project multi-period compound expansion, and navigate the mathematical asymmetry of percentage reversals.
           </p>
 
           <div class="tool-box">
-            <div class="grid-inputs">
-              <div class="field-group">
-                <label class="field-label">Initial / Starting Value</label>
-                <input type="number" id="pi-init" class="code-input" value="80" oninput="calcPI()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Final / New Value</label>
-                <input type="number" id="pi-final" class="code-input" value="120" oninput="calcPI()" style="font-size: 1.25rem;" />
+            <!-- Mode Switcher -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+              <button type="button" class="mode-tab-btn active" id="btn-mode-calc" onclick="switchPIMode('calc')">Mode 1: Calculate % Increase (A &rarr; B)</button>
+              <button type="button" class="mode-tab-btn" id="btn-mode-add" onclick="switchPIMode('add')">Mode 2: Apply % Increase (A + X%)</button>
+              <button type="button" class="mode-tab-btn" id="btn-mode-compound" onclick="switchPIMode('compound')">Mode 3: Multi-Period Compounding</button>
+            </div>
+
+            <!-- Mode 1: Calculate % Increase -->
+            <div id="pi-sec-calc">
+              <div class="grid-inputs">
+                <div class="field-group">
+                  <label class="field-label" for="pi-init">Initial Starting Value (V₁)</label>
+                  <input type="number" step="any" id="pi-init" class="code-input" value="80" oninput="runPICalc()" style="font-size: 1.25rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pi-final">Final Increased Value (V₂)</label>
+                  <input type="number" step="any" id="pi-final" class="code-input" value="120" oninput="runPICalc()" style="font-size: 1.25rem;" />
+                </div>
               </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Percentage Increase</div>
-              <div id="pi-pct" class="result-val" style="color: #10b981;">+50.00%</div>
-              <div id="pi-diff" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;">Absolute Increase: +40</div>
-              <div id="pi-formula" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Formula: ((120 - 80) ÷ 80) × 100 = 50%</div>
+            <!-- Mode 2: Apply % Increase -->
+            <div id="pi-sec-add" style="display: none;">
+              <div class="grid-inputs">
+                <div class="field-group">
+                  <label class="field-label" for="pi-add-base">Starting Value (V₁)</label>
+                  <input type="number" step="any" id="pi-add-base" class="code-input" value="150" oninput="runPIAdd()" style="font-size: 1.25rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pi-add-pct">Percentage Increase to Add (%)</label>
+                  <input type="number" step="any" id="pi-add-pct" class="code-input" value="15" oninput="runPIAdd()" style="font-size: 1.25rem;" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Mode 3: Multi-Period Compounding -->
+            <div id="pi-sec-compound" style="display: none;">
+              <div class="grid-inputs">
+                <div class="field-group">
+                  <label class="field-label" for="pi-cmp-base">Initial Principal Amount</label>
+                  <input type="number" step="any" id="pi-cmp-base" class="code-input" value="1000" oninput="runPICompound()" style="font-size: 1.2rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pi-cmp-rate">Growth Rate per Period (%)</label>
+                  <input type="number" step="any" id="pi-cmp-rate" class="code-input" value="7" oninput="runPICompound()" style="font-size: 1.2rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pi-cmp-periods">Number of Periods (e.g. Years)</label>
+                  <input type="number" step="1" min="1" max="50" id="pi-cmp-periods" class="code-input" value="5" oninput="runPICompound()" style="font-size: 1.2rem;" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Presets -->
+            <div style="margin-top: 1rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Popular Scenarios:</span>
+              <button type="button" class="btn-sec" onclick="setPIPreset(50000, 58000, 'Salary Raise ($50k to $58k)')">Salary Raise (+16%)</button>
+              <button type="button" class="btn-sec" onclick="setPIPreset(120, 150, 'Retail Markup ($120 to $150)')">Markup (+25%)</button>
+              <button type="button" class="btn-sec" onclick="setPIPreset(100, 200, 'Doubling ($100 to $200)')">Doubling (+100%)</button>
+              <button type="button" class="btn-sec" onclick="setPIPreset(350000, 420000, 'Home Appreciation')">Real Estate (+20%)</button>
+            </div>
+
+            <!-- Primary Metric Cards -->
+            <div class="pi-grid">
+              <div class="pi-card" style="border-top: 4px solid #10b981;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Percentage Increase</div>
+                <div id="pi-res-pct" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">+50.00%</div>
+                <div id="pi-res-multiplier" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Multiplier: 1.500&times;</div>
+              </div>
+
+              <div class="pi-card" style="border-top: 4px solid #3b82f6;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Absolute Gain (Difference)</div>
+                <div id="pi-res-diff" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">+40.00</div>
+                <div id="pi-res-final" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Final: 120.00</div>
+              </div>
+
+              <div class="pi-card" style="border-top: 4px solid #f59e0b;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Reversal Trap (Breakeven)</div>
+                <div id="pi-res-reversal" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">-33.33%</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Drop needed to return to baseline</div>
+              </div>
+            </div>
+
+            <!-- Visual Proportional Bar -->
+            <div style="margin-top: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+                <span>Proportional Visual Breakdown</span>
+                <span id="ratio-legend">100% Base : +50% Growth</span>
+              </div>
+              <div class="pi-ratio-bar">
+                <div id="bar-base" class="ratio-base" style="width: 66.6%;">Base (80)</div>
+                <div id="bar-growth" class="ratio-growth" style="width: 33.4%;">+40 (+50%)</div>
+              </div>
+            </div>
+
+            <!-- Multi-Period Compound Projection Output -->
+            <div id="pi-compound-results" style="display: none; margin-top: 1.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">Compound Growth Schedule</h3>
+              <div style="overflow-x: auto;">
+                <table class="compound-table">
+                  <thead>
+                    <tr>
+                      <th>Period</th>
+                      <th>Starting Amount</th>
+                      <th>Gain for Period</th>
+                      <th>Ending Amount</th>
+                      <th>Total Cumulative Gain</th>
+                    </tr>
+                  </thead>
+                  <tbody id="compound-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Formula & Step-by-Step Derivation -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Step-by-Step Solution:</div>
+              <div id="pi-formula-steps" style="font-family: var(--mono); color: var(--fg);"></div>
+            </div>
+
+            <!-- Copy Button -->
+            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+              <button type="button" class="btn-sec" onclick="copyPISummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
+                📋 Copy Calculation Summary
+              </button>
             </div>
           </div>
         </div>
 
         <script>
-          function calcPI() {
+          var activePIMode = 'calc';
+
+          function switchPIMode(mode) {
+            activePIMode = mode;
+            document.getElementById('pi-sec-calc').style.display = mode === 'calc' ? 'block' : 'none';
+            document.getElementById('pi-sec-add').style.display = mode === 'add' ? 'block' : 'none';
+            document.getElementById('pi-sec-compound').style.display = mode === 'compound' ? 'block' : 'none';
+            document.getElementById('pi-compound-results').style.display = mode === 'compound' ? 'block' : 'none';
+
+            document.getElementById('btn-mode-calc').className = 'mode-tab-btn' + (mode === 'calc' ? ' active' : '');
+            document.getElementById('btn-mode-add').className = 'mode-tab-btn' + (mode === 'add' ? ' active' : '');
+            document.getElementById('btn-mode-compound').className = 'mode-tab-btn' + (mode === 'compound' ? ' active' : '');
+
+            if (mode === 'calc') runPICalc();
+            else if (mode === 'add') runPIAdd();
+            else runPICompound();
+          }
+
+          function runPICalc() {
             var v1 = parseFloat(document.getElementById('pi-init').value);
             var v2 = parseFloat(document.getElementById('pi-final').value);
             if (isNaN(v1) || isNaN(v2) || v1 === 0) {
-              document.getElementById('pi-pct').textContent = '-';
+              document.getElementById('pi-res-pct').textContent = '-';
               return;
             }
 
             var diff = v2 - v1;
             var pct = (diff / Math.abs(v1)) * 100;
             var mult = v2 / v1;
+            var revPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
 
+            renderPIMetrics(v1, v2, diff, pct, mult, revPct);
+
+            var steps = [
+              '1. Calculate absolute change: ' + v2.toLocaleString('en-US') + ' - ' + v1.toLocaleString('en-US') + ' = ' + (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US'),
+              '2. Divide by starting value: ' + diff.toFixed(4) + ' ÷ ' + Math.abs(v1) + ' = ' + (diff / Math.abs(v1)).toFixed(6),
+              '3. Multiply by 100 for percentage: ' + (diff / Math.abs(v1)).toFixed(6) + ' × 100% = ' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%',
+              '4. Growth Multiplier: ' + v2.toLocaleString('en-US') + ' ÷ ' + v1.toLocaleString('en-US') + ' = ' + mult.toFixed(4) + '×',
+              '5. Reversal Drop Required: To fall from ' + v2.toLocaleString('en-US') + ' back to ' + v1.toLocaleString('en-US') + ' requires a ' + revPct.toFixed(2) + '% decrease.'
+            ].join('<br>');
+            document.getElementById('pi-formula-steps').innerHTML = steps;
+          }
+
+          function runPIAdd() {
+            var v1 = parseFloat(document.getElementById('pi-add-base').value);
+            var pct = parseFloat(document.getElementById('pi-add-pct').value);
+            if (isNaN(v1) || isNaN(pct)) return;
+
+            var diff = v1 * (pct / 100);
+            var v2 = v1 + diff;
+            var mult = 1 + (pct / 100);
+            var revPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
+
+            renderPIMetrics(v1, v2, diff, pct, mult, revPct);
+
+            var steps = [
+              '1. Calculate dollar/unit increase: ' + v1.toLocaleString('en-US') + ' × (' + pct + ' ÷ 100) = +' + diff.toLocaleString('en-US'),
+              '2. Add increase to starting value: ' + v1.toLocaleString('en-US') + ' + ' + diff.toLocaleString('en-US') + ' = ' + v2.toLocaleString('en-US'),
+              '3. Quick Multiplier Form: ' + v1.toLocaleString('en-US') + ' × (1 + ' + (pct / 100) + ') = ' + v1.toLocaleString('en-US') + ' × ' + mult.toFixed(4) + ' = ' + v2.toLocaleString('en-US'),
+              '4. Reversal Trap: A subsequent decrease of ' + Math.abs(revPct).toFixed(2) + '% is required to return to the original ' + v1.toLocaleString('en-US') + '.'
+            ].join('<br>');
+            document.getElementById('pi-formula-steps').innerHTML = steps;
+          }
+
+          function runPICompound() {
+            var p0 = parseFloat(document.getElementById('pi-cmp-base').value);
+            var rate = parseFloat(document.getElementById('pi-cmp-rate').value);
+            var periods = parseInt(document.getElementById('pi-cmp-periods').value, 10);
+            if (isNaN(p0) || isNaN(rate) || isNaN(periods) || periods < 1) return;
+
+            var r = rate / 100;
+            var cur = p0;
+            var rows = '';
+
+            for (var i = 1; i <= periods; i++) {
+              var gain = cur * r;
+              var next = cur + gain;
+              var totalGain = next - p0;
+              rows += '<tr>' +
+                '<td>Period ' + i + '</td>' +
+                '<td>$' + cur.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+                '<td style="color: #10b981;">+$' + gain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
+                '<td><strong>$' + next.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</strong></td>' +
+                '<td>+$' + totalGain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (+' + ((totalGain / p0) * 100).toFixed(2) + '%)</td>' +
+                '</tr>';
+              cur = next;
+            }
+
+            document.getElementById('compound-tbody').innerHTML = rows;
+
+            var finalVal = cur;
+            var totalDiff = finalVal - p0;
+            var totalPct = (totalDiff / p0) * 100;
+            var mult = finalVal / p0;
+            var revPct = ((p0 - finalVal) / finalVal) * 100;
+
+            renderPIMetrics(p0, finalVal, totalDiff, totalPct, mult, revPct);
+
+            var steps = [
+              '1. Compound Growth Formula: A = P × (1 + r)ⁿ',
+              '2. Substitution: ' + p0.toLocaleString('en-US') + ' × (1 + ' + r + ')^' + periods + ' = ' + p0.toLocaleString('en-US') + ' × (' + (1 + r).toFixed(4) + ')^' + periods,
+              '3. Cumulative Multiplier: ' + mult.toFixed(4) + '×',
+              '4. Total Compound Expansion: ' + (totalPct >= 0 ? '+' : '') + totalPct.toFixed(2) + '% over ' + periods + ' periods.'
+            ].join('<br>');
+            document.getElementById('pi-formula-steps').innerHTML = steps;
+          }
+
+          function renderPIMetrics(v1, v2, diff, pct, mult, revPct) {
+            var pctEl = document.getElementById('pi-res-pct');
             var sign = pct >= 0 ? '+' : '';
-            var pctEl = document.getElementById('pi-pct');
             pctEl.textContent = sign + pct.toFixed(2) + '%';
             pctEl.style.color = pct >= 0 ? '#10b981' : '#ef4444';
 
-            document.getElementById('pi-diff').textContent = 'Absolute Change: ' + (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US') + ' (Multiplier: ' + mult.toFixed(3) + '×)';
-            document.getElementById('pi-formula').textContent = 'Formula: ((' + v2 + ' - ' + v1 + ') ÷ |' + v1 + '|) × 100 = ' + pct.toFixed(2) + '%';
+            document.getElementById('pi-res-multiplier').textContent = 'Multiplier: ' + mult.toFixed(3) + '×';
+            document.getElementById('pi-res-diff').textContent = (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('pi-res-final').textContent = 'Final Value: ' + v2.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('pi-res-reversal').textContent = revPct.toFixed(2) + '%';
+
+            // Visual bar
+            var total = Math.max(v1, v2, 0.001);
+            var basePct = Math.min(100, Math.max(10, (v1 / (v1 + Math.max(0, diff))) * 100));
+            var growthPct = 100 - basePct;
+
+            document.getElementById('bar-base').style.width = basePct + '%';
+            document.getElementById('bar-base').textContent = 'Base (' + v1.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ')';
+            document.getElementById('bar-growth').style.width = growthPct + '%';
+            document.getElementById('bar-growth').textContent = (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ' (' + sign + pct.toFixed(1) + '%)';
+            document.getElementById('ratio-legend').textContent = 'Base 100% : ' + sign + pct.toFixed(1) + '% Growth';
           }
 
-          document.addEventListener('DOMContentLoaded', calcPI);
-          calcPI();
+          function setPIPreset(v1, v2, desc) {
+            switchPIMode('calc');
+            document.getElementById('pi-init').value = v1;
+            document.getElementById('pi-final').value = v2;
+            runPICalc();
+          }
+
+          function copyPISummary(btn) {
+            var pct = document.getElementById('pi-res-pct').textContent.trim();
+            var mult = document.getElementById('pi-res-multiplier').textContent.trim();
+            var diff = document.getElementById('pi-res-diff').textContent.trim();
+            var finalVal = document.getElementById('pi-res-final').textContent.trim();
+            var rev = document.getElementById('pi-res-reversal').textContent.trim();
+
+            var summary = [
+              '=== Percentage Increase Breakdown ===',
+              'Percentage Increase: ' + pct,
+              'Absolute Difference: ' + diff,
+              'Multiplier         : ' + mult,
+              finalVal,
+              'Reversal Trap      : ' + rev + ' drop required to break even',
+              'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/math/percentage-increase-calculator.html)'
+            ].join('\n');
+
+            navigator.clipboard.writeText(summary).then(function() {
+              var old = btn.textContent;
+              btn.textContent = '✅ Copied to Clipboard!';
+              btn.style.borderColor = '#10b981';
+              setTimeout(function() {
+                btn.textContent = old;
+                btn.style.borderColor = '';
+              }, 2000);
+            });
+          }
+
+          document.addEventListener('DOMContentLoaded', function() { runPICalc(); });
+          runPICalc();
         </script>
       `
     },
     {
       slug: 'percentage-decrease-calculator',
-      title: 'Percentage Decrease & Discount Calculator',
-      metaDesc: 'Calculate percentage decrease, price drops, markdown discounts, and savings between original and discounted prices.',
+      title: 'Percentage Decrease Calculator (Discount, Savings & Asymmetric Loss Recovery)',
+      metaDesc: 'Calculate percentage decrease, markdown discounts, stacked coupon savings, and the asymmetric gain required to recover from losses with live step-by-step formulas.',
       category: 'Math & Finance',
+      faq: [
+        { q: 'What is the formula for percentage decrease?', a: 'The formula for percentage decrease is: Percentage Decrease = ((Starting Value - New Value) / Starting Value) × 100%. For example, if an item drops from $150 to $105, the percentage decrease is ((150 - 105) / 150) × 100% = (45 / 150) × 100% = 30% reduction.' },
+        { q: 'Why do financial losses require a larger percentage gain to recover?', a: 'Because percentage changes are calculated relative to their immediate starting point. A 50% drop reduces $100 to $50. To return to $100, the new starting point is $50, meaning you must gain $50 on $50—which is a +100% gain! Similarly, a 75% loss requires a +300% gain, and a 90% loss requires a +900% gain to break even.' },
+        { q: 'How do stacked discounts work (e.g., 20% off plus an extra 20% off)?', a: 'Stacked discounts are applied sequentially, not additively. A 20% discount on $100 reduces the price to $80. The second 20% discount applies to the remaining $80, saving an additional $16 for a final price of $64. The effective combined discount is 36%, not 40%.' },
+        { q: 'Can a percentage decrease ever exceed 100%?', a: 'In standard arithmetic and finance, a percentage decrease cannot exceed 100% unless a quantity becomes negative (e.g. going from a positive bank balance into debt). A 100% decrease means the quantity has reached exactly zero.' },
+        { q: 'How do you calculate the final price after a percentage discount and sales tax?', a: 'First, calculate the discounted price: Discounted Price = Original Price × (1 - Discount Rate). Then, apply the sales tax to the discounted price: Final Register Total = Discounted Price × (1 + Sales Tax Rate).' }
+      ],
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <style>
+          .pd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+          .pd-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
+          .pd-loss-bar { height: 26px; border-radius: 6px; overflow: hidden; display: flex; width: 100%; margin-top: 1rem; border: 1px solid var(--border); background: var(--surface-alt); }
+          .bar-retained { background: #3b82f6; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
+          .bar-dropped { background: #ef4444; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
+          .recovery-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
+          .recovery-table th, .recovery-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+          .recovery-table th { background: var(--surface-alt); font-weight: 600; }
+          .recovery-table tr.active-loss { background: rgba(239, 68, 68, 0.12); font-weight: bold; }
+        </style>
+
+        <div class="article-container" style="max-width: 960px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Decrease
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Percentage Decrease Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Determine percentage drops, retail markdown discounts, and loss margins from initial to reduced value.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Percentage Decrease Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Determine percentage drops, retail markdown discounts, stacked coupon combinations with sales tax, and analyze the asymmetric gain required to recover from capital losses.
           </p>
 
           <div class="tool-box">
-            <div class="grid-inputs">
-              <div class="field-group">
-                <label class="field-label">Original / Starting Value</label>
-                <input type="number" id="pd-init" class="code-input" value="150" oninput="calcPD()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Reduced / Final Value</label>
-                <input type="number" id="pd-final" class="code-input" value="105" oninput="calcPD()" style="font-size: 1.25rem;" />
+            <!-- Mode Switcher -->
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
+              <button type="button" class="mode-tab-btn active" id="btn-pd-calc" onclick="switchPDMode('calc')">Mode 1: Calculate % Decrease (A &rarr; B)</button>
+              <button type="button" class="mode-tab-btn" id="btn-pd-discount" onclick="switchPDMode('discount')">Mode 2: Retail Discount & Sales Tax</button>
+              <button type="button" class="mode-tab-btn" id="btn-pd-stacked" onclick="switchPDMode('stacked')">Mode 3: Stacked Double Discount</button>
+            </div>
+
+            <!-- Mode 1: A to B -->
+            <div id="pd-sec-calc">
+              <div class="grid-inputs">
+                <div class="field-group">
+                  <label class="field-label" for="pd-init">Original / Starting Value (V₁)</label>
+                  <input type="number" step="any" id="pd-init" class="code-input" value="150" oninput="runPDCalc()" style="font-size: 1.25rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pd-final">Reduced / Final Value (V₂)</label>
+                  <input type="number" step="any" id="pd-final" class="code-input" value="105" oninput="runPDCalc()" style="font-size: 1.25rem;" />
+                </div>
               </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Percentage Decrease</div>
-              <div id="pd-pct" class="result-val" style="color: #ef4444;">-30.00%</div>
-              <div id="pd-diff" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;">Total Savings: $45.00</div>
-              <div id="pd-formula" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">Formula: ((150 - 105) ÷ 150) × 100 = 30% reduction</div>
+            <!-- Mode 2: Discount & Tax -->
+            <div id="pd-sec-discount" style="display: none;">
+              <div class="grid-inputs">
+                <div class="field-group">
+                  <label class="field-label" for="pd-disc-orig">Original Retail Price ($)</label>
+                  <input type="number" step="any" id="pd-disc-orig" class="code-input" value="120" oninput="runPDDiscount()" style="font-size: 1.25rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pd-disc-pct">Discount Markdown (%)</label>
+                  <input type="number" step="any" id="pd-disc-pct" class="code-input" value="30" oninput="runPDDiscount()" style="font-size: 1.25rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pd-disc-tax">Local Sales Tax (%) [Optional]</label>
+                  <input type="number" step="any" id="pd-disc-tax" class="code-input" value="8.25" oninput="runPDDiscount()" style="font-size: 1.25rem;" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Mode 3: Stacked Discount -->
+            <div id="pd-sec-stacked" style="display: none;">
+              <div class="grid-inputs">
+                <div class="field-group">
+                  <label class="field-label" for="pd-stk-orig">Original Price ($)</label>
+                  <input type="number" step="any" id="pd-stk-orig" class="code-input" value="200" oninput="runPDStacked()" style="font-size: 1.25rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pd-stk-d1">First Discount (%)</label>
+                  <input type="number" step="any" id="pd-stk-d1" class="code-input" value="25" oninput="runPDStacked()" style="font-size: 1.25rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="pd-stk-d2">Second Stacked Coupon (%)</label>
+                  <input type="number" step="any" id="pd-stk-d2" class="code-input" value="15" oninput="runPDStacked()" style="font-size: 1.25rem;" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Presets -->
+            <div style="margin-top: 1rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Common Markdown Presets:</span>
+              <button type="button" class="btn-sec" onclick="setPDPreset(100, 75, '25% Off Clearance')">25% Off ($100 &rarr; $75)</button>
+              <button type="button" class="btn-sec" onclick="setPDPreset(200, 100, '50% Off Half Price')">50% Off ($200 &rarr; $100)</button>
+              <button type="button" class="btn-sec" onclick="setPDPreset(80, 56, '30% Storewide Sale')">30% Off ($80 &rarr; $56)</button>
+              <button type="button" class="btn-sec" onclick="setPDPreset(1000, 650, '35% Tech Markdown')">35% Off ($1k &rarr; $650)</button>
+            </div>
+
+            <!-- Primary Metric Cards -->
+            <div class="pd-grid">
+              <div class="pd-card" style="border-top: 4px solid #ef4444;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Percentage Decrease</div>
+                <div id="pd-res-pct" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.35rem 0;">-30.00%</div>
+                <div id="pd-res-retained" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Retained: 70.00% of original</div>
+              </div>
+
+              <div class="pd-card" style="border-top: 4px solid #3b82f6;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Savings / Drop</div>
+                <div id="pd-res-drop" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$45.00</div>
+                <div id="pd-res-final" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">New Value: $105.00</div>
+              </div>
+
+              <div class="pd-card" style="border-top: 4px solid #f59e0b;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Recovery Gain Required</div>
+                <div id="pd-res-recovery" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">+42.86%</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Gain needed to break even</div>
+              </div>
+            </div>
+
+            <!-- Visual Retention & Loss Bar -->
+            <div style="margin-top: 1.5rem;">
+              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem;">
+                <span>Value Retention vs Loss Chunk</span>
+                <span id="pd-bar-legend">70.0% Retained : 30.0% Lost</span>
+              </div>
+              <div class="pd-loss-bar">
+                <div id="pd-bar-ret" class="bar-retained" style="width: 70%;">Retained ($105)</div>
+                <div id="pd-bar-drop" class="bar-dropped" style="width: 30%;">-$45 (-30%)</div>
+              </div>
+            </div>
+
+            <!-- Formula & Step-by-Step Derivation -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #ef4444; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Step-by-Step Solution:</div>
+              <div id="pd-formula-steps" style="font-family: var(--mono); color: var(--fg);"></div>
+            </div>
+
+            <!-- Copy Button -->
+            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+              <button type="button" class="btn-sec" onclick="copyPDSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
+                📋 Copy Markdown Summary
+              </button>
+            </div>
+
+            <!-- Asymmetric Loss Recovery Matrix -->
+            <div style="margin-top: 2rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Asymmetric Loss Recovery Matrix</h3>
+              <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.75rem;">
+                Why portfolio protection matters: As percentage losses deepen, the percentage gain required to break even accelerates exponentially:
+              </p>
+              <div style="overflow-x: auto;">
+                <table class="recovery-table">
+                  <thead>
+                    <tr>
+                      <th>Percentage Loss</th>
+                      <th>Remaining Capital</th>
+                      <th>Required Gain to Break Even</th>
+                      <th>Mathematical Multiplier</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr id="row-10"><td>-10% Loss</td><td>90%</td><td>+11.11% Gain</td><td>1.111&times;</td></tr>
+                    <tr id="row-20"><td>-20% Loss</td><td>80%</td><td>+25.00% Gain</td><td>1.250&times;</td></tr>
+                    <tr id="row-30" class="active-loss"><td>-30% Loss (Current)</td><td>70%</td><td>+42.86% Gain</td><td>1.429&times;</td></tr>
+                    <tr id="row-40"><td>-40% Loss</td><td>60%</td><td>+66.67% Gain</td><td>1.667&times;</td></tr>
+                    <tr id="row-50"><td>-50% Loss</td><td>50%</td><td>+100.00% Gain (Doubling)</td><td>2.000&times;</td></tr>
+                    <tr id="row-60"><td>-60% Loss</td><td>40%</td><td>+150.00% Gain</td><td>2.500&times;</td></tr>
+                    <tr id="row-75"><td>-75% Loss</td><td>25%</td><td>+300.00% Gain (Quadrupling)</td><td>4.000&times;</td></tr>
+                    <tr id="row-90"><td>-90% Loss</td><td>10%</td><td>+900.00% Gain (10&times; Moonshot)</td><td>10.000&times;</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          function calcPD() {
+          var activePDMode = 'calc';
+
+          function switchPDMode(mode) {
+            activePDMode = mode;
+            document.getElementById('pd-sec-calc').style.display = mode === 'calc' ? 'block' : 'none';
+            document.getElementById('pd-sec-discount').style.display = mode === 'discount' ? 'block' : 'none';
+            document.getElementById('pd-sec-stacked').style.display = mode === 'stacked' ? 'block' : 'none';
+
+            document.getElementById('btn-pd-calc').className = 'mode-tab-btn' + (mode === 'calc' ? ' active' : '');
+            document.getElementById('btn-pd-discount').className = 'mode-tab-btn' + (mode === 'discount' ? ' active' : '');
+            document.getElementById('btn-pd-stacked').className = 'mode-tab-btn' + (mode === 'stacked' ? ' active' : '');
+
+            if (mode === 'calc') runPDCalc();
+            else if (mode === 'discount') runPDDiscount();
+            else runPDStacked();
+          }
+
+          function runPDCalc() {
             var v1 = parseFloat(document.getElementById('pd-init').value);
             var v2 = parseFloat(document.getElementById('pd-final').value);
             if (isNaN(v1) || isNaN(v2) || v1 === 0) {
-              document.getElementById('pd-pct').textContent = '-';
+              document.getElementById('pd-res-pct').textContent = '-';
               return;
             }
 
             var drop = v1 - v2;
             var pct = (drop / Math.abs(v1)) * 100;
+            var recGain = v2 > 0 ? ((v1 - v2) / v2) * 100 : 0;
+            var retPct = (v2 / v1) * 100;
 
-            var pctEl = document.getElementById('pd-pct');
-            pctEl.textContent = '-' + pct.toFixed(2) + '%';
+            renderPDMetrics(v1, v2, drop, pct, retPct, recGain);
 
-            document.getElementById('pd-diff').textContent = 'Total Reduction: ' + drop.toLocaleString('en-US') + ' (Remaining: ' + ((v2 / v1) * 100).toFixed(1) + '%)';
-            document.getElementById('pd-formula').textContent = 'Formula: ((' + v1 + ' - ' + v2 + ') ÷ |' + v1 + '|) × 100 = ' + pct.toFixed(2) + '% decrease';
+            var steps = [
+              '1. Calculate absolute decrease: ' + v1.toLocaleString('en-US') + ' - ' + v2.toLocaleString('en-US') + ' = ' + drop.toLocaleString('en-US'),
+              '2. Divide by starting value: ' + drop.toFixed(4) + ' ÷ ' + Math.abs(v1) + ' = ' + (drop / Math.abs(v1)).toFixed(6),
+              '3. Percentage Decrease: ' + (drop / Math.abs(v1)).toFixed(6) + ' × 100% = -' + pct.toFixed(2) + '%',
+              '4. Retained Proportion: ' + v2.toLocaleString('en-US') + ' ÷ ' + v1.toLocaleString('en-US') + ' = ' + retPct.toFixed(2) + '%',
+              '5. Required Recovery Gain: To recover from ' + v2.toLocaleString('en-US') + ' back to ' + v1.toLocaleString('en-US') + ' requires gaining ' + drop.toLocaleString('en-US') + ' on ' + v2.toLocaleString('en-US') + ' = +' + recGain.toFixed(2) + '%.'
+            ].join('<br>');
+            document.getElementById('pd-formula-steps').innerHTML = steps;
           }
 
-          document.addEventListener('DOMContentLoaded', calcPD);
-          calcPD();
+          function runPDDiscount() {
+            var orig = parseFloat(document.getElementById('pd-disc-orig').value);
+            var disc = parseFloat(document.getElementById('pd-disc-pct').value);
+            var taxRate = parseFloat(document.getElementById('pd-disc-tax').value) || 0;
+            if (isNaN(orig) || isNaN(disc)) return;
+
+            var drop = orig * (disc / 100);
+            var subtotal = orig - drop;
+            var taxAmount = subtotal * (taxRate / 100);
+            var finalTotal = subtotal + taxAmount;
+            var netPct = ((orig - finalTotal) / orig) * 100;
+            var recGain = subtotal > 0 ? (drop / subtotal) * 100 : 0;
+            var retPct = (subtotal / orig) * 100;
+
+            renderPDMetrics(orig, finalTotal, orig - finalTotal, disc, retPct, recGain);
+            document.getElementById('pd-res-drop').textContent = '$' + drop.toFixed(2) + (taxAmount > 0 ? ' (Tax: $' + taxAmount.toFixed(2) + ')' : '');
+            document.getElementById('pd-res-final').textContent = 'Register Total: $' + finalTotal.toFixed(2);
+
+            var steps = [
+              '1. Calculate discount savings: $' + orig.toFixed(2) + ' × ' + disc + '% = -$' + drop.toFixed(2),
+              '2. Discounted subtotal: $' + orig.toFixed(2) + ' - $' + drop.toFixed(2) + ' = $' + subtotal.toFixed(2),
+              taxRate > 0 ? ('3. Add sales tax (' + taxRate + '% on $' + subtotal.toFixed(2) + '): +$' + taxAmount.toFixed(2) + ' &rarr; Final Register Total = $' + finalTotal.toFixed(2)) : '3. No sales tax applied: Final Total = $' + finalTotal.toFixed(2),
+              '4. Breakeven Recovery: $' + drop.toFixed(2) + ' discount on $' + subtotal.toFixed(2) + ' = +' + recGain.toFixed(2) + '% gain required to restore original price.'
+            ].join('<br>');
+            document.getElementById('pd-formula-steps').innerHTML = steps;
+          }
+
+          function runPDStacked() {
+            var orig = parseFloat(document.getElementById('pd-stk-orig').value);
+            var d1 = parseFloat(document.getElementById('pd-stk-d1').value);
+            var d2 = parseFloat(document.getElementById('pd-stk-d2').value);
+            if (isNaN(orig) || isNaN(d1) || isNaN(d2)) return;
+
+            var p1 = orig * (1 - d1 / 100);
+            var p2 = p1 * (1 - d2 / 100);
+            var totalDrop = orig - p2;
+            var effectivePct = (totalDrop / orig) * 100;
+            var recGain = p2 > 0 ? (totalDrop / p2) * 100 : 0;
+            var retPct = (p2 / orig) * 100;
+
+            renderPDMetrics(orig, p2, totalDrop, effectivePct, retPct, recGain);
+
+            var steps = [
+              '1. First discount (' + d1 + '% on $' + orig.toFixed(2) + '): $' + orig.toFixed(2) + ' &rarr; $' + p1.toFixed(2) + ' (Savings: $' + (orig - p1).toFixed(2) + ')',
+              '2. Second stacked discount (' + d2 + '% on remaining $' + p1.toFixed(2) + '): $' + p1.toFixed(2) + ' &rarr; $' + p2.toFixed(2) + ' (Additional Savings: $' + (p1 - p2).toFixed(2) + ')',
+              '3. Effective combined discount: -' + effectivePct.toFixed(2) + '% (Notice: ' + d1 + '% + ' + d2 + '% is ' + (d1 + d2) + '%, but compounding yields ' + effectivePct.toFixed(2) + '%)',
+              '4. Total Savings: $' + totalDrop.toFixed(2) + ' | Final Price: $' + p2.toFixed(2)
+            ].join('<br>');
+            document.getElementById('pd-formula-steps').innerHTML = steps;
+          }
+
+          function renderPDMetrics(v1, v2, drop, pct, retPct, recGain) {
+            document.getElementById('pd-res-pct').textContent = '-' + pct.toFixed(2) + '%';
+            document.getElementById('pd-res-retained').textContent = 'Retained: ' + retPct.toFixed(1) + '% of original';
+            document.getElementById('pd-res-drop').textContent = (drop >= 0 ? '-' : '+') + Math.abs(drop).toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('pd-res-final').textContent = 'New Value: ' + v2.toLocaleString('en-US', { maximumFractionDigits: 2 });
+            document.getElementById('pd-res-recovery').textContent = '+' + recGain.toFixed(2) + '%';
+
+            // Update visual bar
+            var clampedRet = Math.min(100, Math.max(0, retPct));
+            var clampedDrop = Math.min(100, Math.max(0, 100 - clampedRet));
+            document.getElementById('pd-bar-ret').style.width = clampedRet + '%';
+            document.getElementById('pd-bar-ret').textContent = 'Retained (' + clampedRet.toFixed(1) + '%)';
+            document.getElementById('pd-bar-drop').style.width = clampedDrop + '%';
+            document.getElementById('pd-bar-drop').textContent = '-' + clampedDrop.toFixed(1) + '%';
+            document.getElementById('pd-bar-legend').textContent = clampedRet.toFixed(1) + '% Retained : ' + clampedDrop.toFixed(1) + '% Drop';
+
+            // Highlight corresponding row in recovery table
+            var rows = ['row-10', 'row-20', 'row-30', 'row-40', 'row-50', 'row-60', 'row-75', 'row-90'];
+            rows.forEach(function(r) {
+              var el = document.getElementById(r);
+              if (el) el.className = '';
+            });
+            var targetRow = 'row-30';
+            if (pct <= 15) targetRow = 'row-10';
+            else if (pct <= 25) targetRow = 'row-20';
+            else if (pct <= 35) targetRow = 'row-30';
+            else if (pct <= 45) targetRow = 'row-40';
+            else if (pct <= 55) targetRow = 'row-50';
+            else if (pct <= 65) targetRow = 'row-60';
+            else if (pct <= 80) targetRow = 'row-75';
+            else targetRow = 'row-90';
+
+            var activeEl = document.getElementById(targetRow);
+            if (activeEl) activeEl.className = 'active-loss';
+          }
+
+          function setPDPreset(v1, v2, desc) {
+            switchPDMode('calc');
+            document.getElementById('pd-init').value = v1;
+            document.getElementById('pd-final').value = v2;
+            runPDCalc();
+          }
+
+          function copyPDSummary(btn) {
+            var pct = document.getElementById('pd-res-pct').textContent.trim();
+            var drop = document.getElementById('pd-res-drop').textContent.trim();
+            var finalVal = document.getElementById('pd-res-final').textContent.trim();
+            var rec = document.getElementById('pd-res-recovery').textContent.trim();
+            var ret = document.getElementById('pd-res-retained').textContent.trim();
+
+            var summary = [
+              '=== Percentage Decrease Breakdown ===',
+              'Percentage Decrease : ' + pct,
+              'Total Reduction/Drop: ' + drop,
+              finalVal,
+              'Capital Retained    : ' + ret,
+              'Recovery Gain Needed: ' + rec + ' to break even',
+              'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/math/percentage-decrease-calculator.html)'
+            ].join('\n');
+
+            navigator.clipboard.writeText(summary).then(function() {
+              var old = btn.textContent;
+              btn.textContent = '✅ Copied to Clipboard!';
+              btn.style.borderColor = '#10b981';
+              setTimeout(function() {
+                btn.textContent = old;
+                btn.style.borderColor = '';
+              }, 2000);
+            });
+          }
+
+          document.addEventListener('DOMContentLoaded', function() { runPDCalc(); });
+          runPDCalc();
         </script>
       `
     },

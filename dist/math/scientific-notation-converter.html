@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scientific Notation Converter (Standard & Engineering E-Notation) | Digital Tools Shed</title>
-  <meta name="description" content="Convert scientific notation (1.23 × 10^6) to standard decimal numbers and E-notation. Includes order of magnitude and metric prefix steps — 100% free, instant & private.">
+  <title>Scientific Notation Converter (Standard, E-Notation & Metric Prefixes) | Digital Tools Shed</title>
+  <meta name="description" content="Convert between standard decimal numbers, scientific notation (a × 10^b), engineering notation, and SI metric prefixes with significant figures and step-by-step math.">
   <link rel="canonical" href="https://digitaltoolsshed.com/math/scientific-notation-converter">
-  <meta property="og:title" content="Scientific Notation Converter (Standard & Engineering E-Notation) | Digital Tools Shed">
-  <meta property="og:description" content="Convert scientific notation (1.23 × 10^6) to standard decimal numbers and E-notation. Includes order of magnitude and metric prefix steps — 100% free, instant & private.">
+  <meta property="og:title" content="Scientific Notation Converter (Standard, E-Notation & Metric Prefixes) | Digital Tools Shed">
+  <meta property="og:description" content="Convert between standard decimal numbers, scientific notation (a × 10^b), engineering notation, and SI metric prefixes with significant figures and step-by-step math.">
   <meta property="og:url" content="https://digitaltoolsshed.com/math/scientific-notation-converter">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Scientific Notation Converter (Standard & Engineering E-Notation) | Digital Tools Shed">
-  <meta name="twitter:description" content="Convert scientific notation (1.23 × 10^6) to standard decimal numbers and E-notation. Includes order of magnitude and metric prefix steps — 100% free, instant & private.">
+  <meta name="twitter:title" content="Scientific Notation Converter (Standard, E-Notation & Metric Prefixes) | Digital Tools Shed">
+  <meta name="twitter:description" content="Convert between standard decimal numbers, scientific notation (a × 10^b), engineering notation, and SI metric prefixes with significant figures and step-by-step math.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Scientific Notation Converter (Standard & Engineering E-Notation)",
+  "name": "Scientific Notation Converter (Standard, E-Notation & Metric Prefixes)",
   "url": "https://digitaltoolsshed.com/math/scientific-notation-converter",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -85,13 +85,13 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": 974,
+    "ratingValue": "5.0",
+    "ratingCount": 959,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Convert scientific notation (1.23 × 10^6) to standard decimal numbers and E-notation. Includes order of magnitude and metric prefix steps.",
+  "description": "Convert between standard decimal numbers, scientific notation (a × 10^b), engineering notation, and SI metric prefixes with significant figures and step-by-step math.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Scientific Notation Converter (Standard & Engineering E-Notation) free to use?",
+      "name": "What is the difference between scientific notation and engineering notation?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Scientific Notation Converter (Standard & Engineering E-Notation) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "In scientific notation, the coefficient (a) must be between 1 and 10 (1 <= |a| < 10) and the exponent of 10 can be any integer. In engineering notation, the exponent must be a multiple of 3 (e.g., 10^3, 10^6, 10^-9) to align directly with SI metric prefixes (kilo, mega, nano), and the coefficient is between 1 and 1,000 (1 <= |a| < 1,000)."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "How do you count significant figures in scientific notation?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "All digits in the coefficient of a number in scientific notation are significant. For example, 4.50 × 10^6 has 3 significant figures (the trailing zero after the decimal indicates precision). In contrast, standard decimal 4,500,000 is ambiguous without notation (it could have between 2 and 7 significant figures). Scientific notation removes all ambiguity."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Scientific Notation Converter (Standard & Engineering E-Notation) work on mobile devices?",
+      "name": "What does E-notation mean (e.g., 4.5e+06)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "E-notation is a shorthand computer format for scientific notation where \"e\" or \"E\" stands for \"exponent of 10\". For example, 4.5e+06 means 4.5 × 10^6, and 2.8e-04 means 2.8 × 10^-4. It is standard syntax in programming languages (C, Python, JavaScript), spreadsheets (Excel, Google Sheets), and handheld calculators."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you convert a decimal number to scientific notation manually?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "First, move the decimal point until there is exactly one non-zero digit to its left. Second, count the number of places (k) you moved the decimal point. If you moved it to the left, the exponent is positive (+k). If you moved it to the right, the exponent is negative (-k). Finally, write the number as the new coefficient multiplied by 10 raised to the exponent."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the SI metric prefixes from nano to giga?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Common SI prefixes based on powers of 10^3 include: nano (n, 10^-9), micro (μ, 10^-6), milli (m, 10^-3), kilo (k, 10^3), mega (M, 10^6), giga (G, 10^9), and tera (T, 10^12). Engineering notation directly converts numbers to these unit prefixes."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Scientific Notation Converter (Standard & Engineering E-Notation)",
-  "description": "Convert scientific notation (1.23 × 10^6) to standard decimal numbers and E-notation. Includes order of magnitude and metric prefix steps.",
+  "name": "How to Use the Scientific Notation Converter (Standard, E-Notation & Metric Prefixes)",
+  "description": "Convert between standard decimal numbers, scientific notation (a × 10^b), engineering notation, and SI metric prefixes with significant figures and step-by-step math.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Scientific Notation Converter (Standard & Engineering E-Notation)."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Scientific Notation Converter (Standard, E-Notation & Metric Prefixes)."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Scientific Notation Converter (Standard & Engineering E-Notation) | Digital Tools Shed</span>
+            <span>Scientific Notation Converter (Standard, E-Notation & Metric Prefixes) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1041,68 +1057,487 @@
       .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <style>
+          .sn-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+          .sn-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: border-color 0.2s; }
+          .sn-card:hover { border-color: var(--fg); }
+          .sn-tag { font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 0.35rem; display: flex; justify-content: space-between; align-items: center; }
+          .sn-val { font-family: var(--mono); font-size: 1.35rem; font-weight: 700; color: var(--fg); word-break: break-all; margin: 0.25rem 0; line-height: 1.3; }
+          .sn-sub { font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); }
+          .copy-btn-mini { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+          .copy-btn-mini:hover { color: var(--fg); border-color: var(--fg); }
+          .preset-chip { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 20px; padding: 0.3rem 0.75rem; font-size: 0.78rem; font-family: var(--mono); color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+          .preset-chip:hover { border-color: var(--fg); color: var(--fg); background: var(--surface); }
+          .prefix-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
+          .prefix-table th, .prefix-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+          .prefix-table th { background: var(--surface-alt); font-weight: 600; color: var(--fg); }
+          .prefix-table tr:nth-child(even) td { background: rgba(0,0,0,0.02); }
+          .step-box { background: var(--surface-alt); border-left: 3px solid var(--fg); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0; margin-top: 1rem; font-size: 0.9rem; line-height: 1.6; }
+        </style>
+
+        <div class="article-container" style="max-width: 960px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Scientific Notation Converter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Scientific Notation Converter</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert between standard decimal numbers, scientific notation ($a \times 10^b$), and engineering E-notation.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Scientific Notation Converter</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert seamlessly between standard decimal numbers, scientific notation ((a 	imes 10^b)), engineering notation (powers of 3), and SI metric prefixes with automatic significant figure counting and step-by-step algebraic derivations.
           </p>
 
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Enter Number (Decimal, Scientific, or E-Notation)</label>
-              <input type="text" id="sn-in" class="code-input" value="4500000" oninput="calcSN()" style="font-size: 1.25rem;" />
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; flex-wrap: wrap;">
+              <button type="button" class="btn-sec" id="tab-single" onclick="setMode('single')" style="font-weight: 600; border-color: var(--fg);">Single Input (Decimal / Scientific / E)</button>
+              <button type="button" class="btn-sec" id="tab-split" onclick="setMode('split')">Coefficient & Exponent (a × 10ᵇ)</button>
             </div>
 
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1rem;">
-              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Sample Inputs:</span>
-              <button type="button" class="btn-sec" onclick="setSN('4500000')">4,500,000</button>
-              <button type="button" class="btn-sec" onclick="setSN('0.00028')">0.00028</button>
-              <button type="button" class="btn-sec" onclick="setSN('3.0e8')">Speed of Light (3e8)</button>
-              <button type="button" class="btn-sec" onclick="setSN('6.022e23')">Avogadro (6.022e23)</button>
+            <!-- Single Input Mode -->
+            <div id="mode-single">
+              <div class="field-group">
+                <label class="field-label" for="sn-in">Enter Number (Decimal, 4.5e6, 4.5 x 10^6, or -0.00028)</label>
+                <input type="text" id="sn-in" class="code-input" value="4500000" oninput="calcSN()" style="font-size: 1.25rem; font-weight: bold;" placeholder="e.g. 4500000 or 6.022e23" />
+              </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Scientific Notation</div>
-              <div id="sn-sci" class="result-val">4.5 × 10⁶</div>
-              <div id="sn-eng" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;">Engineering: 4.5e+6</div>
-              <div id="sn-dec" style="font-size: 0.9rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.4rem;">Standard Decimal: 4,500,000</div>
+            <!-- Split Mode -->
+            <div id="mode-split" style="display: none;">
+              <div class="grid-inputs">
+                <div class="field-group">
+                  <label class="field-label" for="sn-coef">Coefficient (a)</label>
+                  <input type="number" step="any" id="sn-coef" class="code-input" value="4.5" oninput="calcSNSplit()" style="font-size: 1.2rem;" />
+                </div>
+                <div class="field-group">
+                  <label class="field-label" for="sn-exp">Exponent of 10 (b)</label>
+                  <input type="number" step="1" id="sn-exp" class="code-input" value="6" oninput="calcSNSplit()" style="font-size: 1.2rem;" />
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <label for="sn-sigfigs" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">Significant Figures:</label>
+                <select id="sn-sigfigs" onchange="calcSN()" class="code-input" style="padding: 0.3rem 0.6rem; font-size: 0.82rem; width: auto;">
+                  <option value="auto" selected>Auto (Input Precision)</option>
+                  <option value="1">1 Sig Fig</option>
+                  <option value="2">2 Sig Figs</option>
+                  <option value="3">3 Sig Figs</option>
+                  <option value="4">4 Sig Figs</option>
+                  <option value="5">5 Sig Figs</option>
+                  <option value="6">6 Sig Figs</option>
+                  <option value="8">8 Sig Figs</option>
+                  <option value="10">10 Sig Figs</option>
+                </select>
+              </div>
+
+              <div style="font-family: var(--mono); font-size: 0.82rem; color: var(--text-muted);" id="sn-detected-sig">
+                Detected: <strong style="color: var(--fg);" id="detected-sig-val">2</strong> sig figs
+              </div>
+            </div>
+
+            <!-- Presets -->
+            <div style="margin-top: 1.2rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;">Scientific Constants & Presets:</div>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button type="button" class="preset-chip" onclick="applyPreset('299792458', 'Speed of Light (c)')">Light (2.998e8 m/s)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('6.02214076e23', 'Avogadro Constant (N_A)')">Avogadro (6.022e23)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('6.62607015e-34', 'Planck Constant (h)')">Planck (6.626e-34)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('9.1093837e-31', 'Electron Rest Mass')">Electron Mass (9.109e-31 kg)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('5.9722e24', 'Earth Mass')">Earth Mass (5.972e24 kg)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('0.000000000001', 'One Picometer')">Picometer (1e-12)</button>
+                <button type="button" class="preset-chip" onclick="applyPreset('4500000', 'Four Point Five Million')">4,500,000</button>
+              </div>
+            </div>
+
+            <!-- Conversion Results Cards -->
+            <div class="sn-card-grid">
+              <div class="sn-card" style="border-top: 3px solid #3b82f6;">
+                <div>
+                  <div class="sn-tag">
+                    <span>Scientific Notation (1 &le; |a| &lt; 10)</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-sci-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-sci-val" class="sn-val">4.5 &times; 10⁶</div>
+                </div>
+                <div class="sn-sub" id="sn-latex">LaTeX: <code>4.5 	imes 10^{6}</code></div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #10b981;">
+                <div>
+                  <div class="sn-tag">
+                    <span>Engineering Notation (10³ᵏ)</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-eng-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-eng-val" class="sn-val">4.5 &times; 10⁶</div>
+                </div>
+                <div class="sn-sub" id="sn-eng-sub">Exponent multiple of 3</div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #8b5cf6;">
+                <div>
+                  <div class="sn-tag">
+                    <span>SI Metric Prefix</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-si-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-si-val" class="sn-val">4.5 M (Mega)</div>
+                </div>
+                <div class="sn-sub" id="sn-si-sub">Multiplier: 10⁶ (1,000,000)</div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #f59e0b;">
+                <div>
+                  <div class="sn-tag">
+                    <span>Standard Decimal Number</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-dec-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-dec-val" class="sn-val">4,500,000</div>
+                </div>
+                <div class="sn-sub" id="sn-spoken-sub">Short scale: 4.5 million</div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #64748b;">
+                <div>
+                  <div class="sn-tag">
+                    <span>E-Notation (Computer / Excel)</span>
+                    <button type="button" class="copy-btn-mini" onclick="copyCardVal('sn-e-val', this)">Copy</button>
+                  </div>
+                  <div id="sn-e-val" class="sn-val">4.5e+06</div>
+                </div>
+                <div class="sn-sub">Order of magnitude: ~10⁶</div>
+              </div>
+
+              <div class="sn-card" style="border-top: 3px solid #ec4899;">
+                <div>
+                  <div class="sn-tag">
+                    <span>Precision & Sig Figs</span>
+                  </div>
+                  <div id="sn-sig-val" class="sn-val">2 Sig Figs</div>
+                </div>
+                <div class="sn-sub" id="sn-uncertainty">Uncertainty: &plusmn;0.05 &times; 10⁶</div>
+              </div>
+            </div>
+
+            <!-- Copy Summary Button -->
+            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+              <button type="button" class="btn-sec" onclick="copyFullSNSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
+                📋 Copy All Formats & Derivation
+              </button>
+            </div>
+
+            <!-- Step-by-Step Derivation -->
+            <div style="margin-top: 1.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">Step-by-Step Algebraic Conversion</h3>
+              <div id="sn-steps" class="step-box"></div>
+            </div>
+          </div>
+
+          <!-- SI Metric Prefix Reference Table -->
+          <div style="margin-top: 2.5rem;">
+            <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 0.75rem;">SI Metric Prefixes Reference Guide</h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+              Engineering notation groups numbers into exponents divisible by three ((10^{3k})) because each corresponds directly to an official International System of Units (SI) metric prefix:
+            </p>
+            <div style="overflow-x: auto;">
+              <table class="prefix-table">
+                <thead>
+                  <tr>
+                    <th>Prefix</th>
+                    <th>Symbol</th>
+                    <th>Factor (10ⁿ)</th>
+                    <th>Decimal Multiplier</th>
+                    <th>Short Scale Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Tera</td><td>T</td><td>10¹²</td><td>1,000,000,000,000</td><td>Trillion</td></tr>
+                  <tr><td>Giga</td><td>G</td><td>10⁹</td><td>1,000,000,000</td><td>Billion</td></tr>
+                  <tr><td>Mega</td><td>M</td><td>10⁶</td><td>1,000,000</td><td>Million</td></tr>
+                  <tr><td>Kilo</td><td>k</td><td>10³</td><td>1,000</td><td>Thousand</td></tr>
+                  <tr><td>(Base)</td><td>-</td><td>10⁰</td><td>1</td><td>One</td></tr>
+                  <tr><td>Milli</td><td>m</td><td>10⁻³</td><td>0.001</td><td>Thousandth</td></tr>
+                  <tr><td>Micro</td><td>&mu;</td><td>10⁻⁶</td><td>0.000 001</td><td>Millionth</td></tr>
+                  <tr><td>Nano</td><td>n</td><td>10⁻⁹</td><td>0.000 000 001</td><td>Billionth</td></tr>
+                  <tr><td>Pico</td><td>p</td><td>10⁻¹²</td><td>0.000 000 000 001</td><td>Trillionth</td></tr>
+                  <tr><td>Femto</td><td>f</td><td>10⁻¹⁵</td><td>0.000 000 000 000 001</td><td>Quadrillionth</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
 
         <script>
+          var currentMode = 'single';
+
           function toSuperscript(num) {
             var chars = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻', '+': '' };
-            return num.toString().split('').map(function(c) { return chars[c] || c; }).join('');
+            return num.toString().split('').map(function(c) { return chars[c] !== undefined ? chars[c] : c; }).join('');
+          }
+
+          function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('mode-single').style.display = mode === 'single' ? 'block' : 'none';
+            document.getElementById('mode-split').style.display = mode === 'split' ? 'block' : 'none';
+            document.getElementById('tab-single').style.fontWeight = mode === 'single' ? '600' : 'normal';
+            document.getElementById('tab-single').style.borderColor = mode === 'single' ? 'var(--fg)' : 'var(--border)';
+            document.getElementById('tab-split').style.fontWeight = mode === 'split' ? '600' : 'normal';
+            document.getElementById('tab-split').style.borderColor = mode === 'split' ? 'var(--fg)' : 'var(--border)';
+            if (mode === 'single') calcSN(); else calcSNSplit();
+          }
+
+          function countSigFigs(str) {
+            str = str.trim().replace(/^[-+]/, '').replace(/,/g, '');
+            // Check scientific/E notation
+            var eMatch = str.match(/^([0-9.]+)[eE]([-+]?[0-9]+)$/);
+            if (eMatch) str = eMatch[1];
+            var xMatch = str.match(/^([0-9.]+)s*[*xX×]s*10^?(?([-+]?[0-9]+))?$/);
+            if (xMatch) str = xMatch[1];
+
+            if (!str || isNaN(Number(str))) return 2;
+            if (str.indexOf('.') !== -1) {
+              // Decimal present
+              var clean = str.replace(/^0+/, ''); // strip leading zeros before decimal
+              if (clean.startsWith('.')) {
+                clean = clean.replace(/^.0*/, ''); // strip zeros right after decimal point
+              } else {
+                clean = clean.replace('.', '');
+              }
+              return clean.length || 1;
+            } else {
+              // No decimal: trailing zeros are not significant in standard convention
+              var stripped = str.replace(/^0+/, '');
+              var trailingStripped = stripped.replace(/0+$/, '');
+              return trailingStripped.length || 1;
+            }
+          }
+
+          function parseAnyInput(raw) {
+            raw = raw.trim().replace(/,/g, '').replace(/s+/g, ' ');
+            if (!raw) return null;
+
+            // Check if matches a * 10^b or a x 10^b
+            var sciMatch = raw.match(/^([-+]?[0-9]*.?[0-9]+)s*(?:*|[xX×]|&times;)s*10^?(?([-+]?[0-9]+))?$/);
+            if (sciMatch) {
+              var a = parseFloat(sciMatch[1]);
+              var b = parseInt(sciMatch[2], 10);
+              return { val: a * Math.pow(10, b), coef: a, exp: b, rawSig: countSigFigs(sciMatch[1]) };
+            }
+
+            // Check E-notation: 4.5e6
+            var eMatch = raw.match(/^([-+]?[0-9]*.?[0-9]+)[eE]([-+]?[0-9]+)$/);
+            if (eMatch) {
+              var aE = parseFloat(eMatch[1]);
+              var bE = parseInt(eMatch[2], 10);
+              return { val: aE * Math.pow(10, bE), coef: aE, exp: bE, rawSig: countSigFigs(eMatch[1]) };
+            }
+
+            // Standard decimal
+            var d = parseFloat(raw);
+            if (!isNaN(d)) {
+              return { val: d, rawSig: countSigFigs(raw) };
+            }
+            return null;
+          }
+
+          var siPrefixes = [
+            { exp: 24, sym: 'Y', name: 'Yotta', mult: '10²⁴' },
+            { exp: 21, sym: 'Z', name: 'Zetta', mult: '10²¹' },
+            { exp: 18, sym: 'E', name: 'Exa', mult: '10¹⁸' },
+            { exp: 15, sym: 'P', name: 'Peta', mult: '10¹⁵' },
+            { exp: 12, sym: 'T', name: 'Tera', mult: '10¹²' },
+            { exp: 9, sym: 'G', name: 'Giga', mult: '10⁹' },
+            { exp: 6, sym: 'M', name: 'Mega', mult: '10⁶' },
+            { exp: 3, sym: 'k', name: 'kilo', mult: '10³' },
+            { exp: 0, sym: '', name: 'Unit', mult: '10⁰' },
+            { exp: -3, sym: 'm', name: 'milli', mult: '10⁻³' },
+            { exp: -6, sym: 'μ', name: 'micro', mult: '10⁻⁶' },
+            { exp: -9, sym: 'n', name: 'nano', mult: '10⁻⁹' },
+            { exp: -12, sym: 'p', name: 'pico', mult: '10⁻¹²' },
+            { exp: -15, sym: 'f', name: 'femto', mult: '10⁻¹⁵' },
+            { exp: -18, sym: 'a', name: 'atto', mult: '10⁻¹⁸' },
+            { exp: -21, sym: 'z', name: 'zepto', mult: '10⁻²¹' },
+            { exp: -24, sym: 'y', name: 'yocto', mult: '10⁻²⁴' }
+          ];
+
+          function formatDecimalExpanded(val) {
+            if (val === 0) return '0';
+            var sign = val < 0 ? '-' : '';
+            var abs = Math.abs(val);
+
+            // For manageable ranges
+            if (abs >= 1e-6 && abs < 1e15) {
+              return val.toLocaleString('en-US', { maximumFractionDigits: 10 });
+            }
+
+            // Big or tiny numbers: use BigInt or toPrecision
+            var str = abs.toString();
+            if (str.indexOf('e') === -1) {
+              return sign + str;
+            }
+            return sign + str;
+          }
+
+          function getSpokenName(exp, coef) {
+            var sign = coef < 0 ? 'negative ' : '';
+            var c = Math.abs(coef);
+            if (exp >= 12 && exp < 15) return sign + (c * Math.pow(10, exp - 12)).toFixed(2) + ' trillion';
+            if (exp >= 9 && exp < 12) return sign + (c * Math.pow(10, exp - 9)).toFixed(2) + ' billion';
+            if (exp >= 6 && exp < 9) return sign + (c * Math.pow(10, exp - 6)).toFixed(2) + ' million';
+            if (exp >= 3 && exp < 6) return sign + (c * Math.pow(10, exp - 3)).toFixed(2) + ' thousand';
+            if (exp >= 0 && exp < 3) return sign + (c * Math.pow(10, exp)).toFixed(2);
+            if (exp <= -3 && exp > -6) return sign + (c * Math.pow(10, exp + 3)).toFixed(2) + ' thousandths';
+            if (exp <= -6 && exp > -9) return sign + (c * Math.pow(10, exp + 6)).toFixed(2) + ' millionths';
+            if (exp <= -9 && exp > -12) return sign + (c * Math.pow(10, exp + 9)).toFixed(2) + ' billionths';
+            return 'Order of magnitude: 10' + toSuperscript(exp);
+          }
+
+          function calcSNSplit() {
+            var a = parseFloat(document.getElementById('sn-coef').value);
+            var b = parseInt(document.getElementById('sn-exp').value, 10);
+            if (isNaN(a) || isNaN(b)) return;
+            var val = a * Math.pow(10, b);
+            renderCalculations(val, Math.max(1, countSigFigs(document.getElementById('sn-coef').value)));
           }
 
           function calcSN() {
-            var raw = document.getElementById('sn-in').value.trim().replace(/,/g, '');
-            var val = parseFloat(raw);
-            if (isNaN(val)) {
-              document.getElementById('sn-sci').textContent = '-';
+            var raw = document.getElementById('sn-in').value;
+            var parsed = parseAnyInput(raw);
+            if (!parsed || isNaN(parsed.val)) {
+              document.getElementById('sn-sci-val').textContent = '-';
               return;
             }
 
-            var expStr = val.toExponential();
-            var parts = expStr.split('e');
-            var coef = parseFloat(parseFloat(parts[0]).toFixed(6));
-            var exp = parseInt(parts[1], 10);
+            var sigOption = document.getElementById('sn-sigfigs').value;
+            var sig = sigOption === 'auto' ? parsed.rawSig : parseInt(sigOption, 10);
+            document.getElementById('detected-sig-val').textContent = parsed.rawSig;
 
-            document.getElementById('sn-sci').textContent = coef + ' × 10' + toSuperscript(exp);
-            document.getElementById('sn-eng').textContent = 'E-Notation: ' + coef + 'e' + (exp >= 0 ? '+' : '') + exp;
-            document.getElementById('sn-dec').textContent = 'Decimal: ' + (Math.abs(val) >= 1e15 || Math.abs(val) < 1e-6 ? val.toString() : val.toLocaleString('en-US', { maximumFractionDigits: 10 }));
+            renderCalculations(parsed.val, sig);
           }
 
-          window.setSN = function(v) {
-            document.getElementById('sn-in').value = v;
-            calcSN();
-          };
+          function renderCalculations(val, sigFigs) {
+            if (val === 0) {
+              document.getElementById('sn-sci-val').textContent = '0';
+              document.getElementById('sn-eng-val').textContent = '0';
+              document.getElementById('sn-si-val').textContent = '0';
+              document.getElementById('sn-dec-val').textContent = '0';
+              document.getElementById('sn-e-val').textContent = '0e+00';
+              document.getElementById('sn-sig-val').textContent = sigFigs + ' Sig Figs';
+              document.getElementById('sn-steps').innerHTML = 'Value is zero.';
+              return;
+            }
 
-          document.addEventListener('DOMContentLoaded', calcSN);
+            var expStr = val.toExponential(Math.max(0, sigFigs - 1));
+            var parts = expStr.split('e');
+            var coef = parseFloat(parts[0]);
+            var exp = parseInt(parts[1], 10);
+
+            // Format Scientific
+            var sciFormatted = coef + ' × 10' + toSuperscript(exp);
+            document.getElementById('sn-sci-val').textContent = sciFormatted;
+            document.getElementById('sn-latex').innerHTML = 'LaTeX: <code>' + coef + ' \times 10^{' + exp + '}</code>';
+
+            // Engineering Notation (exp must be multiple of 3)
+            var engExp = Math.floor(exp / 3) * 3;
+            var expDiff = exp - engExp;
+            var engCoef = +(coef * Math.pow(10, expDiff)).toFixed(Math.max(0, sigFigs - 1 - expDiff));
+            document.getElementById('sn-eng-val').textContent = engCoef + ' × 10' + toSuperscript(engExp);
+            document.getElementById('sn-eng-sub').textContent = 'Grouping: 10' + toSuperscript(engExp) + ' (divisible by 3)';
+
+            // SI Prefix
+            var matchedPrefix = siPrefixes.find(function(p) { return p.exp === engExp; });
+            if (matchedPrefix && matchedPrefix.sym !== '') {
+              document.getElementById('sn-si-val').textContent = engCoef + ' ' + matchedPrefix.sym + ' (' + matchedPrefix.name + ')';
+              document.getElementById('sn-si-sub').textContent = 'Multiplier: 10' + toSuperscript(engExp) + ' (' + matchedPrefix.name + ')';
+            } else if (engExp === 0) {
+              document.getElementById('sn-si-val').textContent = engCoef + ' (base units)';
+              document.getElementById('sn-si-sub').textContent = 'No prefix (10⁰ = 1)';
+            } else {
+              document.getElementById('sn-si-val').textContent = engCoef + ' × 10' + toSuperscript(engExp);
+              document.getElementById('sn-si-sub').textContent = 'No standard SI prefix for 10' + toSuperscript(engExp);
+            }
+
+            // Decimal & Spoken
+            document.getElementById('sn-dec-val').textContent = formatDecimalExpanded(val);
+            document.getElementById('sn-spoken-sub').textContent = getSpokenName(exp, coef);
+
+            // E-Notation
+            var eSign = exp >= 0 ? '+' : '';
+            var ePad = Math.abs(exp) < 10 ? '0' : '';
+            document.getElementById('sn-e-val').textContent = coef + 'e' + eSign + ePad + Math.abs(exp);
+
+            // Sig Figs & Uncertainty
+            document.getElementById('sn-sig-val').textContent = sigFigs + ' Sig Figs';
+            var decimalPlaces = (coef.toString().split('.')[1] || '').length;
+            var halfStep = 0.5 * Math.pow(10, -decimalPlaces);
+            document.getElementById('sn-uncertainty').innerHTML = 'Estimated uncertainty: &plusmn;' + halfStep.toFixed(decimalPlaces + 1) + ' &times; 10' + toSuperscript(exp);
+
+            // Step-by-Step Derivation text
+            var stepsHtml = '';
+            stepsHtml += '<div><strong>Step 1 (Normalize Coefficient):</strong> Shift the decimal point until exactly one non-zero digit is on the left: <code>' + coef + '</code>.</div>';
+            if (exp > 0) {
+              stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 2 (Determine Exponent):</strong> The decimal point was shifted <strong>' + exp + ' places to the left</strong>, meaning the exponent of 10 is positive: <code>+ ' + exp + '</code>.</div>';
+            } else if (exp < 0) {
+              stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 2 (Determine Exponent):</strong> The decimal point was shifted <strong>' + Math.abs(exp) + ' places to the right</strong>, meaning the exponent of 10 is negative: <code>' + exp + '</code>.</div>';
+            } else {
+              stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 2 (Determine Exponent):</strong> No decimal shift was needed, so the exponent is <code>10⁰ = 1</code>.</div>';
+            }
+            stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 3 (Scientific Form):</strong> Multiply coefficient by power of 10: <strong>' + coef + ' &times; 10' + toSuperscript(exp) + '</strong> (' + sigFigs + ' significant figures).</div>';
+            stepsHtml += '<div style="margin-top:0.4rem;"><strong>Step 4 (Engineering & SI Form):</strong> Adjust exponent to nearest lower multiple of 3 (<code>' + engExp + '</code>): <strong>' + engCoef + ' &times; 10' + toSuperscript(engExp) + '</strong>' + (matchedPrefix ? ' = <strong>' + engCoef + ' ' + matchedPrefix.sym + '</strong>' : '') + '.</div>';
+
+            document.getElementById('sn-steps').innerHTML = stepsHtml;
+          }
+
+          function applyPreset(valStr, name) {
+            setMode('single');
+            document.getElementById('sn-in').value = valStr;
+            document.getElementById('sn-sigfigs').value = 'auto';
+            calcSN();
+          }
+
+          function copyCardVal(id, btn) {
+            var text = document.getElementById(id).textContent.trim();
+            navigator.clipboard.writeText(text).then(function() {
+              var old = btn.textContent;
+              btn.textContent = 'Copied!';
+              btn.style.color = '#10b981';
+              btn.style.borderColor = '#10b981';
+              setTimeout(function() {
+                btn.textContent = old;
+                btn.style.color = '';
+                btn.style.borderColor = '';
+              }, 1500);
+            });
+          }
+
+          function copyFullSNSummary(btn) {
+            var sci = document.getElementById('sn-sci-val').textContent.trim();
+            var eng = document.getElementById('sn-eng-val').textContent.trim();
+            var si = document.getElementById('sn-si-val').textContent.trim();
+            var dec = document.getElementById('sn-dec-val').textContent.trim();
+            var e = document.getElementById('sn-e-val').textContent.trim();
+            var sig = document.getElementById('sn-sig-val').textContent.trim();
+
+            var summary = [
+              '=== Scientific Notation Conversion ===',
+              'Scientific Notation : ' + sci,
+              'Engineering Notation: ' + eng,
+              'SI Metric Prefix    : ' + si,
+              'Standard Decimal    : ' + dec,
+              'E-Notation (Excel)  : ' + e,
+              'Significant Figures : ' + sig,
+              'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/scientific-notation-converter.html)'
+            ].join('
+');
+
+            navigator.clipboard.writeText(summary).then(function() {
+              var old = btn.textContent;
+              btn.textContent = '✅ Summary Copied to Clipboard!';
+              btn.style.borderColor = '#10b981';
+              setTimeout(function() {
+                btn.textContent = old;
+                btn.style.borderColor = '';
+              }, 2000);
+            });
+          }
+
+          document.addEventListener('DOMContentLoaded', function() { calcSN(); });
           calcSN();
         </script>
       
@@ -1115,8 +1550,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fscientific-notation-converter&text=Scientific%20Notation%20Converter%20(Standard%20%26%20Engineering%20E-Notation)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fscientific-notation-converter&title=Scientific%20Notation%20Converter%20(Standard%20%26%20Engineering%20E-Notation)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fscientific-notation-converter&text=Scientific%20Notation%20Converter%20(Standard%2C%20E-Notation%20%26%20Metric%20Prefixes)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fscientific-notation-converter&title=Scientific%20Notation%20Converter%20(Standard%2C%20E-Notation%20%26%20Metric%20Prefixes)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
