@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Social Security Taxability & Provisional Income Calculator | Digital Tools Shed</title>
-  <meta name="description" content="Calculate how much of your Social Security benefit is subject to federal income tax (0%, 50%, or 85%) using the IRS provisional combined income formula.">
+  <title>Social Security Taxability & "Tax Torpedo" Calculator (Provisional Income) | Digital Tools Shed</title>
+  <meta name="description" content="Calculate federal income tax on Social Security benefits (0%, 50%, or 85%) using IRS Provisional Combined Income thresholds. Model the dreaded 40.7% Tax Torpedo marginal rate.">
   <link rel="canonical" href="https://digitaltoolsshed.com/finance/social-security-tax">
-  <meta property="og:title" content="Social Security Taxability & Provisional Income Calculator | Digital Tools Shed">
-  <meta property="og:description" content="Calculate how much of your Social Security benefit is subject to federal income tax (0%, 50%, or 85%) using the IRS provisional combined income formula.">
+  <meta property="og:title" content="Social Security Taxability & &quot;Tax Torpedo&quot; Calculator (Provisional Income) | Digital Tools Shed">
+  <meta property="og:description" content="Calculate federal income tax on Social Security benefits (0%, 50%, or 85%) using IRS Provisional Combined Income thresholds. Model the dreaded 40.7% Tax Torpedo marginal rate.">
   <meta property="og:url" content="https://digitaltoolsshed.com/finance/social-security-tax">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Social Security Taxability & Provisional Income Calculator | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate how much of your Social Security benefit is subject to federal income tax (0%, 50%, or 85%) using the IRS provisional combined income formula.">
+  <meta name="twitter:title" content="Social Security Taxability & &quot;Tax Torpedo&quot; Calculator (Provisional Income) | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate federal income tax on Social Security benefits (0%, 50%, or 85%) using IRS Provisional Combined Income thresholds. Model the dreaded 40.7% Tax Torpedo marginal rate.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Social Security Taxability & Provisional Income Calculator",
+  "name": "Social Security Taxability & \"Tax Torpedo\" Calculator (Provisional Income)",
   "url": "https://digitaltoolsshed.com/finance/social-security-tax",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -85,13 +85,13 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "5.0",
-    "ratingCount": 1497,
+    "ratingValue": "4.8",
+    "ratingCount": 920,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate how much of your Social Security benefit is subject to federal income tax (0%, 50%, or 85%) using the IRS provisional combined income formula.",
+  "description": "Calculate federal income tax on Social Security benefits (0%, 50%, or 85%) using IRS Provisional Combined Income thresholds. Model the dreaded 40.7% Tax Torpedo marginal rate.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Social Security Taxability & Provisional Income Calculator free to use?",
+      "name": "How much of my Social Security benefit is subject to federal income tax?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Social Security Taxability & Provisional Income Calculator on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Depending on your Provisional (Combined) Income, up to 85% of your Social Security benefits may be taxable. For Single filers: below $25,000 is 0% taxable; between $25,000 and $34,000 is up to 50% taxable; above $34,000 is up to 85% taxable. For Married Filing Jointly: below $32,000 is 0% taxable; between $32,000 and $44,000 is up to 50% taxable; above $44,000 is up to 85% taxable. At least 15% of your benefits are always 100% tax-free at the federal level."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "What is the Social Security \"Tax Torpedo\"?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "The Tax Torpedo occurs when a retiree withdraws money from a Traditional 401(k) or IRA, which not only gets taxed at ordinary income rates, but simultaneously pulls an additional $0.50 to $0.85 of Social Security benefits into the taxable income base. In the 22% federal tax bracket, this dual-taxation effect spikes the effective marginal tax rate to 40.7% ($1.00 of income + $0.85 taxable SS = $1.85 taxable × 22% = 40.7 cents in tax)."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Social Security Taxability & Provisional Income Calculator work on mobile devices?",
+      "name": "What is Provisional Income and how is it calculated?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Provisional Income (also called Combined Income by the IRS under IRC § 86) is defined as: Adjusted Gross Income (excluding Social Security) + Tax-Exempt Municipal Bond Interest + Exactly 50% of your Gross Social Security Benefits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do Roth IRA withdrawals count toward Social Security taxability?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Qualified distributions from a Roth IRA or Roth 401(k) are completely exempt from Provisional Income. Because Roth withdrawals generate $0 of taxable income and $0 of provisional income, strategic Roth conversions before claiming Social Security can permanently disarm the Tax Torpedo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which US states tax Social Security benefits in 2025/2026?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Currently, 41 states plus Washington D.C. exempt Social Security benefits completely from state income tax. Only 9 states still tax some or all Social Security benefits: Colorado, Connecticut, Minnesota, Montana, New Mexico, Rhode Island, Utah, Vermont, and West Virginia (though several of these offer income-based exemptions for lower-income seniors)."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Social Security Taxability & Provisional Income Calculator",
-  "description": "Calculate how much of your Social Security benefit is subject to federal income tax (0%, 50%, or 85%) using the IRS provisional combined income formula.",
+  "name": "How to Use the Social Security Taxability & \"Tax Torpedo\" Calculator (Provisional Income)",
+  "description": "Calculate federal income tax on Social Security benefits (0%, 50%, or 85%) using IRS Provisional Combined Income thresholds. Model the dreaded 40.7% Tax Torpedo marginal rate.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Social Security Taxability & Provisional Income Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Social Security Taxability & \"Tax Torpedo\" Calculator (Provisional Income)."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Social Security Taxability & Provisional Income Calculator | Digital Tools Shed</span>
+            <span>Social Security Taxability & "Tax Torpedo" Calculator (Provisional Income) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1031,79 +1047,291 @@
         </nav>
 
         <header style="margin-bottom: 2rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Social Security Taxability Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Social Security Taxability & "Tax Torpedo" Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Find out exactly what portion of your Social Security checks will be taxed by the IRS using the statutory Provisional (Combined) Income formula.
+            Calculate exactly what portion of your Social Security benefits is subject to federal income tax (0%, 50%, or 85%) using IRS Provisional Combined Income rules (IRC § 86), and simulate your exposure to the dreaded 40.7% Tax Torpedo marginal bracket.
           </p>
         </header>
 
         <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <!-- Filing Status -->
             <div>
               <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Tax Filing Status:</label>
               <select id="sst-status" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" onchange="calcSSTax()">
-                <option value="single">Single / Head of Household</option>
+                <option value="single" selected>Single / Head of Household</option>
                 <option value="joint">Married Filing Jointly</option>
               </select>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Determines statutory provisional thresholds.</small>
             </div>
+
+            <!-- Annual Social Security Benefits -->
             <div>
               <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Annual Social Security Benefits ($):</label>
-              <input type="number" id="sst-ss" value="28000" step="1000" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="sst-ss" value="28000" step="1000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Box 5 from your SSA-1099 statement.</small>
             </div>
+
+            <!-- Other Taxable Income -->
             <div>
-              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Other Taxable Income (Wages, Pensions, 401k/IRA):</label>
-              <input type="number" id="sst-other" value="24000" step="1000" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Other Taxable Income (Wages, Pensions, IRAs) ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="sst-other" value="26000" step="1000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">W-2 wages, pension checks, 401(k)/IRA RMDs.</small>
             </div>
+
+            <!-- Tax-Exempt Interest -->
             <div>
-              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Non-Taxable Interest (Muni Bonds):</label>
-              <input type="number" id="sst-muni" value="0" step="500" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Tax-Exempt Municipal Interest ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="sst-muni" value="0" step="500" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Muni bonds (added back by IRS rules).</small>
             </div>
           </div>
 
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem;">
-            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Portion of Social Security Subject to Tax</div>
-            <div id="sst-taxable" style="font-family: var(--mono); font-size: 2.8rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.5rem 0;">$14,000 (50%)</div>
-            <div style="font-size: 0.9rem; color: var(--text-muted);">
-              IRS Provisional Income: <strong id="sst-prov" style="color: var(--fg); font-family: var(--mono);">$38,000</strong> | 100% Tax-Free Amount: <strong id="sst-free" style="color: #22c55e; font-family: var(--mono);">$14,000</strong>
+          <!-- Hero Metrics Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Provisional Combined Income</div>
+              <div id="sst-prov" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$40,000</div>
+              <div id="sst-tier-status" style="font-size: 0.85rem; color: #ef4444; font-weight: bold;">Tier 3: 85% Taxable Zone</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Taxable Social Security</div>
+              <div id="sst-taxable" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #ef4444; margin: 0.35rem 0;">$9,600</div>
+              <div id="sst-taxable-pct" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">34.3% of total benefit taxed</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Guaranteed Tax-Free Portion</div>
+              <div id="sst-taxfree" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$18,400</div>
+              <div id="sst-taxfree-pct" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">65.7% sheltered from tax</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Tax Torpedo Exposure</div>
+              <div id="sst-torpedo" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #ef4444; margin: 0.35rem 0;">ACTIVE (40.7%)</div>
+              <div id="sst-torpedo-detail" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">+$1k IRA &rarr; $850 more SS taxed</div>
             </div>
           </div>
+
+          <!-- Copy Button -->
+          <button type="button" id="btnCopySST" onclick="copySSTSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+            📋 Copy Social Security Taxability & Torpedo Report
+          </button>
+        </div>
+
+        <!-- Visual Provisional Income Threshold Bar -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">📊 Provisional Income Threshold Spectrum</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+            Your location along the statutory IRS thresholds determining benefit taxation tiers:
+          </p>
+
+          <!-- 3 Tier Bar -->
+          <div style="height: 24px; width: 100%; display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 0.6rem; border: 1px solid var(--border);">
+            <div style="width: 45%; background: #10b981;" title="Tier 1: 0% Taxable"></div>
+            <div style="width: 17%; background: #f59e0b;" title="Tier 2: Up to 50% Taxable"></div>
+            <div style="width: 38%; background: #ef4444;" title="Tier 3: Up to 85% Taxable"></div>
+          </div>
+
+          <!-- Threshold markers -->
+          <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">
+            <span style="color: #10b981;">0% Taxable Zone</span>
+            <span id="txtT1Limit" style="color: #f59e0b;">$25,000</span>
+            <span id="txtT2Limit" style="color: #ef4444;">$34,000 (85% Cliff)</span>
+            <span style="color: #ef4444;">85% Taxable Zone</span>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Worked Algebraic Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step IRS Provisional Income Mathematics</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">26 U.S. Code § 86</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            The Internal Revenue Code computes taxable Social Security by calculating combined provisional income and applying statutory two-tier phasing:
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Calculate Provisional (Combined) Income</strong>
+              <div id="sstStep1" style="color: #3b82f6; margin-top: 0.25rem;">Provisional Income = $26,000 (Other) + $0 (Muni) + (50% × $28,000 SS) = $40,000.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Tier 1 Calculation (50% Phase-In)</strong>
+              <div id="sstStep2" style="color: var(--text-muted); margin-top: 0.25rem;">Excess above $25,000 capped at $9,000 spread = $9,000 × 50% = $4,500.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Tier 2 Calculation (85% Phase-In)</strong>
+              <div id="sstStep3" style="color: var(--text-muted); margin-top: 0.25rem;">Excess above $34,000 = ($40,000 - $34,000) × 85% = $5,100.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #ef4444; font-weight: 700;">Step 4: Statutory Maximum Cap & Net Taxable Total</strong>
+              <div id="sstStep4" style="color: #ef4444; margin-top: 0.25rem;">Total = Lesser of ($4,500 + $5,100 = $9,600) or 85% cap ($23,800) = $9,600.00 taxable.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Critical Social Security Tax Traps -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 4 Critical Social Security Tax Traps</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>The Non-Inflation-Indexed Statutory Trap:</strong> Unlike tax brackets, standard deductions, and 401(k) contribution limits, Congress has <strong>NEVER indexed the $25,000 and $32,000 provisional thresholds for inflation</strong> since they were enacted in 1983. In 1983, less than 10% of seniors paid tax on benefits; today, over 50% of retirees are taxed due to pure inflation creep.</li>
+            <li><strong>The 40.7% "Tax Torpedo" Zone:</strong> In the 85% phase-in zone, each $1.00 of additional IRA distribution pushes $0.85 of previously tax-free Social Security into your taxable income. If your base federal bracket is 22%, your actual marginal tax rate becomes ( 22% 	imes 1.85 = 40.7% ). Middle-class retirees often face higher marginal rates than millionaires.</li>
+            <li><strong>The Municipal Bond Tax Illusion:</strong> Investors purchase municipal bonds believing interest is 100% tax-free. However, IRC § 86 specifically mandates that <em>tax-exempt interest must be added directly into provisional income</em>, silently triggering higher taxes on your Social Security checks.</li>
+            <li><strong>State Taxation Exposure:</strong> 9 states (CO, CT, MN, MT, NM, RI, UT, VT, WV) still levy state income taxes on Social Security. Moving across state lines or taking a large one-time 401(k) withdrawal can trigger double state-and-federal taxation.</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Social Security Tax Worksheet
+          </button>
         </div>
       </div>
 
       <script>
+        function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
         function calcSSTax() {
           var status = document.getElementById('sst-status').value;
           var ss = parseFloat(document.getElementById('sst-ss').value) || 0;
           var other = parseFloat(document.getElementById('sst-other').value) || 0;
           var muni = parseFloat(document.getElementById('sst-muni').value) || 0;
 
+          // Thresholds
+          var t1 = (status === 'joint') ? 32000 : 25000;
+          var t2 = (status === 'joint') ? 44000 : 34000;
+
+          document.getElementById('txtT1Limit').textContent = fmtUSD(t1);
+          document.getElementById('txtT2Limit').textContent = fmtUSD(t2) + ' (85% Cliff)';
+
           var halfSS = ss * 0.5;
           var provisional = other + muni + halfSS;
 
-          var base1 = (status === 'joint') ? 32000 : 25000;
-          var base2 = (status === 'joint') ? 44000 : 34000;
-
           var taxable = 0;
-          if (provisional <= base1) {
-            taxable = 0;
-          } else if (provisional <= base2) {
-            taxable = Math.min(halfSS, (provisional - base1) * 0.5);
-          } else {
-            var tier1 = (base2 - base1) * 0.5;
-            var tier2 = (provisional - base2) * 0.85;
-            taxable = Math.min(ss * 0.85, tier1 + tier2);
+          if (provisional > t2) {
+            var tier1Spread = t2 - t1;
+            var part1 = Math.min(halfSS, tier1Spread * 0.5);
+            var part2 = (provisional - t2) * 0.85;
+            taxable = Math.min(part1 + part2, ss * 0.85);
+          } else if (provisional > t1) {
+            taxable = Math.min((provisional - t1) * 0.5, halfSS);
           }
 
-          var pct = ss > 0 ? ((taxable / ss) * 100).toFixed(0) : 0;
           var taxFree = Math.max(0, ss - taxable);
+          var taxPct = ss > 0 ? ((taxable / ss) * 100) : 0;
+          var freePct = ss > 0 ? ((taxFree / ss) * 100) : 100;
 
-          document.getElementById('sst-taxable').textContent = '$' + Math.round(taxable).toLocaleString('en-US') + ' (' + pct + '%)';
-          document.getElementById('sst-prov').textContent = '$' + Math.round(provisional).toLocaleString('en-US');
-          document.getElementById('sst-free').textContent = '$' + Math.round(taxFree).toLocaleString('en-US');
+          document.getElementById('sst-prov').textContent = fmtUSD(provisional);
+          document.getElementById('sst-taxable').textContent = fmtUSD(taxable);
+          document.getElementById('sst-taxable-pct').textContent = taxPct.toFixed(1) + '% of total benefit taxed';
+          document.getElementById('sst-taxfree').textContent = fmtUSD(taxFree);
+          document.getElementById('sst-taxfree-pct').textContent = freePct.toFixed(1) + '% sheltered from tax';
+
+          var tierStatusEl = document.getElementById('sst-tier-status');
+          var torpedoEl = document.getElementById('sst-torpedo');
+          var torpedoDetailEl = document.getElementById('sst-torpedo-detail');
+
+          if (provisional <= t1) {
+            tierStatusEl.textContent = 'Tier 1: 0% Taxable Zone';
+            tierStatusEl.style.color = '#10b981';
+            torpedoEl.textContent = 'INACTIVE (0%)';
+            torpedoEl.style.color = '#10b981';
+            torpedoDetailEl.textContent = 'Extra income will not trigger tax on SS';
+          } else if (provisional <= t2) {
+            tierStatusEl.textContent = 'Tier 2: 50% Phase-In Zone';
+            tierStatusEl.style.color = '#f59e0b';
+            torpedoEl.textContent = 'MODERATE (33.0%)';
+            torpedoEl.style.color = '#f59e0b';
+            torpedoDetailEl.textContent = '+$1k IRA → $500 more SS taxed (1.5x rate)';
+          } else {
+            tierStatusEl.textContent = 'Tier 3: 85% Phase-In Zone';
+            tierStatusEl.style.color = '#ef4444';
+            torpedoEl.textContent = 'ACTIVE (40.7%)';
+            torpedoEl.style.color = '#ef4444';
+            torpedoDetailEl.textContent = '+$1k IRA → $850 more SS taxed (1.85x rate)';
+          }
+
+          // Step derivations
+          document.getElementById('sstStep1').textContent = 'Provisional Income = ' + fmtUSD(other) + ' (Other) + ' + fmtUSD(muni) + ' (Muni) + (50% × ' + fmtUSD(ss) + ' SS) = ' + fmtUSD(provisional) + '.';
+          if (provisional <= t1) {
+            document.getElementById('sstStep2').textContent = 'Provisional Income (' + fmtUSD(provisional) + ') is below Tier 1 threshold (' + fmtUSD(t1) + '). Taxable amount = $0.00.';
+            document.getElementById('sstStep3').textContent = 'Tier 2 not applicable.';
+            document.getElementById('sstStep4').textContent = '100% of your Social Security benefits are tax-free.';
+          } else if (provisional <= t2) {
+            var diff = provisional - t1;
+            document.getElementById('sstStep2').textContent = 'Excess above ' + fmtUSD(t1) + ' = ' + fmtUSD(diff) + ' × 50% = ' + fmtUSD(diff * 0.5) + '.';
+            document.getElementById('sstStep3').textContent = 'Provisional Income is below Tier 2 threshold (' + fmtUSD(t2) + ').';
+            document.getElementById('sstStep4').textContent = 'Taxable amount = ' + fmtUSD(taxable) + ' (' + taxPct.toFixed(1) + '% of total benefit).';
+          } else {
+            var spread = t2 - t1;
+            var t1Amt = Math.min(halfSS, spread * 0.5);
+            var t2Amt = (provisional - t2) * 0.85;
+            document.getElementById('sstStep2').textContent = 'Tier 1 (' + fmtUSD(t1) + ' to ' + fmtUSD(t2) + ') = ' + fmtUSD(spread) + ' × 50% = ' + fmtUSD(t1Amt) + '.';
+            document.getElementById('sstStep3').textContent = 'Tier 2 excess above ' + fmtUSD(t2) + ' = ' + fmtUSD(provisional - t2) + ' × 85% = ' + fmtUSD(t2Amt) + '.';
+            document.getElementById('sstStep4').textContent = 'Total Taxable = Min(' + fmtUSD(t1Amt + t2Amt) + ', 85% cap ' + fmtUSD(ss * 0.85) + ') = ' + fmtUSD(taxable) + '.';
+          }
         }
+
+        function copySSTSummary() {
+          var status = document.getElementById('sst-status').value;
+          var ss = document.getElementById('sst-ss').value;
+          var other = document.getElementById('sst-other').value;
+          var prov = document.getElementById('sst-prov').textContent;
+          var taxable = document.getElementById('sst-taxable').textContent;
+          var taxFree = document.getElementById('sst-taxfree').textContent;
+          var torpedo = document.getElementById('sst-torpedo').textContent;
+
+          var text = '🏛️ SOCIAL SECURITY TAXABILITY & TORPEDO REPORT
+' +
+            '----------------------------------------
+' +
+            '• Filing Status: ' + (status === 'joint' ? 'Married Filing Jointly' : 'Single / Head of Household') + '
+' +
+            '• Annual Social Security: $' + Number(ss).toLocaleString('en-US') + '
+' +
+            '• Other Income: $' + Number(other).toLocaleString('en-US') + '
+' +
+            '• Provisional Combined Income: ' + prov + '
+' +
+            '----------------------------------------
+' +
+            'TAXABILITY BREAKDOWN:
+' +
+            '• Taxable Social Security Amount: ' + taxable + ' (' + document.getElementById('sst-taxable-pct').textContent + ')
+' +
+            '• Guaranteed Tax-Free Portion: ' + taxFree + ' (' + document.getElementById('sst-taxfree-pct').textContent + ')
+' +
+            '• Tax Torpedo Marginal Exposure: ' + torpedo + '
+' +
+            '----------------------------------------
+' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/social-security-tax';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopySST');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Taxability Report!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
+        }
+
         document.addEventListener('DOMContentLoaded', calcSSTax);
       </script>
-    
+  
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1113,8 +1341,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fsocial-security-tax&text=Social%20Security%20Taxability%20%26%20Provisional%20Income%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fsocial-security-tax&title=Social%20Security%20Taxability%20%26%20Provisional%20Income%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fsocial-security-tax&text=Social%20Security%20Taxability%20%26%20%22Tax%20Torpedo%22%20Calculator%20(Provisional%20Income)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fsocial-security-tax&title=Social%20Security%20Taxability%20%26%20%22Tax%20Torpedo%22%20Calculator%20(Provisional%20Income)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           

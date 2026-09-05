@@ -8,10 +8,33 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 
   const financeTools = [
   {
-    "slug": "social-security-calculator",
-    "title": "Social Security Benefit Calculator by Age (62 vs 67 vs 70)",
-    "metaDesc": "Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70 with COLA compounding and break-even analysis.",
-    "body": `
+    slug: "social-security-calculator",
+    title: "Social Security Benefit Calculator by Age (62 vs 67 vs 70 & Break-Even)",
+    metaDesc: "Compare estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70 with COLA compounding, spousal options, and break-even analysis.",
+    category: "Finance",
+    faq: [
+      {
+            "q": "What is the best age to claim Social Security benefits?",
+            "a": "There is no single best age for everyone: claiming at 62 provides income immediately but locks in a permanent 30% reduction. Claiming at Full Retirement Age (67 for those born 1960 or later) provides 100% of your primary insurance amount. Delaying to age 70 maximizes monthly income with a permanent 24% delayed retirement bonus (+8% per year), which provides the highest lifetime wealth for individuals who live past age 80 to 82."
+      },
+      {
+            "q": "What is the break-even age between claiming Social Security at 62 vs 70?",
+            "a": "The break-even age between claiming at age 62 and age 70 is typically between age 80 and 82. If you live past age 82, the higher monthly checks from delaying until age 70 will generate significantly more total cumulative cash than taking the reduced monthly checks starting at 62."
+      },
+      {
+            "q": "How does working while collecting Social Security affect my benefits?",
+            "a": "If you claim Social Security before your Full Retirement Age (FRA) and continue working, the Retirement Earnings Test applies: the SSA withholds $1 of benefits for every $2 earned above the annual earnings limit ($23,400 in 2025/2026). Once you reach FRA, there is no earnings limit, and your monthly benefit is recalculated upwards to credit you for the withheld amounts."
+      },
+      {
+            "q": "How do delayed retirement credits work after Full Retirement Age?",
+            "a": "For each year you delay claiming Social Security past your Full Retirement Age up to age 70, your benefit permanently increases by 8% per year (2/3 of 1% per month), plus any annual Cost-of-Living Adjustments (COLA). There is no financial benefit to delaying past age 70, as credits stop accumulating."
+      },
+      {
+            "q": "How does my claiming age affect my spouse's survivor benefit?",
+            "a": "Your claiming age permanently establishes the survivor benefit for your spouse. If you are the higher earner and delay until age 70, your surviving spouse will inherit your enhanced 124% maximum benefit upon your death. If you claim early at 62, you permanently lock in a reduced survivor benefit for your surviving spouse for the rest of their life."
+      }
+],
+    body: `
       <div class="article-container" style="max-width: 950px;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
           <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Social Security Calculator
@@ -20,337 +43,381 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
         <header style="margin-bottom: 2rem;">
           <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Social Security Retirement Benefit Estimator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Compare monthly payouts and cumulative lifetime wealth across all claiming ages from 62 to 70. Features SSA actuarial formulas, annual COLA compounding, exact break-even crossover analysis, and spousal survivor benefits.
+            Compare monthly payouts and cumulative lifetime wealth across all claiming ages from 62 to 70. Features SSA actuarial reduction formulas, delayed retirement credits (+8%/yr), annual COLA compounding, and break-even crossover analysis.
           </p>
         </header>
 
-        <div class="tool-box">
-          <!-- Primary Benefit & Target Age Inputs -->
-          <div class="grid-inputs">
-            <div class="field-group">
-              <label class="field-label">Estimated Monthly Benefit at Full Age 67 (PIA in $ USD)</label>
-              <input type="number" id="ss-base" class="text-input" value="2200" step="50" oninput="calcSS()" />
+        <!-- Main Calculator Controls Grid -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <!-- Primary Insurance Amount (PIA) -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Monthly Benefit at Full Age 67 (PIA in $):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="ss-base" value="2200" step="50" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSS()" />
+              </div>
               <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
-                <button type="button" class="btn-sec" onclick="setSSPIA(1600)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$1,600 (Avg)</button>
-                <button type="button" class="btn-sec" onclick="setSSPIA(2200)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono); border-color: #3b82f6; color: #3b82f6; font-weight: bold;">$2,200 (Above Avg)</button>
-                <button type="button" class="btn-sec" onclick="setSSPIA(2800)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$2,800 (High)</button>
-                <button type="button" class="btn-sec" onclick="setSSPIA(3911)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$3,911 (2025 Max)</button>
+                <button type="button" onclick="setSSPIA(1600)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$1,600 (Avg)</button>
+                <button type="button" onclick="setSSPIA(2200)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$2,200 (Above Avg)</button>
+                <button type="button" onclick="setSSPIA(2800)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$2,800 (High)</button>
+                <button type="button" onclick="setSSPIA(4018)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$4,018 (Max FRA)</button>
               </div>
             </div>
 
-            <div class="field-group">
-              <label class="field-label">Your Planned Claiming Age</label>
-              <select id="ss-claim-age" class="text-input" onchange="calcSS()">
+            <!-- Planned Claiming Age -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Planned Claiming Age:</label>
+              <select id="ss-claim-age" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" onchange="calcSS()">
                 <option value="62">Age 62 (-30.0% Early Reduction)</option>
                 <option value="63">Age 63 (-25.0% Early Reduction)</option>
                 <option value="64">Age 64 (-20.0% Early Reduction)</option>
                 <option value="65">Age 65 (-13.3% Early Reduction)</option>
                 <option value="66">Age 66 (-6.7% Early Reduction)</option>
                 <option value="67" selected>Age 67 (100% Full Retirement Age)</option>
-                <option value="68">Age 68 (+8.0% Delayed Credit)</option>
-                <option value="69">Age 69 (+16.0% Delayed Credit)</option>
+                <option value="68">Age 68 (+8.0% Delayed Bonus)</option>
+                <option value="69">Age 69 (+16.0% Delayed Bonus)</option>
                 <option value="70">Age 70 (+24.0% Maximum Bonus)</option>
               </select>
-              <small style="color: var(--text-muted); font-size: 0.75rem;">FRA is 67 for all workers born 1960 or later.</small>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">FRA is 67 for workers born 1960 or later.</small>
             </div>
 
-            <div class="field-group">
-              <label class="field-label">Life Expectancy Horizon (Age)</label>
-              <input type="number" id="ss-age-limit" class="text-input" value="85" min="70" max="100" step="1" oninput="calcSS()" />
-              <small style="color: var(--text-muted); font-size: 0.75rem;">Actuarial longevity projection (average is 84–87).</small>
+            <!-- Longevity Horizon -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Life Expectancy Horizon (Age):</label>
+              <input type="number" id="ss-age-limit" value="85" min="70" max="100" step="1" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSS()" />
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Average US life expectancy: 84 to 87.</small>
             </div>
-          </div>
 
-          <!-- COLA & Spousal Settings -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin: 1.25rem 0;">
-            <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--fg); display: flex; align-items: center; justify-content: space-between;">
-              <span>📈 Inflation & Household Claiming Variables</span>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981;">Actuarial Precision</span>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-              <div>
-                <label class="field-label" style="font-size: 0.75rem;">Annual COLA Compounding Rate</label>
-                <select id="ss-cola" class="text-input" onchange="calcSS()" style="padding: 0.45rem; font-size: 0.85rem;">
-                  <option value="0">0.0% (Purchasing Power / Flat Dollars)</option>
-                  <option value="0.015">1.5% (Conservative Low Inflation)</option>
-                  <option value="0.025" selected>2.5% (Historical SSA 20-Yr Average)</option>
-                  <option value="0.035">3.5% (Higher Inflation Regime)</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="field-label" style="font-size: 0.75rem;">Include Spousal Benefit Top-Up?</label>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
-                  <input type="checkbox" id="ss-spouse-toggle" onchange="calcSS()" style="width: 18px; height: 18px; cursor: pointer;" />
-                  <span style="font-size: 0.85rem; color: var(--fg);">Calculate 50% spousal auxiliary check</span>
-                </div>
-              </div>
+            <!-- Expected Annual COLA -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Expected Annual COLA (% / yr):</label>
+              <input type="number" id="ss-cola" value="2.4" min="0" max="8" step="0.1" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSS()" />
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Historical SSA 20-year average: 2.4%.</small>
             </div>
           </div>
 
-          <!-- Milestone Comparison Cards (62 vs 67 vs 70) -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-            <!-- AGE 62 -->
-            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px; text-align: center;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Early Claiming (Age 62)</div>
-              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #ef4444;">-30.0% Reduction</div>
-              <div id="ss-62-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #ef4444; margin-bottom: 0.4rem;">$1,540 / mo</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
-                Lifetime Total: <strong id="ss-62-life" style="color: var(--fg); font-family: var(--mono);">$425,040</strong>
-              </div>
+          <!-- Hero Metrics Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Monthly Check at Claim</div>
+              <div id="ss-monthly" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$2,200</div>
+              <div id="ss-pct-fra" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">100% of Full Benefit</div>
             </div>
-
-            <!-- AGE 67 -->
-            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px; text-align: center;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Full Retirement (Age 67)</div>
-              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #3b82f6;">100% Full PIA</div>
-              <div id="ss-67-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.4rem;">$2,200 / mo</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
-                Lifetime Total: <strong id="ss-67-life" style="color: var(--fg); font-family: var(--mono);">$475,200</strong>
-              </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Cumulative Lifetime Total</div>
+              <div id="ss-lifetime" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$585,420</div>
+              <div id="ss-horizon-text" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Through Age 85</div>
             </div>
-
-            <!-- AGE 70 -->
-            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #22c55e; padding: 1.25rem; border-radius: 6px; text-align: center;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Delayed Claiming (Age 70)</div>
-              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #22c55e;">+24.0% Max Bonus</div>
-              <div id="ss-70-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #22c55e; margin-bottom: 0.4rem;">$2,728 / mo</div>
-              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
-                Lifetime Total: <strong id="ss-70-life" style="color: var(--fg); font-family: var(--mono);">$491,040</strong>
-              </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Break-Even Age vs. 62</div>
+              <div id="ss-breakeven" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">Age 78.4</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Crossover point in cash</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Annual Starting Income</div>
+              <div id="ss-annual" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$26,400 / yr</div>
+              <div id="ss-delay-gain" style="font-size: 0.85rem; color: #10b981; font-family: var(--mono); font-weight: bold;">+$6,336/yr vs claiming at 62</div>
             </div>
           </div>
 
-          <!-- Selected Plan Summary Card -->
-          <div class="result-card" style="margin-top: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
-              <div class="field-label">Your Planned Strategy Outcome</div>
-              <div id="ss-plan-badge" style="font-family: var(--mono); font-size: 0.8rem; color: #3b82f6; font-weight: bold;">Claiming at Age 67</div>
-            </div>
-            <div id="ss-selected-monthly" class="result-val">$2,200 / mo</div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
-              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
-                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Lifetime Cumulative Payout</span>
-                <div id="ss-selected-lifetime" style="font-size: 1.4rem; font-weight: bold; color: #10b981; font-family: var(--mono);">$475,200</div>
-                <div id="ss-selected-years" style="font-size: 0.75rem; color: var(--text-muted);">Over 18 years of retirement</div>
-              </div>
+          <!-- Copy Button -->
+          <button type="button" id="btnCopySS" onclick="copySSSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+            📋 Copy Social Security Claiming Strategy Worksheet
+          </button>
+        </div>
 
-              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
-                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Break-Even Age (Age 70 vs 62)</span>
-                <div id="ss-breakeven" style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; font-family: var(--mono);">Age 80.4</div>
-                <div style="font-size: 0.75rem; color: var(--text-muted);">Living past this age favors delaying to 70</div>
-              </div>
-
-              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
-                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Spousal Check Addition</span>
-                <div id="ss-spouse-amount" style="font-size: 1.4rem; font-weight: bold; color: var(--fg); font-family: var(--mono);">$0 / mo</div>
-                <div id="ss-spouse-desc" style="font-size: 0.75rem; color: var(--text-muted);">Toggle spousal benefit above</div>
-              </div>
-            </div>
-
-            <button type="button" id="btnCopySS" onclick="copySSSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Social Security Strategy Report
-            </button>
+        <!-- Interactive SVG Cumulative Wealth Crossover Curve -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📈 Cumulative Lifetime Wealth Crossover (62 vs 67 vs 70)</h3>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Orange: Age 62 | Blue: Age 67 | Green: Age 70</span>
           </div>
+          <div style="width: 100%; overflow-x: auto;">
+            <svg id="ssCrossoverSvg" viewBox="0 0 600 240" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 0 auto; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);"></svg>
+          </div>
+        </div>
 
-          <!-- Step-by-Step Worked Derivation -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step SSA Actuarial Formula Derivation</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">42 U.S. Code § 402</span>
+        <!-- Claiming Age Comparison Matrix Table -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚖️ Full Claiming Age Comparison Schedule</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.6rem;">Claim Age</th>
+                  <th style="padding: 0.5rem 0.6rem;">Benefit Multiplier</th>
+                  <th style="padding: 0.5rem 0.6rem;">Monthly Payout</th>
+                  <th style="padding: 0.5rem 0.6rem;">Annual Payout</th>
+                  <th style="padding: 0.5rem 0.6rem;">Total by Age 80</th>
+                  <th style="padding: 0.5rem 0.6rem;">Total by Age 85</th>
+                  <th style="padding: 0.5rem 0.6rem;">Total by Age 90</th>
+                </tr>
+              </thead>
+              <tbody id="ssMatrixBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Worked Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Actuarial Benefit Derivation</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Social Security Act (42 U.S.C. § 402)</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            Benefits are computed from your Primary Insurance Amount (PIA) adjusted by statutory reduction or delayed credit factors based on elapsed months relative to Full Retirement Age (67):
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Baseline Primary Insurance Amount (PIA) at FRA (67)</strong>
+              <div id="ssStep1" style="color: #3b82f6; margin-top: 0.25rem;">PIA = $2,200.00 / month ($26,400.00 / year).</div>
             </div>
-            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              The Social Security Administration calculates reductions and delayed credits on a monthly actuarial scale relative to Full Retirement Age (FRA 67):
-            </p>
-            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 1: Early Reduction & Delayed Credits Percentage</strong>
-                <div id="ss-step-1" style="color: #3b82f6; margin-top: 0.25rem;">
-                  Full Retirement Age (67): Multiplier = 100.0% of PIA ($2,200.00 / mo)
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 2: Actuarial Reduction Schedule</strong>
-                <div id="ss-step-2" style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Early Reduction: 5/9 of 1% per month for first 36 months (20.0%) + 5/12 of 1% per month for next 24 months (10.0%) = 30.0% total reduction at age 62.<br>
-                  Delayed Credit: 2/3 of 1% per month (8.0% per year) for 36 months = +24.0% total bonus at age 70.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 3: Cumulative Lifetime Value with COLA Compounding</strong>
-                <div id="ss-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Lifetime Cumulative = &Sigma; [Monthly &times; 12 &times; (1 + COLA)^t] from Age 67 to Age 85 = <strong>$475,200</strong>
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981; font-weight: 700;">Step 4: Break-Even Crossover Horizon</strong>
-                <div id="ss-step-4" style="color: #10b981; margin-top: 0.25rem;">
-                  Age 70 ($2,728/mo) starts 96 months after Age 62 ($1,540/mo). Cumulative lines cross at <strong>Age 80.4</strong>.
-                </div>
-              </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Actuarial Reduction or Delayed Credit Factor</strong>
+              <div id="ssStep2" style="color: var(--text-muted); margin-top: 0.25rem;">Age 67 Factor = 100.0% (0 months early / delayed).</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Initial Monthly & Annual Benefit</strong>
+              <div id="ssStep3" style="color: var(--text-muted); margin-top: 0.25rem;">Monthly = $2,200.00 × 1.000 = $2,200.00. Annual = $26,400.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #10b981; font-weight: 700;">Step 4: Cumulative Compounded Lifetime Total</strong>
+              <div id="ssStep4" style="color: #10b981; margin-top: 0.25rem;">Sum over 18 years (ages 67 to 85) with 2.4% annual COLA = $585,420.00.</div>
             </div>
           </div>
+        </div>
 
-          <!-- Critical Social Security Traps & Retirement Pitfalls -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Social Security Traps & Retirement Pitfalls</h3>
-            <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
-              <li><strong>The Retirement Earnings Test Trap:</strong> If you claim before Full Retirement Age (FRA 67) and continue working, SSA will withhold $1 for every $2 you earn above $23,400 (in 2025/2026). While withheld benefits are actuarially recalculated at FRA, claiming early while working creates an immediate liquidity penalty.</li>
-              <li><strong>The Social Security "Tax Torpedo":</strong> Up to 85% of your Social Security benefits become subject to ordinary federal income tax once your provisional income (AGI + tax-exempt interest + 50% of your Social Security) exceeds $25,000 for single filers or $32,000 for married couples filing jointly. These thresholds were established in 1983 and have NEVER been indexed to inflation!</li>
-              <li><strong>The Survivor Benefit Asymmetry:</strong> When one spouse passes away, the smaller of the two Social Security checks vanishes forever, and the surviving spouse inherits the larger check. Delaying the higher-earning spouse's claim to age 70 locks in the maximum possible guaranteed, inflation-protected lifetime annuity for the surviving spouse.</li>
-              <li><strong>The "Break-Even" Myopia Fallacy:</strong> Many retirees claim at 62 thinking "I break even at 80, so I'll take the money early." But Social Security is not an investment portfolio subject to market volatility; it is government-backed longevity insurance. Claiming late protects you precisely when you are most vulnerable: in your late 80s and 90s after other assets may have dwindled.</li>
-            </ul>
-          </div>
+        <!-- 5 Critical Social Security Traps -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Critical Social Security Traps & Penalties</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>The "Break-Even" Longevity Fallacy:</strong> Many people claim early at 62 because they believe "I will beat the break-even age of 78." However, Social Security is not an investment; it is longevity insurance. Delaying to age 70 provides guaranteed inflation-protected cash flow that protects you against the catastrophic risk of outliving your money at age 85, 90, or 95.</li>
+            <li><strong>The Spousal Survivor Reduction Trap:</strong> When one spouse passes away, the smaller of the two monthly Social Security checks disappears permanently. By delaying the higher earner's benefit to age 70, you guarantee the surviving spouse will inherit the highest possible permanent payout for the remainder of their lifetime.</li>
+            <li><strong>The Pre-FRA Earnings Test Penalty:</strong> If you claim before Full Retirement Age (67) and continue working, the SSA withholds $1 of benefits for every $2 earned above the annual earnings limit ($23,400). While these withheld funds are credited back after FRA, working full-time while claiming early defeats the purpose of early benefits.</li>
+            <li><strong>The "Tax Torpedo" Cliff:</strong> Adding just $1,000 of traditional 401(k) or IRA distributions can trigger up to $850 of Social Security benefits to become taxable, creating an effective marginal tax rate of 40.7% for middle-income retirees.</li>
+            <li><strong>Solvency Panic Early Claiming:</strong> Headlines claiming the Social Security Trust Fund will be exhausted by 2033–2035 cause thousands of seniors to panic and claim at 62. Claiming at 62 locks in a permanent 30% reduction immediately, whereas Congress has historically patched funding shortfalls without cutting current benefits.</li>
+          </ul>
         </div>
 
         <div style="text-align: center; margin: 2rem 0;">
           <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Social Security Projection Report
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Social Security Strategy Worksheet
           </button>
         </div>
       </div>
 
       <script>
-        function fmtM(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+        var ssaMultipliers = {
+          62: 0.700, 63: 0.750, 64: 0.800, 65: 0.867, 66: 0.933,
+          67: 1.000, 68: 1.080, 69: 1.160, 70: 1.240
+        };
+
+        function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
 
         window.setSSPIA = function(amt) {
           document.getElementById('ss-base').value = amt;
           calcSS();
         };
 
-        function getAgeMultiplier(age) {
-          // FRA = 67
-          if (age === 67) return 1.00;
-          if (age < 67) {
-            var monthsEarly = (67 - age) * 12;
-            var reduction = 0;
-            if (monthsEarly <= 36) {
-              reduction = monthsEarly * (5 / 9 / 100);
-            } else {
-              reduction = (36 * (5 / 9 / 100)) + ((monthsEarly - 36) * (5 / 12 / 100));
-            }
-            return 1.00 - reduction;
-          } else {
-            var monthsDelayed = (age - 67) * 12;
-            var delayedCredit = monthsDelayed * (2 / 3 / 100);
-            return 1.00 + delayedCredit;
-          }
-        }
-
-        function calcLifetime(monthly, startAge, endAge, colaRate) {
-          var total = 0;
-          var curMo = monthly;
-          for (var yr = startAge; yr < endAge; yr++) {
-            total += curMo * 12;
-            curMo *= (1 + colaRate);
-          }
-          return total;
-        }
-
         function calcSS() {
-          var base = parseFloat(document.getElementById('ss-base').value) || 0;
-          var plannedAge = parseInt(document.getElementById('ss-claim-age').value, 10) || 67;
-          var maxAge = Math.max(71, parseFloat(document.getElementById('ss-age-limit').value) || 85);
-          var cola = parseFloat(document.getElementById('ss-cola').value) || 0;
-          var hasSpouse = document.getElementById('ss-spouse-toggle').checked;
+          var pia = parseFloat(document.getElementById('ss-base').value) || 0;
+          var claimAge = parseInt(document.getElementById('ss-claim-age').value, 10) || 67;
+          var horizon = parseInt(document.getElementById('ss-age-limit').value, 10) || 85;
+          var cola = (parseFloat(document.getElementById('ss-cola').value) || 0) / 100;
 
-          var mult62 = getAgeMultiplier(62);
-          var mult67 = getAgeMultiplier(67);
-          var mult70 = getAgeMultiplier(70);
-          var multPlan = getAgeMultiplier(plannedAge);
+          var mult = ssaMultipliers[claimAge] || 1.0;
+          var monthly = pia * mult;
+          var annual = monthly * 12;
 
-          var mo62 = base * mult62;
-          var mo67 = base * mult67;
-          var mo70 = base * mult70;
-          var moPlan = base * multPlan;
-
-          var spouseMo = hasSpouse ? (base * 0.50 * multPlan) : 0;
-          var totalMoPlan = moPlan + spouseMo;
-
-          var life62 = calcLifetime(mo62, 62, maxAge, cola);
-          var life67 = calcLifetime(mo67, 67, maxAge, cola);
-          var life70 = calcLifetime(mo70, 70, maxAge, cola);
-          var lifePlan = calcLifetime(totalMoPlan, plannedAge, maxAge, cola);
-
-          document.getElementById('ss-62-mo').textContent = fmtM(mo62) + ' / mo';
-          document.getElementById('ss-67-mo').textContent = fmtM(mo67) + ' / mo';
-          document.getElementById('ss-70-mo').textContent = fmtM(mo70) + ' / mo';
-
-          document.getElementById('ss-62-life').textContent = fmtM(life62);
-          document.getElementById('ss-67-life').textContent = fmtM(life67);
-          document.getElementById('ss-70-life').textContent = fmtM(life70);
-
-          // Selected Plan
-          var pctDiff = Math.round((multPlan - 1.0) * 100);
-          var pctStr = (pctDiff >= 0 ? '+' : '') + pctDiff + '% vs FRA 67';
-          document.getElementById('ss-plan-badge').textContent = 'Claiming at Age ' + plannedAge + ' (' + pctStr + ')';
-          document.getElementById('ss-selected-monthly').textContent = fmtM(totalMoPlan) + ' / mo';
-          document.getElementById('ss-selected-lifetime').textContent = fmtM(lifePlan);
-          document.getElementById('ss-selected-years').textContent = 'Over ' + (maxAge - plannedAge) + ' years of retirement (to Age ' + maxAge + ')';
-
-          // Spousal
-          if (hasSpouse) {
-            document.getElementById('ss-spouse-amount').textContent = '+' + fmtM(spouseMo) + ' / mo';
-            document.getElementById('ss-spouse-desc').textContent = '50% spousal auxiliary benefit';
-          } else {
-            document.getElementById('ss-spouse-amount').textContent = '$0 / mo';
-            document.getElementById('ss-spouse-desc').textContent = 'Single earner calculation';
+          // Compute cumulative lifetime total for selected claim age
+          var totalLifetime = 0;
+          var curAnnual = annual;
+          for (var age = claimAge; age < horizon; age++) {
+            totalLifetime += curAnnual;
+            curAnnual *= (1 + cola);
           }
 
-          // Break-Even Age (70 vs 62)
-          var beAge = 70;
-          var cum62 = calcLifetime(mo62, 62, 70, cola);
-          var cum70 = 0;
-          var found = false;
+          // Compare with claiming at 62
+          var mo62 = pia * 0.70;
+          var ann62 = mo62 * 12;
+          var delayGain = annual - ann62;
 
-          for (var testAge = 70; testAge <= 100; testAge += 0.1) {
-            var c62 = calcLifetime(mo62, 62, testAge, cola);
-            var c70 = calcLifetime(mo70, 70, testAge, cola);
-            if (c70 >= c62) {
-              beAge = testAge;
-              found = true;
-              break;
+          // Break-even vs 62 (simplified nominal payback)
+          var breakEvenYears = (claimAge > 62 && delayGain > 0) ? ((ann62 * (claimAge - 62)) / delayGain) : 0;
+          var breakEvenAge = claimAge + breakEvenYears;
+
+          document.getElementById('ss-monthly').textContent = fmtUSD(monthly);
+          document.getElementById('ss-pct-fra').textContent = (mult * 100).toFixed(1) + '% of Full Benefit (FRA 67)';
+          document.getElementById('ss-lifetime').textContent = fmtUSD(totalLifetime);
+          document.getElementById('ss-horizon-text').textContent = 'Through Age ' + horizon + ' (' + (horizon - claimAge) + ' Years)';
+          document.getElementById('ss-annual').textContent = fmtUSD(annual) + ' / yr';
+
+          var beEl = document.getElementById('ss-breakeven');
+          if (claimAge === 62) {
+            beEl.textContent = 'Baseline (Age 62)';
+            document.getElementById('ss-delay-gain').textContent = 'Earliest statutory claim age';
+          } else {
+            beEl.textContent = 'Age ' + breakEvenAge.toFixed(1);
+            document.getElementById('ss-delay-gain').textContent = (delayGain >= 0 ? '+' : '') + fmtUSD(delayGain) + '/yr vs claiming at 62';
+          }
+
+          // Step derivations
+          document.getElementById('ssStep1').textContent = 'PIA at FRA (67) = ' + fmtUSD(pia) + ' / month (' + fmtUSD(pia * 12) + ' / year).';
+          document.getElementById('ssStep2').textContent = 'Age ' + claimAge + ' SSA Factor = ' + (mult * 100).toFixed(1) + '% (' + (claimAge < 67 ? (67 - claimAge) * 12 + ' months early' : (claimAge - 67) * 12 + ' months delayed') + ').';
+          document.getElementById('ssStep3').textContent = 'Monthly Benefit = ' + fmtUSD(pia) + ' × ' + mult.toFixed(3) + ' = ' + fmtUSD(monthly) + ' (' + fmtUSD(annual) + ' / year).';
+          document.getElementById('ssStep4').textContent = 'Cumulative sum through Age ' + horizon + ' with ' + (cola * 100).toFixed(1) + '% COLA = ' + fmtUSD(totalLifetime) + '.';
+
+          // Full comparison matrix
+          var tbody = document.getElementById('ssMatrixBody');
+          var matrixHtml = '';
+          for (var a = 62; a <= 70; a++) {
+            var m = ssaMultipliers[a];
+            var mo = pia * m;
+            var yr = mo * 12;
+
+            function cumAt(targetAge, cAge, startYr) {
+              if (targetAge <= cAge) return 0;
+              var sum = 0;
+              var cur = startYr;
+              for (var ag = cAge; ag < targetAge; ag++) {
+                sum += cur;
+                cur *= (1 + cola);
+              }
+              return sum;
+            }
+
+            var tot80 = cumAt(80, a, yr);
+            var tot85 = cumAt(85, a, yr);
+            var tot90 = cumAt(90, a, yr);
+
+            var isCur = (a === claimAge);
+            var rowStyle = isCur ? 'background: rgba(59, 130, 246, 0.08); font-weight: bold;' : '';
+
+            matrixHtml += '<tr style="border-bottom: 1px solid var(--border); ' + rowStyle + '">' +
+              '<td style="padding: 0.5rem 0.6rem;">Age ' + a + (isCur ? ' ⭐' : '') + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: var(--text-muted);">' + (m * 100).toFixed(1) + '%</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: #3b82f6;">' + fmtUSD(mo) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem;">' + fmtUSD(yr) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem;">' + fmtUSD(tot80) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: #10b981;">' + fmtUSD(tot85) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem;">' + fmtUSD(tot90) + '</td>' +
+              '</tr>';
+          }
+          tbody.innerHTML = matrixHtml;
+
+          // Render crossover chart
+          renderSSCrossoverSvg(pia, cola);
+        }
+
+        function renderSSCrossoverSvg(pia, cola) {
+          var svg = document.getElementById('ssCrossoverSvg');
+          var w = 600;
+          var h = 240;
+          var padLeft = 65;
+          var padRight = 30;
+          var padTop = 30;
+          var padBottom = 40;
+
+          var plotW = w - padLeft - padRight;
+          var plotH = h - padTop - padBottom;
+
+          // Compute cumulative arrays for ages 62 to 92 for Claim 62, Claim 67, and Claim 70
+          var curves = {
+            62: { color: '#f59e0b', mult: 0.70, pts: [] },
+            67: { color: '#3b82f6', mult: 1.00, pts: [] },
+            70: { color: '#10b981', mult: 1.24, pts: [] }
+          };
+
+          var maxCum = 0;
+          for (var cAge in curves) {
+            var cur = curves[cAge];
+            var startYr = (pia * cur.mult) * 12;
+            var sum = 0;
+            var yrVal = startYr;
+            for (var age = 62; age <= 92; age++) {
+              if (age >= parseInt(cAge, 10)) {
+                sum += yrVal;
+                yrVal *= (1 + cola);
+              }
+              cur.pts.push({ age: age, val: sum });
+              if (sum > maxCum) maxCum = sum;
             }
           }
-          document.getElementById('ss-breakeven').textContent = 'Age ' + beAge.toFixed(1);
 
-          // Step Derivations
-          document.getElementById('ss-step-1').innerHTML = 'Selected Claiming Age ' + plannedAge + ': Multiplier = <strong>' + (multPlan * 100).toFixed(1) + '%</strong> of PIA ($' + base.toFixed(2) + ' &times; ' + multPlan.toFixed(3) + ') = <strong>' + fmtM(moPlan) + ' / mo</strong>';
-          document.getElementById('ss-step-3').innerHTML = 'Lifetime Cumulative (' + plannedAge + ' to ' + maxAge + ' with ' + (cola * 100).toFixed(1) + '% COLA) = <strong>' + fmtM(lifePlan) + '</strong>';
-          document.getElementById('ss-step-4').innerHTML = 'Delaying to Age 70 ($' + fmtM(mo70) + '/mo) catches up and surpasses Age 62 ($' + fmtM(mo62) + '/mo) at <strong>Age ' + beAge.toFixed(1) + '</strong>.';
+          if (maxCum <= 0) maxCum = 100000;
+
+          var svgHtml = '';
+
+          // Gridlines
+          for (var g = 0; g <= 4; g++) {
+            var gy = padTop + (g / 4) * plotH;
+            var gVal = maxCum * (1 - g / 4);
+            svgHtml += '<line x1="' + padLeft + '" y1="' + gy + '" x2="' + (w - padRight) + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3" />' +
+              '<text x="' + (padLeft - 8) + '" y="' + (gy + 4) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)" text-anchor="end">$' + Math.round(gVal / 1000) + 'k</text>';
+          }
+
+          // X axis labels
+          for (var ag = 62; ag <= 92; ag += 5) {
+            var gx = padLeft + ((ag - 62) / 30) * plotW;
+            svgHtml += '<text x="' + gx + '" y="' + (h - 12) + '" font-family="var(--mono)" font-size="11" fill="var(--text-muted)" text-anchor="middle">' + ag + '</text>';
+          }
+
+          // Draw each curve
+          for (var cAge in curves) {
+            var cur = curves[cAge];
+            var d = '';
+            for (var i = 0; i < cur.pts.length; i++) {
+              var pt = cur.pts[i];
+              var x = padLeft + ((pt.age - 62) / 30) * plotW;
+              var y = padTop + plotH - (pt.val / maxCum) * plotH;
+              d += (i === 0 ? 'M ' : ' L ') + x + ' ' + y;
+            }
+            svgHtml += '<path d="' + d + '" fill="none" stroke="' + cur.color + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />';
+          }
+
+          // Legend
+          svgHtml += '<g transform="translate(' + (padLeft + 10) + ', ' + (padTop + 10) + ')">' +
+            '<rect x="0" y="0" width="220" height="24" fill="var(--surface)" rx="4" stroke="var(--border)" />' +
+            '<circle cx="15" cy="12" r="4" fill="#f59e0b" />' +
+            '<text x="25" y="16" font-family="var(--mono)" font-size="10" fill="var(--fg)">Age 62</text>' +
+            '<circle cx="85" cy="12" r="4" fill="#3b82f6" />' +
+            '<text x="95" y="16" font-family="var(--mono)" font-size="10" fill="var(--fg)">Age 67</text>' +
+            '<circle cx="155" cy="12" r="4" fill="#10b981" />' +
+            '<text x="165" y="16" font-family="var(--mono)" font-size="10" fill="var(--fg)">Age 70</text>' +
+            '</g>';
+
+          svg.innerHTML = svgHtml;
         }
 
         function copySSSummary() {
-          var base = document.getElementById('ss-base').value;
-          var age = document.getElementById('ss-claim-age').value;
-          var maxAge = document.getElementById('ss-age-limit').value;
-          var selectedMo = document.getElementById('ss-selected-monthly').textContent;
-          var selectedLife = document.getElementById('ss-selected-lifetime').textContent;
-          var be = document.getElementById('ss-breakeven').textContent;
-          var mo62 = document.getElementById('ss-62-mo').textContent;
-          var mo67 = document.getElementById('ss-67-mo').textContent;
-          var mo70 = document.getElementById('ss-70-mo').textContent;
+          var pia = document.getElementById('ss-base').value;
+          var claimAge = document.getElementById('ss-claim-age').value;
+          var monthly = document.getElementById('ss-monthly').textContent;
+          var lifetime = document.getElementById('ss-lifetime').textContent;
+          var horizon = document.getElementById('ss-age-limit').value;
+          var breakEven = document.getElementById('ss-breakeven').textContent;
+          var cola = document.getElementById('ss-cola').value;
 
-          var text = '🏛️ SOCIAL SECURITY CLAIMING STRATEGY REPORT\\n' +
-            '----------------------------------------\\n' +
-            '• PIA at Full Retirement Age (67): $' + base + ' / mo\\n' +
-            '• Planned Claiming Age: Age ' + age + '\\n' +
-            '• Estimated Monthly Benefit: ' + selectedMo + '\\n' +
-            '• Cumulative Lifetime (to Age ' + maxAge + '): ' + selectedLife + '\\n' +
-            '----------------------------------------\\n' +
-            'CLAIMING AGE COMPARISON:\\n' +
-            '• Early (Age 62): ' + mo62 + ' (-30% reduction)\\n' +
-            '• Full Retirement (Age 67): ' + mo67 + ' (100% PIA)\\n' +
-            '• Delayed Maximum (Age 70): ' + mo70 + ' (+24% delayed credit)\\n' +
-            '• Delay Break-Even Crossover: ' + be + '\\n' +
-            '----------------------------------------\\n' +
+          var text = '🏛️ SOCIAL SECURITY CLAIMING STRATEGY WORKSHEET\n' +
+            '----------------------------------------\n' +
+            '• Primary Insurance Amount (PIA @ 67): $' + Number(pia).toLocaleString('en-US') + ' / mo\n' +
+            '• Planned Claiming Age: ' + claimAge + ' (' + document.getElementById('ss-pct-fra').textContent + ')\n' +
+            '• Life Expectancy Horizon: Age ' + horizon + '\n' +
+            '• Assumed Annual COLA: ' + cola + '%\n' +
+            '----------------------------------------\n' +
+            'BENEFIT PROJECTIONS:\n' +
+            '• Starting Monthly Benefit: ' + monthly + '\n' +
+            '• Starting Annual Benefit: ' + document.getElementById('ss-annual').textContent + '\n' +
+            '• Total Cumulative Lifetime Payout: ' + lifetime + '\n' +
+            '• Break-Even Age vs Claiming at 62: ' + breakEven + '\n' +
+            '----------------------------------------\n' +
             'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/social-security-calculator';
 
           navigator.clipboard.writeText(text).then(function() {
             var btn = document.getElementById('btnCopySS');
             var old = btn.innerHTML;
-            btn.innerHTML = '✓ Copied Social Security Summary!';
+            btn.innerHTML = '✓ Copied Social Security Worksheet!';
             btn.style.background = '#10b981';
             btn.style.color = '#fff';
             setTimeout(function() {
@@ -363,7 +430,7 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 
         document.addEventListener('DOMContentLoaded', calcSS);
       </script>
-    `
+  `
   },
   {
     slug: "rmd-calculator",
@@ -1192,16 +1259,663 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
   `
   },
   {
-    "slug": "annuity-calculator",
-    "title": "Pension Annuity vs. Lump Sum Payout Calculator",
-    "metaDesc": "Compare taking a guaranteed monthly lifetime pension annuity versus taking a single lump-sum payout invested in the market.",
-    "body": "\n      <div class=\"article-container\" style=\"max-width: 950px;\">\n        <nav style=\"font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);\">\n          <a href=\"/\">Home</a> &gt; <a href=\"/finance/\">Finance</a> &gt; Annuity vs Lump Sum\n        </nav>\n\n        <header style=\"margin-bottom: 2rem;\">\n          <h1 style=\"font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;\">Pension Annuity vs. Lump Sum Calculator</h1>\n          <p style=\"color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;\">\n            Deciding between a monthly guaranteed pension check and a single lump sum? Calculate your break-even age and find out which option provides more retirement wealth.\n          </p>\n        </header>\n\n        <div style=\"background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;\">\n          <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;\">\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Offered Lump Sum Payout ($):</label>\n              <input type=\"number\" id=\"an-lump\" value=\"350000\" step=\"10000\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcAnnuity()\" />\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Monthly Annuity Offer ($ / mo):</label>\n              <input type=\"number\" id=\"an-mo\" value=\"2200\" step=\"50\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcAnnuity()\" />\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Retirement Start Age:</label>\n              <input type=\"number\" id=\"an-age\" value=\"65\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcAnnuity()\" />\n            </div>\n          </div>\n\n          <div style=\"background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem;\">\n            <div style=\"font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);\">Break-Even Age (Simple Payback)</div>\n            <div id=\"an-be\" style=\"font-family: var(--mono); font-size: 2.5rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.5rem 0;\">Age 78.2</div>\n            <div style=\"font-size: 0.9rem; color: var(--text-muted);\">\n              Annual Annuity Payout: <strong id=\"an-yr\" style=\"color: var(--fg); font-family: var(--mono);\">$26,400 / yr</strong> (Equivalent to a <strong id=\"an-yield\" style=\"color: var(--fg); font-family: var(--mono);\">7.5%</strong> payout rate)\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <script>\n        function calcAnnuity() {\n          const lump = parseFloat(document.getElementById('an-lump').value) || 1;\n          const mo = parseFloat(document.getElementById('an-mo').value) || 0;\n          const age = parseFloat(document.getElementById('an-age').value) || 65;\n\n          const annual = mo * 12;\n          const yearsToBE = annual > 0 ? (lump / annual) : 0;\n          const beAge = age + yearsToBE;\n          const yieldPct = (annual / lump) * 100;\n\n          document.getElementById('an-be').textContent = 'Age ' + beAge.toFixed(1);\n          document.getElementById('an-yr').textContent = '$' + Math.round(annual).toLocaleString('en-US') + ' / yr';\n          document.getElementById('an-yield').textContent = yieldPct.toFixed(1) + '%';\n        }\n        document.addEventListener('DOMContentLoaded', calcAnnuity);\n      </script>\n    "
+    slug: "annuity-calculator",
+    title: "Pension Annuity vs. Lump Sum Calculator (With Market Opportunity & Break-Even)",
+    metaDesc: "Compare a guaranteed lifetime pension annuity vs. an invested lump sum payout. Calculate break-even age, investment opportunity cost, inflation erosion, and residual estate legacy.",
+    category: "Finance",
+    faq: [
+      {
+            "q": "Is it better to take a monthly pension annuity or a lump-sum payout?",
+            "a": "The optimal choice depends on your life expectancy, investment acumen, and legacy goals. An annuity provides guaranteed, stress-free monthly income for life that you cannot outlive. A lump sum gives you complete control over your capital, the ability to pass remaining funds to heirs upon death, and potential inflation protection if invested in a diversified portfolio."
+      },
+      {
+            "q": "What is the break-even age for a pension annuity vs lump sum?",
+            "a": "A simple break-even calculation divides the lump sum by the annual annuity payout (e.g., $350,000 ÷ $26,400/yr = 13.25 years, meaning break-even occurs at age 78.3 if starting at 65). However, when accounting for a 5% to 7% investment return on the lump sum, the true investment break-even age often shifts past age 85 or 90."
+      },
+      {
+            "q": "What happens to my pension annuity if I pass away early?",
+            "a": "With a Single Life Annuity, all monthly payments stop immediately upon your death, and the employer or insurance company retains 100% of any remaining balance—leaving zero legacy for your heirs. To protect a spouse, you must select a Joint & Survivor annuity (which typically reduces monthly checks by 10% to 20%)."
+      },
+      {
+            "q": "How does inflation affect a fixed pension annuity?",
+            "a": "Most corporate private pensions do NOT offer Cost-of-Living Adjustments (COLA). At an average 3% annual inflation rate, a fixed $2,000 per month pension check loses approximately 35% of its real purchasing power in 15 years, and over 50% of its value in 25 years."
+      },
+      {
+            "q": "Can I rollover a pension lump sum into an IRA without paying taxes?",
+            "a": "Yes. You can execute a direct trustee-to-trustee rollover of your eligible pension lump-sum distribution directly into a Traditional IRA without paying any current income taxes or early withdrawal penalties, preserving 100% of your pre-tax retirement capital."
+      }
+],
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Annuity vs Lump Sum
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Pension Annuity vs. Lump Sum Payout Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Deciding between guaranteed lifetime monthly pension checks and a single lump-sum cash buyout? Compare nominal break-even age, investment opportunity growth, inflation erosion, and residual heir inheritance.
+          </p>
+        </header>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <!-- Lump Sum Offer -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Offered Lump Sum Buyout ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="an-lump" value="350000" step="10000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcAnnuity()" />
+              </div>
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button type="button" onclick="setAnLump(250000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$250k</button>
+                <button type="button" onclick="setAnLump(350000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$350k</button>
+                <button type="button" onclick="setAnLump(500000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$500k</button>
+                <button type="button" onclick="setAnLump(1000000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$1.0M</button>
+              </div>
+            </div>
+
+            <!-- Monthly Annuity Offer -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Monthly Lifetime Annuity Check ($ / mo):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="an-mo" value="2200" step="50" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcAnnuity()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Guaranteed pension payout per month.</small>
+            </div>
+
+            <!-- Starting Age -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Retirement Starting Age:</label>
+              <input type="number" id="an-age" value="65" min="50" max="80" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcAnnuity()" />
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Age when distribution begins.</small>
+            </div>
+
+            <!-- Expected Return on Lump Sum -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Lump Sum Invested Return (% / yr):</label>
+              <input type="number" id="an-return" value="6.0" min="0" max="12" step="0.25" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcAnnuity()" />
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Expected return if rolled over into IRA.</small>
+            </div>
+          </div>
+
+          <!-- Hero Metrics Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Simple Payback Break-Even</div>
+              <div id="an-be" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">Age 78.3</div>
+              <div id="an-years-be" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">13.3 years of payouts</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Annual Payout Yield</div>
+              <div id="an-yield" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">7.54%</div>
+              <div id="an-yr-text" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">$26,400 / yr guaranteed</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Invested Lump Sum @ Age 85</div>
+              <div id="an-lump-85" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$215,480</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Remaining estate legacy for heirs</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Annuity Estate Legacy</div>
+              <div style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #ef4444; margin: 0.35rem 0;">$0.00</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Retained by pension plan upon death</div>
+            </div>
+          </div>
+
+          <!-- Copy Button -->
+          <button type="button" id="btnCopyAnnuity" onclick="copyAnnuitySummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+            📋 Copy Pension Annuity vs. Lump Sum Comparison Report
+          </button>
+        </div>
+
+        <!-- Interactive SVG Wealth Trajectory Graph -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📈 30-Year Wealth Progression (Lump Sum vs Cumulative Annuity)</h3>
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">Blue: Invested Lump Sum Balance | Green: Cumulative Annuity Paid</span>
+          </div>
+          <div style="width: 100%; overflow-x: auto;">
+            <svg id="annuitySvg" viewBox="0 0 600 240" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 0 auto; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);"></svg>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Worked Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Actuarial Break-Even Algebra</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Actuarial Equivalence Model</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            The annuity option acts as a synthetic bond yielding a guaranteed cash flow. Break-even analysis evaluates nominal payback alongside investment opportunity cost:
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Annualized Annuity Distribution Basis</strong>
+              <div id="anStep1" style="color: #3b82f6; margin-top: 0.25rem;">Annual Payout = $2,200.00 / mo × 12 = $26,400.00 / yr.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Simple Nominal Payback Horizon</strong>
+              <div id="anStep2" style="color: var(--text-muted); margin-top: 0.25rem;">$350,000 ÷ $26,400 = 13.26 years (Nominal Break-Even Age = 78.3).</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Effective Annuity Cash-on-Cash Yield</strong>
+              <div id="anStep3" style="color: var(--text-muted); margin-top: 0.25rem;">Yield = ($26,400 ÷ $350,000) × 100 = 7.54% guaranteed cash flow.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #10b981; font-weight: 700;">Step 4: Invested Lump Sum Opportunity Projection</strong>
+              <div id="anStep4" style="color: #10b981; margin-top: 0.25rem;">If $350k is invested at 6.0% return while withdrawing $26,400/yr, balance at Age 85 is $215,480.00.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Critical Traps -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 4 Critical Pension Annuity Traps</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>The Zero Legacy Risk (Single Life Trap):</strong> If you select a single life annuity and pass away 24 months into retirement, you receive $52,800 total, and the employer retains the remaining $297,200. Zero dollars go to your surviving spouse or children.</li>
+            <li><strong>The Non-Inflation-Adjusted Purchasing Power Crash:</strong> Most corporate pensions are strictly fixed dollar amounts with 0% COLA. Over a 25-year retirement at 3% inflation, your $2,200/month check will feel like only $1,050/month in real goods and groceries.</li>
+            <li><strong>Pension Insolvent Bankruptcy & PBGC Haircuts:</strong> If your former corporate employer declares bankruptcy and the pension is turned over to the federal Pension Benefit Guaranty Corporation (PBGC), statutory maximum benefit caps may force an immediate reduction on high-earner pension payouts.</li>
+            <li><strong>Lump Sum Behavioral Ruin:</strong> While a lump sum offers superior estate planning flexibility, it exposes retirees to panic selling during market crashes and aggressive withdrawals. If you cannot resist high-risk speculation, the forced discipline of an annuity is often mathematically superior.</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Pension Evaluation Worksheet
+          </button>
+        </div>
+      </div>
+
+      <script>
+        function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+        window.setAnLump = function(amt) {
+          document.getElementById('an-lump').value = amt;
+          calcAnnuity();
+        };
+
+        function calcAnnuity() {
+          var lump = parseFloat(document.getElementById('an-lump').value) || 1;
+          var mo = parseFloat(document.getElementById('an-mo').value) || 0;
+          var age = parseFloat(document.getElementById('an-age').value) || 65;
+          var r = (parseFloat(document.getElementById('an-return').value) || 0) / 100;
+
+          var annual = mo * 12;
+          var yearsToBE = annual > 0 ? (lump / annual) : 0;
+          var beAge = age + yearsToBE;
+          var yieldPct = (annual / lump) * 100;
+
+          // Invested lump sum trajectory: Start with lump sum, earn r%, withdraw annual at end of year
+          var lumpBalance = lump;
+          var lumpBalances = [lump];
+          var annuityCumulative = [0];
+          var cumAnn = 0;
+
+          var balAt85 = 0;
+          for (var yr = 1; yr <= 30; yr++) {
+            var curAge = age + yr;
+            lumpBalance = (lumpBalance - annual) * (1 + r);
+            if (lumpBalance < 0) lumpBalance = 0;
+            lumpBalances.push(lumpBalance);
+
+            cumAnn += annual;
+            annuityCumulative.push(cumAnn);
+
+            if (curAge === 85) {
+              balAt85 = lumpBalance;
+            }
+          }
+
+          document.getElementById('an-be').textContent = 'Age ' + beAge.toFixed(1);
+          document.getElementById('an-years-be').textContent = yearsToBE.toFixed(1) + ' years to recover lump sum';
+          document.getElementById('an-yield').textContent = yieldPct.toFixed(2) + '%';
+          document.getElementById('an-yr-text').textContent = fmtUSD(annual) + ' / yr guaranteed';
+          document.getElementById('an-lump-85').textContent = fmtUSD(balAt85);
+
+          // Step derivations
+          document.getElementById('anStep1').textContent = 'Annual Annuity Payout = ' + fmtUSD(mo) + ' × 12 = ' + fmtUSD(annual) + ' / year.';
+          document.getElementById('anStep2').textContent = fmtUSD(lump) + ' ÷ ' + fmtUSD(annual) + ' = ' + yearsToBE.toFixed(2) + ' years (Simple Break-Even Age = ' + beAge.toFixed(1) + ').';
+          document.getElementById('anStep3').textContent = 'Guaranteed Cash-on-Cash Yield = (' + fmtUSD(annual) + ' ÷ ' + fmtUSD(lump) + ') × 100 = ' + yieldPct.toFixed(2) + '%.';
+          document.getElementById('anStep4').textContent = 'At ' + (r * 100).toFixed(2) + '% investment return while taking ' + fmtUSD(annual) + '/yr, remaining balance at Age 85 is ' + fmtUSD(balAt85) + '.';
+
+          // SVG rendering
+          renderAnnuitySvg(lumpBalances, annuityCumulative, age);
+        }
+
+        function renderAnnuitySvg(lumpVals, annVals, startAge) {
+          var svg = document.getElementById('annuitySvg');
+          var w = 600;
+          var h = 240;
+          var padLeft = 65;
+          var padRight = 30;
+          var padTop = 30;
+          var padBottom = 40;
+
+          var plotW = w - padLeft - padRight;
+          var plotH = h - padTop - padBottom;
+
+          var maxVal = 0;
+          for (var i = 0; i < lumpVals.length; i++) {
+            if (lumpVals[i] > maxVal) maxVal = lumpVals[i];
+            if (annVals[i] > maxVal) maxVal = annVals[i];
+          }
+          if (maxVal <= 0) maxVal = 100000;
+
+          var svgHtml = '';
+
+          // Gridlines
+          for (var g = 0; g <= 4; g++) {
+            var gy = padTop + (g / 4) * plotH;
+            var gVal = maxVal * (1 - g / 4);
+            svgHtml += '<line x1="' + padLeft + '" y1="' + gy + '" x2="' + (w - padRight) + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3" />' +
+              '<text x="' + (padLeft - 8) + '" y="' + (gy + 4) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)" text-anchor="end">$' + Math.round(gVal / 1000) + 'k</text>';
+          }
+
+          // X axis labels
+          for (var yr = 0; yr <= 30; yr += 5) {
+            var gx = padLeft + (yr / 30) * plotW;
+            svgHtml += '<text x="' + gx + '" y="' + (h - 12) + '" font-family="var(--mono)" font-size="11" fill="var(--text-muted)" text-anchor="middle">' + Math.round(startAge + yr) + '</text>';
+          }
+
+          // Lump sum curve (Blue)
+          var lumpD = '';
+          for (var i = 0; i <= 30; i++) {
+            var x = padLeft + (i / 30) * plotW;
+            var y = padTop + plotH - (lumpVals[i] / maxVal) * plotH;
+            lumpD += (i === 0 ? 'M ' : ' L ') + x + ' ' + y;
+          }
+          svgHtml += '<path d="' + lumpD + '" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />';
+
+          // Annuity cumulative curve (Green)
+          var annD = '';
+          for (var i = 0; i <= 30; i++) {
+            var x = padLeft + (i / 30) * plotW;
+            var y = padTop + plotH - (annVals[i] / maxVal) * plotH;
+            annD += (i === 0 ? 'M ' : ' L ') + x + ' ' + y;
+          }
+          svgHtml += '<path d="' + annD + '" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />';
+
+          // Legend
+          svgHtml += '<g transform="translate(' + (padLeft + 10) + ', ' + (padTop + 10) + ')">' +
+            '<rect x="0" y="0" width="280" height="24" fill="var(--surface)" rx="4" stroke="var(--border)" />' +
+            '<circle cx="15" cy="12" r="4" fill="#3b82f6" />' +
+            '<text x="25" y="16" font-family="var(--mono)" font-size="10" fill="var(--fg)">Invested Lump Sum</text>' +
+            '<circle cx="145" cy="12" r="4" fill="#10b981" />' +
+            '<text x="155" y="16" font-family="var(--mono)" font-size="10" fill="var(--fg)">Cumulative Annuity Paid</text>' +
+            '</g>';
+
+          svg.innerHTML = svgHtml;
+        }
+
+        function copyAnnuitySummary() {
+          var lump = document.getElementById('an-lump').value;
+          var mo = document.getElementById('an-mo').value;
+          var age = document.getElementById('an-age').value;
+          var be = document.getElementById('an-be').textContent;
+          var yieldPct = document.getElementById('an-yield').textContent;
+          var bal85 = document.getElementById('an-lump-85').textContent;
+
+          var text = '🏛️ PENSION ANNUITY VS. LUMP SUM EVALUATION REPORT\n' +
+            '----------------------------------------\n' +
+            '• Lump Sum Buyout Offer: $' + Number(lump).toLocaleString('en-US') + '\n' +
+            '• Monthly Lifetime Check: $' + Number(mo).toLocaleString('en-US') + ' / mo (' + document.getElementById('an-yr-text').textContent + ')\n' +
+            '• Retirement Starting Age: ' + age + '\n' +
+            '----------------------------------------\n' +
+            'COMPARISON & BREAK-EVEN:\n' +
+            '• Simple Payback Break-Even: ' + be + ' (' + document.getElementById('an-years-be').textContent + ')\n' +
+            '• Guaranteed Annuity Cash Yield: ' + yieldPct + '\n' +
+            '• Residual Invested Lump Sum at Age 85: ' + bal85 + '\n' +
+            '• Annuity Estate Legacy: $0.00 (Single Life)\n' +
+            '----------------------------------------\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/annuity-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopyAnnuity');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Annuity Report!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', calcAnnuity);
+      </script>
+  `
   },
   {
-    "slug": "downsizing-calculator",
-    "title": "Senior Home Downsizing & Net Equity Cash-Out Calculator",
-    "metaDesc": "Calculate your net cash proceeds after selling a larger family home, paying closing costs, and moving into a smaller condo or retirement community.",
-    "body": "\n      <div class=\"article-container\" style=\"max-width: 950px;\">\n        <nav style=\"font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);\">\n          <a href=\"/\">Home</a> &gt; <a href=\"/finance/\">Finance</a> &gt; Home Downsizing Calculator\n        </nav>\n\n        <header style=\"margin-bottom: 2rem;\">\n          <h1 style=\"font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;\">Senior Home Downsizing & Cash Flow Planner</h1>\n          <p style=\"color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;\">\n            Estimate the net cash released into your retirement accounts when selling your primary home and transitioning to lower-maintenance living.\n          </p>\n        </header>\n\n        <div style=\"background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;\">\n          <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;\">\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Current Home Sale Price ($):</label>\n              <input type=\"number\" id=\"ds-sale\" value=\"650000\" step=\"10000\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcDown()\" />\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Remaining Mortgage Balance ($):</label>\n              <input type=\"number\" id=\"ds-mort\" value=\"80000\" step=\"5000\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcDown()\" />\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">New Downsized Home / Condo Price ($):</label>\n              <input type=\"number\" id=\"ds-new\" value=\"350000\" step=\"10000\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcDown()\" />\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Realtor Commission & Closing (%):</label>\n              <input type=\"number\" id=\"ds-fee\" value=\"7\" step=\"0.5\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcDown()\" />\n            </div>\n          </div>\n\n          <div style=\"background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem;\">\n            <div style=\"font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);\">Net Cash Added to Retirement Savings</div>\n            <div id=\"ds-net\" style=\"font-family: var(--mono); font-size: 2.8rem; font-weight: bold; color: #22c55e; margin: 0.5rem 0;\">+$174,500</div>\n            <div style=\"font-size: 0.9rem; color: var(--text-muted);\">\n              Sale Proceeds After Fees: <strong id=\"ds-proc\" style=\"color: var(--fg); font-family: var(--mono);\">$524,500</strong> | New Home Paid in Full (Debt-Free)\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <script>\n        function calcDown() {\n          const sale = parseFloat(document.getElementById('ds-sale').value) || 0;\n          const mort = parseFloat(document.getElementById('ds-mort').value) || 0;\n          const newH = parseFloat(document.getElementById('ds-new').value) || 0;\n          const feePct = (parseFloat(document.getElementById('ds-fee').value) || 0) / 100;\n\n          const fees = sale * feePct;\n          const netProceeds = sale - mort - fees;\n          const cashSurplus = netProceeds - newH;\n\n          document.getElementById('ds-proc').textContent = '$' + Math.round(netProceeds).toLocaleString('en-US');\n          const netEl = document.getElementById('ds-net');\n          netEl.textContent = (cashSurplus >= 0 ? '+$' : '-$') + Math.abs(Math.round(cashSurplus)).toLocaleString('en-US');\n          netEl.style.color = cashSurplus >= 0 ? '#22c55e' : '#ef4444';\n        }\n        document.addEventListener('DOMContentLoaded', calcDown);\n      </script>\n    "
+    slug: "downsizing-calculator",
+    title: "Senior Home Downsizing Calculator (Net Cash-Out, Taxes & Monthly Savings)",
+    metaDesc: "Calculate net cash proceeds from downsizing your home. Factor in Section 121 capital gains exclusion, Realtor commissions, closing costs, and monthly recurring living expense savings.",
+    category: "Finance",
+    faq: [
+      {
+            "q": "How much money can seniors typically save by downsizing their home?",
+            "a": "On average, downsizing from a 4-bedroom single-family home to a 2-bedroom condo or townhome frees up $100,000 to $300,000+ in liquid home equity, while cutting recurring monthly living costs (property taxes, homeowner insurance, heating/cooling, and landscaping) by $600 to $1,500+ per month."
+      },
+      {
+            "q": "How does the IRS Section 121 primary residence capital gains tax exclusion work?",
+            "a": "Under Internal Revenue Code § 121, you can exclude up to $250,000 of capital gain if you are Single, or up to $500,000 if you are Married Filing Jointly, from the sale of your primary home. To qualify, you must have owned and lived in the residence for at least 2 out of the 5 years immediately preceding the sale date."
+      },
+      {
+            "q": "What is home tax basis and how does it reduce capital gains taxes?",
+            "a": "Your tax basis is the original purchase price of the home PLUS the cumulative cost of all permanent capital improvements made over the years (e.g., roof replacements, HVAC additions, kitchen remodels, window upgrades). It does NOT include routine maintenance or repairs. A higher basis reduces your taxable net gain."
+      },
+      {
+            "q": "What are the hidden recurring costs of downsizing to a condo?",
+            "a": "Homeowners Association (HOA) fees are the primary hidden risk in condo downsizing. In addition to monthly dues (often $300 to $800+/month), aging condo associations frequently issue unexpected \"Special Assessments\" ($5,000 to $30,000+) for elevator overhauls, roof repairs, or foundation retrofits."
+      },
+      {
+            "q": "Should I buy a smaller condo or rent in retirement after downsizing?",
+            "a": "Renting eliminates property taxes, special assessments, and maintenance headaches entirely, providing predictable monthly costs and maximizing liquidity in high-yield investments. However, rents increase with inflation, whereas purchasing a downsized condo with cash guarantees debt-free housing stability."
+      }
+],
+    body: `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Home Downsizing Calculator
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Senior Home Downsizing & Cash Flow Planner</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Calculate the exact net cash proceeds unlocked into your retirement portfolio, model IRS Section 121 capital gains tax shields, and evaluate ongoing monthly lifestyle cost reductions.
+          </p>
+        </header>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+          <!-- Primary Transaction Inputs -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <!-- Current Home Expected Sale Price -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Current Home Sale Price ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="ds-sale" value="650000" step="10000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcDown()" />
+              </div>
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button type="button" onclick="setSalePrice(450000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$450k</button>
+                <button type="button" onclick="setSalePrice(650000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$650k</button>
+                <button type="button" onclick="setSalePrice(850000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$850k</button>
+                <button type="button" onclick="setSalePrice(1200000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$1.2M</button>
+              </div>
+            </div>
+
+            <!-- Remaining Mortgage Balance -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Remaining Mortgage Balance ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="ds-mort" value="65000" step="5000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcDown()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Principal owed (0 if paid off).</small>
+            </div>
+
+            <!-- New Downsized Home Price -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">New Home / Condo Price ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="ds-new" value="350000" step="10000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcDown()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Paid in full cash (or $0 if renting).</small>
+            </div>
+
+            <!-- Selling & Closing Fees -->
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Selling Costs (% Commission/Fees):</label>
+              <input type="number" id="ds-fee" value="7.0" min="2" max="12" step="0.5" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcDown()" />
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Realtor commissions + title + transfer taxes.</small>
+            </div>
+          </div>
+
+          <!-- Tax Basis & Monthly Shifts Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); margin-bottom: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">Adjusted Tax Basis (Cost + Improvements):</label>
+              <input type="number" id="ds-basis" value="280000" step="5000" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcDown()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">Marital Filing Status (IRC § 121):</label>
+              <select id="ds-status" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.9rem;" onchange="calcDown()">
+                <option value="joint" selected>Married Jointly ($500k Exclusion)</option>
+                <option value="single">Single Filer ($250k Exclusion)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">Old Home Monthly Running Cost ($ / mo):</label>
+              <input type="number" id="ds-old-cost" value="1850" step="50" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcDown()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">New Condo Monthly HOA + Tax ($ / mo):</label>
+              <input type="number" id="ds-new-cost" value="950" step="50" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcDown()" />
+            </div>
+          </div>
+
+          <!-- Hero Metrics Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Net Cash Added to Portfolio</div>
+              <div id="ds-net-cash" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">+$189,500</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Debt-free liquid equity surplus</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Monthly Living Cost Savings</div>
+              <div id="ds-mo-saved" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">+$900 / mo</div>
+              <div id="ds-yr-saved" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">+$10,800 / year reduced bills</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">10-Year Cumulative Benefit</div>
+              <div id="ds-10yr-total" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$297,500</div>
+              <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Liquid equity + cumulative savings</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Section 121 Tax Shield</div>
+              <div id="ds-tax-shield" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">100% Tax-Free</div>
+              <div id="ds-cap-gain" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">$324.5k gain sheltered ($0 tax)</div>
+            </div>
+          </div>
+
+          <!-- Copy Button -->
+          <button type="button" id="btnCopyDown" onclick="copyDownsizingSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+            📋 Copy Senior Home Downsizing & Cash Flow Report
+          </button>
+        </div>
+
+        <!-- Visual Cash Proceeds Waterfall Bar -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">📊 Home Sale Equity Cash-Out Waterfall</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+            Allocation of gross sale price across mortgage payoff, transaction friction, replacement housing, and liquid cash surplus:
+          </p>
+
+          <div style="height: 26px; width: 100%; display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 0.6rem; border: 1px solid var(--border);">
+            <div id="barDsNet" style="width: 29%; background: #10b981;" title="Net Liquid Cash Added"></div>
+            <div id="barDsNewH" style="width: 54%; background: #3b82f6;" title="Replacement Home Paid"></div>
+            <div id="barDsMort" style="width: 10%; background: #ef4444;" title="Mortgage Payoff"></div>
+            <div id="barDsFees" style="width: 7%; background: #f59e0b;" title="Realtor & Closing Fees"></div>
+          </div>
+
+          <div style="display: flex; gap: 1rem; font-family: var(--mono); font-size: 0.75rem; flex-wrap: wrap;">
+            <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #10b981; border-radius: 2px;"></span> <span id="legDsNet">Cash Surplus</span></span>
+            <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> <span id="legDsNewH">New Home Paid</span></span>
+            <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #ef4444; border-radius: 2px;"></span> <span id="legDsMort">Mortgage Payoff</span></span>
+            <span style="display: flex; align-items: center; gap: 0.35rem;"><span style="width: 10px; height: 10px; background: #f59e0b; border-radius: 2px;"></span> <span id="legDsFees">Closing Costs</span></span>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Worked Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Downsizing Financial Algebra</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">IRC § 121 Capital Gains Protocol</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            Downsizing unlocks home equity by netting gross transaction proceeds against debt obligations and capital gains liability:
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Net Sale Proceeds from Current Residence</strong>
+              <div id="dsStep1" style="color: #3b82f6; margin-top: 0.25rem;">Proceeds = $650,000 (Sale) - $45,500 (7% Fees) - $65,000 (Mortgage) = $539,500.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Section 121 Capital Gains Tax Liability</strong>
+              <div id="dsStep2" style="color: var(--text-muted); margin-top: 0.25rem;">Realized Gain = $650k - $45.5k - $280k Basis = $324,500. Exempt under $500,000 cap = $0.00 tax due.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Replacement Property Cash Outflow</strong>
+              <div id="dsStep3" style="color: var(--text-muted); margin-top: 0.25rem;">Surplus Cash = $539,500 (Proceeds) - $350,000 (New Home) = +$189,500.00 added to investments.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #10b981; font-weight: 700;">Step 4: Recurring Monthly Cash Flow Delta</strong>
+              <div id="dsStep4" style="color: #10b981; margin-top: 0.25rem;">Monthly Reduction = $1,850 (Old) - $950 (New) = $900.00 / month saved ($10,800.00 / year).</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Critical Traps -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 4 Critical Senior Downsizing Traps</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>The Condo HOA Fee Escalator & Special Assessment Trap:</strong> Many seniors trade a $500/mo property maintenance bill for a $600/mo condo HOA fee, thinking they save money. However, HOA boards routinely hike dues 10%–15% annually to fund deferred maintenance. Furthermore, a single $15,000 Special Assessment for building re-roofing instantly wipes out 18 months of projected downsizing savings.</li>
+            <li><strong>The Furnishing & Moving Replacement Shock:</strong> Oversized furniture designed for a 3,000-square-foot house rarely fits into a 1,200-square-foot condo or townhome. Buying compact furniture, custom window treatments, moving services, and storage units frequently consumes $12,000 to $25,000 in immediate cash.</li>
+            <li><strong>Property Tax Reassessment Cliffs:</strong> If you live in a state with senior tax caps (such as California Proposition 13 or Florida Save Our Homes), selling your home and buying a new one in another county or state may trigger a dramatic property tax reassessment, neutralizing expected tax savings unless specific transfer portability rules apply.</li>
+            <li><strong>Emotional Grieving & Social Isolation:</strong> Leaving a neighborhood where you raised a family and have decades of community ties can produce significant psychological distress. Seniors who move away from friends to save on housing often experience acute loneliness, impacting physical health and increasing healthcare costs.</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Downsizing Financial Worksheet
+          </button>
+        </div>
+      </div>
+
+      <script>
+        function fmtUSD(n) {
+          var sign = n < 0 ? '-$' : (n > 0 ? '+$' : '$');
+          return sign + Math.abs(Math.round(n)).toLocaleString('en-US');
+        }
+
+        window.setSalePrice = function(amt) {
+          document.getElementById('ds-sale').value = amt;
+          calcDown();
+        };
+
+        function calcDown() {
+          var sale = parseFloat(document.getElementById('ds-sale').value) || 0;
+          var mort = parseFloat(document.getElementById('ds-mort').value) || 0;
+          var newH = parseFloat(document.getElementById('ds-new').value) || 0;
+          var feePct = (parseFloat(document.getElementById('ds-fee').value) || 0) / 100;
+          var basis = parseFloat(document.getElementById('ds-basis').value) || 0;
+          var status = document.getElementById('ds-status').value;
+          var oldCost = parseFloat(document.getElementById('ds-old-cost').value) || 0;
+          var newCost = parseFloat(document.getElementById('ds-new-cost').value) || 0;
+
+          var fees = sale * feePct;
+          var netProceeds = sale - mort - fees;
+
+          // Capital Gains under Section 121
+          var exclusion = status === 'joint' ? 500000 : 250000;
+          var realizedGain = Math.max(0, sale - fees - basis);
+          var taxableGain = Math.max(0, realizedGain - exclusion);
+          var estCapTax = taxableGain * 0.15; // 15% federal capital gains rate
+
+          var cashSurplus = netProceeds - estCapTax - newH;
+
+          var moSaved = oldCost - newCost;
+          var yrSaved = moSaved * 12;
+          var total10Yr = cashSurplus + (yrSaved * 10);
+
+          var netCashEl = document.getElementById('ds-net-cash');
+          netCashEl.textContent = fmtUSD(cashSurplus);
+          netCashEl.style.color = cashSurplus >= 0 ? '#10b981' : '#ef4444';
+
+          document.getElementById('ds-mo-saved').textContent = fmtUSD(moSaved) + ' / mo';
+          document.getElementById('ds-yr-saved').textContent = fmtUSD(yrSaved) + ' / year reduced bills';
+          document.getElementById('ds-10yr-total').textContent = fmtUSD(total10Yr);
+
+          var taxShieldEl = document.getElementById('ds-tax-shield');
+          var capGainEl = document.getElementById('ds-cap-gain');
+          if (taxableGain === 0) {
+            taxShieldEl.textContent = '100% Tax-Free';
+            taxShieldEl.style.color = '#10b981';
+            capGainEl.textContent = fmtUSD(realizedGain) + ' gain sheltered ($0 tax)';
+          } else {
+            taxShieldEl.textContent = fmtUSD(estCapTax) + ' Tax Due';
+            taxShieldEl.style.color = '#ef4444';
+            capGainEl.textContent = fmtUSD(taxableGain) + ' taxable gain over exclusion';
+          }
+
+          // Visual Waterfall Bar
+          if (sale > 0) {
+            var pNet = Math.max(0, (cashSurplus / sale) * 100);
+            var pNew = Math.min(100, (newH / sale) * 100);
+            var pMort = Math.min(100, (mort / sale) * 100);
+            var pFees = Math.min(100, (fees / sale) * 100);
+
+            document.getElementById('barDsNet').style.width = pNet.toFixed(1) + '%';
+            document.getElementById('barDsNewH').style.width = pNew.toFixed(1) + '%';
+            document.getElementById('barDsMort').style.width = pMort.toFixed(1) + '%';
+            document.getElementById('barDsFees').style.width = pFees.toFixed(1) + '%';
+
+            document.getElementById('legDsNet').textContent = 'Cash Surplus (' + pNet.toFixed(1) + '%)';
+            document.getElementById('legDsNewH').textContent = 'New Home (' + pNew.toFixed(1) + '%)';
+            document.getElementById('legDsMort').textContent = 'Mortgage (' + pMort.toFixed(1) + '%)';
+            document.getElementById('legDsFees').textContent = 'Closing (' + pFees.toFixed(1) + '%)';
+          }
+
+          // Step derivations
+          document.getElementById('dsStep1').textContent = 'Gross Sale ($' + sale.toLocaleString('en-US') + ') - Selling Fees ($' + Math.round(fees).toLocaleString('en-US') + ') - Mortgage Payoff ($' + mort.toLocaleString('en-US') + ') = $' + Math.round(netProceeds).toLocaleString('en-US') + ' net proceeds.';
+          document.getElementById('dsStep2').textContent = 'Realized Gain = $' + Math.round(realizedGain).toLocaleString('en-US') + '. Section 121 exclusion = $' + exclusion.toLocaleString('en-US') + '. Taxable Gain = $' + Math.round(taxableGain).toLocaleString('en-US') + ' (Est. Tax = $' + Math.round(estCapTax).toLocaleString('en-US') + ').';
+          document.getElementById('dsStep3').textContent = 'Surplus Cash = $' + Math.round(netProceeds - estCapTax).toLocaleString('en-US') + ' - $' + newH.toLocaleString('en-US') + ' (New Home) = ' + fmtUSD(cashSurplus) + ' added to liquid wealth.';
+          document.getElementById('dsStep4').textContent = 'Monthly Living Expenses: $' + oldCost.toLocaleString('en-US') + ' (Old) - $' + newCost.toLocaleString('en-US') + ' (New) = ' + fmtUSD(moSaved) + ' / month (' + fmtUSD(yrSaved) + ' / year).';
+        }
+
+        function copyDownsizingSummary() {
+          var sale = document.getElementById('ds-sale').value;
+          var newH = document.getElementById('ds-new').value;
+          var netCash = document.getElementById('ds-net-cash').textContent;
+          var moSaved = document.getElementById('ds-mo-saved').textContent;
+          var total10 = document.getElementById('ds-10yr-total').textContent;
+          var taxShield = document.getElementById('ds-tax-shield').textContent;
+
+          var text = '🏡 SENIOR HOME DOWNSIZING & CASH FLOW REPORT\n' +
+            '----------------------------------------\n' +
+            '• Current Home Sale Price: $' + Number(sale).toLocaleString('en-US') + '\n' +
+            '• Replacement Home/Condo: $' + Number(newH).toLocaleString('en-US') + '\n' +
+            '----------------------------------------\n' +
+            'FINANCIAL SURPLUS & IMPACT:\n' +
+            '• Net Liquid Cash Added to Wealth: ' + netCash + '\n' +
+            '• Monthly Living Cost Reduction: ' + moSaved + '\n' +
+            '• 10-Year Cumulative Financial Advantage: ' + total10 + '\n' +
+            '• Section 121 Tax Shield Status: ' + taxShield + ' (' + document.getElementById('ds-cap-gain').textContent + ')\n' +
+            '----------------------------------------\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/downsizing-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopyDown');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Downsizing Report!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', calcDown);
+      </script>
+  `
   },
   {
     "slug": "inherited-ira-calculator",
@@ -1396,89 +2110,312 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
     `
   },
   {
-    "slug": "social-security-tax",
-    "title": "Social Security Taxability & Provisional Income Calculator",
-    "metaDesc": "Calculate how much of your Social Security benefit is subject to federal income tax (0%, 50%, or 85%) using the IRS provisional combined income formula.",
-    "body": `
+    slug: "social-security-tax",
+    title: "Social Security Taxability & \"Tax Torpedo\" Calculator (Provisional Income)",
+    metaDesc: "Calculate federal income tax on Social Security benefits (0%, 50%, or 85%) using IRS Provisional Combined Income thresholds. Model the dreaded 40.7% Tax Torpedo marginal rate.",
+    category: "Finance",
+    faq: [
+      {
+            "q": "How much of my Social Security benefit is subject to federal income tax?",
+            "a": "Depending on your Provisional (Combined) Income, up to 85% of your Social Security benefits may be taxable. For Single filers: below $25,000 is 0% taxable; between $25,000 and $34,000 is up to 50% taxable; above $34,000 is up to 85% taxable. For Married Filing Jointly: below $32,000 is 0% taxable; between $32,000 and $44,000 is up to 50% taxable; above $44,000 is up to 85% taxable. At least 15% of your benefits are always 100% tax-free at the federal level."
+      },
+      {
+            "q": "What is the Social Security \"Tax Torpedo\"?",
+            "a": "The Tax Torpedo occurs when a retiree withdraws money from a Traditional 401(k) or IRA, which not only gets taxed at ordinary income rates, but simultaneously pulls an additional $0.50 to $0.85 of Social Security benefits into the taxable income base. In the 22% federal tax bracket, this dual-taxation effect spikes the effective marginal tax rate to 40.7% ($1.00 of income + $0.85 taxable SS = $1.85 taxable × 22% = 40.7 cents in tax)."
+      },
+      {
+            "q": "What is Provisional Income and how is it calculated?",
+            "a": "Provisional Income (also called Combined Income by the IRS under IRC § 86) is defined as: Adjusted Gross Income (excluding Social Security) + Tax-Exempt Municipal Bond Interest + Exactly 50% of your Gross Social Security Benefits."
+      },
+      {
+            "q": "Do Roth IRA withdrawals count toward Social Security taxability?",
+            "a": "No. Qualified distributions from a Roth IRA or Roth 401(k) are completely exempt from Provisional Income. Because Roth withdrawals generate $0 of taxable income and $0 of provisional income, strategic Roth conversions before claiming Social Security can permanently disarm the Tax Torpedo."
+      },
+      {
+            "q": "Which US states tax Social Security benefits in 2025/2026?",
+            "a": "Currently, 41 states plus Washington D.C. exempt Social Security benefits completely from state income tax. Only 9 states still tax some or all Social Security benefits: Colorado, Connecticut, Minnesota, Montana, New Mexico, Rhode Island, Utah, Vermont, and West Virginia (though several of these offer income-based exemptions for lower-income seniors)."
+      }
+],
+    body: `
       <div class="article-container" style="max-width: 950px;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
           <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Social Security Taxability
         </nav>
 
         <header style="margin-bottom: 2rem;">
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Social Security Taxability Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Social Security Taxability & "Tax Torpedo" Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Find out exactly what portion of your Social Security checks will be taxed by the IRS using the statutory Provisional (Combined) Income formula.
+            Calculate exactly what portion of your Social Security benefits is subject to federal income tax (0%, 50%, or 85%) using IRS Provisional Combined Income rules (IRC § 86), and simulate your exposure to the dreaded 40.7% Tax Torpedo marginal bracket.
           </p>
         </header>
 
         <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <!-- Filing Status -->
             <div>
               <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Tax Filing Status:</label>
               <select id="sst-status" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" onchange="calcSSTax()">
-                <option value="single">Single / Head of Household</option>
+                <option value="single" selected>Single / Head of Household</option>
                 <option value="joint">Married Filing Jointly</option>
               </select>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Determines statutory provisional thresholds.</small>
             </div>
+
+            <!-- Annual Social Security Benefits -->
             <div>
               <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Annual Social Security Benefits ($):</label>
-              <input type="number" id="sst-ss" value="28000" step="1000" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="sst-ss" value="28000" step="1000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Box 5 from your SSA-1099 statement.</small>
             </div>
+
+            <!-- Other Taxable Income -->
             <div>
-              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Other Taxable Income (Wages, Pensions, 401k/IRA):</label>
-              <input type="number" id="sst-other" value="24000" step="1000" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Other Taxable Income (Wages, Pensions, IRAs) ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="sst-other" value="26000" step="1000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">W-2 wages, pension checks, 401(k)/IRA RMDs.</small>
             </div>
+
+            <!-- Tax-Exempt Interest -->
             <div>
-              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Non-Taxable Interest (Muni Bonds):</label>
-              <input type="number" id="sst-muni" value="0" step="500" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Tax-Exempt Municipal Interest ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="sst-muni" value="0" step="500" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSSTax()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Muni bonds (added back by IRS rules).</small>
             </div>
           </div>
 
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem;">
-            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Portion of Social Security Subject to Tax</div>
-            <div id="sst-taxable" style="font-family: var(--mono); font-size: 2.8rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.5rem 0;">$14,000 (50%)</div>
-            <div style="font-size: 0.9rem; color: var(--text-muted);">
-              IRS Provisional Income: <strong id="sst-prov" style="color: var(--fg); font-family: var(--mono);">$38,000</strong> | 100% Tax-Free Amount: <strong id="sst-free" style="color: #22c55e; font-family: var(--mono);">$14,000</strong>
+          <!-- Hero Metrics Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Provisional Combined Income</div>
+              <div id="sst-prov" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$40,000</div>
+              <div id="sst-tier-status" style="font-size: 0.85rem; color: #ef4444; font-weight: bold;">Tier 3: 85% Taxable Zone</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Taxable Social Security</div>
+              <div id="sst-taxable" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #ef4444; margin: 0.35rem 0;">$9,600</div>
+              <div id="sst-taxable-pct" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">34.3% of total benefit taxed</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Guaranteed Tax-Free Portion</div>
+              <div id="sst-taxfree" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$18,400</div>
+              <div id="sst-taxfree-pct" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">65.7% sheltered from tax</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Tax Torpedo Exposure</div>
+              <div id="sst-torpedo" style="font-family: var(--mono); font-size: 2.1rem; font-weight: bold; color: #ef4444; margin: 0.35rem 0;">ACTIVE (40.7%)</div>
+              <div id="sst-torpedo-detail" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">+$1k IRA &rarr; $850 more SS taxed</div>
             </div>
           </div>
+
+          <!-- Copy Button -->
+          <button type="button" id="btnCopySST" onclick="copySSTSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+            📋 Copy Social Security Taxability & Torpedo Report
+          </button>
+        </div>
+
+        <!-- Visual Provisional Income Threshold Bar -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">📊 Provisional Income Threshold Spectrum</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+            Your location along the statutory IRS thresholds determining benefit taxation tiers:
+          </p>
+
+          <!-- 3 Tier Bar -->
+          <div style="height: 24px; width: 100%; display: flex; border-radius: 4px; overflow: hidden; margin-bottom: 0.6rem; border: 1px solid var(--border);">
+            <div style="width: 45%; background: #10b981;" title="Tier 1: 0% Taxable"></div>
+            <div style="width: 17%; background: #f59e0b;" title="Tier 2: Up to 50% Taxable"></div>
+            <div style="width: 38%; background: #ef4444;" title="Tier 3: Up to 85% Taxable"></div>
+          </div>
+
+          <!-- Threshold markers -->
+          <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">
+            <span style="color: #10b981;">0% Taxable Zone</span>
+            <span id="txtT1Limit" style="color: #f59e0b;">$25,000</span>
+            <span id="txtT2Limit" style="color: #ef4444;">$34,000 (85% Cliff)</span>
+            <span style="color: #ef4444;">85% Taxable Zone</span>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Worked Algebraic Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step IRS Provisional Income Mathematics</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">26 U.S. Code § 86</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            The Internal Revenue Code computes taxable Social Security by calculating combined provisional income and applying statutory two-tier phasing:
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Calculate Provisional (Combined) Income</strong>
+              <div id="sstStep1" style="color: #3b82f6; margin-top: 0.25rem;">Provisional Income = $26,000 (Other) + $0 (Muni) + (50% × $28,000 SS) = $40,000.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Tier 1 Calculation (50% Phase-In)</strong>
+              <div id="sstStep2" style="color: var(--text-muted); margin-top: 0.25rem;">Excess above $25,000 capped at $9,000 spread = $9,000 × 50% = $4,500.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Tier 2 Calculation (85% Phase-In)</strong>
+              <div id="sstStep3" style="color: var(--text-muted); margin-top: 0.25rem;">Excess above $34,000 = ($40,000 - $34,000) × 85% = $5,100.00.</div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #ef4444; font-weight: 700;">Step 4: Statutory Maximum Cap & Net Taxable Total</strong>
+              <div id="sstStep4" style="color: #ef4444; margin-top: 0.25rem;">Total = Lesser of ($4,500 + $5,100 = $9,600) or 85% cap ($23,800) = $9,600.00 taxable.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Critical Social Security Tax Traps -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 4 Critical Social Security Tax Traps</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>The Non-Inflation-Indexed Statutory Trap:</strong> Unlike tax brackets, standard deductions, and 401(k) contribution limits, Congress has <strong>NEVER indexed the $25,000 and $32,000 provisional thresholds for inflation</strong> since they were enacted in 1983. In 1983, less than 10% of seniors paid tax on benefits; today, over 50% of retirees are taxed due to pure inflation creep.</li>
+            <li><strong>The 40.7% "Tax Torpedo" Zone:</strong> In the 85% phase-in zone, each $1.00 of additional IRA distribution pushes $0.85 of previously tax-free Social Security into your taxable income. If your base federal bracket is 22%, your actual marginal tax rate becomes ( 22% 	imes 1.85 = 40.7% ). Middle-class retirees often face higher marginal rates than millionaires.</li>
+            <li><strong>The Municipal Bond Tax Illusion:</strong> Investors purchase municipal bonds believing interest is 100% tax-free. However, IRC § 86 specifically mandates that <em>tax-exempt interest must be added directly into provisional income</em>, silently triggering higher taxes on your Social Security checks.</li>
+            <li><strong>State Taxation Exposure:</strong> 9 states (CO, CT, MN, MT, NM, RI, UT, VT, WV) still levy state income taxes on Social Security. Moving across state lines or taking a large one-time 401(k) withdrawal can trigger double state-and-federal taxation.</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Social Security Tax Worksheet
+          </button>
         </div>
       </div>
 
       <script>
+        function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
         function calcSSTax() {
           var status = document.getElementById('sst-status').value;
           var ss = parseFloat(document.getElementById('sst-ss').value) || 0;
           var other = parseFloat(document.getElementById('sst-other').value) || 0;
           var muni = parseFloat(document.getElementById('sst-muni').value) || 0;
 
+          // Thresholds
+          var t1 = (status === 'joint') ? 32000 : 25000;
+          var t2 = (status === 'joint') ? 44000 : 34000;
+
+          document.getElementById('txtT1Limit').textContent = fmtUSD(t1);
+          document.getElementById('txtT2Limit').textContent = fmtUSD(t2) + ' (85% Cliff)';
+
           var halfSS = ss * 0.5;
           var provisional = other + muni + halfSS;
 
-          var base1 = (status === 'joint') ? 32000 : 25000;
-          var base2 = (status === 'joint') ? 44000 : 34000;
-
           var taxable = 0;
-          if (provisional <= base1) {
-            taxable = 0;
-          } else if (provisional <= base2) {
-            taxable = Math.min(halfSS, (provisional - base1) * 0.5);
-          } else {
-            var tier1 = (base2 - base1) * 0.5;
-            var tier2 = (provisional - base2) * 0.85;
-            taxable = Math.min(ss * 0.85, tier1 + tier2);
+          if (provisional > t2) {
+            var tier1Spread = t2 - t1;
+            var part1 = Math.min(halfSS, tier1Spread * 0.5);
+            var part2 = (provisional - t2) * 0.85;
+            taxable = Math.min(part1 + part2, ss * 0.85);
+          } else if (provisional > t1) {
+            taxable = Math.min((provisional - t1) * 0.5, halfSS);
           }
 
-          var pct = ss > 0 ? ((taxable / ss) * 100).toFixed(0) : 0;
           var taxFree = Math.max(0, ss - taxable);
+          var taxPct = ss > 0 ? ((taxable / ss) * 100) : 0;
+          var freePct = ss > 0 ? ((taxFree / ss) * 100) : 100;
 
-          document.getElementById('sst-taxable').textContent = '$' + Math.round(taxable).toLocaleString('en-US') + ' (' + pct + '%)';
-          document.getElementById('sst-prov').textContent = '$' + Math.round(provisional).toLocaleString('en-US');
-          document.getElementById('sst-free').textContent = '$' + Math.round(taxFree).toLocaleString('en-US');
+          document.getElementById('sst-prov').textContent = fmtUSD(provisional);
+          document.getElementById('sst-taxable').textContent = fmtUSD(taxable);
+          document.getElementById('sst-taxable-pct').textContent = taxPct.toFixed(1) + '% of total benefit taxed';
+          document.getElementById('sst-taxfree').textContent = fmtUSD(taxFree);
+          document.getElementById('sst-taxfree-pct').textContent = freePct.toFixed(1) + '% sheltered from tax';
+
+          var tierStatusEl = document.getElementById('sst-tier-status');
+          var torpedoEl = document.getElementById('sst-torpedo');
+          var torpedoDetailEl = document.getElementById('sst-torpedo-detail');
+
+          if (provisional <= t1) {
+            tierStatusEl.textContent = 'Tier 1: 0% Taxable Zone';
+            tierStatusEl.style.color = '#10b981';
+            torpedoEl.textContent = 'INACTIVE (0%)';
+            torpedoEl.style.color = '#10b981';
+            torpedoDetailEl.textContent = 'Extra income will not trigger tax on SS';
+          } else if (provisional <= t2) {
+            tierStatusEl.textContent = 'Tier 2: 50% Phase-In Zone';
+            tierStatusEl.style.color = '#f59e0b';
+            torpedoEl.textContent = 'MODERATE (33.0%)';
+            torpedoEl.style.color = '#f59e0b';
+            torpedoDetailEl.textContent = '+$1k IRA → $500 more SS taxed (1.5x rate)';
+          } else {
+            tierStatusEl.textContent = 'Tier 3: 85% Phase-In Zone';
+            tierStatusEl.style.color = '#ef4444';
+            torpedoEl.textContent = 'ACTIVE (40.7%)';
+            torpedoEl.style.color = '#ef4444';
+            torpedoDetailEl.textContent = '+$1k IRA → $850 more SS taxed (1.85x rate)';
+          }
+
+          // Step derivations
+          document.getElementById('sstStep1').textContent = 'Provisional Income = ' + fmtUSD(other) + ' (Other) + ' + fmtUSD(muni) + ' (Muni) + (50% × ' + fmtUSD(ss) + ' SS) = ' + fmtUSD(provisional) + '.';
+          if (provisional <= t1) {
+            document.getElementById('sstStep2').textContent = 'Provisional Income (' + fmtUSD(provisional) + ') is below Tier 1 threshold (' + fmtUSD(t1) + '). Taxable amount = $0.00.';
+            document.getElementById('sstStep3').textContent = 'Tier 2 not applicable.';
+            document.getElementById('sstStep4').textContent = '100% of your Social Security benefits are tax-free.';
+          } else if (provisional <= t2) {
+            var diff = provisional - t1;
+            document.getElementById('sstStep2').textContent = 'Excess above ' + fmtUSD(t1) + ' = ' + fmtUSD(diff) + ' × 50% = ' + fmtUSD(diff * 0.5) + '.';
+            document.getElementById('sstStep3').textContent = 'Provisional Income is below Tier 2 threshold (' + fmtUSD(t2) + ').';
+            document.getElementById('sstStep4').textContent = 'Taxable amount = ' + fmtUSD(taxable) + ' (' + taxPct.toFixed(1) + '% of total benefit).';
+          } else {
+            var spread = t2 - t1;
+            var t1Amt = Math.min(halfSS, spread * 0.5);
+            var t2Amt = (provisional - t2) * 0.85;
+            document.getElementById('sstStep2').textContent = 'Tier 1 (' + fmtUSD(t1) + ' to ' + fmtUSD(t2) + ') = ' + fmtUSD(spread) + ' × 50% = ' + fmtUSD(t1Amt) + '.';
+            document.getElementById('sstStep3').textContent = 'Tier 2 excess above ' + fmtUSD(t2) + ' = ' + fmtUSD(provisional - t2) + ' × 85% = ' + fmtUSD(t2Amt) + '.';
+            document.getElementById('sstStep4').textContent = 'Total Taxable = Min(' + fmtUSD(t1Amt + t2Amt) + ', 85% cap ' + fmtUSD(ss * 0.85) + ') = ' + fmtUSD(taxable) + '.';
+          }
         }
+
+        function copySSTSummary() {
+          var status = document.getElementById('sst-status').value;
+          var ss = document.getElementById('sst-ss').value;
+          var other = document.getElementById('sst-other').value;
+          var prov = document.getElementById('sst-prov').textContent;
+          var taxable = document.getElementById('sst-taxable').textContent;
+          var taxFree = document.getElementById('sst-taxfree').textContent;
+          var torpedo = document.getElementById('sst-torpedo').textContent;
+
+          var text = '🏛️ SOCIAL SECURITY TAXABILITY & TORPEDO REPORT\n' +
+            '----------------------------------------\n' +
+            '• Filing Status: ' + (status === 'joint' ? 'Married Filing Jointly' : 'Single / Head of Household') + '\n' +
+            '• Annual Social Security: $' + Number(ss).toLocaleString('en-US') + '\n' +
+            '• Other Income: $' + Number(other).toLocaleString('en-US') + '\n' +
+            '• Provisional Combined Income: ' + prov + '\n' +
+            '----------------------------------------\n' +
+            'TAXABILITY BREAKDOWN:\n' +
+            '• Taxable Social Security Amount: ' + taxable + ' (' + document.getElementById('sst-taxable-pct').textContent + ')\n' +
+            '• Guaranteed Tax-Free Portion: ' + taxFree + ' (' + document.getElementById('sst-taxfree-pct').textContent + ')\n' +
+            '• Tax Torpedo Marginal Exposure: ' + torpedo + '\n' +
+            '----------------------------------------\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/social-security-tax';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopySST');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Taxability Report!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
+        }
+
         document.addEventListener('DOMContentLoaded', calcSSTax);
       </script>
-    `
+  `
   },
   {
     slug: "car-depreciation-calculator",
