@@ -33,54 +33,217 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; BMI Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">BMI (Body Mass Index) Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">BMI (Body Mass Index) & Healthy Weight Calculator</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Assess your body mass index against official World Health Organization categories.
+            Assess your Body Mass Index (BMI), BMI Prime, Ponderal Index, and healthy weight range against official World Health Organization (WHO) and CDC standards.
           </p>
 
           <div class="tool-box">
-            <div class="grid-inputs">
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+              <button type="button" id="btnMetric" onclick="setBmiUnit('metric')" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.8rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer;">Metric (kg, cm)</button>
+              <button type="button" id="btnImperial" onclick="setBmiUnit('imperial')" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">US Imperial (lbs, ft/in)</button>
+            </div>
+
+            <div id="boxMetric" class="grid-inputs">
               <div class="field-group">
                 <label class="field-label">Weight (kg)</label>
-                <input type="number" id="bmi-weight" class="text-input" value="70" step="0.5" oninput="calcBMI()" />
+                <input type="number" id="bmi-weight-kg" class="text-input" value="70" step="0.5" oninput="calcBMI()" />
               </div>
               <div class="field-group">
                 <label class="field-label">Height (cm)</label>
-                <input type="number" id="bmi-height" class="text-input" value="175" oninput="calcBMI()" />
+                <input type="number" id="bmi-height-cm" class="text-input" value="175" oninput="calcBMI()" />
+              </div>
+            </div>
+
+            <div id="boxImperial" class="grid-inputs" style="display: none;">
+              <div class="field-group">
+                <label class="field-label">Weight (lbs)</label>
+                <input type="number" id="bmi-weight-lbs" class="text-input" value="154" step="1" oninput="calcBMI()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Height (Feet & Inches)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="number" id="bmi-height-ft" class="text-input" value="5" placeholder="ft" oninput="calcBMI()" />
+                  <input type="number" id="bmi-height-in" class="text-input" value="9" placeholder="in" oninput="calcBMI()" />
+                </div>
               </div>
             </div>
 
             <div class="result-card">
-              <div class="field-label">Your BMI Score</div>
+              <div class="field-label">Your Body Mass Index (BMI)</div>
               <div id="bmi-score" class="result-val">22.9</div>
-              <div id="bmi-category" style="font-size: 1.1rem; font-weight: bold; color: #22c55e; margin-top: 0.4rem;">Normal Weight</div>
-              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
-                Healthy BMI range: 18.5 – 24.9 kg/m²
+              <div id="bmi-category" style="font-size: 1.15rem; font-weight: bold; color: #22c55e; margin-top: 0.4rem;">Normal Weight (18.5 – 24.9)</div>
+              
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.85rem; text-align: left;">
+                <div>Healthy Weight Target: <strong id="bmi-healthy-range" style="color: var(--fg);">56.7 – 76.3 kg</strong></div>
+                <div>BMI Prime: <strong id="bmi-prime" style="color: var(--fg);">0.91</strong></div>
+                <div>Ponderal Index: <strong id="bmi-ponderal" style="color: var(--fg);">13.07 kg/m³</strong></div>
+              </div>
+
+              <button type="button" id="btnCopyBMI" onclick="copyBMISummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy BMI & Health Assessment Report
+              </button>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step BMI Mathematical Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">WHO Clinical Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Body Mass Index is an epidemiological screening metric established by Adolphe Quetelet that correlates body weight with height squared:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Metric SI Formula</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">BMI = Weight (kg) / [Height (m)]² &bull; Worked: 70 kg / (1.75 m)² = 70 / 3.0625 = <strong>22.86 kg/m²</strong></div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Imperial US Formula</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">BMI = 703 × Weight (lbs) / [Height (inches)]² &bull; Worked: 703 × 154 / 69² = 108,262 / 4,761 = <strong>22.74 kg/m²</strong></div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 3: BMI Prime & Ponderal Index</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  BMI Prime = BMI / 25 (Values < 1.0 indicate healthy weight) &bull; Ponderal Index = Weight (kg) / [Height (m)]³ (Accounts for 3D body volume).
+                </div>
               </div>
             </div>
+          </div>
+
+          <!-- Critical Clinical Pitfalls & BMI Blind Spots -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls & BMI Blind Spots</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Athlete & Muscularity Paradox:</strong> BMI treats all body mass equally. Skeletal muscle is ~18% denser than adipose tissue. Bodybuilders and strength athletes with 10% body fat frequently score as "Overweight" (26–29) or "Obese" (>30) despite having excellent cardiovascular fitness and minimal visceral fat.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sarcopenic Obesity in Older Adults:</strong> As adults age past 60, loss of muscle mass (sarcopenia) combined with accumulation of abdominal visceral fat can keep BMI within the "Normal" (22–24) range despite high cardiometabolic risk. Waist-to-hip ratio or DEXA scans provide superior diagnostic clarity.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 2D vs 3D Height Distortion:</strong> Dividing by height squared rather than cubed artificially deflates BMI in short people (making them appear leaner than they are) and inflates BMI in tall individuals over 6'2" (188 cm).</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function calcBMI() {
-            const w = parseFloat(document.getElementById('bmi-weight').value) || 0;
-            const h = (parseFloat(document.getElementById('bmi-height').value) || 1) / 100;
-            const bmi = w / (h * h);
+          var bmiUnitMode = 'metric';
 
-            const scoreEl = document.getElementById('bmi-score');
-            const catEl = document.getElementById('bmi-category');
+          window.setBmiUnit = function(mode) {
+            bmiUnitMode = mode;
+            var boxM = document.getElementById('boxMetric');
+            var boxI = document.getElementById('boxImperial');
+            var btnM = document.getElementById('btnMetric');
+            var btnI = document.getElementById('btnImperial');
+
+            if (mode === 'metric') {
+              boxM.style.display = 'grid';
+              boxI.style.display = 'none';
+              btnM.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnM.style.borderColor = '#3b82f6';
+              btnM.style.color = '#3b82f6';
+              btnI.style.background = 'var(--surface-alt)';
+              btnI.style.borderColor = 'var(--border)';
+              btnI.style.color = 'var(--fg)';
+            } else {
+              boxM.style.display = 'none';
+              boxI.style.display = 'grid';
+              btnI.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnI.style.borderColor = '#3b82f6';
+              btnI.style.color = '#3b82f6';
+              btnM.style.background = 'var(--surface-alt)';
+              btnM.style.borderColor = 'var(--border)';
+              btnM.style.color = 'var(--fg)';
+            }
+            calcBMI();
+          };
+
+          function calcBMI() {
+            var wKg = 70;
+            var hM = 1.75;
+
+            if (bmiUnitMode === 'metric') {
+              wKg = parseFloat(document.getElementById('bmi-weight-kg').value) || 0;
+              var hCm = parseFloat(document.getElementById('bmi-height-cm').value) || 1;
+              hM = hCm / 100;
+            } else {
+              var wLbs = parseFloat(document.getElementById('bmi-weight-lbs').value) || 0;
+              var hFt = parseFloat(document.getElementById('bmi-height-ft').value) || 0;
+              var hIn = parseFloat(document.getElementById('bmi-height-in').value) || 0;
+              var totalInches = (hFt * 12) + hIn;
+              wKg = wLbs * 0.453592;
+              hM = (totalInches * 2.54) / 100;
+            }
+
+            if (hM <= 0) hM = 1;
+            var bmi = wKg / (hM * hM);
+            var prime = bmi / 25;
+            var ponderal = wKg / (hM * hM * hM);
+
+            var minHealthyKg = 18.5 * (hM * hM);
+            var maxHealthyKg = 24.9 * (hM * hM);
+
+            var scoreEl = document.getElementById('bmi-score');
+            var catEl = document.getElementById('bmi-category');
+            var rangeEl = document.getElementById('bmi-healthy-range');
+            var primeEl = document.getElementById('bmi-prime');
+            var pondEl = document.getElementById('bmi-ponderal');
 
             scoreEl.textContent = bmi.toFixed(1);
+            primeEl.textContent = prime.toFixed(2);
+            pondEl.textContent = ponderal.toFixed(2) + ' kg/m³';
 
-            let cat = 'Normal Weight';
-            let color = '#22c55e';
-            if (bmi < 18.5) { cat = 'Underweight'; color = '#3b82f6'; }
-            else if (bmi >= 25 && bmi < 29.9) { cat = 'Overweight'; color = '#f59e0b'; }
-            else if (bmi >= 30) { cat = 'Obese'; color = '#ef4444'; }
+            if (bmiUnitMode === 'metric') {
+              rangeEl.textContent = minHealthyKg.toFixed(1) + ' – ' + maxHealthyKg.toFixed(1) + ' kg';
+            } else {
+              var minLbs = minHealthyKg * 2.20462;
+              var maxLbs = maxHealthyKg * 2.20462;
+              rangeEl.textContent = minLbs.toFixed(1) + ' – ' + maxLbs.toFixed(1) + ' lbs';
+            }
+
+            var cat = 'Normal Weight';
+            var color = '#22c55e';
+            if (bmi < 16) { cat = 'Severe Thinness (< 16.0)'; color = '#ef4444'; }
+            else if (bmi < 17) { cat = 'Moderate Thinness (16.0 – 16.9)'; color = '#f59e0b'; }
+            else if (bmi < 18.5) { cat = 'Mild Thinness (17.0 – 18.4)'; color = '#3b82f6'; }
+            else if (bmi >= 25 && bmi < 29.9) { cat = 'Overweight / Pre-Obese (25.0 – 29.9)'; color = '#f59e0b'; }
+            else if (bmi >= 30 && bmi < 34.9) { cat = 'Obese Class I (30.0 – 34.9)'; color = '#ef4444'; }
+            else if (bmi >= 35 && bmi < 39.9) { cat = 'Obese Class II (35.0 – 39.9)'; color = '#dc2626'; }
+            else if (bmi >= 40) { cat = 'Obese Class III Morbid (≥ 40.0)'; color = '#991b1b'; }
 
             catEl.textContent = cat;
             catEl.style.color = color;
           }
+
+          window.copyBMISummary = function() {
+            var score = document.getElementById('bmi-score').textContent;
+            var cat = document.getElementById('bmi-category').textContent;
+            var range = document.getElementById('bmi-healthy-range').textContent;
+            var prime = document.getElementById('bmi-prime').textContent;
+            var ponderal = document.getElementById('bmi-ponderal').textContent;
+
+            var report = [
+              '=== WHO BMI & HEALTH ASSESSMENT REPORT ===',
+              'Body Mass Index (BMI): ' + score + ' kg/m²',
+              'Classification: ' + cat,
+              'Healthy Weight Target for Height: ' + range,
+              'BMI Prime (Ratio to 25.0 Upper Normal): ' + prime,
+              'Ponderal Index (Volumetric Mass): ' + ponderal,
+              '------------------------------------------',
+              'Timestamp: ' + new Date().toISOString(),
+              'Screening standards: World Health Organization (WHO) & CDC',
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/bmi-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(report).then(function() {
+              var btn = document.getElementById('btnCopyBMI');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Health Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcBMI);
         </script>
       `
@@ -135,13 +298,86 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             </div>
 
             <div class="result-card">
-              <div class="field-label">Maintenance Calories (TDEE)</div>
+              <div class="field-label">Maintenance Energy (TDEE)</div>
               <div id="tdee-val" class="result-val">2,305 kcal / day</div>
               <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
-                Basal Metabolic Rate (BMR): <strong id="bmr-val" style="color: var(--fg);">1,675 kcal</strong> |
-                Fat Loss Target (-500 kcal): <strong id="loss-val" style="color: #22c55e;">1,805 kcal</strong>
+                Basal Metabolic Rate (BMR): <strong id="bmr-val" style="color: var(--fg);">1,675 kcal</strong>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.85rem; text-align: left;">
+                <div style="padding: 0.5rem; background: var(--surface); border-radius: 4px; border: 1px solid var(--border);">
+                  <span style="color: #22c55e; font-weight: bold; display: block;">Mild Cut (-250 kcal)</span>
+                  <span id="cut-mild" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">2,055 kcal</span>
+                  <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">~0.5 lb loss/wk</span>
+                </div>
+                <div style="padding: 0.5rem; background: var(--surface); border-radius: 4px; border: 1px solid var(--border);">
+                  <span style="color: #10b981; font-weight: bold; display: block;">Standard Cut (-500 kcal)</span>
+                  <span id="loss-val" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">1,805 kcal</span>
+                  <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">~1.0 lb loss/wk</span>
+                </div>
+                <div style="padding: 0.5rem; background: var(--surface); border-radius: 4px; border: 1px solid var(--border);">
+                  <span style="color: #3b82f6; font-weight: bold; display: block;">Lean Bulk (+300 kcal)</span>
+                  <span id="bulk-val" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">2,605 kcal</span>
+                  <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Muscle hypertrophy</span>
+                </div>
+              </div>
+
+              <div style="margin-top: 1rem; padding: 0.75rem; background: var(--surface); border-radius: 4px; border: 1px solid var(--border); font-family: var(--mono); font-size: 0.82rem; text-align: left;">
+                <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">Standard Balanced Macro Split (40C / 30P / 30F at Maintenance):</strong>
+                <div id="tdee-macros" style="color: var(--text-muted);">
+                  Protein: <strong>173g</strong> (692 kcal) &bull; Carbs: <strong>231g</strong> (922 kcal) &bull; Fat: <strong>77g</strong> (692 kcal)
+                </div>
+              </div>
+
+              <button type="button" id="btnCopyTDEE" onclick="copyTDEESummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy Daily Nutrition & Calorie Targets
+              </button>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step TDEE & BMR Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Mifflin-St Jeor Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Total Daily Energy Expenditure computes the baseline metabolic energy required to sustain vital organs at rest (BMR) multiplied by your daily physical activity level (PAL):
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Mifflin-St Jeor BMR Equation</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                  Male: BMR = (10 × W) + (6.25 × H) - (5 × A) + 5<br>
+                  Female: BMR = (10 × W) + (6.25 × H) - (5 × A) - 161
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Worked for Male 70 kg, 175 cm, 25 yo: (10 × 70) + (6.25 × 175) - (5 × 25) + 5 = 700 + 1,093.75 - 125 + 5 = <strong>1,673.75 kcal</strong>.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Physical Activity Level (PAL) Multiplier</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Sedentary: 1.2 &bull; Light (1–3 days/wk): 1.375 &bull; Moderate (3–5 days/wk): 1.55 &bull; Heavy (6–7 days/wk): 1.725
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 3: Total Daily Energy Expenditure (TDEE)</strong>
+                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
+                  TDEE = BMR × PAL = 1,674 × 1.375 = <strong>2,302 kcal / day (Maintenance)</strong>
+                </div>
               </div>
             </div>
+          </div>
+
+          <!-- Critical Metabolic Traps & Adaptive Thermogenesis -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Metabolic Traps & Adaptive Thermogenesis</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Adaptive Thermogenesis & Metabolic Slowdown:</strong> Running an aggressive calorie deficit (>750 kcal/day) for prolonged periods triggers metabolic down-regulation (thyroid T3 decreases, leptin crashes, and cortisol spikes). Non-exercise activity thermogenesis (fidgeting, walking speed, posture) drops subconsciously by up to 300 kcal/day, stalling fat loss. Use conservative deficits of 300–500 kcal.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Fitness Tracker Caloric Burn Overestimation:</strong> Commercial smartwatches routinely overestimate calories burned during cardio and weight training by <strong>25% to 40%</strong>. "Eating back" workout calories based on watch readouts is the primary reason fitness enthusiasts fail to lose weight.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Thermic Effect of Food (TEF) Advantage:</strong> Not all calories require equal metabolic effort to process. Dietary protein requires <strong>20% to 30% of its caloric value</strong> simply to digest and assimilate, compared to 5–10% for carbs and 0–3% for dietary fats. High-protein diets naturally increase metabolic burn.</li>
+            </ul>
           </div>
         </div>
 
@@ -158,97 +394,517 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             bmr += (g === 'male' ? 5 : -161);
 
             const tdee = Math.round(bmr * mult);
+            const mildLoss = tdee - 250;
+            const loss = tdee - 500;
+            const bulk = tdee + 300;
 
             document.getElementById('tdee-val').textContent = tdee.toLocaleString() + ' kcal / day';
             document.getElementById('bmr-val').textContent = Math.round(bmr).toLocaleString() + ' kcal';
-            document.getElementById('loss-val').textContent = (tdee - 500).toLocaleString() + ' kcal';
+            document.getElementById('cut-mild').textContent = mildLoss.toLocaleString() + ' kcal';
+            document.getElementById('loss-val').textContent = loss.toLocaleString() + ' kcal';
+            document.getElementById('bulk-val').textContent = bulk.toLocaleString() + ' kcal';
+
+            // Macros at maintenance (40% C, 30% P, 30% F)
+            const proteinG = Math.round((tdee * 0.30) / 4);
+            const carbsG = Math.round((tdee * 0.40) / 4);
+            const fatG = Math.round((tdee * 0.30) / 9);
+
+            const macroEl = document.getElementById('tdee-macros');
+            if (macroEl) {
+              macroEl.innerHTML = 'Protein: <strong>' + proteinG + 'g</strong> (' + Math.round(proteinG * 4) + ' kcal) &bull; Carbs: <strong>' + carbsG + 'g</strong> (' + Math.round(carbsG * 4) + ' kcal) &bull; Fat: <strong>' + fatG + 'g</strong> (' + Math.round(fatG * 9) + ' kcal)';
+            }
           }
+
+          window.copyTDEESummary = function() {
+            const gender = document.getElementById('tdee-gender').value;
+            const age = document.getElementById('tdee-age').value;
+            const w = document.getElementById('tdee-weight').value;
+            const h = document.getElementById('tdee-height').value;
+            const tdee = document.getElementById('tdee-val').textContent;
+            const bmr = document.getElementById('bmr-val').textContent;
+            const mild = document.getElementById('cut-mild').textContent;
+            const cut = document.getElementById('loss-val').textContent;
+            const bulk = document.getElementById('bulk-val').textContent;
+
+            const text = [
+              '=== TDEE & METABOLIC CALORIE REPORT ===',
+              'Parameters: ' + gender + ', ' + age + ' yo, ' + w + ' kg, ' + h + ' cm',
+              '---------------------------------------',
+              'Basal Metabolic Rate (BMR): ' + bmr,
+              'Daily Maintenance (TDEE): ' + tdee,
+              'Mild Fat Loss Target (-250 kcal): ' + mild,
+              'Standard Fat Loss Target (-500 kcal): ' + cut,
+              'Lean Hypertrophy Bulk (+300 kcal): ' + bulk,
+              '---------------------------------------',
+              'Governing Equation: Mifflin-St Jeor Standard',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/tdee-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyTDEE');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Nutrition Targets!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcTdee);
         </script>
       `
     },
     {
       slug: 'water-intake',
-      title: 'Daily Water Intake Calculator',
-      metaDesc: 'Calculate optimal daily water consumption in liters and ounces based on body weight, climate, and exercise.',
-      category: 'Health',
+      title: 'Daily Water Intake & Hydration Schedule Calculator',
+      metaDesc: 'Calculate optimal daily water consumption in liters and fluid ounces based on body weight, exercise intensity, climate, and elevation with hourly pacing.',
+      category: 'Health & Fitness',
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Water Intake Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Daily Water Intake Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Find your target daily hydration goal based on your body weight and daily activity level.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Daily Water Intake & Hydration Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate your personalized daily hydration requirement and hourly pacing schedule based on biological weight, sweat rate, environmental heat index, and altitude.
           </p>
+
+          <!-- Unit Selector Toggle -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <button type="button" id="btnWaterMetric" onclick="setWaterUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (kg / Liters)</button>
+            <button type="button" id="btnWaterImperial" onclick="setWaterUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (lbs / Fl. Oz)</button>
+          </div>
 
           <div class="tool-box">
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Body Weight (kg)</label>
-                <input type="number" id="water-weight" class="text-input" value="70" oninput="calcWater()" />
+                <label class="field-label" id="lblWaterWeight">Body Weight (kg)</label>
+                <input type="number" id="water-weight" class="text-input" value="70" step="1" oninput="calcWater()" />
               </div>
               <div class="field-group">
                 <label class="field-label">Daily Exercise (Minutes)</label>
-                <input type="number" id="water-exercise" class="text-input" value="30" oninput="calcWater()" />
+                <input type="number" id="water-exercise" class="text-input" value="45" step="5" oninput="calcWater()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Workout Intensity</label>
+                <select id="water-intensity" class="text-input" onchange="calcWater()">
+                  <option value="1.0">Light / Walking (low sweat)</option>
+                  <option value="1.3" selected>Moderate / Jogging / Gym (steady sweat)</option>
+                  <option value="1.7">Vigorous / HIIT / Competitive Sports (heavy sweat)</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Climate & Environment</label>
+                <select id="water-climate" class="text-input" onchange="calcWater()">
+                  <option value="0" selected>Temperate / Climate-Controlled (indoor)</option>
+                  <option value="400">Warm & Dry (+400 ml / 14 oz)</option>
+                  <option value="750">Hot & Humid (+750 ml / 25 oz)</option>
+                  <option value="500">High Altitude &gt; 2,000m (+500 ml / 17 oz)</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Life Stage / Physiological State</label>
+                <select id="water-stage" class="text-input" onchange="calcWater()">
+                  <option value="0" selected>Standard Adult</option>
+                  <option value="300">Pregnant (+300 ml / 10 oz)</option>
+                  <option value="700">Lactating (+700 ml / 24 oz)</option>
+                </select>
               </div>
             </div>
 
-            <div class="result-card">
-              <div class="field-label">Recommended Daily Water Intake</div>
-              <div id="water-liters" class="result-val">2.8 Liters</div>
-              <div id="water-glasses" style="font-size: 1rem; color: var(--text-muted); margin-top: 0.4rem;">
-                ~11.5 standard glasses (240ml / 8oz each)
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div class="field-label">Target Daily Total Fluid Intake</div>
+              <div id="water-primary" class="result-val">3.2 Liters</div>
+              <div id="water-secondary" style="font-size: 1.15rem; color: #10b981; font-family: var(--mono); margin-top: 0.4rem;">
+                108 Fl. Oz &bull; ~13.5 standard glasses (240 ml / 8 oz)
               </div>
+              <div id="water-electrolyte-note" style="margin-top: 0.75rem; font-size: 0.85rem; padding: 0.5rem 0.75rem; border-radius: 4px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--fg); line-height: 1.5;">
+                ⚡ <strong>Electrolyte Recommendation:</strong> Sustained sweat loss requires 500–800 mg sodium per liter to maintain plasma osmolality.
+              </div>
+
+              <!-- Paced Hourly Schedule Table -->
+              <div style="margin-top: 1.5rem; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.5rem; color: var(--fg);">
+                  ⏰ Optimal Hourly Hydration Pacing Schedule:
+                </div>
+                <div id="water-schedule" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; font-family: var(--mono); font-size: 0.82rem;">
+                  <!-- Dynamic badges inserted by JS -->
+                </div>
+              </div>
+
+              <button type="button" id="btnCopyWater" onclick="copyHydrationPlan()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy Daily Hydration & Electrolyte Schedule
+              </button>
+            </div>
+
+            <!-- Step-by-Step Worked Derivation -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Clinical Hydration Derivation</h3>
+                <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">National Academies of Sciences (NASEM) Standard</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+                Daily fluid balance accounts for metabolic baseline turnover, respiratory water loss, sensible perspiration, and thermal loading:
+              </p>
+              <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Step 1: Baseline Basal Water Turnover</strong>
+                  <div style="color: #3b82f6; margin-top: 0.25rem;">
+                    Baseline = Body Weight (kg) &times; 35 ml/kg (or Body Weight (lbs) &times; 0.5 fl. oz)
+                  </div>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                    For 70 kg (154 lbs): 70 &times; 35 = <strong>2,450 ml (2.45 L / 83 oz)</strong>. Covers basal renal clearance (500 ml minimum obligatory urine), insensible pulmonary moisture, and transdermal diffusion.
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Step 2: Exercise Sweat Rate Compensation</strong>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                    Sweat Volume = (Exercise Minutes / 30) &times; 350 ml &times; Intensity Multiplier
+                  </div>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                    45 mins moderate workout (1.3x): (45 / 30) &times; 350 &times; 1.3 = <strong>682.5 ml</strong> fluid lost via eccrine sweat glands.
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Step 3: Environmental & Altitude Offset</strong>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                    High heat index triggers vasodilation (+400 to 750 ml). Altitude &gt;2,000m increases respiratory evaporation by ~500 ml due to hyperventilation in low-humidity air.
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Step 4: Dietary Moisture Offset (The 20% Rule)</strong>
+                  <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
+                    Beverage Target = Total Daily Fluid - Food Moisture (~20%) = 3,132 ml total &bull; Direct Liquids: <strong>~2.5 to 3.2 L / day</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Critical Hydration Traps & Hyponatremia Warnings -->
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Hydration Traps & Electrolyte Pitfalls</h3>
+              <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Hyponatremia & Water Intoxication Danger:</strong> Gulping excessive amounts of pure distilled or tap water (&gt;1.2 Liters per hour) without sodium during endurance exercise dilutes extracellular sodium below 135 mmol/L (Exercise-Associated Hyponatremia). Cells swell osmotically, potentially causing headache, confusion, cerebral edema, and seizures. Always pace water intake and add electrolytes during prolonged workouts.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Clear Urine" Myth:</strong> Completely clear, colorless urine is actually a sign of acute overhydration and renal mineral flushing. The clinical ideal is a <strong>pale straw or light champagne yellow</strong> (Armstrong Urine Color Chart #1–#3). Deep amber indicates dehydration; crystal clear indicates unnecessary electrolyte wasting.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Caffeine Dehydration Fallacy:</strong> While caffeine is a mild adenosine antagonist with minor diuretic properties, clinical trials show that in habitual coffee/tea drinkers, doses up to 400 mg/day do not cause negative fluid balance. Coffee and tea contribute toward your daily hydration quota at approximately <strong>85% to 95% of equivalent plain water</strong>.</li>
+              </ul>
             </div>
           </div>
         </div>
 
         <script>
+          let waterUnitMode = 'metric';
+
+          window.setWaterUnit = function(mode) {
+            waterUnitMode = mode;
+            const btnM = document.getElementById('btnWaterMetric');
+            const btnI = document.getElementById('btnWaterImperial');
+            const lblW = document.getElementById('lblWaterWeight');
+            const inpW = document.getElementById('water-weight');
+
+            if (mode === 'metric') {
+              btnM.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnM.style.borderColor = '#3b82f6';
+              btnM.style.color = '#3b82f6';
+              btnI.style.background = 'var(--surface-alt)';
+              btnI.style.borderColor = 'var(--border)';
+              btnI.style.color = 'var(--fg)';
+              lblW.textContent = 'Body Weight (kg)';
+              inpW.value = Math.round((parseFloat(inpW.value) || 154) * 0.453592) || 70;
+            } else {
+              btnI.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnI.style.borderColor = '#3b82f6';
+              btnI.style.color = '#3b82f6';
+              btnM.style.background = 'var(--surface-alt)';
+              btnM.style.borderColor = 'var(--border)';
+              btnM.style.color = 'var(--fg)';
+              lblW.textContent = 'Body Weight (lbs)';
+              inpW.value = Math.round((parseFloat(inpW.value) || 70) * 2.20462) || 154;
+            }
+            calcWater();
+          };
+
           function calcWater() {
-            const w = parseFloat(document.getElementById('water-weight').value) || 0;
-            const ex = parseFloat(document.getElementById('water-exercise').value) || 0;
+            let wKg = 70;
+            const wRaw = parseFloat(document.getElementById('water-weight').value) || 0;
+            if (waterUnitMode === 'metric') {
+              wKg = wRaw;
+            } else {
+              wKg = wRaw * 0.453592;
+            }
+            if (wKg <= 0) wKg = 70;
 
-            // Baseline: 35ml per kg + 350ml per 30 mins exercise
-            const ml = (w * 35) + ((ex / 30) * 350);
-            const liters = (ml / 1000).toFixed(1);
-            const glasses = (ml / 240).toFixed(1);
+            const exMins = parseFloat(document.getElementById('water-exercise').value) || 0;
+            const intensity = parseFloat(document.getElementById('water-intensity').value) || 1.0;
+            const climateAdd = parseFloat(document.getElementById('water-climate').value) || 0;
+            const stageAdd = parseFloat(document.getElementById('water-stage').value) || 0;
 
-            document.getElementById('water-liters').textContent = liters + ' Liters';
-            document.getElementById('water-glasses').textContent = '~' + glasses + ' standard glasses (240ml each)';
+            // Baseline: 35ml / kg
+            const basalMl = wKg * 35;
+            // Exercise: (mins / 30) * 350ml * intensity
+            const exerciseMl = (exMins / 30) * 350 * intensity;
+            const totalMl = Math.round(basalMl + exerciseMl + climateAdd + stageAdd);
+
+            const liters = (totalMl / 1000).toFixed(1);
+            const flOz = Math.round(totalMl * 0.033814);
+            const glasses = (totalMl / 240).toFixed(1);
+
+            const priEl = document.getElementById('water-primary');
+            const secEl = document.getElementById('water-secondary');
+            const eleNote = document.getElementById('water-electrolyte-note');
+
+            if (waterUnitMode === 'metric') {
+              priEl.textContent = liters + ' Liters / day';
+              secEl.innerHTML = flOz + ' Fl. Oz &bull; ~' + glasses + ' glasses (240 ml each)';
+            } else {
+              priEl.textContent = flOz + ' Fl. Oz / day';
+              secEl.innerHTML = liters + ' Liters &bull; ~' + glasses + ' standard 8 oz glasses';
+            }
+
+            if (totalMl > 3500 || exMins >= 60) {
+              eleNote.style.display = 'block';
+              eleNote.innerHTML = '⚡ <strong>Electrolyte Alert:</strong> Your target exceeds 3.5L or includes &ge;60 mins exercise. Add 500–1,000 mg sodium and 200 mg potassium across your fluids to prevent exercise-associated hyponatremia.';
+            } else {
+              eleNote.style.display = 'block';
+              eleNote.innerHTML = '💧 <strong>Hydration Balance:</strong> Paced drinking maintains plasma volume without straining kidney glomerular filtration.';
+            }
+
+            // Populate Paced Hourly Schedule
+            const scheduleEl = document.getElementById('water-schedule');
+            if (scheduleEl) {
+              const morningMl = Math.round(totalMl * 0.30);
+              const middayMl = Math.round(totalMl * 0.35);
+              const afternoonMl = Math.round(totalMl * 0.25);
+              const eveningMl = Math.round(totalMl * 0.10);
+
+              const morningOz = Math.round(morningMl * 0.033814);
+              const middayOz = Math.round(middayMl * 0.033814);
+              const afternoonOz = Math.round(afternoonMl * 0.033814);
+              const eveningOz = Math.round(eveningMl * 0.033814);
+
+              scheduleEl.innerHTML = 
+                '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">' +
+                  '<strong style="color: #3b82f6;">🌅 Morning (7–10 AM)</strong>' +
+                  '<div style="color: var(--fg); font-weight: 700; margin-top: 0.2rem;">' + (morningMl/1000).toFixed(1) + ' L (' + morningOz + ' oz)</div>' +
+                  '<div style="color: var(--text-muted); font-size: 0.72rem;">Rehydrates after overnight fast</div>' +
+                '</div>' +
+                '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">' +
+                  '<strong style="color: #10b981;">☀️ Mid-Day (11 AM–2 PM)</strong>' +
+                  '<div style="color: var(--fg); font-weight: 700; margin-top: 0.2rem;">' + (middayMl/1000).toFixed(1) + ' L (' + middayOz + ' oz)</div>' +
+                  '<div style="color: var(--text-muted); font-size: 0.72rem;">Supports digestion and focus</div>' +
+                '</div>' +
+                '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">' +
+                  '<strong style="color: #f59e0b;">🏃 Afternoon (3–6 PM)</strong>' +
+                  '<div style="color: var(--fg); font-weight: 700; margin-top: 0.2rem;">' + (afternoonMl/1000).toFixed(1) + ' L (' + afternoonOz + ' oz)</div>' +
+                  '<div style="color: var(--text-muted); font-size: 0.72rem;">Pre/post workout hydration window</div>' +
+                '</div>' +
+                '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">' +
+                  '<strong style="color: #8b5cf6;">🌙 Evening (7–9 PM)</strong>' +
+                  '<div style="color: var(--fg); font-weight: 700; margin-top: 0.2rem;">' + (eveningMl/1000).toFixed(1) + ' L (' + eveningOz + ' oz)</div>' +
+                  '<div style="color: var(--text-muted); font-size: 0.72rem;">Taper off to avoid nocturia</div>' +
+                '</div>';
+            }
           }
+
+          window.copyHydrationPlan = function() {
+            const pri = document.getElementById('water-primary').textContent;
+            const sec = document.getElementById('water-secondary').textContent;
+            const wVal = document.getElementById('water-weight').value;
+            const exVal = document.getElementById('water-exercise').value;
+
+            const text = [
+              '=== CLINICAL DAILY HYDRATION PROTOCOL ===',
+              'Parameters: Weight ' + wVal + ' ' + (waterUnitMode === 'metric' ? 'kg' : 'lbs') + ', ' + exVal + ' mins exercise',
+              '-----------------------------------------',
+              'Target Daily Total: ' + pri,
+              'Equivalent Breakdown: ' + sec,
+              'Hourly Pacing Schedule:',
+              '  • Morning (7–10 AM): 30% of total (Rehydration)',
+              '  • Mid-Day (11 AM–2 PM): 35% of total (Metabolic support)',
+              '  • Afternoon (3–6 PM): 25% of total (Activity window)',
+              '  • Evening (7–9 PM): 10% of total (Taper before sleep)',
+              '-----------------------------------------',
+              'Standards: NASEM Guidelines & Armstrong Hydration Index',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/water-intake'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyWater');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Hydration Protocol!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcWater);
         </script>
       `
     },
     {
       slug: 'sleep-calculator',
-      title: 'Sleep Cycle & Wake-Up Calculator',
-      metaDesc: 'Calculate optimal bedtimes and wake-up times based on 90-minute REM sleep cycles to avoid grogginess.',
-      category: 'Health',
+      title: 'Sleep Cycle & Wake-Up Calculator (90-Minute REM Architecture)',
+      metaDesc: 'Calculate optimal bedtimes and wake-up times based on 90-minute REM ultradian cycles. Avoid sleep inertia and wake up feeling energized.',
+      category: 'Health & Sleep',
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Sleep Calculator
+            <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Sleep Cycle Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Sleep Cycle & Wake-Up Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Waking up in the middle of a sleep cycle leaves you feeling groggy. Use 90-minute natural REM cycles to wake up energized.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Sleep Cycle & Wake-Up Architecture Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Waking up in the middle of Stage 3 Slow-Wave Deep Sleep leaves you groggy and disoriented (sleep inertia). Calculate optimal bedtimes and wake times aligned with natural 90-minute ultradian sleep cycles.
           </p>
 
+          <!-- Mode Toggle -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <button type="button" id="btnSleepModeWake" onclick="setSleepMode('targetWake')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">I Know When I Must Wake Up</button>
+            <button type="button" id="btnSleepModeNow" onclick="setSleepMode('sleepNow')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">If I Go to Sleep Right Now</button>
+          </div>
+
           <div class="tool-box">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">If you go to sleep RIGHT NOW:</h3>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
-              (Accounting for 15 minutes average time to fall asleep)
+            <div class="grid-inputs">
+              <div class="field-group" id="groupWakeTime">
+                <label class="field-label">Desired Wake-Up Time</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <select id="sleep-wake-hr" class="text-input" onchange="calcSleepCycles()">
+                    <option value="5">05</option>
+                    <option value="6">06</option>
+                    <option value="7" selected>07</option>
+                    <option value="8">08</option>
+                    <option value="9">09</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="1">01</option>
+                    <option value="2">02</option>
+                    <option value="3">03</option>
+                    <option value="4">04</option>
+                  </select>
+                  <select id="sleep-wake-min" class="text-input" onchange="calcSleepCycles()">
+                    <option value="0" selected>:00</option>
+                    <option value="15">:15</option>
+                    <option value="30">:30</option>
+                    <option value="45">:45</option>
+                  </select>
+                  <select id="sleep-wake-ampm" class="text-input" onchange="calcSleepCycles()">
+                    <option value="AM" selected>AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Sleep Latency (Time to Fall Asleep)</label>
+                <select id="sleep-latency" class="text-input" onchange="calcSleepCycles()">
+                  <option value="10">10 Minutes (Fast Sleeper)</option>
+                  <option value="15" selected>15 Minutes (Average Healthy Latency)</option>
+                  <option value="25">25 Minutes (Mild Latency)</option>
+                  <option value="40">40 Minutes (Extended Latency)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+              <h3 id="sleep-results-title" style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">Recommended Bedtimes to Wake Up Refreshed:</h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                A standard sleep cycle takes approximately 90 minutes. Waking at the completion of a full cycle ensures you emerge from light Stage 1/REM sleep rather than deep restorative slow-wave delta sleep.
+              </p>
+              <div id="sleep-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;"></div>
+            </div>
+
+            <button type="button" id="btnCopySleep" onclick="copySleepSchedule()" class="btn-sec" style="margin-top: 1.5rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Sleep Cycle Schedule
+            </button>
+          </div>
+
+          <!-- Step-by-Step Sleep Architecture Breakdown -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🧠 The 4 Stages of a 90-Minute Sleep Cycle</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #8b5cf6; background: rgba(139, 92, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">AASM Polysomnography Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Throughout the night, the brain oscillates through non-REM (NREM) and rapid eye movement (REM) stages every 90 to 110 minutes:
             </p>
-            <div id="sleep-now-times" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem;"></div>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6;">Stage N1 (Light Sleep & Hypnic Transition &bull; ~5% of Night)</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
+                  Brain waves decelerate from waking beta/alpha (8–12 Hz) to theta (4–7 Hz). Muscle tone relaxes; hypnic jerks (involuntary twitches) frequently occur during this transitional phase.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981;">Stage N2 (True Light Sleep & Motor Memory Consolidation &bull; ~50% of Night)</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
+                  Marked by sleep spindles (11–16 Hz bursts) and K-complexes on EEG. Heart rate and core body temperature drop. Essential for synaptic pruning and procedural motor memory consolidation.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #f59e0b;">Stage N3 (Slow-Wave Deep Sleep & Glymphatic Clearance &bull; ~20% of Night)</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
+                  High-amplitude delta waves (&lt;4 Hz). Pituitary gland releases 70%+ of daily human growth hormone (HGH) for tissue repair. The brain's glymphatic system opens interstitial channels to flush beta-amyloid and tau proteins.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #ec4899;">REM Sleep (Paradoxical Dreaming & Emotional Regulation &bull; ~25% of Night)</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
+                  Rapid low-voltage EEG similar to wakefulness. Complete postural muscle atonia (paralysis) prevents acting out dreams. Critical for emotional processing, creative insight synthesis, and mood equilibrium.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Sleep Traps & Circadian Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Sleep Traps & Circadian Pitfalls</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Sleep Inertia Paradox (Why 8 Hours Can Feel Worse Than 7.5):</strong> If your alarm jolts you out of Stage N3 Slow-Wave Deep Sleep, prefrontal cortex hypoperfusion persists for 30 to 60 minutes, causing intense grogginess, slowed reaction times, and brain fog. Waking at 7.5 hours (at the conclusion of cycle 5 during light Stage 1/REM) often feels dramatically more alert than waking at 8.0 hours.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Weekend Social Jetlag Trap:</strong> Staying up 3 hours later on Friday and sleeping in Saturday shifts your peripheral circadian clock genes (CLOCK, BMAL1). When you try to sleep early on Sunday, your core temperature hasn't dropped and pineal melatonin has not secreted, resulting in debilitating "Sunday Night Insomnia".</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Instant Sleep Fallacy:</strong> Falling asleep within 2–3 minutes of your head hitting the pillow is not a sign of great sleep health—it is a recognized clinical indicator of <strong>severe chronic sleep deprivation</strong> (excess adenosine buildup). Healthy sleep latency is 10 to 20 minutes.</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function formatTimeStr(d) {
+          let sleepCalcMode = 'targetWake';
+
+          window.setSleepMode = function(mode) {
+            sleepCalcMode = mode;
+            const btnW = document.getElementById('btnSleepModeWake');
+            const btnN = document.getElementById('btnSleepModeNow');
+            const groupW = document.getElementById('groupWakeTime');
+            const titleEl = document.getElementById('sleep-results-title');
+
+            if (mode === 'targetWake') {
+              btnW.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnW.style.borderColor = '#3b82f6';
+              btnW.style.color = '#3b82f6';
+              btnN.style.background = 'var(--surface-alt)';
+              btnN.style.borderColor = 'var(--border)';
+              btnN.style.color = 'var(--fg)';
+              groupW.style.display = 'block';
+              titleEl.textContent = 'Recommended Bedtimes to Wake Up Refreshed:';
+            } else {
+              btnN.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnN.style.borderColor = '#3b82f6';
+              btnN.style.color = '#3b82f6';
+              btnW.style.background = 'var(--surface-alt)';
+              btnW.style.borderColor = 'var(--border)';
+              btnW.style.color = 'var(--fg)';
+              groupW.style.display = 'none';
+              titleEl.textContent = 'Optimal Times to Wake Up If You Sleep Now:';
+            }
+            calcSleepCycles();
+          };
+
+          function formatSleepTime(d) {
             let h = d.getHours();
             const m = d.getMinutes().toString().padStart(2, '0');
             const ampm = h >= 12 ? 'PM' : 'AM';
@@ -256,35 +912,97 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             return h + ':' + m + ' ' + ampm;
           }
 
-          function calcSleepNow() {
-            const container = document.getElementById('sleep-now-times');
+          function calcSleepCycles() {
+            const container = document.getElementById('sleep-cards-container');
+            if (!container) return;
             container.innerHTML = '';
-            const now = new Date();
-            now.setMinutes(now.getMinutes() + 15); // +15 mins to fall asleep
 
+            const latency = parseInt(document.getElementById('sleep-latency').value) || 15;
             const cycles = [
-              { c: 6, label: '9 Hours (6 cycles)', best: true },
-              { c: 5, label: '7.5 Hours (5 cycles)', best: true },
-              { c: 4, label: '6 Hours (4 cycles)', best: false },
-              { c: 3, label: '4.5 Hours (3 cycles)', best: false }
+              { c: 6, hrs: '9.0 Hours', label: '6 Cycles', optimal: true, note: 'Ideal for athletes & cognitive recovery' },
+              { c: 5, hrs: '7.5 Hours', label: '5 Cycles', optimal: true, note: 'Gold standard adult benchmark' },
+              { c: 4, hrs: '6.0 Hours', label: '4 Cycles', optimal: false, note: 'Minimum acceptable restorative sleep' },
+              { c: 3, hrs: '4.5 Hours', label: '3 Cycles', optimal: false, note: 'Emergency short sleep (sleep debt accrues)' }
             ];
 
-            cycles.forEach(item => {
-              const d = new Date(now.getTime() + (item.c * 90 * 60 * 1000));
-              const card = document.createElement('div');
-              card.style.cssText = 'background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem; border-radius: 4px; text-align: center;';
-              card.innerHTML = '<div><strong style="font-family:var(--mono); font-size: 1.3rem; color:' + (item.best ? '#22c55e' : 'var(--fg)') + ';">' + formatTimeStr(d) + '</strong></div><div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.3rem;">' + item.label + '</div>';
-              container.appendChild(card);
-            });
+            if (sleepCalcMode === 'targetWake') {
+              let targetHr = parseInt(document.getElementById('sleep-wake-hr').value) || 7;
+              const targetMin = parseInt(document.getElementById('sleep-wake-min').value) || 0;
+              const ampm = document.getElementById('sleep-wake-ampm').value;
+
+              if (ampm === 'PM' && targetHr < 12) targetHr += 12;
+              if (ampm === 'AM' && targetHr === 12) targetHr = 0;
+
+              const targetDate = new Date();
+              targetDate.setHours(targetHr, targetMin, 0, 0);
+
+              cycles.forEach(item => {
+                // Bedtime = WakeTime - (cycles * 90 mins) - latency
+                const totalMinsBack = (item.c * 90) + latency;
+                const bedDate = new Date(targetDate.getTime() - (totalMinsBack * 60 * 1000));
+
+                const card = document.createElement('div');
+                card.style.cssText = 'background: var(--surface-alt); border: 1px solid ' + (item.optimal ? '#10b981' : 'var(--border)') + '; padding: 1rem; border-radius: 6px; text-align: center;';
+                card.innerHTML = 
+                  '<div style="font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono); color: ' + (item.optimal ? '#10b981' : 'var(--text-muted)') + '; font-weight: 700;">' + item.label + ' (' + item.hrs + ')</div>' +
+                  '<div style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: ' + (item.optimal ? '#10b981' : 'var(--fg)') + '; margin: 0.35rem 0;">' + formatSleepTime(bedDate) + '</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted);">' + item.note + '</div>';
+                container.appendChild(card);
+              });
+            } else {
+              const now = new Date();
+              now.setMinutes(now.getMinutes() + latency);
+
+              cycles.forEach(item => {
+                const wakeDate = new Date(now.getTime() + (item.c * 90 * 60 * 1000));
+                const card = document.createElement('div');
+                card.style.cssText = 'background: var(--surface-alt); border: 1px solid ' + (item.optimal ? '#10b981' : 'var(--border)') + '; padding: 1rem; border-radius: 6px; text-align: center;';
+                card.innerHTML = 
+                  '<div style="font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono); color: ' + (item.optimal ? '#10b981' : 'var(--text-muted)') + '; font-weight: 700;">' + item.label + ' (' + item.hrs + ')</div>' +
+                  '<div style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: ' + (item.optimal ? '#10b981' : 'var(--fg)') + '; margin: 0.35rem 0;">' + formatSleepTime(wakeDate) + '</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted);">' + item.note + '</div>';
+                container.appendChild(card);
+              });
+            }
           }
-          document.addEventListener('DOMContentLoaded', calcSleepNow);
+
+          window.copySleepSchedule = function() {
+            const cards = document.querySelectorAll('#sleep-cards-container > div');
+            const lines = [];
+            lines.push('=== 90-MINUTE REM SLEEP ARCHITECTURE PLAN ===');
+            lines.push('Mode: ' + (sleepCalcMode === 'targetWake' ? 'Bedtimes for target wake-up' : 'Wake-up times for sleeping now'));
+            lines.push('Sleep Latency Buffer: ' + document.getElementById('sleep-latency').value + ' mins');
+            lines.push('----------------------------------------------');
+            cards.forEach(card => {
+              const label = card.children[0]?.textContent || '';
+              const time = card.children[1]?.textContent || '';
+              const note = card.children[2]?.textContent || '';
+              lines.push(label + ' &bull; ' + time + ' (' + note + ')');
+            });
+            lines.push('----------------------------------------------');
+            lines.push('Standard: American Academy of Sleep Medicine (AASM)');
+            lines.push('Timestamp: ' + new Date().toISOString());
+            lines.push('Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/sleep-calculator');
+
+            navigator.clipboard.writeText(lines.join('\\n')).then(function() {
+              const btn = document.getElementById('btnCopySleep');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Sleep Schedule!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', calcSleepCycles);
         </script>
       `
     },
     {
       slug: 'body-fat-calculator',
-      title: 'US Navy Body Fat Calculator (Circumference Method)',
-      metaDesc: 'Calculate body fat percentage and lean mass using the official US Navy circumference method (height, neck, waist, and hip tape measurements).',
+      title: 'US Navy Body Fat Calculator (Circumference Method & DoD Standards)',
+      metaDesc: 'Calculate body fat percentage, lean body mass, and fat mass using the official US Navy tape measure method (DoD 1308.3 standard) with metric & imperial units.',
       category: 'Health & Fitness',
       body: `
         ${commonStyle}
@@ -292,125 +1010,293 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Body Fat Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">US Navy Body Fat Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Estimate your body fat percentage, lean body mass, and fat mass using tape measure circumference standards established by the US Department of Defense.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">US Navy Body Fat Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate your exact body fat percentage, lean tissue mass, and fat mass using the official circumference method developed by the US Navy and Department of Defense (DoD Directive 1308.3).
           </p>
 
+          <!-- Unit Selector Toggle -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <button type="button" id="btnBFMetric" onclick="setBFUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (cm / kg)</button>
+            <button type="button" id="btnBFImperial" onclick="setBFUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (inches / lbs)</button>
+          </div>
+
           <div class="tool-box">
-            <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold;">
+            <div style="display: flex; gap: 1.5rem; margin-bottom: 1.25rem;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold; font-family: var(--mono); font-size: 0.95rem;">
                 <input type="radio" name="bf-gender" value="male" checked onchange="toggleBFGender()" /> Male
               </label>
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold; font-family: var(--mono); font-size: 0.95rem;">
                 <input type="radio" name="bf-gender" value="female" onchange="toggleBFGender()" /> Female
               </label>
             </div>
 
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Height (cm)</label>
-                <input type="number" id="bf-height" class="code-input" value="178" oninput="calcBF()" />
+                <label class="field-label" id="lblBFHeight">Height (cm)</label>
+                <input type="number" id="bf-height" class="code-input" value="178" step="0.5" oninput="calcBF()" />
               </div>
               <div class="field-group">
-                <label class="field-label">Weight (kg)</label>
-                <input type="number" id="bf-weight" class="code-input" value="80" oninput="calcBF()" />
+                <label class="field-label" id="lblBFWeight">Weight (kg)</label>
+                <input type="number" id="bf-weight" class="code-input" value="80" step="0.5" oninput="calcBF()" />
               </div>
               <div class="field-group">
-                <label class="field-label">Neck Circumference (cm)</label>
-                <input type="number" id="bf-neck" class="code-input" value="38" oninput="calcBF()" />
+                <label class="field-label" id="lblBFNeck">Neck Circumference (cm)</label>
+                <input type="number" id="bf-neck" class="code-input" value="38" step="0.5" oninput="calcBF()" />
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Below Adam's apple</span>
               </div>
               <div class="field-group">
-                <label class="field-label">Waist Circumference (cm at Navel)</label>
-                <input type="number" id="bf-waist" class="code-input" value="86" oninput="calcBF()" />
+                <label class="field-label" id="lblBFWaist">Waist Circumference (cm)</label>
+                <input type="number" id="bf-waist" class="code-input" value="86" step="0.5" oninput="calcBF()" />
+                <span style="font-size: 0.72rem; color: var(--text-muted);" id="noteBFWaist">Men: at navel level</span>
               </div>
               <div class="field-group" id="bf-hip-group" style="display: none;">
-                <label class="field-label">Hip Circumference (cm at Widest)</label>
-                <input type="number" id="bf-hip" class="code-input" value="95" oninput="calcBF()" />
+                <label class="field-label" id="lblBFHip">Hip Circumference (cm)</label>
+                <input type="number" id="bf-hip" class="code-input" value="96" step="0.5" oninput="calcBF()" />
+                <span style="font-size: 0.72rem; color: var(--text-muted);">At widest buttocks point</span>
               </div>
             </div>
 
             <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Estimated Body Fat</div>
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Estimated Body Fat Percentage</div>
               <div id="bf-pct" class="result-val">16.8%</div>
-              <div id="bf-category" style="font-size: 1.1rem; font-weight: bold; color: #10b981; margin: 0.3rem 0;">Fitness Category</div>
-              <div id="bf-breakdown" style="font-size: 0.9rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">
-                Fat Mass: 13.4 kg | Lean Mass: 66.6 kg
+              <div id="bf-category" style="font-size: 1.15rem; font-weight: bold; color: #10b981; margin: 0.3rem 0;">Fitness Category</div>
+              <div id="bf-breakdown" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">
+                Fat Mass: 13.4 kg (29.6 lbs) | Lean Mass: 66.6 kg (146.8 lbs)
               </div>
+              <div id="bf-threshold-note" style="margin-top: 0.75rem; font-size: 0.82rem; color: var(--text-muted); background: var(--surface); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                Target Healthy Range: 10%–20% (Men) &bull; 18%–28% (Women)
+              </div>
+
+              <button type="button" id="btnCopyBF" onclick="copyBodyFatSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy US Navy Body Fat & Composition Report
+              </button>
+            </div>
+
+            <!-- Step-by-Step Worked Derivation -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step US Navy Equation Derivation</h3>
+                <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Hodgdon & Beckett (1984) Standard</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+                The US Navy formula calculates whole-body density ($D_B$) from log-transformed circumference measurements, then converts body density to body fat percentage via the Siri equation:
+              </p>
+              <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Male Equation:</strong>
+                  <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
+                    %BF = 495 / [ 1.0324 - 0.19077 &times; log<sub>10</sub>(Waist - Neck) + 0.15456 &times; log<sub>10</sub>(Height) ] - 450
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Female Equation:</strong>
+                  <div style="color: #ec4899; margin-top: 0.25rem; word-break: break-all;">
+                    %BF = 495 / [ 1.29579 - 0.35004 &times; log<sub>10</sub>(Waist + Hip - Neck) + 0.22100 &times; log<sub>10</sub>(Height) ] - 450
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Body Mass Partitioning:</strong>
+                  <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
+                    Fat Mass = Weight &times; (%BF / 100) &bull; Lean Body Mass (LBM) = Total Weight - Fat Mass
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Critical Pitfalls & Essential Fat Limits -->
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Body Composition Traps & Essential Fat Thresholds</h3>
+              <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Essential Fat Floor Danger:</strong> Essential fat is required for nerve myelin sheath insulation, hormone precursor synthesis, and bone marrow cellular integrity. The absolute physiological minimum is <strong>2% to 5% for men</strong> and <strong>10% to 13% for women</strong>. Dropping below these levels triggers hypogonadism, amenorrhea (menstrual cessation), immune suppression, and severe bone mineral loss.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Tape Measurement Standard Operating Protocol:</strong> Always measure the neck horizontally just below the larynx (Adam's apple) without compressing tissue. Men measure waist horizontally at the navel at the end of normal passive exhalation. Women measure at the narrowest circumference between ribs and iliac crest, with hips at the maximal gluteal extension.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">DEXA Scan vs Circumference Variance:</strong> The US Navy method has an empirical standard error of estimate (SEE) of approximately <strong>&plusmn;3.0% to 3.5%</strong> compared to dual-energy X-ray absorptiometry (DEXA) or hydrostatic 4-compartment weighing. Intestinal bloat or acute sodium water retention will artificially increase estimated body fat by expanding waist circumference.</li>
+              </ul>
             </div>
           </div>
         </div>
 
         <script>
+          let bfUnitMode = 'metric';
+
+          window.setBFUnit = function(mode) {
+            bfUnitMode = mode;
+            const btnM = document.getElementById('btnBFMetric');
+            const btnI = document.getElementById('btnBFImperial');
+            const lblH = document.getElementById('lblBFHeight');
+            const lblW = document.getElementById('lblBFWeight');
+            const lblN = document.getElementById('lblBFNeck');
+            const lblWa = document.getElementById('lblBFWaist');
+            const lblHi = document.getElementById('lblBFHip');
+
+            const inpH = document.getElementById('bf-height');
+            const inpW = document.getElementById('bf-weight');
+            const inpN = document.getElementById('bf-neck');
+            const inpWa = document.getElementById('bf-waist');
+            const inpHi = document.getElementById('bf-hip');
+
+            if (mode === 'metric') {
+              btnM.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnM.style.borderColor = '#3b82f6';
+              btnM.style.color = '#3b82f6';
+              btnI.style.background = 'var(--surface-alt)';
+              btnI.style.borderColor = 'var(--border)';
+              btnI.style.color = 'var(--fg)';
+
+              lblH.textContent = 'Height (cm)';
+              lblW.textContent = 'Weight (kg)';
+              lblN.textContent = 'Neck Circumference (cm)';
+              lblWa.textContent = 'Waist Circumference (cm)';
+              lblHi.textContent = 'Hip Circumference (cm)';
+
+              inpH.value = (parseFloat(inpH.value) * 2.54).toFixed(1);
+              inpW.value = Math.round(parseFloat(inpW.value) * 0.453592);
+              inpN.value = (parseFloat(inpN.value) * 2.54).toFixed(1);
+              inpWa.value = (parseFloat(inpWa.value) * 2.54).toFixed(1);
+              inpHi.value = (parseFloat(inpHi.value) * 2.54).toFixed(1);
+            } else {
+              btnI.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnI.style.borderColor = '#3b82f6';
+              btnI.style.color = '#3b82f6';
+              btnM.style.background = 'var(--surface-alt)';
+              btnM.style.borderColor = 'var(--border)';
+              btnM.style.color = 'var(--fg)';
+
+              lblH.textContent = 'Height (inches)';
+              lblW.textContent = 'Weight (lbs)';
+              lblN.textContent = 'Neck Circumference (inches)';
+              lblWa.textContent = 'Waist Circumference (inches)';
+              lblHi.textContent = 'Hip Circumference (inches)';
+
+              inpH.value = (parseFloat(inpH.value) / 2.54).toFixed(1);
+              inpW.value = Math.round(parseFloat(inpW.value) * 2.20462);
+              inpN.value = (parseFloat(inpN.value) / 2.54).toFixed(1);
+              inpWa.value = (parseFloat(inpWa.value) / 2.54).toFixed(1);
+              inpHi.value = (parseFloat(inpHi.value) / 2.54).toFixed(1);
+            }
+            calcBF();
+          };
+
           function toggleBFGender() {
-            var isFem = document.querySelector('input[name="bf-gender"]:checked').value === 'female';
+            const isFem = document.querySelector('input[name="bf-gender"]:checked').value === 'female';
             document.getElementById('bf-hip-group').style.display = isFem ? 'block' : 'none';
+            document.getElementById('noteBFWaist').textContent = isFem ? 'Women: narrowest torso waist' : 'Men: at navel level';
             calcBF();
           }
 
           function calcBF() {
-            var isFem = document.querySelector('input[name="bf-gender"]:checked').value === 'female';
-            var h = parseFloat(document.getElementById('bf-height').value) || 170;
-            var w = parseFloat(document.getElementById('bf-weight').value) || 70;
-            var neck = parseFloat(document.getElementById('bf-neck').value) || 35;
-            var waist = parseFloat(document.getElementById('bf-waist').value) || 80;
-            var hip = parseFloat(document.getElementById('bf-hip').value) || 90;
+            const isFem = document.querySelector('input[name="bf-gender"]:checked').value === 'female';
+            let hCm = 178;
+            let wKg = 80;
+            let neckCm = 38;
+            let waistCm = 86;
+            let hipCm = 96;
 
-            var bf = 0;
-            if (!isFem) {
-              // US Navy Male Formula (Metric)
-              var diff = waist - neck;
-              if (diff <= 0) diff = 1;
-              bf = 495 / (1.0324 - (0.19077 * Math.log10(diff)) + (0.15456 * Math.log10(h))) - 450;
+            if (bfUnitMode === 'metric') {
+              hCm = parseFloat(document.getElementById('bf-height').value) || 178;
+              wKg = parseFloat(document.getElementById('bf-weight').value) || 80;
+              neckCm = parseFloat(document.getElementById('bf-neck').value) || 38;
+              waistCm = parseFloat(document.getElementById('bf-waist').value) || 86;
+              hipCm = parseFloat(document.getElementById('bf-hip').value) || 96;
             } else {
-              // US Navy Female Formula (Metric)
-              var sum = waist + hip - neck;
-              if (sum <= 0) sum = 1;
-              bf = 495 / (1.29579 - (0.35004 * Math.log10(sum)) + (0.22100 * Math.log10(h))) - 450;
+              hCm = (parseFloat(document.getElementById('bf-height').value) || 70) * 2.54;
+              wKg = (parseFloat(document.getElementById('bf-weight').value) || 176) * 0.453592;
+              neckCm = (parseFloat(document.getElementById('bf-neck').value) || 15) * 2.54;
+              waistCm = (parseFloat(document.getElementById('bf-waist').value) || 34) * 2.54;
+              hipCm = (parseFloat(document.getElementById('bf-hip').value) || 38) * 2.54;
+            }
+
+            let bf = 0;
+            if (!isFem) {
+              const diff = waistCm - neckCm;
+              if (diff <= 0) { bf = 3; } else {
+                bf = 495 / (1.0324 - (0.19077 * Math.log10(diff)) + (0.15456 * Math.log10(hCm))) - 450;
+              }
+            } else {
+              const sum = waistCm + hipCm - neckCm;
+              if (sum <= 0) { bf = 10; } else {
+                bf = 495 / (1.29579 - (0.35004 * Math.log10(sum)) + (0.22100 * Math.log10(hCm))) - 450;
+              }
             }
 
             if (isNaN(bf) || bf < 2) bf = 2;
             if (bf > 65) bf = 65;
 
-            var fatKg = w * (bf / 100);
-            var leanKg = w - fatKg;
+            const fatKg = wKg * (bf / 100);
+            const leanKg = wKg - fatKg;
+            const fatLbs = fatKg * 2.20462;
+            const leanLbs = leanKg * 2.20462;
 
             document.getElementById('bf-pct').textContent = bf.toFixed(1) + '%';
 
-            var cat = 'Average';
-            var col = '#3b82f6';
+            let cat = 'Average';
+            let col = '#3b82f6';
             if (!isFem) {
-              if (bf < 6) { cat = 'Essential Fat'; col = '#ef4444'; }
-              else if (bf <= 13) { cat = 'Athletes'; col = '#10b981'; }
-              else if (bf <= 17) { cat = 'Fitness'; col = '#10b981'; }
-              else if (bf <= 24) { cat = 'Average'; col = '#3b82f6'; }
-              else { cat = 'Above Average / Obese'; col = '#f59e0b'; }
+              if (bf < 6) { cat = 'Essential Fat (< 6%)'; col = '#ef4444'; }
+              else if (bf <= 13) { cat = 'Athletes (6% – 13%)'; col = '#10b981'; }
+              else if (bf <= 17) { cat = 'Fitness (14% – 17%)'; col = '#10b981'; }
+              else if (bf <= 24) { cat = 'Average (18% – 24%)'; col = '#3b82f6'; }
+              else { cat = 'Overweight / Obese (≥ 25%)'; col = '#f59e0b'; }
             } else {
-              if (bf < 14) { cat = 'Essential Fat'; col = '#ef4444'; }
-              else if (bf <= 20) { cat = 'Athletes'; col = '#10b981'; }
-              else if (bf <= 24) { cat = 'Fitness'; col = '#10b981'; }
-              else if (bf <= 31) { cat = 'Average'; col = '#3b82f6'; }
-              else { cat = 'Above Average / Obese'; col = '#f59e0b'; }
+              if (bf < 14) { cat = 'Essential Fat (< 14%)'; col = '#ef4444'; }
+              else if (bf <= 20) { cat = 'Athletes (14% – 20%)'; col = '#10b981'; }
+              else if (bf <= 24) { cat = 'Fitness (21% – 24%)'; col = '#10b981'; }
+              else if (bf <= 31) { cat = 'Average (25% – 31%)'; col = '#3b82f6'; }
+              else { cat = 'Overweight / Obese (≥ 32%)'; col = '#f59e0b'; }
             }
 
-            var catEl = document.getElementById('bf-category');
+            const catEl = document.getElementById('bf-category');
             catEl.textContent = cat;
             catEl.style.color = col;
 
-            document.getElementById('bf-breakdown').textContent = 
-              'Fat Mass: ' + fatKg.toFixed(1) + ' kg (' + (fatKg * 2.20462).toFixed(1) + ' lbs) | ' +
-              'Lean Mass: ' + leanKg.toFixed(1) + ' kg (' + (leanKg * 2.20462).toFixed(1) + ' lbs)';
+            if (bfUnitMode === 'metric') {
+              document.getElementById('bf-breakdown').textContent = 
+                'Fat Mass: ' + fatKg.toFixed(1) + ' kg (' + fatLbs.toFixed(1) + ' lbs) | ' +
+                'Lean Mass: ' + leanKg.toFixed(1) + ' kg (' + leanLbs.toFixed(1) + ' lbs)';
+            } else {
+              document.getElementById('bf-breakdown').textContent = 
+                'Fat Mass: ' + fatLbs.toFixed(1) + ' lbs (' + fatKg.toFixed(1) + ' kg) | ' +
+                'Lean Mass: ' + leanLbs.toFixed(1) + ' lbs (' + leanKg.toFixed(1) + ' kg)';
+            }
           }
 
+          window.copyBodyFatSummary = function() {
+            const gender = document.querySelector('input[name="bf-gender"]:checked').value;
+            const pct = document.getElementById('bf-pct').textContent;
+            const cat = document.getElementById('bf-category').textContent;
+            const breakdown = document.getElementById('bf-breakdown').textContent;
+
+            const text = [
+              '=== US NAVY BODY COMPOSITION REPORT ===',
+              'Biological Sex: ' + gender.toUpperCase(),
+              'Estimated Body Fat: ' + pct,
+              'Classification Category: ' + cat,
+              'Mass Partitioning: ' + breakdown,
+              '---------------------------------------',
+              'Governing Standard: DoD Directive 1308.3 / Hodgdon & Beckett',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/body-fat-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyBF');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Body Fat Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcBF);
-          calcBF();
         </script>
       `
     },
     {
       slug: 'macro-calculator',
-      title: 'Macro Calculator (Protein, Carbs & Fat Split for Cutting/Bulking)',
-      metaDesc: 'Calculate your personalized daily macronutrient targets in grams and calories. Tailored for muscle gain bulking, fat loss cutting, and body recomposition.',
+      title: 'Macro Calculator (Protein, Carbs & Fat Targets for Cutting/Bulking)',
+      metaDesc: 'Calculate personalized daily macronutrient targets in grams, calories, and percentages. Tailored for hypertrophy bulking, aggressive cutting, recomp, and keto.',
       category: 'Health & Fitness',
       body: `
         ${commonStyle}
@@ -418,28 +1304,35 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Macro Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Macro Nutrient Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate your optimal daily protein, carbohydrate, and dietary fat intake based on your fitness goals and body weight.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Macronutrient Nutrition Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate your precise daily grams of dietary protein, carbohydrates, and healthy fats tailored to your body weight, calorie target, and training objective.
           </p>
+
+          <!-- Unit Selector Toggle -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <button type="button" id="btnMCMetric" onclick="setMCUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (kg)</button>
+            <button type="button" id="btnMCImperial" onclick="setMCUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (lbs)</button>
+          </div>
 
           <div class="tool-box">
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Body Weight (kg)</label>
-                <input type="number" id="mc-weight" class="code-input" value="75" oninput="calcMacros()" />
+                <label class="field-label" id="lblMCWeight">Body Weight (kg)</label>
+                <input type="number" id="mc-weight" class="code-input" value="75" step="1" oninput="calcMacros()" />
               </div>
               <div class="field-group">
                 <label class="field-label">Daily Calorie Target (kcal)</label>
-                <input type="number" id="mc-cal" class="code-input" value="2300" oninput="calcMacros()" />
+                <input type="number" id="mc-cal" class="code-input" value="2300" step="50" oninput="calcMacros()" />
               </div>
               <div class="field-group">
-                <label class="field-label">Goal / Diet Strategy</label>
+                <label class="field-label">Goal / Nutrition Strategy</label>
                 <select id="mc-goal" class="code-input" onchange="calcMacros()">
-                  <option value="cut">Fat Loss / Cutting (Higher Protein)</option>
-                  <option value="maintain" selected>Maintenance / Recomp</option>
-                  <option value="bulk">Muscle Gain / Bulking</option>
-                  <option value="keto">Keto / Low Carb</option>
+                  <option value="cut">Aggressive Fat Loss / Cutting (2.4g/kg P &bull; Low Carb)</option>
+                  <option value="maintain" selected>Maintenance & Recomposition (2.0g/kg P &bull; Balanced)</option>
+                  <option value="bulk">Lean Muscle Hypertrophy / Bulking (1.8g/kg P &bull; High Carb)</option>
+                  <option value="endurance">Endurance & Marathon Loading (1.4g/kg P &bull; High Glycogen)</option>
+                  <option value="keto">Ketogenic Diet (1.8g/kg P &bull; &lt;30g Net Carbs &bull; High Fat)</option>
                 </select>
               </div>
             </div>
@@ -447,62 +1340,161 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
               <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Protein (4 kcal/g)</div>
-                <div id="mc-p-g" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">165g</div>
-                <div id="mc-p-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">660 kcal (29%)</div>
+                <div id="mc-p-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">150g</div>
+                <div id="mc-p-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">600 kcal (26%)</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Fats (9 kcal/g)</div>
-                <div id="mc-f-g" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">64g</div>
+                <div id="mc-f-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">64g</div>
                 <div id="mc-f-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">575 kcal (25%)</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Carbs (4 kcal/g)</div>
-                <div id="mc-c-g" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">266g</div>
-                <div id="mc-c-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">1,065 kcal (46%)</div>
+                <div id="mc-c-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">281g</div>
+                <div id="mc-c-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">1,125 kcal (49%)</div>
               </div>
             </div>
+
+            <button type="button" id="btnCopyMacro" onclick="copyMacroSummary()" class="btn-sec" style="margin-top: 1.5rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Macronutrient Nutrition Protocol
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Macronutrient Derivation (Atwater Energy Factors)</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">ISSN Position Stand Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Macros are anchored by absolute physiological requirements (protein for lean mass preservation and dietary fat for endocrine production), with remaining calories distributed to carbohydrates for fuel:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #ef4444;">Step 1: Anchor Protein Requirements</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Protein = Body Weight (kg) &times; Goal Target Factor &bull; Calories = Protein (g) &times; 4 kcal/g
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  For 75 kg lifter at 2.0g/kg: 75 &times; 2.0 = <strong>150g protein</strong> = 600 kcal.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6;">Step 2: Allocate Essential Dietary Fats (25% Standard Floor)</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Fat Calories = Total Target &times; 0.25 &bull; Fat (g) = Fat Calories / 9 kcal/g
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  For 2,300 kcal target: 2,300 &times; 0.25 = 575 kcal &bull; 575 / 9 = <strong>64g dietary fat</strong> (supports hormone precursors & vitamin absorption).
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981;">Step 3: Fill Remaining Energy with Carbohydrates</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Carb Calories = Total Cal - (Protein Cal + Fat Cal) &bull; Carb (g) = Carb Calories / 4 kcal/g
+                </div>
+                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem; font-size: 0.78rem;">
+                  2,300 - (600 + 575) = 1,125 kcal &bull; 1,125 / 4 = <strong>281g carbohydrates</strong> (fuels muscular glycogen & CNS).
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Macro Traps & Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Macro Traps & Nutrient Timing Pitfalls</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Dietary Fat Floor Trap:</strong> Chronic low-fat dieting (&lt;0.6g/kg or &lt;15% total calories) causes severe endocrine suppression. Testosterone, progesterone, and thyroid output drop precipitously because steroid hormones are synthesized from cholesterol and essential fatty acids. Never cut fat below 20% of daily calories.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Anabolic Window" Myth vs Total Daily Intake:</strong> Meta-analyses show that consuming protein within 30 minutes post-workout offers negligible hypertrophy advantages compared to meeting total daily protein targets (1.6–2.4 g/kg) divided evenly across 3 to 5 meals with ~2.5g leucine per bolus.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Net Carbs vs Total Carbs:</strong> Soluble and insoluble dietary fibers possess minimal digestible caloric impact (0–2 kcal/g) and do not spike blood glucose. Subtracting non-digestible fiber from total carbs gives accurate insulin-stimulating net carbohydrate loads.</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function calcMacros() {
-            var w = parseFloat(document.getElementById('mc-weight').value) || 70;
-            var cal = parseFloat(document.getElementById('mc-cal').value) || 2000;
-            var goal = document.getElementById('mc-goal').value;
+          let mcUnitMode = 'metric';
 
-            var pG = 0, fG = 0, cG = 0;
+          window.setMCUnit = function(mode) {
+            mcUnitMode = mode;
+            const btnM = document.getElementById('btnMCMetric');
+            const btnI = document.getElementById('btnMCImperial');
+            const lblW = document.getElementById('lblMCWeight');
+            const inpW = document.getElementById('mc-weight');
+
+            if (mode === 'metric') {
+              btnM.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnM.style.borderColor = '#3b82f6';
+              btnM.style.color = '#3b82f6';
+              btnI.style.background = 'var(--surface-alt)';
+              btnI.style.borderColor = 'var(--border)';
+              btnI.style.color = 'var(--fg)';
+              lblW.textContent = 'Body Weight (kg)';
+              inpW.value = Math.round((parseFloat(inpW.value) || 165) * 0.453592) || 75;
+            } else {
+              btnI.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnI.style.borderColor = '#3b82f6';
+              btnI.style.color = '#3b82f6';
+              btnM.style.background = 'var(--surface-alt)';
+              btnM.style.borderColor = 'var(--border)';
+              btnM.style.color = 'var(--fg)';
+              lblW.textContent = 'Body Weight (lbs)';
+              inpW.value = Math.round((parseFloat(inpW.value) || 75) * 2.20462) || 165;
+            }
+            calcMacros();
+          };
+
+          function calcMacros() {
+            let wKg = 75;
+            const wRaw = parseFloat(document.getElementById('mc-weight').value) || 0;
+            if (mcUnitMode === 'metric') {
+              wKg = wRaw;
+            } else {
+              wKg = wRaw * 0.453592;
+            }
+            if (wKg <= 0) wKg = 75;
+
+            const cal = parseFloat(document.getElementById('mc-cal').value) || 2000;
+            const goal = document.getElementById('mc-goal').value;
+
+            let pG = 0, fG = 0, cG = 0;
 
             if (goal === 'cut') {
-              pG = w * 2.2; // 2.2g per kg
-              var fCal = cal * 0.25;
+              pG = wKg * 2.4; // 2.4g/kg to preserve lean mass in deficit
+              const fCal = cal * 0.25;
               fG = fCal / 9;
-              var remCal = cal - (pG * 4) - fCal;
+              const remCal = cal - (pG * 4) - fCal;
               cG = Math.max(0, remCal / 4);
             } else if (goal === 'bulk') {
-              pG = w * 1.8;
-              var fCal = cal * 0.25;
+              pG = wKg * 1.8; // 1.8g/kg adequate in caloric surplus
+              const fCal = cal * 0.25;
               fG = fCal / 9;
-              var remCal = cal - (pG * 4) - fCal;
+              const remCal = cal - (pG * 4) - fCal;
+              cG = Math.max(0, remCal / 4);
+            } else if (goal === 'endurance') {
+              pG = wKg * 1.4;
+              const fCal = cal * 0.20;
+              fG = fCal / 9;
+              const remCal = cal - (pG * 4) - fCal;
               cG = Math.max(0, remCal / 4);
             } else if (goal === 'keto') {
-              cG = 30; // 30g net carbs
-              pG = w * 1.8;
-              var remCal = cal - (pG * 4) - (cG * 4);
+              cG = 30; // 30g net carbs fixed
+              pG = wKg * 1.8;
+              const remCal = cal - (pG * 4) - (cG * 4);
               fG = Math.max(0, remCal / 9);
             } else {
               // Maintenance
-              pG = w * 2.0;
-              var fCal = cal * 0.25;
+              pG = wKg * 2.0;
+              const fCal = cal * 0.25;
               fG = fCal / 9;
-              var remCal = cal - (pG * 4) - fCal;
+              const remCal = cal - (pG * 4) - fCal;
               cG = Math.max(0, remCal / 4);
             }
 
-            var pCal = pG * 4;
-            var fCalActual = fG * 9;
-            var cCal = cG * 4;
+            const pCal = pG * 4;
+            const fCalActual = fG * 9;
+            const cCal = cG * 4;
 
             document.getElementById('mc-p-g').textContent = Math.round(pG) + 'g';
             document.getElementById('mc-p-cal').textContent = Math.round(pCal) + ' kcal (' + Math.round((pCal / cal) * 100) + '%)';
@@ -514,15 +1506,49 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             document.getElementById('mc-c-cal').textContent = Math.round(cCal) + ' kcal (' + Math.round((cCal / cal) * 100) + '%)';
           }
 
+          window.copyMacroSummary = function() {
+            const cal = document.getElementById('mc-cal').value;
+            const pG = document.getElementById('mc-p-g').textContent;
+            const pCal = document.getElementById('mc-p-cal').textContent;
+            const fG = document.getElementById('mc-f-g').textContent;
+            const fCal = document.getElementById('mc-f-cal').textContent;
+            const cG = document.getElementById('mc-c-g').textContent;
+            const cCal = document.getElementById('mc-c-cal').textContent;
+            const goalText = document.getElementById('mc-goal').options[document.getElementById('mc-goal').selectedIndex].text;
+
+            const text = [
+              '=== PERSONALIZED MACRONUTRIENT PROTOCOL ===',
+              'Daily Calorie Target: ' + cal + ' kcal',
+              'Strategy: ' + goalText,
+              '------------------------------------------',
+              'Protein: ' + pG + ' &bull; ' + pCal,
+              'Fats: ' + fG + ' &bull; ' + fCal,
+              'Carbs: ' + cG + ' &bull; ' + cCal,
+              '------------------------------------------',
+              'Governing Standard: International Society of Sports Nutrition (ISSN)',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/macro-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyMacro');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Macro Protocol!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcMacros);
-          calcMacros();
         </script>
       `
     },
     {
       slug: 'ideal-weight-calculator',
-      title: 'Ideal Body Weight Calculator (Devine, Robinson & Miller Formulas)',
-      metaDesc: 'Compare your ideal weight across 4 medical formulas (Devine, Robinson, Miller, and Hamwi) along with healthy BMI threshold ranges.',
+      title: 'Ideal Body Weight Calculator (Devine, Robinson, Miller & Hamwi Formulas)',
+      metaDesc: 'Compare your ideal body weight across 4 medical standards (Devine, Robinson, Miller, Hamwi) and WHO BMI thresholds with metric & imperial units.',
       category: 'Health & Fitness',
       body: `
         ${commonStyle}
@@ -530,60 +1556,176 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Ideal Weight
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Ideal Body Weight Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Compare your target weight range across 4 medically referenced clinical formulas based on biological sex and height.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Ideal Body Weight Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Compare your consensus healthy weight target across the 4 major clinical pharmacokinetic formulas (Devine, Robinson, Miller, Hamwi) alongside the WHO normal BMI range.
           </p>
 
+          <!-- Unit Selector Toggle -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <button type="button" id="btnIWMetric" onclick="setIWUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (cm)</button>
+            <button type="button" id="btnIWImperial" onclick="setIWUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (ft & in)</button>
+          </div>
+
           <div class="tool-box">
-            <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold;">
+            <div style="display: flex; gap: 1.5rem; margin-bottom: 1.25rem;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold; font-family: var(--mono); font-size: 0.95rem;">
                 <input type="radio" name="iw-gender" value="male" checked onchange="calcIW()" /> Male
               </label>
-              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold;">
+              <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-weight: bold; font-family: var(--mono); font-size: 0.95rem;">
                 <input type="radio" name="iw-gender" value="female" onchange="calcIW()" /> Female
               </label>
             </div>
 
-            <div class="field-group">
+            <div class="field-group" id="groupIWCm">
               <label class="field-label">Height (cm)</label>
-              <input type="number" id="iw-height" class="code-input" value="175" min="140" max="230" oninput="calcIW()" style="font-size: 1.25rem;" />
+              <input type="number" id="iw-height-cm" class="code-input" value="175" min="140" max="230" oninput="calcIW()" style="font-size: 1.25rem;" />
+            </div>
+
+            <div class="field-group" id="groupIWFtIn" style="display: none;">
+              <label class="field-label">Height (Feet & Inches)</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="number" id="iw-height-ft" class="code-input" value="5" min="4" max="7" oninput="calcIW()" style="font-size: 1.25rem;" placeholder="ft" />
+                <input type="number" id="iw-height-in" class="code-input" value="9" min="0" max="11" oninput="calcIW()" style="font-size: 1.25rem;" placeholder="in" />
+              </div>
             </div>
 
             <div class="result-card" style="margin-top: 1.5rem;">
               <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Consensus Ideal Weight Range</div>
               <div id="iw-range" class="result-val">68 – 73 kg</div>
-              <div id="iw-lbs" style="font-size: 1.1rem; color: #10b981; font-family: var(--mono); margin-top: 0.4rem;">150 – 161 lbs</div>
+              <div id="iw-lbs" style="font-size: 1.15rem; color: #10b981; font-family: var(--mono); margin-top: 0.4rem;">150 – 161 lbs</div>
+              <div id="iw-who-bmi" style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; font-family: var(--mono);">
+                WHO Healthy BMI (18.5–24.9): 56.7 – 76.3 kg (125 – 168 lbs)
+              </div>
+
+              <button type="button" id="btnCopyIW" onclick="copyIdealWeightSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy Ideal Weight Medical Report
+              </button>
             </div>
 
-            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
-              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.05rem;">Clinical Formula Comparison:</h4>
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem;">Clinical Formula Comparison:</h4>
               <div id="iw-details" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.8; color: var(--text-muted);"></div>
+            </div>
+
+            <!-- Step-by-Step Worked Derivations -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Medical Formulations for Ideal Body Weight (IBW)</h3>
+                <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Clinical Pharmacokinetics Standard</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+                All four clinical formulas standardize on a baseline weight for 5 feet (60 inches) of height, adding incremental mass per inch over 5 feet:
+              </p>
+              <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #3b82f6;">Devine Formula (1974):</strong>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                    Men: 50.0 kg + 2.3 kg &times; (Inches over 5ft) &bull; Women: 45.5 kg + 2.3 kg &times; (Inches over 5ft)
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #10b981;">Robinson Formula (1983):</strong>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                    Men: 52.0 kg + 1.9 kg &times; (Inches over 5ft) &bull; Women: 49.0 kg + 1.7 kg &times; (Inches over 5ft)
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #f59e0b;">Miller Formula (1983):</strong>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                    Men: 56.2 kg + 1.41 kg &times; (Inches over 5ft) &bull; Women: 53.1 kg + 1.36 kg &times; (Inches over 5ft)
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #ec4899;">Hamwi Formula (1964):</strong>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                    Men: 48.0 kg + 2.7 kg &times; (Inches over 5ft) &bull; Women: 45.5 kg + 2.2 kg &times; (Inches over 5ft)
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Critical Clinical Pitfalls -->
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls & Pharmacokinetic Origin</h3>
+              <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Medication Dosing Origin:</strong> Devine, Robinson, and Hamwi equations were originally created for <strong>pharmacokinetic clearance calculations</strong> (calculating intravenous aminoglycoside and theophylline clearance based on extracellular fluid volume). They were never intended to represent cosmetic ideals or athletic physique goals.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Linear Scaling Flaw:</strong> Human mass naturally scales cubically ($H^3$) rather than linearly with height. Consequently, these equations tend to underestimate healthy weights for individuals over 6'1" (185 cm) and overestimate weights for individuals under 5'2" (157 cm).</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Bone Density & Muscle Disregard:</strong> None of these formulas account for bone frame size (wrist/elbow circumference) or lean muscle tissue. A lean, drug-free natural bodybuilder at 10% body fat will almost always weigh 15% to 30% above their Devine "ideal weight".</li>
+              </ul>
             </div>
           </div>
         </div>
 
         <script>
+          let iwUnitMode = 'metric';
+
+          window.setIWUnit = function(mode) {
+            iwUnitMode = mode;
+            const btnM = document.getElementById('btnIWMetric');
+            const btnI = document.getElementById('btnIWImperial');
+            const gCm = document.getElementById('groupIWCm');
+            const gFtIn = document.getElementById('groupIWFtIn');
+
+            if (mode === 'metric') {
+              btnM.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnM.style.borderColor = '#3b82f6';
+              btnM.style.color = '#3b82f6';
+              btnI.style.background = 'var(--surface-alt)';
+              btnI.style.borderColor = 'var(--border)';
+              btnI.style.color = 'var(--fg)';
+              gCm.style.display = 'block';
+              gFtIn.style.display = 'none';
+            } else {
+              btnI.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnI.style.borderColor = '#3b82f6';
+              btnI.style.color = '#3b82f6';
+              btnM.style.background = 'var(--surface-alt)';
+              btnM.style.borderColor = 'var(--border)';
+              btnM.style.color = 'var(--fg)';
+              gCm.style.display = 'none';
+              gFtIn.style.display = 'block';
+            }
+            calcIW();
+          };
+
           function calcIW() {
-            var isMale = document.querySelector('input[name="iw-gender"]:checked').value === 'male';
-            var cm = parseFloat(document.getElementById('iw-height').value) || 175;
-            var totalInches = cm / 2.54;
-            var over5Ft = Math.max(0, totalInches - 60);
+            const isMale = document.querySelector('input[name="iw-gender"]:checked').value === 'male';
+            let cm = 175;
+
+            if (iwUnitMode === 'metric') {
+              cm = parseFloat(document.getElementById('iw-height-cm').value) || 175;
+            } else {
+              const ft = parseFloat(document.getElementById('iw-height-ft').value) || 5;
+              const inch = parseFloat(document.getElementById('iw-height-in').value) || 9;
+              cm = ((ft * 12) + inch) * 2.54;
+            }
+
+            const totalInches = cm / 2.54;
+            const over5Ft = Math.max(0, totalInches - 60);
 
             // Devine
-            var devine = isMale ? (50 + (2.3 * over5Ft)) : (45.5 + (2.3 * over5Ft));
+            const devine = isMale ? (50 + (2.3 * over5Ft)) : (45.5 + (2.3 * over5Ft));
             // Robinson
-            var robinson = isMale ? (52 + (1.9 * over5Ft)) : (49 + (1.7 * over5Ft));
+            const robinson = isMale ? (52 + (1.9 * over5Ft)) : (49 + (1.7 * over5Ft));
             // Miller
-            var miller = isMale ? (56.2 + (1.41 * over5Ft)) : (53.1 + (1.36 * over5Ft));
+            const miller = isMale ? (56.2 + (1.41 * over5Ft)) : (53.1 + (1.36 * over5Ft));
             // Hamwi
-            var hamwi = isMale ? (48 + (2.7 * over5Ft)) : (45.5 + (2.2 * over5Ft));
+            const hamwi = isMale ? (48 + (2.7 * over5Ft)) : (45.5 + (2.2 * over5Ft));
 
-            var minK = Math.min(devine, robinson, miller, hamwi);
-            var maxK = Math.max(devine, robinson, miller, hamwi);
+            const minK = Math.min(devine, robinson, miller, hamwi);
+            const maxK = Math.max(devine, robinson, miller, hamwi);
+
+            const hM = cm / 100;
+            const whoMinKg = 18.5 * (hM * hM);
+            const whoMaxKg = 24.9 * (hM * hM);
 
             document.getElementById('iw-range').textContent = Math.round(minK) + ' – ' + Math.round(maxK) + ' kg';
             document.getElementById('iw-lbs').textContent = Math.round(minK * 2.20462) + ' – ' + Math.round(maxK * 2.20462) + ' lbs';
+
+            document.getElementById('iw-who-bmi').textContent = 
+              'WHO Normal BMI (18.5–24.9): ' + whoMinKg.toFixed(1) + ' – ' + whoMaxKg.toFixed(1) + ' kg (' +
+              (whoMinKg * 2.20462).toFixed(1) + ' – ' + (whoMaxKg * 2.20462).toFixed(1) + ' lbs)';
 
             document.getElementById('iw-details').innerHTML = 
               '• <strong>Devine Formula (1974):</strong> ' + devine.toFixed(1) + ' kg (' + (devine * 2.20462).toFixed(1) + ' lbs)<br>' +
@@ -592,8 +1734,35 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               '• <strong>Hamwi Formula (1964):</strong> ' + hamwi.toFixed(1) + ' kg (' + (hamwi * 2.20462).toFixed(1) + ' lbs)';
           }
 
+          window.copyIdealWeightSummary = function() {
+            const isMale = document.querySelector('input[name="iw-gender"]:checked').value === 'male';
+            const range = document.getElementById('iw-range').textContent;
+            const lbs = document.getElementById('iw-lbs').textContent;
+            const who = document.getElementById('iw-who-bmi').textContent;
+
+            const text = [
+              '=== CLINICAL IDEAL WEIGHT REPORT ===',
+              'Biological Sex: ' + (isMale ? 'Male' : 'Female'),
+              'Consensus Formula Range: ' + range + ' (' + lbs + ')',
+              who,
+              '------------------------------------',
+              'Formula Reference: Devine (1974), Robinson (1983), Miller (1983), Hamwi (1964)',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/ideal-weight-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyIW');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Ideal Weight Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcIW);
-          calcIW();
         </script>
       `
     },

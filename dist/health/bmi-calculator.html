@@ -1045,54 +1045,217 @@
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; BMI Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">BMI (Body Mass Index) Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">BMI (Body Mass Index) & Healthy Weight Calculator</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Assess your body mass index against official World Health Organization categories.
+            Assess your Body Mass Index (BMI), BMI Prime, Ponderal Index, and healthy weight range against official World Health Organization (WHO) and CDC standards.
           </p>
 
           <div class="tool-box">
-            <div class="grid-inputs">
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+              <button type="button" id="btnMetric" onclick="setBmiUnit('metric')" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.8rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.15); color: #3b82f6; cursor: pointer;">Metric (kg, cm)</button>
+              <button type="button" id="btnImperial" onclick="setBmiUnit('imperial')" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.8rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">US Imperial (lbs, ft/in)</button>
+            </div>
+
+            <div id="boxMetric" class="grid-inputs">
               <div class="field-group">
                 <label class="field-label">Weight (kg)</label>
-                <input type="number" id="bmi-weight" class="text-input" value="70" step="0.5" oninput="calcBMI()" />
+                <input type="number" id="bmi-weight-kg" class="text-input" value="70" step="0.5" oninput="calcBMI()" />
               </div>
               <div class="field-group">
                 <label class="field-label">Height (cm)</label>
-                <input type="number" id="bmi-height" class="text-input" value="175" oninput="calcBMI()" />
+                <input type="number" id="bmi-height-cm" class="text-input" value="175" oninput="calcBMI()" />
+              </div>
+            </div>
+
+            <div id="boxImperial" class="grid-inputs" style="display: none;">
+              <div class="field-group">
+                <label class="field-label">Weight (lbs)</label>
+                <input type="number" id="bmi-weight-lbs" class="text-input" value="154" step="1" oninput="calcBMI()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Height (Feet & Inches)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="number" id="bmi-height-ft" class="text-input" value="5" placeholder="ft" oninput="calcBMI()" />
+                  <input type="number" id="bmi-height-in" class="text-input" value="9" placeholder="in" oninput="calcBMI()" />
+                </div>
               </div>
             </div>
 
             <div class="result-card">
-              <div class="field-label">Your BMI Score</div>
+              <div class="field-label">Your Body Mass Index (BMI)</div>
               <div id="bmi-score" class="result-val">22.9</div>
-              <div id="bmi-category" style="font-size: 1.1rem; font-weight: bold; color: #22c55e; margin-top: 0.4rem;">Normal Weight</div>
-              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
-                Healthy BMI range: 18.5 – 24.9 kg/m²
+              <div id="bmi-category" style="font-size: 1.15rem; font-weight: bold; color: #22c55e; margin-top: 0.4rem;">Normal Weight (18.5 – 24.9)</div>
+              
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.85rem; text-align: left;">
+                <div>Healthy Weight Target: <strong id="bmi-healthy-range" style="color: var(--fg);">56.7 – 76.3 kg</strong></div>
+                <div>BMI Prime: <strong id="bmi-prime" style="color: var(--fg);">0.91</strong></div>
+                <div>Ponderal Index: <strong id="bmi-ponderal" style="color: var(--fg);">13.07 kg/m³</strong></div>
+              </div>
+
+              <button type="button" id="btnCopyBMI" onclick="copyBMISummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy BMI & Health Assessment Report
+              </button>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step BMI Mathematical Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">WHO Clinical Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Body Mass Index is an epidemiological screening metric established by Adolphe Quetelet that correlates body weight with height squared:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Metric SI Formula</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">BMI = Weight (kg) / [Height (m)]² &bull; Worked: 70 kg / (1.75 m)² = 70 / 3.0625 = <strong>22.86 kg/m²</strong></div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Imperial US Formula</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">BMI = 703 × Weight (lbs) / [Height (inches)]² &bull; Worked: 703 × 154 / 69² = 108,262 / 4,761 = <strong>22.74 kg/m²</strong></div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 3: BMI Prime & Ponderal Index</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  BMI Prime = BMI / 25 (Values < 1.0 indicate healthy weight) &bull; Ponderal Index = Weight (kg) / [Height (m)]³ (Accounts for 3D body volume).
+                </div>
               </div>
             </div>
+          </div>
+
+          <!-- Critical Clinical Pitfalls & BMI Blind Spots -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls & BMI Blind Spots</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Athlete & Muscularity Paradox:</strong> BMI treats all body mass equally. Skeletal muscle is ~18% denser than adipose tissue. Bodybuilders and strength athletes with 10% body fat frequently score as "Overweight" (26–29) or "Obese" (>30) despite having excellent cardiovascular fitness and minimal visceral fat.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sarcopenic Obesity in Older Adults:</strong> As adults age past 60, loss of muscle mass (sarcopenia) combined with accumulation of abdominal visceral fat can keep BMI within the "Normal" (22–24) range despite high cardiometabolic risk. Waist-to-hip ratio or DEXA scans provide superior diagnostic clarity.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 2D vs 3D Height Distortion:</strong> Dividing by height squared rather than cubed artificially deflates BMI in short people (making them appear leaner than they are) and inflates BMI in tall individuals over 6'2" (188 cm).</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function calcBMI() {
-            const w = parseFloat(document.getElementById('bmi-weight').value) || 0;
-            const h = (parseFloat(document.getElementById('bmi-height').value) || 1) / 100;
-            const bmi = w / (h * h);
+          var bmiUnitMode = 'metric';
 
-            const scoreEl = document.getElementById('bmi-score');
-            const catEl = document.getElementById('bmi-category');
+          window.setBmiUnit = function(mode) {
+            bmiUnitMode = mode;
+            var boxM = document.getElementById('boxMetric');
+            var boxI = document.getElementById('boxImperial');
+            var btnM = document.getElementById('btnMetric');
+            var btnI = document.getElementById('btnImperial');
+
+            if (mode === 'metric') {
+              boxM.style.display = 'grid';
+              boxI.style.display = 'none';
+              btnM.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnM.style.borderColor = '#3b82f6';
+              btnM.style.color = '#3b82f6';
+              btnI.style.background = 'var(--surface-alt)';
+              btnI.style.borderColor = 'var(--border)';
+              btnI.style.color = 'var(--fg)';
+            } else {
+              boxM.style.display = 'none';
+              boxI.style.display = 'grid';
+              btnI.style.background = 'rgba(59, 130, 246, 0.15)';
+              btnI.style.borderColor = '#3b82f6';
+              btnI.style.color = '#3b82f6';
+              btnM.style.background = 'var(--surface-alt)';
+              btnM.style.borderColor = 'var(--border)';
+              btnM.style.color = 'var(--fg)';
+            }
+            calcBMI();
+          };
+
+          function calcBMI() {
+            var wKg = 70;
+            var hM = 1.75;
+
+            if (bmiUnitMode === 'metric') {
+              wKg = parseFloat(document.getElementById('bmi-weight-kg').value) || 0;
+              var hCm = parseFloat(document.getElementById('bmi-height-cm').value) || 1;
+              hM = hCm / 100;
+            } else {
+              var wLbs = parseFloat(document.getElementById('bmi-weight-lbs').value) || 0;
+              var hFt = parseFloat(document.getElementById('bmi-height-ft').value) || 0;
+              var hIn = parseFloat(document.getElementById('bmi-height-in').value) || 0;
+              var totalInches = (hFt * 12) + hIn;
+              wKg = wLbs * 0.453592;
+              hM = (totalInches * 2.54) / 100;
+            }
+
+            if (hM <= 0) hM = 1;
+            var bmi = wKg / (hM * hM);
+            var prime = bmi / 25;
+            var ponderal = wKg / (hM * hM * hM);
+
+            var minHealthyKg = 18.5 * (hM * hM);
+            var maxHealthyKg = 24.9 * (hM * hM);
+
+            var scoreEl = document.getElementById('bmi-score');
+            var catEl = document.getElementById('bmi-category');
+            var rangeEl = document.getElementById('bmi-healthy-range');
+            var primeEl = document.getElementById('bmi-prime');
+            var pondEl = document.getElementById('bmi-ponderal');
 
             scoreEl.textContent = bmi.toFixed(1);
+            primeEl.textContent = prime.toFixed(2);
+            pondEl.textContent = ponderal.toFixed(2) + ' kg/m³';
 
-            let cat = 'Normal Weight';
-            let color = '#22c55e';
-            if (bmi < 18.5) { cat = 'Underweight'; color = '#3b82f6'; }
-            else if (bmi >= 25 && bmi < 29.9) { cat = 'Overweight'; color = '#f59e0b'; }
-            else if (bmi >= 30) { cat = 'Obese'; color = '#ef4444'; }
+            if (bmiUnitMode === 'metric') {
+              rangeEl.textContent = minHealthyKg.toFixed(1) + ' – ' + maxHealthyKg.toFixed(1) + ' kg';
+            } else {
+              var minLbs = minHealthyKg * 2.20462;
+              var maxLbs = maxHealthyKg * 2.20462;
+              rangeEl.textContent = minLbs.toFixed(1) + ' – ' + maxLbs.toFixed(1) + ' lbs';
+            }
+
+            var cat = 'Normal Weight';
+            var color = '#22c55e';
+            if (bmi < 16) { cat = 'Severe Thinness (< 16.0)'; color = '#ef4444'; }
+            else if (bmi < 17) { cat = 'Moderate Thinness (16.0 – 16.9)'; color = '#f59e0b'; }
+            else if (bmi < 18.5) { cat = 'Mild Thinness (17.0 – 18.4)'; color = '#3b82f6'; }
+            else if (bmi >= 25 && bmi < 29.9) { cat = 'Overweight / Pre-Obese (25.0 – 29.9)'; color = '#f59e0b'; }
+            else if (bmi >= 30 && bmi < 34.9) { cat = 'Obese Class I (30.0 – 34.9)'; color = '#ef4444'; }
+            else if (bmi >= 35 && bmi < 39.9) { cat = 'Obese Class II (35.0 – 39.9)'; color = '#dc2626'; }
+            else if (bmi >= 40) { cat = 'Obese Class III Morbid (≥ 40.0)'; color = '#991b1b'; }
 
             catEl.textContent = cat;
             catEl.style.color = color;
           }
+
+          window.copyBMISummary = function() {
+            var score = document.getElementById('bmi-score').textContent;
+            var cat = document.getElementById('bmi-category').textContent;
+            var range = document.getElementById('bmi-healthy-range').textContent;
+            var prime = document.getElementById('bmi-prime').textContent;
+            var ponderal = document.getElementById('bmi-ponderal').textContent;
+
+            var report = [
+              '=== WHO BMI & HEALTH ASSESSMENT REPORT ===',
+              'Body Mass Index (BMI): ' + score + ' kg/m²',
+              'Classification: ' + cat,
+              'Healthy Weight Target for Height: ' + range,
+              'BMI Prime (Ratio to 25.0 Upper Normal): ' + prime,
+              'Ponderal Index (Volumetric Mass): ' + ponderal,
+              '------------------------------------------',
+              'Timestamp: ' + new Date().toISOString(),
+              'Screening standards: World Health Organization (WHO) & CDC',
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/bmi-calculator'
+            ].join('\n');
+
+            navigator.clipboard.writeText(report).then(function() {
+              var btn = document.getElementById('btnCopyBMI');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Health Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcBMI);
         </script>
       

@@ -1052,7 +1052,14 @@
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Enter Numbers (Comma or Space Separated)</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+                <label class="field-label" style="margin: 0;">Enter Numbers (Comma, Space, or Newline Separated)</label>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="btn-sec" onclick="setSDPreset('exam')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Exam Scores</button>
+                  <button type="button" class="btn-sec" onclick="setSDPreset('returns')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Daily Returns</button>
+                  <button type="button" class="btn-sec" onclick="setSDPreset('heights')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Heights (cm)</button>
+                </div>
+              </div>
               <textarea id="sd-data" class="code-input" rows="3" oninput="calcSD()" style="font-size: 1.1rem; line-height: 1.5;">10, 12, 23, 23, 16, 23, 21, 16</textarea>
             </div>
 
@@ -1074,11 +1081,77 @@
                 <div id="sd-mean" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">18.00</div>
                 <div id="sd-count" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Count (N): 8 | Sum: 144</div>
               </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Std Error of Mean (SE)</div>
+                <div id="sd-se" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">1.8516</div>
+                <div id="sd-ci" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">95% CI: [14.37, 21.63]</div>
+              </div>
             </div>
+
+            <button type="button" id="btnCopySD" onclick="copySDSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Statistical Summary & Confidence Intervals
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Statistical Derivations -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Standard Deviation Derivation (Bessel's Correction)</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">NIST Engineering Statistics Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Standard deviation quantifies the dispersion or spread of data values around the central mean:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Compute Arithmetic Sample Mean</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                  x̄ = (&Sigma; x<sub>i</sub>) / n = 144 / 8 = <strong>18.00</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Sum of Squared Deviations (SS)</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  SS = &Sigma; (x<sub>i</sub> - x̄)<sup>2</sup> = (10 - 18)<sup>2</sup> + (12 - 18)<sup>2</sup> + ... = 64 + 36 + 25 + 25 + 4 + 25 + 9 + 4 = <strong>192.00</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6;">Step 3: Sample Variance vs Population Variance</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Sample Variance s<sup>2</sup> = SS / (n - 1) = 192 / 7 = <strong>27.4286</strong> (Bessel's Correction unbiased)<br>
+                  Population Variance &sigma;<sup>2</sup> = SS / N = 192 / 8 = <strong>24.0000</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">Step 4: Standard Deviation (Square Root)</strong>
+                <div style="color: #10b981; margin-top: 0.25rem;">
+                  Sample s = &radic;27.4286 = <strong>5.2372</strong> &bull; Population &sigma; = &radic;24.0000 = <strong>4.8990</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Statistical Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Statistical Pitfalls & Bessel's Bias</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Bessel's Correction Trap:</strong> When analyzing a subset (sample) of a larger population, dividing by $N$ rather than $n - 1$ produces a mathematically biased underestimate of variance. This occurs because the sample mean $ar{x}$ is calculated from the sample itself, naturally lying closer to the sample observations than the true unknown population mean $mu$. Always use $n - 1$ for samples.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Outlier Distortion Vulnerability:</strong> Because deviations are squared before summing, standard deviation is extraordinarily sensitive to outliers. A single extreme observation (e.g. data entry error or fat-tailed market crash) will artificially balloon $s$. For skewed or non-Gaussian data, report the Interquartile Range (IQR) or Median Absolute Deviation (MAD).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 68-95-99.7 Empirical Rule Limitation:</strong> The rule stating that 68% of data falls within $pm 1s$ and 95% within $pm 2s$ is <em>only valid for normal (Gaussian) bell-curve distributions</em>. For multimodal or heavily skewed distributions (such as wealth or website latency), Chebyshev's Inequality ($ge 75%$ within $pm 2s$) is the only mathematically guaranteed boundary.</li>
+            </ul>
           </div>
         </div>
 
         <script>
+          window.setSDPreset = function(type) {
+            var area = document.getElementById('sd-data');
+            if (type === 'exam') area.value = '72, 85, 91, 64, 78, 88, 95, 82, 79, 89';
+            if (type === 'returns') area.value = '1.2, -0.8, 2.1, -1.5, 0.4, -0.2, 1.8, -2.4, 0.9';
+            if (type === 'heights') area.value = '165, 172, 178, 181, 169, 175, 188, 162, 174';
+            calcSD();
+          };
+
           function calcSD() {
             var text = document.getElementById('sd-data').value;
             var nums = text.split(/[,\s]+/).map(parseFloat).filter(function(n) { return !isNaN(n); });
@@ -1087,6 +1160,8 @@
               document.getElementById('sd-s').textContent = '-';
               document.getElementById('sd-p').textContent = '-';
               document.getElementById('sd-mean').textContent = nums.length === 1 ? nums[0].toFixed(2) : '-';
+              document.getElementById('sd-se').textContent = '-';
+              document.getElementById('sd-ci').textContent = '-';
               return;
             }
 
@@ -1105,6 +1180,10 @@
             var popVar = sumSqDiff / n;
             var popSD = Math.sqrt(popVar);
 
+            var se = sampleSD / Math.sqrt(n);
+            var ciLow = mean - (1.96 * se);
+            var ciHigh = mean + (1.96 * se);
+
             document.getElementById('sd-s').textContent = sampleSD.toFixed(4);
             document.getElementById('sd-s-var').textContent = 'Variance (s²): ' + sampleVar.toFixed(4);
 
@@ -1113,7 +1192,43 @@
 
             document.getElementById('sd-mean').textContent = mean.toFixed(2);
             document.getElementById('sd-count').textContent = 'Count (N): ' + n + ' | Sum: ' + sum.toLocaleString('en-US');
+
+            document.getElementById('sd-se').textContent = se.toFixed(4);
+            document.getElementById('sd-ci').textContent = '95% CI: [' + ciLow.toFixed(2) + ', ' + ciHigh.toFixed(2) + ']';
           }
+
+          window.copySDSummary = function() {
+            var s = document.getElementById('sd-s').textContent;
+            var p = document.getElementById('sd-p').textContent;
+            var mean = document.getElementById('sd-mean').textContent;
+            var count = document.getElementById('sd-count').textContent;
+            var se = document.getElementById('sd-se').textContent;
+            var ci = document.getElementById('sd-ci').textContent;
+
+            var text = [
+              '=== STATISTICAL DESCRIPTIVE SUMMARY ===',
+              'Sample Standard Deviation (s): ' + s,
+              'Population Standard Deviation (σ): ' + p,
+              'Arithmetic Mean (x̄): ' + mean,
+              count,
+              'Standard Error of the Mean (SE): ' + se,
+              ci,
+              '---------------------------------------',
+              'Standard: NIST Engineering Statistics Handbook',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/standard-deviation-calculator'
+            ].join('\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopySD');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Statistical Summary!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', calcSD);
           calcSD();

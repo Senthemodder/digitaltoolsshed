@@ -1082,7 +1082,59 @@
                 Total Principal: <strong id="ci-p-out" style="color: var(--fg);">$5,000.00</strong> |
                 Total Interest Earned: <strong id="ci-i-out" style="color: #22c55e;">$5,511.75</strong>
               </div>
+            <button type="button" id="btnCopyCI" onclick="copyCompoundSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Investment Growth Projection
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Compound Interest Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Universal Investment Formula</span>
             </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Compound interest generates exponential growth because interest earned in each period is reinvested to generate additional interest in subsequent periods:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Governing Formula</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
+                  A = P &times; (1 + r/n)<sup>n&times;t</sup>
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Where P = Principal, r = Annual nominal interest rate (as decimal), n = Compounding frequency per year, t = Time in years, A = Final portfolio balance.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Periodic Interest Rate Calculation</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Periodic Rate (i) = r / n &bull; For 7.5% compounded monthly: 0.075 / 12 = <strong>0.00625 (0.625% per month)</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 3: Total Compounding Periods</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Total Periods (N) = n &times; t &bull; For 10 years monthly: 12 &times; 10 = <strong>120 compounding cycles</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 4: Exponential Multiplier & Final Balance</strong>
+                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
+                  Growth Multiplier = (1 + 0.00625)<sup>120</sup> = 2.10235 &bull; Final Balance: $5,000 &times; 2.10235 = <strong>$10,511.75</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Compounding Pitfalls & Wealth Traps -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Compounding Pitfalls & Wealth Traps</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Inflation Erosion Reality:</strong> Nominal returns do not equal real purchasing power. If your portfolio returns 7.5% but consumer inflation runs at 3.5%, your real compound growth rate is only ~3.86% via the Fisher Equation [(1 + 0.075) / (1 + 0.035) - 1]. Always adjust long-term retirement targets for inflation.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Devastating Drag of Expense Ratios (Reverse Compounding):</strong> A seemingly harmless 1.5% annual management fee or fund expense ratio doesn't take 1.5% of your gains—it compounds in reverse against your growing balance. Over a 30-year horizon, a 1.5% fee consumes over <strong>33% of your total potential portfolio value</strong>.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Compounding Frequency Myth:</strong> Many beginners fixate on compounding daily vs monthly. In reality, shifting from monthly to daily compounding on $10,000 at 7% over 10 years yields only an extra ~$6 total! The true driver of compound wealth is <strong>time and ongoing regular principal additions</strong>, not hyper-frequent compounding.</li>
+            </ul>
           </div>
         </div>
 
@@ -1100,6 +1152,40 @@
             document.getElementById('ci-p-out').textContent = '$' + P.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById('ci-i-out').textContent = '$' + interest.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           }
+          window.copyCompoundSummary = function() {
+            const P = document.getElementById('ci-principal').value;
+            const r = document.getElementById('ci-rate').value;
+            const t = document.getElementById('ci-years').value;
+            const freq = document.getElementById('ci-freq').options[document.getElementById('ci-freq').selectedIndex].text;
+            const total = document.getElementById('ci-total').textContent;
+            const pOut = document.getElementById('ci-p-out').textContent;
+            const iOut = document.getElementById('ci-i-out').textContent;
+
+            const text = [
+              '=== COMPOUND INTEREST PROJECTION ===',
+              'Initial Principal: $' + P,
+              'Annual Interest Rate: ' + r + '%',
+              'Investment Duration: ' + t + ' Years',
+              'Compounding Frequency: ' + freq,
+              '------------------------------------',
+              'Total Future Balance: ' + total,
+              'Total Principal Invested: ' + pOut,
+              'Total Interest Earned: ' + iOut,
+              '------------------------------------',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/compound-interest'
+            ].join('\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyCI');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Investment Projection!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
           document.addEventListener('DOMContentLoaded', calcCompound);
         </script>
       

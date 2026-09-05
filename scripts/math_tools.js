@@ -71,6 +71,41 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               <span>=</span>
               <strong id="p3-res" style="font-family: var(--mono); font-size: 1.2rem; color: #22c55e; margin-left: 0.5rem;">+50% (Increase)</strong>
             </div>
+            <button type="button" id="btnCopyPct" onclick="copyPercentageSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy All Percentage Results
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Percentage Derivations & Formulas</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Universal Math Rules</span>
+            </div>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Formula 1: Value of a Percentage (What is X% of Y?)</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">Value = (X / 100) × Y &bull; Worked Example: 15% of 250 = (15 / 100) × 250 = 0.15 × 250 = <strong>37.5</strong></div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Formula 2: Percentage of a Whole (X is what % of Y?)</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">Percentage = (X / Y) × 100% &bull; Worked Example: 45 of 180 = (45 / 180) × 100% = 0.25 × 100% = <strong>25%</strong></div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Formula 3: Percentage Change (Increase or Decrease)</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">Change % = [(New - Old) / Old] × 100% &bull; Worked Example: (120 - 80) / 80 = 40 / 80 = +0.50 × 100% = <strong>+50% (Increase)</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Mathematical Pitfalls & Common Mistakes -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Percentage Pitfalls & Costly Misunderstandings</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Asymmetric Recovery Trap (Loss vs Gain):</strong> A 50% drop in portfolio value requires a <strong>+100% gain</strong> to break even, NOT a 50% gain! If $100 drops by 50% to $50, a 50% gain on $50 is only $75. Always calculate recovery based on the new reduced base.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Percentage Points vs Relative Percentages:</strong> An interest rate increasing from 4% to 5% is a <strong>1 percentage point increase</strong>, but a <strong>25% relative increase</strong> [(5 - 4) / 4 × 100%]. Confusing these two in financial contracts, inflation reporting, or tax brackets causes catastrophic errors.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sequential Discounting Illusion:</strong> Stacking a 20% coupon on top of a 20% store sale is NOT a 40% discount! $100 - 20% = $80; $80 - 20% = $64, which is a 36% total discount. Consecutive percentage changes cannot be added directly.</li>
+            </ul>
           </div>
         </div>
 
@@ -94,6 +129,36 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             el.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(2) + '% (' + (diff >= 0 ? 'Increase' : 'Decrease') + ')';
             el.style.color = diff >= 0 ? '#22c55e' : '#ef4444';
           }
+          window.copyPercentageSummary = function() {
+            const p1x = document.getElementById('p1-x').value;
+            const p1y = document.getElementById('p1-y').value;
+            const p1r = document.getElementById('p1-res').textContent;
+            const p2x = document.getElementById('p2-x').value;
+            const p2y = document.getElementById('p2-y').value;
+            const p2r = document.getElementById('p2-res').textContent;
+            const p3x = document.getElementById('p3-x').value;
+            const p3y = document.getElementById('p3-y').value;
+            const p3r = document.getElementById('p3-res').textContent;
+
+            const text = [
+              '=== PERCENTAGE CALCULATION SUMMARY ===',
+              '1. Value of Percentage: ' + p1x + '% of ' + p1y + ' = ' + p1r,
+              '2. Percentage of Whole: ' + p2x + ' is ' + p2r + ' of ' + p2y,
+              '3. Percentage Change: From ' + p3x + ' to ' + p3y + ' = ' + p3r,
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/percentage-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyPct');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied All Results!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
         </script>
       `
     },
@@ -145,7 +210,59 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 Total Principal: <strong id="ci-p-out" style="color: var(--fg);">$5,000.00</strong> |
                 Total Interest Earned: <strong id="ci-i-out" style="color: #22c55e;">$5,511.75</strong>
               </div>
+            <button type="button" id="btnCopyCI" onclick="copyCompoundSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Investment Growth Projection
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Compound Interest Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Universal Investment Formula</span>
             </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Compound interest generates exponential growth because interest earned in each period is reinvested to generate additional interest in subsequent periods:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Governing Formula</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
+                  A = P &times; (1 + r/n)<sup>n&times;t</sup>
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Where P = Principal, r = Annual nominal interest rate (as decimal), n = Compounding frequency per year, t = Time in years, A = Final portfolio balance.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Periodic Interest Rate Calculation</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Periodic Rate (i) = r / n &bull; For 7.5% compounded monthly: 0.075 / 12 = <strong>0.00625 (0.625% per month)</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 3: Total Compounding Periods</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Total Periods (N) = n &times; t &bull; For 10 years monthly: 12 &times; 10 = <strong>120 compounding cycles</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 4: Exponential Multiplier & Final Balance</strong>
+                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
+                  Growth Multiplier = (1 + 0.00625)<sup>120</sup> = 2.10235 &bull; Final Balance: $5,000 &times; 2.10235 = <strong>$10,511.75</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Compounding Pitfalls & Wealth Traps -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Compounding Pitfalls & Wealth Traps</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Inflation Erosion Reality:</strong> Nominal returns do not equal real purchasing power. If your portfolio returns 7.5% but consumer inflation runs at 3.5%, your real compound growth rate is only ~3.86% via the Fisher Equation [(1 + 0.075) / (1 + 0.035) - 1]. Always adjust long-term retirement targets for inflation.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Devastating Drag of Expense Ratios (Reverse Compounding):</strong> A seemingly harmless 1.5% annual management fee or fund expense ratio doesn't take 1.5% of your gains—it compounds in reverse against your growing balance. Over a 30-year horizon, a 1.5% fee consumes over <strong>33% of your total potential portfolio value</strong>.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Compounding Frequency Myth:</strong> Many beginners fixate on compounding daily vs monthly. In reality, shifting from monthly to daily compounding on $10,000 at 7% over 10 years yields only an extra ~$6 total! The true driver of compound wealth is <strong>time and ongoing regular principal additions</strong>, not hyper-frequent compounding.</li>
+            </ul>
           </div>
         </div>
 
@@ -163,6 +280,40 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             document.getElementById('ci-p-out').textContent = '$' + P.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById('ci-i-out').textContent = '$' + interest.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           }
+          window.copyCompoundSummary = function() {
+            const P = document.getElementById('ci-principal').value;
+            const r = document.getElementById('ci-rate').value;
+            const t = document.getElementById('ci-years').value;
+            const freq = document.getElementById('ci-freq').options[document.getElementById('ci-freq').selectedIndex].text;
+            const total = document.getElementById('ci-total').textContent;
+            const pOut = document.getElementById('ci-p-out').textContent;
+            const iOut = document.getElementById('ci-i-out').textContent;
+
+            const text = [
+              '=== COMPOUND INTEREST PROJECTION ===',
+              'Initial Principal: $' + P,
+              'Annual Interest Rate: ' + r + '%',
+              'Investment Duration: ' + t + ' Years',
+              'Compounding Frequency: ' + freq,
+              '------------------------------------',
+              'Total Future Balance: ' + total,
+              'Total Principal Invested: ' + pOut,
+              'Total Interest Earned: ' + iOut,
+              '------------------------------------',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/compound-interest'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyCI');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Investment Projection!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
           document.addEventListener('DOMContentLoaded', calcCompound);
         </script>
       `
@@ -213,9 +364,59 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               <div id="mg-monthly" class="result-val">$1,769.79 / mo</div>
               <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
                 Loan Principal: <strong id="mg-p-out" style="color: var(--fg);">$280,000.00</strong> |
-                Total Interest: <strong id="mg-i-out" style="color: #ef4444;">$357,124.40</strong>
+            <button type="button" id="btnCopyMG" onclick="copyMortgageSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Amortization Breakdown
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Mortgage Payment Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Standard Banking Formula</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Mortgages use standard fixed-rate amortization math where equal monthly payments cover accrued monthly interest while gradually paying down principal balance:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Governing Amortization Equation</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
+                  M = P &times; [ r(1 + r)<sup>n</sup> ] / [ (1 + r)<sup>n</sup> - 1 ]
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Where M = Monthly Payment, P = Loan Principal ($350,000 - $70,000 = $280,000), r = Monthly interest rate (6.5% / 12 = 0.005417), n = Total payment count (30 &times; 12 = 360 months).
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Monthly Factor Calculation</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  (1 + r)<sup>n</sup> = (1 + 0.0054167)<sup>360</sup> = <strong>6.9858</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 3: Monthly Payment (Principal & Interest)</strong>
+                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
+                  M = $280,000 &times; [0.0054167 &times; 6.9858] / [6.9858 - 1] = $280,000 &times; 0.00632068 = <strong>$1,769.79 / month</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 4: Total Lifetime Interest Cost</strong>
+                <div style="color: #ef4444; font-weight: 700; margin-top: 0.25rem;">
+                  Total Repaid = $1,769.79 &times; 360 = $637,124.40 &bull; Total Interest = $637,124.40 - $280,000 = <strong>$357,124.40</strong>
+                </div>
               </div>
             </div>
+          </div>
+
+          <!-- Critical Mortgage Pitfalls & Hidden Costs -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Mortgage Pitfalls & Hidden Homeowner Costs</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Front-Loaded Amortization Trap:</strong> In the first year of a 30-year 6.5% mortgage, over <strong>85% of your monthly payment goes directly to interest</strong> ($1,516.67 interest vs only $253.12 principal). You do not start paying more principal than interest until year 18.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The PITI Escrow Shock:</strong> Principal and Interest (P&I) is only part of homeownership. Property taxes, homeowners hazard insurance, and PMI (Private Mortgage Insurance if down payment is under 20%) typically add <strong>$400 to $900+ per month</strong> to your actual out-of-pocket housing payment.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 1-Extra-Payment Acceleration Strategy:</strong> Paying just one extra monthly payment per year (or switching to bi-weekly half-payments) applies directly to principal. On a $280,000 loan, this cuts <strong>4.5 years off your mortgage</strong> and saves over <strong>$55,000 in interest</strong>.</li>
+            </ul>
           </div>
         </div>
 
@@ -243,14 +444,48 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             document.getElementById('mg-p-out').textContent = '$' + P.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             document.getElementById('mg-i-out').textContent = '$' + totalInterest.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           }
+          window.copyMortgageSummary = function() {
+            const price = document.getElementById('mg-amount').value;
+            const down = document.getElementById('mg-down').value;
+            const rate = document.getElementById('mg-rate').value;
+            const term = document.getElementById('mg-term').options[document.getElementById('mg-term').selectedIndex].text;
+            const monthly = document.getElementById('mg-monthly').textContent;
+            const pOut = document.getElementById('mg-p-out').textContent;
+            const iOut = document.getElementById('mg-i-out').textContent;
+
+            const text = [
+              '=== MORTGAGE AMORTIZATION BREAKDOWN ===',
+              'Home Price: $' + parseFloat(price).toLocaleString(),
+              'Down Payment: $' + parseFloat(down).toLocaleString(),
+              'Loan Principal: ' + pOut,
+              'Interest Rate: ' + rate + '%',
+              'Loan Term: ' + term,
+              '---------------------------------------',
+              'Estimated Monthly Payment (P&I): ' + monthly,
+              'Total Lifetime Interest: ' + iOut,
+              '---------------------------------------',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/mortgage-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyMG');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Amortization Breakdown!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
           document.addEventListener('DOMContentLoaded', calcMortgage);
         </script>
       `
     },
     {
       slug: 'tip-calculator',
-      title: 'Tip & Bill Split Calculator',
-      metaDesc: 'Calculate restaurant tips, custom percentages, tax amounts, and split the bill evenly per person.',
+      title: 'Tip & Bill Split Calculator (Pre-Tax vs Post-Tax & Dollar Rounding)',
+      metaDesc: 'Calculate restaurant tips accurately on pre-tax subtotal, sales tax, split the bill evenly per person, and round up to whole dollars for cash or Venmo.',
       category: 'Math & Finance',
       body: `
         ${commonStyle}
@@ -258,52 +493,200 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Tip Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Tip & Bill Split Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Quickly calculate gratuity, total bill with tip, and per-person split for group dining.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Tip & Bill Split Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate restaurant tips, sales tax, and equal bill splits. Complies with dining etiquette by allowing gratuity calculation on pre-tax food subtotal with optional whole-dollar rounding.
           </p>
 
           <div class="tool-box">
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Bill Subtotal ($)</label>
+                <label class="field-label">Bill Subtotal ($ USD)</label>
                 <input type="number" id="tip-bill" class="text-input" value="85.50" step="0.5" oninput="calcTip()" />
               </div>
               <div class="field-group">
-                <label class="field-label">Tip Percentage (%)</label>
-                <input type="number" id="tip-pct" class="text-input" value="18" min="0" max="100" oninput="calcTip()" />
+                <label class="field-label">Sales Tax Rate (%)</label>
+                <input type="number" id="tip-tax-pct" class="text-input" value="8.25" step="0.25" oninput="calcTip()" />
               </div>
               <div class="field-group">
-                <label class="field-label">Number of People</label>
-                <input type="number" id="tip-people" class="text-input" value="3" min="1" max="50" oninput="calcTip()" />
+                <label class="field-label">Tip Percentage (%)</label>
+                <input type="number" id="tip-pct" class="text-input" value="20" min="0" max="100" oninput="calcTip()" />
               </div>
             </div>
 
-            <div class="result-card">
-              <div class="field-label">Total Per Person</div>
-              <div id="tip-per-person" class="result-val">$33.63</div>
-              <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
-                Tip Amount: <strong id="tip-amount-out" style="color: #22c55e;">$15.39</strong> |
-                Total Bill: <strong id="tip-total-out" style="color: var(--fg);">$100.89</strong>
+            <!-- Quick Tip Presets -->
+            <div style="margin-bottom: 1.25rem;">
+              <label class="field-label">Quick Tip Presets</label>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn-sec" onclick="setTipPct(15)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem;">15% (Fair)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(18)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem;">18% (Good)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(20)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem; border-color: #3b82f6; color: #3b82f6; font-weight: bold;">20% (Standard)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(25)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem;">25% (Great)</button>
+                <button type="button" class="btn-sec" onclick="setTipPct(30)" style="padding: 0.4rem 0.8rem; font-family: var(--mono); font-size: 0.85rem;">30% (Exceptional)</button>
               </div>
+            </div>
+
+            <div class="grid-inputs" style="margin-bottom: 1rem;">
+              <div class="field-group">
+                <label class="field-label">Gratuity Base</label>
+                <select id="tip-base" class="text-input" onchange="calcTip()">
+                  <option value="pre" selected>Pre-Tax Subtotal (Etiquette Standard)</option>
+                  <option value="post">Post-Tax Total (Higher Gratuity)</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Number of People Splitting</label>
+                <input type="number" id="tip-people" class="text-input" value="3" min="1" max="50" oninput="calcTip()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Rounding Preference</label>
+                <select id="tip-round" class="text-input" onchange="calcTip()">
+                  <option value="none" selected>Exact Cents ($0.01)</option>
+                  <option value="tip">Round Up Tip to Whole Dollar</option>
+                  <option value="total">Round Up Total Per Person to Whole Dollar</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="result-card" style="margin-top: 1.5rem;">
+              <div class="field-label">Total Payment Per Person</div>
+              <div id="tip-per-person" class="result-val">$36.55</div>
+              <div id="tip-breakdown-details" style="font-size: 0.95rem; color: var(--text-muted); margin-top: 0.5rem; font-family: var(--mono); line-height: 1.6;">
+                Tip Amount: <strong id="tip-amount-out" style="color: #10b981;">$17.10</strong> &bull;
+                Sales Tax: <strong id="tip-tax-out" style="color: var(--fg);">$7.05</strong> &bull;
+                Grand Total: <strong id="tip-total-out" style="color: var(--fg);">$109.65</strong>
+              </div>
+              <div id="tip-per-person-tip" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem; font-family: var(--mono);">
+                Tip contribution per person: $5.70
+              </div>
+
+              <button type="button" id="btnCopyTip" onclick="copyTipSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy Dining Bill & Tip Split Report
+              </button>
+            </div>
+
+            <!-- Step-by-Step Worked Derivation -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Restaurant Gratuity Derivation</h3>
+                <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Etiquette Standard</span>
+              </div>
+              <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+                Proper restaurant etiquette calculates gratuity strictly on the food and beverage subtotal prior to government sales tax assessment:
+              </p>
+              <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Step 1: Food & Beverage Gratuity</strong>
+                  <div style="color: #3b82f6; margin-top: 0.25rem;">
+                    Tip = Subtotal &times; (Tip % / 100) = $85.50 &times; 0.20 = <strong>$17.10</strong>
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Step 2: Sales Tax Assessment</strong>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                    Tax = Subtotal &times; (Tax % / 100) = $85.50 &times; 0.0825 = <strong>$7.05</strong>
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: var(--fg);">Step 3: Grand Total Bill</strong>
+                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                    Total = Subtotal + Tax + Tip = $85.50 + $7.05 + $17.10 = <strong>$109.65</strong>
+                  </div>
+                </div>
+                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #10b981; font-weight: 700;">Step 4: Equal Party Split</strong>
+                  <div style="color: #10b981; margin-top: 0.25rem;">
+                    Per Person = $109.65 / 3 = <strong>$36.55 / person</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Critical Dining Pitfalls & Tipping Rules -->
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Dining Pitfalls & Tipping Etiquette Traps</h3>
+              <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Tipping on Sales Tax" Trap:</strong> Many point-of-sale receipt printers automatically compute 18% or 20% suggested tip amounts based on the <em>post-tax</em> total. In cities with combined state and local sales tax approaching 10% (e.g. Seattle, Chicago, Los Angeles), tipping on tax adds an artificial 1.8% to 2.0% stealth surcharge to your gratuity. Always calculate tip based on pre-tax food subtotal.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Large-Party "Auto-Gratuity" Double Dip:</strong> Dining parties of 6 or more persons frequently have a mandatory 18% or 20% gratuity or "service fee" automatically added to the itemized bill. Always inspect the receipt line items before filling out the tip line to ensure you do not inadvertently tip twice.</li>
+                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Counter-Service POS Screen Inflation:</strong> Touchscreen tablet checkouts for takeaway counters (where no sit-down table service or bussing is provided) often prompt 22%, 25%, or 30% defaults. Standard North American etiquette reserves 18%–20%+ for full-service table dining, while counter pickup gratuities are discretionary ($1–$2 or 10%).</li>
+              </ul>
             </div>
           </div>
         </div>
 
         <script>
-          function calcTip() {
-            const bill = parseFloat(document.getElementById('tip-bill').value) || 0;
-            const pct = parseFloat(document.getElementById('tip-pct').value) || 0;
-            const people = parseInt(document.getElementById('tip-people').value, 10) || 1;
+          window.setTipPct = function(pct) {
+            document.getElementById('tip-pct').value = pct;
+            calcTip();
+          };
 
-            const tip = bill * (pct / 100);
-            const total = bill + tip;
-            const perPerson = total / people;
+          function calcTip() {
+            var subtotal = parseFloat(document.getElementById('tip-bill').value) || 0;
+            var taxPct = parseFloat(document.getElementById('tip-tax-pct').value) || 0;
+            var tipPct = parseFloat(document.getElementById('tip-pct').value) || 0;
+            var tipBase = document.getElementById('tip-base').value;
+            var people = parseInt(document.getElementById('tip-people').value, 10) || 1;
+            var roundMode = document.getElementById('tip-round').value;
+
+            var taxAmount = subtotal * (taxPct / 100);
+            var baseForTip = (tipBase === 'post') ? (subtotal + taxAmount) : subtotal;
+            var tipAmount = baseForTip * (tipPct / 100);
+
+            if (roundMode === 'tip') {
+              tipAmount = Math.ceil(tipAmount);
+            }
+
+            var grandTotal = subtotal + taxAmount + tipAmount;
+            var perPerson = grandTotal / people;
+
+            if (roundMode === 'total') {
+              perPerson = Math.ceil(perPerson);
+              grandTotal = perPerson * people;
+              tipAmount = grandTotal - subtotal - taxAmount;
+            }
+
+            var tipPerPerson = tipAmount / people;
 
             document.getElementById('tip-per-person').textContent = '$' + perPerson.toFixed(2);
-            document.getElementById('tip-amount-out').textContent = '$' + tip.toFixed(2);
-            document.getElementById('tip-total-out').textContent = '$' + total.toFixed(2);
+            document.getElementById('tip-amount-out').textContent = '$' + tipAmount.toFixed(2);
+            document.getElementById('tip-tax-out').textContent = '$' + taxAmount.toFixed(2);
+            document.getElementById('tip-total-out').textContent = '$' + grandTotal.toFixed(2);
+            document.getElementById('tip-per-person-tip').textContent = 'Tip contribution per person: $' + tipPerPerson.toFixed(2);
           }
+
+          window.copyTipSummary = function() {
+            var subtotal = document.getElementById('tip-bill').value;
+            var tax = document.getElementById('tip-tax-out').textContent;
+            var tip = document.getElementById('tip-amount-out').textContent;
+            var total = document.getElementById('tip-total-out').textContent;
+            var perPerson = document.getElementById('tip-per-person').textContent;
+            var people = document.getElementById('tip-people').value;
+
+            var text = [
+              '=== RESTAURANT BILL & TIP SPLIT REPORT ===',
+              'Bill Subtotal: $' + parseFloat(subtotal).toFixed(2),
+              'Sales Tax: ' + tax,
+              'Gratuity (Tip): ' + tip,
+              'Grand Total Bill: ' + total,
+              'Party Size: ' + people + ' people',
+              '-----------------------------------------',
+              'EACH PERSON PAYS: ' + perPerson,
+              '-----------------------------------------',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/tip-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyTip');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Bill Split Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcTip);
         </script>
       `
@@ -589,7 +972,59 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 </div>
               </div>
               <div id="cumulResult" style="margin-top: 0.75rem; font-family: var(--mono); font-size: 0.95rem; color: #3b82f6;"></div>
+            <button type="button" id="btnCopyGPA" onclick="copyGPASummary()" class="btn-sec" style="margin-top: 1.5rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Official GPA Transcript Breakdown
+            </button>
+          </div>
+
+          <!-- Step-by-Step Quality Points Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step GPA & Quality Points Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">AACRAO Collegiate Standard</span>
             </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Grade Point Average is a credit-weighted arithmetic mean where each letter grade is converted to quality points and normalized by total attempted credits:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Calculate Course Quality Points</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                  Quality Points = Course Credit Hours &times; Grade Numerical Value
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Example: 3-credit course with an A (4.0) = 3 &times; 4.0 = 12.0 Quality Points &bull; 4-credit course with an A- (3.7) = 4 &times; 3.7 = 14.8 Quality Points.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Weighted GPA Multiplier Allocation</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Honors Course: Grade + 0.50 &bull; AP / IB / Dual-Enrollment College Course: Grade + 1.00
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">Step 3: Semester GPA Formula</strong>
+                <div style="color: #10b981; margin-top: 0.25rem;">
+                  Semester GPA = &Sigma; (Quality Points) / &Sigma; (Attempted Credit Hours)
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #8b5cf6;">Step 4: Cumulative GPA Compounding Formula</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Cumulative GPA = [ (Prior GPA &times; Prior Credits) + New Quality Points ] / (Prior Credits + New Credits)
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Academic Pitfalls & GPA Traps -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Academic Pitfalls & GPA Calculation Traps</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Credit Hour Weighting Trap:</strong> A 4.0 in a 1-credit elective (e.g. Physical Education or Choir) generates only 4.0 quality points, whereas a 2.0 (C) in a 4-credit Organic Chemistry or Engineering Physics lecture/lab generates 8.0 quality points across 4 credits. High-credit STEM courses exert <strong>300% to 400% more gravitational pull</strong> on your final transcript GPA than 1-credit courses.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Institutional Retake / Forgiveness Myth:</strong> While your university registrar may replace an F with a B on your internal diploma transcript, professional graduate admissions boards (such as AMCAS for US medical schools or LSAC for law schools) <strong>re-calculate GPA by counting every single grade attempt</strong>, completely nullifying institutional grade forgiveness.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The High School Weighted Inflation Mirage:</strong> High school weighted GPAs often reach 4.5 to 5.0+ due to local bonus policies. Highly selective universities (Ivy League, Stanford, MIT) strip out high school weighting entirely during the holistic review phase, re-calculating all applicant GPAs on an unweighted, rigorous 4.0 academic core scale.</li>
+            </ul>
           </div>
         </div>
 
@@ -671,6 +1106,52 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               document.getElementById('cumulResult').textContent = '';
             }
           }
+
+          window.copyGPASummary = function() {
+            var unweighted = document.getElementById('unweightedGpa').textContent;
+            var weighted = document.getElementById('weightedGpa').textContent;
+            var credits = document.getElementById('totalCredits').textContent;
+            var points = document.getElementById('totalPoints').textContent;
+            var cumul = document.getElementById('cumulResult').textContent;
+
+            var rows = document.querySelectorAll('#gpaRows tr');
+            var courseLines = [];
+            rows.forEach(function(r) {
+              var name = r.querySelector('input[type="text"]').value || 'Course';
+              var gradeSel = r.querySelector('.grade-select');
+              var gradeText = gradeSel.options[gradeSel.selectedIndex].text;
+              var creds = r.querySelector('.credit-input').value;
+              var weightSel = r.querySelector('.weight-select');
+              var weightText = weightSel.options[weightSel.selectedIndex].text;
+              courseLines.push('  • ' + name + ': ' + gradeText + ' (' + creds + ' cr, ' + weightText + ')');
+            });
+
+            var text = [
+              '=== OFFICIAL GPA TRANSCRIPT BREAKDOWN ===',
+              'Semester Unweighted GPA (4.0 Max): ' + unweighted,
+              'Semester Weighted GPA (Honors/AP): ' + weighted,
+              'Total Attempted Credits: ' + credits,
+              'Cumulative Quality Points: ' + points,
+              cumul ? (cumul) : '',
+              '-----------------------------------------',
+              'Course Itemization:',
+              courseLines.join('\\n'),
+              '-----------------------------------------',
+              'Standard: AACRAO Collegiate Grading Guidelines',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/gpa-calculator'
+            ].filter(Boolean).join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyGPA');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied GPA Breakdown!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', calcGpa);
           calcGpa();
@@ -1324,7 +1805,14 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Enter Numbers (Comma or Space Separated)</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+                <label class="field-label" style="margin: 0;">Enter Numbers (Comma, Space, or Newline Separated)</label>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button type="button" class="btn-sec" onclick="setSDPreset('exam')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Exam Scores</button>
+                  <button type="button" class="btn-sec" onclick="setSDPreset('returns')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Daily Returns</button>
+                  <button type="button" class="btn-sec" onclick="setSDPreset('heights')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Heights (cm)</button>
+                </div>
+              </div>
               <textarea id="sd-data" class="code-input" rows="3" oninput="calcSD()" style="font-size: 1.1rem; line-height: 1.5;">10, 12, 23, 23, 16, 23, 21, 16</textarea>
             </div>
 
@@ -1346,11 +1834,77 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 <div id="sd-mean" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">18.00</div>
                 <div id="sd-count" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Count (N): 8 | Sum: 144</div>
               </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Std Error of Mean (SE)</div>
+                <div id="sd-se" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">1.8516</div>
+                <div id="sd-ci" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">95% CI: [14.37, 21.63]</div>
+              </div>
             </div>
+
+            <button type="button" id="btnCopySD" onclick="copySDSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Statistical Summary & Confidence Intervals
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Statistical Derivations -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Standard Deviation Derivation (Bessel's Correction)</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">NIST Engineering Statistics Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Standard deviation quantifies the dispersion or spread of data values around the central mean:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Compute Arithmetic Sample Mean</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                  x̄ = (&Sigma; x<sub>i</sub>) / n = 144 / 8 = <strong>18.00</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Sum of Squared Deviations (SS)</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  SS = &Sigma; (x<sub>i</sub> - x̄)<sup>2</sup> = (10 - 18)<sup>2</sup> + (12 - 18)<sup>2</sup> + ... = 64 + 36 + 25 + 25 + 4 + 25 + 9 + 4 = <strong>192.00</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6;">Step 3: Sample Variance vs Population Variance</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Sample Variance s<sup>2</sup> = SS / (n - 1) = 192 / 7 = <strong>27.4286</strong> (Bessel's Correction unbiased)<br>
+                  Population Variance &sigma;<sup>2</sup> = SS / N = 192 / 8 = <strong>24.0000</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">Step 4: Standard Deviation (Square Root)</strong>
+                <div style="color: #10b981; margin-top: 0.25rem;">
+                  Sample s = &radic;27.4286 = <strong>5.2372</strong> &bull; Population &sigma; = &radic;24.0000 = <strong>4.8990</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Statistical Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Statistical Pitfalls & Bessel's Bias</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Bessel's Correction Trap:</strong> When analyzing a subset (sample) of a larger population, dividing by $N$ rather than $n - 1$ produces a mathematically biased underestimate of variance. This occurs because the sample mean $\bar{x}$ is calculated from the sample itself, naturally lying closer to the sample observations than the true unknown population mean $\mu$. Always use $n - 1$ for samples.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Outlier Distortion Vulnerability:</strong> Because deviations are squared before summing, standard deviation is extraordinarily sensitive to outliers. A single extreme observation (e.g. data entry error or fat-tailed market crash) will artificially balloon $s$. For skewed or non-Gaussian data, report the Interquartile Range (IQR) or Median Absolute Deviation (MAD).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 68-95-99.7 Empirical Rule Limitation:</strong> The rule stating that 68% of data falls within $\pm 1s$ and 95% within $\pm 2s$ is <em>only valid for normal (Gaussian) bell-curve distributions</em>. For multimodal or heavily skewed distributions (such as wealth or website latency), Chebyshev's Inequality ($\ge 75\%$ within $\pm 2s$) is the only mathematically guaranteed boundary.</li>
+            </ul>
           </div>
         </div>
 
         <script>
+          window.setSDPreset = function(type) {
+            var area = document.getElementById('sd-data');
+            if (type === 'exam') area.value = '72, 85, 91, 64, 78, 88, 95, 82, 79, 89';
+            if (type === 'returns') area.value = '1.2, -0.8, 2.1, -1.5, 0.4, -0.2, 1.8, -2.4, 0.9';
+            if (type === 'heights') area.value = '165, 172, 178, 181, 169, 175, 188, 162, 174';
+            calcSD();
+          };
+
           function calcSD() {
             var text = document.getElementById('sd-data').value;
             var nums = text.split(/[,\\s]+/).map(parseFloat).filter(function(n) { return !isNaN(n); });
@@ -1359,6 +1913,8 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               document.getElementById('sd-s').textContent = '-';
               document.getElementById('sd-p').textContent = '-';
               document.getElementById('sd-mean').textContent = nums.length === 1 ? nums[0].toFixed(2) : '-';
+              document.getElementById('sd-se').textContent = '-';
+              document.getElementById('sd-ci').textContent = '-';
               return;
             }
 
@@ -1377,6 +1933,10 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             var popVar = sumSqDiff / n;
             var popSD = Math.sqrt(popVar);
 
+            var se = sampleSD / Math.sqrt(n);
+            var ciLow = mean - (1.96 * se);
+            var ciHigh = mean + (1.96 * se);
+
             document.getElementById('sd-s').textContent = sampleSD.toFixed(4);
             document.getElementById('sd-s-var').textContent = 'Variance (s²): ' + sampleVar.toFixed(4);
 
@@ -1385,7 +1945,43 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
             document.getElementById('sd-mean').textContent = mean.toFixed(2);
             document.getElementById('sd-count').textContent = 'Count (N): ' + n + ' | Sum: ' + sum.toLocaleString('en-US');
+
+            document.getElementById('sd-se').textContent = se.toFixed(4);
+            document.getElementById('sd-ci').textContent = '95% CI: [' + ciLow.toFixed(2) + ', ' + ciHigh.toFixed(2) + ']';
           }
+
+          window.copySDSummary = function() {
+            var s = document.getElementById('sd-s').textContent;
+            var p = document.getElementById('sd-p').textContent;
+            var mean = document.getElementById('sd-mean').textContent;
+            var count = document.getElementById('sd-count').textContent;
+            var se = document.getElementById('sd-se').textContent;
+            var ci = document.getElementById('sd-ci').textContent;
+
+            var text = [
+              '=== STATISTICAL DESCRIPTIVE SUMMARY ===',
+              'Sample Standard Deviation (s): ' + s,
+              'Population Standard Deviation (σ): ' + p,
+              'Arithmetic Mean (x̄): ' + mean,
+              count,
+              'Standard Error of the Mean (SE): ' + se,
+              ci,
+              '---------------------------------------',
+              'Standard: NIST Engineering Statistics Handbook',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/standard-deviation-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopySD');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Statistical Summary!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', calcSD);
           calcSD();
@@ -1394,8 +1990,8 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'markup-margin-calculator',
-      title: 'Markup vs Margin Calculator (Gross Profit & Selling Price)',
-      metaDesc: 'Understand the difference between markup and profit margin. Calculate selling price, gross profit, and cost of goods sold (COGS).',
+      title: 'Markup vs Profit Margin Calculator (eCommerce & Retail Pricing)',
+      metaDesc: 'Convert between cost markup and gross profit margin. Calculate optimal retail selling price, dollar profit, and COGS with instant two-way formulas.',
       category: 'Finance & eCommerce',
       body: `
         ${commonStyle}
@@ -1403,9 +1999,9 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Markup vs Margin
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Markup vs. Profit Margin Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert between cost markup and gross profit margin to ensure your retail products, client services, and quotes are profitable.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Markup vs. Profit Margin Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert cost markup to gross profit margin and vice versa. Eliminate pricing mistakes that eat into eCommerce profits, agency billings, and wholesale distribution margins.
           </p>
 
           <div class="tool-box">
@@ -1419,19 +2015,99 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 <input type="number" id="mm-markup" class="code-input" value="50" min="0" step="1" oninput="calcMMFromMarkup()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Profit Margin (% of Revenue)</label>
+                <label class="field-label">Gross Profit Margin (% of Revenue)</label>
                 <input type="number" id="mm-margin" class="code-input" value="33.33" min="0" max="99.9" step="0.5" oninput="calcMMFromMargin()" style="font-size: 1.25rem;" />
               </div>
             </div>
 
             <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Recommended Selling Price</div>
+              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Recommended Retail Selling Price</div>
               <div id="mm-price" class="result-val" style="color: #10b981;">$60.00</div>
-              <div id="mm-profit" style="font-size: 1.1rem; color: #3b82f6; font-family: var(--mono); margin-top: 0.4rem;">Gross Profit: $20.00</div>
-              <div id="mm-expl" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">
-                50% Markup = 33.3% Gross Margin
+              <div id="mm-profit" style="font-size: 1.15rem; color: #3b82f6; font-family: var(--mono); margin-top: 0.4rem;">Gross Profit: $20.00 per unit</div>
+              <div id="mm-expl" style="font-size: 0.88rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">
+                50.0% Markup on Cost = 33.3% Gross Margin on Revenue
+              </div>
+
+              <!-- Fast Benchmark Table -->
+              <div style="margin-top: 1.5rem; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.5rem; color: var(--fg);">
+                  📊 Margin vs Markup Conversion Benchmark Table:
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; font-family: var(--mono); font-size: 0.8rem; text-align: center;">
+                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                    <div style="color: var(--text-muted);">20% Margin</div>
+                    <strong style="color: #3b82f6;">25.0% Markup</strong>
+                  </div>
+                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                    <div style="color: var(--text-muted);">33.3% Margin</div>
+                    <strong style="color: #3b82f6;">50.0% Markup</strong>
+                  </div>
+                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                    <div style="color: var(--text-muted);">50% Margin</div>
+                    <strong style="color: #10b981;">100% Markup</strong>
+                  </div>
+                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                    <div style="color: var(--text-muted);">60% Margin</div>
+                    <strong style="color: #f59e0b;">150% Markup</strong>
+                  </div>
+                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
+                    <div style="color: var(--text-muted);">75% Margin</div>
+                    <strong style="color: #8b5cf6;">300% Markup</strong>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" id="btnCopyMM" onclick="copyMMSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+                📋 Copy Pricing & Profit Margin Analysis
+              </button>
+            </div>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Markup vs Margin Mathematical Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Accounting GAAP Standard</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              The distinction between markup and margin is the mathematical denominator used in the percentage ratio:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6;">Markup Equation (Denominator = Cost)</strong>
+                <div style="color: var(--fg); margin-top: 0.25rem;">
+                  Markup % = [ (Selling Price - Cost) / Cost ] &times; 100
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  For $40 cost and $60 price: ($20 / $40) &times; 100 = <strong>50.0% Markup</strong>.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981;">Gross Margin Equation (Denominator = Revenue)</strong>
+                <div style="color: var(--fg); margin-top: 0.25rem;">
+                  Margin % = [ (Selling Price - Cost) / Selling Price ] &times; 100
+                </div>
+                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  For $40 cost and $60 price: ($20 / $60) &times; 100 = <strong>33.3% Margin</strong>.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #8b5cf6;">Direct Conversion Formula</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Price = Cost / [ 1 - (Margin % / 100) ] &bull; Markup % = [ Margin % / (100 - Margin %) ] &times; 100
+                </div>
               </div>
             </div>
+          </div>
+
+          <!-- Critical Business Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Retail Pitfalls & Profit Bleed Traps</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 50% Markup vs 50% Margin Confusion:</strong> New eCommerce store owners frequently assume adding a 50% markup gives them a 50% profit margin. In reality, a 50% markup yields only a 33.3% gross margin. To achieve a 50% profit margin, you must use a <strong>100% markup</strong> (selling at double your unit cost). Confusing these numbers leads to catastrophic cash flow collapse.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Payment Processing & Ad Spend Blindspot:</strong> Gross profit margin accounts solely for Cost of Goods Sold (COGS). It does not include payment gateway fees (Stripe/PayPal ~2.9% + $0.30), platform transaction fees (Shopify/Amazon ~8%–15%), or customer acquisition cost (CAC). If your gross margin is 25% and your ad CAC takes 20%, you are operating at net negative cash flow after returns and shipping damages.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Asymmetric Discounting Trap:</strong> If you markup a product by 25% ($100 to $125) and later discount it by 20%, you return to break-even ($100). If you discount by 25%, you actually lose money ($93.75). Percentage discounts always hit harder than percentage markups of equal value.</li>
+            </ul>
           </div>
         </div>
 
@@ -1466,9 +2142,41 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
           function updateMMResults(price, profit, markup, margin) {
             document.getElementById('mm-price').textContent = '$' + price.toFixed(2);
-            document.getElementById('mm-profit').textContent = 'Gross Profit: $' + profit.toFixed(2);
-            document.getElementById('mm-expl').textContent = markup.toFixed(1) + '% Markup on Cost = ' + margin.toFixed(1) + '% Gross Margin';
+            document.getElementById('mm-profit').textContent = 'Gross Profit: $' + profit.toFixed(2) + ' per unit';
+            document.getElementById('mm-expl').textContent = markup.toFixed(1) + '% Markup on Cost = ' + margin.toFixed(1) + '% Gross Margin on Revenue';
           }
+
+          window.copyMMSummary = function() {
+            var cost = document.getElementById('mm-cost').value;
+            var markup = document.getElementById('mm-markup').value;
+            var margin = document.getElementById('mm-margin').value;
+            var price = document.getElementById('mm-price').textContent;
+            var profit = document.getElementById('mm-profit').textContent;
+
+            var text = [
+              '=== PRICING & PROFIT MARGIN ANALYSIS ===',
+              'Cost of Goods (COGS): $' + parseFloat(cost).toFixed(2),
+              'Cost Markup: ' + markup + '%',
+              'Gross Profit Margin: ' + margin + '%',
+              '---------------------------------------',
+              'Recommended Selling Price: ' + price,
+              profit,
+              '---------------------------------------',
+              'Standard: GAAP Cost Accounting Principles',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/markup-margin-calculator'
+            ].join('\\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyMM');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Pricing Analysis!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', calcMMFromCost);
           calcMMFromCost();
