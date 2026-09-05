@@ -1099,8 +1099,84 @@
                 The panic was an alarm bell in your brain, not a physical predator. Unclench your jaw, drop your shoulders away from your ears, and take one slow, full breath.
               </p>
             </div>
+
+            <!-- Copy Somatic Grounding Report -->
+            <button type="button" id="btnCopyGrounding" onclick="copyGroundingReport()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy 5-4-3-2-1 Somatic Grounding Report</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical Sensory Overload Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Neuro-Sensory Overload &amp; Grounding</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Cognitive Demanding Fallacy (Forcing Reason During Amygdala Storms)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When an autistic or ADHD individual enters acute sensory meltdown, blood flow rapidly shunts away from the prefrontal cortex into the limbic system. Forcing verbal communication, logical decision-making, or complex questions during this state overwhelms remaining neurological bandwidth. Somatic grounding must precede verbal processing.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">👂 2. The Multi-Sensory Saturation Trap (Ignoring Ambient Triggers)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Attempting 5-4-3-2-1 grounding while fluorescent overhead lights are flickering or a television is blaring in the background creates competing sensory interference. True de-escalation requires eliminating high-frequency auditory inputs (noise-canceling headphones) and dimming visual inputs before naming somatic anchors.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🌊 3. The "Suppress the Shake" Trap (Blocking Neurogenic Tremors)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  During panic or sensory overload, the mammalian nervous system activates neurogenic tremors (shivering in hands, legs, or jaw) to metabolize and discharge excess circulating adrenaline. Suppressing physical tremors out of embarrassment traps autonomic fight-or-flight energy in myofascial tissue, prolonging somatic anxiety.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">⏱️ 4. The 90-Second Chemical Wave Premature Exit Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Neuroanatomist Dr. Jill Bolte Taylor established that the physiological lifespan of an adrenaline surge is exactly 90 seconds from initial trigger to cellular clearance. Rushing through grounding in 15 seconds and concluding "this didn't work" aborts the biological clearance cycle. Stay anchored for at least 3 full minutes.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🔋 5. The Post-Overload Depletion Deficit (Skipping Sleep Rebound)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Surviving sensory overload or a neurodivergent meltdown leaves the brain exhausted: glycogen stores in astrocytes are depleted and neurotransmitter systems are drained. Attempting to immediately jump back into high-intensity cognitive work induces immediate secondary burnout. A 30-minute dark, quiet recovery rest is non-negotiable.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+
+        <script>
+          window.copyGroundingReport = function() {
+            var inputs = document.querySelectorAll('.grounding-step input');
+            var labels = ['5 SEE', '4 TOUCH', '3 HEAR', '2 SMELL', '1 TASTE'];
+            var lines = ['🌿 5-4-3-2-1 Somatic Grounding Decompression Record', ''];
+
+            inputs.forEach(function(inp, i) {
+              lines.push('• ' + labels[i] + ': ' + (inp.value.trim() || '[Mentally Anchored]'));
+            });
+
+            lines.push('');
+            lines.push('Status: Somatic Safety Established.');
+            lines.push('Completed at digitaltoolsshed.com/health/sensory-grounding-decompressor');
+
+            navigator.clipboard.writeText(lines.join('
+')).then(function() {
+              var btn = document.getElementById('btnCopyGrounding');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Grounding Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+        </script>
       
 
           

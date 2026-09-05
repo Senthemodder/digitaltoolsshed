@@ -1060,11 +1060,98 @@
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Recommended Reading:</div>
                 <div id="therapyBook" style="font-size: 0.9rem; line-height: 1.6; color: var(--fg);"></div>
               </div>
+
+              <!-- One-Click Diagnostic Copy -->
+              <button type="button" id="btnCopyTherapyMatch" onclick="copyTherapyMatch()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Clinical Therapy Matching Profile &amp; Intake Questions</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Therapy Selection Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Choosing Psychotherapy</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The "Generic Talk Therapy" Modality Mismatch Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Unstructured supportive talk therapy ("How was your week?") is helpful for mild distress, but clinically ineffective for OCD, PTSD, or panic disorder. OCD requires Exposure and Response Prevention (ERP); severe PTSD requires EMDR or Prolonged Exposure (PE). Mismatching therapeutic modality leads to years of wasted sessions.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">🧠 2. Processing Deep Trauma Without First Establishing Somatic Stability</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Diving into detailed narratives of childhood sexual or physical abuse before learning autonomic regulation skills (grounding, diaphragmatic pacing) re-traumatizes the patient, inducing dissociation, panic attacks, or self-harm. Phase 1 trauma therapy must always establish emotional stabilization.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🤝 3. Confusing Therapeutic Rapport with Clinical Competence</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  A therapist can be exceptionally warm, validating, and compassionate, yet completely untrained in evidence-based clinical protocols for your specific condition. If after 12 sessions you feel emotionally supported but your objective symptoms have not improved, you need a different clinical approach.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">⏱️ 4. Expecting Instant Breakthroughs in Complex Relational Trauma (C-PTSD)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Unlike single-incident adult trauma, Complex PTSD (chronic developmental neglect or domestic abuse) alters nervous system architecture and relational attachment models. Healing requires sustained, long-term relational rewiring (often 1–3 years of Schema Therapy or Somatic Experiencing).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">💵 5. Out-of-Network Superbill &amp; Insurance Reimbursement Blindspots</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Many specialized evidence-based clinicians do not accept in-network insurance due to low reimbursement rates. Many patients assume they must pay 100% out of pocket, unaware that their health plan may cover 50%–80% of out-of-network outpatient psychotherapy via itemized "Superbills" after meeting an annual deductible.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+        </div>
 
         <script>
+          
+          window.copyTherapyMatch = function() {
+            var title = document.getElementById('therapyTitle') ? document.getElementById('therapyTitle').textContent : '';
+            var summary = document.getElementById('therapySummary') ? document.getElementById('therapySummary').textContent : '';
+            var book = document.getElementById('therapyBook') ? document.getElementById('therapyBook').textContent : '';
+
+            var text = '🛋️ Evidence-Based Psychotherapy Matching Assessment
+' +
+              '• Recommended Modality: ' + title + '
+' +
+              '• Clinical Framework: ' + summary.replace(/s+/g, ' ').trim() + '
+' +
+              '• Recommended Literature & Self-Help: ' + book.replace(/s+/g, ' ').trim() + '
+
+' +
+              'Intake Questions to Ask Potential Therapists:
+' +
+              '1. What percentage of your current caseload shares this specific diagnosis?
+' +
+              '2. Are you certified or supervised in ' + title + ', or do you practice general eclectic therapy?
+' +
+              '3. What structured homework or skill-building exercises do you assign between sessions?
+
+' +
+              'Matched at digitaltoolsshed.com/health/therapy-recommendation-engine';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyTherapyMatch');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Therapy Profile Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           var therapyData = {
             'cbt': {
               title: 'Cognitive Behavioral Therapy (CBT)',

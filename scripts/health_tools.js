@@ -5541,8 +5541,83 @@ window.copyIdealWeightSummary = function() {
                 The panic was an alarm bell in your brain, not a physical predator. Unclench your jaw, drop your shoulders away from your ears, and take one slow, full breath.
               </p>
             </div>
+
+            <!-- Copy Somatic Grounding Report -->
+            <button type="button" id="btnCopyGrounding" onclick="copyGroundingReport()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy 5-4-3-2-1 Somatic Grounding Report</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical Sensory Overload Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Neuro-Sensory Overload &amp; Grounding</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Cognitive Demanding Fallacy (Forcing Reason During Amygdala Storms)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When an autistic or ADHD individual enters acute sensory meltdown, blood flow rapidly shunts away from the prefrontal cortex into the limbic system. Forcing verbal communication, logical decision-making, or complex questions during this state overwhelms remaining neurological bandwidth. Somatic grounding must precede verbal processing.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">👂 2. The Multi-Sensory Saturation Trap (Ignoring Ambient Triggers)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Attempting 5-4-3-2-1 grounding while fluorescent overhead lights are flickering or a television is blaring in the background creates competing sensory interference. True de-escalation requires eliminating high-frequency auditory inputs (noise-canceling headphones) and dimming visual inputs before naming somatic anchors.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🌊 3. The "Suppress the Shake" Trap (Blocking Neurogenic Tremors)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  During panic or sensory overload, the mammalian nervous system activates neurogenic tremors (shivering in hands, legs, or jaw) to metabolize and discharge excess circulating adrenaline. Suppressing physical tremors out of embarrassment traps autonomic fight-or-flight energy in myofascial tissue, prolonging somatic anxiety.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">⏱️ 4. The 90-Second Chemical Wave Premature Exit Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Neuroanatomist Dr. Jill Bolte Taylor established that the physiological lifespan of an adrenaline surge is exactly 90 seconds from initial trigger to cellular clearance. Rushing through grounding in 15 seconds and concluding "this didn't work" aborts the biological clearance cycle. Stay anchored for at least 3 full minutes.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🔋 5. The Post-Overload Depletion Deficit (Skipping Sleep Rebound)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Surviving sensory overload or a neurodivergent meltdown leaves the brain exhausted: glycogen stores in astrocytes are depleted and neurotransmitter systems are drained. Attempting to immediately jump back into high-intensity cognitive work induces immediate secondary burnout. A 30-minute dark, quiet recovery rest is non-negotiable.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+
+        <script>
+          window.copyGroundingReport = function() {
+            var inputs = document.querySelectorAll('.grounding-step input');
+            var labels = ['5 SEE', '4 TOUCH', '3 HEAR', '2 SMELL', '1 TASTE'];
+            var lines = ['🌿 5-4-3-2-1 Somatic Grounding Decompression Record', ''];
+
+            inputs.forEach(function(inp, i) {
+              lines.push('• ' + labels[i] + ': ' + (inp.value.trim() || '[Mentally Anchored]'));
+            });
+
+            lines.push('');
+            lines.push('Status: Somatic Safety Established.');
+            lines.push('Completed at digitaltoolsshed.com/health/sensory-grounding-decompressor');
+
+            navigator.clipboard.writeText(lines.join('\n')).then(function() {
+              var btn = document.getElementById('btnCopyGrounding');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Grounding Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+        </script>
       `
     },
     {
@@ -5646,14 +5721,81 @@ window.copyIdealWeightSummary = function() {
                 <p id="asrsExplanation" style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; max-width: 650px; margin: 0 auto;"></p>
                 <div style="margin-top: 1rem;">
                   <button type="button" class="btn-sec" onclick="window.print()" style="cursor: pointer;">🖨️ Print / Save for Doctor</button>
+                  <button type="button" id="btnCopyAsrsReport" onclick="copyAsrsReport()" class="btn-sec" style="cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">📋 Copy Clinical Summary</button>
                 </div>
               </div>
 
             </form>
           </div>
+
+          <!-- 5 Critical Clinical Screening & Diagnostic Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Adult ADHD Clinical Screening</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The High-IQ &amp; High-Structure Masking Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  High-cognitive adults often mask severe executive dysfunction for decades through sheer intellectual compensation, obsessive calendar rituals, or anxious perfectionism. When external structure disappears (e.g., leaving home, starting university, or having children), executive functioning crashes catastrophically. Clinicians often misdiagnose this crash as primary anxiety or burnout.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Inattentive ADHD vs. Major Depressive Disorder (MDD)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Lethargy, chronic task avoidance, and emotional blunting are hallmark symptoms of both Inattentive ADHD and Major Depression. However, in ADHD, anhedonia is situational: the individual has zero motivation for routine work but can hyperfocus for 10 hours on an interesting novel hobby. Prescribing SSRIs alone often worsens ADHD apathy.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">📱 3. Acquired Digital Distractibility vs. Neurodevelopmental ADHD</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  DSM-5 requires that ADHD symptoms must be present before age 12 and persist across multiple domains (work, home, social life). Short-form video algorithms and smartphone addiction fragment attention spans in neurotypical individuals, producing an "ADHD mimic." A true diagnosis requires confirming lifelong executive dysfunction independent of screen usage.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🩺 4. Obstructive Sleep Apnea &amp; Upper Airway Resistance Mimicry</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Nocturnal oxygen desaturations and micro-arousals from sleep apnea destroy prefrontal executive function, creating severe daytime working memory lapses, distractibility, and impulsivity indistinguishable from ADHD. Every adult undergoing ADHD evaluation should be screened for snoring, daytime somnolence, and airway obstruction.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">💊 5. The "Stimulants Give Everyone Focus" Diagnostic Fallacy</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  "I took an Adderall and felt super focused, so I must have ADHD." Central nervous system stimulants (methylphenidate, amphetamines) elevate synaptic dopamine and norepinephrine in ALL human brains, increasing alertness and focus in both neurotypical and ADHD individuals. A positive response to medication is NOT diagnostic proof of ADHD.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <script>
+          
+          window.copyAsrsReport = function() {
+            var score = document.getElementById('asrsScore') ? document.getElementById('asrsScore').textContent : '0/6';
+            var msg = document.getElementById('asrsMsg') ? document.getElementById('asrsMsg').textContent : '';
+            var text = '🧠 WHO Adult ADHD Self-Report Scale (ASRS-v1.1 Screener)\n' +
+              '• Part A Significant Symptoms: ' + score + '\n' +
+              '• Clinical Risk Classification: ' + msg.replace(/\s+/g, ' ').trim() + '\n' +
+              '• Diagnostic Standard: World Health Organization (WHO) & Harvard Medical School Workgroup.\n' +
+              '• Clinical Next Steps: 4+ positive symptoms indicates high likelihood of Adult ADHD warranting a comprehensive clinical psychiatric evaluation.\n\n' +
+              'Screened at digitaltoolsshed.com/health/adhd-screener';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyAsrsReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Clinical Summary Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function calcASRS() {
             var positive = 0;
             var answered = 0;
@@ -5801,11 +5943,83 @@ window.copyIdealWeightSummary = function() {
             <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
               <button type="button" class="btn-primary" onclick="startLockinTimer()">🔒 Lock In & Start 10-Min Timer</button>
               <span id="lockinTimerDisplay" style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: #ef4444; display: none;">10:00</span>
+
+              <!-- Action Copy Button -->
+              <button type="button" id="btnCopyActionContract" onclick="copyActionContract()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Personal Autonomy Commitment &amp; Action Plan</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Self-Reliance & Autonomy Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Self-Reliance &amp; Overcoming Learned Helplessness</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The "Waiting for Motivation" Neurochemical Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Motivation is an emotional byproduct of action, not its prerequisite. Dopamine surges occur in response to completed micro-milestones, not while lying in bed contemplating work. Action precedes inspiration; physical movement forces prefrontal engagement.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">🤝 2. The Rescuer Complex &amp; Dependent Learned Helplessness</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Secretly hoping a mentor, partner, or financial windfall will arrive to save you from hardship paralyzes self-agency. In adult life, no external savior is coming. Realizing that you alone bear 100% responsibility for your health, income, and emotional state is the foundation of mental strength.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">📉 3. The 100% Perfectionist Abandonment Spiral</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Believing that if you miss one workout, break diet for one meal, or procrastinate for one morning, your entire effort is ruined causes complete capitulation. Psychological resilience is measured by how fast you recover from imperfection, not by flawless consistency.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🗣️ 4. Externalizing Locus of Control &amp; Resentment Loops</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Blaming macroeconomic conditions, bad parenting, or toxic managers may be factually justified, but adopting an external locus of control guarantees paralysis. Shift to an internal locus of control: "Given these unfair conditions, what is the single most effective action within my direct power right now?"
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🛡️ 5. The Fear of Competence &amp; Responsibility Avoidance</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Competence carries social expectations and accountability. Individuals sometimes remain subconsciously incompetent to maintain low expectations from others. True self-reliance requires embracing the burden of being reliable and capable.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
+          
+          window.copyActionContract = function() {
+            var action = document.getElementById('lockinAction') ? document.getElementById('lockinAction').value : '';
+            var quote = document.getElementById('hardTruthText') ? document.getElementById('hardTruthText').textContent : '';
+            var author = document.getElementById('hardTruthAuthor') ? document.getElementById('hardTruthAuthor').textContent : '';
+
+            var text = '🔥 Radical Self-Reliance & Action Contract\n' +
+              '• Immediate 10-Minute Commitment: ' + (action || '[Action in Progress]') + '\n' +
+              '• Grounding Principle: \"' + quote + '\" — ' + author + '\n' +
+              '• Core Truth: No one is coming to save you. You must stand on your own two feet.\n\n' +
+              'Contracted at digitaltoolsshed.com/health/stand-on-your-own-feet';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyActionContract');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Action Contract Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           var hardTruths = [
             { q: "Waste no more time arguing about what a good man should be. Be one.", a: "Marcus Aurelius, Meditations" },
             { q: "Nobody is coming to save you. Nobody is coming to help you. Get your ass up and do the work.", a: "David Goggins, Can't Hurt Me" },
@@ -5992,11 +6206,88 @@ window.copyIdealWeightSummary = function() {
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Recommended Reading:</div>
                 <div id="therapyBook" style="font-size: 0.9rem; line-height: 1.6; color: var(--fg);"></div>
               </div>
+
+              <!-- One-Click Diagnostic Copy -->
+              <button type="button" id="btnCopyTherapyMatch" onclick="copyTherapyMatch()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Clinical Therapy Matching Profile &amp; Intake Questions</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Therapy Selection Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Choosing Psychotherapy</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The "Generic Talk Therapy" Modality Mismatch Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Unstructured supportive talk therapy ("How was your week?") is helpful for mild distress, but clinically ineffective for OCD, PTSD, or panic disorder. OCD requires Exposure and Response Prevention (ERP); severe PTSD requires EMDR or Prolonged Exposure (PE). Mismatching therapeutic modality leads to years of wasted sessions.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">🧠 2. Processing Deep Trauma Without First Establishing Somatic Stability</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Diving into detailed narratives of childhood sexual or physical abuse before learning autonomic regulation skills (grounding, diaphragmatic pacing) re-traumatizes the patient, inducing dissociation, panic attacks, or self-harm. Phase 1 trauma therapy must always establish emotional stabilization.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🤝 3. Confusing Therapeutic Rapport with Clinical Competence</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  A therapist can be exceptionally warm, validating, and compassionate, yet completely untrained in evidence-based clinical protocols for your specific condition. If after 12 sessions you feel emotionally supported but your objective symptoms have not improved, you need a different clinical approach.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">⏱️ 4. Expecting Instant Breakthroughs in Complex Relational Trauma (C-PTSD)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Unlike single-incident adult trauma, Complex PTSD (chronic developmental neglect or domestic abuse) alters nervous system architecture and relational attachment models. Healing requires sustained, long-term relational rewiring (often 1–3 years of Schema Therapy or Somatic Experiencing).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">💵 5. Out-of-Network Superbill &amp; Insurance Reimbursement Blindspots</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Many specialized evidence-based clinicians do not accept in-network insurance due to low reimbursement rates. Many patients assume they must pay 100% out of pocket, unaware that their health plan may cover 50%–80% of out-of-network outpatient psychotherapy via itemized "Superbills" after meeting an annual deductible.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+        </div>
 
         <script>
+          
+          window.copyTherapyMatch = function() {
+            var title = document.getElementById('therapyTitle') ? document.getElementById('therapyTitle').textContent : '';
+            var summary = document.getElementById('therapySummary') ? document.getElementById('therapySummary').textContent : '';
+            var book = document.getElementById('therapyBook') ? document.getElementById('therapyBook').textContent : '';
+
+            var text = '🛋️ Evidence-Based Psychotherapy Matching Assessment\n' +
+              '• Recommended Modality: ' + title + '\n' +
+              '• Clinical Framework: ' + summary.replace(/\s+/g, ' ').trim() + '\n' +
+              '• Recommended Literature & Self-Help: ' + book.replace(/\s+/g, ' ').trim() + '\n\n' +
+              'Intake Questions to Ask Potential Therapists:\n' +
+              '1. What percentage of your current caseload shares this specific diagnosis?\n' +
+              '2. Are you certified or supervised in ' + title + ', or do you practice general eclectic therapy?\n' +
+              '3. What structured homework or skill-building exercises do you assign between sessions?\n\n' +
+              'Matched at digitaltoolsshed.com/health/therapy-recommendation-engine';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyTherapyMatch');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Therapy Profile Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           var therapyData = {
             'cbt': {
               title: 'Cognitive Behavioral Therapy (CBT)',
