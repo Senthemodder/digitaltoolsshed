@@ -209,6 +209,18 @@ const TOOLS = [
   { id: 'nonviolent-communication-translator', name: 'Nonviolent Communication (NVC) 4-Step Conflict Translator [Marshall Rosenberg Model]', category: 'Neurobiology & Mind', path: '/neuro/nonviolent-communication-translator', desc: 'Transform blame, passive aggression, and defensiveness into collaborative dialogue. Translate heated emotional conflicts through the 4 NVC pillars: Observation, Feeling, Need, and Request.' },
   { id: 'emotional-granularity-wheel', name: 'Emotional Granularity & Interoceptive Precision Wheel [Constructed Emotion Model]', category: 'Neurobiology & Mind', path: '/neuro/emotional-granularity-wheel', desc: 'Expand your emotional vocabulary beyond "bad" or "stressed" into 48 precise affective states based on Dr. Lisa Feldman Barrett’s Theory of Constructed Emotion.' },
   { id: 'hyperfocus-recovery-system', name: 'ADHD Hyperfocus Hangover & Dopamine Depletion Recovery Protocol [Neurochemical Reset]', category: 'Neurobiology & Mind', path: '/neuro/hyperfocus-recovery-system', desc: 'Recover rapidly from acute post-hyperfocus exhaustion, brain fog, and sensory sensitivity with targeted biochemical, hydration, and nervous system protocols.' },
+  { id: 'phq9-depression-screener', name: 'PHQ-9 Clinical Depression & Anhedonia Severity Screener [Official 9-Question Inventory]', category: 'Neurobiology & Mind', path: '/neuro/phq9-depression-screener', desc: 'Free client-side PHQ-9 Depression Screener. Calculate your depression severity score using the gold-standard 9-item clinical instrument.' },
+  { id: 'gad7-anxiety-screener', name: 'GAD-7 Generalized Anxiety Disorder Severity Index [DSM-5 Clinical Score]', category: 'Neurobiology & Mind', path: '/neuro/gad7-anxiety-screener', desc: 'Free online GAD-7 Anxiety Screener. Calculate your clinical anxiety severity score based on the official 7-question DSM-5 scale.' },
+  { id: 'gaslighting-reality-checker', name: 'Gaslighting & Psychological Abuse Reality Checker [DARVO & Sanity Validation Log]', category: 'Neurobiology & Mind', path: '/neuro/gaslighting-reality-checker', desc: 'Audit psychological manipulation tactics, DARVO loops, and create an immutable local browser sanity anchor log.' },
+  { id: 'ifs-parts-unblender', name: 'Internal Family Systems (IFS) Parts Identifier & Unblending Navigator [Schwartz Model]', category: 'Neurobiology & Mind', path: '/neuro/ifs-parts-unblender', desc: 'Map your internal system using Richard Schwartz IFS therapy. Identify Managers, Firefighters, and Exiles with the 6 Fs of unblending.' },
+  { id: 'hsp-sensory-sensitivity', name: 'Highly Sensitive Person (HSP) & Sensory Processing Scale [Elaine Aron SPS Test]', category: 'Neurobiology & Mind', path: '/neuro/hsp-sensory-sensitivity', desc: 'Measure your Sensory Processing Sensitivity across Elaine Aron DOES framework (Depth, Overstimulation, Empathy, Subtlety).' },
+  { id: 'cptsd-flashback-grounder', name: 'Complex PTSD (C-PTSD) Emotional Flashback Grounding Navigator [Pete Walker 13 Steps]', category: 'Neurobiology & Mind', path: '/neuro/cptsd-flashback-grounder', desc: 'Interactive somatic triage for C-PTSD emotional flashbacks based on Pete Walker 13-step recovery protocol.' },
+  { id: 'aq10-autism-screener', name: 'Adult Autism Spectrum Quotient (AQ-10) Screener [Baron-Cohen Clinical Scale]', category: 'Neurobiology & Mind', path: '/neuro/aq10-autism-screener', desc: 'Evaluate autistic traits across social communication and attention-to-detail with Simon Baron-Cohen clinical instrument.' },
+  { id: 'social-anxiety-lsas', name: 'Social Anxiety Disorder & Fear vs Avoidance Index [Liebowitz Brief LSAS]', category: 'Neurobiology & Mind', path: '/neuro/social-anxiety-lsas', desc: 'Assess social phobia using the Liebowitz Social Anxiety Scale framework measuring fear vs behavioral avoidance.' },
+  { id: 'perfectionism-paralysis-meter', name: 'Multidimensional Perfectionism & Fear of Failure Scale [Frost & Hewitt MPS]', category: 'Neurobiology & Mind', path: '/neuro/perfectionism-paralysis-meter', desc: 'Deconstruct adaptive standards vs toxic perfectionism paralysis using Frost & Hewitt MPS model and 80/20 threshold.' },
+  { id: 'ocd-rumination-loop-breaker', name: 'OCD Intrusive Thought & Rumination Loop Interrupter [ERP Exposure Protocol]', category: 'Neurobiology & Mind', path: '/neuro/ocd-rumination-loop-breaker', desc: 'Interrupt acute OCD obsessive spikes using Exposure and Response Prevention (ERP) with 90-Second Uncertainty Timer.' },
+  { id: 'compassion-fatigue-meter', name: 'Compassion Fatigue & Secondary Traumatic Stress Auditor [ProQOL 5 Scale]', category: 'Neurobiology & Mind', path: '/neuro/compassion-fatigue-meter', desc: 'Measure empathy exhaustion and secondary traumatic stress for nurses, caregivers, and therapists with ProQOL 5.' },
+  { id: 'emotional-permanence-screener', name: 'Emotional Permanence & Object Constancy Insecurity Diagnostic [BPD/ADHD Attachment]', category: 'Neurobiology & Mind', path: '/neuro/emotional-permanence-screener', desc: 'Diagnose emotional impermanence and object constancy insecurity to understand why out of sight feels unloved.' },
 
   { id: 'sales-tax-calculator', name: 'Sales Tax Calculator & Reverse Tax Finder', category: 'Finance', path: '/finance/sales-tax-calculator', desc: 'Calculate sales tax or reverse calculate pre-tax prices with 50 US state rates.' },
   { id: 'simple-interest-calculator', name: 'Simple Interest Calculator (I = Prt)', category: 'Finance', path: '/finance/simple-interest-calculator', desc: 'Calculate simple interest, total loan payback, and monthly installment cost.' },
@@ -1860,11 +1872,31 @@ function buildSidebarHtml(currentPath = '/') {
       <!-- HUMAN NEUROBIOLOGY & COGNITIVE ARCHITECTURE -->
       <div class="nav-group-title">
         ${ICONS.psychology}
-        <span>Neurobiology & Mind (27)</span>
+        <span>Neurobiology & Mind (39)</span>
       </div>
       <a href="/neuro/" class="nav-link ${currentPath === '/neuro/' || currentPath === '/neuro/index.html' || currentPath === '/neuro' ? 'active' : ''}">
         <div class="nav-link-content"><span>Neuro Master Suite Hub</span></div>
-        <span class="nav-badge">27</span>
+        <span class="nav-badge">39</span>
+      </a>
+      <a href="/neuro/phq9-depression-screener" class="nav-link ${currentPath.startsWith('/neuro/phq9-depression-screener') ? 'active' : ''}">
+        <div class="nav-link-content"><span>PHQ-9 Depression Screener</span></div>
+        <span class="nav-badge">CLINICAL</span>
+      </a>
+      <a href="/neuro/gad7-anxiety-screener" class="nav-link ${currentPath.startsWith('/neuro/gad7-anxiety-screener') ? 'active' : ''}">
+        <div class="nav-link-content"><span>GAD-7 Anxiety Screener</span></div>
+        <span class="nav-badge">DSM-5</span>
+      </a>
+      <a href="/neuro/gaslighting-reality-checker" class="nav-link ${currentPath.startsWith('/neuro/gaslighting-reality-checker') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Gaslighting & Reality Check</span></div>
+      </a>
+      <a href="/neuro/ifs-parts-unblender" class="nav-link ${currentPath.startsWith('/neuro/ifs-parts-unblender') ? 'active' : ''}">
+        <div class="nav-link-content"><span>IFS Parts Unblender (6 Fs)</span></div>
+      </a>
+      <a href="/neuro/hsp-sensory-sensitivity" class="nav-link ${currentPath.startsWith('/neuro/hsp-sensory-sensitivity') ? 'active' : ''}">
+        <div class="nav-link-content"><span>HSP Sensitivity Scale</span></div>
+      </a>
+      <a href="/neuro/cptsd-flashback-grounder" class="nav-link ${currentPath.startsWith('/neuro/cptsd-flashback-grounder') ? 'active' : ''}">
+        <div class="nav-link-content"><span>C-PTSD Flashback Grounder</span></div>
       </a>
       <a href="/neuro/nsdr-rest-pacer" class="nav-link ${currentPath.startsWith('/neuro/nsdr-rest-pacer') ? 'active' : ''}">
         <div class="nav-link-content"><span>NSDR & Binaural Theta</span></div>
@@ -2870,7 +2902,7 @@ function renderPage({ title, metaDesc, canonical, bodyContent, content, currentP
     const DTS_SEARCH_INDEX = ${JSON.stringify(
       [
         ...TOOLS.map(t => ({ n: t.name, c: t.category, p: t.path, d: t.desc || '' })),
-        { n: "Human Neurobiology & Cognitive Architecture Suite", c: "Neurobiology & Mind", p: "/neuro/", d: "27 flagship neurobiology & polyvagal tools, NSDR, CAR, flow-state and ADHD defusers" },
+        { n: "Human Neurobiology & Cognitive Architecture Suite", c: "Neurobiology & Mind", p: "/neuro/", d: "39 flagship clinical diagnostics & cognitive tools: PHQ-9, GAD-7, NSDR, CAR, IFS, and ADHD defusers" },
         { n: "Obscure Science & Astrophysics Suite", c: "Science", p: "/science/", d: "115 Planck unit, Schwarzschild radius, and relativistic physics calculators" },
         { n: "2 AM Existential Dilemmas & Psychology Suite", c: "Psychology", p: "/psychology/", d: "115 ADHD micro-stepping, catastrophizing, and cognitive dissonance tools" },
         { n: "Niche Construction & Trade Math Suite", c: "Trade Math", p: "/trade/", d: "114 common rafter length, NEC wire gauge, and lumber pricing calculators" },
