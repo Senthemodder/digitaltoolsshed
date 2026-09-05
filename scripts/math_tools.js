@@ -164,54 +164,154 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'compound-interest',
-      title: 'Compound Interest & Investment Calculator',
-      metaDesc: 'Calculate investment growth, total principal, interest compounded annually/monthly, and future portfolio value.',
+      title: 'Compound Interest Calculator with Monthly Deposits & Growth Chart',
+      metaDesc: 'Calculate compound interest with initial principal, recurring monthly contributions, inflation adjustment, and year-by-year amortization schedule.',
       category: 'Math & Finance',
+      faq: [
+        { q: 'What is compound interest and how does it work?', a: 'Compound interest is the interest calculated on the initial principal and also on the accumulated interest from previous periods. Unlike simple interest, which only grows linearly on the principal, compound interest grows exponentially because your earned interest continuously generates its own interest over time.' },
+        { q: 'How do ongoing regular monthly contributions affect compound growth?', a: 'Regular monthly contributions dramatically accelerate the compounding flywheel. For example, investing $5,000 at 8% for 30 years without contributions grows to $50,313. Adding just $300 per month turns that into $497,844 ($113,000 invested, $384,844 interest earned). The ongoing deposits ensure new capital is constantly starting its own multi-year compounding curve.' },
+        { q: 'What is the Rule of 72?', a: 'The Rule of 72 is a quick mental math shortcut to estimate how many years it takes for an investment to double at a fixed annual interest rate. Divide 72 by the annual interest rate: at 8% annual return, your money doubles in approximately 72 / 8 = 9 years; at 10%, it doubles in approximately 7.2 years.' },
+        { q: 'What is the difference between nominal interest rate and real (inflation-adjusted) return?', a: 'The nominal rate is the stated percentage return before adjusting for purchasing power erosion. The real return accounts for inflation using the Fisher Equation: Real Rate = (1 + Nominal Rate) / (1 + Inflation Rate) - 1. If a portfolio gains 8% in a year when CPI inflation is 3%, the true real purchasing power growth is approximately 4.85%.' },
+        { q: 'What is the difference between APR and APY?', a: 'Annual Percentage Rate (APR) reflects the simple annual interest rate without taking into account the effects of intra-year compounding. Annual Percentage Yield (APY) reflects the true effective annual rate including compounding: APY = (1 + r/n)^n - 1. For example, a 6.00% APR compounded monthly yields an APY of 6.17%.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Compound Interest Calculator
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Compound Interest
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Compound Interest & Investment Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Project long-term compound investment growth with regular contributions and compounding frequencies.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Compound Interest &amp; Wealth Accumulator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Project long-term investment growth with initial principal, recurring regular contributions, compounding frequency, inflation adjustment, and an interactive amortization schedule.
           </p>
 
           <div class="tool-box">
+            <!-- Quick Preset Buttons -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Milestone Investment Strategies:</span>
+              <button type="button" class="btn-sec" onclick="setCIPreset(10000, 500, 10, 30, 'S&amp;P 500 Historical (10%)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem; border-color: #10b981; color: #10b981; font-weight: bold;">S&amp;P 500 Index (10%)</button>
+              <button type="button" class="btn-sec" onclick="setCIPreset(5000, 300, 7, 20, 'Moderate Growth (7%)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Balanced 60/40 (7%)</button>
+              <button type="button" class="btn-sec" onclick="setCIPreset(20000, 200, 4.5, 5, 'High-Yield Savings (4.5%)')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Cash HYSA (4.5%)</button>
+              <button type="button" class="btn-sec" onclick="setCIPreset(2500, 250, 8, 18, 'Child 529 College Fund')" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">College 529 Fund (18 Yrs)</button>
+            </div>
+
+            <!-- Primary Inputs Grid -->
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Initial Principal ($)</label>
-                <input type="number" id="ci-principal" class="text-input" value="5000" oninput="calcCompound()" />
+                <label class="field-label">Initial Starting Principal ($)</label>
+                <input type="number" id="ci-principal" class="code-input" value="10000" min="0" step="500" oninput="calcCompound()" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Annual Interest Rate (%)</label>
-                <input type="number" id="ci-rate" class="text-input" value="7.5" step="0.1" oninput="calcCompound()" />
+                <label class="field-label">Regular Monthly Deposit ($)</label>
+                <input type="number" id="ci-contrib" class="code-input" value="500" min="0" step="50" oninput="calcCompound()" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Investment Period (Years)</label>
-                <input type="number" id="ci-years" class="text-input" value="10" min="1" max="50" oninput="calcCompound()" />
+                <label class="field-label">Annual Interest Rate (% APR)</label>
+                <input type="number" id="ci-rate" class="code-input" value="8.0" min="0" max="100" step="0.1" oninput="calcCompound()" style="font-size: 1.2rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Investment Duration (Years)</label>
+                <input type="number" id="ci-years" class="code-input" value="25" min="1" max="60" step="1" oninput="calcCompound()" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label">Compounding Frequency</label>
-                <select id="ci-freq" class="text-input" onchange="calcCompound()">
-                  <option value="12" selected>Monthly (12x/yr)</option>
-                  <option value="1">Annually (1x/yr)</option>
-                  <option value="4">Quarterly (4x/yr)</option>
-                  <option value="365">Daily (365x/yr)</option>
+                <select id="ci-freq" class="code-input" onchange="calcCompound()">
+                  <option value="12" selected>Monthly (12 times / year)</option>
+                  <option value="365">Daily (365 times / year)</option>
+                  <option value="4">Quarterly (4 times / year)</option>
+                  <option value="1">Annually (1 time / year)</option>
                 </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Est. Inflation Rate (% / Year)</label>
+                <input type="number" id="ci-inflation" class="code-input" value="2.5" min="0" max="20" step="0.1" oninput="calcCompound()" style="font-size: 1.2rem;" />
               </div>
             </div>
 
-            <div class="result-card">
-              <div class="field-label">Future Investment Balance</div>
-              <div id="ci-total" class="result-val">$10,511.75</div>
-              <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
-                Total Principal: <strong id="ci-p-out" style="color: var(--fg);">$5,000.00</strong> |
-                Total Interest Earned: <strong id="ci-i-out" style="color: #22c55e;">$5,511.75</strong>
+            <!-- Hero Output Results -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Future Portfolio Balance</div>
+                <div id="ci-total" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">$544,228</div>
+                <div id="ci-real-total" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Real Purchasing Power: $293,526</div>
               </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Compound Interest Earned</div>
+                <div id="ci-i-out" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">$384,228</div>
+                <div id="ci-i-pct" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Interest is 70.6% of portfolio</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Principal Invested</div>
+                <div id="ci-p-out" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">$160,000</div>
+                <div id="ci-p-breakdown" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">$10k start + $150k deposits</div>
+              </div>
+            </div>
+
+            <!-- Visual Stacked Wealth Bar -->
+            <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Wealth Composition:</span>
+                <span id="ci-doubling-time" style="color: var(--fg);">Money Doubles Every ~9.0 Years (Rule of 72)</span>
+              </div>
+              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
+                <div id="ci-bar-start" style="width: 1.8%; background: #64748b;" title="Initial Principal">Start</div>
+                <div id="ci-bar-contrib" style="width: 27.6%; background: #3b82f6;" title="Monthly Contributions">Deposits</div>
+                <div id="ci-bar-interest" style="width: 70.6%; background: #10b981;" title="Compound Interest">Interest Earned</div>
+              </div>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #64748b; border-radius: 2px;"></span> Initial Principal</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> Recurring Deposits</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Compound Interest</span>
+              </div>
+            </div>
+
+            <!-- Interactive Year-by-Year Growth Chart (Pure SVG) -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+                  📈 Multi-Year Growth Trajectory (Principal vs. Compound Growth):
+                </div>
+                <div style="display: flex; gap: 0.75rem; font-family: var(--mono); font-size: 0.72rem;">
+                  <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 12px; height: 3px; background: #10b981;"></span> Total Balance</span>
+                  <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 12px; height: 3px; background: #3b82f6;"></span> Total Contributions</span>
+                </div>
+              </div>
+              <div style="width: 100%; height: 200px; position: relative;">
+                <svg id="ci-growth-svg" width="100%" height="200" style="display: block; overflow: visible;"></svg>
+              </div>
+            </div>
+
+            <!-- Year-by-Year Amortization Schedule Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+                  📅 Annual Wealth Accumulation Schedule:
+                </div>
+                <span id="ci-schedule-sub" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">25 Years Projected</span>
+              </div>
+              <div style="overflow-x: auto; max-height: 280px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: right;">
+                  <thead style="position: sticky; top: 0; background: var(--surface-alt); z-index: 1;">
+                    <tr style="border-bottom: 1px solid var(--border);">
+                      <th style="padding: 0.4rem 0.6rem; text-align: center;">Year</th>
+                      <th style="padding: 0.4rem 0.6rem;">Start Balance</th>
+                      <th style="padding: 0.4rem 0.6rem; color: #3b82f6;">Annual Deposits</th>
+                      <th style="padding: 0.4rem 0.6rem; color: #10b981;">Interest Earned</th>
+                      <th style="padding: 0.4rem 0.6rem; color: var(--fg);">End Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ci-schedule-tbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
             <button type="button" id="btnCopyCI" onclick="copyCompoundSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Investment Growth Projection
+              📋 Copy Investment Growth Projection &amp; Schedule
             </button>
           </div>
 
@@ -219,37 +319,34 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
               <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Compound Interest Derivation</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Universal Investment Formula</span>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Future Value of Annuity Formula</span>
             </div>
             <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Compound interest generates exponential growth because interest earned in each period is reinvested to generate additional interest in subsequent periods:
+              When ongoing monthly contributions are made, the future balance combines lump-sum compounding on the initial principal plus the future value of an ordinary annuity:
             </p>
             <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 1: Governing Formula</strong>
+                <strong style="color: var(--fg);">Step 1: Lump-Sum Principal Compounding</strong>
                 <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
-                  A = P &times; (1 + r/n)<sup>n&times;t</sup>
+                  A<sub>P</sub> = P &times; (1 + r/n)<sup>nt</sup>
                 </div>
-                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  Where P = Principal, r = Annual nominal interest rate (as decimal), n = Compounding frequency per year, t = Time in years, A = Final portfolio balance.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 2: Periodic Interest Rate Calculation</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Periodic Rate (i) = r / n &bull; For 7.5% compounded monthly: 0.075 / 12 = <strong>0.00625 (0.625% per month)</strong>
+                <div id="ci-step-1" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  For $10,000 at 8% monthly over 25 years: $10,000 &times; (1 + 0.08/12)<sup>300</sup> = $10,000 &times; 7.34018 = <strong>$73,402</strong>.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 3: Total Compounding Periods</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Total Periods (N) = n &times; t &bull; For 10 years monthly: 12 &times; 10 = <strong>120 compounding cycles</strong>
+                <strong style="color: var(--fg);">Step 2: Future Value of Recurring Monthly Deposits</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
+                  A<sub>PMT</sub> = PMT &times; [ (1 + r/n)<sup>nt</sup> - 1 ] / (r/n)
+                </div>
+                <div id="ci-step-2" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  For $500/mo: $500 &times; [7.34018 - 1] / (0.006667) = $500 &times; 951.026 = <strong>$475,513</strong>.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 4: Exponential Multiplier & Final Balance</strong>
-                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
-                  Growth Multiplier = (1 + 0.00625)<sup>120</sup> = 2.10235 &bull; Final Balance: $5,000 &times; 2.10235 = <strong>$10,511.75</strong>
+                <strong style="color: #10b981; font-weight: 700;">Step 3: Total Portfolio Balance &amp; Interest</strong>
+                <div id="ci-step-3" style="color: #10b981; margin-top: 0.25rem;">
+                  Total Balance = A<sub>P</sub> + A<sub>PMT</sub> = $73,402 + $475,513 = <strong>$548,915</strong> &bull; Interest = $548,915 - $160,000 = <strong>$388,915</strong>.
                 </div>
               </div>
             </div>
@@ -257,115 +354,395 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
           <!-- Critical Compounding Pitfalls & Wealth Traps -->
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Compounding Pitfalls & Wealth Traps</h3>
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Compounding Pitfalls &amp; Wealth Traps</h3>
             <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Inflation Erosion Reality:</strong> Nominal returns do not equal real purchasing power. If your portfolio returns 7.5% but consumer inflation runs at 3.5%, your real compound growth rate is only ~3.86% via the Fisher Equation [(1 + 0.075) / (1 + 0.035) - 1]. Always adjust long-term retirement targets for inflation.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Devastating Drag of Expense Ratios (Reverse Compounding):</strong> A seemingly harmless 1.5% annual management fee or fund expense ratio doesn't take 1.5% of your gains—it compounds in reverse against your growing balance. Over a 30-year horizon, a 1.5% fee consumes over <strong>33% of your total potential portfolio value</strong>.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Inflation Erosion Reality:</strong> Nominal returns do not equal real purchasing power. If your portfolio returns 7.5% but consumer inflation runs at 3.0%, your real compound growth rate is only ~4.37% via the Fisher Equation [(1 + 0.075) / (1 + 0.03) - 1]. Always adjust long-term retirement targets for inflation.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Devastating Drag of Expense Ratios (Reverse Compounding):</strong> A seemingly harmless 1.5% annual management fee or fund expense ratio doesn\'t take 1.5% of your gains—it compounds in reverse against your growing balance. Over a 30-year horizon, a 1.5% fee consumes over <strong>33% of your total potential portfolio value</strong>.</li>
               <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Compounding Frequency Myth:</strong> Many beginners fixate on compounding daily vs monthly. In reality, shifting from monthly to daily compounding on $10,000 at 7% over 10 years yields only an extra ~$6 total! The true driver of compound wealth is <strong>time and ongoing regular principal additions</strong>, not hyper-frequent compounding.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Taxes in Non-Sheltered Accounts:</strong> In a taxable brokerage account, realizing dividends and capital gains every year triggers immediate tax drag, cutting annual compound efficiency by 15% to 25%. Prioritize tax-advantaged vehicles (Roth IRA, 401(k), HSA) to compound tax-free.</li>
             </ul>
           </div>
         </div>
 
         <script>
+          window.setCIPreset = function(p, pmt, r, t, desc) {
+            document.getElementById('ci-principal').value = p;
+            document.getElementById('ci-contrib').value = pmt;
+            document.getElementById('ci-rate').value = r;
+            document.getElementById('ci-years').value = t;
+            calcCompound();
+          };
+
           function calcCompound() {
-            const P = parseFloat(document.getElementById('ci-principal').value) || 0;
-            const r = (parseFloat(document.getElementById('ci-rate').value) || 0) / 100;
-            const t = parseFloat(document.getElementById('ci-years').value) || 1;
-            const n = parseInt(document.getElementById('ci-freq').value, 10) || 12;
+            var P = parseFloat(document.getElementById('ci-principal').value) || 0;
+            var PMT = parseFloat(document.getElementById('ci-contrib').value) || 0;
+            var r = (parseFloat(document.getElementById('ci-rate').value) || 0) / 100;
+            var t = parseFloat(document.getElementById('ci-years').value) || 1;
+            var n = parseInt(document.getElementById('ci-freq').value, 10) || 12;
+            var infRate = (parseFloat(document.getElementById('ci-inflation').value) || 0) / 100;
 
-            const A = P * Math.pow(1 + (r / n), n * t);
-            const interest = A - P;
+            // Monthly periodic interest rate
+            var iPeriodic = r / 12;
+            var totalMonths = Math.round(t * 12);
 
-            document.getElementById('ci-total').textContent = '$' + A.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('ci-p-out').textContent = '$' + P.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('ci-i-out').textContent = '$' + interest.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            // Compute year-by-year trajectory
+            var currentBal = P;
+            var totalDeposited = P;
+            var scheduleData = [];
+
+            for (var year = 1; year <= t; year++) {
+              var startBal = currentBal;
+              var annualDeposits = PMT * 12;
+
+              // Compound month by month within the year
+              for (var m = 1; m <= 12; m++) {
+                currentBal = (currentBal * (1 + iPeriodic)) + PMT;
+              }
+
+              var endBal = currentBal;
+              var interestThisYear = endBal - startBal - annualDeposits;
+              totalDeposited += annualDeposits;
+
+              scheduleData.push({
+                year: year,
+                start: startBal,
+                deposits: annualDeposits,
+                interest: interestThisYear,
+                end: endBal,
+                cumDeposits: totalDeposited
+              });
+            }
+
+            var finalBal = currentBal;
+            var totalInterest = finalBal - totalDeposited;
+            var realPurchasingPower = infRate > 0 ? (finalBal / Math.pow(1 + infRate, t)) : finalBal;
+
+            // Update Hero Outputs
+            document.getElementById('ci-total').textContent = '$' + Math.round(finalBal).toLocaleString('en-US');
+            document.getElementById('ci-real-total').textContent = 'Real Purchasing Power: $' + Math.round(realPurchasingPower).toLocaleString('en-US');
+
+            document.getElementById('ci-i-out').textContent = '$' + Math.round(totalInterest).toLocaleString('en-US');
+            var interestPct = finalBal > 0 ? ((totalInterest / finalBal) * 100).toFixed(1) : 0;
+            document.getElementById('ci-i-pct').textContent = 'Interest is ' + interestPct + '% of portfolio';
+
+            document.getElementById('ci-p-out').textContent = '$' + Math.round(totalDeposited).toLocaleString('en-US');
+            var monthlyDepositsTotal = PMT * 12 * t;
+            document.getElementById('ci-p-breakdown').textContent = '$' + Math.round(P).toLocaleString('en-US') + ' start + $' + Math.round(monthlyDepositsTotal).toLocaleString('en-US') + ' deposits';
+
+            // Doubling time (Rule of 72)
+            var dTime = r > 0 ? (72 / (r * 100)).toFixed(1) : '∞';
+            document.getElementById('ci-doubling-time').textContent = 'Money Doubles Every ~' + dTime + ' Years (Rule of 72)';
+
+            // Stacked bar
+            if (finalBal > 0) {
+              var startPct = ((P / finalBal) * 100);
+              var contribPct = ((monthlyDepositsTotal / finalBal) * 100);
+              var intPct = ((totalInterest / finalBal) * 100);
+
+              document.getElementById('ci-bar-start').style.width = startPct.toFixed(1) + '%';
+              document.getElementById('ci-bar-contrib').style.width = contribPct.toFixed(1) + '%';
+              document.getElementById('ci-bar-interest').style.width = intPct.toFixed(1) + '%';
+            }
+
+            // Render Schedule Table
+            document.getElementById('ci-schedule-sub').textContent = t + ' Years Projected (' + totalMonths + ' Months)';
+            var tbody = document.getElementById('ci-schedule-tbody');
+            var tbHtml = '';
+            for (var y = 0; y < scheduleData.length; y++) {
+              var row = scheduleData[y];
+              tbHtml += '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.4rem 0.6rem; text-align: center; color: var(--text-muted); font-weight: bold;">' + row.year + '</td>' +
+                '<td style="padding: 0.4rem 0.6rem;">$' + Math.round(row.start).toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.4rem 0.6rem; color: #3b82f6;">$' + Math.round(row.deposits).toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.4rem 0.6rem; color: #10b981; font-weight: bold;">+$' + Math.round(row.interest).toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.4rem 0.6rem; font-weight: bold; color: var(--fg);">$' + Math.round(row.end).toLocaleString('en-US') + '</td>' +
+                '</tr>';
+            }
+            tbody.innerHTML = tbHtml;
+
+            // Draw SVG Chart
+            drawCIGrowthChart(scheduleData, P, finalBal);
+
+            // Update step text
+            document.getElementById('ci-step-1').innerHTML = 'For $' + P.toLocaleString('en-US') + ' at ' + (r * 100).toFixed(1) + '% monthly over ' + t + ' years: <strong>$' + Math.round(P * Math.pow(1 + (r/12), 12*t)).toLocaleString('en-US') + '</strong>.';
+            document.getElementById('ci-step-2').innerHTML = 'For $' + PMT.toLocaleString('en-US') + '/mo recurring additions: <strong>$' + Math.round(finalBal - (P * Math.pow(1 + (r/12), 12*t))).toLocaleString('en-US') + '</strong>.';
+            document.getElementById('ci-step-3').innerHTML = 'Total Balance: <strong>$' + Math.round(finalBal).toLocaleString('en-US') + '</strong> &bull; Total Compound Interest: <strong style="color: #10b981;">+$' + Math.round(totalInterest).toLocaleString('en-US') + '</strong>.';
           }
-          window.copyCompoundSummary = function() {
-            const P = document.getElementById('ci-principal').value;
-            const r = document.getElementById('ci-rate').value;
-            const t = document.getElementById('ci-years').value;
-            const freq = document.getElementById('ci-freq').options[document.getElementById('ci-freq').selectedIndex].text;
-            const total = document.getElementById('ci-total').textContent;
-            const pOut = document.getElementById('ci-p-out').textContent;
-            const iOut = document.getElementById('ci-i-out').textContent;
 
-            const text = [
-              '=== COMPOUND INTEREST PROJECTION ===',
-              'Initial Principal: $' + P,
-              'Annual Interest Rate: ' + r + '%',
-              'Investment Duration: ' + t + ' Years',
-              'Compounding Frequency: ' + freq,
-              '------------------------------------',
-              'Total Future Balance: ' + total,
+          function drawCIGrowthChart(data, startP, maxVal) {
+            var svg = document.getElementById('ci-growth-svg');
+            if (!svg) return;
+            var w = svg.clientWidth || 800;
+            var h = 200;
+            var padL = 50;
+            var padR = 25;
+            var padT = 15;
+            var padB = 25;
+            var plotW = w - padL - padR;
+            var plotH = h - padT - padB;
+
+            if (data.length === 0 || maxVal <= 0) return;
+
+            var pointsTotal = [];
+            var pointsDeposits = [];
+
+            // Add year 0
+            pointsTotal.push({ x: padL, y: padT + plotH - ((startP / maxVal) * plotH) });
+            pointsDeposits.push({ x: padL, y: padT + plotH - ((startP / maxVal) * plotH) });
+
+            for (var i = 0; i < data.length; i++) {
+              var d = data[i];
+              var px = padL + ((i + 1) / data.length) * plotW;
+              var pyTotal = padT + plotH - ((d.end / maxVal) * plotH);
+              var pyDeposits = padT + plotH - ((d.cumDeposits / maxVal) * plotH);
+
+              pointsTotal.push({ x: px, y: pyTotal });
+              pointsDeposits.push({ x: px, y: pyDeposits });
+            }
+
+            var pathTotal = 'M ' + pointsTotal.map(function(p) { return p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join(' L ');
+            var pathDeposits = 'M ' + pointsDeposits.map(function(p) { return p.x.toFixed(1) + ' ' + p.y.toFixed(1); }).join(' L ');
+
+            // Area polygon for total
+            var areaTotal = pathTotal + ' L ' + (padL + plotW) + ' ' + (padT + plotH) + ' L ' + padL + ' ' + (padT + plotH) + ' Z';
+            // Area polygon for deposits
+            var areaDeposits = pathDeposits + ' L ' + (padL + plotW) + ' ' + (padT + plotH) + ' L ' + padL + ' ' + (padT + plotH) + ' Z';
+
+            var svgHtml = '';
+            // Background grid lines
+            for (var g = 0; g <= 4; g++) {
+              var gy = padT + (g * (plotH / 4));
+              var gVal = maxVal * (1 - (g / 4));
+              svgHtml += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (padL + plotW) + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1" stroke-dasharray="2,2" />';
+              svgHtml += '<text x="' + (padL - 6) + '" y="' + (gy + 3) + '" font-family="monospace" font-size="9" fill="var(--text-muted)" text-anchor="end">$' + (gVal >= 1000000 ? (gVal / 1000000).toFixed(1) + 'M' : Math.round(gVal / 1000) + 'k') + '</text>';
+            }
+
+            // Fill areas
+            svgHtml += '<path d="' + areaTotal + '" fill="#10b981" fill-opacity="0.25" />';
+            svgHtml += '<path d="' + areaDeposits + '" fill="#3b82f6" fill-opacity="0.35" />';
+
+            // Stroke lines
+            svgHtml += '<path d="' + pathDeposits + '" fill="none" stroke="#3b82f6" stroke-width="2" />';
+            svgHtml += '<path d="' + pathTotal + '" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />';
+
+            // Year markers on X-axis
+            var stepYear = Math.max(1, Math.round(data.length / 5));
+            for (var yr = stepYear; yr <= data.length; yr += stepYear) {
+              var xPos = padL + (yr / data.length) * plotW;
+              svgHtml += '<text x="' + xPos + '" y="' + (h - 6) + '" font-family="monospace" font-size="9" fill="var(--text-muted)" text-anchor="middle">Yr ' + yr + '</text>';
+            }
+
+            svg.innerHTML = svgHtml;
+          }
+
+          window.copyCompoundSummary = function() {
+            var P = document.getElementById('ci-principal').value;
+            var PMT = document.getElementById('ci-contrib').value;
+            var r = document.getElementById('ci-rate').value;
+            var t = document.getElementById('ci-years').value;
+            var total = document.getElementById('ci-total').textContent;
+            var real = document.getElementById('ci-real-total').textContent;
+            var interest = document.getElementById('ci-i-out').textContent;
+            var pOut = document.getElementById('ci-p-out').textContent;
+
+            var text = [
+              '=== COMPOUND INTEREST GROWTH PROJECTION ===',
+              'Initial Principal: $' + parseFloat(P).toLocaleString('en-US'),
+              'Monthly Contribution: $' + parseFloat(PMT).toLocaleString('en-US') + '/month',
+              'Annual Interest Rate: ' + r + '% APR',
+              'Investment Horizon: ' + t + ' Years',
+              '------------------------------------------',
+              'Future Portfolio Value: ' + total,
+              real,
+              'Total Compound Interest Earned: ' + interest,
               'Total Principal Invested: ' + pOut,
-              'Total Interest Earned: ' + iOut,
-              '------------------------------------',
+              '------------------------------------------',
+              'Standard: Universal Future Value of Annuity Equation',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/compound-interest'
-            ].join('\\n');
+            ].join('\n');
 
             navigator.clipboard.writeText(text).then(function() {
-              const btn = document.getElementById('btnCopyCI');
+              var btn = document.getElementById('btnCopyCI');
               if (btn) {
-                const old = btn.innerHTML;
+                var old = btn.innerHTML;
                 btn.innerHTML = '✓ Copied Investment Projection!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
               }
             });
           };
+
           document.addEventListener('DOMContentLoaded', calcCompound);
+          calcCompound();
         </script>
       `
     },
     {
       slug: 'mortgage-calculator',
-      title: 'Mortgage & Loan Payment Calculator',
-      metaDesc: 'Calculate monthly mortgage payments, loan amortization, total interest cost, and principal payoff schedule.',
+      title: 'Mortgage Calculator with PITI, Extra Payments & Amortization Schedule',
+      metaDesc: 'Calculate monthly mortgage payments (P&I, taxes, insurance, PMI), total interest cost, amortization schedules, and payoffs with extra principal payments.',
       category: 'Math & Finance',
+      faq: [
+        { q: 'What is included in a PITI mortgage payment?', a: 'PITI stands for Principal, Interest, Taxes, and Insurance. While your base loan payment covers Principal and Interest (P&I), most lenders require an escrow account that collects 1/12th of your annual property taxes and homeowners hazard insurance each month. If your down payment is under 20%, Private Mortgage Insurance (PMI) is also added to the monthly payment.' },
+        { q: 'How does an extra monthly principal payment reduce mortgage payoff time?', a: 'Extra payments apply 100% directly to reducing your loan principal, bypassing accrued interest. Because interest is recalculated monthly based on the remaining balance, lower principal permanently reduces all future interest accrual. On a $350,000 30-year mortgage at 6.5%, adding just $200/month cuts over 5 years off your term and saves over $75,000 in interest.' },
+        { q: 'What is Private Mortgage Insurance (PMI) and when does it cancel?', a: 'PMI is insurance that protects the lender in case you default on your loan. Conventional loans typically require PMI if your down payment is less than 20% of the purchase price (loan-to-value ratio > 80%). Under the Homeowners Protection Act of 1998, lenders must automatically cancel PMI once your loan balance reaches 78% of the original home value, or you can request cancellation at 80%.' },
+        { q: 'What is the difference between a 15-year and a 30-year fixed-rate mortgage?', a: 'A 15-year mortgage has higher monthly payments (typically 30%–45% higher) because the principal is repaid over half the time, but usually carries a lower interest rate (0.5%–0.75% lower) and saves over 60% in total lifetime interest. A 30-year mortgage offers lower required monthly payments, providing greater cash flow flexibility during economic downturns.' },
+        { q: 'What is the front-loaded amortization schedule?', a: 'In fixed-rate mortgages, your total monthly payment is identical every month, but the internal allocation changes drastically. In the early years, the vast majority of each payment goes toward interest (often 80%+), with only a small fraction paying down principal. As the balance decreases over decades, the ratio shifts until payments become predominantly principal in the final years.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Mortgage Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Mortgage & Loan Payment Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Estimate monthly principal and interest payments, total borrowing cost, and amortization schedule.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Mortgage &amp; Loan Amortization Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate total monthly PITI payments (Principal, Interest, Property Taxes, Home Insurance, PMI, HOA), visualize amortization schedules, and discover how extra principal payments accelerate early payoff.
           </p>
 
           <div class="tool-box">
+            <!-- Loan Parameters Grid -->
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Home Price / Loan Amount ($)</label>
-                <input type="number" id="mg-amount" class="text-input" value="350000" oninput="calcMortgage()" />
+                <label class="field-label">Home Purchase Price ($)</label>
+                <input type="number" id="mg-price" class="code-input" value="400000" min="10000" step="5000" oninput="recalcMG('price')" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Down Payment ($)</label>
-                <input type="number" id="mg-down" class="text-input" value="70000" oninput="calcMortgage()" />
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                  <label class="field-label" style="margin: 0;">Down Payment ($ / %)</label>
+                  <div style="display: flex; gap: 0.25rem;">
+                    <button type="button" class="btn-sec" onclick="setMGDownPct(5)" style="padding: 0.15rem 0.35rem; font-size: 0.68rem;">5%</button>
+                    <button type="button" class="btn-sec" onclick="setMGDownPct(10)" style="padding: 0.15rem 0.35rem; font-size: 0.68rem;">10%</button>
+                    <button type="button" class="btn-sec" onclick="setMGDownPct(20)" style="padding: 0.15rem 0.35rem; font-size: 0.68rem; border-color: #10b981; color: #10b981; font-weight: bold;">20% (No PMI)</button>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="number" id="mg-down-d" class="code-input" value="80000" min="0" step="1000" oninput="recalcMG('down-d')" style="font-size: 1.15rem;" />
+                  <input type="number" id="mg-down-p" class="code-input" value="20" min="0" max="90" step="1" oninput="recalcMG('down-p')" style="width: 85px; text-align: center; font-size: 1.15rem;" />
+                </div>
               </div>
               <div class="field-group">
-                <label class="field-label">Interest Rate (%)</label>
-                <input type="number" id="mg-rate" class="text-input" value="6.5" step="0.1" oninput="calcMortgage()" />
+                <label class="field-label">Interest Rate (% APR)</label>
+                <input type="number" id="mg-rate" class="code-input" value="6.75" min="0.1" max="25" step="0.05" oninput="recalcMG()" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Loan Term (Years)</label>
-                <select id="mg-term" class="text-input" onchange="calcMortgage()">
-                  <option value="30" selected>30 Years Fixed</option>
-                  <option value="15">15 Years Fixed</option>
-                  <option value="20">20 Years</option>
-                  <option value="10">10 Years</option>
+                <label class="field-label">Loan Term</label>
+                <select id="mg-term" class="code-input" onchange="recalcMG()" style="font-size: 1.05rem;">
+                  <option value="30" selected>30 Years Fixed (Standard)</option>
+                  <option value="20">20 Years Fixed</option>
+                  <option value="15">15 Years Fixed (Lower Interest)</option>
+                  <option value="10">10 Years Fixed</option>
                 </select>
               </div>
             </div>
 
-            <div class="result-card">
-              <div class="field-label">Estimated Monthly Payment (P&I)</div>
-              <div id="mg-monthly" class="result-val">$1,769.79 / mo</div>
-              <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
-                Loan Principal: <strong id="mg-p-out" style="color: var(--fg);">$280,000.00</strong> |
+            <!-- Escrow, Taxes, PMI & Extra Payments Dropdown -->
+            <div style="margin-top: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 0.6rem;">
+                🏡 Escrow Expenses (PITI) &amp; Accelerated Early Payoff:
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Property Tax (% / yr)</label>
+                  <input type="number" id="mg-tax-rate" class="code-input" value="1.2" step="0.1" min="0" oninput="recalcMG()" style="padding: 0.4rem; font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Home Insurance ($ / yr)</label>
+                  <input type="number" id="mg-ins-yr" class="code-input" value="1500" step="100" min="0" oninput="recalcMG()" style="padding: 0.4rem; font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">PMI Rate (% if &lt;20% down)</label>
+                  <input type="number" id="mg-pmi-rate" class="code-input" value="0.75" step="0.05" min="0" oninput="recalcMG()" style="padding: 0.4rem; font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">HOA Dues ($ / month)</label>
+                  <input type="number" id="mg-hoa" class="code-input" value="0" step="25" min="0" oninput="recalcMG()" placeholder="0" style="padding: 0.4rem; font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: #10b981; font-weight: bold; margin-bottom: 0.2rem;">Extra Monthly Principal ($)</label>
+                  <input type="number" id="mg-extra" class="code-input" value="200" step="50" min="0" oninput="recalcMG()" style="padding: 0.4rem; font-size: 0.85rem; border-color: #10b981;" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Hero Results Dashboard -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Monthly Payment (PITI)</div>
+                <div id="mg-monthly-total" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">$2,601 / mo</div>
+                <div id="mg-pi-only" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">P&amp;I: $2,076 &bull; Escrow: $525</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Lifetime Interest Cost</div>
+                <div id="mg-interest-total" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">$427,243</div>
+                <div id="mg-ratio-interest" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">133.5% of original loan borrowed</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Loan Principal Borrowed</div>
+                <div id="mg-principal-out" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">$320,000</div>
+                <div id="mg-ltv-disp" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">LTV: 80.0% &bull; Down: $80,000</div>
+              </div>
+            </div>
+
+            <!-- Extra Principal Acceleration Alert Banner -->
+            <div id="mg-savings-banner" style="margin-top: 1rem; padding: 0.75rem 1rem; border-radius: 6px; background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); font-family: var(--mono); font-size: 0.85rem; line-height: 1.5;">
+              <!-- Populated dynamically -->
+            </div>
+
+            <!-- Visual Monthly Breakdown Stacked Bar -->
+            <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Monthly Payment Allocation Breakdown:</span>
+                <span id="mg-bar-label" style="color: var(--fg);">$2,601 / month</span>
+              </div>
+              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
+                <div id="mg-bar-p" style="width: 10.6%; background: #3b82f6;" title="Principal">Principal</div>
+                <div id="mg-bar-i" style="width: 69.2%; background: #ef4444;" title="Interest">Interest</div>
+                <div id="mg-bar-tax" style="width: 15.4%; background: #10b981;" title="Property Tax">Tax</div>
+                <div id="mg-bar-ins" style="width: 4.8%; background: #f59e0b;" title="Homeowners Insurance">Ins</div>
+                <div id="mg-bar-pmi" style="width: 0%; background: #8b5cf6;" title="PMI">PMI</div>
+              </div>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> Principal</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> Interest</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Property Tax</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #f59e0b; border-radius: 2px;"></span> Home Insurance</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #8b5cf6; border-radius: 2px;"></span> PMI</span>
+              </div>
+            </div>
+
+            <!-- Year-by-Year Amortization Schedule Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+                  📅 Annual Loan Amortization Schedule:
+                </div>
+                <span id="mg-sched-summary" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">360 Payments Projected</span>
+              </div>
+              <div style="overflow-x: auto; max-height: 280px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: right;">
+                  <thead style="position: sticky; top: 0; background: var(--surface-alt); z-index: 1;">
+                    <tr style="border-bottom: 1px solid var(--border);">
+                      <th style="padding: 0.4rem 0.6rem; text-align: center;">Year</th>
+                      <th style="padding: 0.4rem 0.6rem;">Start Balance</th>
+                      <th style="padding: 0.4rem 0.6rem; color: #3b82f6;">Principal Paid</th>
+                      <th style="padding: 0.4rem 0.6rem; color: #ef4444;">Interest Paid</th>
+                      <th style="padding: 0.4rem 0.6rem; color: var(--fg);">Ending Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mg-sched-tbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
             <button type="button" id="btnCopyMG" onclick="copyMortgageSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Amortization Breakdown
+              📋 Copy Complete Mortgage PITI Breakdown &amp; Payoff Schedule
             </button>
           </div>
 
@@ -384,26 +761,20 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 <div style="color: #3b82f6; margin-top: 0.25rem; word-break: break-all;">
                   M = P &times; [ r(1 + r)<sup>n</sup> ] / [ (1 + r)<sup>n</sup> - 1 ]
                 </div>
-                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  Where M = Monthly Payment, P = Loan Principal ($350,000 - $70,000 = $280,000), r = Monthly interest rate (6.5% / 12 = 0.005417), n = Total payment count (30 &times; 12 = 360 months).
+                <div id="mg-step-1" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Where M = Monthly Payment, P = Loan Principal ($400,000 - $80,000 = $320,000), r = Monthly interest rate (6.75% / 12 = 0.005625), n = Total payments (30 &times; 12 = 360 months).
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 2: Monthly Factor Calculation</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  (1 + r)<sup>n</sup> = (1 + 0.0054167)<sup>360</sup> = <strong>6.9858</strong>
+                <strong style="color: var(--fg);">Step 2: Base Monthly Payment (Principal &amp; Interest)</strong>
+                <div id="mg-step-2" style="color: #3b82f6; margin-top: 0.25rem;">
+                  M = $320,000 &times; 0.006486 = <strong>$2,075.52 / month</strong>.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 3: Monthly Payment (Principal & Interest)</strong>
-                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
-                  M = $280,000 &times; [0.0054167 &times; 6.9858] / [6.9858 - 1] = $280,000 &times; 0.00632068 = <strong>$1,769.79 / month</strong>
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 4: Total Lifetime Interest Cost</strong>
-                <div style="color: #ef4444; font-weight: 700; margin-top: 0.25rem;">
-                  Total Repaid = $1,769.79 &times; 360 = $637,124.40 &bull; Total Interest = $637,124.40 - $280,000 = <strong>$357,124.40</strong>
+                <strong style="color: #10b981; font-weight: 700;">Step 3: Escrow Expenses (Taxes + Insurance + PMI)</strong>
+                <div id="mg-step-3" style="color: #10b981; margin-top: 0.25rem;">
+                  Tax ($400/mo) + Insurance ($125/mo) = $525/mo &bull; Total PITI = $2,075.52 + $525 = <strong>$2,600.52 / month</strong>.
                 </div>
               </div>
             </div>
@@ -411,74 +782,211 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
           <!-- Critical Mortgage Pitfalls & Hidden Costs -->
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Mortgage Pitfalls & Hidden Homeowner Costs</h3>
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Mortgage Pitfalls &amp; Hidden Homeowner Costs</h3>
             <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Front-Loaded Amortization Trap:</strong> In the first year of a 30-year 6.5% mortgage, over <strong>85% of your monthly payment goes directly to interest</strong> ($1,516.67 interest vs only $253.12 principal). You do not start paying more principal than interest until year 18.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The PITI Escrow Shock:</strong> Principal and Interest (P&I) is only part of homeownership. Property taxes, homeowners hazard insurance, and PMI (Private Mortgage Insurance if down payment is under 20%) typically add <strong>$400 to $900+ per month</strong> to your actual out-of-pocket housing payment.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 1-Extra-Payment Acceleration Strategy:</strong> Paying just one extra monthly payment per year (or switching to bi-weekly half-payments) applies directly to principal. On a $280,000 loan, this cuts <strong>4.5 years off your mortgage</strong> and saves over <strong>$55,000 in interest</strong>.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Front-Loaded Amortization Trap:</strong> In the first year of a 30-year 6.75% mortgage, over <strong>86% of your monthly payment goes directly to interest</strong> ($1,800 interest vs only $275 principal). You do not start paying more principal than interest until year 19!</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The PITI Escrow Shock:</strong> Principal and Interest (P&amp;I) is only part of homeownership. Property taxes, homeowners hazard insurance, and PMI (Private Mortgage Insurance if down payment is under 20%) typically add <strong>$400 to $900+ per month</strong> to your actual out-of-pocket housing payment.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 1-Extra-Payment Acceleration Strategy:</strong> Paying just one extra monthly payment per year (or adding $150–$250/mo to principal) applies 100% directly to reducing loan principal. On a $320,000 loan, this cuts <strong>4.8 years off your mortgage</strong> and saves over <strong>$70,000 in interest</strong>.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Discount Points vs. Larger Down Payment:</strong> Paying "discount points" upfront to buy down interest rates (typically 1 point = 1% of loan amount for ~0.25% rate reduction) requires 5 to 7 years to break even. If you refinance or move within 5 years, paying points is a guaranteed financial loss.</li>
             </ul>
           </div>
         </div>
 
         <script>
-          function calcMortgage() {
-            const price = parseFloat(document.getElementById('mg-amount').value) || 0;
-            const down = parseFloat(document.getElementById('mg-down').value) || 0;
-            const P = Math.max(0, price - down);
-            const annualRate = parseFloat(document.getElementById('mg-rate').value) || 0;
-            const r = (annualRate / 100) / 12;
-            const years = parseInt(document.getElementById('mg-term').value, 10) || 30;
-            const n = years * 12;
+          window.setMGDownPct = function(pct) {
+            var price = parseFloat(document.getElementById('mg-price').value) || 0;
+            var downD = price * (pct / 100);
+            document.getElementById('mg-down-d').value = Math.round(downD);
+            document.getElementById('mg-down-p').value = pct;
+            recalcMG();
+          };
 
-            let M = 0;
-            if (r > 0) {
-              M = (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-            } else {
-              M = P / n;
+          function recalcMG(source) {
+            var price = parseFloat(document.getElementById('mg-price').value) || 0;
+            var downD = parseFloat(document.getElementById('mg-down-d').value) || 0;
+            var downP = parseFloat(document.getElementById('mg-down-p').value) || 0;
+
+            if (source === 'price' || source === 'down-p') {
+              downD = price * (downP / 100);
+              document.getElementById('mg-down-d').value = Math.round(downD);
+            } else if (source === 'down-d') {
+              downP = price > 0 ? ((downD / price) * 100) : 0;
+              document.getElementById('mg-down-p').value = downP.toFixed(1);
             }
 
-            const totalRepayment = M * n;
-            const totalInterest = totalRepayment - P;
+            var P = Math.max(0, price - downD);
+            var annualRate = parseFloat(document.getElementById('mg-rate').value) || 0;
+            var r = (annualRate / 100) / 12;
+            var years = parseInt(document.getElementById('mg-term').value, 10) || 30;
+            var totalMonths = years * 12;
 
-            document.getElementById('mg-monthly').textContent = '$' + M.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' / mo';
-            document.getElementById('mg-p-out').textContent = '$' + P.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            document.getElementById('mg-i-out').textContent = '$' + totalInterest.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            var extraPay = parseFloat(document.getElementById('mg-extra').value) || 0;
+            var taxRate = (parseFloat(document.getElementById('mg-tax-rate').value) || 0) / 100;
+            var insYr = parseFloat(document.getElementById('mg-ins-yr').value) || 0;
+            var pmiRate = (parseFloat(document.getElementById('mg-pmi-rate').value) || 0) / 100;
+            var hoa = parseFloat(document.getElementById('mg-hoa').value) || 0;
+
+            // Monthly base P&I
+            var M = 0;
+            if (r > 0) {
+              M = (P * r * Math.pow(1 + r, totalMonths)) / (Math.pow(1 + r, totalMonths) - 1);
+            } else {
+              M = P / totalMonths;
+            }
+
+            // Escrow costs
+            var monthlyTax = (price * taxRate) / 12;
+            var monthlyIns = insYr / 12;
+            var ltv = price > 0 ? (P / price) * 100 : 0;
+            var monthlyPmi = (ltv > 80 && pmiRate > 0) ? ((P * pmiRate) / 12) : 0;
+
+            var totalMonthly = M + monthlyTax + monthlyIns + monthlyPmi + hoa;
+
+            // Calculate standard amortization vs extra payment amortization
+            var standardTotalInterest = (M * totalMonths) - P;
+
+            // Extra payment simulation
+            var balanceWithExtra = P;
+            var monthsWithExtra = 0;
+            var totalInterestWithExtra = 0;
+
+            while (balanceWithExtra > 0.01 && monthsWithExtra < totalMonths) {
+              monthsWithExtra++;
+              var curInterest = balanceWithExtra * r;
+              var curPrincipal = (M - curInterest) + extraPay;
+
+              if (curPrincipal > balanceWithExtra) {
+                curPrincipal = balanceWithExtra;
+              }
+
+              totalInterestWithExtra += curInterest;
+              balanceWithExtra -= curPrincipal;
+            }
+
+            var monthsSaved = totalMonths - monthsWithExtra;
+            var yearsSaved = (monthsSaved / 12).toFixed(1);
+            var interestSaved = Math.max(0, standardTotalInterest - totalInterestWithExtra);
+
+            // Update Hero Outputs
+            document.getElementById('mg-monthly-total').textContent = '$' + Math.round(totalMonthly).toLocaleString('en-US') + ' / mo';
+            document.getElementById('mg-pi-only').textContent = 'P&I: $' + Math.round(M).toLocaleString('en-US') + ' • Escrow: $' + Math.round(monthlyTax + monthlyIns + monthlyPmi + hoa).toLocaleString('en-US');
+
+            document.getElementById('mg-interest-total').textContent = '$' + Math.round(standardTotalInterest).toLocaleString('en-US');
+            var intRatio = P > 0 ? ((standardTotalInterest / P) * 100).toFixed(1) : 0;
+            document.getElementById('mg-ratio-interest').textContent = intRatio + '% of original loan borrowed';
+
+            document.getElementById('mg-principal-out').textContent = '$' + Math.round(P).toLocaleString('en-US');
+            document.getElementById('mg-ltv-disp').textContent = 'LTV: ' + ltv.toFixed(1) + '% • Down: $' + Math.round(downD).toLocaleString('en-US');
+
+            // Savings banner
+            var banner = document.getElementById('mg-savings-banner');
+            if (extraPay > 0 && monthsSaved > 0) {
+              banner.innerHTML = '<span style="color: #10b981; font-weight: bold;">🚀 ACCELERATED PAYOFF IMPACT:</span> Adding <strong>$' + extraPay + '/month</strong> extra principal cuts <strong style="color: #10b981;">' + yearsSaved + ' Years (' + monthsSaved + ' payments)</strong> off your loan and saves <strong style="color: #10b981;">$' + Math.round(interestSaved).toLocaleString('en-US') + ' in total interest</strong>!';
+              banner.style.display = 'block';
+            } else if (extraPay > 0) {
+              banner.innerHTML = 'Extra monthly principal applies directly to pay off your mortgage faster.';
+              banner.style.display = 'block';
+            } else {
+              banner.style.display = 'none';
+            }
+
+            // Stacked bar
+            if (totalMonthly > 0) {
+              var firstMonthInterest = P * r;
+              var firstMonthPrincipal = Math.max(0, M - firstMonthInterest);
+
+              var pPct = (firstMonthPrincipal / totalMonthly) * 100;
+              var iPct = (firstMonthInterest / totalMonthly) * 100;
+              var taxPct = (monthlyTax / totalMonthly) * 100;
+              var insPct = (monthlyIns / totalMonthly) * 100;
+              var pmiPct = (monthlyPmi / totalMonthly) * 100;
+
+              document.getElementById('mg-bar-p').style.width = pPct.toFixed(1) + '%';
+              document.getElementById('mg-bar-i').style.width = iPct.toFixed(1) + '%';
+              document.getElementById('mg-bar-tax').style.width = taxPct.toFixed(1) + '%';
+              document.getElementById('mg-bar-ins').style.width = insPct.toFixed(1) + '%';
+              document.getElementById('mg-bar-pmi').style.width = pmiPct.toFixed(1) + '%';
+
+              document.getElementById('mg-bar-label').textContent = '$' + Math.round(totalMonthly).toLocaleString('en-US') + ' / month (PITI)';
+            }
+
+            // Generate Amortization Table (Standard schedule)
+            document.getElementById('mg-sched-summary').textContent = years + ' Years (' + totalMonths + ' Payments)';
+            var curBal = P;
+            var tbody = document.getElementById('mg-sched-tbody');
+            var tbHtml = '';
+
+            for (var y = 1; y <= years; y++) {
+              var startYBal = curBal;
+              var princPaidThisYear = 0;
+              var intPaidThisYear = 0;
+
+              for (var m = 1; m <= 12; m++) {
+                if (curBal <= 0) break;
+                var curMInt = curBal * r;
+                var curMPrinc = Math.min(curBal, M - curMInt);
+                intPaidThisYear += curMInt;
+                princPaidThisYear += curMPrinc;
+                curBal -= curMPrinc;
+              }
+
+              tbHtml += '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.4rem 0.6rem; text-align: center; font-weight: bold; color: var(--text-muted);">' + y + '</td>' +
+                '<td style="padding: 0.4rem 0.6rem;">$' + Math.round(startYBal).toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.4rem 0.6rem; color: #3b82f6; font-weight: bold;">$' + Math.round(princPaidThisYear).toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.4rem 0.6rem; color: #ef4444;">$' + Math.round(intPaidThisYear).toLocaleString('en-US') + '</td>' +
+                '<td style="padding: 0.4rem 0.6rem; font-weight: bold; color: var(--fg);">$' + Math.round(curBal).toLocaleString('en-US') + '</td>' +
+                '</tr>';
+
+              if (curBal <= 0) break;
+            }
+            tbody.innerHTML = tbHtml;
+
+            // Step text
+            document.getElementById('mg-step-1').innerHTML = 'Where M = Monthly Payment, P = $' + Math.round(P).toLocaleString('en-US') + ', r = ' + (annualRate / 12).toFixed(4) + '%, n = ' + totalMonths + ' months.';
+            document.getElementById('mg-step-2').innerHTML = 'M = $' + Math.round(P).toLocaleString('en-US') + ' &times; ' + ((M / P)).toFixed(6) + ' = <strong>$' + M.toFixed(2) + ' / month (Principal &amp; Interest)</strong>.';
+            document.getElementById('mg-step-3').innerHTML = 'Taxes ($' + Math.round(monthlyTax) + ') + Insurance ($' + Math.round(monthlyIns) + ')' + (monthlyPmi > 0 ? ' + PMI ($' + Math.round(monthlyPmi) + ')' : '') + (hoa > 0 ? ' + HOA ($' + hoa + ')' : '') + ' = <strong>$' + Math.round(totalMonthly).toLocaleString('en-US') + ' Total Monthly PITI</strong>.';
           }
-          window.copyMortgageSummary = function() {
-            const price = document.getElementById('mg-amount').value;
-            const down = document.getElementById('mg-down').value;
-            const rate = document.getElementById('mg-rate').value;
-            const term = document.getElementById('mg-term').options[document.getElementById('mg-term').selectedIndex].text;
-            const monthly = document.getElementById('mg-monthly').textContent;
-            const pOut = document.getElementById('mg-p-out').textContent;
-            const iOut = document.getElementById('mg-i-out').textContent;
 
-            const text = [
-              '=== MORTGAGE AMORTIZATION BREAKDOWN ===',
-              'Home Price: $' + parseFloat(price).toLocaleString(),
-              'Down Payment: $' + parseFloat(down).toLocaleString(),
-              'Loan Principal: ' + pOut,
-              'Interest Rate: ' + rate + '%',
-              'Loan Term: ' + term,
-              '---------------------------------------',
-              'Estimated Monthly Payment (P&I): ' + monthly,
-              'Total Lifetime Interest: ' + iOut,
-              '---------------------------------------',
+          window.copyMortgageSummary = function() {
+            var price = document.getElementById('mg-price').value;
+            var down = document.getElementById('mg-down-d').value;
+            var rate = document.getElementById('mg-rate').value;
+            var term = document.getElementById('mg-term').value;
+            var totalMonthly = document.getElementById('mg-monthly-total').textContent;
+            var pi = document.getElementById('mg-pi-only').textContent;
+            var totalInterest = document.getElementById('mg-interest-total').textContent;
+            var principal = document.getElementById('mg-principal-out').textContent;
+
+            var text = [
+              '=== MORTGAGE & PITI PAYMENT SUMMARY ===',
+              'Home Purchase Price: $' + parseFloat(price).toLocaleString('en-US'),
+              'Down Payment: $' + parseFloat(down).toLocaleString('en-US'),
+              'Loan Principal Borrowed: ' + principal,
+              'Interest Rate: ' + rate + '% APR (' + term + '-Year Fixed)',
+              '--------------------------------------',
+              'Total Monthly Payment (PITI): ' + totalMonthly,
+              pi,
+              'Total Lifetime Interest Paid: ' + totalInterest,
+              '--------------------------------------',
+              'Standard: Universal Banking Amortization Equation',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/mortgage-calculator'
-            ].join('\\n');
+            ].join('\n');
 
             navigator.clipboard.writeText(text).then(function() {
-              const btn = document.getElementById('btnCopyMG');
+              var btn = document.getElementById('btnCopyMG');
               if (btn) {
-                const old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Amortization Breakdown!';
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Mortgage Breakdown!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
               }
             });
           };
-          document.addEventListener('DOMContentLoaded', calcMortgage);
+
+          document.addEventListener('DOMContentLoaded', function() { recalcMG(); });
+          recalcMG();
         </script>
       `
     },
