@@ -518,6 +518,110 @@ function convertClientSide(imgElement, format, quality) {
           </div>
         </div>
       `
+    },
+    {
+      slug: 'the-neuroscience-of-limerence-why-brains-obsess-over-uncertain-love',
+      title: 'The Neuroscience of Limerence: Why the Brain Obsesses Over Uncertain Love',
+      category: 'Clinical Neurobiology & Psychology',
+      date: '2026-09-05',
+      readTime: '8 min read',
+      desc: 'Explore the dopamine-driven neurochemistry of obsessive infatuation, intermittent reinforcement schedules, and how to decouple fantasy projection from authentic emotional intimacy.',
+      body: `
+        <div class="article-container">
+          <header class="article-header">
+            <div class="article-journal-tag">Clinical Neurobiology & Psychology</div>
+            <h1>The Neuroscience of Limerence: Why the Brain Obsesses Over Uncertain Love</h1>
+            <div class="article-meta">
+              <span>By <strong>Neuroscience Research Desk</strong></span>
+              <span>•</span>
+              <span>Published September 5, 2026</span>
+              <span>•</span>
+              <span>8 min read</span>
+            </div>
+          </header>
+
+          <div class="article-body">
+            <p>Few psychological states are as intoxicating, disorienting, and agonizing as <strong>limerence</strong>. Coined in 1979 by psychologist Dr. Dorothy Tennov, limerence describes an involuntary, acute state of cognitive infatuation characterized by intrusive daydreams, an insatiable hunger for emotional reciprocation, and profound emotional instability.</p>
+
+            <p>While society romanticizes this intense obsession as "true love," modern neuroimaging and behavioral neuroscience reveal a very different reality: limerence is not love at all. It is a potent, neurochemically driven behavioral addiction triggered by uncertainty and intermittent reinforcement.</p>
+
+            <h2>1. The Dopamine Engine: Why Ambiguity Multiplies Craving</h2>
+            <p>In authentic love, relationships provide nervous system safety, predictable attunement, and steady oxytocin release. In limerence, the brain's mesolimbic dopamine pathway is hijacked by <strong>intermittent reinforcement</strong>—the exact psychological mechanism underlying gambling addiction.</p>
+
+            <p>B.F. Skinner discovered that animals press a lever most compulsively not when a reward is guaranteed, but when the reward is unpredictable. When a romantic interest alternates between warmth and cold withdrawal, delayed text replies, and mixed signals, your striatum experiences massive dopamine spikes in anticipation of possible reward. The uncertainty itself is what fuels the obsession.</p>
+
+            <div class="article-cta-box">
+              <h3 style="margin: 0; font-family: var(--serif);">Interactive Limerence vs Authentic Love Auditor</h3>
+              <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Audit whether your romantic connection is anchored in authentic safety or an obsessive neurochemical dopamine loop.</p>
+              <div style="margin-top: 0.5rem;">
+                <a href="/neuro/limerence-vs-love-auditor" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Launch Limerence Auditor →</a>
+              </div>
+            </div>
+
+            <h2>2. Crystallization & The Erasure of Flaws</h2>
+            <p>A hallmark of the limerent brain is <em>crystallization</em>: cognitive distortions where the limerent person actively overlooks, rationalizes, or romanticizes red flags and profound incompatibilities. The brain constructs a curated mental avatar of the "Limerent Object" (LO), attributing godlike perfection and uniqueness to someone they barely know in mundane reality.</p>
+
+            <h2>3. Breaking the Limerent Cycle: The 3 Pillars of Recovery</h2>
+            <p>Because limerence operates as an addiction pathway, gentle willpower is ineffective. Recovery requires strict neurochemical fasting:</p>
+
+            <ul>
+              <li><strong>Radical Low-Contact or No-Contact:</strong> Stop checking their social media profiles, analyzing old text timestamps, or rereading past conversations. Every check delivers a micro-pulse of dopamine that resets the addiction clock.</li>
+              <li><strong>Deconstruct the Avatar:</strong> Write down an objective, unvarnished list of their flaws, inconsistencies, and emotional unavailability to puncture the fantasy projection.</li>
+              <li><strong>Address the Unmet Core Wound:</strong> Limerence is almost always a projection of our own unmet childhood attachment needs. The LO is not a savior; they are a mirror reflecting what we feel we lack in ourselves.</li>
+            </ul>
+          </div>
+        </div>
+      `
+    },
+    {
+      slug: 'dbt-tipp-skills-how-to-abort-an-emotional-crisis-in-60-seconds',
+      title: 'DBT TIPP Skills: How to Abort an Emotional Crisis in Under 60 Seconds',
+      category: 'Somatic Neurobiology & Crisis Triage',
+      date: '2026-09-05',
+      readTime: '7 min read',
+      desc: 'Master the dialectical behavior therapy TIPP protocol. Learn how the mammalian dive reflex, cold exposure, and paced breathing downregulate acute amygdala hijacks.',
+      body: `
+        <div class="article-container">
+          <header class="article-header">
+            <div class="article-journal-tag">Somatic Neurobiology & Crisis Triage</div>
+            <h1>DBT TIPP Skills: How to Abort an Emotional Crisis in Under 60 Seconds</h1>
+            <div class="article-meta">
+              <span>By <strong>Clinical Triage Desk</strong></span>
+              <span>•</span>
+              <span>Published September 5, 2026</span>
+              <span>•</span>
+              <span>7 min read</span>
+            </div>
+          </header>
+
+          <div class="article-body">
+            <p>When emotional distress reaches an 8, 9, or 10 out of 10, conventional cognitive therapy stops working. The prefrontal cortex—the logical seat of language, foresight, and rational reasoning—effectively shuts down. Blood flow is diverted to the amygdala and brainstem in an acute evolutionary survival response.</p>
+
+            <p>Trying to "talk yourself down" or "think positive" during an emotional hijack is biologically impossible. You cannot think your way out of a physiological storm. You must use somatic biochemistry to pull the nervous system back into regulation. This is the foundation of <strong>DBT TIPP</strong>.</p>
+
+            <h2>1. The Mammalian Dive Reflex (Temperature)</h2>
+            <p>Developed by Dr. Marsha Linehan, the <strong>T</strong> in TIPP stands for <strong>Temperature</strong>. When you submerge your face in cold water (or apply an ice pack across your eyes and cheekbones) while holding your breath for 30 seconds, you trigger the evolutionary mammalian dive reflex.</p>
+
+            <p>Sensory receptors in the trigeminal facial nerve send immediate emergency signals to the brainstem. The vagus nerve fires, immediately decelerating heart rate by 10% to 25%, shunting oxygenated blood to vital organs, and forcefully arresting hyperventilation.</p>
+
+            <div class="article-cta-box">
+              <h3 style="margin: 0; font-family: var(--serif);">Interactive DBT TIPP Emergency Navigator</h3>
+              <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Step-by-step interactive crisis triage with dive timers, burst counters, and 4-7-8 parasympathetic breathing pacers.</p>
+              <div style="margin-top: 0.5rem;">
+                <a href="/neuro/dbt-tipp-emergency-skills" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Launch DBT TIPP Navigator →</a>
+              </div>
+            </div>
+
+            <h2>2. Metabolizing the Adrenaline Surge (Intense Exercise)</h2>
+            <p>When panic or rage strikes, your bloodstream is flooded with adrenaline and cortisol designed to fuel life-or-death running or fighting. Sitting still while this chemical flood surges through your veins induces unbearable somatic agitation.</p>
+
+            <p>Engaging in 60 seconds of maximum intensity exertion (jumping jacks, sprinting in place, wall sits) burns through circulating stress hormones and forces the body to transition from fight-or-flight into metabolic recovery.</p>
+
+            <h2>3. Paced Breathing & Paired Muscle Relaxation</h2>
+            <p>The final components of TIPP systematically engage the parasympathetic vagal brake. By extending the exhale to be significantly longer than the inhale (such as the 4-7-8 breathing pattern), baroreceptors in the carotid sinus signal to the heart that the danger has passed.</p>
+          </div>
+        </div>
+      `
     }
   ];
 

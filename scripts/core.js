@@ -221,6 +221,17 @@ const TOOLS = [
   { id: 'ocd-rumination-loop-breaker', name: 'OCD Intrusive Thought & Rumination Loop Interrupter [ERP Exposure Protocol]', category: 'Neurobiology & Mind', path: '/neuro/ocd-rumination-loop-breaker', desc: 'Interrupt acute OCD obsessive spikes using Exposure and Response Prevention (ERP) with 90-Second Uncertainty Timer.' },
   { id: 'compassion-fatigue-meter', name: 'Compassion Fatigue & Secondary Traumatic Stress Auditor [ProQOL 5 Scale]', category: 'Neurobiology & Mind', path: '/neuro/compassion-fatigue-meter', desc: 'Measure empathy exhaustion and secondary traumatic stress for nurses, caregivers, and therapists with ProQOL 5.' },
   { id: 'emotional-permanence-screener', name: 'Emotional Permanence & Object Constancy Insecurity Diagnostic [BPD/ADHD Attachment]', category: 'Neurobiology & Mind', path: '/neuro/emotional-permanence-screener', desc: 'Diagnose emotional impermanence and object constancy insecurity to understand why out of sight feels unloved.' },
+  { id: 'narcissistic-abuse-inventory', name: 'Narcissistic Abuse & Coercive Control Inventory [Dr. Ramani & Evan Stark Audit]', category: 'Neurobiology & Mind', path: '/neuro/narcissistic-abuse-inventory', desc: 'Comprehensive client-side audit for narcissistic abuse, coercive control, and psychological manipulation. Evaluate love bombing, devaluation, and gaslighting.' },
+  { id: 'vagus-nerve-tone-assessor', name: 'Vagus Nerve Tone & Parasympathetic Readiness Estimator [RSA / HRV Model]', category: 'Neurobiology & Mind', path: '/neuro/vagus-nerve-tone-assessor', desc: 'Estimate vagal nerve tone and parasympathetic recovery capacity with integrated 0.1Hz resonant breathing pacer.' },
+  { id: 'maladaptive-daydreaming-scale', name: 'Maladaptive Daydreaming Diagnostic [Eli Somer MDS-16 Clinical Inventory]', category: 'Neurobiology & Mind', path: '/neuro/maladaptive-daydreaming-scale', desc: 'Official Maladaptive Daydreaming Scale (MDS-16). Calculate fantasy immersion score and evaluate functional impairment.' },
+  { id: 'delayed-sleep-phase-chronobiology', name: 'Delayed Sleep Phase Syndrome (DSPS) & Circadian Realignment Protocol', category: 'Neurobiology & Mind', path: '/neuro/delayed-sleep-phase-chronobiology', desc: 'Calculate circadian temperature minimum (T_min), photic light advance window, and micro-melatonin schedule to shift delayed sleep phase.' },
+  { id: 'dbt-tipp-emergency-skills', name: 'DBT TIPP Emergency Distress Tolerance Navigator [Linehan Crisis Protocol]', category: 'Neurobiology & Mind', path: '/neuro/dbt-tipp-emergency-skills', desc: 'Interactive somatic navigator for Dialectical Behavior Therapy (DBT) TIPP skills to abort panic and limbic hijack in under 60 seconds.' },
+  { id: 'sensory-overload-de-escalator', name: 'Sensory Overload De-Escalator & Calming Room [Autism/ADHD/HSP Triage]', category: 'Neurobiology & Mind', path: '/neuro/sensory-overload-de-escalator', desc: 'Interactive sensory quiet room for acute autistic sensory overload, ADHD overstimulation, and HSP nervous system de-escalation.' },
+  { id: 'executive-function-deficit-map', name: 'Executive Function Deficit Profiler [Barkley BDEFS 5-Domain Architecture]', category: 'Neurobiology & Mind', path: '/neuro/executive-function-deficit-map', desc: 'Clinical executive functioning profiler based on Dr. Russell Barkley BDEFS framework across Time, Restraint, and Motivation.' },
+  { id: 'limerence-vs-love-auditor', name: 'Limerence vs Authentic Attachment Auditor [Dorothy Tennov Framework]', category: 'Neurobiology & Mind', path: '/neuro/limerence-vs-love-auditor', desc: 'Diagnose obsessive limerence versus genuine emotional intimacy. Evaluate intrusive thoughts, flaw crystallization, and dopamine craving loops.' },
+  { id: 'toxic-positivity-detox', name: 'Toxic Positivity & Emotional Invalidation Deconstructor [Tragic Optimism]', category: 'Neurobiology & Mind', path: '/neuro/toxic-positivity-detox', desc: 'Identify toxic positivity, spiritual bypassing, and emotional invalidation. Translate dismissive platitudes into genuine psychological attunement.' },
+  { id: 'spoon-theory-energy-budget', name: 'Spoon Theory Daily Energy Budgeter [Miserandino Chronic Illness Model]', category: 'Neurobiology & Mind', path: '/neuro/spoon-theory-energy-budget', desc: 'Interactive Spoon Theory daily energy calculator for chronic illness, neurodivergence, and executive fatigue to prevent spoon debt flares.' },
+  { id: 'inner-critic-taxonomy', name: 'Inner Critic Voice Disarmer & Archetype Taxonomy [Voice Dialogue Model]', category: 'Neurobiology & Mind', path: '/neuro/inner-critic-taxonomy', desc: 'Identify which of the 5 Inner Critic Archetypes drives self-doubt with Socratic cognitive boundary counters.' },
 
   { id: 'sales-tax-calculator', name: 'Sales Tax Calculator & Reverse Tax Finder', category: 'Finance', path: '/finance/sales-tax-calculator', desc: 'Calculate sales tax or reverse calculate pre-tax prices with 50 US state rates.' },
   { id: 'simple-interest-calculator', name: 'Simple Interest Calculator (I = Prt)', category: 'Finance', path: '/finance/simple-interest-calculator', desc: 'Calculate simple interest, total loan payback, and monthly installment cost.' },
@@ -1872,11 +1883,11 @@ function buildSidebarHtml(currentPath = '/') {
       <!-- HUMAN NEUROBIOLOGY & COGNITIVE ARCHITECTURE -->
       <div class="nav-group-title">
         ${ICONS.psychology}
-        <span>Neurobiology & Mind (39)</span>
+        <span>Neurobiology & Mind (50)</span>
       </div>
       <a href="/neuro/" class="nav-link ${currentPath === '/neuro/' || currentPath === '/neuro/index.html' || currentPath === '/neuro' ? 'active' : ''}">
         <div class="nav-link-content"><span>Neuro Master Suite Hub</span></div>
-        <span class="nav-badge">39</span>
+        <span class="nav-badge">50</span>
       </a>
       <a href="/neuro/phq9-depression-screener" class="nav-link ${currentPath.startsWith('/neuro/phq9-depression-screener') ? 'active' : ''}">
         <div class="nav-link-content"><span>PHQ-9 Depression Screener</span></div>

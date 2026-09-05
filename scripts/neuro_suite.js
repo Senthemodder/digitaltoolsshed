@@ -3,9 +3,10 @@
 import { renderPage } from './core.js';
 import { batch2Tools } from './neuro_batch2.js';
 import { batch3Tools } from './neuro_batch3.js';
+import { batch4Tools } from './neuro_batch4.js';
 
 export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) {
-  console.log('  🧠 Building Human Neurobiology & Cognitive Psychology Suite (39 Tools + Hub)...');
+  console.log('  🧠 Building Human Neurobiology & Cognitive Psychology Suite (50 Tools + Hub)...');
   const neuroDist = join(DIST, 'neuro');
   ensureDir(neuroDist);
 
@@ -1838,7 +1839,8 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
     regretTool, hedonicTool, circadianTool, overthinkingTool, maximizerTool,
     envyTool, lonelinessTool, dopamineFastTool, rsdTool, dreadTool,
     ...batch2Tools,
-    ...batch3Tools
+    ...batch3Tools,
+    ...batch4Tools
   ];
 
   // Emit all individual tool HTML files
@@ -1907,7 +1909,7 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
       <div class="wb-header">
         <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
           <span class="wb-badge badge-blue">Clinical Cognitive Neuroscience</span>
-          <span class="wb-badge badge-green">39 Flagship Diagnostics</span>
+          <span class="wb-badge badge-green">50 Flagship Diagnostics</span>
         </div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem;">Human Neurobiology & Cognitive Architecture Suite</h1>
         <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; max-width: 800px;">
@@ -1953,11 +1955,11 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
 
   const hubHtml = renderPage({
     title: 'Human Neurobiology & Cognitive Psychology Master Suite | Digital Tools Shed',
-    metaDesc: 'A comprehensive suite of 39 client-side cognitive diagnostics: PHQ-9 depression, GAD-7 anxiety, Imposter Syndrome spectrum, NSDR binaural rest pacer, ADHD task paralysis defuser, burnout audit, and CBT reframers.',
+    metaDesc: 'A comprehensive suite of 50 client-side cognitive diagnostics: PHQ-9 depression, GAD-7 anxiety, Imposter Syndrome spectrum, NSDR binaural rest pacer, ADHD task paralysis defuser, burnout audit, and CBT reframers.',
     canonical: `${DOMAIN}/neuro/`,
     content: hubBody
   });
 
   writeFileSync(join(neuroDist, 'index.html'), hubHtml, 'utf8');
-  console.log('  ✓ Built Human Neurobiology & Cognitive Architecture Suite (/neuro/ — 39 Tools + Hub)');
+  console.log('  ✓ Built Human Neurobiology & Cognitive Architecture Suite (/neuro/ — 50 Tools + Hub)');
 }
