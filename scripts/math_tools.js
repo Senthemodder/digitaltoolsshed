@@ -3022,97 +3022,236 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'standard-deviation-calculator',
-      title: 'Standard Deviation Calculator (Sample & Population)',
-      metaDesc: 'Calculate sample standard deviation, population standard deviation, variance, mean, and sum of squares for any list of numbers.',
+      title: 'Standard Deviation Calculator (Sample & Population) with Step-by-Step Solution',
+      metaDesc: 'Calculate sample (s) and population (σ) standard deviation, variance, mean, standard error, confidence intervals, quartiles, and outliers with step-by-step math.',
       category: 'Math & Statistics',
+      faq: [
+        { q: 'What is the difference between sample standard deviation (s) and population standard deviation (σ)?', a: 'Sample standard deviation (s) is used when your data represents a sample (subset) drawn from a larger population. It divides the sum of squared deviations by n - 1 (Bessel\'s correction) to provide an unbiased estimate of the true population variance. Population standard deviation (σ) is used when your dataset contains every single member of the population (a complete census) and divides by N.' },
+        { q: 'Why does Bessel\'s correction divide by n - 1 instead of n?', a: 'When calculating sample variance, you calculate deviations around the sample mean x̄, not the true unknown population mean μ. The sample observations naturally cluster closer to their own sample mean than to μ. Consequently, dividing by n systematically underestimates true variability. Dividing by n - 1 restores degrees of freedom and mathematically unbiases the variance estimator.' },
+        { q: 'What is the difference between Standard Deviation (SD) and Standard Error (SE)?', a: 'Standard deviation (SD) measures the variability and dispersion among individual data points within a dataset. Standard error of the mean (SE = s / √n) measures the precision of the sample mean as an estimate of the true population mean. As sample size n grows, SD remains roughly constant (reflecting the population spread), while SE shrinks toward zero.' },
+        { q: 'What is the 68-95-99.7 Empirical Rule?', a: 'For any dataset following a normal (Gaussian) bell-curve distribution: approximately 68.27% of observations fall within ±1 standard deviation of the mean, 95.45% fall within ±2 standard deviations, and 99.73% fall within ±3 standard deviations. For non-normal or skewed distributions, Chebyshev\'s inequality guarantees at least 1 - 1/k² of values lie within k standard deviations (e.g. at least 75% within ±2 SD).' },
+        { q: 'How does Tukey\'s method detect statistical outliers?', a: 'Tukey\'s method uses the Interquartile Range (IQR = Q3 - Q1). Lower Inner Fence is Q1 - 1.5 × IQR and Upper Inner Fence is Q3 + 1.5 × IQR. Any data point outside these fences is flagged as a statistical outlier. Values beyond 3 × IQR are classified as extreme outliers.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Standard Deviation
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Standard Deviation Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Standard Deviation Calculator (Sample &amp; Population)</h1>
           <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Compute sample standard deviation ($s$), population standard deviation ($\\sigma$), variance, and statistical mean.
+            Calculate sample standard deviation ($s$), population standard deviation ($\sigma$), variance, mean, standard error, confidence intervals, quartiles, and statistical outliers with complete step-by-step worked deviations.
           </p>
 
           <div class="tool-box">
+            <!-- Presets and Input Textarea -->
             <div class="field-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
-                <label class="field-label" style="margin: 0;">Enter Numbers (Comma, Space, or Newline Separated)</label>
-                <div style="display: flex; gap: 0.35rem;">
-                  <button type="button" class="btn-sec" onclick="setSDPreset('exam')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Exam Scores</button>
-                  <button type="button" class="btn-sec" onclick="setSDPreset('returns')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Daily Returns</button>
-                  <button type="button" class="btn-sec" onclick="setSDPreset('heights')" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Heights (cm)</button>
+                <label class="field-label" style="margin: 0;">Enter Numbers (Comma, Space, Tab, or Newline Separated)</label>
+                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                  <button type="button" class="btn-sec" onclick="setSDPreset('exam')" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">Exam Scores</button>
+                  <button type="button" class="btn-sec" onclick="setSDPreset('returns')" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">Daily Returns (%)</button>
+                  <button type="button" class="btn-sec" onclick="setSDPreset('heights')" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">Heights (cm)</button>
+                  <button type="button" class="btn-sec" onclick="setSDPreset('tolerances')" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">Tolerance (mm)</button>
+                  <button type="button" class="btn-sec" onclick="setSDPreset('outliers')" style="padding: 0.25rem 0.5rem; font-size: 0.72rem; border-color: #f59e0b; color: #f59e0b;">Outlier Test</button>
                 </div>
               </div>
-              <textarea id="sd-data" class="code-input" rows="3" oninput="calcSD()" style="font-size: 1.1rem; line-height: 1.5;">10, 12, 23, 23, 16, 23, 21, 16</textarea>
+              <textarea id="sd-data" class="code-input" rows="3" oninput="calcSD()" style="font-size: 1.05rem; line-height: 1.5;">10, 12, 23, 23, 16, 23, 21, 16</textarea>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+            <!-- Calculation Mode Toggle -->
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; flex-wrap: wrap; background: var(--surface-alt); padding: 0.6rem 1rem; border-radius: 6px; border: 1px solid var(--border);">
+              <span style="font-family: var(--mono); font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">Standard Deviation Mode:</span>
+              <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem; cursor: pointer; color: var(--fg);">
+                <input type="radio" name="sd-mode" value="sample" checked onchange="calcSD()" /> Sample ($s$, $n - 1$ Bessel\'s Correction)
+              </label>
+              <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem; cursor: pointer; color: var(--fg);">
+                <input type="radio" name="sd-mode" value="population" onchange="calcSD()" /> Population ($\sigma$, Divisor $N$)
+              </label>
+              <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem; cursor: pointer; color: var(--fg);">
+                <input type="radio" name="sd-mode" value="both" onchange="calcSD()" /> Show Both
+              </label>
+            </div>
+
+            <!-- Hero Metrics Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Sample Std Deviation (s)</div>
-                <div id="sd-s" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">5.2372</div>
+                <div id="sd-s" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">5.2372</div>
                 <div id="sd-s-var" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Variance (s²): 27.4286</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Population Std Dev (σ)</div>
-                <div id="sd-p" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">4.8990</div>
+                <div id="sd-p" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">4.8990</div>
                 <div id="sd-p-var" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Variance (σ²): 24.0000</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Mean & Sample Size</div>
-                <div id="sd-mean" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">18.00</div>
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Arithmetic Mean (x̄)</div>
+                <div id="sd-mean" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">18.00</div>
                 <div id="sd-count" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Count (N): 8 | Sum: 144</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Std Error of Mean (SE)</div>
-                <div id="sd-se" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">1.8516</div>
+                <div id="sd-se" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">1.8516</div>
                 <div id="sd-ci" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">95% CI: [14.37, 21.63]</div>
               </div>
             </div>
 
+            <!-- Deep Statistical Summary Grid (10 Metrics) -->
+            <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.75rem; font-weight: 600;">
+                📊 Comprehensive Statistical Distribution Metrics:
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.82rem;">
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Median (Q2 / 50%)</div>
+                  <strong id="sd-median" style="color: var(--fg); font-size: 1.05rem;">18.50</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Mode(s)</div>
+                  <strong id="sd-mode" style="color: #3b82f6; font-size: 1.05rem;">23 (count: 3)</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Min / Max / Range</div>
+                  <strong id="sd-range" style="color: var(--fg); font-size: 0.95rem;">10 – 23 (13)</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Quartiles (Q1 &bull; Q3)</div>
+                  <strong id="sd-quartiles" style="color: var(--fg); font-size: 0.95rem;">13.00 &bull; 23.00</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Interquartile Range (IQR)</div>
+                  <strong id="sd-iqr" style="color: #10b981; font-size: 1.05rem;">10.00</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Sum of Squares (SS)</div>
+                  <strong id="sd-ss" style="color: var(--fg); font-size: 1.05rem;">192.00</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Coeff of Variation (CV)</div>
+                  <strong id="sd-cv" style="color: var(--fg); font-size: 1.05rem;">29.10%</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Pearson Skewness</div>
+                  <strong id="sd-skew" style="color: var(--fg); font-size: 1.05rem;">-0.29 (Slight Left)</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Tukey Outliers</div>
+                  <strong id="sd-outliers" style="color: #10b981; font-size: 0.85rem;">None Detected</strong>
+                </div>
+                <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Geometric / Harmonic</div>
+                  <strong id="sd-means-other" style="color: var(--fg); font-size: 0.85rem;">17.28 &bull; 16.54</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Interactive Frequency Histogram & Bell Curve (Pure SVG) -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+                  📈 Frequency Histogram &amp; Normal Distribution Bell Curve:
+                </div>
+                <div style="display: flex; gap: 0.75rem; font-family: var(--mono); font-size: 0.72rem;">
+                  <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="display: inline-block; width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></span> Sample Frequency</span>
+                  <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="display: inline-block; width: 12px; height: 2px; background: #10b981;"></span> Normal Curve</span>
+                  <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="display: inline-block; width: 12px; height: 2px; background: #f59e0b; border-bottom: 1px dashed #f59e0b;"></span> Mean (x̄)</span>
+                </div>
+              </div>
+              <div id="sd-histogram-container" style="width: 100%; height: 220px; position: relative;">
+                <svg id="sd-svg" width="100%" height="220" style="display: block; overflow: visible;"></svg>
+              </div>
+              <!-- Box & Whisker Plot (Pure SVG) -->
+              <div style="margin-top: 1rem; border-top: 1px dashed var(--border); padding-top: 0.75rem;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;">
+                  📦 Box and Whisker Plot (Min, Q1, Median, Q3, Max):
+                </div>
+                <svg id="sd-boxplot-svg" width="100%" height="55" style="display: block; overflow: visible;"></svg>
+              </div>
+            </div>
+
+            <!-- Step-by-Step Interactive Deviation Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+                  🔢 Step-by-Step Deviation Work Table:
+                </div>
+                <span id="sd-table-count" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">8 observations</span>
+              </div>
+              <div style="overflow-x: auto; max-height: 280px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: right;">
+                  <thead style="position: sticky; top: 0; background: var(--surface-alt); z-index: 1;">
+                    <tr style="border-bottom: 1px solid var(--border);">
+                      <th style="padding: 0.4rem 0.6rem; text-align: center;">i</th>
+                      <th style="padding: 0.4rem 0.6rem;">Data Point (x<sub>i</sub>)</th>
+                      <th style="padding: 0.4rem 0.6rem;">Deviation (x<sub>i</sub> - x̄)</th>
+                      <th style="padding: 0.4rem 0.6rem;">Squared Deviation (x<sub>i</sub> - x̄)²</th>
+                    </tr>
+                  </thead>
+                  <tbody id="sd-table-body">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                  <tfoot style="position: sticky; bottom: 0; background: var(--surface-alt); font-weight: bold; border-top: 2px solid var(--border);">
+                    <tr id="sd-table-foot">
+                      <td style="padding: 0.5rem 0.6rem; text-align: center;">&Sigma;</td>
+                      <td id="sd-foot-sum" style="padding: 0.5rem 0.6rem; color: var(--fg);">144.00</td>
+                      <td id="sd-foot-dev" style="padding: 0.5rem 0.6rem; color: var(--text-muted);">0.00</td>
+                      <td id="sd-foot-ss" style="padding: 0.5rem 0.6rem; color: #3b82f6;">192.00</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- Copy Button -->
             <button type="button" id="btnCopySD" onclick="copySDSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Statistical Summary & Confidence Intervals
+              📋 Copy Complete Statistical Summary &amp; Confidence Intervals
             </button>
           </div>
 
           <!-- Step-by-Step Worked Statistical Derivations -->
           <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Standard Deviation Derivation (Bessel's Correction)</h3>
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Standard Deviation Derivation (Bessel\'s Correction)</h3>
               <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">NIST Engineering Statistics Standard</span>
             </div>
             <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Standard deviation quantifies the dispersion or spread of data values around the central mean:
+              Standard deviation quantifies the dispersion or spread of data values around the central arithmetic mean:
             </p>
             <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 1: Compute Arithmetic Sample Mean</strong>
-                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                <strong style="color: var(--fg);">Step 1: Compute Arithmetic Sample Mean (x̄)</strong>
+                <div id="sd-step-1" style="color: #3b82f6; margin-top: 0.25rem;">
                   x̄ = (&Sigma; x<sub>i</sub>) / n = 144 / 8 = <strong>18.00</strong>
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
                 <strong style="color: var(--fg);">Step 2: Sum of Squared Deviations (SS)</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  SS = &Sigma; (x<sub>i</sub> - x̄)<sup>2</sup> = (10 - 18)<sup>2</sup> + (12 - 18)<sup>2</sup> + ... = 64 + 36 + 25 + 25 + 4 + 25 + 9 + 4 = <strong>192.00</strong>
+                <div id="sd-step-2" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  SS = &Sigma; (x<sub>i</sub> - x̄)<sup>2</sup> = (10 - 18)<sup>2</sup> + (12 - 18)<sup>2</sup> + ... = <strong>192.00</strong>
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
                 <strong style="color: #3b82f6;">Step 3: Sample Variance vs Population Variance</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Sample Variance s<sup>2</sup> = SS / (n - 1) = 192 / 7 = <strong>27.4286</strong> (Bessel's Correction unbiased)<br>
+                <div id="sd-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Sample Variance s<sup>2</sup> = SS / (n - 1) = 192 / 7 = <strong>27.4286</strong> (Unbiased Bessel\'s Correction)<br>
                   Population Variance &sigma;<sup>2</sup> = SS / N = 192 / 8 = <strong>24.0000</strong>
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981; font-weight: 700;">Step 4: Standard Deviation (Square Root)</strong>
-                <div style="color: #10b981; margin-top: 0.25rem;">
+                <strong style="color: #10b981; font-weight: 700;">Step 4: Standard Deviation (Square Root Extraction)</strong>
+                <div id="sd-step-4" style="color: #10b981; margin-top: 0.25rem;">
                   Sample s = &radic;27.4286 = <strong>5.2372</strong> &bull; Population &sigma; = &radic;24.0000 = <strong>4.8990</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #8b5cf6;">Step 5: Standard Error of the Mean (SE) &amp; 95% Confidence Interval</strong>
+                <div id="sd-step-5" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  SE = s / &radic;n = 5.2372 / &radic;8 = <strong>1.8516</strong><br>
+                  95% Confidence Interval: [18.00 &plusmn; 1.96 &times; 1.8516] = <strong>[14.37, 21.63]</strong>
                 </div>
               </div>
             </div>
@@ -3120,11 +3259,12 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
           <!-- Critical Statistical Pitfalls -->
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Statistical Pitfalls & Bessel's Bias</h3>
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Statistical Pitfalls &amp; Bessel\'s Bias</h3>
             <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Bessel's Correction Trap:</strong> When analyzing a subset (sample) of a larger population, dividing by $N$ rather than $n - 1$ produces a mathematically biased underestimate of variance. This occurs because the sample mean $\bar{x}$ is calculated from the sample itself, naturally lying closer to the sample observations than the true unknown population mean $\mu$. Always use $n - 1$ for samples.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Bessel\'s Correction Trap:</strong> When analyzing a subset (sample) of a larger population, dividing by $N$ rather than $n - 1$ produces a mathematically biased underestimate of variance. This occurs because the sample mean $\bar{x}$ is calculated from the sample itself, naturally lying closer to the sample observations than the true unknown population mean $\mu$. Always use $n - 1$ for samples.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Standard Deviation vs Standard Error Confusion:</strong> Standard deviation ($s$) measures the dispersion of individual observations. Standard error ($\text{SE} = s / \sqrt{n}$) measures the precision of your sample mean. Confusing these leads to misleading scientific claims—increasing sample size makes SE smaller, but does NOT reduce the true standard deviation of the population.</li>
               <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Outlier Distortion Vulnerability:</strong> Because deviations are squared before summing, standard deviation is extraordinarily sensitive to outliers. A single extreme observation (e.g. data entry error or fat-tailed market crash) will artificially balloon $s$. For skewed or non-Gaussian data, report the Interquartile Range (IQR) or Median Absolute Deviation (MAD).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 68-95-99.7 Empirical Rule Limitation:</strong> The rule stating that 68% of data falls within $\pm 1s$ and 95% within $\pm 2s$ is <em>only valid for normal (Gaussian) bell-curve distributions</em>. For multimodal or heavily skewed distributions (such as wealth or website latency), Chebyshev's Inequality ($\ge 75\%$ within $\pm 2s$) is the only mathematically guaranteed boundary.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 68-95-99.7 Empirical Rule Limitation:</strong> The rule stating that 68% of data falls within $\pm 1s$ and 95% within $\pm 2s$ is <em>only valid for normal (Gaussian) bell-curve distributions</em>. For multimodal or heavily skewed distributions (such as wealth or website latency), Chebyshev\'s Inequality ($\ge 75\%$ within $\pm 2s$) is the only mathematically guaranteed boundary.</li>
             </ul>
           </div>
         </div>
@@ -3135,12 +3275,14 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             if (type === 'exam') area.value = '72, 85, 91, 64, 78, 88, 95, 82, 79, 89';
             if (type === 'returns') area.value = '1.2, -0.8, 2.1, -1.5, 0.4, -0.2, 1.8, -2.4, 0.9';
             if (type === 'heights') area.value = '165, 172, 178, 181, 169, 175, 188, 162, 174';
+            if (type === 'tolerances') area.value = '10.02, 9.98, 10.05, 9.99, 10.01, 10.04, 9.97, 10.00';
+            if (type === 'outliers') area.value = '14, 15, 16, 15, 17, 14, 16, 15, 85';
             calcSD();
           };
 
           function calcSD() {
             var text = document.getElementById('sd-data').value;
-            var nums = text.split(/[,\\s]+/).map(parseFloat).filter(function(n) { return !isNaN(n); });
+            var nums = text.split(/[,\s\t\n]+/).map(parseFloat).filter(function(n) { return !isNaN(n); });
 
             if (nums.length < 2) {
               document.getElementById('sd-s').textContent = '-';
@@ -3155,6 +3297,48 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             var sum = nums.reduce(function(a, b) { return a + b; }, 0);
             var mean = sum / n;
 
+            // Sort for median and quartiles
+            var sorted = nums.slice().sort(function(a, b) { return a - b; });
+
+            // Median
+            var median = 0;
+            if (n % 2 === 1) {
+              median = sorted[Math.floor(n / 2)];
+            } else {
+              median = (sorted[(n / 2) - 1] + sorted[n / 2]) / 2;
+            }
+
+            // Quartiles (Type 7 / standard interpolation)
+            function getPercentile(arr, p) {
+              if (arr.length === 1) return arr[0];
+              var idx = (arr.length - 1) * p;
+              var lo = Math.floor(idx);
+              var hi = Math.ceil(idx);
+              var weight = idx - lo;
+              return arr[lo] + (weight * (arr[hi] - arr[lo]));
+            }
+            var q1 = getPercentile(sorted, 0.25);
+            var q3 = getPercentile(sorted, 0.75);
+            var iqr = q3 - q1;
+            var lowerFence = q1 - (1.5 * iqr);
+            var upperFence = q3 + (1.5 * iqr);
+            var outliers = sorted.filter(function(x) { return x < lowerFence || x > upperFence; });
+
+            // Mode
+            var freq = {};
+            var maxFreq = 0;
+            sorted.forEach(function(x) {
+              freq[x] = (freq[x] || 0) + 1;
+              if (freq[x] > maxFreq) maxFreq = freq[x];
+            });
+            var modes = [];
+            if (maxFreq > 1) {
+              for (var k in freq) {
+                if (freq[k] === maxFreq) modes.push(k);
+              }
+            }
+
+            // Sum of squared deviations
             var sumSqDiff = nums.reduce(function(acc, x) {
               var d = x - mean;
               return acc + (d * d);
@@ -3170,6 +3354,28 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             var ciLow = mean - (1.96 * se);
             var ciHigh = mean + (1.96 * se);
 
+            var minVal = sorted[0];
+            var maxVal = sorted[sorted.length - 1];
+            var rangeVal = maxVal - minVal;
+
+            var cv = mean !== 0 ? ((sampleSD / Math.abs(mean)) * 100) : 0;
+            var skew = sampleSD > 0 ? (3 * (mean - median) / sampleSD) : 0;
+            var skewDesc = Math.abs(skew) < 0.2 ? 'Approx Symmetric' : (skew > 0 ? 'Right / Pos Skew' : 'Left / Neg Skew');
+
+            // Geometric and Harmonic (if positive)
+            var allPos = nums.every(function(x) { return x > 0; });
+            var geoMeanStr = '-';
+            var harMeanStr = '-';
+            if (allPos) {
+              var sumLn = nums.reduce(function(a, b) { return a + Math.log(b); }, 0);
+              var gm = Math.exp(sumLn / n);
+              var sumRecip = nums.reduce(function(a, b) { return a + (1 / b); }, 0);
+              var hm = n / sumRecip;
+              geoMeanStr = gm.toFixed(2);
+              harMeanStr = hm.toFixed(2);
+            }
+
+            // Update UI Elements
             document.getElementById('sd-s').textContent = sampleSD.toFixed(4);
             document.getElementById('sd-s-var').textContent = 'Variance (s²): ' + sampleVar.toFixed(4);
 
@@ -3177,10 +3383,190 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             document.getElementById('sd-p-var').textContent = 'Variance (σ²): ' + popVar.toFixed(4);
 
             document.getElementById('sd-mean').textContent = mean.toFixed(2);
-            document.getElementById('sd-count').textContent = 'Count (N): ' + n + ' | Sum: ' + sum.toLocaleString('en-US');
+            document.getElementById('sd-count').textContent = 'Count (N): ' + n + ' | Sum: ' + sum.toLocaleString('en-US', { maximumFractionDigits: 2 });
 
             document.getElementById('sd-se').textContent = se.toFixed(4);
             document.getElementById('sd-ci').textContent = '95% CI: [' + ciLow.toFixed(2) + ', ' + ciHigh.toFixed(2) + ']';
+
+            document.getElementById('sd-median').textContent = median.toFixed(2);
+            document.getElementById('sd-mode').textContent = modes.length > 0 ? (modes.join(', ') + ' (n=' + maxFreq + ')') : 'No unique mode';
+            document.getElementById('sd-range').textContent = minVal.toFixed(2) + ' – ' + maxVal.toFixed(2) + ' (' + rangeVal.toFixed(2) + ')';
+            document.getElementById('sd-quartiles').textContent = q1.toFixed(2) + ' • ' + q3.toFixed(2);
+            document.getElementById('sd-iqr').textContent = iqr.toFixed(2);
+            document.getElementById('sd-ss').textContent = sumSqDiff.toFixed(2);
+            document.getElementById('sd-cv').textContent = cv.toFixed(2) + '%';
+            document.getElementById('sd-skew').textContent = skew.toFixed(2) + ' (' + skewDesc + ')';
+            document.getElementById('sd-outliers').textContent = outliers.length > 0 ? (outliers.join(', ') + ' (' + outliers.length + ')') : 'None Detected';
+            document.getElementById('sd-outliers').style.color = outliers.length > 0 ? '#ef4444' : '#10b981';
+            document.getElementById('sd-means-other').textContent = geoMeanStr + ' • ' + harMeanStr;
+
+            // Render Work Table
+            var tbody = document.getElementById('sd-table-body');
+            var tableRows = '';
+            var sumDevCheck = 0;
+            var maxDisplayRows = Math.min(n, 50);
+
+            for (var i = 0; i < maxDisplayRows; i++) {
+              var val = nums[i];
+              var dev = val - mean;
+              sumDevCheck += dev;
+              var sq = dev * dev;
+              tableRows += '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.35rem 0.6rem; text-align: center; color: var(--text-muted);">' + (i + 1) + '</td>' +
+                '<td style="padding: 0.35rem 0.6rem; font-weight: bold;">' + val.toFixed(2) + '</td>' +
+                '<td style="padding: 0.35rem 0.6rem; color: ' + (dev >= 0 ? '#10b981' : '#f59e0b') + ';">' + (dev >= 0 ? '+' : '') + dev.toFixed(2) + '</td>' +
+                '<td style="padding: 0.35rem 0.6rem; color: #3b82f6;">' + sq.toFixed(4) + '</td>' +
+                '</tr>';
+            }
+            if (n > 50) {
+              tableRows += '<tr><td colspan="4" style="text-align: center; padding: 0.5rem; color: var(--text-muted);">... (' + (n - 50) + ' more rows calculated in summary totals) ...</td></tr>';
+            }
+            tbody.innerHTML = tableRows;
+            document.getElementById('sd-table-count').textContent = n + ' observations';
+            document.getElementById('sd-foot-sum').textContent = sum.toFixed(2);
+            document.getElementById('sd-foot-dev').textContent = Math.abs(sumDevCheck) < 0.0001 ? '0.00' : sumDevCheck.toFixed(2);
+            document.getElementById('sd-foot-ss').textContent = sumSqDiff.toFixed(2);
+
+            // Update Step Derivations
+            document.getElementById('sd-step-1').innerHTML = 'x̄ = (&Sigma; x<sub>i</sub>) / n = ' + sum.toFixed(2) + ' / ' + n + ' = <strong>' + mean.toFixed(4) + '</strong>';
+            document.getElementById('sd-step-2').innerHTML = 'SS = &Sigma; (x<sub>i</sub> - x̄)<sup>2</sup> = <strong>' + sumSqDiff.toFixed(4) + '</strong>';
+            document.getElementById('sd-step-3').innerHTML = 'Sample Variance s<sup>2</sup> = SS / (n - 1) = ' + sumSqDiff.toFixed(2) + ' / ' + (n - 1) + ' = <strong>' + sampleVar.toFixed(4) + '</strong><br>' +
+              'Population Variance &sigma;<sup>2</sup> = SS / N = ' + sumSqDiff.toFixed(2) + ' / ' + n + ' = <strong>' + popVar.toFixed(4) + '</strong>';
+            document.getElementById('sd-step-4').innerHTML = 'Sample s = &radic;' + sampleVar.toFixed(4) + ' = <strong>' + sampleSD.toFixed(4) + '</strong> &bull; Population &sigma; = &radic;' + popVar.toFixed(4) + ' = <strong>' + popSD.toFixed(4) + '</strong>';
+            document.getElementById('sd-step-5').innerHTML = 'SE = s / &radic;n = ' + sampleSD.toFixed(4) + ' / &radic;' + n + ' = <strong>' + se.toFixed(4) + '</strong><br>' +
+              '95% CI: [' + mean.toFixed(2) + ' &plusmn; 1.96 &times; ' + se.toFixed(4) + '] = <strong>[' + ciLow.toFixed(2) + ', ' + ciHigh.toFixed(2) + ']</strong>';
+
+            // Draw SVG Histogram and Bell Curve
+            drawSDHistogram(nums, minVal, maxVal, mean, sampleSD);
+
+            // Draw SVG Box Plot
+            drawSDBoxPlot(minVal, q1, median, q3, maxVal, outliers);
+          }
+
+          function drawSDHistogram(nums, minVal, maxVal, mean, sd) {
+            var svg = document.getElementById('sd-svg');
+            if (!svg) return;
+            var w = svg.clientWidth || 800;
+            var h = 220;
+            var padL = 35;
+            var padR = 25;
+            var padT = 20;
+            var padB = 30;
+            var plotW = w - padL - padR;
+            var plotH = h - padT - padB;
+
+            var numBins = Math.max(5, Math.min(10, Math.ceil(Math.sqrt(nums.length))));
+            var binWidth = (maxVal - minVal) / numBins;
+            if (binWidth === 0) binWidth = 1;
+
+            var bins = new Array(numBins).fill(0);
+            nums.forEach(function(x) {
+              var idx = Math.floor((x - minVal) / binWidth);
+              if (idx >= numBins) idx = numBins - 1;
+              bins[idx]++;
+            });
+            var maxFreq = Math.max.apply(null, bins.concat([1]));
+
+            var svgHtml = '';
+            var barW = plotW / numBins;
+
+            // Render histogram bars
+            for (var b = 0; b < numBins; b++) {
+              var count = bins[b];
+              var barH = (count / maxFreq) * plotH;
+              var bx = padL + (b * barW);
+              var by = padT + (plotH - barH);
+              var binStart = minVal + (b * binWidth);
+              var binEnd = binStart + binWidth;
+
+              svgHtml += '<rect x="' + (bx + 2) + '" y="' + by + '" width="' + Math.max(2, barW - 4) + '" height="' + barH + '" fill="#3b82f6" fill-opacity="0.65" stroke="#3b82f6" stroke-width="1" rx="2">';
+              svgHtml += '<title>Range [' + binStart.toFixed(1) + ' - ' + binEnd.toFixed(1) + ']: ' + count + ' observations</title></rect>';
+
+              if (count > 0) {
+                svgHtml += '<text x="' + (bx + (barW / 2)) + '" y="' + (by - 4) + '" font-family="monospace" font-size="10" fill="var(--fg)" text-anchor="middle">' + count + '</text>';
+              }
+              // X axis label
+              svgHtml += '<text x="' + (bx + (barW / 2)) + '" y="' + (h - 8) + '" font-family="monospace" font-size="9" fill="var(--text-muted)" text-anchor="middle">' + binStart.toFixed(1) + '</text>';
+            }
+
+            // Render Normal Distribution Curve (Gaussian PDF)
+            if (sd > 0) {
+              var pathPoints = [];
+              var steps = 60;
+              for (var s = 0; s <= steps; s++) {
+                var curXVal = minVal + (s * (maxVal - minVal) / steps);
+                var z = (curXVal - mean) / sd;
+                var pdf = (1 / (sd * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * z * z);
+                // Scale pdf so peak roughly matches highest bar
+                var pdfPeak = 1 / (sd * Math.sqrt(2 * Math.PI));
+                var scaledY = padT + plotH - ((pdf / pdfPeak) * plotH * 0.9);
+                var plotX = padL + ((curXVal - minVal) / (maxVal - minVal || 1)) * plotW;
+                pathPoints.push((s === 0 ? 'M' : 'L') + plotX.toFixed(1) + ',' + scaledY.toFixed(1));
+              }
+              svgHtml += '<path d="' + pathPoints.join(' ') + '" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" />';
+            }
+
+            // Mean vertical dashed line
+            if (maxVal > minVal) {
+              var meanX = padL + ((mean - minVal) / (maxVal - minVal)) * plotW;
+              svgHtml += '<line x1="' + meanX.toFixed(1) + '" y1="' + padT + '" x2="' + meanX.toFixed(1) + '" y2="' + (padT + plotH) + '" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,4" />';
+              svgHtml += '<text x="' + meanX.toFixed(1) + '" y="' + (padT - 5) + '" font-family="monospace" font-size="10" font-weight="bold" fill="#f59e0b" text-anchor="middle">x̄=' + mean.toFixed(1) + '</text>';
+            }
+
+            svg.innerHTML = svgHtml;
+          }
+
+          function drawSDBoxPlot(minVal, q1, med, q3, maxVal, outliers) {
+            var svg = document.getElementById('sd-boxplot-svg');
+            if (!svg) return;
+            var w = svg.clientWidth || 800;
+            var h = 55;
+            var padL = 35;
+            var padR = 25;
+            var plotW = w - padL - padR;
+            var range = maxVal - minVal || 1;
+
+            function valToX(v) {
+              return padL + (((v - minVal) / range) * plotW);
+            }
+
+            var xMin = valToX(minVal);
+            var xQ1 = valToX(q1);
+            var xMed = valToX(med);
+            var xQ3 = valToX(q3);
+            var xMax = valToX(maxVal);
+
+            var boxY = 12;
+            var boxH = 24;
+            var midY = boxY + (boxH / 2);
+
+            var svgHtml = '';
+            // Whiskers
+            svgHtml += '<line x1="' + xMin.toFixed(1) + '" y1="' + midY + '" x2="' + xQ1.toFixed(1) + '" y2="' + midY + '" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="2,2" />';
+            svgHtml += '<line x1="' + xQ3.toFixed(1) + '" y1="' + midY + '" x2="' + xMax.toFixed(1) + '" y2="' + midY + '" stroke="var(--fg)" stroke-width="1.5" stroke-dasharray="2,2" />';
+            // Whisker caps
+            svgHtml += '<line x1="' + xMin.toFixed(1) + '" y1="' + (midY - 6) + '" x2="' + xMin.toFixed(1) + '" y2="' + (midY + 6) + '" stroke="var(--fg)" stroke-width="2" />';
+            svgHtml += '<line x1="' + xMax.toFixed(1) + '" y1="' + (midY - 6) + '" x2="' + xMax.toFixed(1) + '" y2="' + (midY + 6) + '" stroke="var(--fg)" stroke-width="2" />';
+
+            // IQR Box
+            var boxW = Math.max(2, xQ3 - xQ1);
+            svgHtml += '<rect x="' + xQ1.toFixed(1) + '" y="' + boxY + '" width="' + boxW.toFixed(1) + '" height="' + boxH + '" fill="var(--surface-alt)" stroke="#3b82f6" stroke-width="2" rx="2" />';
+
+            // Median line
+            svgHtml += '<line x1="' + xMed.toFixed(1) + '" y1="' + boxY + '" x2="' + xMed.toFixed(1) + '" y2="' + (boxY + boxH) + '" stroke="#10b981" stroke-width="2.5" />';
+
+            // Outliers as red dots
+            outliers.forEach(function(out) {
+              var ox = valToX(out);
+              svgHtml += '<circle cx="' + ox.toFixed(1) + '" cy="' + midY + '" r="4" fill="#ef4444" stroke="var(--bg)" stroke-width="1"><title>Outlier: ' + out + '</title></circle>';
+            });
+
+            // Labels below
+            svgHtml += '<text x="' + xMin.toFixed(1) + '" y="' + (h - 2) + '" font-family="monospace" font-size="9" fill="var(--text-muted)" text-anchor="middle">' + minVal.toFixed(1) + '</text>';
+            svgHtml += '<text x="' + xMed.toFixed(1) + '" y="' + (h - 2) + '" font-family="monospace" font-size="9" fill="#10b981" font-weight="bold" text-anchor="middle">' + med.toFixed(1) + '</text>';
+            svgHtml += '<text x="' + xMax.toFixed(1) + '" y="' + (h - 2) + '" font-family="monospace" font-size="9" fill="var(--text-muted)" text-anchor="middle">' + maxVal.toFixed(1) + '</text>';
+
+            svg.innerHTML = svgHtml;
           }
 
           window.copySDSummary = function() {
@@ -3190,6 +3576,9 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             var count = document.getElementById('sd-count').textContent;
             var se = document.getElementById('sd-se').textContent;
             var ci = document.getElementById('sd-ci').textContent;
+            var median = document.getElementById('sd-median').textContent;
+            var iqr = document.getElementById('sd-iqr').textContent;
+            var outliers = document.getElementById('sd-outliers').textContent;
 
             var text = [
               '=== STATISTICAL DESCRIPTIVE SUMMARY ===',
@@ -3197,13 +3586,15 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               'Population Standard Deviation (σ): ' + p,
               'Arithmetic Mean (x̄): ' + mean,
               count,
+              'Median: ' + median + ' | IQR: ' + iqr,
               'Standard Error of the Mean (SE): ' + se,
               ci,
+              'Tukey Outliers: ' + outliers,
               '---------------------------------------',
               'Standard: NIST Engineering Statistics Handbook',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/standard-deviation-calculator'
-            ].join('\\n');
+            ].join('\n');
 
             navigator.clipboard.writeText(text).then(function() {
               var btn = document.getElementById('btnCopySD');
@@ -3223,9 +3614,16 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'markup-margin-calculator',
-      title: 'Markup vs Profit Margin Calculator (eCommerce & Retail Pricing)',
-      metaDesc: 'Convert between cost markup and gross profit margin. Calculate optimal retail selling price, dollar profit, and COGS with instant two-way formulas.',
+      title: 'Markup vs Profit Margin Calculator (eCommerce, Retail & Agency Pricing)',
+      metaDesc: 'Convert between cost markup and gross profit margin. Calculate optimal retail selling price, net profit after merchant fees & CAC, discount sensitivity, and break-even volume.',
       category: 'Finance & eCommerce',
+      faq: [
+        { q: 'What is the mathematical difference between markup and profit margin?', a: 'Markup is the percentage added to the cost of a product to determine its selling price: Markup = (Profit / Cost) × 100%. Profit margin is the percentage of the selling price that is profit: Margin = (Profit / Revenue) × 100%. Because cost is lower than selling price, markup percentage is always higher than gross margin percentage for the same product.' },
+        { q: 'Why does a 50% markup NOT equal a 50% profit margin?', a: 'If an item costs $50 and you mark it up by 50%, you add $25 to reach a selling price of $75. Your profit is $25. Your profit margin is $25 / $75 = 33.33%, NOT 50%. To achieve a true 50% profit margin on a $50 cost, you must price the item at $50 / (1 - 0.50) = $100, which is a 100% markup (keystoning).' },
+        { q: 'How does discounting a product affect gross profit margin?', a: 'Discounts disproportionately destroy gross profit. If a product with a 25% markup ($100 cost, $125 price, $25 profit) is discounted by 20% ($25 off, new price $100), 100% of your profit is erased. A 20% discount on a 25% markup leaves you at zero profit.' },
+        { q: 'What is Keystoning in retail pricing?', a: 'Keystoning is a traditional retail pricing strategy where merchandise is priced at double the wholesale cost—representing a 100% markup on cost and a 50% gross profit margin. While standard in apparel and gift retail, high-competition eCommerce often operates at lower margins (25%–40%).' },
+        { q: 'What is the difference between Gross Margin and Net Profit Margin?', a: 'Gross margin accounts only for the direct Cost of Goods Sold (COGS). Net profit margin accounts for all expenses: merchant credit card processing fees (~2.9% + $0.30), marketplace referral fees (Amazon 15%), customer acquisition ad spend (CAC), shipping, returns, and operating overhead.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
@@ -3234,66 +3632,178 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           </nav>
           <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Markup vs. Profit Margin Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert cost markup to gross profit margin and vice versa. Eliminate pricing mistakes that eat into eCommerce profits, agency billings, and wholesale distribution margins.
+            Convert cost markup to gross profit margin and vice versa. Calculate selling price, net profit after merchant processing fees and ad spend, and simulate discount impact on sales volume.
           </p>
 
           <div class="tool-box">
+            <!-- Mode Selector -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <button type="button" class="btn-sec" id="mm-mode-cost-markup" onclick="setMMMode('cost-markup')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem; border-color: #3b82f6; color: #3b82f6; font-weight: bold;">Cost &amp; Markup % &rarr; Price</button>
+              <button type="button" class="btn-sec" id="mm-mode-cost-margin" onclick="setMMMode('cost-margin')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">Cost &amp; Target Margin % &rarr; Price</button>
+              <button type="button" class="btn-sec" id="mm-mode-cost-price" onclick="setMMMode('cost-price')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">Cost &amp; Selling Price &rarr; Margins</button>
+              <button type="button" class="btn-sec" id="mm-mode-price-margin" onclick="setMMMode('price-margin')" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;">Target Costing (Price &amp; Margin &rarr; Max Cost)</button>
+            </div>
+
+            <!-- Primary Inputs Grid -->
             <div class="grid-inputs">
-              <div class="field-group">
-                <label class="field-label">Cost of Goods / Item Cost ($)</label>
-                <input type="number" id="mm-cost" class="code-input" value="40" min="0" step="1" oninput="calcMMFromCost()" style="font-size: 1.25rem;" />
+              <div class="field-group" id="mm-grp-cost">
+                <label class="field-label">Unit Cost of Goods (COGS $)</label>
+                <input type="number" id="mm-cost" class="code-input" value="40" min="0" step="0.01" oninput="recalcMM()" style="font-size: 1.2rem;" />
               </div>
-              <div class="field-group">
-                <label class="field-label">Target Markup (% on Cost)</label>
-                <input type="number" id="mm-markup" class="code-input" value="50" min="0" step="1" oninput="calcMMFromMarkup()" style="font-size: 1.25rem;" />
+              <div class="field-group" id="mm-grp-markup">
+                <label class="field-label">Cost Markup (% on Cost)</label>
+                <input type="number" id="mm-markup" class="code-input" value="50" min="0" step="0.5" oninput="recalcMM('markup')" style="font-size: 1.2rem;" />
               </div>
-              <div class="field-group">
-                <label class="field-label">Gross Profit Margin (% of Revenue)</label>
-                <input type="number" id="mm-margin" class="code-input" value="33.33" min="0" max="99.9" step="0.5" oninput="calcMMFromMargin()" style="font-size: 1.25rem;" />
+              <div class="field-group" id="mm-grp-margin">
+                <label class="field-label">Gross Margin (% of Revenue)</label>
+                <input type="number" id="mm-margin" class="code-input" value="33.33" min="0" max="99.9" step="0.1" oninput="recalcMM('margin')" style="font-size: 1.2rem;" />
+              </div>
+              <div class="field-group" id="mm-grp-price" style="display: none;">
+                <label class="field-label">Target Selling Price ($)</label>
+                <input type="number" id="mm-input-price" class="code-input" value="60" min="0" step="0.01" oninput="recalcMM('price')" style="font-size: 1.2rem;" />
               </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Recommended Retail Selling Price</div>
-              <div id="mm-price" class="result-val" style="color: #10b981;">$60.00</div>
-              <div id="mm-profit" style="font-size: 1.15rem; color: #3b82f6; font-family: var(--mono); margin-top: 0.4rem;">Gross Profit: $20.00 per unit</div>
-              <div id="mm-expl" style="font-size: 0.88rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">
-                50.0% Markup on Cost = 33.3% Gross Margin on Revenue
+            <!-- Real-World Deductions & Fee Waterfall Accordion -->
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-top: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <span style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600;">
+                  💳 Optional Real-World Deductions (Net Margin Waterfall):
+                </span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Credit card fees, marketplace cut, ad CAC</span>
               </div>
-
-              <!-- Fast Benchmark Table -->
-              <div style="margin-top: 1.5rem; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
-                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.5rem; color: var(--fg);">
-                  📊 Margin vs Markup Conversion Benchmark Table:
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem;">
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Payment Processing (%)</label>
+                  <input type="number" id="mm-pay-pct" class="code-input" value="2.9" step="0.1" min="0" oninput="recalcMM()" style="padding: 0.4rem; font-size: 0.85rem;" />
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.5rem; font-family: var(--mono); font-size: 0.8rem; text-align: center;">
-                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
-                    <div style="color: var(--text-muted);">20% Margin</div>
-                    <strong style="color: #3b82f6;">25.0% Markup</strong>
-                  </div>
-                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
-                    <div style="color: var(--text-muted);">33.3% Margin</div>
-                    <strong style="color: #3b82f6;">50.0% Markup</strong>
-                  </div>
-                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
-                    <div style="color: var(--text-muted);">50% Margin</div>
-                    <strong style="color: #10b981;">100% Markup</strong>
-                  </div>
-                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
-                    <div style="color: var(--text-muted);">60% Margin</div>
-                    <strong style="color: #f59e0b;">150% Markup</strong>
-                  </div>
-                  <div style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border);">
-                    <div style="color: var(--text-muted);">75% Margin</div>
-                    <strong style="color: #8b5cf6;">300% Markup</strong>
-                  </div>
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Payment Fixed Fee ($)</label>
+                  <input type="number" id="mm-pay-fixed" class="code-input" value="0.30" step="0.05" min="0" oninput="recalcMM()" style="padding: 0.4rem; font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Marketplace / Platform Fee (%)</label>
+                  <input type="number" id="mm-plat-pct" class="code-input" value="0" step="0.5" min="0" oninput="recalcMM()" placeholder="Amazon 15%, Etsy 6.5%" style="padding: 0.4rem; font-size: 0.85rem;" />
+                </div>
+                <div>
+                  <label style="display: block; font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.2rem;">Ad Spend / CAC ($ per unit)</label>
+                  <input type="number" id="mm-cac" class="code-input" value="0" step="0.5" min="0" oninput="recalcMM()" placeholder="0.00" style="padding: 0.4rem; font-size: 0.85rem;" />
                 </div>
               </div>
-
-              <button type="button" id="btnCopyMM" onclick="copyMMSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy Pricing & Profit Margin Analysis
-              </button>
             </div>
+
+            <!-- Hero Results Dashboard -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Recommended Selling Price</div>
+                <div id="mm-price" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">$60.00</div>
+                <div id="mm-markup-disp" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Markup: 50.0% on cost</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Gross Profit &amp; Margin</div>
+                <div id="mm-gross-profit" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">$20.00</div>
+                <div id="mm-gross-margin" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Gross Margin: 33.33%</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">True Net Profit (After Fees)</div>
+                <div id="mm-net-profit" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">$17.96</div>
+                <div id="mm-net-margin" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Net Margin: 29.93%</div>
+              </div>
+            </div>
+
+            <!-- Revenue Waterfall Stacked Bar (Pure CSS) -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; display: flex; justify-content: space-between;">
+                <span>Revenue Share Waterfall:</span>
+                <span id="mm-bar-legend" style="color: var(--fg);">100% Selling Price ($60.00)</span>
+              </div>
+              <div style="display: flex; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.75rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
+                <div id="mm-bar-cost" style="width: 66.7%; background: #ef4444;" title="COGS">COGS</div>
+                <div id="mm-bar-fees" style="width: 3.4%; background: #f59e0b;" title="Payment Fees">Fee</div>
+                <div id="mm-bar-plat" style="width: 0%; background: #a855f7;" title="Marketplace">Mkt</div>
+                <div id="mm-bar-cac" style="width: 0%; background: #3b82f6;" title="Ad CAC">CAC</div>
+                <div id="mm-bar-net" style="width: 29.9%; background: #10b981;" title="Net Profit">Profit</div>
+              </div>
+              <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> Cost of Goods</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #f59e0b; border-radius: 2px;"></span> Processing Fees</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #a855f7; border-radius: 2px;"></span> Marketplace Cut</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> Ad Spend (CAC)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Net Profit</span>
+              </div>
+            </div>
+
+            <!-- Asymmetric Discounting & Volume Multiplier Engine -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #ef4444; border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0; color: var(--fg);">
+                  📉 The Asymmetric Discounting Trap &amp; Required Sales Volume Multiplier:
+                </h4>
+                <span style="font-family: var(--mono); font-size: 0.75rem; color: #ef4444; font-weight: bold;">Margin Protection Alert</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                See how promotional discounts disproportionately destroy unit profitability, and calculate how many more units you must sell to break even on gross profit:
+              </p>
+              <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
+                <div>
+                  <label class="field-label">Simulate Promotional Discount: <span id="mm-disc-val" style="color: #ef4444; font-size: 1rem;">10% Off</span></label>
+                  <input type="range" id="mm-disc-slider" min="0" max="50" value="10" step="1" oninput="updateMMDiscount(this.value)" style="width: 100%; cursor: pointer;" />
+                </div>
+                <div style="text-align: right; min-width: 130px;">
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">Discounted Price:</div>
+                  <div id="mm-disc-price" style="font-family: var(--mono); font-size: 1.25rem; font-weight: bold; color: var(--fg);">$54.00</div>
+                </div>
+              </div>
+              <div id="mm-disc-breakdown" style="margin-top: 0.75rem; padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.82rem; line-height: 1.5;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Industry Margin Benchmarks Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--fg);">
+                📊 Standard Industry Margin &amp; Markup Benchmarks (Click to Load):
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 0.5rem; font-family: var(--mono); font-size: 0.8rem; text-align: center;">
+                <div onclick="loadMMBenchmark(2, 18)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Grocery Store</div>
+                  <strong style="color: #3b82f6;">15% Margin</strong>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">18% Markup</div>
+                </div>
+                <div onclick="loadMMBenchmark(150, 33.3)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Consumer Tech</div>
+                  <strong style="color: #3b82f6;">25% Margin</strong>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">33% Markup</div>
+                </div>
+                <div onclick="loadMMBenchmark(25, 100)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Apparel Keystoning</div>
+                  <strong style="color: #10b981;">50% Margin</strong>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">100% Markup</div>
+                </div>
+                <div onclick="loadMMBenchmark(6, 250)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Restaurant Food</div>
+                  <strong style="color: #f59e0b;">71% Margin</strong>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">250% Markup</div>
+                </div>
+                <div onclick="loadMMBenchmark(1.5, 450)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Bar Beverages</div>
+                  <strong style="color: #8b5cf6;">82% Margin</strong>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">450% Markup</div>
+                </div>
+                <div onclick="loadMMBenchmark(5, 566)" style="background: var(--surface-alt); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; transition: border-color 0.2s;" class="btn-sec">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">SaaS / Digital</div>
+                  <strong style="color: #10b981;">85% Margin</strong>
+                  <div style="font-size: 0.7rem; color: var(--text-muted);">566% Markup</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyMM" onclick="copyMMSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Pricing, Profit Margins &amp; Fee Waterfall Analysis
+            </button>
           </div>
 
           <!-- Step-by-Step Worked Derivation -->
@@ -3311,7 +3821,7 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 <div style="color: var(--fg); margin-top: 0.25rem;">
                   Markup % = [ (Selling Price - Cost) / Cost ] &times; 100
                 </div>
-                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                <div id="mm-step-markup" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
                   For $40 cost and $60 price: ($20 / $40) &times; 100 = <strong>50.0% Markup</strong>.
                 </div>
               </div>
@@ -3320,14 +3830,15 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
                 <div style="color: var(--fg); margin-top: 0.25rem;">
                   Margin % = [ (Selling Price - Cost) / Selling Price ] &times; 100
                 </div>
-                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                <div id="mm-step-margin" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
                   For $40 cost and $60 price: ($20 / $60) &times; 100 = <strong>33.3% Margin</strong>.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #8b5cf6;">Direct Conversion Formula</strong>
+                <strong style="color: #8b5cf6;">Direct Reciprocal Conversion Formulas</strong>
                 <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Price = Cost / [ 1 - (Margin % / 100) ] &bull; Markup % = [ Margin % / (100 - Margin %) ] &times; 100
+                  Price = Cost / [ 1 - (Margin % / 100) ] &bull; Markup % = [ Margin % / (100 - Margin %) ] &times; 100<br>
+                  Margin % = [ Markup % / (100 + Markup %) ] &times; 100
                 </div>
               </div>
             </div>
@@ -3335,70 +3846,188 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
           <!-- Critical Business Pitfalls -->
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Retail Pitfalls & Profit Bleed Traps</h3>
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Retail Pitfalls &amp; Profit Bleed Traps</h3>
             <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
               <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The 50% Markup vs 50% Margin Confusion:</strong> New eCommerce store owners frequently assume adding a 50% markup gives them a 50% profit margin. In reality, a 50% markup yields only a 33.3% gross margin. To achieve a 50% profit margin, you must use a <strong>100% markup</strong> (selling at double your unit cost). Confusing these numbers leads to catastrophic cash flow collapse.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Payment Processing & Ad Spend Blindspot:</strong> Gross profit margin accounts solely for Cost of Goods Sold (COGS). It does not include payment gateway fees (Stripe/PayPal ~2.9% + $0.30), platform transaction fees (Shopify/Amazon ~8%–15%), or customer acquisition cost (CAC). If your gross margin is 25% and your ad CAC takes 20%, you are operating at net negative cash flow after returns and shipping damages.</li>
               <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Asymmetric Discounting Trap:</strong> If you markup a product by 25% ($100 to $125) and later discount it by 20%, you return to break-even ($100). If you discount by 25%, you actually lose money ($93.75). Percentage discounts always hit harder than percentage markups of equal value.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Payment Processing &amp; Ad Spend Blindspot:</strong> Gross profit margin accounts solely for Cost of Goods Sold (COGS). It does not include payment gateway fees (Stripe/PayPal ~2.9% + $0.30), platform transaction fees (Shopify/Amazon ~8%–15%), or customer acquisition cost (CAC). If your gross margin is 25% and your ad CAC takes 20%, you are operating at net negative cash flow after returns and shipping damages.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Keystoning &amp; Wholesale Pricing Trap:</strong> If you sell wholesale to retailers, the retailer will want to keystone your wholesale price (double it). That means if your MSRP is $100, wholesale price must be $50, which means your unit manufacturing cost cannot exceed $20–$25 if you want to retain a viable brand margin.</li>
             </ul>
           </div>
         </div>
 
         <script>
-          function calcMMFromCost() {
+          var curMMMode = 'cost-markup';
+
+          window.setMMMode = function(mode) {
+            curMMMode = mode;
+            ['cost-markup', 'cost-margin', 'cost-price', 'price-margin'].forEach(function(m) {
+              var btn = document.getElementById('mm-mode-' + m);
+              if (btn) {
+                if (m === mode) {
+                  btn.style.borderColor = '#3b82f6';
+                  btn.style.color = '#3b82f6';
+                  btn.style.fontWeight = 'bold';
+                } else {
+                  btn.style.borderColor = 'var(--border)';
+                  btn.style.color = 'var(--fg)';
+                  btn.style.fontWeight = 'normal';
+                }
+              }
+            });
+
+            // Adjust input visibility
+            document.getElementById('mm-grp-cost').style.display = 'block';
+            document.getElementById('mm-grp-markup').style.display = (mode === 'cost-markup' || mode === 'cost-price') ? 'block' : 'none';
+            document.getElementById('mm-grp-margin').style.display = (mode === 'cost-margin' || mode === 'price-margin') ? 'block' : 'none';
+            document.getElementById('mm-grp-price').style.display = (mode === 'cost-price' || mode === 'price-margin') ? 'block' : 'none';
+
+            recalcMM();
+          };
+
+          window.loadMMBenchmark = function(cost, markup) {
+            document.getElementById('mm-cost').value = cost;
+            document.getElementById('mm-markup').value = markup;
+            setMMMode('cost-markup');
+          };
+
+          function recalcMM(source) {
             var cost = parseFloat(document.getElementById('mm-cost').value) || 0;
             var markup = parseFloat(document.getElementById('mm-markup').value) || 0;
-            var price = cost * (1 + (markup / 100));
-            var profit = price - cost;
-            var margin = price > 0 ? ((profit / price) * 100) : 0;
-
-            document.getElementById('mm-margin').value = margin.toFixed(2);
-            updateMMResults(price, profit, markup, margin);
-          }
-
-          function calcMMFromMarkup() {
-            calcMMFromCost();
-          }
-
-          function calcMMFromMargin() {
-            var cost = parseFloat(document.getElementById('mm-cost').value) || 0;
             var margin = parseFloat(document.getElementById('mm-margin').value) || 0;
-            if (margin >= 100) margin = 99.9;
+            var inPrice = parseFloat(document.getElementById('mm-input-price').value) || 0;
 
-            var price = cost / (1 - (margin / 100));
-            var profit = price - cost;
-            var markup = cost > 0 ? ((profit / cost) * 100) : 0;
+            var price = 0;
+            var profit = 0;
 
-            document.getElementById('mm-markup').value = markup.toFixed(2);
-            updateMMResults(price, profit, markup, margin);
-          }
+            if (curMMMode === 'cost-markup') {
+              price = cost * (1 + (markup / 100));
+              profit = price - cost;
+              margin = price > 0 ? ((profit / price) * 100) : 0;
+              document.getElementById('mm-margin').value = margin.toFixed(2);
+            } else if (curMMMode === 'cost-margin') {
+              if (margin >= 100) margin = 99.9;
+              price = cost / (1 - (margin / 100));
+              profit = price - cost;
+              markup = cost > 0 ? ((profit / cost) * 100) : 0;
+              document.getElementById('mm-markup').value = markup.toFixed(2);
+            } else if (curMMMode === 'cost-price') {
+              price = inPrice;
+              profit = price - cost;
+              markup = cost > 0 ? ((profit / cost) * 100) : 0;
+              margin = price > 0 ? ((profit / price) * 100) : 0;
+              document.getElementById('mm-markup').value = markup.toFixed(2);
+              document.getElementById('mm-margin').value = margin.toFixed(2);
+            } else if (curMMMode === 'price-margin') {
+              price = inPrice;
+              if (margin >= 100) margin = 99.9;
+              cost = price * (1 - (margin / 100));
+              profit = price - cost;
+              markup = cost > 0 ? ((profit / cost) * 100) : 0;
+              document.getElementById('mm-cost').value = cost.toFixed(2);
+              document.getElementById('mm-markup').value = markup.toFixed(2);
+            }
 
-          function updateMMResults(price, profit, markup, margin) {
+            // Real-World Fee Waterfall
+            var payPct = parseFloat(document.getElementById('mm-pay-pct').value) || 0;
+            var payFixed = parseFloat(document.getElementById('mm-pay-fixed').value) || 0;
+            var platPct = parseFloat(document.getElementById('mm-plat-pct').value) || 0;
+            var cac = parseFloat(document.getElementById('mm-cac').value) || 0;
+
+            var payFee = price > 0 ? ((price * (payPct / 100)) + payFixed) : 0;
+            var platFee = price > 0 ? (price * (platPct / 100)) : 0;
+            var totalDeductions = payFee + platFee + cac;
+            var netProfit = profit - totalDeductions;
+            var netMargin = price > 0 ? ((netProfit / price) * 100) : 0;
+
+            // Update Primary Hero Results
             document.getElementById('mm-price').textContent = '$' + price.toFixed(2);
-            document.getElementById('mm-profit').textContent = 'Gross Profit: $' + profit.toFixed(2) + ' per unit';
-            document.getElementById('mm-expl').textContent = markup.toFixed(1) + '% Markup on Cost = ' + margin.toFixed(1) + '% Gross Margin on Revenue';
+            document.getElementById('mm-markup-disp').textContent = 'Markup: ' + markup.toFixed(1) + '% on cost';
+
+            document.getElementById('mm-gross-profit').textContent = '$' + profit.toFixed(2);
+            document.getElementById('mm-gross-margin').textContent = 'Gross Margin: ' + margin.toFixed(2) + '%';
+
+            var netEl = document.getElementById('mm-net-profit');
+            netEl.textContent = '$' + netProfit.toFixed(2);
+            netEl.style.color = netProfit >= 0 ? '#10b981' : '#ef4444';
+
+            var netMarginEl = document.getElementById('mm-net-margin');
+            netMarginEl.textContent = 'Net Margin: ' + netMargin.toFixed(2) + '% (' + (netProfit >= 0 ? 'Profitable' : 'LOSS') + ')';
+            netMarginEl.style.color = netProfit >= 0 ? 'var(--text-muted)' : '#ef4444';
+
+            // Update Waterfall Bar
+            if (price > 0) {
+              var costPct = Math.max(0, (cost / price) * 100);
+              var payFeePct = Math.max(0, (payFee / price) * 100);
+              var platFeePct = Math.max(0, (platFee / price) * 100);
+              var cacPct = Math.max(0, (cac / price) * 100);
+              var netPct = Math.max(0, netMargin);
+
+              document.getElementById('mm-bar-cost').style.width = costPct.toFixed(1) + '%';
+              document.getElementById('mm-bar-fees').style.width = payFeePct.toFixed(1) + '%';
+              document.getElementById('mm-bar-plat').style.width = platFeePct.toFixed(1) + '%';
+              document.getElementById('mm-bar-cac').style.width = cacPct.toFixed(1) + '%';
+              document.getElementById('mm-bar-net').style.width = netPct.toFixed(1) + '%';
+
+              document.getElementById('mm-bar-legend').textContent = '100% Selling Price ($' + price.toFixed(2) + ')';
+            }
+
+            // Update Step Worked Text
+            document.getElementById('mm-step-markup').innerHTML = 'For $' + cost.toFixed(2) + ' cost and $' + price.toFixed(2) + ' price: ($' + profit.toFixed(2) + ' / $' + cost.toFixed(2) + ') &times; 100 = <strong>' + markup.toFixed(1) + '% Markup</strong>.';
+            document.getElementById('mm-step-margin').innerHTML = 'For $' + cost.toFixed(2) + ' cost and $' + price.toFixed(2) + ' price: ($' + profit.toFixed(2) + ' / $' + price.toFixed(2) + ') &times; 100 = <strong>' + margin.toFixed(1) + '% Margin</strong>.';
+
+            // Run Discount Simulator
+            updateMMDiscount(document.getElementById('mm-disc-slider').value);
           }
+
+          window.updateMMDiscount = function(discPct) {
+            document.getElementById('mm-disc-val').textContent = discPct + '% Off';
+            var cost = parseFloat(document.getElementById('mm-cost').value) || 0;
+            var markup = parseFloat(document.getElementById('mm-markup').value) || 0;
+            var origPrice = cost * (1 + (markup / 100));
+            var origProfit = origPrice - cost;
+
+            var disc = parseFloat(discPct) || 0;
+            var discPrice = origPrice * (1 - (disc / 100));
+            var newProfit = discPrice - cost;
+            var newMargin = discPrice > 0 ? ((newProfit / discPrice) * 100) : 0;
+            var profitLost = origProfit - newProfit;
+
+            document.getElementById('mm-disc-price').textContent = '$' + discPrice.toFixed(2);
+
+            var box = document.getElementById('mm-disc-breakdown');
+            if (newProfit <= 0) {
+              box.innerHTML = '<span style="color: #ef4444; font-weight: bold;">⛔ FATAL PRICING LOSS:</span> Offering a ' + disc + '% discount cuts your price below cost ($' + discPrice.toFixed(2) + ' vs cost $' + cost.toFixed(2) + '). You lose $' + Math.abs(newProfit).toFixed(2) + ' on every unit sold. <strong>No volume increase can overcome this loss!</strong>';
+            } else {
+              var volumeMultiplier = origProfit / newProfit;
+              var requiredVolIncrease = (volumeMultiplier - 1) * 100;
+              box.innerHTML = 'A <strong>' + disc + '% discount</strong> reduces gross profit from $' + origProfit.toFixed(2) + ' to <strong>$' + newProfit.toFixed(2) + '</strong> (-$' + profitLost.toFixed(2) + ', margin drops to ' + newMargin.toFixed(1) + '%).<br>' +
+                'To generate the exact same total dollar profit, you must sell <strong>' + volumeMultiplier.toFixed(2) + 'x as many units (+' + requiredVolIncrease.toFixed(1) + '% sales volume)</strong>!';
+            }
+          };
 
           window.copyMMSummary = function() {
             var cost = document.getElementById('mm-cost').value;
             var markup = document.getElementById('mm-markup').value;
             var margin = document.getElementById('mm-margin').value;
             var price = document.getElementById('mm-price').textContent;
-            var profit = document.getElementById('mm-profit').textContent;
+            var grossProfit = document.getElementById('mm-gross-profit').textContent;
+            var netProfit = document.getElementById('mm-net-profit').textContent;
+            var netMargin = document.getElementById('mm-net-margin').textContent;
 
             var text = [
               '=== PRICING & PROFIT MARGIN ANALYSIS ===',
               'Cost of Goods (COGS): $' + parseFloat(cost).toFixed(2),
               'Cost Markup: ' + markup + '%',
               'Gross Profit Margin: ' + margin + '%',
-              '---------------------------------------',
-              'Recommended Selling Price: ' + price,
-              profit,
+              'Recommended Retail Price: ' + price,
+              'Gross Profit per Unit: ' + grossProfit,
+              'Net Profit (After Fees & CAC): ' + netProfit + ' (' + netMargin + ')',
               '---------------------------------------',
               'Standard: GAAP Cost Accounting Principles',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/markup-margin-calculator'
-            ].join('\\n');
+            ].join('\n');
 
             navigator.clipboard.writeText(text).then(function() {
               var btn = document.getElementById('btnCopyMM');
@@ -3411,100 +4040,341 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcMMFromCost);
-          calcMMFromCost();
+          document.addEventListener('DOMContentLoaded', function() { recalcMM(); });
+          recalcMM();
         </script>
       `
     },
     {
       slug: 'permutation-combination-calculator',
-      title: 'Permutation and Combination Calculator (nPr & nCr)',
-      metaDesc: 'Calculate permutations (nPr order matters) and combinations (nCr order does not matter) with factorial solutions and step-by-step formulas.',
+      title: 'Permutation and Combination Calculator (nPr & nCr with BigInt Precision)',
+      metaDesc: 'Calculate permutations (nPr) and combinations (nCr) with exact BigInt factorials, repetition modes, step-by-step cancelation proofs, and lottery odds.',
       category: 'Math & Probability',
+      faq: [
+        { q: 'What is the fundamental difference between a permutation and a combination?', a: 'In permutations, order matters (AB ≠ BA). In combinations, order does NOT matter (AB = BA). For example, selecting 1st, 2nd, and 3rd place winners in a race is a permutation (nPr), whereas selecting a committee of 3 members from a group is a combination (nCr).' },
+        { q: 'Why is a standard padlock called a "combination lock" if order matters?', a: 'Everyday language often confuses permutations and combinations. A combination lock is mathematically a permutation lock because entering the digits in the wrong order (e.g. 10-20-30 instead of 30-20-10) will not open the lock!' },
+        { q: 'How does repetition affect permutations and combinations?', a: 'Without repetition: each item can be chosen at most once (nPr = n! / (n-r)! and nCr = n! / (r!(n-r)!)). With repetition: items can be picked multiple times. Permutations with repetition equals n^r (like 4-digit PINs: 10^4 = 10,000). Combinations with repetition equals (n + r - 1)! / (r!(n - 1)!) (Stars and Bars theorem, like picking 3 scoops of ice cream from 5 flavors: (5+3-1)! / (3! 4!) = 35).' },
+        { q: 'What are the odds of winning the Powerball or Mega Millions jackpot?', a: 'In Powerball, you choose 5 white balls out of 69 without replacement (69 choose 5 = 11,238,513) and 1 red Powerball out of 26 (26). Total jackpot combinations = 11,238,513 × 26 = 292,201,338 (1 in 292.2 million). In Mega Millions, you choose 5 of 70 (70 choose 5 = 12,103,014) and 1 of 25, yielding 302,575,350 combinations (1 in 302.6 million).' },
+        { q: 'Why is 0! = 1 in factorial mathematics?', a: 'Mathematically, n! = n × (n-1)!, which means (n-1)! = n! / n. Setting n = 1 yields 0! = 1! / 1 = 1. In combinatorics, 0! = 1 represents the single unique way to arrange zero objects (the empty set). Without this convention, formulas like n choose n = n! / (n! 0!) = 1 and n choose 0 = n! / (0! n!) = 1 would break.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Permutations & Combinations
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Permutations &amp; Combinations
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Permutations & Combinations Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Permutations and Combinations Calculator (nPr &amp; nCr)</h1>
           <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate total arrangements (nPr) and selections (nCr) from a set of $n$ distinct objects taken $r$ at a time.
+            Calculate total arrangements ($n\text{P}r$) and selections ($n\text{C}r$) with exact arbitrary-precision BigInt integers, repetition modes, step-by-step factorial cancellations, and lottery probability odds.
           </p>
 
           <div class="tool-box">
+            <!-- Quick Preset Buttons -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Real-World Presets:</span>
+              <button type="button" class="btn-sec" onclick="setPCPreset(69, 5)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Powerball White (69 C 5)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(70, 5)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Mega Millions (70 C 5)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(52, 5)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem; border-color: #10b981; color: #10b981; font-weight: bold;">Poker Hands (52 C 5)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(10, 4)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">4-Digit PIN (10 P 4)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(16, 2)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Handshakes (16 C 2)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(8, 3)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Ice Cream Scoops (8 C 3)</button>
+            </div>
+
+            <!-- Primary Inputs Grid -->
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Total Set Size (n)</label>
-                <input type="number" id="pc-n" class="code-input" value="10" min="0" max="100" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
+                <label class="field-label">Total Set Size (n items in pool)</label>
+                <input type="number" id="pc-n" class="code-input" value="10" min="0" max="500" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Subset Sample Size (r)</label>
-                <input type="number" id="pc-r" class="code-input" value="3" min="0" max="100" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
+                <label class="field-label">Sample Size Chosen (r items selected)</label>
+                <input type="number" id="pc-r" class="code-input" value="3" min="0" max="500" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+            <!-- 4 Core Results Hero Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Combinations (nCr)</div>
-                <div id="pc-ncr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">120</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order does not matter</div>
+                <div id="pc-ncr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0; word-break: break-word;">120</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order DOES NOT matter &bull; No Repetition</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Permutations (nPr)</div>
-                <div id="pc-npr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">720</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order matters</div>
+                <div id="pc-npr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0; word-break: break-word;">720</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order MATTERS &bull; No Repetition</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Factorials (n! and r!)</div>
-                <div id="pc-fact" style="font-family: var(--mono); font-size: 1.25rem; font-weight: bold; color: var(--fg); margin: 0.5rem 0;">n! = 3,628,800</div>
-                <div id="pc-rfact" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">r! = 6</div>
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Permutations WITH Repetition</div>
+                <div id="pc-prep" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0; word-break: break-word;">1,000</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Formula: n<sup>r</sup> (PINs &bull; Passwords)</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Combinations WITH Repetition</div>
+                <div id="pc-crep" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0; word-break: break-word;">220</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Stars &amp; Bars: (n + r - 1) C r</div>
               </div>
             </div>
+
+            <!-- Factorials Breakdown Bar -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.82rem;">
+              <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Total Pool Factorial (n!)</div>
+                <div id="pc-fact" style="font-weight: bold; color: var(--fg); font-size: 0.95rem; margin-top: 0.2rem; word-break: break-all;">3,628,800</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Selection Factorial (r!)</div>
+                <div id="pc-rfact" style="font-weight: bold; color: var(--fg); font-size: 0.95rem; margin-top: 0.2rem; word-break: break-all;">6</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Remainder Factorial ((n - r)!)</div>
+                <div id="pc-remfact" style="font-weight: bold; color: var(--fg); font-size: 0.95rem; margin-top: 0.2rem; word-break: break-all;">5,040</div>
+              </div>
+            </div>
+
+            <!-- Full Exact Digits Modal / Drawer Toggle (if huge) -->
+            <div id="pc-huge-note" style="display: none; margin-top: 0.75rem; padding: 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.78rem; text-align: center;">
+              Numbers exceed standard display width. <button type="button" class="btn-sec" onclick="toggleExactModal()" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; margin-left: 0.5rem;">View Exact Full Digits</button>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyPC" onclick="copyPCSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Permutations &amp; Combinations Evaluation Report
+            </button>
+          </div>
+
+          <!-- Step-by-Step Factorial Cancellation Engine -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Factorial Cancellation Proofs</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Algebraic Simplification</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Directly expanding large factorials is computationally wasteful. Instead, $(n - r)!$ cancels completely from the numerator:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6;">Permutations (nPr) Cancellation:</strong>
+                <div id="pc-step-npr" style="color: var(--fg); margin-top: 0.25rem;">
+                  nPr = 10! / (10 - 3)! = (10 &times; 9 &times; 8 &times; 7!) / 7! = 10 &times; 9 &times; 8 = <strong>720</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981;">Combinations (nCr) Cancellation &amp; Division:</strong>
+                <div id="pc-step-ncr" style="color: var(--fg); margin-top: 0.25rem;">
+                  nCr = nPr / r! = 720 / 3! = 720 / (3 &times; 2 &times; 1) = 720 / 6 = <strong>120</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Poker Hands & Probability Benchmark Table -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🃏 Standard 5-Card Poker Hand Combinations (52 C 5)</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Total Hands = 2,598,960</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Combinatorics gives exact counts and probabilities for every poker hand in a standard 52-card deck:
+            </p>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: left;">
+                <thead>
+                  <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+                    <th style="padding: 0.5rem 0.75rem;">Poker Hand</th>
+                    <th style="padding: 0.5rem 0.75rem;">Combinatorics Formula</th>
+                    <th style="padding: 0.5rem 0.75rem;">Total Possible Hands</th>
+                    <th style="padding: 0.5rem 0.75rem;">Exact Odds</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold; color: #10b981;">Royal Flush</td><td style="padding: 0.4rem 0.75rem;">4 suits &times; 1</td><td style="padding: 0.4rem 0.75rem;">4</td><td style="padding: 0.4rem 0.75rem;">1 in 649,740</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Straight Flush</td><td style="padding: 0.4rem 0.75rem;">(10 - 1) &times; 4</td><td style="padding: 0.4rem 0.75rem;">36</td><td style="padding: 0.4rem 0.75rem;">1 in 72,193</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Four of a Kind</td><td style="padding: 0.4rem 0.75rem;">13 &times; (48 C 1)</td><td style="padding: 0.4rem 0.75rem;">624</td><td style="padding: 0.4rem 0.75rem;">1 in 4,165</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Full House</td><td style="padding: 0.4rem 0.75rem;">(13 C 1)(4 C 3) &times; (12 C 1)(4 C 2)</td><td style="padding: 0.4rem 0.75rem;">3,744</td><td style="padding: 0.4rem 0.75rem;">1 in 694</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Flush</td><td style="padding: 0.4rem 0.75rem;">4 &times; (13 C 5) - 40</td><td style="padding: 0.4rem 0.75rem;">5,108</td><td style="padding: 0.4rem 0.75rem;">1 in 509</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Straight</td><td style="padding: 0.4rem 0.75rem;">10 &times; (4^5) - 40</td><td style="padding: 0.4rem 0.75rem;">10,200</td><td style="padding: 0.4rem 0.75rem;">1 in 255</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Three of a Kind</td><td style="padding: 0.4rem 0.75rem;">13 &times; (4 C 3) &times; (12 C 2) &times; 4^2</td><td style="padding: 0.4rem 0.75rem;">54,912</td><td style="padding: 0.4rem 0.75rem;">1 in 47</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Two Pair</td><td style="padding: 0.4rem 0.75rem;">(13 C 2)(4 C 2)^2 &times; (11 C 1)(4 C 1)</td><td style="padding: 0.4rem 0.75rem;">123,552</td><td style="padding: 0.4rem 0.75rem;">1 in 21</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">One Pair</td><td style="padding: 0.4rem 0.75rem;">13 &times; (4 C 2) &times; (12 C 3) &times; 4^3</td><td style="padding: 0.4rem 0.75rem;">1,098,240</td><td style="padding: 0.4rem 0.75rem;">1 in 2.37 (42.26%)</td></tr>
+                  <tr><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">High Card</td><td style="padding: 0.4rem 0.75rem;">[(13 C 5) - 10] &times; (4^5 - 4)</td><td style="padding: 0.4rem 0.75rem;">1,302,540</td><td style="padding: 0.4rem 0.75rem;">1 in 2 (50.12%)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Critical Combinatorics Traps -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Combinatorics Traps &amp; Common Fallacies</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Combination Lock Misnomer:</strong> A standard rotary dial lock is mathematically a <em>permutation lock</em>, because order matters. Dialing 30-10-20 will not open a lock keyed to 10-20-30. True combinations occur only when the order of items is irrelevant (like picking lotto balls or lottery tickets).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Overcounting Fallacy (Duplicate Items):</strong> When calculating arrangements of words with repeated letters (like "MISSISSIPPI"), standard $n!$ drastically overcounts. You must divide by the factorials of each repeated letter count ($11! / (4! 	imes 4! 	imes 2!) = 34,650$).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sampling With vs. Without Replacement:</strong> Drawing cards from a deck without replacement changes the pool size from $52 	o 51 	o 50$. Rolling dice or guessing passwords has replacement, meaning each choice is independent ($n^r$). Mixing these models ruins probability estimates.</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function factorial(num) {
-            if (num < 0) return 0;
-            if (num === 0 || num === 1) return 1;
-            var res = 1;
-            for (var i = 2; i <= num; i++) {
+          // BigInt Arbitrary-Precision Factorial and Combinatorics
+          function bigFact(num) {
+            if (num < 0) return 0n;
+            if (num === 0 || num === 1) return 1n;
+            var res = 1n;
+            var bigN = BigInt(num);
+            for (var i = 2n; i <= bigN; i++) {
               res *= i;
-              if (res > 1e15) break; // overflow safety
             }
             return res;
           }
+
+          function bigNPr(n, r) {
+            if (n < 0 || r < 0 || r > n) return 0n;
+            var res = 1n;
+            var bigN = BigInt(n);
+            var limit = BigInt(n - r);
+            for (var i = bigN; i > limit; i--) {
+              res *= i;
+            }
+            return res;
+          }
+
+          function bigNCr(n, r) {
+            if (n < 0 || r < 0 || r > n) return 0n;
+            if (r === 0 || r === n) return 1n;
+            // Symmetry optimization
+            if (r > n - r) r = n - r;
+            var npr = bigNPr(n, r);
+            var rfact = bigFact(r);
+            return npr / rfact;
+          }
+
+          function formatBigInt(val) {
+            var s = val.toString();
+            if (s.length <= 18) {
+              return Number(s).toLocaleString('en-US');
+            } else {
+              // Scientific notation + length
+              var exp = s.length - 1;
+              var lead = s.substring(0, 4);
+              var formattedLead = lead[0] + '.' + lead.substring(1);
+              return formattedLead + ' &times; 10<sup>' + exp + '</sup> <span style="font-size: 0.72rem; color: var(--text-muted);">(' + s.length + ' digits)</span>';
+            }
+          }
+
+          window.setPCPreset = function(n, r) {
+            document.getElementById('pc-n').value = n;
+            document.getElementById('pc-r').value = r;
+            calcPC();
+          };
 
           function calcPC() {
             var n = parseInt(document.getElementById('pc-n').value, 10);
             var r = parseInt(document.getElementById('pc-r').value, 10);
 
-            if (isNaN(n) || isNaN(r) || n < 0 || r < 0 || r > n) {
+            if (isNaN(n) || isNaN(r) || n < 0 || r < 0) {
               document.getElementById('pc-ncr').textContent = '-';
               document.getElementById('pc-npr').textContent = '-';
+              document.getElementById('pc-prep').textContent = '-';
+              document.getElementById('pc-crep').textContent = '-';
               return;
             }
 
-            // nPr = n! / (n-r)!
-            var npr = 1;
-            for (var i = n; i > (n - r); i--) {
-              npr *= i;
+            if (r > n) {
+              document.getElementById('pc-ncr').textContent = '0 (r > n)';
+              document.getElementById('pc-npr').textContent = '0 (r > n)';
+            } else {
+              var ncrVal = bigNCr(n, r);
+              var nprVal = bigNPr(n, r);
+              document.getElementById('pc-ncr').innerHTML = formatBigInt(ncrVal);
+              document.getElementById('pc-npr').innerHTML = formatBigInt(nprVal);
             }
 
-            // nCr = nPr / r!
-            var rFact = factorial(r);
-            var ncr = Math.round(npr / rFact);
+            // Permutations with repetition: n^r
+            var prepVal = 0n;
+            try {
+              if (n <= 1000 && r <= 200) {
+                prepVal = BigInt(n) ** BigInt(r);
+                document.getElementById('pc-prep').innerHTML = formatBigInt(prepVal);
+              } else {
+                document.getElementById('pc-prep').textContent = '> 10^300 (Overflow)';
+              }
+            } catch (e) {
+              document.getElementById('pc-prep').textContent = 'Overflow';
+            }
 
-            document.getElementById('pc-ncr').textContent = ncr.toLocaleString('en-US');
-            document.getElementById('pc-npr').textContent = npr.toLocaleString('en-US');
+            // Combinations with repetition: (n + r - 1) C r
+            if (n > 0) {
+              var crepVal = bigNCr(n + r - 1, r);
+              document.getElementById('pc-crep').innerHTML = formatBigInt(crepVal);
+            } else {
+              document.getElementById('pc-crep').textContent = '-';
+            }
 
-            var nFact = n <= 20 ? factorial(n).toLocaleString('en-US') : '> 10^18';
-            document.getElementById('pc-fact').textContent = 'n! = ' + nFact;
-            document.getElementById('pc-rfact').textContent = 'r! = ' + (r <= 20 ? rFact.toLocaleString('en-US') : '> 10^18');
+            // Factorials
+            var nFact = n <= 50 ? formatBigInt(bigFact(n)) : '> 10^64 (' + n + '!)';
+            var rFact = r <= 50 ? formatBigInt(bigFact(r)) : '> 10^64 (' + r + '!)';
+            var remFact = (n >= r && (n - r) <= 50) ? formatBigInt(bigFact(n - r)) : '> 10^64';
+
+            document.getElementById('pc-fact').innerHTML = nFact;
+            document.getElementById('pc-rfact').innerHTML = rFact;
+            document.getElementById('pc-remfact').innerHTML = remFact;
+
+            // Step Cancellation text
+            if (r <= n && r <= 10) {
+              var prodTerms = [];
+              for (var k = n; k > (n - r); k--) {
+                prodTerms.push(k);
+              }
+              var numStr = prodTerms.join(' &times; ');
+              var denTerms = [];
+              for (var d = r; d >= 1; d--) {
+                denTerms.push(d);
+              }
+              var denStr = denTerms.join(' &times; ');
+
+              document.getElementById('pc-step-npr').innerHTML = 'nPr = ' + n + '! / (' + n + ' - ' + r + ')! = (' + numStr + ' &times; ' + (n - r) + '!) / ' + (n - r) + '! = ' + (numStr ? numStr : '1') + ' = <strong>' + formatBigInt(bigNPr(n, r)) + '</strong>';
+              document.getElementById('pc-step-ncr').innerHTML = 'nCr = nPr / ' + r + '! = ' + formatBigInt(bigNPr(n, r)) + ' / (' + (denStr ? denStr : '1') + ') = <strong>' + formatBigInt(bigNCr(n, r)) + '</strong>';
+            } else if (r <= n) {
+              document.getElementById('pc-step-npr').innerHTML = 'nPr = ' + n + '! / (' + n + ' - ' + r + ')! = <strong>' + formatBigInt(bigNPr(n, r)) + '</strong>';
+              document.getElementById('pc-step-ncr').innerHTML = 'nCr = nPr / ' + r + '! = <strong>' + formatBigInt(bigNCr(n, r)) + '</strong>';
+            }
           }
+
+          window.copyPCSummary = function() {
+            var n = document.getElementById('pc-n').value;
+            var r = document.getElementById('pc-r').value;
+            var ncr = document.getElementById('pc-ncr').innerText;
+            var npr = document.getElementById('pc-npr').innerText;
+            var prep = document.getElementById('pc-prep').innerText;
+            var crep = document.getElementById('pc-crep').innerText;
+
+            var text = [
+              '=== COMBINATORICS EVALUATION REPORT ===',
+              'Set Size (n): ' + n,
+              'Sample Size (r): ' + r,
+              'Combinations Without Repetition (nCr): ' + ncr,
+              'Permutations Without Repetition (nPr): ' + npr,
+              'Permutations WITH Repetition (n^r): ' + prep,
+              'Combinations WITH Repetition (n+r-1 C r): ' + crep,
+              '---------------------------------------',
+              'Precision: Native Arbitrary-Precision BigInt',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/permutation-combination-calculator'
+            ].join('\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyPC');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Combinatorics Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', calcPC);
           calcPC();

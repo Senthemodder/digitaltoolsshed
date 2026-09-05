@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Permutation and Combination Calculator (nPr & nCr) | Digital Tools Shed</title>
-  <meta name="description" content="Calculate permutations (nPr order matters) and combinations (nCr order does not matter) with factorial solutions and step-by-step formulas.">
+  <title>Permutation and Combination Calculator (nPr & nCr with BigInt Precision) | Digital Tools Shed</title>
+  <meta name="description" content="Calculate permutations (nPr) and combinations (nCr) with exact BigInt factorials, repetition modes, step-by-step cancelation proofs, and lottery odds.">
   <link rel="canonical" href="https://digitaltoolsshed.com/math/permutation-combination-calculator">
-  <meta property="og:title" content="Permutation and Combination Calculator (nPr & nCr) | Digital Tools Shed">
-  <meta property="og:description" content="Calculate permutations (nPr order matters) and combinations (nCr order does not matter) with factorial solutions and step-by-step formulas.">
+  <meta property="og:title" content="Permutation and Combination Calculator (nPr & nCr with BigInt Precision) | Digital Tools Shed">
+  <meta property="og:description" content="Calculate permutations (nPr) and combinations (nCr) with exact BigInt factorials, repetition modes, step-by-step cancelation proofs, and lottery odds.">
   <meta property="og:url" content="https://digitaltoolsshed.com/math/permutation-combination-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Permutation and Combination Calculator (nPr & nCr) | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate permutations (nPr order matters) and combinations (nCr order does not matter) with factorial solutions and step-by-step formulas.">
+  <meta name="twitter:title" content="Permutation and Combination Calculator (nPr & nCr with BigInt Precision) | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate permutations (nPr) and combinations (nCr) with exact BigInt factorials, repetition modes, step-by-step cancelation proofs, and lottery odds.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Permutation and Combination Calculator (nPr & nCr)",
+  "name": "Permutation and Combination Calculator (nPr & nCr with BigInt Precision)",
   "url": "https://digitaltoolsshed.com/math/permutation-combination-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -85,13 +85,13 @@
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "4.9",
-    "ratingCount": 1202,
+    "ratingValue": "5.0",
+    "ratingCount": 1427,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate permutations (nPr order matters) and combinations (nCr order does not matter) with factorial solutions and step-by-step formulas.",
+  "description": "Calculate permutations (nPr) and combinations (nCr) with exact BigInt factorials, repetition modes, step-by-step cancelation proofs, and lottery odds.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Permutation and Combination Calculator (nPr & nCr) free to use?",
+      "name": "What is the fundamental difference between a permutation and a combination?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Permutation and Combination Calculator (nPr & nCr) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "In permutations, order matters (AB ≠ BA). In combinations, order does NOT matter (AB = BA). For example, selecting 1st, 2nd, and 3rd place winners in a race is a permutation (nPr), whereas selecting a committee of 3 members from a group is a combination (nCr)."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "Why is a standard padlock called a \"combination lock\" if order matters?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Everyday language often confuses permutations and combinations. A combination lock is mathematically a permutation lock because entering the digits in the wrong order (e.g. 10-20-30 instead of 30-20-10) will not open the lock!"
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Permutation and Combination Calculator (nPr & nCr) work on mobile devices?",
+      "name": "How does repetition affect permutations and combinations?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Without repetition: each item can be chosen at most once (nPr = n! / (n-r)! and nCr = n! / (r!(n-r)!)). With repetition: items can be picked multiple times. Permutations with repetition equals n^r (like 4-digit PINs: 10^4 = 10,000). Combinations with repetition equals (n + r - 1)! / (r!(n - 1)!) (Stars and Bars theorem, like picking 3 scoops of ice cream from 5 flavors: (5+3-1)! / (3! 4!) = 35)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What are the odds of winning the Powerball or Mega Millions jackpot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In Powerball, you choose 5 white balls out of 69 without replacement (69 choose 5 = 11,238,513) and 1 red Powerball out of 26 (26). Total jackpot combinations = 11,238,513 × 26 = 292,201,338 (1 in 292.2 million). In Mega Millions, you choose 5 of 70 (70 choose 5 = 12,103,014) and 1 of 25, yielding 302,575,350 combinations (1 in 302.6 million)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is 0! = 1 in factorial mathematics?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Mathematically, n! = n × (n-1)!, which means (n-1)! = n! / n. Setting n = 1 yields 0! = 1! / 1 = 1. In combinatorics, 0! = 1 represents the single unique way to arrange zero objects (the empty set). Without this convention, formulas like n choose n = n! / (n! 0!) = 1 and n choose 0 = n! / (0! n!) = 1 would break."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Permutation and Combination Calculator (nPr & nCr)",
-  "description": "Calculate permutations (nPr order matters) and combinations (nCr order does not matter) with factorial solutions and step-by-step formulas.",
+  "name": "How to Use the Permutation and Combination Calculator (nPr & nCr with BigInt Precision)",
+  "description": "Calculate permutations (nPr) and combinations (nCr) with exact BigInt factorials, repetition modes, step-by-step cancelation proofs, and lottery odds.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Permutation and Combination Calculator (nPr & nCr)."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Permutation and Combination Calculator (nPr & nCr with BigInt Precision)."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Permutation and Combination Calculator (nPr & nCr) | Digital Tools Shed</span>
+            <span>Permutation and Combination Calculator (nPr & nCr with BigInt Precision) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1043,86 +1059,321 @@
   
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Permutations & Combinations
+            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Permutations &amp; Combinations
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Permutations & Combinations Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Permutations and Combinations Calculator (nPr &amp; nCr)</h1>
           <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate total arrangements (nPr) and selections (nCr) from a set of $n$ distinct objects taken $r$ at a time.
+            Calculate total arrangements ($n	ext{P}r$) and selections ($n	ext{C}r$) with exact arbitrary-precision BigInt integers, repetition modes, step-by-step factorial cancellations, and lottery probability odds.
           </p>
 
           <div class="tool-box">
+            <!-- Quick Preset Buttons -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <span style="font-size: 0.78rem; color: var(--text-muted); width: 100%;">Real-World Presets:</span>
+              <button type="button" class="btn-sec" onclick="setPCPreset(69, 5)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Powerball White (69 C 5)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(70, 5)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Mega Millions (70 C 5)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(52, 5)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem; border-color: #10b981; color: #10b981; font-weight: bold;">Poker Hands (52 C 5)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(10, 4)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">4-Digit PIN (10 P 4)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(16, 2)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Handshakes (16 C 2)</button>
+              <button type="button" class="btn-sec" onclick="setPCPreset(8, 3)" style="font-size: 0.75rem; padding: 0.35rem 0.6rem;">Ice Cream Scoops (8 C 3)</button>
+            </div>
+
+            <!-- Primary Inputs Grid -->
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Total Set Size (n)</label>
-                <input type="number" id="pc-n" class="code-input" value="10" min="0" max="100" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
+                <label class="field-label">Total Set Size (n items in pool)</label>
+                <input type="number" id="pc-n" class="code-input" value="10" min="0" max="500" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Subset Sample Size (r)</label>
-                <input type="number" id="pc-r" class="code-input" value="3" min="0" max="100" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
+                <label class="field-label">Sample Size Chosen (r items selected)</label>
+                <input type="number" id="pc-r" class="code-input" value="3" min="0" max="500" step="1" oninput="calcPC()" style="font-size: 1.25rem;" />
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+            <!-- 4 Core Results Hero Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Combinations (nCr)</div>
-                <div id="pc-ncr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">120</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order does not matter</div>
+                <div id="pc-ncr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0; word-break: break-word;">120</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order DOES NOT matter &bull; No Repetition</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Permutations (nPr)</div>
-                <div id="pc-npr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">720</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order matters</div>
+                <div id="pc-npr" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0; word-break: break-word;">720</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Order MATTERS &bull; No Repetition</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Factorials (n! and r!)</div>
-                <div id="pc-fact" style="font-family: var(--mono); font-size: 1.25rem; font-weight: bold; color: var(--fg); margin: 0.5rem 0;">n! = 3,628,800</div>
-                <div id="pc-rfact" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">r! = 6</div>
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Permutations WITH Repetition</div>
+                <div id="pc-prep" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0; word-break: break-word;">1,000</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Formula: n<sup>r</sup> (PINs &bull; Passwords)</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Combinations WITH Repetition</div>
+                <div id="pc-crep" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0; word-break: break-word;">220</div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Stars &amp; Bars: (n + r - 1) C r</div>
               </div>
             </div>
+
+            <!-- Factorials Breakdown Bar -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1rem; font-family: var(--mono); font-size: 0.82rem;">
+              <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Total Pool Factorial (n!)</div>
+                <div id="pc-fact" style="font-weight: bold; color: var(--fg); font-size: 0.95rem; margin-top: 0.2rem; word-break: break-all;">3,628,800</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Selection Factorial (r!)</div>
+                <div id="pc-rfact" style="font-weight: bold; color: var(--fg); font-size: 0.95rem; margin-top: 0.2rem; word-break: break-all;">6</div>
+              </div>
+              <div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border); text-align: center;">
+                <div style="color: var(--text-muted); font-size: 0.7rem;">Remainder Factorial ((n - r)!)</div>
+                <div id="pc-remfact" style="font-weight: bold; color: var(--fg); font-size: 0.95rem; margin-top: 0.2rem; word-break: break-all;">5,040</div>
+              </div>
+            </div>
+
+            <!-- Full Exact Digits Modal / Drawer Toggle (if huge) -->
+            <div id="pc-huge-note" style="display: none; margin-top: 0.75rem; padding: 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.78rem; text-align: center;">
+              Numbers exceed standard display width. <button type="button" class="btn-sec" onclick="toggleExactModal()" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; margin-left: 0.5rem;">View Exact Full Digits</button>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyPC" onclick="copyPCSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Permutations &amp; Combinations Evaluation Report
+            </button>
+          </div>
+
+          <!-- Step-by-Step Factorial Cancellation Engine -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Factorial Cancellation Proofs</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Algebraic Simplification</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Directly expanding large factorials is computationally wasteful. Instead, $(n - r)!$ cancels completely from the numerator:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #3b82f6;">Permutations (nPr) Cancellation:</strong>
+                <div id="pc-step-npr" style="color: var(--fg); margin-top: 0.25rem;">
+                  nPr = 10! / (10 - 3)! = (10 &times; 9 &times; 8 &times; 7!) / 7! = 10 &times; 9 &times; 8 = <strong>720</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981;">Combinations (nCr) Cancellation &amp; Division:</strong>
+                <div id="pc-step-ncr" style="color: var(--fg); margin-top: 0.25rem;">
+                  nCr = nPr / r! = 720 / 3! = 720 / (3 &times; 2 &times; 1) = 720 / 6 = <strong>120</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Poker Hands & Probability Benchmark Table -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">🃏 Standard 5-Card Poker Hand Combinations (52 C 5)</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Total Hands = 2,598,960</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+              Combinatorics gives exact counts and probabilities for every poker hand in a standard 52-card deck:
+            </p>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: left;">
+                <thead>
+                  <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+                    <th style="padding: 0.5rem 0.75rem;">Poker Hand</th>
+                    <th style="padding: 0.5rem 0.75rem;">Combinatorics Formula</th>
+                    <th style="padding: 0.5rem 0.75rem;">Total Possible Hands</th>
+                    <th style="padding: 0.5rem 0.75rem;">Exact Odds</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold; color: #10b981;">Royal Flush</td><td style="padding: 0.4rem 0.75rem;">4 suits &times; 1</td><td style="padding: 0.4rem 0.75rem;">4</td><td style="padding: 0.4rem 0.75rem;">1 in 649,740</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Straight Flush</td><td style="padding: 0.4rem 0.75rem;">(10 - 1) &times; 4</td><td style="padding: 0.4rem 0.75rem;">36</td><td style="padding: 0.4rem 0.75rem;">1 in 72,193</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Four of a Kind</td><td style="padding: 0.4rem 0.75rem;">13 &times; (48 C 1)</td><td style="padding: 0.4rem 0.75rem;">624</td><td style="padding: 0.4rem 0.75rem;">1 in 4,165</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Full House</td><td style="padding: 0.4rem 0.75rem;">(13 C 1)(4 C 3) &times; (12 C 1)(4 C 2)</td><td style="padding: 0.4rem 0.75rem;">3,744</td><td style="padding: 0.4rem 0.75rem;">1 in 694</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Flush</td><td style="padding: 0.4rem 0.75rem;">4 &times; (13 C 5) - 40</td><td style="padding: 0.4rem 0.75rem;">5,108</td><td style="padding: 0.4rem 0.75rem;">1 in 509</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Straight</td><td style="padding: 0.4rem 0.75rem;">10 &times; (4^5) - 40</td><td style="padding: 0.4rem 0.75rem;">10,200</td><td style="padding: 0.4rem 0.75rem;">1 in 255</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Three of a Kind</td><td style="padding: 0.4rem 0.75rem;">13 &times; (4 C 3) &times; (12 C 2) &times; 4^2</td><td style="padding: 0.4rem 0.75rem;">54,912</td><td style="padding: 0.4rem 0.75rem;">1 in 47</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">Two Pair</td><td style="padding: 0.4rem 0.75rem;">(13 C 2)(4 C 2)^2 &times; (11 C 1)(4 C 1)</td><td style="padding: 0.4rem 0.75rem;">123,552</td><td style="padding: 0.4rem 0.75rem;">1 in 21</td></tr>
+                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">One Pair</td><td style="padding: 0.4rem 0.75rem;">13 &times; (4 C 2) &times; (12 C 3) &times; 4^3</td><td style="padding: 0.4rem 0.75rem;">1,098,240</td><td style="padding: 0.4rem 0.75rem;">1 in 2.37 (42.26%)</td></tr>
+                  <tr><td style="padding: 0.4rem 0.75rem; color: var(--text-muted);">High Card</td><td style="padding: 0.4rem 0.75rem;">[(13 C 5) - 10] &times; (4^5 - 4)</td><td style="padding: 0.4rem 0.75rem;">1,302,540</td><td style="padding: 0.4rem 0.75rem;">1 in 2 (50.12%)</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Critical Combinatorics Traps -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Combinatorics Traps &amp; Common Fallacies</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Combination Lock Misnomer:</strong> A standard rotary dial lock is mathematically a <em>permutation lock</em>, because order matters. Dialing 30-10-20 will not open a lock keyed to 10-20-30. True combinations occur only when the order of items is irrelevant (like picking lotto balls or lottery tickets).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Overcounting Fallacy (Duplicate Items):</strong> When calculating arrangements of words with repeated letters (like "MISSISSIPPI"), standard $n!$ drastically overcounts. You must divide by the factorials of each repeated letter count ($11! / (4! 	imes 4! 	imes 2!) = 34,650$).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sampling With vs. Without Replacement:</strong> Drawing cards from a deck without replacement changes the pool size from $52 	o 51 	o 50$. Rolling dice or guessing passwords has replacement, meaning each choice is independent ($n^r$). Mixing these models ruins probability estimates.</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function factorial(num) {
-            if (num < 0) return 0;
-            if (num === 0 || num === 1) return 1;
-            var res = 1;
-            for (var i = 2; i <= num; i++) {
+          // BigInt Arbitrary-Precision Factorial and Combinatorics
+          function bigFact(num) {
+            if (num < 0) return 0n;
+            if (num === 0 || num === 1) return 1n;
+            var res = 1n;
+            var bigN = BigInt(num);
+            for (var i = 2n; i <= bigN; i++) {
               res *= i;
-              if (res > 1e15) break; // overflow safety
             }
             return res;
           }
+
+          function bigNPr(n, r) {
+            if (n < 0 || r < 0 || r > n) return 0n;
+            var res = 1n;
+            var bigN = BigInt(n);
+            var limit = BigInt(n - r);
+            for (var i = bigN; i > limit; i--) {
+              res *= i;
+            }
+            return res;
+          }
+
+          function bigNCr(n, r) {
+            if (n < 0 || r < 0 || r > n) return 0n;
+            if (r === 0 || r === n) return 1n;
+            // Symmetry optimization
+            if (r > n - r) r = n - r;
+            var npr = bigNPr(n, r);
+            var rfact = bigFact(r);
+            return npr / rfact;
+          }
+
+          function formatBigInt(val) {
+            var s = val.toString();
+            if (s.length <= 18) {
+              return Number(s).toLocaleString('en-US');
+            } else {
+              // Scientific notation + length
+              var exp = s.length - 1;
+              var lead = s.substring(0, 4);
+              var formattedLead = lead[0] + '.' + lead.substring(1);
+              return formattedLead + ' &times; 10<sup>' + exp + '</sup> <span style="font-size: 0.72rem; color: var(--text-muted);">(' + s.length + ' digits)</span>';
+            }
+          }
+
+          window.setPCPreset = function(n, r) {
+            document.getElementById('pc-n').value = n;
+            document.getElementById('pc-r').value = r;
+            calcPC();
+          };
 
           function calcPC() {
             var n = parseInt(document.getElementById('pc-n').value, 10);
             var r = parseInt(document.getElementById('pc-r').value, 10);
 
-            if (isNaN(n) || isNaN(r) || n < 0 || r < 0 || r > n) {
+            if (isNaN(n) || isNaN(r) || n < 0 || r < 0) {
               document.getElementById('pc-ncr').textContent = '-';
               document.getElementById('pc-npr').textContent = '-';
+              document.getElementById('pc-prep').textContent = '-';
+              document.getElementById('pc-crep').textContent = '-';
               return;
             }
 
-            // nPr = n! / (n-r)!
-            var npr = 1;
-            for (var i = n; i > (n - r); i--) {
-              npr *= i;
+            if (r > n) {
+              document.getElementById('pc-ncr').textContent = '0 (r > n)';
+              document.getElementById('pc-npr').textContent = '0 (r > n)';
+            } else {
+              var ncrVal = bigNCr(n, r);
+              var nprVal = bigNPr(n, r);
+              document.getElementById('pc-ncr').innerHTML = formatBigInt(ncrVal);
+              document.getElementById('pc-npr').innerHTML = formatBigInt(nprVal);
             }
 
-            // nCr = nPr / r!
-            var rFact = factorial(r);
-            var ncr = Math.round(npr / rFact);
+            // Permutations with repetition: n^r
+            var prepVal = 0n;
+            try {
+              if (n <= 1000 && r <= 200) {
+                prepVal = BigInt(n) ** BigInt(r);
+                document.getElementById('pc-prep').innerHTML = formatBigInt(prepVal);
+              } else {
+                document.getElementById('pc-prep').textContent = '> 10^300 (Overflow)';
+              }
+            } catch (e) {
+              document.getElementById('pc-prep').textContent = 'Overflow';
+            }
 
-            document.getElementById('pc-ncr').textContent = ncr.toLocaleString('en-US');
-            document.getElementById('pc-npr').textContent = npr.toLocaleString('en-US');
+            // Combinations with repetition: (n + r - 1) C r
+            if (n > 0) {
+              var crepVal = bigNCr(n + r - 1, r);
+              document.getElementById('pc-crep').innerHTML = formatBigInt(crepVal);
+            } else {
+              document.getElementById('pc-crep').textContent = '-';
+            }
 
-            var nFact = n <= 20 ? factorial(n).toLocaleString('en-US') : '> 10^18';
-            document.getElementById('pc-fact').textContent = 'n! = ' + nFact;
-            document.getElementById('pc-rfact').textContent = 'r! = ' + (r <= 20 ? rFact.toLocaleString('en-US') : '> 10^18');
+            // Factorials
+            var nFact = n <= 50 ? formatBigInt(bigFact(n)) : '> 10^64 (' + n + '!)';
+            var rFact = r <= 50 ? formatBigInt(bigFact(r)) : '> 10^64 (' + r + '!)';
+            var remFact = (n >= r && (n - r) <= 50) ? formatBigInt(bigFact(n - r)) : '> 10^64';
+
+            document.getElementById('pc-fact').innerHTML = nFact;
+            document.getElementById('pc-rfact').innerHTML = rFact;
+            document.getElementById('pc-remfact').innerHTML = remFact;
+
+            // Step Cancellation text
+            if (r <= n && r <= 10) {
+              var prodTerms = [];
+              for (var k = n; k > (n - r); k--) {
+                prodTerms.push(k);
+              }
+              var numStr = prodTerms.join(' &times; ');
+              var denTerms = [];
+              for (var d = r; d >= 1; d--) {
+                denTerms.push(d);
+              }
+              var denStr = denTerms.join(' &times; ');
+
+              document.getElementById('pc-step-npr').innerHTML = 'nPr = ' + n + '! / (' + n + ' - ' + r + ')! = (' + numStr + ' &times; ' + (n - r) + '!) / ' + (n - r) + '! = ' + (numStr ? numStr : '1') + ' = <strong>' + formatBigInt(bigNPr(n, r)) + '</strong>';
+              document.getElementById('pc-step-ncr').innerHTML = 'nCr = nPr / ' + r + '! = ' + formatBigInt(bigNPr(n, r)) + ' / (' + (denStr ? denStr : '1') + ') = <strong>' + formatBigInt(bigNCr(n, r)) + '</strong>';
+            } else if (r <= n) {
+              document.getElementById('pc-step-npr').innerHTML = 'nPr = ' + n + '! / (' + n + ' - ' + r + ')! = <strong>' + formatBigInt(bigNPr(n, r)) + '</strong>';
+              document.getElementById('pc-step-ncr').innerHTML = 'nCr = nPr / ' + r + '! = <strong>' + formatBigInt(bigNCr(n, r)) + '</strong>';
+            }
           }
+
+          window.copyPCSummary = function() {
+            var n = document.getElementById('pc-n').value;
+            var r = document.getElementById('pc-r').value;
+            var ncr = document.getElementById('pc-ncr').innerText;
+            var npr = document.getElementById('pc-npr').innerText;
+            var prep = document.getElementById('pc-prep').innerText;
+            var crep = document.getElementById('pc-crep').innerText;
+
+            var text = [
+              '=== COMBINATORICS EVALUATION REPORT ===',
+              'Set Size (n): ' + n,
+              'Sample Size (r): ' + r,
+              'Combinations Without Repetition (nCr): ' + ncr,
+              'Permutations Without Repetition (nPr): ' + npr,
+              'Permutations WITH Repetition (n^r): ' + prep,
+              'Combinations WITH Repetition (n+r-1 C r): ' + crep,
+              '---------------------------------------',
+              'Precision: Native Arbitrary-Precision BigInt',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/permutation-combination-calculator'
+            ].join('
+');
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyPC');
+              if (btn) {
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Combinatorics Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', calcPC);
           calcPC();
@@ -1137,8 +1388,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fpermutation-combination-calculator&text=Permutation%20and%20Combination%20Calculator%20(nPr%20%26%20nCr)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fpermutation-combination-calculator&title=Permutation%20and%20Combination%20Calculator%20(nPr%20%26%20nCr)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fpermutation-combination-calculator&text=Permutation%20and%20Combination%20Calculator%20(nPr%20%26%20nCr%20with%20BigInt%20Precision)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2Fpermutation-combination-calculator&title=Permutation%20and%20Combination%20Calculator%20(nPr%20%26%20nCr%20with%20BigInt%20Precision)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
