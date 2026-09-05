@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Date Calculator: Days Between Dates & Add Days | Digital Tools Shed</title>
-  <meta name="description" content="Calculate exact calendar days, business days, and weeks between two dates. Add or subtract days, weeks, months, or years from any date — 100% free, instant & private.">
+  <meta name="description" content="Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.">
   <link rel="canonical" href="https://digitaltoolsshed.com/util/date-calculator">
   <meta property="og:title" content="Date Calculator: Days Between Dates & Add Days | Digital Tools Shed">
-  <meta property="og:description" content="Calculate exact calendar days, business days, and weeks between two dates. Add or subtract days, weeks, months, or years from any date — 100% free, instant & private.">
+  <meta property="og:description" content="Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.">
   <meta property="og:url" content="https://digitaltoolsshed.com/util/date-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Date Calculator: Days Between Dates & Add Days | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate exact calendar days, business days, and weeks between two dates. Add or subtract days, weeks, months, or years from any date — 100% free, instant & private.">
+  <meta name="twitter:description" content="Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate exact calendar days, business days, and weeks between two dates. Add or subtract days, weeks, months, or years from any date.",
+  "description": "Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -136,7 +136,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Date Calculator: Days Between Dates & Add Days",
-  "description": "Calculate exact calendar days, business days, and weeks between two dates. Add or subtract days, weeks, months, or years from any date.",
+  "description": "Calculate exact calendar days, working business days, and time between two dates with inclusive day toggling. Add or subtract business days, weeks, months, or years.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1044,30 +1044,60 @@
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/util/">Daily Utilities</a> &gt; Date Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Date Calculator (Days Between & Add Days)</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Calculate exact calendar days and business days between dates, or project future deadlines.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Date Calculator (Days Between & Add Days)</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate exact calendar days, working business days, weeks, and hours between two dates, or add/subtract business days and project deadline milestones with contract-grade accuracy.
           </p>
 
-          <div class="tool-box">
-            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">1. Days Between Two Dates</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          <!-- 1. DAYS BETWEEN TWO DATES -->
+          <div class="tool-box" style="margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">1. Days Between Two Dates</h3>
+              <span id="leapYearBadge" style="display: none; font-family: var(--mono); font-size: 0.72rem; background: #3b82f6; color: #fff; padding: 0.2rem 0.5rem; border-radius: 4px;">Leap Year Spanned (Feb 29)</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
               <div>
                 <label class="field-label">Start Date</label>
                 <input type="date" id="dateStart" class="text-input" oninput="calcDaysBetween()" />
+                <div id="startWeekdayLabel" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">--</div>
               </div>
               <div>
                 <label class="field-label">End Date</label>
                 <input type="date" id="dateEnd" class="text-input" oninput="calcDaysBetween()" />
+                <div id="endWeekdayLabel" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">--</div>
               </div>
             </div>
 
-            <div id="daysBetweenResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;"></div>
+            <!-- Inclusive Toggle & Quick Presets -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; padding: 0.75rem; background: var(--surface-alt); border-radius: 4px;">
+              <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-family: var(--mono);">
+                <input type="checkbox" id="includeEndDay" onchange="calcDaysBetween()" style="cursor: pointer;" />
+                <span>Include End Date (+1 day for full inclusive count)</span>
+              </label>
+              <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                <button type="button" class="btn-sm" onclick="setDatePreset(30)" style="background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.45rem; border-radius: 3px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">+30d</button>
+                <button type="button" class="btn-sm" onclick="setDatePreset(60)" style="background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.45rem; border-radius: 3px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">+60d</button>
+                <button type="button" class="btn-sm" onclick="setDatePreset(90)" style="background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.45rem; border-radius: 3px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">+90d (Quarter)</button>
+                <button type="button" class="btn-sm" onclick="setDatePresetToEndOfYear()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.2rem 0.45rem; border-radius: 3px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">End of Year</button>
+              </div>
+            </div>
+
+            <!-- Results Display -->
+            <div id="daysBetweenResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+
+            <!-- Copy Diff Button -->
+            <div style="margin-top: 1.25rem;">
+              <button id="copyDateDiffBtn" onclick="copyDateDiffSummary()" class="btn-sec" style="width: 100%; padding: 0.65rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Date Difference Summary</span>
+              </button>
+            </div>
           </div>
 
-          <div class="tool-box">
-            <h3 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 1rem;">2. Add or Subtract Days from a Date</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+          <!-- 2. ADD OR SUBTRACT DAYS / BUSINESS DAYS FROM A DATE -->
+          <div class="tool-box" style="margin-bottom: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1.25rem;">2. Add or Subtract Time (Including Business Days)</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
               <div>
                 <label class="field-label">Start Date</label>
                 <input type="date" id="dateAddStart" class="text-input" oninput="calcDateAdd()" />
@@ -1075,7 +1105,7 @@
               <div>
                 <label class="field-label">Operation</label>
                 <select id="dateAddOp" class="text-input" onchange="calcDateAdd()">
-                  <option value="add">Add (+)</option>
+                  <option value="add" selected>Add (+)</option>
                   <option value="sub">Subtract (-)</option>
                 </select>
               </div>
@@ -1084,19 +1114,68 @@
                 <input type="number" id="dateAddQty" class="text-input" value="30" min="1" step="1" oninput="calcDateAdd()" />
               </div>
               <div>
-                <label class="field-label">Unit</label>
+                <label class="field-label">Unit of Time</label>
                 <select id="dateAddUnit" class="text-input" onchange="calcDateAdd()">
-                  <option value="days" selected>Days</option>
+                  <option value="days" selected>Calendar Days</option>
+                  <option value="business_days">Business Days (Mon-Fri only)</option>
                   <option value="weeks">Weeks</option>
-                  <option value="months">Months</option>
+                  <option value="months">Months (Clamped)</option>
                   <option value="years">Years</option>
                 </select>
               </div>
             </div>
 
-            <div id="dateAddResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;"></div>
+            <div id="dateAddResults" style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+
+            <!-- Copy Add Button -->
+            <div style="margin-top: 1.25rem;">
+              <button id="copyDateAddBtn" onclick="copyDateAddSummary()" class="btn-sec" style="width: 100%; padding: 0.65rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Deadline Milestone</span>
+              </button>
+            </div>
           </div>
 
+          <!-- Step-by-Step Calendar Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+              <span>📐 Step-by-Step Gregorian Calendar Derivation</span>
+            </h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+              How chronological intervals and business workdays are calculated mathematically:
+            </p>
+            <div id="dateDerivationBox" style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; overflow-x: auto; border: 1px solid var(--border);">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+
+          <!-- 3 Critical Date Gotchas -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: #ef4444; display: flex; align-items: center; gap: 0.5rem;">
+              <span>⚠️ 3 Date Calculation Traps in Legal & Project Work</span>
+            </h3>
+            <div style="display: grid; gap: 1rem; font-size: 0.9rem; line-height: 1.6;">
+              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">1. The "Inclusive vs. Exclusive" Lease & Contract Trap</strong>
+                <p style="margin: 0; color: var(--text-muted);">
+                  If a tenancy agreement starts on August 1st and ends on August 31st, exclusive counting yields 30 days (31 - 1 = 30). However, the tenant occupied the property on August 1st AND August 31st — a full <strong>31 calendar days</strong>. In commercial disputes, court motions, and interest calculations, failing to specify whether dates are inclusive can trigger financial penalties.
+                </p>
+              </div>
+              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #f59e0b;">
+                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">2. The Variable Month End Clamping Hazard</strong>
+                <p style="margin: 0; color: var(--text-muted);">
+                  What happens when you add 1 month to January 31st? February 31st does not exist. Standard astronomical calendar algorithms clamp to the last valid day of the month (February 28th, or 29th in a leap year). Subtracting 1 month back from February 28th then yields January 28th, not January 31st! Always track raw day intervals for strict financial interest.
+                </p>
+              </div>
+              <div style="background: var(--surface); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+                <strong style="color: var(--fg); display: block; margin-bottom: 0.25rem;">3. Statutory Business Days vs. Federal Bank Holidays</strong>
+                <p style="margin: 0; color: var(--text-muted);">
+                  Standard business day calculators only skip Saturdays and Sundays. However, financial markets, government offices, and legal courts also observe 11 US Federal Holidays (e.g. Martin Luther King Jr. Day, Memorial Day, Juneteenth, Thanksgiving). If calculating a statutory SEC filing deadline or bank wire clearance, always cross-reference official federal holiday calendars.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sponsored Ad Slot -->
           <div class="ad-blend-box" style="margin: 2rem 0;">
             <span class="ad-label">Sponsored Resource</span>
             <div class="ad-unit-300x250">
@@ -1115,43 +1194,141 @@
         </div>
 
         <script>
+          var currentDateDiffData = null;
+          var currentDateAddData = null;
+
+          var weekdaysArr = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
           function calcDaysBetween() {
             var sVal = document.getElementById('dateStart').value;
             var eVal = document.getElementById('dateEnd').value;
             if (!sVal || !eVal) return;
 
+            var isInclusive = document.getElementById('includeEndDay').checked;
             var d1 = new Date(sVal + 'T00:00:00');
             var d2 = new Date(eVal + 'T00:00:00');
-            var diffMs = d2.getTime() - d1.getTime();
-            var totalDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-            var absDays = Math.abs(totalDays);
+            document.getElementById('startWeekdayLabel').textContent = weekdaysArr[d1.getDay()] + ', ' + d1.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            document.getElementById('endWeekdayLabel').textContent = weekdaysArr[d2.getDay()] + ', ' + d2.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+            var diffMs = d2.getTime() - d1.getTime();
+            var rawDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+            var isPast = rawDays < 0;
+            var absDays = Math.abs(rawDays) + (isInclusive ? 1 : 0);
+
             var weeks = Math.floor(absDays / 7);
             var remDays = absDays % 7;
 
-            // Business days calculation
-            var bDays = 0;
-            var cur = new Date(Math.min(d1.getTime(), d2.getTime()));
-            var end = new Date(Math.max(d1.getTime(), d2.getTime()));
-            while (cur < end) {
-              cur.setDate(cur.getDate() + 1);
-              var dayOfWeek = cur.getDay();
-              if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-                bDays++;
-              }
+            // Chronological Breakdown: Years, Months, Days
+            var early = new Date(Math.min(d1.getTime(), d2.getTime()));
+            var late = new Date(Math.max(d1.getTime(), d2.getTime()));
+            if (isInclusive) {
+              late.setDate(late.getDate() + 1);
             }
 
-            document.getElementById('daysBetweenResults').innerHTML = 
-              '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
-                '<span style="color:var(--text-muted); font-size:0.7rem;">TOTAL CALENDAR DAYS</span>' +
-                '<div style="font-size:1.8rem; font-weight:bold; color:#10b981;">' + absDays + ' Days ' + (totalDays < 0 ? '(in the past)' : '') + '</div>' +
-                '<div style="font-size:0.8rem; color:var(--text-muted);">' + weeks + ' weeks and ' + remDays + ' days</div>' +
+            var cYears = late.getFullYear() - early.getFullYear();
+            var cMonths = late.getMonth() - early.getMonth();
+            var cDays = late.getDate() - early.getDate();
+
+            if (cDays < 0) {
+              cMonths--;
+              var prevMonth = new Date(late.getFullYear(), late.getMonth(), 0);
+              cDays += prevMonth.getDate();
+            }
+            if (cMonths < 0) {
+              cYears--;
+              cMonths += 12;
+            }
+
+            // Business days calculation
+            var bDays = 0;
+            var weekendDays = 0;
+            var cur = new Date(Math.min(d1.getTime(), d2.getTime()));
+            var end = new Date(Math.max(d1.getTime(), d2.getTime()));
+            if (isInclusive) {
+              end.setDate(end.getDate() + 1);
+            }
+
+            var hasFeb29 = false;
+            var temp = new Date(cur);
+            while (temp < end) {
+              var dow = temp.getDay();
+              if (dow === 0 || dow === 6) {
+                weekendDays++;
+              } else {
+                bDays++;
+              }
+              if (temp.getMonth() === 1 && temp.getDate() === 29) {
+                hasFeb29 = true;
+              }
+              temp.setDate(temp.getDate() + 1);
+            }
+
+            var badge = document.getElementById('leapYearBadge');
+            if (badge) badge.style.display = hasFeb29 ? 'inline-block' : 'none';
+
+            var totalHours = absDays * 24;
+            var totalMinutes = totalHours * 60;
+            var totalSeconds = totalMinutes * 60;
+            var pctOfYear = ((absDays / 365.2425) * 100).toFixed(1);
+
+            var container = document.getElementById('daysBetweenResults');
+            container.innerHTML = 
+              '<div style="padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Total Elapsed Days</span>' +
+                  (isInclusive ? '<span style="font-size:0.75rem; color:#3b82f6; font-weight:bold;">Inclusive Count</span>' : '<span style="font-size:0.75rem; color:var(--text-muted);">Standard (Exclusive)</span>') +
+                '</div>' +
+                '<div style="font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">' + absDays.toLocaleString() + ' Days ' + (isPast ? '<span style="font-size:1rem; color:var(--text-muted); font-weight:normal;">(in the past)</span>' : '') + '</div>' +
+                '<div style="font-size: 0.9rem; color: var(--fg); font-weight: 600;">' + cYears + ' Years, ' + cMonths + ' Months, ' + cDays + ' Days</div>' +
+                '<div style="font-size: 0.8rem; color: var(--text-muted);">' + weeks + ' weeks and ' + remDays + ' days (' + pctOfYear + '% of a solar year)</div>' +
               '</div>' +
-              '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
-                '<span style="color:var(--text-muted); font-size:0.7rem;">BUSINESS / WORKING DAYS (MON-FRI)</span>' +
-                '<div style="font-size:1.3rem; font-weight:bold; color:var(--fg);">' + bDays + ' Working Days</div>' +
-                '<div style="font-size:0.8rem; color:var(--text-muted);">Excludes Saturdays & Sundays</div>' +
+              '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Working Business Days</span>' +
+                  '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">' + bDays.toLocaleString() + ' Workdays</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Monday through Friday</div>' +
+                '</div>' +
+                '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase;">Weekend Days</span>' +
+                  '<div style="font-size: 1.35rem; font-weight: bold; color: var(--fg);">' + weekendDays.toLocaleString() + ' Days</div>' +
+                  '<div style="font-size: 0.72rem; color: var(--text-muted);">Saturdays & Sundays</div>' +
+                '</div>' +
+              '</div>' +
+              '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;">' +
+                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Hours</span>' +
+                  '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">' + totalHours.toLocaleString() + 'h</div>' +
+                '</div>' +
+                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Minutes</span>' +
+                  '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">' + totalMinutes.toLocaleString() + 'm</div>' +
+                '</div>' +
+                '<div style="padding: 0.65rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; text-align: center;">' +
+                  '<span style="color: var(--text-muted); font-size: 0.68rem; text-transform: uppercase;">Seconds</span>' +
+                  '<div style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">' + totalSeconds.toLocaleString() + 's</div>' +
+                '</div>' +
               '</div>';
+
+            var deriv = document.getElementById('dateDerivationBox');
+            deriv.innerHTML = 
+              '<div><strong>1. Calendar Epoch Math:</strong> &Delta;T = ' + Math.abs(diffMs).toLocaleString() + ' ms / 86,400,000 ms = ' + Math.abs(rawDays) + ' days' + (isInclusive ? ' + 1 inclusive day = <strong>' + absDays + ' days</strong>' : '') + '</div>' +
+              '<div><strong>2. Exact Breakdown:</strong> ' + cYears + ' Year(s), ' + cMonths + ' Month(s), ' + cDays + ' Day(s)</div>' +
+              '<div><strong>3. Workday Schedule:</strong> ' + bDays + ' Monday-Friday workdays + ' + weekendDays + ' weekend days = ' + absDays + ' total days</div>' +
+              '<div><strong>4. Leap Year Traversal:</strong> ' + (hasFeb29 ? 'Spanned Feb 29 (Astronomical 366-day leap calendar applied)' : 'No leap day crossed in this date range') + '</div>';
+
+            currentDateDiffData = {
+              start: sVal,
+              end: eVal,
+              absDays: absDays,
+              isInclusive: isInclusive,
+              cYears: cYears,
+              cMonths: cMonths,
+              cDays: cDays,
+              bDays: bDays,
+              weeks: weeks,
+              remDays: remDays
+            };
           }
 
           function calcDateAdd() {
@@ -1164,21 +1341,108 @@
             var sign = op === 'add' ? 1 : -1;
             var d = new Date(sVal + 'T00:00:00');
 
-            if (unit === 'days') d.setDate(d.getDate() + (sign * qty));
-            else if (unit === 'weeks') d.setDate(d.getDate() + (sign * qty * 7));
-            else if (unit === 'months') d.setMonth(d.getMonth() + (sign * qty));
-            else if (unit === 'years') d.setFullYear(d.getFullYear() + (sign * qty));
+            if (unit === 'days') {
+              d.setDate(d.getDate() + (sign * qty));
+            } else if (unit === 'business_days') {
+              var added = 0;
+              while (added < qty) {
+                d.setDate(d.getDate() + sign);
+                var dow = d.getDay();
+                if (dow !== 0 && dow !== 6) {
+                  added++;
+                }
+              }
+            } else if (unit === 'weeks') {
+              d.setDate(d.getDate() + (sign * qty * 7));
+            } else if (unit === 'months') {
+              var currentDay = d.getDate();
+              d.setMonth(d.getMonth() + (sign * qty));
+              // Clamp month end if rollover occurred
+              if (d.getDate() < currentDay) {
+                d.setDate(0);
+              }
+            } else if (unit === 'years') {
+              d.setFullYear(d.getFullYear() + (sign * qty));
+            }
 
             var options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             var resultStr = d.toLocaleDateString('en-US', options);
 
+            // Day of the year
+            var startOfYear = new Date(d.getFullYear(), 0, 1);
+            var dayOfYear = Math.floor((d - startOfYear) / 86400000) + 1;
+            var weekOfYear = Math.ceil(dayOfYear / 7);
+
+            var unitLabel = unit === 'business_days' ? 'Business Days (Mon-Fri)' : unit;
+
             document.getElementById('dateAddResults').innerHTML = 
-              '<div style="padding:0.75rem; background:var(--surface); border:1px solid var(--border); border-radius:4px;">' +
-                '<span style="color:var(--text-muted); font-size:0.7rem;">CALCULATED TARGET DATE</span>' +
-                '<div style="font-size:1.6rem; font-weight:bold; color:#3b82f6;">' + resultStr + '</div>' +
-                '<div style="font-size:0.8rem; color:var(--text-muted);">' + (op === 'add' ? '+' : '-') + qty + ' ' + unit + ' from ' + sVal + '</div>' +
+              '<div style="padding: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
+                '<span style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Target Deadline Date</span>' +
+                '<div style="font-size: 1.8rem; font-weight: bold; color: #3b82f6; margin: 0.2rem 0;">' + resultStr + '</div>' +
+                '<div style="font-size: 0.85rem; color: var(--text-muted);">' + (op === 'add' ? '+' : '-') + qty + ' ' + unitLabel + ' from ' + sVal + '</div>' +
+                '<div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.35rem;">Day ' + dayOfYear + ' of ' + d.getFullYear() + ' • Calendar Week ' + weekOfYear + '</div>' +
               '</div>';
+
+            currentDateAddData = {
+              start: sVal,
+              op: op,
+              qty: qty,
+              unit: unitLabel,
+              resultStr: resultStr,
+              dayOfYear: dayOfYear,
+              weekOfYear: weekOfYear
+            };
           }
+
+          window.setDatePreset = function(days) {
+            var s = document.getElementById('dateStart').value;
+            if (!s) s = new Date().toISOString().slice(0, 10);
+            var d = new Date(s + 'T00:00:00');
+            d.setDate(d.getDate() + days);
+            document.getElementById('dateEnd').value = d.toISOString().slice(0, 10);
+            calcDaysBetween();
+          };
+
+          window.setDatePresetToEndOfYear = function() {
+            var s = document.getElementById('dateStart').value;
+            var year = s ? new Date(s + 'T00:00:00').getFullYear() : new Date().getFullYear();
+            document.getElementById('dateEnd').value = year + '-12-31';
+            calcDaysBetween();
+          };
+
+          window.copyDateDiffSummary = function() {
+            if (!currentDateDiffData) return;
+            var text = 
+              '[Date Difference Report] Between ' + currentDateDiffData.start + ' and ' + currentDateDiffData.end + '\n' +
+              '• Total Calendar Days: ' + currentDateDiffData.absDays + ' Days ' + (currentDateDiffData.isInclusive ? '(Inclusive)' : '(Exclusive)') + '\n' +
+              '• Exact Duration: ' + currentDateDiffData.cYears + ' Years, ' + currentDateDiffData.cMonths + ' Months, ' + currentDateDiffData.cDays + ' Days\n' +
+              '• Working Business Days: ' + currentDateDiffData.bDays + ' Workdays (Mon-Fri)\n' +
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/date-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('copyDateDiffBtn');
+              var orig = btn.innerHTML;
+              btn.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ Copied Date Difference!</span>';
+              setTimeout(function() { btn.innerHTML = orig; }, 2200);
+            });
+          };
+
+          window.copyDateAddSummary = function() {
+            if (!currentDateAddData) return;
+            var text = 
+              '[Date Deadline Report]\n' +
+              '• Starting Date: ' + currentDateAddData.start + '\n' +
+              '• Operation: ' + (currentDateAddData.op === 'add' ? '+' : '-') + currentDateAddData.qty + ' ' + currentDateAddData.unit + '\n' +
+              '• Target Date: ' + currentDateAddData.resultStr + ' (Day ' + currentDateAddData.dayOfYear + ', Week ' + currentDateAddData.weekOfYear + ')\n' +
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/util/date-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('copyDateAddBtn');
+              var orig = btn.innerHTML;
+              btn.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ Copied Target Deadline!</span>';
+              setTimeout(function() { btn.innerHTML = orig; }, 2200);
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', function() {
             var today = new Date().toISOString().slice(0, 10);
