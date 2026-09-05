@@ -112,18 +112,9 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
                 <span id="bmi-gauge-label" style="color: var(--fg); font-weight: bold;">Current: 23.5 (Normal)</span>
               </div>
               
-              <!-- Multi-Segment Spectrum Bar -->
-              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
-                <div style="width: 14%; background: #3b82f6;" title="Underweight (< 18.5)">Under</div>
-                <div style="width: 26%; background: #10b981;" title="Normal Weight (18.5–24.9)">Normal (18.5–24.9)</div>
-                <div style="width: 20%; background: #f59e0b;" title="Overweight (25.0–29.9)">Over (25–30)</div>
-                <div style="width: 20%; background: #ef4444;" title="Obese Class I (30.0–34.9)">Obese I</div>
-                <div style="width: 20%; background: #991b1b;" title="Obese Class II/III (≥ 35.0)">Class II/III</div>
-              </div>
-
-              <!-- Needle / Pointer Position Marker -->
-              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
-                <div id="bmi-needle" style="position: absolute; top: 0; left: 32%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
+              <!-- Pure SVG Multi-Segment Spectrum Gauge -->
+              <div id="bmiSvgContainer" style="width: 100%; overflow-x: auto; margin: 0.5rem 0 1rem;">
+                <!-- Dynamically drawn by drawBmiSvg -->
               </div>
 
               <!-- Healthy Target & Weight Delta Box -->
@@ -197,17 +188,50 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             </div>
           </div>
 
-          <!-- Clinical Pitfalls & Blind Spots -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls &amp; BMI Blind Spots</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Muscular Athlete False Positive:</strong> BMI cannot distinguish skeletal muscle mass from adipose fat. Because muscle tissue is ~18% denser than fat, strength athletes, bodybuilders, and rugby players frequently score in the \'Overweight\' (26–29) or \'Obese\' (>30) categories despite sub-12% body fat and superior cardiovascular markers.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sarcopenic Obesity in Older Adults:</strong> With age, skeletal muscle degrades (sarcopenia) and is replaced by visceral belly fat. An elderly person may maintain a \'Normal\' BMI of 22–24 while possessing dangerous levels of internal organ adiposity and elevated cardiovascular risk. WHtR or DEXA scans are essential here.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Mathematical Scaling Distortion:</strong> In classic BMI, dividing mass by height squared instead of cubed treats humans as flat 2D squares rather than 3D volumes. Consequently, standard BMI overestimates obesity in tall people (over 6\'0\') and underestimates fatness in shorter individuals. Oxford\'s 2.5 exponent resolves this distortion.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Ethnicity Cutoff Disparities:</strong> WHO and International Diabetes Federation studies show that people of South Asian, East Asian, and Black ethnic backgrounds face elevated type 2 diabetes risk at lower BMI cutoffs (overweight at BMI &ge; 23, obesity at BMI &ge; 27.5).</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal BMI Traps & Biometric Math Pitfalls -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal BMI Traps &amp; Biometric Math Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              While BMI is a widely used population screening tool, relying on it blindly without understanding clinical nuances leads to severe misdiagnoses:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Muscular Athlete &amp; Bodybuilder False Positive</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Quetelet BMI measures gross body weight divided by height squared without distinguishing between dense skeletal muscle and adipose tissue. Because muscle is approximately 18% denser than fat, strength athletes, bodybuilders, and rugby players frequently register as 'Overweight' (BMI 26–29) or 'Obese' (BMI &ge; 30) despite having sub-12% body fat and pristine metabolic health.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. Sarcopenic Obesity &amp; The 'Normal Weight Obesity' Trap</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  As adults age or remain sedentary, skeletal muscle degrades (sarcopenia) and is quietly replaced by visceral adipose tissue. An individual can maintain an ostensibly 'ideal' BMI of 21.5 while carrying 35%+ body fat, suffering from insulin resistance, elevated triglycerides, and chronic systemic inflammation without ever triggering a clinical BMI alert.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. The 2D vs. 3D Mathematical Scaling Flaw</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  In 1832, Adolphe Quetelet devised BMI dividing weight by height squared (h²), mathematically treating humans as 2-dimensional flat planes. As Oxford mathematician Nick Trefethen proved, 3-dimensional human volumetric mass scales closer to height^2.5 or height^3. As a result, standard BMI systematically misclassifies tall individuals as fatter than they are, and short individuals as leaner than they are.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Visceral Adiposity Blind Spot (Ignoring Waist-to-Height Ratio)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Subcutaneous fat stored on hips and thighs carries minimal cardiometabolic risk compared to ectopic visceral fat packed around the liver, pancreas, and heart. In 2022, the UK National Institute for Health and Care Excellence (NICE) officially mandated Waist-to-Height Ratio (WHtR) alongside BMI: your waist circumference must remain below half your height (&lt; 0.50).
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. Ethnic Disparity &amp; Premature Metabolic Disease Cutoffs</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Standard WHO cutoffs (25.0 overweight, 30.0 obese) were derived predominantly from Caucasian populations. Extensive clinical trials demonstrate that individuals of South Asian, East Asian, and African ancestry experience severe insulin resistance, type 2 diabetes, and coronary artery disease at significantly lower BMIs. For Asian adults, WHO recommends overweight thresholds at BMI &ge; 23.0 and obesity at BMI &ge; 27.5.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           let bmiUnit = 'metric';
@@ -383,7 +407,10 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             badgeEl.style.color = catColor;
 
             // Needle positioning
-            document.getElementById('bmi-needle').style.left = Math.min(98, Math.max(2, gaugePct)) + '%';
+            if (document.getElementById('bmi-needle')) {
+              document.getElementById('bmi-needle').style.left = Math.min(98, Math.max(2, gaugePct)) + '%';
+            }
+            drawBmiSvg(bmi);
             document.getElementById('bmi-gauge-label').textContent = 'Current: ' + bmi.toFixed(1) + ' (' + catName.split(' ')[0] + ')';
 
             // WHtR Display
@@ -468,7 +495,48 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             }
           }
 
-          window.copyBMISummary = function() {
+          
+      function drawBmiSvg(bmi) {
+        var container = document.getElementById('bmiSvgContainer');
+        if (!container) return;
+
+        var minBmi = 15;
+        var maxBmi = 40;
+        var width = 640;
+        var clampedBmi = Math.max(minBmi, Math.min(maxBmi, bmi));
+        var userX = 40 + ((clampedBmi - minBmi) / (maxBmi - minBmi)) * (width - 80);
+
+        var x18 = 40 + ((18.5 - minBmi) / (maxBmi - minBmi)) * (width - 80);
+        var x25 = 40 + ((25.0 - minBmi) / (maxBmi - minBmi)) * (width - 80);
+        var x30 = 40 + ((30.0 - minBmi) / (maxBmi - minBmi)) * (width - 80);
+        var x35 = 40 + ((35.0 - minBmi) / (maxBmi - minBmi)) * (width - 80);
+
+        var svg = 
+          '<svg viewBox="0 0 640 95" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Spectrum Bands -->' +
+            '<rect x="40" y="25" width="' + (x18 - 40) + '" height="24" rx="3" fill="#3b82f6" />' +
+            '<rect x="' + x18 + '" y="25" width="' + (x25 - x18) + '" height="24" fill="#10b981" />' +
+            '<rect x="' + x25 + '" y="25" width="' + (x30 - x25) + '" height="24" fill="#f59e0b" />' +
+            '<rect x="' + x30 + '" y="25" width="' + (x35 - x30) + '" height="24" fill="#ef4444" />' +
+            '<rect x="' + x35 + '" y="25" width="' + (width - 40 - x35) + '" height="24" rx="3" fill="#991b1b" />' +
+
+            '<!-- Zone Labels inside bars -->' +
+            '<text x="' + ((40 + x18) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Under</text>' +
+            '<text x="' + ((x18 + x25) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Normal (18.5-24.9)</text>' +
+            '<text x="' + ((x25 + x30) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Over (25-30)</text>' +
+            '<text x="' + ((x30 + x35) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Obese I</text>' +
+            '<text x="' + ((x35 + width - 40) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Class II/III</text>' +
+
+            '<!-- Active Indicator Pointer -->' +
+            '<line x1="' + userX + '" y1="12" x2="' + userX + '" y2="58" stroke="var(--fg)" stroke-width="3" />' +
+            '<polygon points="' + (userX - 6) + ',12 ' + (userX + 6) + ',12 ' + userX + ',24" fill="var(--fg)" />' +
+            '<text x="' + userX + '" y="76" fill="var(--fg)" font-size="12" font-weight="bold" text-anchor="middle">You: ' + bmi.toFixed(1) + '</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyBMISummary = function() {
             const score = document.getElementById('bmi-score').textContent;
             const cat = document.getElementById('bmi-cat-badge').textContent;
             const newScore = document.getElementById('bmi-new-score').textContent;
@@ -632,23 +700,20 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               </div>
             </div>
 
-            <!-- Energy Partitioning Bar (Pure CSS) -->
+            <!-- Pure SVG Energy Partitioning Visualizer -->
             <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
                 <span>Daily Energy Expenditure Partitioning:</span>
-                <span id="tdee-bar-total" style="color: var(--fg);">Total: 2,438 kcal (100%)</span>
+                <span id="tdee-bar-total" style="color: var(--fg); font-weight: bold;">Total: 2,438 kcal (100%)</span>
               </div>
-              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
-                <div id="tdee-bar-bmr" style="width: 72.7%; background: #3b82f6;" title="Basal Metabolic Rate">BMR (73%)</div>
-                <div id="tdee-bar-neat" style="width: 15.0%; background: #10b981;" title="Non-Exercise Activity">NEAT (15%)</div>
-                <div id="tdee-bar-tef" style="width: 8.5%; background: #f59e0b;" title="Thermic Effect of Food">TEF (8%)</div>
-                <div id="tdee-bar-eat" style="width: 3.8%; background: #ef4444;" title="Exercise Thermogenesis">EAT</div>
+              <div id="tdeeSvgContainer" style="width: 100%; overflow-x: auto;">
+                <!-- Drawn dynamically by drawTdeeSvg -->
               </div>
               <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
                 <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> BMR (Organs at Rest)</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> NEAT (Subconscious Walking/Fidgeting)</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #f59e0b; border-radius: 2px;"></span> TEF (Digestion Thermic Cost)</span>
-                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> EAT (Structured Workouts)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> NEAT (Spontaneous Movement)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #f59e0b; border-radius: 2px;"></span> TEF (Digestion Heat)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> EAT (Structured Exercise)</span>
               </div>
             </div>
 
@@ -758,17 +823,50 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             </div>
           </div>
 
-          <!-- Critical Metabolic Traps -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Metabolic Traps &amp; Adaptive Thermogenesis</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Adaptive Thermogenesis &amp; Metabolic Slowdown:</strong> Running an aggressive calorie deficit (>750 kcal/day) for prolonged periods triggers metabolic down-regulation (thyroid T3 decreases, leptin crashes, and cortisol spikes). Non-exercise activity thermogenesis (fidgeting, walking speed, posture) drops subconsciously by up to 300 kcal/day, stalling fat loss. Use conservative deficits of 300–500 kcal.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Fitness Tracker Caloric Burn Overestimation:</strong> Commercial smartwatches routinely overestimate calories burned during cardio and weight training by <strong>25% to 40%</strong>. "Eating back" workout calories based on watch readouts is the primary reason fitness enthusiasts fail to lose weight.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Thermic Effect of Food (TEF) Advantage:</strong> Not all calories require equal metabolic effort to process. Dietary protein requires <strong>20% to 30% of its caloric value</strong> simply to digest and assimilate, compared to 5–10% for carbs and 0–3% for dietary fats. High-protein diets naturally increase metabolic burn.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Diet Breaks &amp; Refeed Strategy:</strong> After 8 to 12 weeks of continuous cutting, taking a 1-to-2 week planned "diet break" at maintenance calories resets leptin, restores thyroid hormone production, and prevents metabolic adaptation without gaining body fat.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal TDEE Traps & Metabolic Math Pitfalls -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal TDEE Traps &amp; Metabolic Math Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Weight loss plateaus and failed diets almost always trace back to metabolic calculation traps and subconscious energy compensation:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Smartwatch &amp; Cardio Machine Calorie Overestimation Trap</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Clinical studies from Stanford University and Aberystwyth University found that wrist-worn fitness trackers and commercial gym treadmills overestimate exercise energy expenditure by <strong>27% to 93%</strong>. An Apple Watch reporting '650 active calories burned' may represent only 350 to 450 true calories. Eating back tracker calories completely cancels your deficit.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. Adaptive Thermogenesis &amp; Subconscious NEAT Downregulation</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  When sustained in a calorie deficit, the central nervous system conserves energy by downregulating Non-Exercise Activity Thermogenesis (NEAT). You unconsciously stop fidgeting, sit more frequently, take fewer steps, and relax postural muscle tone. This survival mechanism can silently depress your maintenance TDEE by <strong>200 to 400 kcal per day</strong> within 3 to 4 weeks.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. The Weekend Caloric Surplus Blowout Trap</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Fat loss is dictated by 7-day rolling energy balance, not individual 24-hour days. Eating at a strict 500 kcal daily deficit from Monday through Friday creates a <strong>-2,500 kcal net deficit</strong>. However, drinking alcohol, ordering takeout, and having two relaxed restaurant meals on Saturday and Sunday can effortlessly inject <strong>+3,500 kcal</strong>, leaving you in a weekly surplus.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The FDA 20% Legal Margin of Error on Nutrition Labels</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Under US FDA Title 21 CFR 101.9, packaged food manufacturers are legally permitted up to a <strong>20% margin of error</strong> between declared calories and actual caloric density. A meal prep container or protein bar labeled as 400 calories can contain 480 true calories. In an aggressive cut of 400 kcal, food label variance alone can eliminate your entire deficit.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. The Post-Workout Compensatory Appetite Surge (Ghrelin Spike)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Vigorous cardiovascular exercise stimulates acute pulses of the orexigenic hormone ghrelin. An intense 45-minute HIIT workout burns ~350 kcal but frequently triggers ravenous cravings for refined carbohydrates, leading to an unplanned 600-calorie smoothie or snack. Treat cardiovascular training as heart and lung conditioning—never as a currency to buy extra food.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           var tdeeUnitMode = 'metric';
@@ -932,6 +1030,7 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             document.getElementById('tdee-bar-tef').style.width = tefPct.toFixed(1) + '%';
             document.getElementById('tdee-bar-eat').style.width = eatPct.toFixed(1) + '%';
             document.getElementById('tdee-bar-total').textContent = 'Total: ' + tdee.toLocaleString('en-US') + ' kcal (100%)';
+            drawTdeeSvg(chosenBmr, neatCal, tefCal, eatCal, tdee, targetCal);
 
             // Goal Timeline Math
             var weeklyLossLbs = (-dailyDiff * 7) / 3500;
@@ -1005,7 +1104,53 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             document.getElementById('tdee-step-3').innerHTML = 'Target Intake = TDEE &times; ' + (1 + (curTdeeDeficitPct / 100)).toFixed(2) + ' = <strong>' + targetCal.toLocaleString('en-US') + ' kcal / day</strong> (' + diffStr + ' kcal/day &approx; ' + (weeklyLossLbs).toFixed(2) + ' lbs fat loss/wk).';
           }
 
-          window.copyTDEESummary = function() {
+          
+      function drawTdeeSvg(bmr, neat, tef, eat, totalTdee, targetCal) {
+        var container = document.getElementById('tdeeSvgContainer');
+        if (!container) return;
+
+        var safeTotal = Math.max(100, totalTdee);
+        var pBmr = (bmr / safeTotal) * 100;
+        var pNeat = (neat / safeTotal) * 100;
+        var pTef = (tef / safeTotal) * 100;
+        var pEat = Math.max(0, 100 - pBmr - pNeat - pTef);
+
+        var barW = 560;
+        var startX = 40;
+        var wBmr = (pBmr / 100) * barW;
+        var wNeat = (pNeat / 100) * barW;
+        var wTef = (pTef / 100) * barW;
+        var wEat = (pEat / 100) * barW;
+
+        var targetX = startX + Math.min(barW, Math.max(0, (targetCal / safeTotal) * barW));
+
+        var svg = 
+          '<svg viewBox="0 0 640 85" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Background Base -->' +
+            '<rect x="' + startX + '" y="20" width="' + barW + '" height="28" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1" />' +
+
+            '<!-- Stacked Segments -->' +
+            '<rect x="' + startX + '" y="20" width="' + wBmr + '" height="28" rx="4" fill="#3b82f6" />' +
+            '<rect x="' + (startX + wBmr) + '" y="20" width="' + wNeat + '" height="28" fill="#10b981" />' +
+            '<rect x="' + (startX + wBmr + wNeat) + '" y="20" width="' + wTef + '" height="28" fill="#f59e0b" />' +
+            '<rect x="' + (startX + wBmr + wNeat + wTef) + '" y="20" width="' + wEat + '" height="28" rx="4" fill="#ef4444" />' +
+
+            '<!-- Text Labels Inside Segments -->' +
+            (wBmr > 70 ? '<text x="' + (startX + wBmr / 2) + '" y="38" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">BMR (' + Math.round(pBmr) + '%)</text>' : '') +
+            (wNeat > 65 ? '<text x="' + (startX + wBmr + wNeat / 2) + '" y="38" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">NEAT</text>' : '') +
+            (wTef > 45 ? '<text x="' + (startX + wBmr + wNeat + wTef / 2) + '" y="38" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">TEF</text>' : '') +
+            (wEat > 45 ? '<text x="' + (startX + wBmr + wNeat + wTef + wEat / 2) + '" y="38" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">EAT</text>' : '') +
+
+            '<!-- Target Calorie Intake Needle / Line -->' +
+            '<line x1="' + targetX + '" y1="10" x2="' + targetX + '" y2="58" stroke="#8b5cf6" stroke-width="3" />' +
+            '<polygon points="' + (targetX - 5) + ',10 ' + (targetX + 5) + ',10 ' + targetX + ',18" fill="#8b5cf6" />' +
+            '<text x="' + targetX + '" y="72" fill="#8b5cf6" font-size="11" font-weight="bold" text-anchor="middle">Target: ' + targetCal.toLocaleString('en-US') + ' kcal</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyTDEESummary = function() {
             var tdee = document.getElementById('tdee-primary-val').textContent;
             var bmr = document.getElementById('tdee-bmr-val').textContent;
             var target = document.getElementById('tdee-target-cal').textContent;

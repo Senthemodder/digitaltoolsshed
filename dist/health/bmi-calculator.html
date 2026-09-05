@@ -1133,18 +1133,9 @@
                 <span id="bmi-gauge-label" style="color: var(--fg); font-weight: bold;">Current: 23.5 (Normal)</span>
               </div>
               
-              <!-- Multi-Segment Spectrum Bar -->
-              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
-                <div style="width: 14%; background: #3b82f6;" title="Underweight (< 18.5)">Under</div>
-                <div style="width: 26%; background: #10b981;" title="Normal Weight (18.5–24.9)">Normal (18.5–24.9)</div>
-                <div style="width: 20%; background: #f59e0b;" title="Overweight (25.0–29.9)">Over (25–30)</div>
-                <div style="width: 20%; background: #ef4444;" title="Obese Class I (30.0–34.9)">Obese I</div>
-                <div style="width: 20%; background: #991b1b;" title="Obese Class II/III (≥ 35.0)">Class II/III</div>
-              </div>
-
-              <!-- Needle / Pointer Position Marker -->
-              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
-                <div id="bmi-needle" style="position: absolute; top: 0; left: 32%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
+              <!-- Pure SVG Multi-Segment Spectrum Gauge -->
+              <div id="bmiSvgContainer" style="width: 100%; overflow-x: auto; margin: 0.5rem 0 1rem;">
+                <!-- Dynamically drawn by drawBmiSvg -->
               </div>
 
               <!-- Healthy Target & Weight Delta Box -->
@@ -1218,17 +1209,50 @@
             </div>
           </div>
 
-          <!-- Clinical Pitfalls & Blind Spots -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls &amp; BMI Blind Spots</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Muscular Athlete False Positive:</strong> BMI cannot distinguish skeletal muscle mass from adipose fat. Because muscle tissue is ~18% denser than fat, strength athletes, bodybuilders, and rugby players frequently score in the 'Overweight' (26–29) or 'Obese' (>30) categories despite sub-12% body fat and superior cardiovascular markers.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sarcopenic Obesity in Older Adults:</strong> With age, skeletal muscle degrades (sarcopenia) and is replaced by visceral belly fat. An elderly person may maintain a 'Normal' BMI of 22–24 while possessing dangerous levels of internal organ adiposity and elevated cardiovascular risk. WHtR or DEXA scans are essential here.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Mathematical Scaling Distortion:</strong> In classic BMI, dividing mass by height squared instead of cubed treats humans as flat 2D squares rather than 3D volumes. Consequently, standard BMI overestimates obesity in tall people (over 6'0') and underestimates fatness in shorter individuals. Oxford's 2.5 exponent resolves this distortion.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Ethnicity Cutoff Disparities:</strong> WHO and International Diabetes Federation studies show that people of South Asian, East Asian, and Black ethnic backgrounds face elevated type 2 diabetes risk at lower BMI cutoffs (overweight at BMI &ge; 23, obesity at BMI &ge; 27.5).</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal BMI Traps & Biometric Math Pitfalls -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal BMI Traps &amp; Biometric Math Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              While BMI is a widely used population screening tool, relying on it blindly without understanding clinical nuances leads to severe misdiagnoses:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Muscular Athlete &amp; Bodybuilder False Positive</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Quetelet BMI measures gross body weight divided by height squared without distinguishing between dense skeletal muscle and adipose tissue. Because muscle is approximately 18% denser than fat, strength athletes, bodybuilders, and rugby players frequently register as 'Overweight' (BMI 26–29) or 'Obese' (BMI &ge; 30) despite having sub-12% body fat and pristine metabolic health.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. Sarcopenic Obesity &amp; The 'Normal Weight Obesity' Trap</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  As adults age or remain sedentary, skeletal muscle degrades (sarcopenia) and is quietly replaced by visceral adipose tissue. An individual can maintain an ostensibly 'ideal' BMI of 21.5 while carrying 35%+ body fat, suffering from insulin resistance, elevated triglycerides, and chronic systemic inflammation without ever triggering a clinical BMI alert.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. The 2D vs. 3D Mathematical Scaling Flaw</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  In 1832, Adolphe Quetelet devised BMI dividing weight by height squared (h²), mathematically treating humans as 2-dimensional flat planes. As Oxford mathematician Nick Trefethen proved, 3-dimensional human volumetric mass scales closer to height^2.5 or height^3. As a result, standard BMI systematically misclassifies tall individuals as fatter than they are, and short individuals as leaner than they are.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Visceral Adiposity Blind Spot (Ignoring Waist-to-Height Ratio)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Subcutaneous fat stored on hips and thighs carries minimal cardiometabolic risk compared to ectopic visceral fat packed around the liver, pancreas, and heart. In 2022, the UK National Institute for Health and Care Excellence (NICE) officially mandated Waist-to-Height Ratio (WHtR) alongside BMI: your waist circumference must remain below half your height (&lt; 0.50).
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. Ethnic Disparity &amp; Premature Metabolic Disease Cutoffs</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Standard WHO cutoffs (25.0 overweight, 30.0 obese) were derived predominantly from Caucasian populations. Extensive clinical trials demonstrate that individuals of South Asian, East Asian, and African ancestry experience severe insulin resistance, type 2 diabetes, and coronary artery disease at significantly lower BMIs. For Asian adults, WHO recommends overweight thresholds at BMI &ge; 23.0 and obesity at BMI &ge; 27.5.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           let bmiUnit = 'metric';
@@ -1404,7 +1428,10 @@
             badgeEl.style.color = catColor;
 
             // Needle positioning
-            document.getElementById('bmi-needle').style.left = Math.min(98, Math.max(2, gaugePct)) + '%';
+            if (document.getElementById('bmi-needle')) {
+              document.getElementById('bmi-needle').style.left = Math.min(98, Math.max(2, gaugePct)) + '%';
+            }
+            drawBmiSvg(bmi);
             document.getElementById('bmi-gauge-label').textContent = 'Current: ' + bmi.toFixed(1) + ' (' + catName.split(' ')[0] + ')';
 
             // WHtR Display
@@ -1489,7 +1516,48 @@
             }
           }
 
-          window.copyBMISummary = function() {
+          
+      function drawBmiSvg(bmi) {
+        var container = document.getElementById('bmiSvgContainer');
+        if (!container) return;
+
+        var minBmi = 15;
+        var maxBmi = 40;
+        var width = 640;
+        var clampedBmi = Math.max(minBmi, Math.min(maxBmi, bmi));
+        var userX = 40 + ((clampedBmi - minBmi) / (maxBmi - minBmi)) * (width - 80);
+
+        var x18 = 40 + ((18.5 - minBmi) / (maxBmi - minBmi)) * (width - 80);
+        var x25 = 40 + ((25.0 - minBmi) / (maxBmi - minBmi)) * (width - 80);
+        var x30 = 40 + ((30.0 - minBmi) / (maxBmi - minBmi)) * (width - 80);
+        var x35 = 40 + ((35.0 - minBmi) / (maxBmi - minBmi)) * (width - 80);
+
+        var svg = 
+          '<svg viewBox="0 0 640 95" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Spectrum Bands -->' +
+            '<rect x="40" y="25" width="' + (x18 - 40) + '" height="24" rx="3" fill="#3b82f6" />' +
+            '<rect x="' + x18 + '" y="25" width="' + (x25 - x18) + '" height="24" fill="#10b981" />' +
+            '<rect x="' + x25 + '" y="25" width="' + (x30 - x25) + '" height="24" fill="#f59e0b" />' +
+            '<rect x="' + x30 + '" y="25" width="' + (x35 - x30) + '" height="24" fill="#ef4444" />' +
+            '<rect x="' + x35 + '" y="25" width="' + (width - 40 - x35) + '" height="24" rx="3" fill="#991b1b" />' +
+
+            '<!-- Zone Labels inside bars -->' +
+            '<text x="' + ((40 + x18) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Under</text>' +
+            '<text x="' + ((x18 + x25) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Normal (18.5-24.9)</text>' +
+            '<text x="' + ((x25 + x30) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Over (25-30)</text>' +
+            '<text x="' + ((x30 + x35) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Obese I</text>' +
+            '<text x="' + ((x35 + width - 40) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Class II/III</text>' +
+
+            '<!-- Active Indicator Pointer -->' +
+            '<line x1="' + userX + '" y1="12" x2="' + userX + '" y2="58" stroke="var(--fg)" stroke-width="3" />' +
+            '<polygon points="' + (userX - 6) + ',12 ' + (userX + 6) + ',12 ' + userX + ',24" fill="var(--fg)" />' +
+            '<text x="' + userX + '" y="76" fill="var(--fg)" font-size="12" font-weight="bold" text-anchor="middle">You: ' + bmi.toFixed(1) + '</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyBMISummary = function() {
             const score = document.getElementById('bmi-score').textContent;
             const cat = document.getElementById('bmi-cat-badge').textContent;
             const newScore = document.getElementById('bmi-new-score').textContent;
