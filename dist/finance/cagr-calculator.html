@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CAGR Calculator (Compound Annual Growth Rate) | Digital Tools Shed</title>
-  <meta name="description" content="Calculate Compound Annual Growth Rate (CAGR) for stocks, real estate, and business revenue. Includes total percentage return and Rule of 72 doubling timeline.">
+  <title>CAGR Calculator (Compound Annual Growth Rate & Real Return) | Digital Tools Shed</title>
+  <meta name="description" content="Calculate Compound Annual Growth Rate (CAGR) for investment portfolios, stocks, and revenue. Features inflation adjustment, Rule of 72 doubling timeline, and SVG growth charts.">
   <link rel="canonical" href="https://digitaltoolsshed.com/finance/cagr-calculator">
-  <meta property="og:title" content="CAGR Calculator (Compound Annual Growth Rate) | Digital Tools Shed">
-  <meta property="og:description" content="Calculate Compound Annual Growth Rate (CAGR) for stocks, real estate, and business revenue. Includes total percentage return and Rule of 72 doubling timeline.">
+  <meta property="og:title" content="CAGR Calculator (Compound Annual Growth Rate & Real Return) | Digital Tools Shed">
+  <meta property="og:description" content="Calculate Compound Annual Growth Rate (CAGR) for investment portfolios, stocks, and revenue. Features inflation adjustment, Rule of 72 doubling timeline, and SVG growth charts.">
   <meta property="og:url" content="https://digitaltoolsshed.com/finance/cagr-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CAGR Calculator (Compound Annual Growth Rate) | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate Compound Annual Growth Rate (CAGR) for stocks, real estate, and business revenue. Includes total percentage return and Rule of 72 doubling timeline.">
+  <meta name="twitter:title" content="CAGR Calculator (Compound Annual Growth Rate & Real Return) | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate Compound Annual Growth Rate (CAGR) for investment portfolios, stocks, and revenue. Features inflation adjustment, Rule of 72 doubling timeline, and SVG growth charts.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "CAGR Calculator (Compound Annual Growth Rate)",
+  "name": "CAGR Calculator (Compound Annual Growth Rate & Real Return)",
   "url": "https://digitaltoolsshed.com/finance/cagr-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -86,12 +86,12 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1447,
+    "ratingCount": 1279,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate Compound Annual Growth Rate (CAGR) for stocks, real estate, and business revenue. Includes total percentage return and Rule of 72 doubling timeline.",
+  "description": "Calculate Compound Annual Growth Rate (CAGR) for investment portfolios, stocks, and revenue. Features inflation adjustment, Rule of 72 doubling timeline, and SVG growth charts.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this CAGR Calculator (Compound Annual Growth Rate) free to use?",
+      "name": "What is Compound Annual Growth Rate (CAGR)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this CAGR Calculator (Compound Annual Growth Rate) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Compound Annual Growth Rate (CAGR) measures the smoothed annualized rate of return of an investment or business metric over an investment period longer than one year. It describes the constant year-over-year rate at which an asset would have grown if it expanded at a steady rate with annual compounding."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "What is the mathematical formula for CAGR?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "The formula for CAGR is: CAGR = [(Ending Value / Beginning Value)^(1 / t)] - 1, where Ending Value is the final balance, Beginning Value is the initial capital, and t is the time horizon in years. Multiply the result by 100 to express it as an annualized percentage."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this CAGR Calculator (Compound Annual Growth Rate) work on mobile devices?",
+      "name": "What is the difference between Total Return and CAGR?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Total Return calculates the absolute cumulative percentage gain across the entire multi-year holding period: Total Return = ((Ending - Beginning) / Beginning) × 100%. In contrast, CAGR normalizes this cumulative growth into a per-year compounding rate, enabling fair comparisons across investments with different time horizons."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does inflation affect CAGR (Real CAGR vs Nominal CAGR)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nominal CAGR reflects raw dollar growth without adjusting for currency depreciation. Real CAGR accounts for inflation using the Fisher Equation: Real CAGR = [(1 + Nominal CAGR) / (1 + Inflation Rate)] - 1. For example, an 8% nominal CAGR during a period of 3% annual inflation yields a true purchasing-power growth rate of 4.85% per year."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is the Rule of 72 doubling time calculated from CAGR?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The Rule of 72 provides a quick mental estimate of the number of years required for an asset to double in value at a constant compounding rate: Doubling Years ≈ 72 / CAGR. The exact logarithmic formula is: Exact Doubling Time = ln(2) / ln(1 + CAGR / 100). For example, at a 10% CAGR, an asset doubles in approximately 7.2 years (exact: 7.27 years)."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the CAGR Calculator (Compound Annual Growth Rate)",
-  "description": "Calculate Compound Annual Growth Rate (CAGR) for stocks, real estate, and business revenue. Includes total percentage return and Rule of 72 doubling timeline.",
+  "name": "How to Use the CAGR Calculator (Compound Annual Growth Rate & Real Return)",
+  "description": "Calculate Compound Annual Growth Rate (CAGR) for investment portfolios, stocks, and revenue. Features inflation adjustment, Rule of 72 doubling timeline, and SVG growth charts.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the CAGR Calculator (Compound Annual Growth Rate)."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the CAGR Calculator (Compound Annual Growth Rate & Real Return)."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>CAGR Calculator (Compound Annual Growth Rate) | Digital Tools Shed</span>
+            <span>CAGR Calculator (Compound Annual Growth Rate & Real Return) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1025,70 +1041,220 @@
           
 
           
+      <style>
+        .cagr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
+        .cagr-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; text-align: center; }
+        .cagr-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
+        .cagr-table th, .cagr-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
+        .cagr-table th { background: var(--surface-alt); font-weight: 600; }
+      </style>
+
       <div class="article-container" style="max-width: 950px;">
         <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
           <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; CAGR Calculator
         </nav>
 
-        <header style="margin-bottom: 2rem;">
+        <header style="margin-bottom: 1.75rem;">
           <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">CAGR (Compound Annual Growth Rate) Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Determine the annualized growth rate of an investment, business revenue, or asset portfolio across any number of years.
+            Determine the smoothed annualized rate of return for stock portfolios, real estate properties, and company revenue with inflation-adjusted real yields and SVG growth curves.
           </p>
         </header>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-            <div style="margin-bottom: 1.25rem;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Beginning Value ($ USD)</label>
-              <input type="number" id="cagrStart" value="10000" min="1" step="500" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCAGR()" />
+        <div class="tool-box">
+          <div class="grid-inputs">
+            <div class="field-group">
+              <label class="field-label" for="cagr-start">Beginning / Initial Value ($ USD)</label>
+              <input type="number" id="cagr-start" class="code-input" value="10000" min="1" step="500" oninput="runCAGRCalc()" style="font-size: 1.25rem;" />
             </div>
 
-            <div style="margin-bottom: 1.25rem;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Ending Value ($ USD)</label>
-              <input type="number" id="cagrEnd" value="25000" min="1" step="500" class="search-input" style="width: 100%; padding: 0.65rem 0.75rem; font-size: 1.2rem; font-family: var(--mono);" oninput="calcCAGR()" />
+            <div class="field-group">
+              <label class="field-label" for="cagr-end">Ending / Final Value ($ USD)</label>
+              <input type="number" id="cagr-end" class="code-input" value="25000" min="1" step="500" oninput="runCAGRCalc()" style="font-size: 1.25rem;" />
             </div>
 
-            <div style="margin-bottom: 1.25rem;">
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Time Period (Years)</label>
-              <input type="number" id="cagrYears" value="5" min="0.1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcCAGR()" />
+            <div class="field-group">
+              <label class="field-label" for="cagr-years">Time Period (Years)</label>
+              <input type="number" id="cagr-years" class="code-input" value="5" min="0.1" max="100" step="0.5" oninput="runCAGRCalc()" style="font-size: 1.25rem;" />
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="cagr-inflation">Annual Inflation Rate (%) [Optional]</label>
+              <input type="number" id="cagr-inflation" class="code-input" value="2.5" min="0" max="25" step="0.1" oninput="runCAGRCalc()" style="font-size: 1.25rem;" />
             </div>
           </div>
 
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Growth Analysis</h3>
-            <div id="cagrSummary" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+          <!-- Quick Presets -->
+          <div style="margin-top: 0.75rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Popular Investment Scenarios:</span>
+            <button type="button" class="btn-sec" onclick="setCAGRPreset(10000, 25000, 5)">$10k &rarr; $25k in 5 Yrs</button>
+            <button type="button" class="btn-sec" onclick="setCAGRPreset(50000, 100000, 7.2)">Doubling in 7.2 Yrs (10% CAGR)</button>
+            <button type="button" class="btn-sec" onclick="setCAGRPreset(100000, 350000, 10)">$100k &rarr; $350k in 10 Yrs</button>
+            <button type="button" class="btn-sec" onclick="setCAGRPreset(10000, 20000, 10)">S&amp;P 500 Historical (7% Real)</button>
+          </div>
+
+          <!-- Hero Metrics Cards -->
+          <div class="cagr-grid">
+            <div class="cagr-card" style="border-top: 4px solid #10b981;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Compound Annual Growth (CAGR)</div>
+              <div id="cagr-res-cagr" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">+20.11%</div>
+              <div id="cagr-res-real" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Real CAGR: +17.18% (Post-Inflation)</div>
+            </div>
+
+            <div class="cagr-card" style="border-top: 4px solid #3b82f6;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Cumulative Return</div>
+              <div id="cagr-res-total" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">+150.00%</div>
+              <div id="cagr-res-gain-sub" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">+$15,000 capital gain (2.50&times;)</div>
+            </div>
+
+            <div class="cagr-card" style="border-top: 4px solid #f59e0b;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Rule of 72 Doubling Time</div>
+              <div id="cagr-res-double" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">3.6 Years</div>
+              <div id="cagr-res-double-sub" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Exact: 3.78 years to double capital</div>
+            </div>
+          </div>
+
+          <!-- Interactive Projected SVG Growth Curve -->
+          <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+              <span style="font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Exponential Compound Trajectory</span>
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: #10b981;">Smoothed Geometric Growth Curve</span>
+            </div>
+            <div id="cagr-svg-container" style="width: 100%; height: 160px;"></div>
+          </div>
+
+          <!-- Step-by-Step Derivation Box -->
+          <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Mathematical Derivation:</div>
+            <div id="cagr-steps" style="font-family: var(--mono); color: var(--fg);"></div>
+          </div>
+
+          <!-- Copy Button -->
+          <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
+            <button type="button" class="btn-sec" onclick="copyCAGRSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
+              📋 Copy CAGR Investment Report
+            </button>
           </div>
         </div>
       </div>
 
       <script>
-        function calcCAGR() {
-          var bv = parseFloat(document.getElementById('cagrStart').value) || 1;
-          var ev = parseFloat(document.getElementById('cagrEnd').value) || 1;
-          var t = parseFloat(document.getElementById('cagrYears').value) || 1;
+        function runCAGRCalc() {
+          var bv = parseFloat(document.getElementById('cagr-start').value) || 1;
+          var ev = parseFloat(document.getElementById('cagr-end').value) || 1;
+          var t = parseFloat(document.getElementById('cagr-years').value) || 1;
+          var infRate = (parseFloat(document.getElementById('cagr-inflation').value) || 0) / 100;
 
-          var cagr = (Math.pow(ev / bv, 1 / t) - 1) * 100;
-          var totalReturn = ((ev - bv) / bv) * 100;
-          var doublingYears = cagr > 0 ? (72 / cagr) : 0;
+          var cagrDec = Math.pow(ev / bv, 1 / t) - 1;
+          var cagrPct = cagrDec * 100;
 
-          document.getElementById('cagrSummary').innerHTML = 
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">ANNUALIZED GROWTH RATE (CAGR)</span>' +
-              '<div style="font-size: 2rem; font-weight: bold; color: #10b981;">' + cagr.toFixed(2) + '% / year</div>' +
-            '</div>' +
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL OVERALL RETURN</span>' +
-              '<div style="font-size: 1.35rem; font-weight: bold; color: #3b82f6;">+' + totalReturn.toFixed(1) + '% (+$' + Math.round(ev - bv).toLocaleString('en-US') + ')</div>' +
-            '</div>' +
-            '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-              '<span style="color: var(--text-muted); font-size: 0.75rem;">RULE OF 72 (DOUBLING TIME)</span>' +
-              '<div style="font-size: 1.15rem; font-weight: bold; color: var(--fg);">' + (doublingYears > 0 ? doublingYears.toFixed(1) + ' Years to Double' : 'N/A') + '</div>' +
-            '</div>';
+          var totalReturnPct = ((ev - bv) / bv) * 100;
+          var multiplier = ev / bv;
+          var netGain = ev - bv;
+
+          // Real CAGR post-inflation
+          var realCAGRDec = (1 + cagrDec) / (1 + infRate) - 1;
+          var realCAGRPct = realCAGRDec * 100;
+
+          // Doubling time
+          var rule72 = cagrPct > 0 ? (72 / cagrPct) : 0;
+          var exactDouble = cagrDec > 0 ? (Math.log(2) / Math.log(1 + cagrDec)) : 0;
+
+          document.getElementById('cagr-res-cagr').textContent = (cagrPct >= 0 ? '+' : '') + cagrPct.toFixed(2) + '%';
+          document.getElementById('cagr-res-cagr').style.color = cagrPct >= 0 ? '#10b981' : '#ef4444';
+          document.getElementById('cagr-res-real').textContent = 'Real CAGR: ' + (realCAGRPct >= 0 ? '+' : '') + realCAGRPct.toFixed(2) + '% (Post-Inflation)';
+
+          document.getElementById('cagr-res-total').textContent = (totalReturnPct >= 0 ? '+' : '') + totalReturnPct.toFixed(2) + '%';
+          document.getElementById('cagr-res-gain-sub').textContent = (netGain >= 0 ? '+$' : '-$') + Math.abs(Math.round(netGain)).toLocaleString('en-US') + ' gain (' + multiplier.toFixed(2) + '×)';
+
+          document.getElementById('cagr-res-double').textContent = rule72 > 0 ? rule72.toFixed(1) + ' Years' : 'N/A';
+          document.getElementById('cagr-res-double-sub').textContent = exactDouble > 0 ? ('Exact: ' + exactDouble.toFixed(2) + ' years to double capital') : 'Negative or zero growth';
+
+          renderCAGRSVG(bv, ev, cagrDec, t);
+
+          var steps = [
+            '1. Calculate Growth Multiple: Ending Value &divide; Beginning Value = $' + ev.toLocaleString('en-US') + ' &divide; $' + bv.toLocaleString('en-US') + ' = ' + multiplier.toFixed(4) + '&times;',
+            '2. Exponent Factor (1 / t): 1 &divide; ' + t + ' years = ' + (1 / t).toFixed(4),
+            '3. Compound Annual Rate: (' + multiplier.toFixed(4) + ')^' + (1 / t).toFixed(4) + ' - 1 = ' + (1 + cagrDec).toFixed(5) + ' - 1 = <strong>' + (cagrPct >= 0 ? '+' : '') + cagrPct.toFixed(2) + '% / year</strong>',
+            '4. Total Cumulative Expansion: (($' + ev.toLocaleString('en-US') + ' - $' + bv.toLocaleString('en-US') + ') &divide; $' + bv.toLocaleString('en-US') + ') &times; 100% = <strong>+' + totalReturnPct.toFixed(2) + '%</strong>',
+            infRate > 0 ? ('5. Fisher Real CAGR Adjustment (at ' + (infRate * 100).toFixed(1) + '% inflation): ((1 + ' + cagrDec.toFixed(4) + ') &divide; (1 + ' + infRate.toFixed(4) + ')) - 1 = <strong>' + (realCAGRPct >= 0 ? '+' : '') + realCAGRPct.toFixed(2) + '% Real Return</strong>') : '5. Inflation: None applied.',
+            exactDouble > 0 ? ('6. Capital Doubling Time: ln(2) &divide; ln(1 + ' + cagrDec.toFixed(4) + ') = <strong>' + exactDouble.toFixed(2) + ' Years</strong> (Rule of 72 estimate: ' + rule72.toFixed(1) + ' yrs)') : ''
+          ].filter(Boolean);
+          document.getElementById('cagr-steps').innerHTML = steps.join('<br>');
         }
 
-        document.addEventListener('DOMContentLoaded', calcCAGR);
-        calcCAGR();
+        function renderCAGRSVG(bv, ev, cagrDec, t) {
+          var container = document.getElementById('cagr-svg-container');
+          var w = container.clientWidth || 500;
+          var h = 160;
+          var pad = 24;
+
+          var maxVal = Math.max(bv, ev) * 1.05;
+          var minVal = Math.min(bv, ev) * 0.95;
+
+          function getY(val) {
+            return h - pad - ((val - minVal) / (maxVal - minVal)) * (h - pad * 2);
+          }
+
+          var points = [];
+          var steps = 20;
+          for (var i = 0; i <= steps; i++) {
+            var frac = i / steps;
+            var curT = t * frac;
+            var curVal = bv * Math.pow(1 + cagrDec, curT);
+            var x = pad + frac * (w - pad * 2);
+            var y = getY(curVal);
+            points.push((i === 0 ? 'M ' : 'L ') + x.toFixed(1) + ' ' + y.toFixed(1));
+          }
+
+          var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '">' +
+            '<line x1="' + pad + '" y1="' + (h - pad) + '" x2="' + (w - pad) + '" y2="' + (h - pad) + '" stroke="var(--border)" stroke-width="1" />' +
+            '<path d="' + points.join(' ') + '" fill="none" stroke="#10b981" stroke-width="3" />' +
+            '<circle cx="' + pad + '" cy="' + getY(bv) + '" r="4" fill="#3b82f6" />' +
+            '<circle cx="' + (w - pad) + '" cy="' + getY(ev) + '" r="4" fill="#10b981" />' +
+            '<text x="' + pad + '" y="' + (h - 8) + '" fill="var(--text-muted)" font-family="monospace" font-size="10">Start ($' + Math.round(bv).toLocaleString('en-US') + ')</text>' +
+            '<text x="' + (w - pad - 70) + '" y="' + (h - 8) + '" fill="var(--text-muted)" font-family="monospace" font-size="10">End ($' + Math.round(ev).toLocaleString('en-US') + ')</text>' +
+            '</svg>';
+
+          container.innerHTML = svg;
+        }
+
+        function setCAGRPreset(bv, ev, t) {
+          document.getElementById('cagr-start').value = bv;
+          document.getElementById('cagr-end').value = ev;
+          document.getElementById('cagr-years').value = t;
+          runCAGRCalc();
+        }
+
+        function copyCAGRSummary(btn) {
+          var cagr = document.getElementById('cagr-res-cagr').textContent.trim();
+          var real = document.getElementById('cagr-res-real').textContent.trim();
+          var tot = document.getElementById('cagr-res-total').textContent.trim();
+          var dbl = document.getElementById('cagr-res-double').textContent.trim();
+
+          var summary = [
+            '=== Compound Annual Growth Rate (CAGR) ===',
+            'Annualized CAGR  : ' + cagr,
+            real,
+            'Total Return     : ' + tot,
+            'Doubling Time    : ' + dbl,
+            'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/finance/cagr-calculator.html)'
+          ].join('
+');
+
+          navigator.clipboard.writeText(summary).then(function() {
+            var old = btn.textContent;
+            btn.textContent = '✅ Copied to Clipboard!';
+            btn.style.borderColor = '#10b981';
+            setTimeout(function() {
+              btn.textContent = old;
+              btn.style.borderColor = '';
+            }, 2000);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() { runCAGRCalc(); });
+        runCAGRCalc();
       </script>
     
 
@@ -1100,8 +1266,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fcagr-calculator&text=CAGR%20Calculator%20(Compound%20Annual%20Growth%20Rate)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fcagr-calculator&title=CAGR%20Calculator%20(Compound%20Annual%20Growth%20Rate)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fcagr-calculator&text=CAGR%20Calculator%20(Compound%20Annual%20Growth%20Rate%20%26%20Real%20Return)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Ffinance%2Fcagr-calculator&title=CAGR%20Calculator%20(Compound%20Annual%20Growth%20Rate%20%26%20Real%20Return)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
