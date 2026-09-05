@@ -197,6 +197,18 @@ const TOOLS = [
   { id: 'dopamine-fasting-protocol', name: 'Dopamine Fasting & Neurochemical Reset Schedule [Dr. Cameron Sepah Protocol]', category: 'Neurobiology & Mind', path: '/neuro/dopamine-fasting-protocol', desc: 'Evidence-based cognitive-behavioral stimulus control protocol to attenuate impulsive stimulus-seeking behavior.' },
   { id: 'rejection-sensitivity-meter', name: 'Rejection Sensitive Dysphoria (RSD) Diagnostic & Coping Protocol [Emotional Dysregulation Scale]', category: 'Neurobiology & Mind', path: '/neuro/rejection-sensitivity-meter', desc: 'Interactive self-audit for Rejection Sensitive Dysphoria (RSD) with somatic regulation protocols.' },
   { id: 'existential-dread-compass', name: 'Existential Dread & Meaning Reconstruction Matrix [Frankl Logotherapy Model]', category: 'Neurobiology & Mind', path: '/neuro/existential-dread-compass', desc: 'Confront the 4 ultimate concerns of existence (Death, Freedom, Isolation, Meaninglessness) with Viktor Frankl Logotherapy.' },
+  { id: 'nsdr-rest-pacer', name: 'Non-Sleep Deep Rest (NSDR) & Binaural Theta Pacer [Huberman Protocol]', category: 'Neurobiology & Mind', path: '/neuro/nsdr-rest-pacer', desc: 'Free client-side Non-Sleep Deep Rest (NSDR) protocol with customizable Web Audio binaural beats (theta/alpha 4Hz-7Hz), body scan pacer, and parasympathetic reset guidance.' },
+  { id: 'sleep-inertia-dissipator', name: 'Sleep Inertia & Cortisol Awakening Response (CAR) Calculator [Morning Alertness Protocol]', category: 'Neurobiology & Mind', path: '/neuro/sleep-inertia-dissipator', desc: 'Calculate your sleep inertia dissipation curve and optimize your Cortisol Awakening Response (CAR) with lux light exposure timing, hydration protocols, and core body temperature acceleration.' },
+  { id: 'circadian-phase-shifter', name: 'Circadian Phase Response Curve (PRC) & Jet Lag Shifter [Lewy Melatonin Protocol]', category: 'Neurobiology & Mind', path: '/neuro/circadian-phase-shifter', desc: 'Shift your circadian clock forwards or backwards using the Lewy Phase Response Curve. Calculate exact light exposure, light avoidance, and 0.5mg micro-dose melatonin timing windows for rapid jet lag recovery.' },
+  { id: 'flow-state-sequencer', name: 'Flow State Trigger Sequencer & Challenge-Skill Ratio Calculator [Csikszentmihalyi 4% Engine]', category: 'Neurobiology & Mind', path: '/neuro/flow-state-sequencer', desc: 'Calculate your exact challenge-skill ratio using the Mihaly Csikszentmihalyi 4% Golden Rule. Audit 17 environmental, psychological, and social flow triggers to reliably enter optimal focus.' },
+  { id: 'working-memory-span-tester', name: 'Working Memory Span & Dual N-Back Capacity Auditor [Cognitive Load Benchmark]', category: 'Neurobiology & Mind', path: '/neuro/working-memory-span-tester', desc: 'Benchmark your working memory buffer capacity using an interactive browser-based spatial and auditory N-back test. Measure cognitive bandwidth and Miller’s 7±2 working memory span.' },
+  { id: 'loss-aversion-recalibrator', name: 'Loss Aversion & Expected Value Risk Recalibrator [Kahneman-Tversky Prospect Theory]', category: 'Neurobiology & Mind', path: '/neuro/loss-aversion-recalibrator', desc: 'Neutralize cognitive loss aversion bias with Daniel Kahneman & Amos Tversky’s Prospect Theory. Calculate true mathematical expected value (EV) vs subjective emotional pain using the 2.25x loss aversion multiplier.' },
+  { id: 'hyperbolic-discounting-calculator', name: 'Hyperbolic Discounting & Present Bias Future-Self Bridge [Intertemporal Choice Engine]', category: 'Neurobiology & Mind', path: '/neuro/hyperbolic-discounting-calculator', desc: 'Visualize how your brain devalues future rewards using George Ainslie’s Hyperbolic Discounting model. Calculate present-bias decay curves and construct pre-commitment Ulysses contracts.' },
+  { id: 'status-anxiety-deconstructor', name: 'Status Anxiety & Meritocracy Fallacy Auditor [Alain de Botton Philosophy Matrix]', category: 'Neurobiology & Mind', path: '/neuro/status-anxiety-deconstructor', desc: 'Deconstruct status anxiety, peer comparison pressure, and the insidious psychological trap of meritocracy using Alain de Botton’s philosophical framework.' },
+  { id: 'trauma-bond-interrupter', name: 'Trauma Bond & Intermittent Reinforcement Cycle Interrupter [Behavioral Psychology Audit]', category: 'Neurobiology & Mind', path: '/neuro/trauma-bond-interrupter', desc: 'Audit the psychological mechanisms of a trauma bond. Identify intermittent reinforcement schedules, dopamine craving loops, and cognitive dissonance in toxic relationships.' },
+  { id: 'nonviolent-communication-translator', name: 'Nonviolent Communication (NVC) 4-Step Conflict Translator [Marshall Rosenberg Model]', category: 'Neurobiology & Mind', path: '/neuro/nonviolent-communication-translator', desc: 'Transform blame, passive aggression, and defensiveness into collaborative dialogue. Translate heated emotional conflicts through the 4 NVC pillars: Observation, Feeling, Need, and Request.' },
+  { id: 'emotional-granularity-wheel', name: 'Emotional Granularity & Interoceptive Precision Wheel [Constructed Emotion Model]', category: 'Neurobiology & Mind', path: '/neuro/emotional-granularity-wheel', desc: 'Expand your emotional vocabulary beyond "bad" or "stressed" into 48 precise affective states based on Dr. Lisa Feldman Barrett’s Theory of Constructed Emotion.' },
+  { id: 'hyperfocus-recovery-system', name: 'ADHD Hyperfocus Hangover & Dopamine Depletion Recovery Protocol [Neurochemical Reset]', category: 'Neurobiology & Mind', path: '/neuro/hyperfocus-recovery-system', desc: 'Recover rapidly from acute post-hyperfocus exhaustion, brain fog, and sensory sensitivity with targeted biochemical, hydration, and nervous system protocols.' },
 
   { id: 'sales-tax-calculator', name: 'Sales Tax Calculator & Reverse Tax Finder', category: 'Finance', path: '/finance/sales-tax-calculator', desc: 'Calculate sales tax or reverse calculate pre-tax prices with 50 US state rates.' },
   { id: 'simple-interest-calculator', name: 'Simple Interest Calculator (I = Prt)', category: 'Finance', path: '/finance/simple-interest-calculator', desc: 'Calculate simple interest, total loan payback, and monthly installment cost.' },
@@ -1694,11 +1706,24 @@ function buildSidebarHtml(currentPath = '/') {
       <!-- HUMAN NEUROBIOLOGY & COGNITIVE ARCHITECTURE -->
       <div class="nav-group-title">
         ${ICONS.psychology}
-        <span>Neurobiology & Mind (15)</span>
+        <span>Neurobiology & Mind (27)</span>
       </div>
       <a href="/neuro/" class="nav-link ${currentPath === '/neuro/' || currentPath === '/neuro/index.html' || currentPath === '/neuro' ? 'active' : ''}">
         <div class="nav-link-content"><span>Neuro Master Suite Hub</span></div>
-        <span class="nav-badge">15</span>
+        <span class="nav-badge">27</span>
+      </a>
+      <a href="/neuro/nsdr-rest-pacer" class="nav-link ${currentPath.startsWith('/neuro/nsdr-rest-pacer') ? 'active' : ''}">
+        <div class="nav-link-content"><span>NSDR & Binaural Theta</span></div>
+        <span class="nav-badge">REST</span>
+      </a>
+      <a href="/neuro/sleep-inertia-dissipator" class="nav-link ${currentPath.startsWith('/neuro/sleep-inertia-dissipator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Sleep Inertia & CAR Calc</span></div>
+      </a>
+      <a href="/neuro/flow-state-sequencer" class="nav-link ${currentPath.startsWith('/neuro/flow-state-sequencer') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Flow State (4% Rule)</span></div>
+      </a>
+      <a href="/neuro/working-memory-span-tester" class="nav-link ${currentPath.startsWith('/neuro/working-memory-span-tester') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Dual N-Back Memory Test</span></div>
       </a>
       <a href="/neuro/imposter-syndrome-spectrum" class="nav-link ${currentPath.startsWith('/neuro/imposter-syndrome-spectrum') ? 'active' : ''}">
         <div class="nav-link-content"><span>Imposter vs Dunning-Kruger</span></div>
@@ -1709,17 +1734,14 @@ function buildSidebarHtml(currentPath = '/') {
       <a href="/neuro/burnout-nervous-system-audit" class="nav-link ${currentPath.startsWith('/neuro/burnout-nervous-system-audit') ? 'active' : ''}">
         <div class="nav-link-content"><span>Burnout vs Vagal Shutdown</span></div>
       </a>
-      <a href="/neuro/cognitive-distortion-reframer" class="nav-link ${currentPath.startsWith('/neuro/cognitive-distortion-reframer') ? 'active' : ''}">
-        <div class="nav-link-content"><span>CBT Distortion Reframer</span></div>
+      <a href="/neuro/loss-aversion-recalibrator" class="nav-link ${currentPath.startsWith('/neuro/loss-aversion-recalibrator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Loss Aversion EV Recalibrator</span></div>
       </a>
-      <a href="/neuro/regret-minimization-engine" class="nav-link ${currentPath.startsWith('/neuro/regret-minimization-engine') ? 'active' : ''}">
-        <div class="nav-link-content"><span>80-Year-Old Regret Matrix</span></div>
+      <a href="/neuro/nonviolent-communication-translator" class="nav-link ${currentPath.startsWith('/neuro/nonviolent-communication-translator') ? 'active' : ''}">
+        <div class="nav-link-content"><span>Nonviolent Communication</span></div>
       </a>
-      <a href="/neuro/circadian-energy-architect" class="nav-link ${currentPath.startsWith('/neuro/circadian-energy-architect') ? 'active' : ''}">
-        <div class="nav-link-content"><span>Circadian Energy Architect</span></div>
-      </a>
-      <a href="/neuro/overthinking-interrupter" class="nav-link ${currentPath.startsWith('/neuro/overthinking-interrupter') ? 'active' : ''}">
-        <div class="nav-link-content"><span>Overthinking Interrupter</span></div>
+      <a href="/neuro/hyperfocus-recovery-system" class="nav-link ${currentPath.startsWith('/neuro/hyperfocus-recovery-system') ? 'active' : ''}">
+        <div class="nav-link-content"><span>ADHD Hyperfocus Recovery</span></div>
       </a>
 
       <!-- MIND & PSYCHOLOGICAL ARCHETYPES -->

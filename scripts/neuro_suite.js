@@ -1,9 +1,10 @@
 // scripts/neuro_suite.js — Human Neurobiology & Cognitive Psychology Master Suite
-// 15 Interactive Flagship Tools + Master Hub (/neuro/)
+// 27 Interactive Flagship Tools + Master Hub (/neuro/)
 import { renderPage } from './core.js';
+import { batch2Tools } from './neuro_batch2.js';
 
 export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }) {
-  console.log('  🧠 Building Human Neurobiology & Cognitive Psychology Suite (15 Tools + Hub)...');
+  console.log('  🧠 Building Human Neurobiology & Cognitive Psychology Suite (27 Tools + Hub)...');
   const neuroDist = join(DIST, 'neuro');
   ensureDir(neuroDist);
 
@@ -1834,7 +1835,8 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
   const allTools = [
     imposterTool, adhdTool, burnoutTool, attachmentTool, distortionTool,
     regretTool, hedonicTool, circadianTool, overthinkingTool, maximizerTool,
-    envyTool, lonelinessTool, dopamineFastTool, rsdTool, dreadTool
+    envyTool, lonelinessTool, dopamineFastTool, rsdTool, dreadTool,
+    ...batch2Tools
   ];
 
   // Emit all individual tool HTML files
@@ -1879,6 +1881,7 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
     ` : '';
 
     const pageBody = `
+      ${tool.html.includes('.wb-card') && tool.html.includes('<style>') ? '' : sharedStyle}
       ${tool.html}
       ${faqAccordionHtml}
     `;
@@ -1902,7 +1905,7 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
       <div class="wb-header">
         <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
           <span class="wb-badge badge-blue">Clinical Cognitive Neuroscience</span>
-          <span class="wb-badge badge-green">15 Flagship Diagnostics</span>
+          <span class="wb-badge badge-green">27 Flagship Diagnostics</span>
         </div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem;">Human Neurobiology & Cognitive Architecture Suite</h1>
         <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; max-width: 800px;">
@@ -1911,7 +1914,7 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
       </div>
 
       <div class="wb-card" style="background:var(--bg);">
-        <input type="text" id="neuro-hub-search" class="text-input" placeholder="🔍 Search cognitive tools, ADHD defusers, burnout audits, CBT reframers..." oninput="filterNeuroTools()" />
+        <input type="text" id="neuro-hub-search" class="text-input" placeholder="🔍 Search cognitive tools, ADHD defusers, NSDR, burnout audits, CBT reframers..." oninput="filterNeuroTools()" />
       </div>
 
       <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(310px, 1fr)); gap:1.25rem; margin-top:1.5rem;" id="neuro-tool-grid">
@@ -1948,11 +1951,11 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
 
   const hubHtml = renderPage({
     title: 'Human Neurobiology & Cognitive Psychology Master Suite | Digital Tools Shed',
-    metaDesc: 'A comprehensive suite of 15 client-side cognitive diagnostics: Imposter Syndrome spectrum, ADHD task paralysis defuser, burnout vs depression audit, and CBT reframers.',
+    metaDesc: 'A comprehensive suite of 27 client-side cognitive diagnostics: Imposter Syndrome spectrum, NSDR binaural rest pacer, ADHD task paralysis defuser, burnout audit, and CBT reframers.',
     canonical: `${DOMAIN}/neuro/`,
     content: hubBody
   });
 
   writeFileSync(join(neuroDist, 'index.html'), hubHtml, 'utf8');
-  console.log('  ✓ Built Human Neurobiology & Cognitive Architecture Suite (/neuro/ — 15 Tools + Hub)');
+  console.log('  ✓ Built Human Neurobiology & Cognitive Architecture Suite (/neuro/ — 27 Tools + Hub)');
 }
