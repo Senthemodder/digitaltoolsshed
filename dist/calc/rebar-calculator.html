@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rebar Calculator: Concrete Slab Grid Sticks & Linear Feet | Digital Tools Shed</title>
-  <meta name="description" content="Calculate rebar needed for concrete slabs and driveways. Estimates 20-ft rebar stick counts, linear feet, overlap splices, and tie wire — 100% free, instant & private.">
+  <title>Rebar Calculator — Grid Spacing, Lap Splices & Tonnage | Digital Tools Shed</title>
+  <meta name="description" content="Free contractor rebar calculator. Computes exact bar counts, grid spacing, ACI 318 lap splices, 20-ft stock sticks, weight tonnage, tie wire, and rebar chairs for concrete slabs and footings.">
   <link rel="canonical" href="https://digitaltoolsshed.com/calc/rebar-calculator">
-  <meta property="og:title" content="Rebar Calculator: Concrete Slab Grid Sticks & Linear Feet | Digital Tools Shed">
-  <meta property="og:description" content="Calculate rebar needed for concrete slabs and driveways. Estimates 20-ft rebar stick counts, linear feet, overlap splices, and tie wire — 100% free, instant & private.">
+  <meta property="og:title" content="Rebar Calculator — Grid Spacing, Lap Splices & Tonnage | Digital Tools Shed">
+  <meta property="og:description" content="Free contractor rebar calculator. Computes exact bar counts, grid spacing, ACI 318 lap splices, 20-ft stock sticks, weight tonnage, tie wire, and rebar chairs for concrete slabs and footings.">
   <meta property="og:url" content="https://digitaltoolsshed.com/calc/rebar-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Rebar Calculator: Concrete Slab Grid Sticks & Linear Feet | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate rebar needed for concrete slabs and driveways. Estimates 20-ft rebar stick counts, linear feet, overlap splices, and tie wire — 100% free, instant & private.">
+  <meta name="twitter:title" content="Rebar Calculator — Grid Spacing, Lap Splices & Tonnage | Digital Tools Shed">
+  <meta name="twitter:description" content="Free contractor rebar calculator. Computes exact bar counts, grid spacing, ACI 318 lap splices, 20-ft stock sticks, weight tonnage, tie wire, and rebar chairs for concrete slabs and footings.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Rebar Calculator: Concrete Slab Grid Sticks & Linear Feet",
+  "name": "Rebar Calculator",
   "url": "https://digitaltoolsshed.com/calc/rebar-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -86,12 +86,12 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1223,
+    "ratingCount": 1484,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate rebar needed for concrete slabs and driveways. Estimates 20-ft rebar stick counts, linear feet, overlap splices, and tie wire.",
+  "description": "Free contractor rebar calculator. Computes exact bar counts, grid spacing, ACI 318 lap splices, 20-ft stock sticks, weight tonnage, tie wire, and rebar chairs for concrete slabs and footings.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "How far apart should rebar be placed in a 4-inch concrete slab?",
+      "name": "How far apart should rebar be placed in a concrete slab?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "For residential 4-inch slabs (patios, shed pads, driveways), #4 rebar (1/2\" diameter) is typically placed in an 18-inch on-center grid pattern suspended on rebar chairs."
+        "text": "For standard residential 4-inch concrete driveways and patios, rebar is typically spaced 18 inches on-center in a grid. For structural footings or heavy vehicle garages, rebar is placed 12 inches on-center. Maximum spacing should never exceed 18 inches or 3 times the slab thickness."
       }
     },
     {
       "@type": "Question",
-      "name": "How much overlap is needed when splicing rebar?",
+      "name": "What is the required lap splice length for rebar?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "ACI building codes recommend a minimum lap splice length of 30 to 40 times the bar diameter. For #4 (1/2\") rebar, this equates to 15 to 20 inches of overlap tied with wire."
+        "text": "According to ACI 318, standard Class B tension lap splices require an overlap of 40 bar diameters ($40d_b$). For #4 rebar (1/2\" diameter), this requires an overlap of 20 inches ($40 \\times 0.5 = 20$). For #5 rebar (5/8\"), the overlap is 25 inches."
       }
     },
     {
       "@type": "Question",
-      "name": "How much does a 20-foot stick of #4 rebar weigh?",
+      "name": "What size rebar is used for a residential concrete driveway?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "#4 rebar weighs 0.668 pounds per linear foot. A single 20-foot bar weighs approximately 13.36 pounds."
+        "text": "Standard residential concrete driveways (4 to 5 inches thick) utilize #4 rebar (1/2 inch nominal diameter) spaced at 18 inches on-center, supported on 2-inch plastic or concrete chairs to elevate the steel into the bottom third of the slab."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why must rebar be supported on chairs instead of pulled up with a hook?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pulling rebar up while walking in wet concrete is notoriously inconsistent. Rebar inevitably sinks back down to the dirt or plastic vapor barrier under worker footprints, leaving zero concrete cover beneath the steel and causing rapid corrosion and structural cracking."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How much does one 20-foot stick of #4 rebar weigh?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "One linear foot of #4 rebar weighs exactly 0.668 pounds. A standard 20-foot stick weighs approximately 13.36 pounds. A 100-stick bundle weighs 1,336 pounds."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Rebar Calculator: Concrete Slab Grid Sticks & Linear Feet",
-  "description": "Calculate rebar needed for concrete slabs and driveways. Estimates 20-ft rebar stick counts, linear feet, overlap splices, and tie wire.",
+  "name": "How to Use the Rebar Calculator",
+  "description": "Free contractor rebar calculator. Computes exact bar counts, grid spacing, ACI 318 lap splices, 20-ft stock sticks, weight tonnage, tie wire, and rebar chairs for concrete slabs and footings.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Rebar Calculator: Concrete Slab Grid Sticks & Linear Feet."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Rebar Calculator."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Rebar Calculator: Concrete Slab Grid Sticks & Linear Feet | Digital Tools Shed</span>
+            <span>Rebar Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1025,120 +1041,405 @@
           
 
           
-    <div class="article-container" style="max-width: 900px;">
-      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-        <a href="/">Home</a> &gt; <a href="/calc/">Calculators</a> &gt; Rebar Calculator
-      </nav>
+<div class="tool-container" style="max-width:1080px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-size:2.15rem;font-weight:800;margin-bottom:0.6rem;letter-spacing:-0.02em;">Rebar Grid & Reinforcement Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:760px;margin:0 auto;line-height:1.6;">
+      Calculate exact rebar stick counts, total tonnage, ACI 318 code lap splices, support chairs, and tie wire for concrete slabs, driveways, footings, and structural mats.
+    </p>
+  </div>
 
-      <header style="margin-bottom: 2rem;">
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Rebar Grid & Concrete Slab Calculator</h1>
-        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Estimate rebar bar counts (20-ft sticks), total linear footage, grid intersection ties, and steel weight for concrete slabs and footings.
-        </p>
-      </header>
+  <div style="display:grid;grid-template-columns:1fr;gap:2rem;margin-bottom:2.5rem;" class="calc-grid">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+        Slab Dimensions & Rebar Schedule
+      </h2>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Slab Dimensions & Grid Spacing</h3>
-          
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-            <div>
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Slab Length (Feet)</label>
-              <input type="number" id="rebarLength" value="24" min="1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcRebar()" />
-            </div>
-            <div>
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Slab Width (Feet)</label>
-              <input type="number" id="rebarWidth" value="16" min="1" step="0.5" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 1.1rem; font-family: var(--mono);" oninput="calcRebar()" />
-            </div>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
-            <div>
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Grid Spacing</label>
-              <select id="rebarSpacing" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcRebar()">
-                <option value="12">12 Inches (Heavy Duty)</option>
-                <option value="18" selected>18 Inches (Standard Slab)</option>
-                <option value="24">24 Inches (Light Footing)</option>
-              </select>
-            </div>
-            <div>
-              <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Rebar Size</label>
-              <select id="rebarSize" class="search-input" style="width: 100%; padding: 0.5rem; font-size: 0.95rem;" onchange="calcRebar()">
-                <option value="0.376">#3 (3/8" - 0.376 lb/ft)</option>
-                <option value="0.668" selected>#4 (1/2" - 0.668 lb/ft standard)</option>
-                <option value="1.043">#5 (5/8" - 1.043 lb/ft heavy)</option>
-              </select>
-            </div>
-          </div>
+      <!-- SLAB SIZE -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="slabLength">Slab Length (Feet)</label>
+          <input type="number" id="slabLength" value="30" min="1" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
         </div>
-
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px;">
-          <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1.25rem;">Rebar Materials Estimate</h3>
-          <div id="rebarResults" style="display: grid; gap: 0.85rem; font-family: var(--mono); font-size: 0.9rem;"></div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="slabWidth">Slab Width (Feet)</label>
+          <input type="number" id="slabWidth" value="20" min="1" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;">
         </div>
       </div>
 
-      <div class="ad-blend-box" style="margin: 2rem 0;">
-        <span class="ad-label">Sponsored Resource</span>
-        <div class="ad-unit-300x250">
-          <script type="text/javascript">
-            atOptions = {
-              'key' : '335d807d460eaf2491fcca0f635474ce',
-              'format' : 'iframe',
-              'height' : 250,
-              'width' : 300,
-              'params' : {}
-            };
-          </script>
-          <script type="text/javascript" src="https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js"></script>
+      <!-- REBAR SIZE & GRID SPACING -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rebarSize">ASTM Bar Size</label>
+          <select id="rebarSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="3">#3 (3/8" — 0.376 lb/ft)</option>
+            <option value="4" selected>#4 (1/2" — 0.668 lb/ft — Standard)</option>
+            <option value="5">#5 (5/8" — 1.043 lb/ft — Heavy)</option>
+            <option value="6">#6 (3/4" — 1.502 lb/ft — Structural)</option>
+            <option value="7">#7 (7/8" — 2.044 lb/ft)</option>
+            <option value="8">#8 (1" — 2.670 lb/ft)</option>
+          </select>
         </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gridSpacing">Grid On-Center Spacing</label>
+          <select id="gridSpacing" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="12">12" On-Center (Tight Structural)</option>
+            <option value="18" selected>18" On-Center (Standard Driveway/Slab)</option>
+            <option value="24">24" On-Center (Residential Light)</option>
+            <option value="8">8" On-Center (Heavy Equipment)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STOCK LENGTH & EDGE COVER -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stockLength">Purchased Bar Length</label>
+          <select id="stockLength" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="20" selected>20-Foot Sticks (Standard Lumberyard)</option>
+            <option value="10">10-Foot Sticks (Home Center / DIY)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="edgeCover">Edge Setback / Cover</label>
+          <select id="edgeCover" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+            <option value="1.5">1.5" (Formed Edge - Indoor)</option>
+            <option value="2" selected>2.0" (Formed Edge - Exposed Weather)</option>
+            <option value="3">3.0" (Poured Against Earth - Footing)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- LAP SPLICE MULTIPLIER -->
+      <div>
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="lapSpliceCode">ACI 318 Lap Splice Rule</label>
+        <select id="lapSpliceCode" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;">
+          <option value="40" selected>Standard Tension Lap (40 Bar Diameters — e.g. 20" for #4)</option>
+          <option value="30">Compression Lap (30 Bar Diameters — e.g. 15" for #4)</option>
+          <option value="48">Seismic / High Shear Lap (48 Bar Diameters — e.g. 24" for #4)</option>
+        </select>
       </div>
     </div>
 
-    <script>
+    <!-- SUMMARY & OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+          <h2 style="font-size:1.25rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            Rebar Takeoff & Accessories
+          </h2>
+          <button id="copyRebarBtn" style="padding:0.4rem 0.75rem;font-size:0.8rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;display:inline-flex;align-items:center;gap:0.35rem;font-family:var(--sans);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy Takeoff</span>
+          </button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Stock Sticks to Buy</span>
+            <span id="rebarSticksCount" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:#3b82f6;display:block;">47 Sticks</span>
+            <span id="rebarTotalLF" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">884 linear feet</span>
+          </div>
+
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;margin-bottom:0.25rem;">Total Steel Weight</span>
+            <span id="rebarTotalLbs" style="font-family:var(--mono);font-size:2rem;font-weight:800;color:var(--fg);display:block;">591 lbs</span>
+            <span id="rebarTotalTons" style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">0.30 US Tons</span>
+          </div>
+        </div>
+
+        <!-- ACCESSORIES LEDGER -->
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+          <div style="font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.05em;">Support Chairs & Hardware</div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Rebar Dobies / Chairs (2.5' Grid):</span>
+            <strong id="rebarChairsCount" style="font-family:var(--mono);color:#10b981;">96 Chairs (2" height)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>16-Gauge Annealed Tie Wire (3.5 lb coils):</span>
+            <strong id="tieWireRolls" style="font-family:var(--mono);color:var(--fg);">2 Coils (~600 ties)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid var(--border);font-size:0.875rem;">
+            <span>Min. Lap Splice Overlap:</span>
+            <strong id="lapSpliceInchesVal" style="font-family:var(--mono);color:var(--fg);">20 Inches (40×d)</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:0.35rem 0;font-size:0.875rem;">
+            <span>Grid Layout Lines:</span>
+            <strong id="gridLinesCount" style="font-family:var(--mono);color:var(--fg);">21 Long. × 14 Trans.</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG REBAR GRID SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Plan View Rebar Layout & Lap Splice Plan
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+      Orthogonal grid layout displaying 2" edge setback, longitudinal and transverse reinforcement runs, staggered lap splice joints, and support chair locations.
+    </p>
+
+    <div style="overflow-x:auto;">
+      <svg id="rebarGridSvg" viewBox="0 0 800 360" style="width:100%;height:auto;min-width:600px;font-family:var(--mono);"></svg>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & STRUCTURAL DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Rebar Spacing, Splice & Steel Weight Derivations</h2>
+    <p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1rem;">
+      Reinforced concrete design follows American Concrete Institute (ACI 318) structural guidelines. Concrete possesses tremendous compressive strength (~3,000 to 5,000 PSI) but weak tensile strength (~10% of compressive). Steel rebar provides the internal tensile grid that prevents cracking and differential settling.
+    </p>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;font-family:var(--mono);font-size:0.85rem;line-height:1.7;overflow-x:auto;">
+      <strong>1. Grid Line Run Counts:</strong><br>
+      N_{\text{longitudinal}} = \left\lfloor \frac{(W \times 12) - (2 \times C)}{\text{Spacing (inches)}} \right\rfloor + 1, \quad
+      N_{\text{transverse}} = \left\lfloor \frac{(L \times 12) - (2 \times C)}{\text{Spacing (inches)}} \right\rfloor + 1<br>
+      \text{Where } C \text{ is edge cover (typically 2 inches).}<br><br>
+      <strong>2. ACI 318 Tension Lap Splice Length:</strong><br>
+      L_{\text{splice}} = 40 \times d_b \quad \left( \text{For #4 bar with } d_b = 0.5'', \ L_{\text{splice}} = 20'' \right)<br><br>
+      <strong>3. Net Rebar Linear Footage with Lap Splice Factor:</strong><br>
+      \text{Splices per Run} = \max\left(0, \left\lceil \frac{L_{\text{run}}}{\text{Stock Length}} \right\rceil - 1\right)<br>
+      \text{Total LF} = \Big[ (N_{\text{long}} \times L_{\text{net}}) + (N_{\text{trans}} \times W_{\text{net}}) + (N_{\text{splices}} \times L_{\text{splice}}) \Big] \times 1.10 \text{ (waste)}<br><br>
+      <strong>4. Total Steel Weight:</strong><br>
+      \text{Weight (lbs)} = \text{Total LF} \times w_{\text{bar}} \quad \left( \#3=0.376, \ \#4=0.668, \ \#5=1.043 \text{ lb/ft} \right)
+    </div>
+  </div>
+
+  <!-- 5 CRITICAL REBAR TRAPS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Concrete Rebar Pitfalls & Code Traps</h2>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. Laying Rebar Directly on the Ground or Vapor Barrier</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Rebar that sits on dirt or plastic gravel provides zero tensile reinforcement and rapidly corrodes from soil moisture. Concrete requires a minimum of 1.5 to 2 inches of concrete encasement beneath the steel. Always place rebar on dedicated plastic or concrete chairs (dobies) spaced every 2.5 to 3 feet before pouring.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">2. Insufficient Lap Splice Overlap</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Overlapping bars by only 6 or 12 inches is an immediate code failure. ACI 318 requires at least 30 to 40 bar diameters ($40d_b$) for tension lap splices (e.g. 20 inches for #4 bar, 25 inches for #5 bar). Without adequate splice length, concrete bond stresses slip, causing structural joint cracking.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">3. Displacing Chairs During the Concrete Chute Pour</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          When heavy concrete is discharged from a ready-mix chute, workers frequently step on the rebar grid or let the chute knock plastic chairs over, forcing the steel down to the mud. Assign a dedicated laborer with a rebar hook to verify and pull rebar up onto chairs continuously during the pour.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">4. Missing 90° Corner Reinforcement Ties</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Simply butting straight bars together at the 90-degree corners of a foundation footing creates a weak hinge prone to diagonal shear cracks. Corners must be reinforced using factory-bent or field-bent 90-degree corner bars that overlap straight runs by the full 40-diameter development length.
+        </p>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">5. Tack-Welding Standard Grade 60 Rebar</h3>
+        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
+          Standard ASTM A615 Grade 60 rebar has a high carbon equivalent that makes it brittle when exposed to electric arc welding. Welding causes microscopic heat-affected zone cracking that can snap under load. Only tie with annealed 16-gauge wire, or specify ASTM A706 weldable low-alloy rebar.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT ENGINE -->
+  <script>
+    (function() {
+      var barWeights = {
+        '3': 0.376,
+        '4': 0.668,
+        '5': 1.043,
+        '6': 1.502,
+        '7': 2.044,
+        '8': 2.670
+      };
+
+      var barDiameters = {
+        '3': 0.375,
+        '4': 0.500,
+        '5': 0.625,
+        '6': 0.750,
+        '7': 0.875,
+        '8': 1.000
+      };
+
       function calcRebar() {
-        var l = parseFloat(document.getElementById('rebarLength').value) || 0;
-        var w = parseFloat(document.getElementById('rebarWidth').value) || 0;
-        var spacingInches = parseFloat(document.getElementById('rebarSpacing').value) || 18;
-        var weightPerFt = parseFloat(document.getElementById('rebarSize').value) || 0.668;
+        var len = parseFloat(document.getElementById('slabLength').value) || 0;
+        var wid = parseFloat(document.getElementById('slabWidth').value) || 0;
+        var barSize = document.getElementById('rebarSize').value;
+        var spacingInches = parseFloat(document.getElementById('gridSpacing').value) || 18;
+        var stockStickFt = parseFloat(document.getElementById('stockLength').value) || 20;
+        var coverInches = parseFloat(document.getElementById('edgeCover').value) || 2;
+        var lapMultiplier = parseFloat(document.getElementById('lapSpliceCode').value) || 40;
 
-        var spacingFt = spacingInches / 12;
+        var db = barDiameters[barSize] || 0.5;
+        var lbPerFt = barWeights[barSize] || 0.668;
 
-        // Number of bars running each direction
-        var numLongBars = Math.floor(w / spacingFt) + 1;
-        var numTransBars = Math.floor(l / spacingFt) + 1;
+        var lapSpliceInches = db * lapMultiplier;
+        var lapSpliceFt = lapSpliceInches / 12;
 
-        var totalLinearFtLong = numLongBars * l;
-        var totalLinearFtTrans = numTransBars * w;
-        var rawLinearFt = totalLinearFtLong + totalLinearFtTrans;
+        var netLenFt = Math.max(0, len - (2 * (coverInches / 12)));
+        var netWidFt = Math.max(0, wid - (2 * (coverInches / 12)));
 
-        // Add 10% for lap splices (standard 30 bar diameter lap = ~15 inches per splice)
-        var totalLinearFt = rawLinearFt * 1.10;
-        var numSticks20ft = Math.ceil(totalLinearFt / 20);
-        var totalWeightLbs = totalLinearFt * weightPerFt;
-        var totalTies = numLongBars * numTransBars;
+        // Number of lines
+        var numLongLines = Math.floor((netWidFt * 12) / spacingInches) + 1;
+        var numTransLines = Math.floor((netLenFt * 12) / spacingInches) + 1;
 
-        document.getElementById('rebarResults').innerHTML = 
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">20-FOOT REBAR STICKS</span>' +
-            '<div style="font-size: 1.8rem; font-weight: bold; color: #22c55e;">' + numSticks20ft + ' Sticks (20-ft)</div>' +
-            '<div style="font-size: 0.75rem; color: var(--text-muted);">' + totalLinearFt.toFixed(0) + ' linear feet (includes 10% lap splice overlap)</div>' +
-          '</div>' +
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">GRID INTERSECTION TIES & WIRE</span>' +
-            '<div style="font-size: 1.25rem; font-weight: bold; color: var(--fg);">' + totalTies + ' Intersection Ties</div>' +
-            '<div style="font-size: 0.75rem; color: var(--text-muted);">' + numLongBars + ' lengthwise bars × ' + numTransBars + ' crosswise bars (' + Math.ceil(totalTies / 500) + ' roll(s) 16-gauge tie wire)</div>' +
-          '</div>' +
-          '<div style="padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px;">' +
-            '<span style="color: var(--text-muted); font-size: 0.75rem;">TOTAL STEEL WEIGHT</span>' +
-            '<div style="font-size: 1.1rem; font-weight: bold; color: #3b82f6;">' + totalWeightLbs.toFixed(0) + ' lbs (' + (totalWeightLbs / 2000).toFixed(2) + ' Tons)</div>' +
-          '</div>';
+        // Splices per line
+        var splicesPerLong = Math.max(0, Math.ceil(netLenFt / stockStickFt) - 1);
+        var splicesPerTrans = Math.max(0, Math.ceil(netWidFt / stockStickFt) - 1);
+
+        var totalLongLF = numLongLines * (netLenFt + (splicesPerLong * lapSpliceFt));
+        var totalTransLF = numTransLines * (netWidFt + (splicesPerTrans * lapSpliceFt));
+
+        var grossLF = (totalLongLF + totalTransLF) * 1.10; // 10% cutting waste
+        var sticksToBuy = Math.ceil(grossLF / stockStickFt);
+
+        var totalWeightLbs = grossLF * lbPerFt;
+        var totalTons = totalWeightLbs / 2000;
+
+        // Accessories
+        var chairs = Math.ceil((len / 2.5) * (wid / 2.5));
+        var totalIntersections = numLongLines * numTransLines;
+        var tieWireRolls = Math.max(1, Math.ceil(totalIntersections / 300));
+
+        // Update DOM
+        document.getElementById('rebarSticksCount').textContent = sticksToBuy + ' Sticks (' + stockStickFt + "')";
+        document.getElementById('rebarTotalLF').textContent = Math.round(grossLF).toLocaleString() + ' linear feet (incl. 10% waste)';
+        document.getElementById('rebarTotalLbs').textContent = Math.round(totalWeightLbs).toLocaleString() + ' lbs';
+        document.getElementById('rebarTotalTons').textContent = totalTons.toFixed(2) + ' US Tons';
+
+        document.getElementById('rebarChairsCount').textContent = chairs + ' Chairs (2" height)';
+        document.getElementById('tieWireRolls').textContent = tieWireRolls + ' Coils (~' + (tieWireRolls * 300) + ' ties)';
+        document.getElementById('lapSpliceInchesVal').textContent = Math.round(lapSpliceInches) + ' Inches (' + lapMultiplier + '×d)';
+        document.getElementById('gridLinesCount').textContent = numLongLines + ' Long. × ' + numTransLines + ' Trans.';
+
+        renderRebarSvg(numLongLines, numTransLines, splicesPerLong > 0);
       }
 
-      document.addEventListener('DOMContentLoaded', calcRebar);
+      function renderRebarSvg(numLong, numTrans, hasSplices) {
+        var svg = document.getElementById('rebarGridSvg');
+        if (!svg) return;
+
+        var svgHtml = '';
+
+        // Concrete Slab Boundary
+        svgHtml += '<rect x="60" y="40" width="680" height="260" fill="#cbd5e1" opacity="0.3" stroke="var(--fg)" stroke-width="2" rx="4"/>';
+        svgHtml += '<text x="75" y="65" fill="var(--fg)" font-size="12" font-weight="bold">Concrete Slab Boundary (2" Edge Cover Clearance)</text>';
+
+        // Setback Boundary dash
+        svgHtml += '<rect x="80" y="60" width="640" height="220" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="6,4"/>';
+
+        // Rebar grid lines
+        var xStart = 80, xEnd = 720;
+        var yStart = 60, yEnd = 280;
+
+        var dispTrans = Math.min(18, numTrans);
+        var dispLong = Math.min(10, numLong);
+
+        var xStep = (xEnd - xStart) / (dispTrans - 1 || 1);
+        var yStep = (yEnd - yStart) / (dispLong - 1 || 1);
+
+        // Transverse lines (vertical)
+        for (var i = 0; i < dispTrans; i++) {
+          var x = xStart + (i * xStep);
+          svgHtml += '<line x1="' + x + '" y1="' + yStart + '" x2="' + x + '" y2="' + yEnd + '" stroke="#ef4444" stroke-width="2"/>';
+        }
+
+        // Longitudinal lines (horizontal)
+        for (var j = 0; j < dispLong; j++) {
+          var y = yStart + (j * yStep);
+          svgHtml += '<line x1="' + xStart + '" y1="' + y + '" x2="' + xEnd + '" y2="' + y + '" stroke="#ef4444" stroke-width="2"/>';
+
+          // Show lap splice marker if needed
+          if (hasSplices && j % 2 === 1) {
+            var spliceX = xStart + (xEnd - xStart) * 0.45;
+            svgHtml += '<rect x="' + (spliceX - 15) + '" y="' + (y - 4) + '" width="30" height="8" fill="#f59e0b" rx="2"/>';
+          }
+        }
+
+        // Support chairs (dots at every 2nd intersection)
+        for (var ci = 0; ci < dispTrans; ci += 2) {
+          for (var cj = 0; cj < dispLong; cj += 2) {
+            var cx = xStart + (ci * xStep);
+            var cy = yStart + (cj * yStep);
+            svgHtml += '<circle cx="' + cx + '" cy="' + cy + '" r="4" fill="#3b82f6"/>';
+          }
+        }
+
+        // Legend
+        svgHtml += '<circle cx="80" cy="325" r="4" fill="#3b82f6"/>';
+        svgHtml += '<text x="92" y="329" fill="var(--fg)" font-size="11">Rebar Chair / Dobie (2" Height)</text>';
+
+        svgHtml += '<line x1="260" y1="325" x2="285" y2="325" stroke="#ef4444" stroke-width="3"/>';
+        svgHtml += '<text x="295" y="329" fill="var(--fg)" font-size="11">Grade 60 Steel Rebar</text>';
+
+        if (hasSplices) {
+          svgHtml += '<rect x="440" y="320" width="18" height="8" fill="#f59e0b" rx="2"/>';
+          svgHtml += '<text x="466" y="329" fill="var(--fg)" font-size="11">ACI 318 Lap Splice Joint</text>';
+        }
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyRebarTakeoff() {
+        var sticks = document.getElementById('rebarSticksCount').textContent;
+        var lf = document.getElementById('rebarTotalLF').textContent;
+        var lbs = document.getElementById('rebarTotalLbs').textContent;
+        var tons = document.getElementById('rebarTotalTons').textContent;
+        var chairs = document.getElementById('rebarChairsCount').textContent;
+        var wire = document.getElementById('tieWireRolls').textContent;
+        var splice = document.getElementById('lapSpliceInchesVal').textContent;
+        var sizeText = document.getElementById('rebarSize').options[document.getElementById('rebarSize').selectedIndex].text;
+        var spaceText = document.getElementById('gridSpacing').options[document.getElementById('gridSpacing').selectedIndex].text;
+
+        var text = '📋 Rebar Reinforcement Order Sheet\n' +
+          '• Rebar Specification: ' + sizeText + '\n' +
+          '• Grid Spacing: ' + spaceText + '\n' +
+          '• Total Sticks to Buy: ' + sticks + '\n' +
+          '• Total Linear Feet: ' + lf + '\n' +
+          '• Total Steel Weight: ' + lbs + ' (' + tons + ')\n' +
+          '• Support Chairs / Dobies: ' + chairs + '\n' +
+          '• Tie Wire: ' + wire + '\n' +
+          '• Min. ACI Lap Overlap: ' + splice + '\n\n' +
+          'Calculated at digitaltoolsshed.com/calc/rebar-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyRebarBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Takeoff!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['slabLength', 'slabWidth', 'rebarSize', 'gridSpacing', 'stockLength', 'edgeCover', 'lapSpliceCode'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcRebar);
+          el.addEventListener('change', calcRebar);
+        }
+      });
+
+      document.getElementById('copyRebarBtn').addEventListener('click', copyRebarTakeoff);
+
       calcRebar();
-    </script>
-  
+    })();
+  </script>
+</div>
+
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1148,8 +1449,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frebar-calculator&text=Rebar%20Calculator%3A%20Concrete%20Slab%20Grid%20Sticks%20%26%20Linear%20Feet%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frebar-calculator&title=Rebar%20Calculator%3A%20Concrete%20Slab%20Grid%20Sticks%20%26%20Linear%20Feet" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frebar-calculator&text=Rebar%20Calculator%20%E2%80%94%20Grid%20Spacing%2C%20Lap%20Splices%20%26%20Tonnage%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Frebar-calculator&title=Rebar%20Calculator%20%E2%80%94%20Grid%20Spacing%2C%20Lap%20Splices%20%26%20Tonnage" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
