@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Percentage Increase Calculator (Formula, Steps & Multi-Period Projections) | Digital Tools Shed</title>
-  <meta name="description" content="Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains.">
+  <meta name="description" content="Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains with interactive SVG growth bars.">
   <link rel="canonical" href="https://digitaltoolsshed.com/math/percentage-increase-calculator">
   <meta property="og:title" content="Percentage Increase Calculator (Formula, Steps & Multi-Period Projections) | Digital Tools Shed">
-  <meta property="og:description" content="Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains.">
+  <meta property="og:description" content="Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains with interactive SVG growth bars.">
   <meta property="og:url" content="https://digitaltoolsshed.com/math/percentage-increase-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Percentage Increase Calculator (Formula, Steps & Multi-Period Projections) | Digital Tools Shed">
-  <meta name="twitter:description" content="Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains.">
+  <meta name="twitter:description" content="Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains with interactive SVG growth bars.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains.",
+  "description": "Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains with interactive SVG growth bars.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,42 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the formula for percentage increase?",
+      "name": "What is the mathematical formula for percentage increase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The formula for percentage increase is: Percentage Increase = ((New Value - Initial Value) / |Initial Value|) × 100%. If the starting value is 80 and the final value is 120, the increase is ((120 - 80) / 80) × 100% = (40 / 80) × 100% = +50%."
+        "text": "The formula for percentage increase is: Percentage Increase = [ (Final Value - Initial Value) / |Initial Value| ] × 100%. For example, if a company's revenue rises from $80,000 to $120,000: Difference = $120,000 - $80,000 = $40,000. Percentage Increase = ($40,000 / $80,000) × 100% = +50.0%."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the Reversal Trap in percentage changes?",
+      "name": "How do you calculate percentage increase when the starting value is negative?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Because percentage changes are relative to their current baseline, a percentage increase is never canceled out by the same percentage decrease. For example, a +50% gain on $100 takes you to $150. But to get back to $100, you only need a -33.33% drop ($50 / $150). Similarly, a +100% gain ($100 to $200) is completely wiped out by just a -50% loss."
+        "text": "When the initial value is negative (such as moving from a net loss of -$50 to a profit of +$50), you must divide by the absolute value of the starting point: [ (50 - (-50)) / |-50| ] × 100% = (100 / 50) × 100% = +200.0%. Without using the absolute value, the resulting percentage would have a false negative sign."
       }
     },
     {
       "@type": "Question",
-      "name": "How do you convert percentage increase to a multiplier factor?",
+      "name": "What is the \"Asymmetric Reversal Trap\" in percentage growth vs decline?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "To find the growth multiplier, divide the percentage increase by 100 and add 1: Multiplier = 1 + (Percentage / 100). For example, a 25% increase equals a multiplier of 1.25. Multiply any starting amount by 1.25 to instantly find the increased value."
+        "text": "Because percentage changes are always calculated relative to their immediate baseline, a percentage increase is never canceled out by an equivalent percentage decrease. A +50% gain on $100 brings you to $150. However, to return to $100 from $150 requires a loss of only -33.33% ($50 / $150). Conversely, a +100% gain ($100 to $200) is completely erased by just a -50% decline."
       }
     },
     {
       "@type": "Question",
-      "name": "Can percentage increase exceed 100%?",
+      "name": "What is the difference between \"Percentage Points\" and \"Percentage Increase\"?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Any time a value more than doubles, the percentage increase exceeds 100%. For example, an increase from 50 to 150 is a +200% increase (the value tripled). There is no upper limit on percentage increase."
+        "text": "Percentage points represent the simple arithmetic difference between two percentage rates, whereas percentage increase measures the relative proportional change. If an interest rate climbs from 4.0% to 6.0%, it increased by 2.0 percentage points (6.0 - 4.0), but the relative percentage increase is +50.0% [ (6.0 - 4.0) / 4.0 × 100% ]. Confusing these two metrics causes major financial and legal misinterpretations."
       }
     },
     {
       "@type": "Question",
-      "name": "How does compound percentage increase work over multiple periods?",
+      "name": "How do you convert a percentage increase into a growth multiplier factor?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Compound percentage increase applies each period's growth rate to the newly accumulated total rather than the original principal. It follows the exponential formula: Final Amount = Initial Amount × (1 + r)^n, where r is the growth rate per period and n is the number of periods."
+        "text": "To convert a percentage increase into a multiplier, divide the percentage by 100 and add 1: Multiplier = 1 + (Percentage / 100). For example, a 28% increase equals a multiplier of 1.28. Multiplying any base amount by 1.28 yields the increased value directly in a single step."
       }
     }
   ]
@@ -152,7 +152,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Percentage Increase Calculator (Formula, Steps & Multi-Period Projections)",
-  "description": "Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains.",
+  "description": "Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains with interactive SVG growth bars.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1041,345 +1041,321 @@
           
 
           
-        
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
-      .result-val { font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
-      .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    </style>
-  
-        <style>
-          .pi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
-          .pi-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
-          .pi-ratio-bar { height: 26px; border-radius: 6px; overflow: hidden; display: flex; width: 100%; margin-top: 1rem; border: 1px solid var(--border); background: var(--surface-alt); }
-          .ratio-base { background: #3b82f6; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-          .ratio-growth { background: #10b981; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-          .mode-tab-btn { background: var(--surface-alt); border: 1px solid var(--border); padding: 0.45rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
-          .mode-tab-btn.active { background: var(--surface); border-color: var(--fg); font-weight: 600; color: var(--fg); }
-          .compound-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
-          .compound-table th, .compound-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
-          .compound-table th { background: var(--surface-alt); font-weight: 600; }
-        </style>
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Increase Calculator
+  </nav>
 
-        <div class="article-container" style="max-width: 960px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Increase
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Percentage Increase Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate percentage growth between two numbers, add percentage increases to baseline prices, project multi-period compound expansion, and navigate the mathematical asymmetry of percentage reversals.
-          </p>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Percentage Increase Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Compute relative percentage expansion between two numbers, apply growth rates, model multi-period compound gains, and calculate exact asymmetric drop recovery thresholds.
+    </p>
+  </header>
 
-          <div class="tool-box">
-            <!-- Mode Switcher -->
-            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
-              <button type="button" class="mode-tab-btn active" id="btn-mode-calc" onclick="switchPIMode('calc')">Mode 1: Calculate % Increase (A &rarr; B)</button>
-              <button type="button" class="mode-tab-btn" id="btn-mode-add" onclick="switchPIMode('add')">Mode 2: Apply % Increase (A + X%)</button>
-              <button type="button" class="mode-tab-btn" id="btn-mode-compound" onclick="switchPIMode('compound')">Mode 3: Multi-Period Compounding</button>
-            </div>
+  <style>
+    .pinc-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .pinc-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .pinc-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .pinc-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .pinc-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .pinc-tab-btn { background:var(--surface-alt); border:1px solid var(--border); color:var(--text-muted); padding:0.6rem 1.25rem; font-family:var(--mono); font-size:0.85rem; border-radius:6px; cursor:pointer; transition:all 0.15s ease; }
+    .pinc-tab-btn.active { background:#10b981; border-color:#059669; color:#ffffff; font-weight:600; }
+    .pinc-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .pinc-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .pinc-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .pinc-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
 
-            <!-- Mode 1: Calculate % Increase -->
-            <div id="pi-sec-calc">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pi-init">Initial Starting Value (V₁)</label>
-                  <input type="number" step="any" id="pi-init" class="code-input" value="80" oninput="runPICalc()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pi-final">Final Increased Value (V₂)</label>
-                  <input type="number" step="any" id="pi-final" class="code-input" value="120" oninput="runPICalc()" style="font-size: 1.25rem;" />
-                </div>
-              </div>
-            </div>
+  <div class="pinc-box">
+    <!-- Mode Switcher -->
+    <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <button type="button" class="pinc-tab-btn active" id="btn-pinc-diff" onclick="setPINCMode('diff')">Mode 1: Find % Increase (V1 &rarr; V2)</button>
+      <button type="button" class="pinc-tab-btn" id="btn-pinc-apply" onclick="setPINCMode('apply')">Mode 2: Apply % Increase (V1 + % &rarr; V2)</button>
+    </div>
 
-            <!-- Mode 2: Apply % Increase -->
-            <div id="pi-sec-add" style="display: none;">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pi-add-base">Starting Value (V₁)</label>
-                  <input type="number" step="any" id="pi-add-base" class="code-input" value="150" oninput="runPIAdd()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pi-add-pct">Percentage Increase to Add (%)</label>
-                  <input type="number" step="any" id="pi-add-pct" class="code-input" value="15" oninput="runPIAdd()" style="font-size: 1.25rem;" />
-                </div>
-              </div>
-            </div>
+    <!-- Inputs Grid -->
+    <div class="pinc-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Initial / Starting Value (V1)</label>
+        <input type="number" id="pinc-v1" value="80" step="any" oninput="calcPINC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
 
-            <!-- Mode 3: Multi-Period Compounding -->
-            <div id="pi-sec-compound" style="display: none;">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pi-cmp-base">Initial Principal Amount</label>
-                  <input type="number" step="any" id="pi-cmp-base" class="code-input" value="1000" oninput="runPICompound()" style="font-size: 1.2rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pi-cmp-rate">Growth Rate per Period (%)</label>
-                  <input type="number" step="any" id="pi-cmp-rate" class="code-input" value="7" oninput="runPICompound()" style="font-size: 1.2rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pi-cmp-periods">Number of Periods (e.g. Years)</label>
-                  <input type="number" step="1" min="1" max="50" id="pi-cmp-periods" class="code-input" value="5" oninput="runPICompound()" style="font-size: 1.2rem;" />
-                </div>
-              </div>
-            </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;" id="lbl-pinc-v2">Final / New Value (V2)</label>
+        <input type="number" id="pinc-v2" value="120" step="any" oninput="calcPINC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
 
-            <!-- Quick Presets -->
-            <div style="margin-top: 1rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Popular Scenarios:</span>
-              <button type="button" class="btn-sec" onclick="setPIPreset(50000, 58000, 'Salary Raise ($50k to $58k)')">Salary Raise (+16%)</button>
-              <button type="button" class="btn-sec" onclick="setPIPreset(120, 150, 'Retail Markup ($120 to $150)')">Markup (+25%)</button>
-              <button type="button" class="btn-sec" onclick="setPIPreset(100, 200, 'Doubling ($100 to $200)')">Doubling (+100%)</button>
-              <button type="button" class="btn-sec" onclick="setPIPreset(350000, 420000, 'Home Appreciation')">Real Estate (+20%)</button>
-            </div>
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Compound Periods (Years/Cycles)</label>
+        <input type="number" id="pinc-periods" value="1" min="1" max="50" step="1" oninput="calcPINC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;box-sizing:border-box;">
+      </div>
+    </div>
 
-            <!-- Primary Metric Cards -->
-            <div class="pi-grid">
-              <div class="pi-card" style="border-top: 4px solid #10b981;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Percentage Increase</div>
-                <div id="pi-res-pct" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">+50.00%</div>
-                <div id="pi-res-multiplier" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Multiplier: 1.500&times;</div>
-              </div>
+    <!-- Quick Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Popular Growth Presets:</span>
+      <button type="button" class="btn-sec" onclick="setPINCPreset(50, 75)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">50 &rarr; 75 (+50%)</button>
+      <button type="button" class="btn-sec" onclick="setPINCPreset(100, 200)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Doubling 100 &rarr; 200 (+100%)</button>
+      <button type="button" class="btn-sec" onclick="setPINCPreset(65000, 78000)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Salary Raise $65k &rarr; $78k</button>
+      <button type="button" class="btn-sec" onclick="setPINCPreset(250, 350)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Rent $250 &rarr; $350 (+40%)</button>
+    </div>
 
-              <div class="pi-card" style="border-top: 4px solid #3b82f6;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Absolute Gain (Difference)</div>
-                <div id="pi-res-diff" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">+40.00</div>
-                <div id="pi-res-final" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Final: 120.00</div>
-              </div>
+    <!-- Hero Cards -->
+    <div class="pinc-grid-4">
+      <div class="pinc-card" style="border-top:4px solid #10b981;">
+        <span class="pinc-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Growth Rate</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Percentage Increase</div>
+        <div id="card-pinc-pct" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#10b981;">+50.00%</div>
+        <div id="card-pinc-pct-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Relative to starting base</div>
+      </div>
 
-              <div class="pi-card" style="border-top: 4px solid #f59e0b;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Reversal Trap (Breakeven)</div>
-                <div id="pi-res-reversal" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">-33.33%</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Drop needed to return to baseline</div>
-              </div>
-            </div>
+      <div class="pinc-card" style="border-top:4px solid #3b82f6;">
+        <span class="pinc-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Absolute</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Absolute Unit Gain</div>
+        <div id="card-pinc-diff" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#3b82f6;">+40.00</div>
+        <div id="card-pinc-diff-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">V2 &minus; V1 difference</div>
+      </div>
 
-            <!-- Visual Proportional Bar -->
-            <div style="margin-top: 1.5rem;">
-              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                <span>Proportional Visual Breakdown</span>
-                <span id="ratio-legend">100% Base : +50% Growth</span>
-              </div>
-              <div class="pi-ratio-bar">
-                <div id="bar-base" class="ratio-base" style="width: 66.6%;">Base (80)</div>
-                <div id="bar-growth" class="ratio-growth" style="width: 33.4%;">+40 (+50%)</div>
-              </div>
-            </div>
+      <div class="pinc-card" style="border-top:4px solid #8b5cf6;">
+        <span class="pinc-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Multiple</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Growth Multiplier</div>
+        <div id="card-pinc-mult" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:var(--fg);">1.50&times;</div>
+        <div id="card-pinc-mult-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Scale expansion factor</div>
+      </div>
 
-            <!-- Multi-Period Compound Projection Output -->
-            <div id="pi-compound-results" style="display: none; margin-top: 1.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">Compound Growth Schedule</h3>
-              <div style="overflow-x: auto;">
-                <table class="compound-table">
-                  <thead>
-                    <tr>
-                      <th>Period</th>
-                      <th>Starting Amount</th>
-                      <th>Gain for Period</th>
-                      <th>Ending Amount</th>
-                      <th>Total Cumulative Gain</th>
-                    </tr>
-                  </thead>
-                  <tbody id="compound-tbody"></tbody>
-                </table>
-              </div>
-            </div>
+      <div class="pinc-card" style="border-top:4px solid #f59e0b;">
+        <span class="pinc-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Reversal</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Reverse Drop Needed</div>
+        <div id="card-pinc-reversal" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#f59e0b;">-33.33%</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">To return to V1 from V2</div>
+      </div>
+    </div>
 
-            <!-- Formula & Step-by-Step Derivation -->
-            <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Step-by-Step Solution:</div>
-              <div id="pi-formula-steps" style="font-family: var(--mono); color: var(--fg);"></div>
-            </div>
+    <!-- Pure SVG Growth Bar Visualizer -->
+    <div class="pinc-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Visual Scale Expansion Comparison</span>
+        <span style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Baseline vs. Expanded Quantity</span>
+      </div>
+      <div id="pinc-svg-container" style="width:100%;height:85px;"></div>
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#64748b;border-radius:2px;"></span> Initial Base (V1)</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#10b981;border-radius:2px;"></span> Increased Value (V2)</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#3b82f6;border-radius:2px;"></span> Absolute Gain (&Delta;)</span>
+      </div>
+    </div>
 
-            <!-- Copy Button -->
-            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
-              <button type="button" class="btn-sec" onclick="copyPISummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
-                📋 Copy Calculation Summary
-              </button>
-            </div>
-          </div>
-        </div>
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #10b981;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Mathematical Derivations:</div>
+      <div id="pinc-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
 
-        <script>
-          var activePIMode = 'calc';
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyPINCReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Percentage Increase Report
+      </button>
+    </div>
+  </div>
 
-          function switchPIMode(mode) {
-            activePIMode = mode;
-            document.getElementById('pi-sec-calc').style.display = mode === 'calc' ? 'block' : 'none';
-            document.getElementById('pi-sec-add').style.display = mode === 'add' ? 'block' : 'none';
-            document.getElementById('pi-sec-compound').style.display = mode === 'compound' ? 'block' : 'none';
-            document.getElementById('pi-compound-results').style.display = mode === 'compound' ? 'block' : 'none';
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Percentage Increase Calculations</h2>
 
-            document.getElementById('btn-mode-calc').className = 'mode-tab-btn' + (mode === 'calc' ? ' active' : '');
-            document.getElementById('btn-mode-add').className = 'mode-tab-btn' + (mode === 'add' ? ' active' : '');
-            document.getElementById('btn-mode-compound').className = 'mode-tab-btn' + (mode === 'compound' ? ' active' : '');
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">1. The Asymmetric Reversal Fallacy (Why a 50% Gain Needs Only a 33% Loss)</div>
+      <p class="pinc-trap-desc">
+        A dangerous misconception in finance is assuming that an increase of X% can be undone by a decrease of X%. Because percentages are calculated from their new starting points, gaining +50% on $100 yields $150. Losing 50% of $150 drops you to $75—a catastrophic 25% net loss! The reverse percentage drop required to restore the original baseline is <code>Reverse Drop = Increase / (1 + Increase)</code>.
+      </p>
+    </div>
 
-            if (mode === 'calc') runPICalc();
-            else if (mode === 'add') runPIAdd();
-            else runPICompound();
-          }
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">2. Percentage Points vs. Relative Percentage Increase</div>
+      <p class="pinc-trap-desc">
+        News outlets and corporate earnings reports routinely blur the line between percentage points and percentage increase. If a company's market share expands from 2% to 4%, it gained 2 percentage points. However, its business grew by an astounding +100% relative percentage increase! Conflating these two figures produces massive discrepancies in marketing claims and scientific studies.
+      </p>
+    </div>
 
-          function runPICalc() {
-            var v1 = parseFloat(document.getElementById('pi-init').value);
-            var v2 = parseFloat(document.getElementById('pi-final').value);
-            if (isNaN(v1) || isNaN(v2) || v1 === 0) {
-              document.getElementById('pi-res-pct').textContent = '-';
-              return;
-            }
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">3. The Negative Starting Base Division Trap</div>
+      <p class="pinc-trap-desc">
+        When an initial number is negative (such as moving from -$10,000 net income to +$20,000 net income), standard formulas fail if they omit absolute value signs: <code>(20,000 - (-10,000)) / (-10,000) = 30,000 / -10,000 = -300%</code>. A profit turnaround displayed as negative 300% is nonsensical. Dividing by <code>|-10,000|</code> correctly reflects a +300% improvement.
+      </p>
+    </div>
 
-            var diff = v2 - v1;
-            var pct = (diff / Math.abs(v1)) * 100;
-            var mult = v2 / v1;
-            var revPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">4. Multi-Period Compounding vs. Simple Summation</div>
+      <p class="pinc-trap-desc">
+        If a stock gains +10% in Year 1 and +10% in Year 2, simple addition predicts a +20% gain. In reality, compounding expands the portfolio: <code>$100 &times; 1.10 &times; 1.10 = $121.00</code>, representing a +21% cumulative increase. Over 10 years of +10% annual gains, simple addition yields +100%, whereas compound reality delivers an astounding +159.37% (a 2.59&times; multiple).
+      </p>
+    </div>
 
-            renderPIMetrics(v1, v2, diff, pct, mult, revPct);
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">5. Base Effect Skew (Cherry-Picking Depressed Reference Dates)</div>
+      <p class="pinc-trap-desc">
+        Economic metrics measured immediately following a crisis or lockdown often boast staggering percentage increases. For instance, airline travel surging +80% year-over-year following a pandemic trough may sound extraordinary, but if travel was initially down -70%, an 80% rebound still leaves total passengers 46% below pre-crisis operational capacity.
+      </p>
+    </div>
+  </div>
+</div>
 
-            var steps = [
-              '1. Calculate absolute change: ' + v2.toLocaleString('en-US') + ' - ' + v1.toLocaleString('en-US') + ' = ' + (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US'),
-              '2. Divide by starting value: ' + diff.toFixed(4) + ' ÷ ' + Math.abs(v1) + ' = ' + (diff / Math.abs(v1)).toFixed(6),
-              '3. Multiply by 100 for percentage: ' + (diff / Math.abs(v1)).toFixed(6) + ' × 100% = ' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%',
-              '4. Growth Multiplier: ' + v2.toLocaleString('en-US') + ' ÷ ' + v1.toLocaleString('en-US') + ' = ' + mult.toFixed(4) + '×',
-              '5. Reversal Drop Required: To fall from ' + v2.toLocaleString('en-US') + ' back to ' + v1.toLocaleString('en-US') + ' requires a ' + revPct.toFixed(2) + '% decrease.'
-            ].join('<br>');
-            document.getElementById('pi-formula-steps').innerHTML = steps;
-          }
+<script>
+  var curPINCMode = 'diff';
 
-          function runPIAdd() {
-            var v1 = parseFloat(document.getElementById('pi-add-base').value);
-            var pct = parseFloat(document.getElementById('pi-add-pct').value);
-            if (isNaN(v1) || isNaN(pct)) return;
+  function setPINCMode(m) {
+    curPINCMode = m;
+    document.getElementById('btn-pinc-diff').className = 'pinc-tab-btn' + (m === 'diff' ? ' active' : '');
+    document.getElementById('btn-pinc-apply').className = 'pinc-tab-btn' + (m === 'apply' ? ' active' : '');
+    document.getElementById('lbl-pinc-v2').textContent = (m === 'diff') ? 'Final / New Value (V2)' : 'Percentage Increase to Apply (%)';
+    calcPINC();
+  }
 
-            var diff = v1 * (pct / 100);
-            var v2 = v1 + diff;
-            var mult = 1 + (pct / 100);
-            var revPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
+  function setPINCPreset(v1, v2) {
+    curPINCMode = 'diff';
+    document.getElementById('btn-pinc-diff').className = 'pinc-tab-btn active';
+    document.getElementById('btn-pinc-apply').className = 'pinc-tab-btn';
+    document.getElementById('lbl-pinc-v2').textContent = 'Final / New Value (V2)';
+    document.getElementById('pinc-v1').value = v1;
+    document.getElementById('pinc-v2').value = v2;
+    document.getElementById('pinc-periods').value = 1;
+    calcPINC();
+  }
 
-            renderPIMetrics(v1, v2, diff, pct, mult, revPct);
+  function calcPINC() {
+    var v1 = parseFloat(document.getElementById('pinc-v1').value) || 0;
+    var inp2 = parseFloat(document.getElementById('pinc-v2').value) || 0;
+    var periods = parseInt(document.getElementById('pinc-periods').value, 10) || 1;
+    if (periods < 1) periods = 1;
 
-            var steps = [
-              '1. Calculate dollar/unit increase: ' + v1.toLocaleString('en-US') + ' × (' + pct + ' ÷ 100) = +' + diff.toLocaleString('en-US'),
-              '2. Add increase to starting value: ' + v1.toLocaleString('en-US') + ' + ' + diff.toLocaleString('en-US') + ' = ' + v2.toLocaleString('en-US'),
-              '3. Quick Multiplier Form: ' + v1.toLocaleString('en-US') + ' × (1 + ' + (pct / 100) + ') = ' + v1.toLocaleString('en-US') + ' × ' + mult.toFixed(4) + ' = ' + v2.toLocaleString('en-US'),
-              '4. Reversal Trap: A subsequent decrease of ' + Math.abs(revPct).toFixed(2) + '% is required to return to the original ' + v1.toLocaleString('en-US') + '.'
-            ].join('<br>');
-            document.getElementById('pi-formula-steps').innerHTML = steps;
-          }
+    var v2 = 0;
+    var pctIncrease = 0;
+    var absDiff = 0;
+    var mult = 1;
+    var reversalPct = 0;
 
-          function runPICompound() {
-            var p0 = parseFloat(document.getElementById('pi-cmp-base').value);
-            var rate = parseFloat(document.getElementById('pi-cmp-rate').value);
-            var periods = parseInt(document.getElementById('pi-cmp-periods').value, 10);
-            if (isNaN(p0) || isNaN(rate) || isNaN(periods) || periods < 1) return;
+    if (curPINCMode === 'diff') {
+      v2 = inp2;
+      absDiff = v2 - v1;
+      var denom = Math.abs(v1) === 0 ? 1 : Math.abs(v1);
+      pctIncrease = (absDiff / denom) * 100;
+      mult = v1 !== 0 ? (v2 / v1) : (1 + pctIncrease / 100);
+      reversalPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
+    } else {
+      pctIncrease = inp2;
+      mult = 1 + (pctIncrease / 100);
+      v2 = v1 * Math.pow(mult, periods);
+      absDiff = v2 - v1;
+      reversalPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
+    }
 
-            var r = rate / 100;
-            var cur = p0;
-            var rows = '';
+    var sign = pctIncrease >= 0 ? '+' : '';
+    document.getElementById('card-pinc-pct').textContent = sign + pctIncrease.toFixed(2) + '%';
+    document.getElementById('card-pinc-pct').style.color = pctIncrease >= 0 ? '#10b981' : '#ef4444';
 
-            for (var i = 1; i <= periods; i++) {
-              var gain = cur * r;
-              var next = cur + gain;
-              var totalGain = next - p0;
-              rows += '<tr>' +
-                '<td>Period ' + i + '</td>' +
-                '<td>$' + cur.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-                '<td style="color: #10b981;">+$' + gain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-                '<td><strong>$' + next.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</strong></td>' +
-                '<td>+$' + totalGain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (+' + ((totalGain / p0) * 100).toFixed(2) + '%)</td>' +
-                '</tr>';
-              cur = next;
-            }
+    var diffSign = absDiff >= 0 ? '+' : '';
+    document.getElementById('card-pinc-diff').textContent = diffSign + absDiff.toFixed(2);
+    document.getElementById('card-pinc-diff-sub').textContent = 'Final value: ' + v2.toFixed(2);
 
-            document.getElementById('compound-tbody').innerHTML = rows;
+    document.getElementById('card-pinc-mult').textContent = mult.toFixed(2) + '×';
 
-            var finalVal = cur;
-            var totalDiff = finalVal - p0;
-            var totalPct = (totalDiff / p0) * 100;
-            var mult = finalVal / p0;
-            var revPct = ((p0 - finalVal) / finalVal) * 100;
+    document.getElementById('card-pinc-reversal').textContent = reversalPct.toFixed(2) + '%';
 
-            renderPIMetrics(p0, finalVal, totalDiff, totalPct, mult, revPct);
+    renderPINCVisual(v1, v2);
 
-            var steps = [
-              '1. Compound Growth Formula: A = P × (1 + r)ⁿ',
-              '2. Substitution: ' + p0.toLocaleString('en-US') + ' × (1 + ' + r + ')^' + periods + ' = ' + p0.toLocaleString('en-US') + ' × (' + (1 + r).toFixed(4) + ')^' + periods,
-              '3. Cumulative Multiplier: ' + mult.toFixed(4) + '×',
-              '4. Total Compound Expansion: ' + (totalPct >= 0 ? '+' : '') + totalPct.toFixed(2) + '% over ' + periods + ' periods.'
-            ].join('<br>');
-            document.getElementById('pi-formula-steps').innerHTML = steps;
-          }
+    // Derivations
+    var deriv = [];
+    if (curPINCMode === 'diff') {
+      deriv.push('1. Absolute Gain: Final (' + v2 + ') &minus; Initial (' + v1 + ') = <strong>' + diffSign + absDiff.toFixed(4) + '</strong>');
+      deriv.push('2. Relative Decimal Ratio: ' + diffSign + absDiff.toFixed(4) + ' &divide; |' + v1 + '| = ' + (absDiff / (Math.abs(v1) || 1)).toFixed(5));
+      deriv.push('3. Percentage Increase Formula: ' + (absDiff / (Math.abs(v1) || 1)).toFixed(5) + ' &times; 100% = <strong>' + sign + pctIncrease.toFixed(2) + '%</strong>');
+      deriv.push('4. Growth Multiplier: ' + v2 + ' &divide; ' + v1 + ' = <strong>' + mult.toFixed(4) + '&times;</strong>');
+      deriv.push('5. Asymmetric Drop Recovery: [(' + v1 + ' &minus; ' + v2 + ') &divide; |' + v2 + '|] &times; 100% = <strong>' + reversalPct.toFixed(2) + '%</strong> needed to return to baseline');
+    } else {
+      deriv.push('1. Growth Factor per Period: 1 + (' + pctIncrease + '% &divide; 100) = <strong>' + mult.toFixed(4) + '&times;</strong>');
+      deriv.push('2. Applied Expansion (' + periods + ' period' + (periods > 1 ? 's' : '') + '): ' + v1 + ' &times; (' + mult.toFixed(4) + ')^' + periods + ' = <strong>' + v2.toFixed(2) + ' final value</strong>');
+      deriv.push('3. Net Absolute Gain: ' + v2.toFixed(2) + ' &minus; ' + v1 + ' = <strong>+' + absDiff.toFixed(2) + '</strong>');
+    }
+    document.getElementById('pinc-derivations').innerHTML = deriv.join('<br>');
+  }
 
-          function renderPIMetrics(v1, v2, diff, pct, mult, revPct) {
-            var pctEl = document.getElementById('pi-res-pct');
-            var sign = pct >= 0 ? '+' : '';
-            pctEl.textContent = sign + pct.toFixed(2) + '%';
-            pctEl.style.color = pct >= 0 ? '#10b981' : '#ef4444';
+  function renderPINCVisual(v1, v2) {
+    var c = document.getElementById('pinc-svg-container');
+    if (!c) return;
 
-            document.getElementById('pi-res-multiplier').textContent = 'Multiplier: ' + mult.toFixed(3) + '×';
-            document.getElementById('pi-res-diff').textContent = (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US', { maximumFractionDigits: 2 });
-            document.getElementById('pi-res-final').textContent = 'Final Value: ' + v2.toLocaleString('en-US', { maximumFractionDigits: 2 });
-            document.getElementById('pi-res-reversal').textContent = revPct.toFixed(2) + '%';
+    var w = c.clientWidth || 600;
+    var h = 80;
+    var maxVal = Math.max(1, Math.abs(v1), Math.abs(v2));
 
-            // Visual bar
-            var total = Math.max(v1, v2, 0.001);
-            var basePct = Math.min(100, Math.max(10, (v1 / (v1 + Math.max(0, diff))) * 100));
-            var growthPct = 100 - basePct;
+    var barH = 18;
+    var y1 = 12, y2 = 42;
 
-            document.getElementById('bar-base').style.width = basePct + '%';
-            document.getElementById('bar-base').textContent = 'Base (' + v1.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ')';
-            document.getElementById('bar-growth').style.width = growthPct + '%';
-            document.getElementById('bar-growth').textContent = (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ' (' + sign + pct.toFixed(1) + '%)';
-            document.getElementById('ratio-legend').textContent = 'Base 100% : ' + sign + pct.toFixed(1) + '% Growth';
-          }
+    function getW(v) {
+      return Math.max(2, Math.min(w - 130, (Math.abs(v) / maxVal) * (w - 130)));
+    }
 
-          function setPIPreset(v1, v2, desc) {
-            switchPIMode('calc');
-            document.getElementById('pi-init').value = v1;
-            document.getElementById('pi-final').value = v2;
-            runPICalc();
-          }
+    var w1 = getW(v1);
+    var w2 = getW(v2);
 
-          function copyPISummary(btn) {
-            var pct = document.getElementById('pi-res-pct').textContent.trim();
-            var mult = document.getElementById('pi-res-multiplier').textContent.trim();
-            var diff = document.getElementById('pi-res-diff').textContent.trim();
-            var finalVal = document.getElementById('pi-res-final').textContent.trim();
-            var rev = document.getElementById('pi-res-reversal').textContent.trim();
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
 
-            var summary = [
-              '=== Percentage Increase Breakdown ===',
-              'Percentage Increase: ' + pct,
-              'Absolute Difference: ' + diff,
-              'Multiplier         : ' + mult,
-              finalVal,
-              'Reversal Trap      : ' + rev + ' drop required to break even',
-              'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/math/percentage-increase-calculator.html)'
-            ].join('
-');
+    // Bar 1 (V1)
+    svg += '<text x="0" y="' + (y1 + 14) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Initial (V1):</text>';
+    svg += '<rect x="90" y="' + y1 + '" width="' + (w - 110) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y1 + '" width="' + w1 + '" height="' + barH + '" rx="3" fill="#64748b" />';
+    svg += '<text x="' + (95 + w1) + '" y="' + (y1 + 14) + '" fill="var(--fg)" font-family="var(--mono)" font-size="11">' + v1.toFixed(1) + '</text>';
 
-            navigator.clipboard.writeText(summary).then(function() {
-              var old = btn.textContent;
-              btn.textContent = '✅ Copied to Clipboard!';
-              btn.style.borderColor = '#10b981';
-              setTimeout(function() {
-                btn.textContent = old;
-                btn.style.borderColor = '';
-              }, 2000);
-            });
-          }
+    // Bar 2 (V2)
+    svg += '<text x="0" y="' + (y2 + 14) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Final (V2):</text>';
+    svg += '<rect x="90" y="' + y2 + '" width="' + (w - 110) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y2 + '" width="' + w2 + '" height="' + barH + '" rx="3" fill="#10b981" />';
+    svg += '<text x="' + (95 + w2) + '" y="' + (y2 + 14) + '" fill="#10b981" font-family="var(--mono)" font-size="11" font-weight="bold">' + v2.toFixed(1) + '</text>';
 
-          document.addEventListener('DOMContentLoaded', function() { runPICalc(); });
-          runPICalc();
-        </script>
-      
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyPINCReport(btn) {
+    var pct = document.getElementById('card-pinc-pct').textContent;
+    var diff = document.getElementById('card-pinc-diff').textContent;
+    var mult = document.getElementById('card-pinc-mult').textContent;
+    var rev = document.getElementById('card-pinc-reversal').textContent;
+    var v1 = document.getElementById('pinc-v1').value;
+    var v2 = document.getElementById('pinc-v2').value;
+
+    var lines = [
+      '========================================',
+      '     PERCENTAGE INCREASE GROWTH REPORT',
+      '========================================',
+      'Initial Base (V1)    : ' + v1,
+      'Final Value (V2)     : ' + v2,
+      '----------------------------------------',
+      'Percentage Increase  : ' + pct,
+      'Absolute Unit Gain   : ' + diff,
+      'Growth Multiplier    : ' + mult,
+      'Reverse Drop Needed  : ' + rev,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/percentage-increase-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('
+')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Growth Report!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcPINC);
+  document.addEventListener('DOMContentLoaded', calcPINC);
+  calcPINC();
+</script>
+
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

@@ -2060,729 +2060,824 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 </script>
 `
   },
-    {
-      slug: 'fraction-to-decimal',
-      title: 'Fraction to Decimal Converter (with Repeating Decimals & Tape Measure)',
-      metaDesc: 'Convert proper, improper, and mixed fractions into decimals, percentages, and millimeter equivalents. Detects repeating decimals and plots on an interactive tape measure.',
-      category: 'Math & Units',
-      faq: [
-        { q: 'How do you convert a fraction to a decimal?', a: 'To convert any fraction to a decimal, divide the numerator (top number) by the denominator (bottom number): Decimal = Numerator ÷ Denominator. For a mixed number (such as 2 3/4), convert the fraction part (3 ÷ 4 = 0.75) and add it to the whole number (2 + 0.75 = 2.75).' },
-        { q: 'How do you know if a fraction produces a terminating or repeating decimal?', a: 'In a fully reduced fraction (where numerator and denominator share no common factors), the decimal will terminate if and only if the prime factorization of the denominator contains ONLY 2s, 5s, or both (such as 1/2, 1/4, 1/5, 1/8, 1/10). If the denominator contains any other prime factor (such as 3, 7, 11, 13), the decimal will repeat infinitely.' },
-        { q: 'What is 3/8 as a decimal and on a tape measure?', a: '3/8 as a decimal is exactly 0.375 (3 ÷ 8 = 0.375, or 37.5%). On an imperial construction tape measure, 3/8 of an inch equals exactly 6 sixteenths (6/16\"), 12 thirty-seconds (12/32\"), or 9.525 millimeters.' },
-        { q: 'How do you convert an improper fraction to a mixed number and decimal?', a: 'Divide the numerator by the denominator using integer division. The quotient becomes the whole number, and the remainder becomes the new numerator over the original denominator. For example, 17/5: 17 ÷ 5 = 3 with remainder 2, which equals the mixed number 3 2/5, or 3.40 as a decimal.' },
-        { q: 'Why do fractions like 1/3 and 1/7 repeat forever?', a: 'Because our base-10 number system is built on powers of 10 (prime factors 2 and 5), any fraction whose denominator cannot evenly divide a power of 10 produces an infinite recurring cycle. 1/3 produces a single repeating digit (0.333...), while 1/7 produces a 6-digit recurring period (0.142857142857...).' }
-      ],
-      body: `
-        ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math &amp; Calculators</a> &gt; Fraction to Decimal
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Fraction to Decimal Converter</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert proper fractions, improper fractions, and mixed numbers into exact decimals, percentages, and millimeter equivalents. Features automated repeating decimal period detection and interactive tape measure snapping.
-          </p>
+      {
+    slug: "fraction-to-decimal",
+    title: "Fraction to Decimal Converter (with Repeating Decimals & Tape Measure)",
+    metaDesc: "Convert proper, improper, and mixed fractions into decimals, percentages, and millimeter equivalents. Detects repeating decimals and plots on an interactive tape measure.",
+    category: "Math & Units",
+    faq: [
+        {
+            "q": "How do you convert any fraction into a decimal?",
+            "a": "To convert any fraction to a decimal, divide the numerator (top number) by the denominator (bottom number): Decimal = Numerator ÷ Denominator. For a mixed number (such as 2 3/4), first convert the fractional part (3 ÷ 4 = 0.75) and then add the whole integer: 2 + 0.75 = 2.75."
+        },
+        {
+            "q": "How do you know if a fraction produces a terminating or repeating decimal?",
+            "a": "In a fully reduced fraction (where numerator and denominator share no common divisors), the decimal terminates in base-10 if and only if the prime factorization of the denominator contains ONLY 2s, 5s, or both (such as 1/2, 1/4, 1/5, 1/8, 1/10, 1/16, 1/32). If the denominator contains any other prime factor (such as 3, 7, 11, 13), the decimal is mathematically guaranteed to repeat infinitely."
+        },
+        {
+            "q": "What is 3/8 as a decimal, percentage, and on a tape measure?",
+            "a": "3/8 as a decimal is exactly 0.375 (3 ÷ 8 = 0.375), which equals 37.5%. On a standard imperial construction tape measure, 3/8 of an inch equals exactly 6 sixteenths (6/16\"), 12 thirty-seconds (12/32\"), or 9.525 millimeters in metric units."
+        },
+        {
+            "q": "What is the difference between a terminating decimal and a repeating decimal?",
+            "a": "A terminating decimal has a finite number of digits following the decimal point (e.g., 1/4 = 0.25, 7/8 = 0.875). A repeating decimal continues infinitely, repeating a single digit or a multi-digit sequence known as a repetend (e.g., 1/3 = 0.333..., 1/7 = 0.142857142857...). Both terminating and repeating decimals are rational numbers."
+        },
+        {
+            "q": "How do you convert fraction of an inch measurements to metric millimeters?",
+            "a": "By international agreement since 1959, exactly 1 inch is defined as 25.4 millimeters. To convert any fraction of an inch to millimeters, compute its decimal equivalent and multiply by 25.4. For example, 5/16\" = 0.3125 inches × 25.4 mm/inch = 7.9375 mm."
+        }
+    ],
+    body: `
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Fraction to Decimal Converter
+  </nav>
 
-          <div class="tool-box">
-            <!-- Input Fraction Form -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; align-items: flex-end;">
-              <div class="field-group">
-                <label class="field-label">Whole Number (Optional)</label>
-                <input type="number" id="f2d-whole" class="code-input" placeholder="e.g. 2" oninput="calcF2D()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Numerator (Top)</label>
-                <input type="number" id="f2d-num" class="code-input" value="3" oninput="calcF2D()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Denominator (Bottom)</label>
-                <input type="number" id="f2d-den" class="code-input" value="8" min="1" oninput="calcF2D()" style="font-size: 1.25rem;" />
-              </div>
-            </div>
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Fraction to Decimal Converter</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Convert proper, improper, and mixed fractions into decimals, percentages, and metric millimeters. Detects repeating cycles and plots positions on an interactive construction tape measure.
+    </p>
+  </header>
 
-            <!-- Quick Fraction Presets -->
-            <div style="margin-top: 1rem;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 600;">
-                Common Construction &amp; Math Presets:
-              </div>
-              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                <button type="button" class="btn-sec" onclick="setF2D(0, 1, 2)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1/2 (0.5)</button>
-                <button type="button" class="btn-sec" onclick="setF2D(0, 1, 3)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1/3 (0.333...)</button>
-                <button type="button" class="btn-sec" onclick="setF2D(0, 1, 4)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1/4 (0.25)</button>
-                <button type="button" class="btn-sec" onclick="setF2D(0, 3, 8)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem; border-color: #10b981; color: #10b981; font-weight: bold;">3/8 (0.375)</button>
-                <button type="button" class="btn-sec" onclick="setF2D(0, 5, 8)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">5/8 (0.625)</button>
-                <button type="button" class="btn-sec" onclick="setF2D(0, 7, 16)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">7/16 (0.4375)</button>
-                <button type="button" class="btn-sec" onclick="setF2D(1, 3, 4)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1 3/4 (1.75)</button>
-                <button type="button" class="btn-sec" onclick="setF2D(0, 1, 7)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1/7 (Repeating 6)</button>
-              </div>
-            </div>
+  <style>
+    .f2d-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .f2d-entry-row { display:flex; align-items:center; justify-content:center; gap:1.25rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .f2d-unit { display:inline-flex; align-items:center; gap:0.5rem; background:var(--surface-alt); padding:1rem; border-radius:8px; border:1px solid var(--border); }
+    .f2d-stacked { display:inline-flex; flex-direction:column; align-items:center; width:75px; }
+    .f2d-input { width:70px; text-align:center; padding:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:4px; color:var(--fg); font-family:var(--mono); font-size:1.2rem; font-weight:bold; }
+    .f2d-bar { width:100%; height:2px; background:var(--fg); margin:3px 0; }
+    .f2d-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .f2d-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .f2d-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .f2d-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .f2d-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .f2d-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .f2d-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
 
-            <!-- Hero Output Results Cards -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Exact Decimal Equivalent</div>
-                <div id="f2d-dec-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">0.375</div>
-                <div id="f2d-type-badge" style="font-size: 0.82rem; color: #10b981; font-family: var(--mono); font-weight: bold;">Terminating Decimal</div>
-              </div>
-
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Percentage &amp; Metric (mm)</div>
-                <div id="f2d-pct-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">37.50%</div>
-                <div id="f2d-mm-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">3/8" = 9.525 mm</div>
-              </div>
-
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Simplified &amp; Improper Form</div>
-                <div id="f2d-simplified-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">3/8</div>
-                <div id="f2d-improper-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Fully Reduced Form (GCD: 1)</div>
-              </div>
-            </div>
-
-            <!-- Interactive Visual Imperial Tape Measure Ruler (1 Inch Span) -->
-            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-                <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0; color: var(--fg);">
-                  📏 Construction Tape Measure Position (0" to 1" Span):
-                </h4>
-                <span id="f2d-ruler-reading" style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; font-weight: bold;">Position: 3/8" (0.375")</span>
-              </div>
-
-              <div style="position: relative; width: 100%; height: 50px; background: #fbbf24; border: 2px solid #b45309; border-radius: 4px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
-                <!-- Dynamic SVG Ruler Marks -->
-                <svg id="f2d-tape-svg" width="100%" height="50" style="display: block;"></svg>
-
-                <!-- Indicator Needle Marker -->
-                <div id="f2d-ruler-needle" style="position: absolute; top: 0; left: 37.5%; transform: translateX(-50%); width: 3px; height: 100%; background: #ef4444; z-index: 2; transition: left 0.2s ease;"></div>
-              </div>
-
-              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">
-                <span>0" (0.000)</span>
-                <span>1/4" (0.250)</span>
-                <span>1/2" (0.500)</span>
-                <span>3/4" (0.750)</span>
-                <span>1" (1.000)</span>
-              </div>
-            </div>
-
-            <!-- Precision Metric & Tape Measure Equivalents Table -->
-            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
-                📋 Standard Fraction to Decimal &amp; Metric Conversion Table:
-              </h4>
-              <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: center;">
-                  <thead>
-                    <tr style="background: var(--surface); border-bottom: 1px solid var(--border);">
-                      <th style="padding: 0.45rem; text-align: left;">Fraction</th>
-                      <th style="padding: 0.45rem; color: #10b981;">Exact Decimal</th>
-                      <th style="padding: 0.45rem; color: #3b82f6;">Millimeters (mm)</th>
-                      <th style="padding: 0.45rem; color: var(--text-muted);">16ths / 32nds</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">1/16"</td><td>0.0625</td><td>1.5875 mm</td><td style="color: var(--text-muted);">1/16" = 2/32"</td></tr>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">1/8"</td><td>0.1250</td><td>3.1750 mm</td><td style="color: var(--text-muted);">2/16" = 4/32"</td></tr>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">3/16"</td><td>0.1875</td><td>4.7625 mm</td><td style="color: var(--text-muted);">3/16" = 6/32"</td></tr>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">1/4"</td><td>0.2500</td><td>6.3500 mm</td><td style="color: var(--text-muted);">4/16" = 8/32"</td></tr>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">5/16"</td><td>0.3125</td><td>7.9375 mm</td><td style="color: var(--text-muted);">5/16" = 10/32"</td></tr>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">3/8"</td><td>0.3750</td><td>9.5250 mm</td><td style="color: var(--text-muted);">6/16" = 12/32"</td></tr>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">1/2"</td><td>0.5000</td><td>12.7000 mm</td><td style="color: var(--text-muted);">8/16" = 16/32"</td></tr>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">5/8"</td><td>0.6250</td><td>15.8750 mm</td><td style="color: var(--text-muted);">10/16" = 20/32"</td></tr>
-                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">3/4"</td><td>0.7500</td><td>19.0500 mm</td><td style="color: var(--text-muted);">12/16" = 24/32"</td></tr>
-                    <tr><td style="padding: 0.4rem; text-align: left; font-weight: bold;">7/8"</td><td>0.8750</td><td>22.2250 mm</td><td style="color: var(--text-muted);">14/16" = 28/32"</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Action Copy Button -->
-            <button type="button" id="btnCopyF2D" onclick="copyF2DSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Fraction to Decimal Conversion Report
-            </button>
-          </div>
-
-          <!-- Step-by-Step Worked Long Division -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Division &amp; Period Derivation</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Long Division Algorithm</span>
-            </div>
-            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Conversion derivation showing synthetic decimal division and recurring period analysis:
-            </p>
-            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">1. Decimal Long Division:</strong>
-                <div id="f2d-step-div" style="color: #3b82f6; margin-top: 0.25rem;">
-                  Numerator ÷ Denominator = 3 ÷ 8 = <strong>0.375</strong>
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">2. Recurring Decimal Period Status:</strong>
-                <div id="f2d-step-period" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
-                  Denominator 8 factors into 2 &times; 2 &times; 2. Because it contains only prime factors of 2 and 5, the decimal terminates completely after 3 digits.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981; font-weight: 700;">3. Imperial &amp; Metric Invariance:</strong>
-                <div id="f2d-step-metric" style="color: #10b981; margin-top: 0.25rem;">
-                  0.375 in &times; 25.4 mm/in = <strong>9.525 mm</strong> &bull; Percentage: 0.375 &times; 100% = <strong>37.50%</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Critical Mathematical Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Fraction &amp; Decimal Conversion Traps</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Floating-Point Truncation Error in CAD &amp; CNC:</strong> When converting 1/3" or 1/7" to decimal for CNC machining or CAD modeling, rounding to 0.33" introduces an unacceptable error of 0.0033" (over 3 thou). In tight-tolerance aerospace or engine machining, always work with exact fractions or at least 6 decimal places (0.333333").</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Base-10 Prime Factorization Rule:</strong> A fraction only terminates if its fully simplified denominator\'s prime factors are strictly 2 and/or 5. Denominators with 3, 7, 11, 13 (or multiples like 6, 12, 14, 15) repeat indefinitely.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Negative Mixed Number Trap:</strong> When evaluating a negative mixed number like -2 3/4, the negative sign applies to the ENTIRE quantity [-(2 + 3/4) = -2.75], NOT (-2 + 0.75 = -1.25).</li>
-            </ul>
-          </div>
+  <div class="f2d-box">
+    <!-- Fraction Entry -->
+    <div class="f2d-entry-row">
+      <div class="f2d-unit">
+        <div>
+          <label style="display:block;font-family:var(--mono);font-size:0.7rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Whole (Opt)</label>
+          <input type="number" id="f2d-w" value="0" min="0" step="1" oninput="calcF2D()" class="f2d-input" placeholder="0">
         </div>
-
-        <script>
-          window.setF2D = function(w, n, d) {
-            document.getElementById('f2d-whole').value = w || '';
-            document.getElementById('f2d-num').value = n;
-            document.getElementById('f2d-den').value = d;
-            calcF2D();
-          };
-
-          function gcd(a, b) {
-            a = Math.abs(a);
-            b = Math.abs(b);
-            while (b) {
-              const t = b;
-              b = a % b;
-              a = t;
-            }
-            return a;
-          }
-
-          // Detect repeating decimal cycle
-          function getDecimalRepresentation(num, den) {
-            const integerPart = Math.floor(num / den);
-            let remainder = num % den;
-            if (remainder === 0) {
-              return { isRepeating: false, text: integerPart.toString(), period: 0 };
-            }
-
-            const remainders = {};
-            let decimalDigits = '';
-            let index = 0;
-            let repeatIndex = -1;
-
-            while (remainder !== 0) {
-              if (remainders[remainder] !== undefined) {
-                repeatIndex = remainders[remainder];
-                break;
-              }
-              remainders[remainder] = index;
-              remainder *= 10;
-              const digit = Math.floor(remainder / den);
-              decimalDigits += digit;
-              remainder %= den;
-              index++;
-              if (index > 200) break; // Guard against extreme periods
-            }
-
-            if (repeatIndex !== -1) {
-              const nonRepeat = decimalDigits.substring(0, repeatIndex);
-              const repeat = decimalDigits.substring(repeatIndex);
-              return {
-                isRepeating: true,
-                text: integerPart + '.' + nonRepeat + '(' + repeat + ')',
-                nonRepeat: nonRepeat,
-                repeat: repeat,
-                period: repeat.length
-              };
-            } else {
-              return { isRepeating: false, text: integerPart + '.' + decimalDigits, period: 0 };
-            }
-          }
-
-          function renderTapeMeasureSVG(decimalFraction) {
-            const svg = document.getElementById('f2d-tape-svg');
-            if (!svg) return;
-            let html = '';
-            // 16ths ticks
-            for (let i = 0; i <= 16; i++) {
-              const xPct = (i / 16) * 100;
-              let tickH = 12; // 1/16
-              let strokeW = 1;
-              if (i % 8 === 0) { tickH = 28; strokeW = 2; } // 0, 1/2, 1
-              else if (i % 4 === 0) { tickH = 22; strokeW = 1.5; } // 1/4, 3/4
-              else if (i % 2 === 0) { tickH = 17; strokeW = 1.2; } // 1/8s
-
-              html += '<line x1="' + xPct + '%" y1="0" x2="' + xPct + '%" y2="' + tickH + '" stroke="#78350f" stroke-width="' + strokeW + '" />';
-            }
-            svg.innerHTML = html;
-
-            // Needle positioning (clamped 0 to 100%)
-            const needlePct = Math.min(100, Math.max(0, decimalFraction * 100));
-            document.getElementById('f2d-ruler-needle').style.left = needlePct.toFixed(2) + '%';
-          }
-
-          function calcF2D() {
-            const wholeVal = document.getElementById('f2d-whole').value;
-            const w = wholeVal !== '' ? parseInt(wholeVal, 10) : 0;
-            let n = parseInt(document.getElementById('f2d-num').value, 10) || 0;
-            let d = parseInt(document.getElementById('f2d-den').value, 10) || 1;
-            if (d === 0) d = 1;
-
-            const isNegative = w < 0 || n < 0 || d < 0;
-            n = Math.abs(n);
-            d = Math.abs(d);
-            const absW = Math.abs(w);
-
-            // Improper form
-            const totalNumerator = (absW * d) + n;
-            const decVal = totalNumerator / d;
-            const signedDec = isNegative ? -decVal : decVal;
-
-            // Simplified fraction
-            const commonDiv = gcd(n, d);
-            const simN = n / commonDiv;
-            const simD = d / commonDiv;
-            const totalDiv = gcd(totalNumerator, d);
-            const simTotalN = totalNumerator / totalDiv;
-            const simTotalD = d / totalDiv;
-
-            // Recurring analysis
-            const rep = getDecimalRepresentation(totalNumerator, d);
-
-            // DOM Updates
-            const heroDec = document.getElementById('f2d-dec-hero');
-            const typeBadge = document.getElementById('f2d-type-badge');
-
-            if (rep.isRepeating) {
-              heroDec.innerHTML = (isNegative ? '-' : '') + rep.text.replace(/\(([0-9]+)\)/, '<span style="text-decoration: overline;">$1</span>');
-              typeBadge.textContent = 'Repeating Decimal (Period: ' + rep.period + ' digits)';
-              typeBadge.style.color = '#f59e0b';
-            } else {
-              heroDec.textContent = signedDec.toString();
-              typeBadge.textContent = 'Terminating Decimal';
-              typeBadge.style.color = '#10b981';
-            }
-
-            const pctVal = (signedDec * 100).toFixed(2);
-            document.getElementById('f2d-pct-hero').textContent = pctVal + '%';
-
-            const mmVal = (signedDec * 25.4).toFixed(3);
-            document.getElementById('f2d-mm-sub').textContent = 'Inches to Metric: ' + mmVal + ' mm';
-
-            // Simplified display
-            if (absW > 0) {
-              document.getElementById('f2d-simplified-hero').textContent = (isNegative ? '-' : '') + absW + ' ' + simN + '/' + simD;
-              document.getElementById('f2d-improper-sub').textContent = 'Improper: ' + (isNegative ? '-' : '') + simTotalN + '/' + simTotalD;
-            } else {
-              document.getElementById('f2d-simplified-hero').textContent = (isNegative ? '-' : '') + simN + '/' + simD;
-              document.getElementById('f2d-improper-sub').textContent = 'Fully Reduced Form (GCD: ' + commonDiv + ')';
-            }
-
-            // Tape measure visualization (fractional remainder between 0 and 1)
-            const fractionalPart = (n / d) % 1;
-            renderTapeMeasureSVG(fractionalPart);
-            document.getElementById('f2d-ruler-reading').textContent = 'Position: ' + (absW > 0 ? absW + ' ' : '') + simN + '/' + simD + '" (' + signedDec.toFixed(4) + '")';
-
-            // Steps
-            document.getElementById('f2d-step-div').innerHTML = (absW > 0 ? '(' + absW + ' &times; ' + d + ' + ' + n + ') / ' + d + ' = ' : '') + totalNumerator + ' ÷ ' + d + ' = <strong>' + (rep.isRepeating ? rep.text : signedDec.toString()) + '</strong>';
-
-            if (rep.isRepeating) {
-              document.getElementById('f2d-step-period').innerHTML = 'Denominator ' + d + ' contains prime factors other than 2 and 5. This generates a repeating cycle of <strong>' + rep.period + ' digits</strong> (' + rep.repeat + ').';
-            } else {
-              document.getElementById('f2d-step-period').innerHTML = 'Denominator ' + d + ' factors exclusively into powers of 2 and/or 5, guaranteeing a finite terminating decimal with zero remainder.';
-            }
-
-            document.getElementById('f2d-step-metric').innerHTML = signedDec.toFixed(4) + ' in &times; 25.4 mm/in = <strong>' + mmVal + ' mm</strong> &bull; Percentage: <strong>' + pctVal + '%</strong>';
-          }
-
-          window.copyF2DSummary = function() {
-            const dec = document.getElementById('f2d-dec-hero').innerText;
-            const type = document.getElementById('f2d-type-badge').innerText;
-            const pct = document.getElementById('f2d-pct-hero').innerText;
-            const mm = document.getElementById('f2d-mm-sub').innerText;
-            const sim = document.getElementById('f2d-simplified-hero').innerText;
-
-            const text = [
-              '=== FRACTION TO DECIMAL CONVERSION REPORT ===',
-              'Fraction Form: ' + sim,
-              'Exact Decimal: ' + dec,
-              'Decimal Classification: ' + type,
-              'Percentage Value: ' + pct,
-              mm,
-              '--------------------------------------------',
-              'Standard: Pure Rational Number Mathematics',
-              'Timestamp: ' + new Date().toISOString(),
-              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/fraction-to-decimal'
-            ].join('\n');
-
-            navigator.clipboard.writeText(text).then(function() {
-              const btn = document.getElementById('btnCopyF2D');
-              if (btn) {
-                const old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Conversion Report!';
-                btn.style.color = '#10b981';
-                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
-              }
-            });
-          };
-
-          document.addEventListener('DOMContentLoaded', function() { calcF2D(); });
-          calcF2D();
-        </script>
-      `
-    },
-    {
-      slug: 'decimal-to-fraction',
-      title: 'Decimal to Fraction Converter (Simplified, Mixed & Tape Measure)',
-      metaDesc: 'Convert any decimal to a fully simplified fraction or mixed number. Solves terminating and repeating decimals with nearest 16th, 32nd, and 64th tape measure snapping.',
-      category: 'Math & Units',
-      faq: [
-        { q: 'How do you convert a terminating decimal into a simplified fraction?', a: 'Count the number of decimal places after the point (N). Place the decimal digits over 10^N (for example, 0.75 has 2 decimal places, so it becomes 75/100). Then find the greatest common divisor (GCD) of the numerator and denominator (GCD of 75 and 100 is 25) and divide both numbers to get the simplest form: 75/25 = 3 and 100/25 = 4, resulting in 3/4.' },
-        { q: 'How do you convert a repeating decimal into an exact fraction?', a: 'Use algebraic substitution. Let x equal the repeating decimal (e.g., x = 0.666...). Multiply both sides by 10^k (where k is the length of the repeating cycle). For a 1-digit cycle, multiply by 10: 10x = 6.666... Subtract the first equation from the second: 10x - x = 6.666... - 0.666..., yielding 9x = 6. Divide both sides by 9 to get x = 6/9 = 2/3.' },
-        { q: 'What is 0.625 as a fraction and on a tape measure?', a: '0.625 as an exact simplified fraction is 5/8 (625/1000 simplified by dividing numerator and denominator by 125). On an imperial tape measure, 0.625 inches corresponds exactly to 5/8 of an inch (or 10 sixteenths, 20 thirty-seconds, and 15.875 mm).' },
-        { q: 'How does the calculator find the nearest tape measure fraction for woodworkers?', a: 'The calculator multiplies the fractional decimal part by the desired resolution denominator (16, 32, or 64), rounds to the nearest integer, and simplifies the resulting fraction. For example, for 0.385 inches: 0.385 × 16 = 6.16 &rarr; rounds to 6/16 = 3/8\" with a tiny error deviation of +0.010 inches.' },
-        { q: 'Can every decimal be converted into a fraction?', a: 'Only rational numbers (terminating decimals and repeating decimals) can be converted into fractions of integers (p/q). Irrational numbers (such as Pi = 3.14159..., Euler\'s number e = 2.71828..., and the square root of 2 = 1.41421...) have infinite non-repeating decimal expansions and cannot be expressed as exact ratios of two integers.' }
-      ],
-      body: `
-        ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math &amp; Calculators</a> &gt; Decimal to Fraction
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Decimal to Fraction Converter</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert any terminating or repeating decimal into an exact, fully simplified fraction and mixed number. Automatically calculates nearest imperial tape measure marks (16ths, 32nds, 64ths) with tolerance error.
-          </p>
-
-          <div class="tool-box">
-            <!-- Input Form Grid -->
-            <div class="grid-inputs">
-              <div class="field-group">
-                <label class="field-label">Decimal Value to Convert</label>
-                <input type="number" id="d2f-in" class="code-input" value="0.625" step="any" oninput="calcD2F()" style="font-size: 1.25rem;" />
-              </div>
-              <div class="field-group">
-                <label class="field-label">Decimal Type</label>
-                <select id="d2f-type" class="code-input" onchange="toggleD2FType()" style="font-size: 1rem;">
-                  <option value="term" selected>Terminating Decimal (e.g. 0.625, 2.75)</option>
-                  <option value="repeat">Repeating Decimal (e.g. 0.333..., 0.142857...)</option>
-                </select>
-              </div>
-              <div class="field-group" id="grp-repeat-len" style="display: none;">
-                <label class="field-label">Repeating Cycle Length (Digits)</label>
-                <input type="number" id="d2f-repeat-len" class="code-input" value="1" min="1" max="10" step="1" oninput="calcD2F()" style="font-size: 1.25rem;" />
-                <span style="font-size: 0.72rem; color: var(--text-muted);">Length of recurring pattern at end</span>
-              </div>
-            </div>
-
-            <!-- Quick Decimal Presets -->
-            <div style="margin-top: 1rem;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 600;">
-                Popular Decimal Presets:
-              </div>
-              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
-                <button type="button" class="btn-sec" onclick="setD2F('0.5')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.5 (1/2)</button>
-                <button type="button" class="btn-sec" onclick="setD2F('0.25')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.25 (1/4)</button>
-                <button type="button" class="btn-sec" onclick="setD2F('0.75')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.75 (3/4)</button>
-                <button type="button" class="btn-sec" onclick="setD2F('0.125')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.125 (1/8)</button>
-                <button type="button" class="btn-sec" onclick="setD2F('0.375')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.375 (3/8)</button>
-                <button type="button" class="btn-sec" onclick="setD2F('0.625')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem; border-color: #10b981; color: #10b981; font-weight: bold;">0.625 (5/8)</button>
-                <button type="button" class="btn-sec" onclick="setD2F('0.875')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.875 (7/8)</button>
-                <button type="button" class="btn-sec" onclick="setD2F('2.3333333333', 'repeat', 1)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">2.333... (2 1/3)</button>
-              </div>
-            </div>
-
-            <!-- Hero Output Results Cards -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Simplified Fraction</div>
-                <div id="d2f-fraction-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">5/8</div>
-                <div id="d2f-improper-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Proper Fraction (5 ÷ 8)</div>
-              </div>
-
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Mixed Number Form</div>
-                <div id="d2f-mixed-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">5/8</div>
-                <div id="d2f-pct-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Percentage: 62.50%</div>
-              </div>
-
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Nearest Tape Measure (16th)</div>
-                <div id="d2f-tape-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">5/8"</div>
-                <div id="d2f-tape-error" style="font-size: 0.82rem; color: #10b981; font-family: var(--mono); font-weight: bold;">Exact Match (0.000" error)</div>
-              </div>
-            </div>
-
-            <!-- Tape Measure Tolerances Breakdown Card (16th, 32nd, 64th) -->
-            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
-              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
-                📏 Woodworking &amp; Machinist Tape Measure Snapping:
-              </h4>
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.82rem;">
-                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Nearest 1/16 Inch:</div>
-                  <div id="d2f-snap-16" style="font-size: 1.3rem; font-weight: bold; color: var(--fg); margin: 0.2rem 0;">5/8"</div>
-                  <div id="d2f-err-16" style="font-size: 0.75rem; color: #10b981;">Error: 0.0000"</div>
-                </div>
-
-                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Nearest 1/32 Inch:</div>
-                  <div id="d2f-snap-32" style="font-size: 1.3rem; font-weight: bold; color: var(--fg); margin: 0.2rem 0;">20/32" (5/8")</div>
-                  <div id="d2f-err-32" style="font-size: 0.75rem; color: #10b981;">Error: 0.0000"</div>
-                </div>
-
-                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
-                  <div style="color: var(--text-muted); font-size: 0.72rem;">Nearest 1/64 Inch:</div>
-                  <div id="d2f-snap-64" style="font-size: 1.3rem; font-weight: bold; color: var(--fg); margin: 0.2rem 0;">40/64" (5/8")</div>
-                  <div id="d2f-err-64" style="font-size: 0.75rem; color: #10b981;">Error: 0.0000"</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Copy Button -->
-            <button type="button" id="btnCopyD2F" onclick="copyD2FSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Decimal to Fraction Calculation &amp; Tape Snapping
-            </button>
-          </div>
-
-          <!-- Step-by-Step Worked Algebraic Derivation -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Algebraic Derivation</h3>
-              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Euclidean Reduction</span>
-            </div>
-            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Conversion of rational decimal to simplest integer fraction:
-            </p>
-            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">1. Power of Ten Base Transformation:</strong>
-                <div id="d2f-step-base" style="color: #3b82f6; margin-top: 0.25rem;">
-                  0.625 has 3 decimal places &rarr; 625 / 10³ = <strong>625 / 1000</strong>
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">2. Greatest Common Divisor (GCD) Factorization:</strong>
-                <div id="d2f-step-gcd" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
-                  GCD(625, 1000) = 125 &bull; Divide numerator and denominator by 125.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981; font-weight: 700;">3. Simplified Final Fraction:</strong>
-                <div id="d2f-step-final" style="color: #10b981; margin-top: 0.25rem;">
-                  (625 ÷ 125) / (1000 ÷ 125) = <strong>5/8</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Critical Mathematical Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Decimal to Fraction Conversion Traps</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Infinite Repeating Decimal Illusion:</strong> Entering 0.3333 into a basic calculator converts it to 3333/10000, which cannot be simplified to 1/3. If a decimal has a recurring period, you must use algebraic subtraction ($10x - x = 9x$) to find the true denominator of 9, 99, or 999.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Machinist Tolerance vs Rounding Errors:</strong> When cutting stock in a machine shop, rounding 0.387" to 3/8" (0.375") produces a 0.012" error (12 thousandths), which can easily ruin a precision press-fit bearing or sleeve. Snapping to 25/64" (0.3906") cuts the error to just 0.0036".</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Irrational Number Impossibility:</strong> Decimals originating from square roots (e.g. &radic;2 = 1.41421356...) or transcendental constants (&pi; = 3.14159...) can never be exactly converted to a fraction. Ratios like 22/7 or 355/113 are merely close approximations, not exact equivalents.</li>
-            </ul>
-          </div>
+        <div class="f2d-stacked">
+          <label style="display:block;font-family:var(--mono);font-size:0.7rem;color:var(--text-muted);text-align:center;margin-bottom:2px;">Numerator</label>
+          <input type="number" id="f2d-n" value="3" min="0" step="1" oninput="calcF2D()" class="f2d-input">
+          <div class="f2d-bar"></div>
+          <input type="number" id="f2d-d" value="8" min="1" step="1" oninput="calcF2D()" class="f2d-input">
+          <label style="display:block;font-family:var(--mono);font-size:0.7rem;color:var(--text-muted);text-align:center;margin-top:2px;">Denominator</label>
         </div>
+      </div>
+    </div>
 
-        <script>
-          window.setD2F = function(val, type, repeatLen) {
-            document.getElementById('d2f-in').value = val;
-            if (type) document.getElementById('d2f-type').value = type;
-            else document.getElementById('d2f-type').value = 'term';
-            if (repeatLen) document.getElementById('d2f-repeat-len').value = repeatLen;
-            toggleD2FType();
-            calcD2F();
-          };
+    <!-- Quick Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;justify-content:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Standard Fractions:</span>
+      <button type="button" class="btn-sec" onclick="setF2DPreset(0, 1, 8)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">1/8 (0.125)</button>
+      <button type="button" class="btn-sec" onclick="setF2DPreset(0, 1, 4)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">1/4 (0.250)</button>
+      <button type="button" class="btn-sec" onclick="setF2DPreset(0, 3, 8)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">3/8 (0.375)</button>
+      <button type="button" class="btn-sec" onclick="setF2DPreset(0, 5, 8)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">5/8 (0.625)</button>
+      <button type="button" class="btn-sec" onclick="setF2DPreset(1, 3, 4)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">1 3/4 (1.750)</button>
+      <button type="button" class="btn-sec" onclick="setF2DPreset(0, 1, 3)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">1/3 (0.333...)</button>
+    </div>
 
-          window.toggleD2FType = function() {
-            const mode = document.getElementById('d2f-type').value;
-            const repGrp = document.getElementById('grp-repeat-len');
-            if (mode === 'repeat') {
-              repGrp.style.display = 'block';
-            } else {
-              repGrp.style.display = 'none';
-            }
-            calcD2F();
-          };
+    <!-- Hero Cards -->
+    <div class="f2d-grid-4">
+      <div class="f2d-card" style="border-top:4px solid #10b981;">
+        <span class="f2d-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Decimal</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Decimal Output</div>
+        <div id="card-f2d-dec" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#10b981;">0.3750</div>
+        <div id="card-f2d-type-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Terminating Decimal</div>
+      </div>
 
-          function gcd(a, b) {
-            a = Math.abs(a);
-            b = Math.abs(b);
-            while (b) {
-              const t = b;
-              b = a % b;
-              a = t;
-            }
-            return a;
-          }
+      <div class="f2d-card" style="border-top:4px solid #3b82f6;">
+        <span class="f2d-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Percent</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Percentage</div>
+        <div id="card-f2d-pct" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#3b82f6;">37.50%</div>
+        <div id="card-f2d-improper-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Improper: 3/8</div>
+      </div>
 
-          function getNearestTapeFraction(val, denom) {
-            const rounded = Math.round(val * denom);
-            const common = gcd(rounded, denom);
-            const n = rounded / common;
-            const d = denom / common;
-            const actualVal = rounded / denom;
-            const error = actualVal - val;
-            return {
-              n: n,
-              d: d,
-              rawN: rounded,
-              rawD: denom,
-              error: error
-            };
-          }
+      <div class="f2d-card" style="border-top:4px solid #8b5cf6;">
+        <span class="f2d-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Metric</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Metric Millimeters</div>
+        <div id="card-f2d-mm" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:var(--fg);">9.53 mm</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Exact: 9.525 mm</div>
+      </div>
 
-          function calcD2F() {
-            const rawIn = document.getElementById('d2f-in').value.trim();
-            if (rawIn === '') return;
+      <div class="f2d-card" style="border-top:4px solid #f59e0b;">
+        <span class="f2d-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Tape</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Ruler 16ths</div>
+        <div id="card-f2d-tape" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#f59e0b;">3/8"</div>
+        <div id="card-f2d-tape-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">6 sixteenths (6/16")</div>
+      </div>
+    </div>
 
-            const dec = parseFloat(rawIn) || 0;
-            const isNegative = dec < 0;
-            const absDec = Math.abs(dec);
-            const mode = document.getElementById('d2f-type').value;
+    <!-- Pure SVG Tape Measure Visualizer -->
+    <div class="f2d-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Visual Tape Measure Alignment Indicator</span>
+        <span id="f2d-svg-info" style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Position: 0.375" (3/8")</span>
+      </div>
+      <div id="f2d-svg-container" style="width:100%;height:80px;"></div>
+    </div>
 
-            const whole = Math.floor(absDec);
-            const frac = absDec - whole;
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #3b82f6;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Mathematical Derivations:</div>
+      <div id="f2d-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
 
-            let n = 0;
-            let d = 1;
-            let stepBaseText = '';
-            let stepGcdText = '';
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyF2DReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Fraction to Decimal Takeoff
+      </button>
+    </div>
+  </div>
 
-            if (mode === 'term') {
-              // Terminating decimal
-              const parts = rawIn.split('.');
-              const decPlaces = parts.length > 1 ? parts[1].length : 0;
-              d = Math.pow(10, decPlaces);
-              n = Math.round(frac * d);
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Fraction to Decimal Conversion</h2>
 
-              stepBaseText = rawIn + ' has ' + decPlaces + ' decimal places &rarr; ' + n + ' / 10<sup>' + decPlaces + '</sup> = <strong>' + n + ' / ' + d + '</strong>';
-            } else {
-              // Repeating decimal
-              const repLen = parseInt(document.getElementById('d2f-repeat-len').value, 10) || 1;
-              const parts = rawIn.split('.');
-              const fracStr = parts.length > 1 ? parts[1] : '0';
-              const nonRepLen = Math.max(0, fracStr.length - repLen);
+    <div class="f2d-trap-card">
+      <div class="f2d-trap-title">1. The Denominator Prime Factorization Rule</div>
+      <p class="f2d-trap-desc">
+        Why does 1/8 terminate (0.125) while 1/6 repeats (0.1666...)? In base-10 mathematics (factors 2 and 5), a reduced fraction terminates if and only if its denominator's prime factorization contains exclusively 2s and 5s ($2^a 	imes 5^b$). The denominator of 1/6 contains the prime factor 3 ($2 	imes 3$), making an infinite repeating cycle mathematically unavoidable.
+      </p>
+    </div>
 
-              const denomRepeat = Math.pow(10, repLen) - 1;
-              d = denomRepeat * Math.pow(10, nonRepLen);
-              n = Math.round(frac * d);
+    <div class="f2d-trap-card">
+      <div class="f2d-trap-title">2. Dropping Whole Numbers in Mixed Fractions</div>
+      <p class="f2d-trap-desc">
+        A common calculation error is computing the decimal of the fraction part and forgetting the integer: converting <code>3 5/8</code> into <code>0.625</code> instead of <code>3.625</code>. In architectural estimates, cutting a 3-foot board at 0.625 feet results in 73% material waste and ruined construction framing.
+      </p>
+    </div>
 
-              stepBaseText = 'Repeating period of ' + repLen + ' digits &rarr; Algebraic denominator: 10<sup>' + (nonRepLen + repLen) + '</sup> - 10<sup>' + nonRepLen + '</sup> = <strong>' + d + '</strong>, Numerator: <strong>' + n + '</strong>';
-            }
+    <div class="f2d-trap-card">
+      <div class="f2d-trap-title">3. Premature Rounding of Repeating Decimals</div>
+      <p class="f2d-trap-desc">
+        Rounding 1/3 to <code>0.33</code> in multi-step engineering calculations introduces a 1.0% compound error. In structural civil engineering or pharmaceutical chemical compounding, accumulating rounded decimals across twenty calculation stages causes severe structural drift or hazardous dosage deviations. Always preserve fractions in memory until the final result.
+      </p>
+    </div>
 
-            const common = gcd(n, d);
-            const simN = n / common;
-            const simD = d / common;
+    <div class="f2d-trap-card">
+      <div class="f2d-trap-title">4. Metric Millimeter Imperial Conversion Inaccuracy</div>
+      <p class="f2d-trap-desc">
+        Some international tradespeople use the shortcut rule that 1 inch ≈ 25 mm. Because 1 inch is legally defined as exactly <code>25.4 mm</code>, using 25 mm creates a -1.57% compounding shrinkage error. Over a 100-inch architectural beam span, this shortcut creates an error of nearly 1.6 inches (40 mm), guaranteeing structural misalignment.
+      </p>
+    </div>
 
-            // Total improper fraction
-            const totalNumerator = (whole * simD) + simN;
+    <div class="f2d-trap-card">
+      <div class="f2d-trap-title">5. Sign Placement with Negative Mixed Numbers</div>
+      <p class="f2d-trap-desc">
+        When evaluating <code>-1 1/2</code>, beginners often write <code>-1 + 0.5 = -0.5</code>. In mathematical notation, the negative sign factors across the entire mixed expression: <code>-(1 + 1/2) = -(1.5) = -1.5</code>. Neglecting the parenthesis changes both the sign and magnitude of the result.
+      </p>
+    </div>
+  </div>
+</div>
 
-            stepGcdText = 'GCD(' + n + ', ' + d + ') = ' + common + ' &bull; (' + n + ' ÷ ' + common + ') / (' + d + ' ÷ ' + common + ') = <strong>' + simN + '/' + simD + '</strong>';
+<script>
+  function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b) {
+      var t = b;
+      b = a % b;
+      a = t;
+    }
+    return a || 1;
+  }
 
-            // Tape measure snapping
-            const snap16 = getNearestTapeFraction(frac, 16);
-            const snap32 = getNearestTapeFraction(frac, 32);
-            const snap64 = getNearestTapeFraction(frac, 64);
+  function setF2DPreset(w, n, d) {
+    document.getElementById('f2d-w').value = w;
+    document.getElementById('f2d-n').value = n;
+    document.getElementById('f2d-d').value = d;
+    calcF2D();
+  }
 
-            // DOM Updates
-            const fracHero = document.getElementById('d2f-fraction-hero');
-            const mixedHero = document.getElementById('d2f-mixed-hero');
-            const improperSub = document.getElementById('d2f-improper-sub');
-            const pctSub = document.getElementById('d2f-pct-sub');
+  function checkTerminating(den) {
+    var d = den;
+    while (d % 2 === 0) d /= 2;
+    while (d % 5 === 0) d /= 5;
+    return d === 1;
+  }
 
-            if (whole > 0) {
-              fracHero.textContent = (isNegative ? '-' : '') + totalNumerator + '/' + simD;
-              improperSub.textContent = 'Improper Fraction (GCD: ' + common + ')';
-              mixedHero.textContent = (isNegative ? '-' : '') + whole + ' ' + simN + '/' + simD;
-            } else {
-              fracHero.textContent = (isNegative ? '-' : '') + simN + '/' + simD;
-              improperSub.textContent = 'Proper Fraction (GCD: ' + common + ')';
-              mixedHero.textContent = (isNegative ? '-' : '') + simN + '/' + simD;
-            }
+  function calcF2D() {
+    var w = parseInt(document.getElementById('f2d-w').value, 10) || 0;
+    var n = parseInt(document.getElementById('f2d-n').value, 10) || 0;
+    var d = parseInt(document.getElementById('f2d-d').value, 10) || 1;
+    if (d <= 0) d = 1;
 
-            pctSub.textContent = 'Percentage: ' + (dec * 100).toFixed(2) + '%';
+    var g = gcd(n, d);
+    var redN = n / g;
+    var redD = d / g;
 
-            // Tape display
-            const tapeHero = document.getElementById('d2f-tape-hero');
-            const tapeErr = document.getElementById('d2f-tape-error');
+    var impN = (w * redD) + redN;
+    var rawDec = impN / redD;
+    var isTerm = checkTerminating(redD);
 
-            const snap16Text = (whole > 0 ? whole + ' ' : '') + snap16.n + '/' + snap16.d + '"';
-            tapeHero.textContent = snap16Text;
+    var decStr = rawDec.toFixed(6);
+    if (isTerm) {
+      // Strip trailing zeros after decimal
+      decStr = parseFloat(rawDec.toFixed(8)).toString();
+    }
 
-            if (Math.abs(snap16.error) < 0.0001) {
-              tapeErr.textContent = 'Exact Tape Match (0.000" error)';
-              tapeErr.style.color = '#10b981';
-            } else {
-              const sign = snap16.error >= 0 ? '+' : '';
-              tapeErr.textContent = 'Off by ' + sign + snap16.error.toFixed(4) + '"';
-              tapeErr.style.color = Math.abs(snap16.error) < 0.015 ? '#f59e0b' : '#ef4444';
-            }
+    var pct = rawDec * 100;
+    var mm = rawDec * 25.4;
 
-            // Snapping card rows
-            document.getElementById('d2f-snap-16').textContent = (whole > 0 ? whole + ' ' : '') + snap16.n + '/' + snap16.d + '"';
-            document.getElementById('d2f-err-16').textContent = 'Error: ' + (snap16.error >= 0 ? '+' : '') + snap16.error.toFixed(4) + '"';
-            document.getElementById('d2f-err-16').style.color = Math.abs(snap16.error) < 0.001 ? '#10b981' : '#f59e0b';
+    // Tape measure 16ths
+    var tape16 = Math.round(rawDec * 16);
+    var tWhole = Math.floor(tape16 / 16);
+    var tRem = tape16 % 16;
+    var g16 = gcd(tRem, 16);
 
-            document.getElementById('d2f-snap-32').textContent = (whole > 0 ? whole + ' ' : '') + snap32.n + '/' + snap32.d + '"';
-            document.getElementById('d2f-err-32').textContent = 'Error: ' + (snap32.error >= 0 ? '+' : '') + snap32.error.toFixed(4) + '"';
-            document.getElementById('d2f-err-32').style.color = Math.abs(snap32.error) < 0.001 ? '#10b981' : '#f59e0b';
+    var tapeStr = '';
+    if (tRem === 0) {
+      tapeStr = tWhole + '"';
+    } else if (tWhole === 0) {
+      tapeStr = (tRem / g16) + '/' + (16 / g16) + '"';
+    } else {
+      tapeStr = tWhole + ' ' + (tRem / g16) + '/' + (16 / g16) + '"';
+    }
 
-            document.getElementById('d2f-snap-64').textContent = (whole > 0 ? whole + ' ' : '') + snap64.n + '/' + snap64.d + '"';
-            document.getElementById('d2f-err-64').textContent = 'Error: ' + (snap64.error >= 0 ? '+' : '') + snap64.error.toFixed(4) + '"';
-            document.getElementById('d2f-err-64').style.color = Math.abs(snap64.error) < 0.001 ? '#10b981' : '#f59e0b';
+    // Display Hero cards
+    document.getElementById('card-f2d-dec').textContent = decStr;
+    document.getElementById('card-f2d-type-sub').textContent = isTerm ? 'Terminating Decimal' : 'Infinite Repeating Cycle';
 
-            // Derivations
-            document.getElementById('d2f-step-base').innerHTML = stepBaseText;
-            document.getElementById('d2f-step-gcd').innerHTML = stepGcdText;
-            document.getElementById('d2f-step-final').innerHTML = (whole > 0 ? whole + ' + ' : '') + simN + '/' + simD + ' = <strong>' + (whole > 0 ? whole + ' ' + simN + '/' + simD + ' (' + totalNumerator + '/' + simD + ')' : simN + '/' + simD) + '</strong>';
-          }
+    document.getElementById('card-f2d-pct').textContent = pct.toFixed(2) + '%';
+    document.getElementById('card-f2d-improper-sub').textContent = 'Improper: ' + impN + '/' + redD;
 
-          window.copyD2FSummary = function() {
-            const frac = document.getElementById('d2f-fraction-hero').innerText;
-            const mixed = document.getElementById('d2f-mixed-hero').innerText;
-            const tape = document.getElementById('d2f-tape-hero').innerText;
-            const tapeErr = document.getElementById('d2f-tape-error').innerText;
-            const rawIn = document.getElementById('d2f-in').value;
+    document.getElementById('card-f2d-mm').textContent = mm.toFixed(2) + ' mm';
 
-            const text = [
-              '=== DECIMAL TO FRACTION CONVERSION REPORT ===',
-              'Decimal Input: ' + rawIn,
-              'Simplified Fraction: ' + frac,
-              'Mixed Number Form: ' + mixed,
-              'Nearest Tape Measure (16th): ' + tape + ' (' + tapeErr + ')',
-              'Nearest 32nd: ' + document.getElementById('d2f-snap-32').innerText,
-              'Nearest 64th: ' + document.getElementById('d2f-snap-64').innerText,
-              '--------------------------------------------',
-              'Standard: Euclidean Rational Number Reduction',
-              'Timestamp: ' + new Date().toISOString(),
-              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/decimal-to-fraction'
-            ].join('\n');
+    document.getElementById('card-f2d-tape').textContent = tapeStr;
+    document.getElementById('card-f2d-tape-sub').textContent = tape16 + ' sixteenths (' + tape16 + '/16")';
 
-            navigator.clipboard.writeText(text).then(function() {
-              const btn = document.getElementById('btnCopyD2F');
-              if (btn) {
-                const old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Fraction Breakdown!';
-                btn.style.color = '#10b981';
-                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
-              }
-            });
-          };
+    document.getElementById('f2d-svg-info').textContent = 'Position: ' + (rawDec % 1).toFixed(3) + '" (' + tapeStr + ')';
 
-          document.addEventListener('DOMContentLoaded', function() { calcD2F(); });
-          calcD2F();
-        </script>
-      `
-    },
+    renderF2DTape(rawDec);
+
+    // Derivations
+    var deriv = [
+      '1. Simplified Fraction: ' + (w > 0 ? (w + ' ' + redN + '/' + redD) : (redN + '/' + redD)) + ' &bull; Improper: ' + impN + '/' + redD,
+      '2. Long Division: ' + impN + ' &divide; ' + redD + ' = <strong>' + decStr + '</strong>',
+      '3. Decimal Classification: Denominator ' + redD + ' ' + (isTerm ? 'contains ONLY prime factors of 2 and 5 &rarr; <strong>Terminates exactly</strong>' : 'contains other prime factors &rarr; <strong>Repeats infinitely</strong>'),
+      '4. Percentage Equivalent: ' + decStr + ' &times; 100% = <strong>' + pct.toFixed(4) + '%</strong>',
+      '5. Metric Conversion: ' + decStr + ' inches &times; 25.4 mm/inch = <strong>' + mm.toFixed(4) + ' mm</strong>'
+    ];
+    document.getElementById('f2d-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderF2DTape(val) {
+    var c = document.getElementById('f2d-svg-container');
+    if (!c) return;
+
+    var w = c.clientWidth || 600;
+    var h = 65;
+    var pad = 30;
+    var rulerW = w - (pad * 2);
+
+    var fracPart = Math.abs(val) % 1;
+    var markerX = pad + (fracPart * rulerW);
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    svg += '<rect x="' + pad + '" y="10" width="' + rulerW + '" height="36" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />';
+
+    for (var i = 0; i <= 16; i++) {
+      var tx = pad + (i / 16) * rulerW;
+      var tickH = 10;
+      if (i % 8 === 0) tickH = 24;
+      else if (i % 4 === 0) tickH = 18;
+      else if (i % 2 === 0) tickH = 14;
+
+      svg += '<line x1="' + tx + '" y1="10" x2="' + tx + '" y2="' + (10 + tickH) + '" stroke="#1e293b" stroke-width="' + (i % 4 === 0 ? 1.5 : 1) + '" />';
+
+      if (i === 0) {
+        svg += '<text x="' + tx + '" y="42" fill="#1e293b" font-family="var(--mono)" font-size="10" text-anchor="start">0"</text>';
+      } else if (i === 8) {
+        svg += '<text x="' + tx + '" y="42" fill="#1e293b" font-family="var(--mono)" font-size="9" text-anchor="middle">1/2"</text>';
+      } else if (i === 16) {
+        svg += '<text x="' + tx + '" y="42" fill="#1e293b" font-family="var(--mono)" font-size="10" text-anchor="end">1"</text>';
+      }
+    }
+
+    svg += '<line x1="' + markerX + '" y1="4" x2="' + markerX + '" y2="48" stroke="#ef4444" stroke-width="2.5" />';
+    svg += '<polygon points="' + (markerX - 4) + ',4 ' + (markerX + 4) + ',4 ' + markerX + ',10" fill="#ef4444" />';
+    svg += '<text x="' + markerX + '" y="60" fill="#ef4444" font-family="var(--mono)" font-size="11" font-weight="bold" text-anchor="middle">' + fracPart.toFixed(3) + '"</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyF2DReport(btn) {
+    var dec = document.getElementById('card-f2d-dec').textContent;
+    var pct = document.getElementById('card-f2d-pct').textContent;
+    var mm = document.getElementById('card-f2d-mm').textContent;
+    var tape = document.getElementById('card-f2d-tape').textContent;
+    var w = document.getElementById('f2d-w').value;
+    var n = document.getElementById('f2d-n').value;
+    var d = document.getElementById('f2d-d').value;
+
+    var fracStr = (w && w !== '0' ? (w + ' ') : '') + n + '/' + d;
+
+    var lines = [
+      '========================================',
+      '      FRACTION TO DECIMAL CONVERSION',
+      '========================================',
+      'Input Fraction      : ' + fracStr,
+      'Decimal Output      : ' + dec,
+      'Percentage          : ' + pct,
+      'Metric Equivalent   : ' + mm,
+      'Tape Measure Snapped: ' + tape,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/fraction-to-decimal.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Fraction Takeoff!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcF2D);
+  document.addEventListener('DOMContentLoaded', calcF2D);
+  calcF2D();
+</script>
+`
+  },
+      {
+    slug: "decimal-to-fraction",
+    title: "Decimal to Fraction Converter (Simplified, Mixed & Tape Measure)",
+    metaDesc: "Convert any terminating or repeating decimal into a fully simplified fraction or mixed number. Solves repeating cycles algebraically with nearest 1/16\", 1/32\", and 1/64\" tape measure ruler snapping.",
+    category: "Math & Units",
+    faq: [
+        {
+            "q": "How do you convert a terminating decimal into a simplified fraction?",
+            "a": "To convert a terminating decimal into a simplified fraction: 1) Count the number of decimal digits (N) to the right of the decimal point; 2) Write the decimal digits as the numerator over a denominator of 10^N (for example, 0.375 has 3 decimal places, so it becomes 375 / 1000); 3) Compute the Greatest Common Divisor (GCD) of the numerator and denominator using Euclid's algorithm [GCD(375, 1000) = 125]; 4) Divide both by the GCD: 375 ÷ 125 = 3 and 1000 ÷ 125 = 8, yielding the simplified fraction 3/8."
+        },
+        {
+            "q": "How do you convert a repeating decimal into an exact rational fraction?",
+            "a": "Use algebraic substitution to eliminate the infinite repeating tail. Let x equal the decimal (e.g., x = 0.1666...). Multiply x by 10 to shift the non-repeating digit past the decimal point: 10x = 1.666... Then multiply by 100 to shift one repeating cycle past: 100x = 16.666... Subtract the first equation from the second: 100x - 10x = 16.666... - 1.666..., giving 90x = 15. Finally, divide to isolate x: x = 15/90 = 1/6."
+        },
+        {
+            "q": "Why can some decimals not be converted into fractions?",
+            "a": "Decimals that are both non-terminating and non-repeating are irrational numbers (such as π = 3.14159..., e = 2.71828..., and √2 = 1.41421...). By definition, an irrational number cannot be expressed as a ratio of two integers (A / B). A decimal can be converted into an exact fraction if and only if it terminates or eventually enters an infinitely repeating cycle of digits."
+        },
+        {
+            "q": "How do you know if a fraction produces a terminating or repeating decimal?",
+            "a": "In a fully reduced fraction (coprime numerator and denominator), the decimal terminates in base-10 if and only if the prime factorization of the denominator contains ONLY powers of 2, powers of 5, or both (e.g., 2, 4, 5, 8, 10, 16, 20, 25, 32, 40, 50). If the denominator contains ANY other prime factor (such as 3, 7, 11, 13), the decimal is mathematically guaranteed to repeat infinitely."
+        },
+        {
+            "q": "What is the difference between an improper fraction and a mixed number?",
+            "a": "An improper fraction has a numerator greater than or equal to its denominator (such as 19/8), representing a single ratio. A mixed number converts the improper fraction into a whole integer combined with a remaining proper fraction (such as 2 3/8). In construction, woodworking, and machining, mixed numbers are universally preferred because they align directly with tape measure inch markings."
+        }
+    ],
+    body: `
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Decimal to Fraction Converter
+  </nav>
+
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Decimal to Fraction Converter</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Convert terminating and repeating decimals into fully simplified fractions and mixed numbers. Features Euclidean GCD reduction and imperial construction tape measure snapping.
+    </p>
+  </header>
+
+  <style>
+    .d2f-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .d2f-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .d2f-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .d2f-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .d2f-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .d2f-tab-btn { background:var(--surface-alt); border:1px solid var(--border); color:var(--text-muted); padding:0.6rem 1.25rem; font-family:var(--mono); font-size:0.85rem; border-radius:6px; cursor:pointer; transition:all 0.15s ease; }
+    .d2f-tab-btn.active { background:#3b82f6; border-color:#2563eb; color:#ffffff; font-weight:600; }
+    .d2f-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .d2f-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .d2f-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .d2f-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
+
+  <div class="d2f-box">
+    <!-- Mode Switcher -->
+    <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <button type="button" class="d2f-tab-btn active" id="btn-d2f-term" onclick="setD2FMode('term')">Mode 1: Terminating Decimal (e.g. 0.375, 2.625)</button>
+      <button type="button" class="d2f-tab-btn" id="btn-d2f-rep" onclick="setD2FMode('rep')">Mode 2: Repeating Decimal (e.g. 0.333..., 0.1666...)</button>
+    </div>
+
+    <!-- Inputs Row -->
+    <div class="d2f-grid-3">
+      <div id="d2f-input-col-main">
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;" id="lbl-d2f-val">Decimal Number to Convert</label>
+        <input type="text" id="d2f-val" value="2.375" oninput="calcD2F()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+
+      <div id="d2f-rep-prefix-col" style="display:none;">
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Non-Repeating Part (e.g. 0.1 for 0.166...)</label>
+        <input type="text" id="d2f-rep-non" value="0.1" oninput="calcD2F()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;box-sizing:border-box;">
+      </div>
+
+      <div id="d2f-rep-cycle-col" style="display:none;">
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Repeating Cycle Digits (e.g. 6 for 0.166...)</label>
+        <input type="text" id="d2f-rep-cycle" value="6" oninput="calcD2F()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Tape Measure Ruler Snapping</label>
+        <select id="d2f-tape-res" onchange="calcD2F()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:0.95rem;box-sizing:border-box;">
+          <option value="16" selected>Nearest 1/16" (Standard Construction)</option>
+          <option value="32">Nearest 1/32" (Fine Cabinetry / Joinery)</option>
+          <option value="64">Nearest 1/64" (Machining / Engineering)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Standard Conversions:</span>
+      <button type="button" class="btn-sec" onclick="setD2FPreset('0.125')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">0.125 &rarr; 1/8</button>
+      <button type="button" class="btn-sec" onclick="setD2FPreset('0.375')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">0.375 &rarr; 3/8</button>
+      <button type="button" class="btn-sec" onclick="setD2FPreset('0.625')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">0.625 &rarr; 5/8</button>
+      <button type="button" class="btn-sec" onclick="setD2FPreset('2.875')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">2.875 &rarr; 2 7/8</button>
+      <button type="button" class="btn-sec" onclick="setD2FRepPreset('0', '3')" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">0.333... &rarr; 1/3</button>
+    </div>
+
+    <!-- Hero Cards -->
+    <div class="d2f-grid-4">
+      <div class="d2f-card" style="border-top:4px solid #10b981;">
+        <span class="d2f-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Simplified</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Simplified Fraction</div>
+        <div id="card-d2f-mixed" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#10b981;">2 3/8</div>
+        <div id="card-d2f-gcd-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Euclid GCD: &divide; 125</div>
+      </div>
+
+      <div class="d2f-card" style="border-top:4px solid #3b82f6;">
+        <span class="d2f-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Improper</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Improper Fraction</div>
+        <div id="card-d2f-improper" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#3b82f6;">19/8</div>
+        <div id="card-d2f-pct-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">237.5% of unity</div>
+      </div>
+
+      <div class="d2f-card" style="border-top:4px solid #f59e0b;">
+        <span class="d2f-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Tape Measure</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Ruler Snapping</div>
+        <div id="card-d2f-tape" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#f59e0b;">2 3/8"</div>
+        <div id="card-d2f-tape-delta" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Exact match (&Delta; 0.000")</div>
+      </div>
+
+      <div class="d2f-card" style="border-top:4px solid #8b5cf6;">
+        <span class="d2f-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Metric</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Millimeters (mm)</div>
+        <div id="card-d2f-mm" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:var(--fg);">60.33 mm</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">1 inch = 25.4 mm</div>
+      </div>
+    </div>
+
+    <!-- Pure SVG Tape Measure Visualizer -->
+    <div class="d2f-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Precision Imperial Tape Measure Tick Marker</span>
+        <span id="d2f-svg-tick-info" style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Snapped to 3/8" mark (6/16")</span>
+      </div>
+      <div id="d2f-svg-container" style="width:100%;height:80px;"></div>
+    </div>
+
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #10b981;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Mathematical Derivation:</div>
+      <div id="d2f-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
+
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyD2FReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Decimal to Fraction Takeoff
+      </button>
+    </div>
+  </div>
+
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Decimal to Fraction Conversion</h2>
+
+    <div class="d2f-trap-card">
+      <div class="d2f-trap-title">1. Truncating Repeating Decimals (The 0.33 vs 1/3 Trap)</div>
+      <p class="d2f-trap-desc">
+        Entering <code>0.33</code> or <code>0.66</code> into a terminating converter produces <code>33/100</code> and <code>33/50</code>, neither of which is 1/3 or 2/3! Repeating decimals have an infinite sequence of repeating digits. To convert repeating decimals to exact fractions, you must use algebraic subtraction: <code>10x - x = 9x &rarr; x = 3/9 = 1/3</code>.
+      </p>
+    </div>
+
+    <div class="d2f-trap-card">
+      <div class="d2f-trap-title">2. Binary Floating-Point Rounding Drift</div>
+      <p class="d2f-trap-desc">
+        Computers store decimals in IEEE-754 binary floating-point format. Numbers like <code>0.1</code> or <code>0.7</code> cannot be represented with exact precision in binary (e.g., 0.7 is internally stored as <code>0.699999999999999955...</code>). Naive fraction algorithms that do not apply epsilon rounding tolerances can fail to identify simple fractions like 7/10, outputting absurd ratios like <code>7000000000000001 / 10000000000000000</code>.
+      </p>
+    </div>
+
+    <div class="d2f-trap-card">
+      <div class="d2f-trap-title">3. Carpentry Ruler Tolerance Drift</div>
+      <p class="d2f-trap-desc">
+        Architectural blueprints often specify decimal dimensions such as <code>0.350"</code>. Snapping 0.350" to the nearest 1/16" tick gives 6/16" (3/8" = 0.375"). This introduces an error of +0.025 inches (+25 thousandths). For structural framing, 25 thousandths is acceptable, but in cabinetry, mortise-and-tenon joinery, or metal lathe turning, this error will ruin the fit.
+      </p>
+    </div>
+
+    <div class="d2f-trap-card">
+      <div class="d2f-trap-title">4. Attempting to Convert Irrational Numbers</div>
+      <p class="d2f-trap-desc">
+        Constants like π (3.14159...) or √2 (1.41421...) are irrational and possess non-repeating infinite decimals. Any fraction representation (like 22/7 for π = 3.142857...) is strictly an engineering approximation. Trying to find an exact integer fraction for an irrational number is mathematically impossible.
+      </p>
+    </div>
+
+    <div class="d2f-trap-card">
+      <div class="d2f-trap-title">5. Negative Decimal Mixed Number Formatting</div>
+      <p class="d2f-trap-desc">
+        When converting negative decimals like <code>-2.375</code>, writing <code>-2 3/8</code> means <code>-(2 + 3/8) = -19/8</code>. A frequent coding bug treats the negative sign as applying only to the integer: <code>-2 + 3/8 = -13/8 = -1.625</code>. The negative sign must factor out across the entire mixed expression.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  var curD2FMode = 'term';
+
+  function gcd(a, b) {
+    a = Math.abs(a);
+    b = Math.abs(b);
+    while (b) {
+      var t = b;
+      b = a % b;
+      a = t;
+    }
+    return a || 1;
+  }
+
+  function setD2FMode(m) {
+    curD2FMode = m;
+    document.getElementById('btn-d2f-term').className = 'd2f-tab-btn' + (m === 'term' ? ' active' : '');
+    document.getElementById('btn-d2f-rep').className = 'd2f-tab-btn' + (m === 'rep' ? ' active' : '');
+
+    var mainCol = document.getElementById('d2f-input-col-main');
+    var nonCol = document.getElementById('d2f-rep-prefix-col');
+    var cycCol = document.getElementById('d2f-rep-cycle-col');
+
+    if (m === 'rep') {
+      mainCol.style.display = 'none';
+      nonCol.style.display = 'block';
+      cycCol.style.display = 'block';
+    } else {
+      mainCol.style.display = 'block';
+      nonCol.style.display = 'none';
+      cycCol.style.display = 'none';
+    }
+    calcD2F();
+  }
+
+  function setD2FPreset(val) {
+    setD2FMode('term');
+    document.getElementById('d2f-val').value = val;
+    calcD2F();
+  }
+
+  function setD2FRepPreset(non, cyc) {
+    setD2FMode('rep');
+    document.getElementById('d2f-rep-non').value = non;
+    document.getElementById('d2f-rep-cycle').value = cyc;
+    calcD2F();
+  }
+
+  function calcD2F() {
+    var tapeRes = parseInt(document.getElementById('d2f-tape-res').value, 10) || 16;
+    var num = 0, den = 1;
+    var rawDec = 0;
+    var deriv = [];
+
+    if (curD2FMode === 'term') {
+      var strVal = (document.getElementById('d2f-val').value || '').trim();
+      rawDec = parseFloat(strVal) || 0;
+
+      var isNeg = rawDec < 0;
+      var cleanStr = strVal.replace('-', '');
+      var parts = cleanStr.split('.');
+
+      var intPart = parseInt(parts[0], 10) || 0;
+      var decPart = parts[1] || '';
+
+      if (decPart.length === 0) {
+        num = rawDec;
+        den = 1;
+        deriv.push('1. Integer Value: ' + rawDec + ' = ' + rawDec + '/1');
+      } else {
+        var decLen = decPart.length;
+        var rawNum = parseInt(decPart, 10) || 0;
+        var rawDen = Math.pow(10, decLen);
+
+        var g = gcd(rawNum, rawDen);
+        var simpN = rawNum / g;
+        var simpD = rawDen / g;
+
+        num = (intPart * simpD) + simpN;
+        den = simpD;
+        if (isNeg) num = -num;
+
+        deriv.push('1. Identify Decimal Places: ' + decLen + ' digits after point &rarr; Denominator 10^' + decLen + ' = <strong>' + rawDen + '</strong>');
+        deriv.push('2. Initial Ratio: ' + cleanStr + ' = ' + (intPart > 0 ? (intPart + ' + ' + rawNum + '/' + rawDen) : (rawNum + '/' + rawDen)));
+        deriv.push('3. Euclid GCD Reduction: GCD(' + rawNum + ', ' + rawDen + ') = ' + g + ' &rarr; Fractional Part: <strong>' + simpN + '/' + simpD + '</strong>');
+      }
+    } else {
+      var nonStr = (document.getElementById('d2f-rep-non').value || '0').trim();
+      var cycStr = (document.getElementById('d2f-rep-cycle').value || '3').trim();
+
+      var nonDec = parseFloat(nonStr) || 0;
+      var isNeg = nonDec < 0;
+
+      var nonParts = nonStr.replace('-', '').split('.');
+      var intPart = parseInt(nonParts[0], 10) || 0;
+      var nonDecPart = nonParts[1] || '';
+
+      var dNon = nonDecPart.length;
+      var dCyc = cycStr.length;
+
+      var p1 = Math.pow(10, dNon + dCyc);
+      var p2 = Math.pow(10, dNon);
+
+      var fullNumStr = nonParts[0] + nonDecPart + cycStr;
+      var prefixNumStr = nonParts[0] + nonDecPart;
+
+      var fullVal = parseInt(fullNumStr, 10) || 0;
+      var prefVal = parseInt(prefixNumStr, 10) || 0;
+
+      var repNum = fullVal - prefVal;
+      var repDen = p1 - p2;
+
+      var g = gcd(repNum, repDen);
+      num = repNum / g;
+      den = repDen / g;
+      if (isNeg) num = -num;
+
+      rawDec = num / den;
+
+      deriv.push('1. Algebraic Setup: Let x = ' + nonStr + (cycStr ? cycStr.repeat(3) : '') + '...');
+      deriv.push('2. Multiply to shift repeat period: ' + p1 + 'x = ' + fullNumStr + '.' + cycStr + '... and ' + p2 + 'x = ' + prefixNumStr + '.' + cycStr + '...');
+      deriv.push('3. Subtract equations: (' + p1 + ' &minus; ' + p2 + ')x = ' + repDen + 'x = ' + repNum);
+      deriv.push('4. Isolate x &amp; Reduce: ' + repNum + '/' + repDen + ' &divide; ' + g + ' = <strong>' + num + '/' + den + '</strong>');
+    }
+
+    var divG = gcd(num, den);
+    var redNum = num / divG;
+    var redDen = den / divG;
+
+    var isNegative = redNum < 0;
+    var absN = Math.abs(redNum);
+    var whole = Math.floor(absN / redDen);
+    var rem = absN % redDen;
+
+    var mixedStr = '';
+    if (redDen === 1) {
+      mixedStr = (isNegative ? '-' : '') + absN;
+    } else if (whole === 0) {
+      mixedStr = (isNegative ? '-' : '') + rem + '/' + redDen;
+    } else {
+      mixedStr = (isNegative ? '-' : '') + whole + ' ' + rem + '/' + redDen;
+    }
+
+    // Tape measure snap
+    var absDec = Math.abs(rawDec);
+    var tapeTicks = Math.round(absDec * tapeRes);
+    var tapeWhole = Math.floor(tapeTicks / tapeRes);
+    var tapeRem = tapeTicks % tapeRes;
+    var gTape = gcd(tapeRem, tapeRes);
+
+    var tapeSimpN = tapeRem / gTape;
+    var tapeSimpD = tapeRes / gTape;
+
+    var tapeFractionStr = '';
+    if (tapeSimpN === 0) {
+      tapeFractionStr = (isNegative ? '-' : '') + tapeWhole + '"';
+    } else if (tapeWhole === 0) {
+      tapeFractionStr = (isNegative ? '-' : '') + tapeSimpN + '/' + tapeSimpD + '"';
+    } else {
+      tapeFractionStr = (isNegative ? '-' : '') + tapeWhole + ' ' + tapeSimpN + '/' + tapeSimpD + '"';
+    }
+
+    var snappedDec = tapeTicks / tapeRes;
+    var delta = absDec - snappedDec;
+    var deltaStr = Math.abs(delta) < 0.0001 ? 'Exact match (Δ 0.000")' : ('Δ ' + (delta >= 0 ? '+' : '') + delta.toFixed(4) + '" from ruler mark');
+
+    var mmVal = rawDec * 25.4;
+
+    // Display Hero cards
+    document.getElementById('card-d2f-mixed').textContent = mixedStr;
+    document.getElementById('card-d2f-gcd-sub').textContent = 'Euclid reduction: ' + redNum + '/' + redDen;
+
+    document.getElementById('card-d2f-improper').textContent = redNum + '/' + redDen;
+    document.getElementById('card-d2f-pct-sub').textContent = (rawDec * 100).toFixed(2) + '% of unity';
+
+    document.getElementById('card-d2f-tape').textContent = tapeFractionStr;
+    document.getElementById('card-d2f-tape-delta').textContent = deltaStr;
+
+    document.getElementById('card-d2f-mm').textContent = mmVal.toFixed(2) + ' mm';
+
+    document.getElementById('d2f-svg-tick-info').textContent = 'Snapped to ' + tapeFractionStr + ' (' + tapeTicks + '/' + tapeRes + '")';
+
+    renderD2FTape(rawDec, tapeWhole, tapeRem, tapeRes);
+
+    deriv.push('5. Mixed Number: ' + (whole > 0 ? (whole + ' ' + rem + '/' + redDen) : (rem + '/' + redDen)) + ' &bull; Decimal Check: ' + (redNum / redDen).toFixed(6));
+    document.getElementById('d2f-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderD2FTape(val, whole, rem, res) {
+    var c = document.getElementById('d2f-svg-container');
+    if (!c) return;
+
+    var w = c.clientWidth || 600;
+    var h = 65;
+    var pad = 30;
+    var rulerW = w - (pad * 2);
+
+    // Render an authentic 1-inch ruler span around the fraction
+    var fracPart = Math.abs(val) % 1;
+    var markerX = pad + (fracPart * rulerW);
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Yellow tape body
+    svg += '<rect x="' + pad + '" y="10" width="' + rulerW + '" height="36" rx="2" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />';
+
+    // Ruler ticks for 16ths
+    for (var i = 0; i <= 16; i++) {
+      var tx = pad + (i / 16) * rulerW;
+      var tickH = 10;
+      if (i % 8 === 0) tickH = 24;
+      else if (i % 4 === 0) tickH = 18;
+      else if (i % 2 === 0) tickH = 14;
+
+      svg += '<line x1="' + tx + '" y1="10" x2="' + tx + '" y2="' + (10 + tickH) + '" stroke="#1e293b" stroke-width="' + (i % 4 === 0 ? 1.5 : 1) + '" />';
+
+      if (i === 0) {
+        svg += '<text x="' + tx + '" y="42" fill="#1e293b" font-family="var(--mono)" font-size="10" text-anchor="start">0"</text>';
+      } else if (i === 8) {
+        svg += '<text x="' + tx + '" y="42" fill="#1e293b" font-family="var(--mono)" font-size="9" text-anchor="middle">1/2"</text>';
+      } else if (i === 16) {
+        svg += '<text x="' + tx + '" y="42" fill="#1e293b" font-family="var(--mono)" font-size="10" text-anchor="end">1"</text>';
+      }
+    }
+
+    // Hairline marker for input value
+    svg += '<line x1="' + markerX + '" y1="4" x2="' + markerX + '" y2="48" stroke="#ef4444" stroke-width="2.5" />';
+    svg += '<polygon points="' + (markerX - 4) + ',4 ' + (markerX + 4) + ',4 ' + markerX + ',10" fill="#ef4444" />';
+    svg += '<text x="' + markerX + '" y="60" fill="#ef4444" font-family="var(--mono)" font-size="11" font-weight="bold" text-anchor="middle">' + fracPart.toFixed(3) + '"</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyD2FReport(btn) {
+    var mixed = document.getElementById('card-d2f-mixed').textContent;
+    var improper = document.getElementById('card-d2f-improper').textContent;
+    var tape = document.getElementById('card-d2f-tape').textContent + ' (' + document.getElementById('card-d2f-tape-delta').textContent + ')';
+    var mm = document.getElementById('card-d2f-mm').textContent;
+    var val = (curD2FMode === 'term') ? document.getElementById('d2f-val').value : (document.getElementById('d2f-rep-non').value + '(' + document.getElementById('d2f-rep-cycle').value + ')');
+
+    var lines = [
+      '========================================',
+      '      DECIMAL TO FRACTION CONVERSION',
+      '========================================',
+      'Decimal Input       : ' + val,
+      'Simplified Fraction : ' + mixed,
+      'Improper Equivalent : ' + improper,
+      'Tape Measure Snap   : ' + tape,
+      'Metric Conversion   : ' + mm,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/decimal-to-fraction.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Fraction Takeoff!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcD2F);
+  document.addEventListener('DOMContentLoaded', calcD2F);
+  calcD2F();
+</script>
+`
+  },
       {
     slug: "fraction-calculator",
     title: "Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers)",
@@ -3742,693 +3837,712 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
         </script>
       `
     },
-    {
-      slug: 'percentage-increase-calculator',
-      title: 'Percentage Increase Calculator (Formula, Steps & Multi-Period Projections)',
-      metaDesc: 'Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains.',
-      category: 'Math & Finance',
-      faq: [
-        { q: 'What is the formula for percentage increase?', a: 'The formula for percentage increase is: Percentage Increase = ((New Value - Initial Value) / |Initial Value|) × 100%. If the starting value is 80 and the final value is 120, the increase is ((120 - 80) / 80) × 100% = (40 / 80) × 100% = +50%.' },
-        { q: 'What is the Reversal Trap in percentage changes?', a: 'Because percentage changes are relative to their current baseline, a percentage increase is never canceled out by the same percentage decrease. For example, a +50% gain on $100 takes you to $150. But to get back to $100, you only need a -33.33% drop ($50 / $150). Similarly, a +100% gain ($100 to $200) is completely wiped out by just a -50% loss.' },
-        { q: 'How do you convert percentage increase to a multiplier factor?', a: 'To find the growth multiplier, divide the percentage increase by 100 and add 1: Multiplier = 1 + (Percentage / 100). For example, a 25% increase equals a multiplier of 1.25. Multiply any starting amount by 1.25 to instantly find the increased value.' },
-        { q: 'Can percentage increase exceed 100%?', a: 'Yes. Any time a value more than doubles, the percentage increase exceeds 100%. For example, an increase from 50 to 150 is a +200% increase (the value tripled). There is no upper limit on percentage increase.' },
-        { q: 'How does compound percentage increase work over multiple periods?', a: 'Compound percentage increase applies each period\'s growth rate to the newly accumulated total rather than the original principal. It follows the exponential formula: Final Amount = Initial Amount × (1 + r)^n, where r is the growth rate per period and n is the number of periods.' }
-      ],
-      body: `
-        ${commonStyle}
-        <style>
-          .pi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
-          .pi-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
-          .pi-ratio-bar { height: 26px; border-radius: 6px; overflow: hidden; display: flex; width: 100%; margin-top: 1rem; border: 1px solid var(--border); background: var(--surface-alt); }
-          .ratio-base { background: #3b82f6; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-          .ratio-growth { background: #10b981; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-          .mode-tab-btn { background: var(--surface-alt); border: 1px solid var(--border); padding: 0.45rem 1rem; border-radius: 6px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
-          .mode-tab-btn.active { background: var(--surface); border-color: var(--fg); font-weight: 600; color: var(--fg); }
-          .compound-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
-          .compound-table th, .compound-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
-          .compound-table th { background: var(--surface-alt); font-weight: 600; }
-        </style>
-
-        <div class="article-container" style="max-width: 960px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Increase
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Percentage Increase Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate percentage growth between two numbers, add percentage increases to baseline prices, project multi-period compound expansion, and navigate the mathematical asymmetry of percentage reversals.
-          </p>
-
-          <div class="tool-box">
-            <!-- Mode Switcher -->
-            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
-              <button type="button" class="mode-tab-btn active" id="btn-mode-calc" onclick="switchPIMode('calc')">Mode 1: Calculate % Increase (A &rarr; B)</button>
-              <button type="button" class="mode-tab-btn" id="btn-mode-add" onclick="switchPIMode('add')">Mode 2: Apply % Increase (A + X%)</button>
-              <button type="button" class="mode-tab-btn" id="btn-mode-compound" onclick="switchPIMode('compound')">Mode 3: Multi-Period Compounding</button>
-            </div>
-
-            <!-- Mode 1: Calculate % Increase -->
-            <div id="pi-sec-calc">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pi-init">Initial Starting Value (V₁)</label>
-                  <input type="number" step="any" id="pi-init" class="code-input" value="80" oninput="runPICalc()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pi-final">Final Increased Value (V₂)</label>
-                  <input type="number" step="any" id="pi-final" class="code-input" value="120" oninput="runPICalc()" style="font-size: 1.25rem;" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Mode 2: Apply % Increase -->
-            <div id="pi-sec-add" style="display: none;">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pi-add-base">Starting Value (V₁)</label>
-                  <input type="number" step="any" id="pi-add-base" class="code-input" value="150" oninput="runPIAdd()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pi-add-pct">Percentage Increase to Add (%)</label>
-                  <input type="number" step="any" id="pi-add-pct" class="code-input" value="15" oninput="runPIAdd()" style="font-size: 1.25rem;" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Mode 3: Multi-Period Compounding -->
-            <div id="pi-sec-compound" style="display: none;">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pi-cmp-base">Initial Principal Amount</label>
-                  <input type="number" step="any" id="pi-cmp-base" class="code-input" value="1000" oninput="runPICompound()" style="font-size: 1.2rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pi-cmp-rate">Growth Rate per Period (%)</label>
-                  <input type="number" step="any" id="pi-cmp-rate" class="code-input" value="7" oninput="runPICompound()" style="font-size: 1.2rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pi-cmp-periods">Number of Periods (e.g. Years)</label>
-                  <input type="number" step="1" min="1" max="50" id="pi-cmp-periods" class="code-input" value="5" oninput="runPICompound()" style="font-size: 1.2rem;" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Quick Presets -->
-            <div style="margin-top: 1rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Popular Scenarios:</span>
-              <button type="button" class="btn-sec" onclick="setPIPreset(50000, 58000, 'Salary Raise ($50k to $58k)')">Salary Raise (+16%)</button>
-              <button type="button" class="btn-sec" onclick="setPIPreset(120, 150, 'Retail Markup ($120 to $150)')">Markup (+25%)</button>
-              <button type="button" class="btn-sec" onclick="setPIPreset(100, 200, 'Doubling ($100 to $200)')">Doubling (+100%)</button>
-              <button type="button" class="btn-sec" onclick="setPIPreset(350000, 420000, 'Home Appreciation')">Real Estate (+20%)</button>
-            </div>
-
-            <!-- Primary Metric Cards -->
-            <div class="pi-grid">
-              <div class="pi-card" style="border-top: 4px solid #10b981;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Percentage Increase</div>
-                <div id="pi-res-pct" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">+50.00%</div>
-                <div id="pi-res-multiplier" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Multiplier: 1.500&times;</div>
-              </div>
-
-              <div class="pi-card" style="border-top: 4px solid #3b82f6;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Absolute Gain (Difference)</div>
-                <div id="pi-res-diff" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">+40.00</div>
-                <div id="pi-res-final" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Final: 120.00</div>
-              </div>
-
-              <div class="pi-card" style="border-top: 4px solid #f59e0b;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Reversal Trap (Breakeven)</div>
-                <div id="pi-res-reversal" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">-33.33%</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Drop needed to return to baseline</div>
-              </div>
-            </div>
-
-            <!-- Visual Proportional Bar -->
-            <div style="margin-top: 1.5rem;">
-              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                <span>Proportional Visual Breakdown</span>
-                <span id="ratio-legend">100% Base : +50% Growth</span>
-              </div>
-              <div class="pi-ratio-bar">
-                <div id="bar-base" class="ratio-base" style="width: 66.6%;">Base (80)</div>
-                <div id="bar-growth" class="ratio-growth" style="width: 33.4%;">+40 (+50%)</div>
-              </div>
-            </div>
-
-            <!-- Multi-Period Compound Projection Output -->
-            <div id="pi-compound-results" style="display: none; margin-top: 1.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">Compound Growth Schedule</h3>
-              <div style="overflow-x: auto;">
-                <table class="compound-table">
-                  <thead>
-                    <tr>
-                      <th>Period</th>
-                      <th>Starting Amount</th>
-                      <th>Gain for Period</th>
-                      <th>Ending Amount</th>
-                      <th>Total Cumulative Gain</th>
-                    </tr>
-                  </thead>
-                  <tbody id="compound-tbody"></tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Formula & Step-by-Step Derivation -->
-            <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Step-by-Step Solution:</div>
-              <div id="pi-formula-steps" style="font-family: var(--mono); color: var(--fg);"></div>
-            </div>
-
-            <!-- Copy Button -->
-            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
-              <button type="button" class="btn-sec" onclick="copyPISummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
-                📋 Copy Calculation Summary
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <script>
-          var activePIMode = 'calc';
-
-          function switchPIMode(mode) {
-            activePIMode = mode;
-            document.getElementById('pi-sec-calc').style.display = mode === 'calc' ? 'block' : 'none';
-            document.getElementById('pi-sec-add').style.display = mode === 'add' ? 'block' : 'none';
-            document.getElementById('pi-sec-compound').style.display = mode === 'compound' ? 'block' : 'none';
-            document.getElementById('pi-compound-results').style.display = mode === 'compound' ? 'block' : 'none';
-
-            document.getElementById('btn-mode-calc').className = 'mode-tab-btn' + (mode === 'calc' ? ' active' : '');
-            document.getElementById('btn-mode-add').className = 'mode-tab-btn' + (mode === 'add' ? ' active' : '');
-            document.getElementById('btn-mode-compound').className = 'mode-tab-btn' + (mode === 'compound' ? ' active' : '');
-
-            if (mode === 'calc') runPICalc();
-            else if (mode === 'add') runPIAdd();
-            else runPICompound();
-          }
-
-          function runPICalc() {
-            var v1 = parseFloat(document.getElementById('pi-init').value);
-            var v2 = parseFloat(document.getElementById('pi-final').value);
-            if (isNaN(v1) || isNaN(v2) || v1 === 0) {
-              document.getElementById('pi-res-pct').textContent = '-';
-              return;
-            }
-
-            var diff = v2 - v1;
-            var pct = (diff / Math.abs(v1)) * 100;
-            var mult = v2 / v1;
-            var revPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
-
-            renderPIMetrics(v1, v2, diff, pct, mult, revPct);
-
-            var steps = [
-              '1. Calculate absolute change: ' + v2.toLocaleString('en-US') + ' - ' + v1.toLocaleString('en-US') + ' = ' + (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US'),
-              '2. Divide by starting value: ' + diff.toFixed(4) + ' ÷ ' + Math.abs(v1) + ' = ' + (diff / Math.abs(v1)).toFixed(6),
-              '3. Multiply by 100 for percentage: ' + (diff / Math.abs(v1)).toFixed(6) + ' × 100% = ' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%',
-              '4. Growth Multiplier: ' + v2.toLocaleString('en-US') + ' ÷ ' + v1.toLocaleString('en-US') + ' = ' + mult.toFixed(4) + '×',
-              '5. Reversal Drop Required: To fall from ' + v2.toLocaleString('en-US') + ' back to ' + v1.toLocaleString('en-US') + ' requires a ' + revPct.toFixed(2) + '% decrease.'
-            ].join('<br>');
-            document.getElementById('pi-formula-steps').innerHTML = steps;
-          }
-
-          function runPIAdd() {
-            var v1 = parseFloat(document.getElementById('pi-add-base').value);
-            var pct = parseFloat(document.getElementById('pi-add-pct').value);
-            if (isNaN(v1) || isNaN(pct)) return;
-
-            var diff = v1 * (pct / 100);
-            var v2 = v1 + diff;
-            var mult = 1 + (pct / 100);
-            var revPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
-
-            renderPIMetrics(v1, v2, diff, pct, mult, revPct);
-
-            var steps = [
-              '1. Calculate dollar/unit increase: ' + v1.toLocaleString('en-US') + ' × (' + pct + ' ÷ 100) = +' + diff.toLocaleString('en-US'),
-              '2. Add increase to starting value: ' + v1.toLocaleString('en-US') + ' + ' + diff.toLocaleString('en-US') + ' = ' + v2.toLocaleString('en-US'),
-              '3. Quick Multiplier Form: ' + v1.toLocaleString('en-US') + ' × (1 + ' + (pct / 100) + ') = ' + v1.toLocaleString('en-US') + ' × ' + mult.toFixed(4) + ' = ' + v2.toLocaleString('en-US'),
-              '4. Reversal Trap: A subsequent decrease of ' + Math.abs(revPct).toFixed(2) + '% is required to return to the original ' + v1.toLocaleString('en-US') + '.'
-            ].join('<br>');
-            document.getElementById('pi-formula-steps').innerHTML = steps;
-          }
-
-          function runPICompound() {
-            var p0 = parseFloat(document.getElementById('pi-cmp-base').value);
-            var rate = parseFloat(document.getElementById('pi-cmp-rate').value);
-            var periods = parseInt(document.getElementById('pi-cmp-periods').value, 10);
-            if (isNaN(p0) || isNaN(rate) || isNaN(periods) || periods < 1) return;
-
-            var r = rate / 100;
-            var cur = p0;
-            var rows = '';
-
-            for (var i = 1; i <= periods; i++) {
-              var gain = cur * r;
-              var next = cur + gain;
-              var totalGain = next - p0;
-              rows += '<tr>' +
-                '<td>Period ' + i + '</td>' +
-                '<td>$' + cur.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-                '<td style="color: #10b981;">+$' + gain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</td>' +
-                '<td><strong>$' + next.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</strong></td>' +
-                '<td>+$' + totalGain.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' (+' + ((totalGain / p0) * 100).toFixed(2) + '%)</td>' +
-                '</tr>';
-              cur = next;
-            }
-
-            document.getElementById('compound-tbody').innerHTML = rows;
-
-            var finalVal = cur;
-            var totalDiff = finalVal - p0;
-            var totalPct = (totalDiff / p0) * 100;
-            var mult = finalVal / p0;
-            var revPct = ((p0 - finalVal) / finalVal) * 100;
-
-            renderPIMetrics(p0, finalVal, totalDiff, totalPct, mult, revPct);
-
-            var steps = [
-              '1. Compound Growth Formula: A = P × (1 + r)ⁿ',
-              '2. Substitution: ' + p0.toLocaleString('en-US') + ' × (1 + ' + r + ')^' + periods + ' = ' + p0.toLocaleString('en-US') + ' × (' + (1 + r).toFixed(4) + ')^' + periods,
-              '3. Cumulative Multiplier: ' + mult.toFixed(4) + '×',
-              '4. Total Compound Expansion: ' + (totalPct >= 0 ? '+' : '') + totalPct.toFixed(2) + '% over ' + periods + ' periods.'
-            ].join('<br>');
-            document.getElementById('pi-formula-steps').innerHTML = steps;
-          }
-
-          function renderPIMetrics(v1, v2, diff, pct, mult, revPct) {
-            var pctEl = document.getElementById('pi-res-pct');
-            var sign = pct >= 0 ? '+' : '';
-            pctEl.textContent = sign + pct.toFixed(2) + '%';
-            pctEl.style.color = pct >= 0 ? '#10b981' : '#ef4444';
-
-            document.getElementById('pi-res-multiplier').textContent = 'Multiplier: ' + mult.toFixed(3) + '×';
-            document.getElementById('pi-res-diff').textContent = (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US', { maximumFractionDigits: 2 });
-            document.getElementById('pi-res-final').textContent = 'Final Value: ' + v2.toLocaleString('en-US', { maximumFractionDigits: 2 });
-            document.getElementById('pi-res-reversal').textContent = revPct.toFixed(2) + '%';
-
-            // Visual bar
-            var total = Math.max(v1, v2, 0.001);
-            var basePct = Math.min(100, Math.max(10, (v1 / (v1 + Math.max(0, diff))) * 100));
-            var growthPct = 100 - basePct;
-
-            document.getElementById('bar-base').style.width = basePct + '%';
-            document.getElementById('bar-base').textContent = 'Base (' + v1.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ')';
-            document.getElementById('bar-growth').style.width = growthPct + '%';
-            document.getElementById('bar-growth').textContent = (diff >= 0 ? '+' : '') + diff.toLocaleString('en-US', { maximumFractionDigits: 1 }) + ' (' + sign + pct.toFixed(1) + '%)';
-            document.getElementById('ratio-legend').textContent = 'Base 100% : ' + sign + pct.toFixed(1) + '% Growth';
-          }
-
-          function setPIPreset(v1, v2, desc) {
-            switchPIMode('calc');
-            document.getElementById('pi-init').value = v1;
-            document.getElementById('pi-final').value = v2;
-            runPICalc();
-          }
-
-          function copyPISummary(btn) {
-            var pct = document.getElementById('pi-res-pct').textContent.trim();
-            var mult = document.getElementById('pi-res-multiplier').textContent.trim();
-            var diff = document.getElementById('pi-res-diff').textContent.trim();
-            var finalVal = document.getElementById('pi-res-final').textContent.trim();
-            var rev = document.getElementById('pi-res-reversal').textContent.trim();
-
-            var summary = [
-              '=== Percentage Increase Breakdown ===',
-              'Percentage Increase: ' + pct,
-              'Absolute Difference: ' + diff,
-              'Multiplier         : ' + mult,
-              finalVal,
-              'Reversal Trap      : ' + rev + ' drop required to break even',
-              'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/math/percentage-increase-calculator.html)'
-            ].join('\n');
-
-            navigator.clipboard.writeText(summary).then(function() {
-              var old = btn.textContent;
-              btn.textContent = '✅ Copied to Clipboard!';
-              btn.style.borderColor = '#10b981';
-              setTimeout(function() {
-                btn.textContent = old;
-                btn.style.borderColor = '';
-              }, 2000);
-            });
-          }
-
-          document.addEventListener('DOMContentLoaded', function() { runPICalc(); });
-          runPICalc();
-        </script>
-      `
-    },
-    {
-      slug: 'percentage-decrease-calculator',
-      title: 'Percentage Decrease Calculator (Discount, Savings & Asymmetric Loss Recovery)',
-      metaDesc: 'Calculate percentage decrease, markdown discounts, stacked coupon savings, and the asymmetric gain required to recover from losses with live step-by-step formulas.',
-      category: 'Math & Finance',
-      faq: [
-        { q: 'What is the formula for percentage decrease?', a: 'The formula for percentage decrease is: Percentage Decrease = ((Starting Value - New Value) / Starting Value) × 100%. For example, if an item drops from $150 to $105, the percentage decrease is ((150 - 105) / 150) × 100% = (45 / 150) × 100% = 30% reduction.' },
-        { q: 'Why do financial losses require a larger percentage gain to recover?', a: 'Because percentage changes are calculated relative to their immediate starting point. A 50% drop reduces $100 to $50. To return to $100, the new starting point is $50, meaning you must gain $50 on $50—which is a +100% gain! Similarly, a 75% loss requires a +300% gain, and a 90% loss requires a +900% gain to break even.' },
-        { q: 'How do stacked discounts work (e.g., 20% off plus an extra 20% off)?', a: 'Stacked discounts are applied sequentially, not additively. A 20% discount on $100 reduces the price to $80. The second 20% discount applies to the remaining $80, saving an additional $16 for a final price of $64. The effective combined discount is 36%, not 40%.' },
-        { q: 'Can a percentage decrease ever exceed 100%?', a: 'In standard arithmetic and finance, a percentage decrease cannot exceed 100% unless a quantity becomes negative (e.g. going from a positive bank balance into debt). A 100% decrease means the quantity has reached exactly zero.' },
-        { q: 'How do you calculate the final price after a percentage discount and sales tax?', a: 'First, calculate the discounted price: Discounted Price = Original Price × (1 - Discount Rate). Then, apply the sales tax to the discounted price: Final Register Total = Discounted Price × (1 + Sales Tax Rate).' }
-      ],
-      body: `
-        ${commonStyle}
-        <style>
-          .pd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 1.25rem; }
-          .pd-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem; text-align: center; }
-          .pd-loss-bar { height: 26px; border-radius: 6px; overflow: hidden; display: flex; width: 100%; margin-top: 1rem; border: 1px solid var(--border); background: var(--surface-alt); }
-          .bar-retained { background: #3b82f6; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-          .bar-dropped { background: #ef4444; height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-family: var(--mono); font-size: 0.75rem; font-weight: 600; }
-          .recovery-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; margin-top: 1rem; }
-          .recovery-table th, .recovery-table td { padding: 0.5rem 0.75rem; border: 1px solid var(--border); text-align: left; }
-          .recovery-table th { background: var(--surface-alt); font-weight: 600; }
-          .recovery-table tr.active-loss { background: rgba(239, 68, 68, 0.12); font-weight: bold; }
-        </style>
-
-        <div class="article-container" style="max-width: 960px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Decrease
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Percentage Decrease Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Determine percentage drops, retail markdown discounts, stacked coupon combinations with sales tax, and analyze the asymmetric gain required to recover from capital losses.
-          </p>
-
-          <div class="tool-box">
-            <!-- Mode Switcher -->
-            <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem; flex-wrap: wrap;">
-              <button type="button" class="mode-tab-btn active" id="btn-pd-calc" onclick="switchPDMode('calc')">Mode 1: Calculate % Decrease (A &rarr; B)</button>
-              <button type="button" class="mode-tab-btn" id="btn-pd-discount" onclick="switchPDMode('discount')">Mode 2: Retail Discount & Sales Tax</button>
-              <button type="button" class="mode-tab-btn" id="btn-pd-stacked" onclick="switchPDMode('stacked')">Mode 3: Stacked Double Discount</button>
-            </div>
-
-            <!-- Mode 1: A to B -->
-            <div id="pd-sec-calc">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pd-init">Original / Starting Value (V₁)</label>
-                  <input type="number" step="any" id="pd-init" class="code-input" value="150" oninput="runPDCalc()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pd-final">Reduced / Final Value (V₂)</label>
-                  <input type="number" step="any" id="pd-final" class="code-input" value="105" oninput="runPDCalc()" style="font-size: 1.25rem;" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Mode 2: Discount & Tax -->
-            <div id="pd-sec-discount" style="display: none;">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pd-disc-orig">Original Retail Price ($)</label>
-                  <input type="number" step="any" id="pd-disc-orig" class="code-input" value="120" oninput="runPDDiscount()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pd-disc-pct">Discount Markdown (%)</label>
-                  <input type="number" step="any" id="pd-disc-pct" class="code-input" value="30" oninput="runPDDiscount()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pd-disc-tax">Local Sales Tax (%) [Optional]</label>
-                  <input type="number" step="any" id="pd-disc-tax" class="code-input" value="8.25" oninput="runPDDiscount()" style="font-size: 1.25rem;" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Mode 3: Stacked Discount -->
-            <div id="pd-sec-stacked" style="display: none;">
-              <div class="grid-inputs">
-                <div class="field-group">
-                  <label class="field-label" for="pd-stk-orig">Original Price ($)</label>
-                  <input type="number" step="any" id="pd-stk-orig" class="code-input" value="200" oninput="runPDStacked()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pd-stk-d1">First Discount (%)</label>
-                  <input type="number" step="any" id="pd-stk-d1" class="code-input" value="25" oninput="runPDStacked()" style="font-size: 1.25rem;" />
-                </div>
-                <div class="field-group">
-                  <label class="field-label" for="pd-stk-d2">Second Stacked Coupon (%)</label>
-                  <input type="number" step="any" id="pd-stk-d2" class="code-input" value="15" oninput="runPDStacked()" style="font-size: 1.25rem;" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Quick Presets -->
-            <div style="margin-top: 1rem; display: flex; gap: 0.4rem; flex-wrap: wrap;">
-              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); width: 100%;">Common Markdown Presets:</span>
-              <button type="button" class="btn-sec" onclick="setPDPreset(100, 75, '25% Off Clearance')">25% Off ($100 &rarr; $75)</button>
-              <button type="button" class="btn-sec" onclick="setPDPreset(200, 100, '50% Off Half Price')">50% Off ($200 &rarr; $100)</button>
-              <button type="button" class="btn-sec" onclick="setPDPreset(80, 56, '30% Storewide Sale')">30% Off ($80 &rarr; $56)</button>
-              <button type="button" class="btn-sec" onclick="setPDPreset(1000, 650, '35% Tech Markdown')">35% Off ($1k &rarr; $650)</button>
-            </div>
-
-            <!-- Primary Metric Cards -->
-            <div class="pd-grid">
-              <div class="pd-card" style="border-top: 4px solid #ef4444;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Percentage Decrease</div>
-                <div id="pd-res-pct" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.35rem 0;">-30.00%</div>
-                <div id="pd-res-retained" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Retained: 70.00% of original</div>
-              </div>
-
-              <div class="pd-card" style="border-top: 4px solid #3b82f6;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Savings / Drop</div>
-                <div id="pd-res-drop" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$45.00</div>
-                <div id="pd-res-final" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">New Value: $105.00</div>
-              </div>
-
-              <div class="pd-card" style="border-top: 4px solid #f59e0b;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Recovery Gain Required</div>
-                <div id="pd-res-recovery" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #f59e0b; margin: 0.35rem 0;">+42.86%</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">Gain needed to break even</div>
-              </div>
-            </div>
-
-            <!-- Visual Retention & Loss Bar -->
-            <div style="margin-top: 1.5rem;">
-              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.35rem;">
-                <span>Value Retention vs Loss Chunk</span>
-                <span id="pd-bar-legend">70.0% Retained : 30.0% Lost</span>
-              </div>
-              <div class="pd-loss-bar">
-                <div id="pd-bar-ret" class="bar-retained" style="width: 70%;">Retained ($105)</div>
-                <div id="pd-bar-drop" class="bar-dropped" style="width: 30%;">-$45 (-30%)</div>
-              </div>
-            </div>
-
-            <!-- Formula & Step-by-Step Derivation -->
-            <div style="margin-top: 1.5rem; background: var(--surface-alt); border-left: 3px solid #ef4444; padding: 1.1rem 1.25rem; border-radius: 0 6px 6px 0; font-size: 0.9rem; line-height: 1.6;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">Live Step-by-Step Solution:</div>
-              <div id="pd-formula-steps" style="font-family: var(--mono); color: var(--fg);"></div>
-            </div>
-
-            <!-- Copy Button -->
-            <div style="margin-top: 1.25rem; display: flex; justify-content: flex-end;">
-              <button type="button" class="btn-sec" onclick="copyPDSummary(this)" style="font-family: var(--mono); font-size: 0.85rem; padding: 0.5rem 1rem;">
-                📋 Copy Markdown Summary
-              </button>
-            </div>
-
-            <!-- Asymmetric Loss Recovery Matrix -->
-            <div style="margin-top: 2rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 0.5rem;">The Asymmetric Loss Recovery Matrix</h3>
-              <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.75rem;">
-                Why portfolio protection matters: As percentage losses deepen, the percentage gain required to break even accelerates exponentially:
-              </p>
-              <div style="overflow-x: auto;">
-                <table class="recovery-table">
-                  <thead>
-                    <tr>
-                      <th>Percentage Loss</th>
-                      <th>Remaining Capital</th>
-                      <th>Required Gain to Break Even</th>
-                      <th>Mathematical Multiplier</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr id="row-10"><td>-10% Loss</td><td>90%</td><td>+11.11% Gain</td><td>1.111&times;</td></tr>
-                    <tr id="row-20"><td>-20% Loss</td><td>80%</td><td>+25.00% Gain</td><td>1.250&times;</td></tr>
-                    <tr id="row-30" class="active-loss"><td>-30% Loss (Current)</td><td>70%</td><td>+42.86% Gain</td><td>1.429&times;</td></tr>
-                    <tr id="row-40"><td>-40% Loss</td><td>60%</td><td>+66.67% Gain</td><td>1.667&times;</td></tr>
-                    <tr id="row-50"><td>-50% Loss</td><td>50%</td><td>+100.00% Gain (Doubling)</td><td>2.000&times;</td></tr>
-                    <tr id="row-60"><td>-60% Loss</td><td>40%</td><td>+150.00% Gain</td><td>2.500&times;</td></tr>
-                    <tr id="row-75"><td>-75% Loss</td><td>25%</td><td>+300.00% Gain (Quadrupling)</td><td>4.000&times;</td></tr>
-                    <tr id="row-90"><td>-90% Loss</td><td>10%</td><td>+900.00% Gain (10&times; Moonshot)</td><td>10.000&times;</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <script>
-          var activePDMode = 'calc';
-
-          function switchPDMode(mode) {
-            activePDMode = mode;
-            document.getElementById('pd-sec-calc').style.display = mode === 'calc' ? 'block' : 'none';
-            document.getElementById('pd-sec-discount').style.display = mode === 'discount' ? 'block' : 'none';
-            document.getElementById('pd-sec-stacked').style.display = mode === 'stacked' ? 'block' : 'none';
-
-            document.getElementById('btn-pd-calc').className = 'mode-tab-btn' + (mode === 'calc' ? ' active' : '');
-            document.getElementById('btn-pd-discount').className = 'mode-tab-btn' + (mode === 'discount' ? ' active' : '');
-            document.getElementById('btn-pd-stacked').className = 'mode-tab-btn' + (mode === 'stacked' ? ' active' : '');
-
-            if (mode === 'calc') runPDCalc();
-            else if (mode === 'discount') runPDDiscount();
-            else runPDStacked();
-          }
-
-          function runPDCalc() {
-            var v1 = parseFloat(document.getElementById('pd-init').value);
-            var v2 = parseFloat(document.getElementById('pd-final').value);
-            if (isNaN(v1) || isNaN(v2) || v1 === 0) {
-              document.getElementById('pd-res-pct').textContent = '-';
-              return;
-            }
-
-            var drop = v1 - v2;
-            var pct = (drop / Math.abs(v1)) * 100;
-            var recGain = v2 > 0 ? ((v1 - v2) / v2) * 100 : 0;
-            var retPct = (v2 / v1) * 100;
-
-            renderPDMetrics(v1, v2, drop, pct, retPct, recGain);
-
-            var steps = [
-              '1. Calculate absolute decrease: ' + v1.toLocaleString('en-US') + ' - ' + v2.toLocaleString('en-US') + ' = ' + drop.toLocaleString('en-US'),
-              '2. Divide by starting value: ' + drop.toFixed(4) + ' ÷ ' + Math.abs(v1) + ' = ' + (drop / Math.abs(v1)).toFixed(6),
-              '3. Percentage Decrease: ' + (drop / Math.abs(v1)).toFixed(6) + ' × 100% = -' + pct.toFixed(2) + '%',
-              '4. Retained Proportion: ' + v2.toLocaleString('en-US') + ' ÷ ' + v1.toLocaleString('en-US') + ' = ' + retPct.toFixed(2) + '%',
-              '5. Required Recovery Gain: To recover from ' + v2.toLocaleString('en-US') + ' back to ' + v1.toLocaleString('en-US') + ' requires gaining ' + drop.toLocaleString('en-US') + ' on ' + v2.toLocaleString('en-US') + ' = +' + recGain.toFixed(2) + '%.'
-            ].join('<br>');
-            document.getElementById('pd-formula-steps').innerHTML = steps;
-          }
-
-          function runPDDiscount() {
-            var orig = parseFloat(document.getElementById('pd-disc-orig').value);
-            var disc = parseFloat(document.getElementById('pd-disc-pct').value);
-            var taxRate = parseFloat(document.getElementById('pd-disc-tax').value) || 0;
-            if (isNaN(orig) || isNaN(disc)) return;
-
-            var drop = orig * (disc / 100);
-            var subtotal = orig - drop;
-            var taxAmount = subtotal * (taxRate / 100);
-            var finalTotal = subtotal + taxAmount;
-            var netPct = ((orig - finalTotal) / orig) * 100;
-            var recGain = subtotal > 0 ? (drop / subtotal) * 100 : 0;
-            var retPct = (subtotal / orig) * 100;
-
-            renderPDMetrics(orig, finalTotal, orig - finalTotal, disc, retPct, recGain);
-            document.getElementById('pd-res-drop').textContent = '$' + drop.toFixed(2) + (taxAmount > 0 ? ' (Tax: $' + taxAmount.toFixed(2) + ')' : '');
-            document.getElementById('pd-res-final').textContent = 'Register Total: $' + finalTotal.toFixed(2);
-
-            var steps = [
-              '1. Calculate discount savings: $' + orig.toFixed(2) + ' × ' + disc + '% = -$' + drop.toFixed(2),
-              '2. Discounted subtotal: $' + orig.toFixed(2) + ' - $' + drop.toFixed(2) + ' = $' + subtotal.toFixed(2),
-              taxRate > 0 ? ('3. Add sales tax (' + taxRate + '% on $' + subtotal.toFixed(2) + '): +$' + taxAmount.toFixed(2) + ' &rarr; Final Register Total = $' + finalTotal.toFixed(2)) : '3. No sales tax applied: Final Total = $' + finalTotal.toFixed(2),
-              '4. Breakeven Recovery: $' + drop.toFixed(2) + ' discount on $' + subtotal.toFixed(2) + ' = +' + recGain.toFixed(2) + '% gain required to restore original price.'
-            ].join('<br>');
-            document.getElementById('pd-formula-steps').innerHTML = steps;
-          }
-
-          function runPDStacked() {
-            var orig = parseFloat(document.getElementById('pd-stk-orig').value);
-            var d1 = parseFloat(document.getElementById('pd-stk-d1').value);
-            var d2 = parseFloat(document.getElementById('pd-stk-d2').value);
-            if (isNaN(orig) || isNaN(d1) || isNaN(d2)) return;
-
-            var p1 = orig * (1 - d1 / 100);
-            var p2 = p1 * (1 - d2 / 100);
-            var totalDrop = orig - p2;
-            var effectivePct = (totalDrop / orig) * 100;
-            var recGain = p2 > 0 ? (totalDrop / p2) * 100 : 0;
-            var retPct = (p2 / orig) * 100;
-
-            renderPDMetrics(orig, p2, totalDrop, effectivePct, retPct, recGain);
-
-            var steps = [
-              '1. First discount (' + d1 + '% on $' + orig.toFixed(2) + '): $' + orig.toFixed(2) + ' &rarr; $' + p1.toFixed(2) + ' (Savings: $' + (orig - p1).toFixed(2) + ')',
-              '2. Second stacked discount (' + d2 + '% on remaining $' + p1.toFixed(2) + '): $' + p1.toFixed(2) + ' &rarr; $' + p2.toFixed(2) + ' (Additional Savings: $' + (p1 - p2).toFixed(2) + ')',
-              '3. Effective combined discount: -' + effectivePct.toFixed(2) + '% (Notice: ' + d1 + '% + ' + d2 + '% is ' + (d1 + d2) + '%, but compounding yields ' + effectivePct.toFixed(2) + '%)',
-              '4. Total Savings: $' + totalDrop.toFixed(2) + ' | Final Price: $' + p2.toFixed(2)
-            ].join('<br>');
-            document.getElementById('pd-formula-steps').innerHTML = steps;
-          }
-
-          function renderPDMetrics(v1, v2, drop, pct, retPct, recGain) {
-            document.getElementById('pd-res-pct').textContent = '-' + pct.toFixed(2) + '%';
-            document.getElementById('pd-res-retained').textContent = 'Retained: ' + retPct.toFixed(1) + '% of original';
-            document.getElementById('pd-res-drop').textContent = (drop >= 0 ? '-' : '+') + Math.abs(drop).toLocaleString('en-US', { maximumFractionDigits: 2 });
-            document.getElementById('pd-res-final').textContent = 'New Value: ' + v2.toLocaleString('en-US', { maximumFractionDigits: 2 });
-            document.getElementById('pd-res-recovery').textContent = '+' + recGain.toFixed(2) + '%';
-
-            // Update visual bar
-            var clampedRet = Math.min(100, Math.max(0, retPct));
-            var clampedDrop = Math.min(100, Math.max(0, 100 - clampedRet));
-            document.getElementById('pd-bar-ret').style.width = clampedRet + '%';
-            document.getElementById('pd-bar-ret').textContent = 'Retained (' + clampedRet.toFixed(1) + '%)';
-            document.getElementById('pd-bar-drop').style.width = clampedDrop + '%';
-            document.getElementById('pd-bar-drop').textContent = '-' + clampedDrop.toFixed(1) + '%';
-            document.getElementById('pd-bar-legend').textContent = clampedRet.toFixed(1) + '% Retained : ' + clampedDrop.toFixed(1) + '% Drop';
-
-            // Highlight corresponding row in recovery table
-            var rows = ['row-10', 'row-20', 'row-30', 'row-40', 'row-50', 'row-60', 'row-75', 'row-90'];
-            rows.forEach(function(r) {
-              var el = document.getElementById(r);
-              if (el) el.className = '';
-            });
-            var targetRow = 'row-30';
-            if (pct <= 15) targetRow = 'row-10';
-            else if (pct <= 25) targetRow = 'row-20';
-            else if (pct <= 35) targetRow = 'row-30';
-            else if (pct <= 45) targetRow = 'row-40';
-            else if (pct <= 55) targetRow = 'row-50';
-            else if (pct <= 65) targetRow = 'row-60';
-            else if (pct <= 80) targetRow = 'row-75';
-            else targetRow = 'row-90';
-
-            var activeEl = document.getElementById(targetRow);
-            if (activeEl) activeEl.className = 'active-loss';
-          }
-
-          function setPDPreset(v1, v2, desc) {
-            switchPDMode('calc');
-            document.getElementById('pd-init').value = v1;
-            document.getElementById('pd-final').value = v2;
-            runPDCalc();
-          }
-
-          function copyPDSummary(btn) {
-            var pct = document.getElementById('pd-res-pct').textContent.trim();
-            var drop = document.getElementById('pd-res-drop').textContent.trim();
-            var finalVal = document.getElementById('pd-res-final').textContent.trim();
-            var rec = document.getElementById('pd-res-recovery').textContent.trim();
-            var ret = document.getElementById('pd-res-retained').textContent.trim();
-
-            var summary = [
-              '=== Percentage Decrease Breakdown ===',
-              'Percentage Decrease : ' + pct,
-              'Total Reduction/Drop: ' + drop,
-              finalVal,
-              'Capital Retained    : ' + ret,
-              'Recovery Gain Needed: ' + rec + ' to break even',
-              'Calculated at Digital Tools Shed (https://digitaltoolsshed.com/math/percentage-decrease-calculator.html)'
-            ].join('\n');
-
-            navigator.clipboard.writeText(summary).then(function() {
-              var old = btn.textContent;
-              btn.textContent = '✅ Copied to Clipboard!';
-              btn.style.borderColor = '#10b981';
-              setTimeout(function() {
-                btn.textContent = old;
-                btn.style.borderColor = '';
-              }, 2000);
-            });
-          }
-
-          document.addEventListener('DOMContentLoaded', function() { runPDCalc(); });
-          runPDCalc();
-        </script>
-      `
-    },
+      {
+    slug: "percentage-increase-calculator",
+    title: "Percentage Increase Calculator (Formula, Steps & Multi-Period Projections)",
+    metaDesc: "Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains with interactive SVG growth bars.",
+    category: "Math & Finance",
+    faq: [
+        {
+            "q": "What is the mathematical formula for percentage increase?",
+            "a": "The formula for percentage increase is: Percentage Increase = [ (Final Value - Initial Value) / |Initial Value| ] × 100%. For example, if a company's revenue rises from $80,000 to $120,000: Difference = $120,000 - $80,000 = $40,000. Percentage Increase = ($40,000 / $80,000) × 100% = +50.0%."
+        },
+        {
+            "q": "How do you calculate percentage increase when the starting value is negative?",
+            "a": "When the initial value is negative (such as moving from a net loss of -$50 to a profit of +$50), you must divide by the absolute value of the starting point: [ (50 - (-50)) / |-50| ] × 100% = (100 / 50) × 100% = +200.0%. Without using the absolute value, the resulting percentage would have a false negative sign."
+        },
+        {
+            "q": "What is the \"Asymmetric Reversal Trap\" in percentage growth vs decline?",
+            "a": "Because percentage changes are always calculated relative to their immediate baseline, a percentage increase is never canceled out by an equivalent percentage decrease. A +50% gain on $100 brings you to $150. However, to return to $100 from $150 requires a loss of only -33.33% ($50 / $150). Conversely, a +100% gain ($100 to $200) is completely erased by just a -50% decline."
+        },
+        {
+            "q": "What is the difference between \"Percentage Points\" and \"Percentage Increase\"?",
+            "a": "Percentage points represent the simple arithmetic difference between two percentage rates, whereas percentage increase measures the relative proportional change. If an interest rate climbs from 4.0% to 6.0%, it increased by 2.0 percentage points (6.0 - 4.0), but the relative percentage increase is +50.0% [ (6.0 - 4.0) / 4.0 × 100% ]. Confusing these two metrics causes major financial and legal misinterpretations."
+        },
+        {
+            "q": "How do you convert a percentage increase into a growth multiplier factor?",
+            "a": "To convert a percentage increase into a multiplier, divide the percentage by 100 and add 1: Multiplier = 1 + (Percentage / 100). For example, a 28% increase equals a multiplier of 1.28. Multiplying any base amount by 1.28 yields the increased value directly in a single step."
+        }
+    ],
+    body: `
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Increase Calculator
+  </nav>
+
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Percentage Increase Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Compute relative percentage expansion between two numbers, apply growth rates, model multi-period compound gains, and calculate exact asymmetric drop recovery thresholds.
+    </p>
+  </header>
+
+  <style>
+    .pinc-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .pinc-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .pinc-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .pinc-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .pinc-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .pinc-tab-btn { background:var(--surface-alt); border:1px solid var(--border); color:var(--text-muted); padding:0.6rem 1.25rem; font-family:var(--mono); font-size:0.85rem; border-radius:6px; cursor:pointer; transition:all 0.15s ease; }
+    .pinc-tab-btn.active { background:#10b981; border-color:#059669; color:#ffffff; font-weight:600; }
+    .pinc-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .pinc-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .pinc-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .pinc-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
+
+  <div class="pinc-box">
+    <!-- Mode Switcher -->
+    <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <button type="button" class="pinc-tab-btn active" id="btn-pinc-diff" onclick="setPINCMode('diff')">Mode 1: Find % Increase (V1 &rarr; V2)</button>
+      <button type="button" class="pinc-tab-btn" id="btn-pinc-apply" onclick="setPINCMode('apply')">Mode 2: Apply % Increase (V1 + % &rarr; V2)</button>
+    </div>
+
+    <!-- Inputs Grid -->
+    <div class="pinc-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Initial / Starting Value (V1)</label>
+        <input type="number" id="pinc-v1" value="80" step="any" oninput="calcPINC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;" id="lbl-pinc-v2">Final / New Value (V2)</label>
+        <input type="number" id="pinc-v2" value="120" step="any" oninput="calcPINC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Compound Periods (Years/Cycles)</label>
+        <input type="number" id="pinc-periods" value="1" min="1" max="50" step="1" oninput="calcPINC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;box-sizing:border-box;">
+      </div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Popular Growth Presets:</span>
+      <button type="button" class="btn-sec" onclick="setPINCPreset(50, 75)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">50 &rarr; 75 (+50%)</button>
+      <button type="button" class="btn-sec" onclick="setPINCPreset(100, 200)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Doubling 100 &rarr; 200 (+100%)</button>
+      <button type="button" class="btn-sec" onclick="setPINCPreset(65000, 78000)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Salary Raise $65k &rarr; $78k</button>
+      <button type="button" class="btn-sec" onclick="setPINCPreset(250, 350)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Rent $250 &rarr; $350 (+40%)</button>
+    </div>
+
+    <!-- Hero Cards -->
+    <div class="pinc-grid-4">
+      <div class="pinc-card" style="border-top:4px solid #10b981;">
+        <span class="pinc-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Growth Rate</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Percentage Increase</div>
+        <div id="card-pinc-pct" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#10b981;">+50.00%</div>
+        <div id="card-pinc-pct-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Relative to starting base</div>
+      </div>
+
+      <div class="pinc-card" style="border-top:4px solid #3b82f6;">
+        <span class="pinc-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Absolute</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Absolute Unit Gain</div>
+        <div id="card-pinc-diff" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#3b82f6;">+40.00</div>
+        <div id="card-pinc-diff-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">V2 &minus; V1 difference</div>
+      </div>
+
+      <div class="pinc-card" style="border-top:4px solid #8b5cf6;">
+        <span class="pinc-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Multiple</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Growth Multiplier</div>
+        <div id="card-pinc-mult" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:var(--fg);">1.50&times;</div>
+        <div id="card-pinc-mult-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Scale expansion factor</div>
+      </div>
+
+      <div class="pinc-card" style="border-top:4px solid #f59e0b;">
+        <span class="pinc-badge" style="background:rgba(245,158,11,0.15);color:#f59e0b;">Reversal</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Reverse Drop Needed</div>
+        <div id="card-pinc-reversal" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#f59e0b;">-33.33%</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">To return to V1 from V2</div>
+      </div>
+    </div>
+
+    <!-- Pure SVG Growth Bar Visualizer -->
+    <div class="pinc-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Visual Scale Expansion Comparison</span>
+        <span style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Baseline vs. Expanded Quantity</span>
+      </div>
+      <div id="pinc-svg-container" style="width:100%;height:85px;"></div>
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#64748b;border-radius:2px;"></span> Initial Base (V1)</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#10b981;border-radius:2px;"></span> Increased Value (V2)</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#3b82f6;border-radius:2px;"></span> Absolute Gain (&Delta;)</span>
+      </div>
+    </div>
+
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #10b981;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Mathematical Derivations:</div>
+      <div id="pinc-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
+
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyPINCReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Percentage Increase Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Percentage Increase Calculations</h2>
+
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">1. The Asymmetric Reversal Fallacy (Why a 50% Gain Needs Only a 33% Loss)</div>
+      <p class="pinc-trap-desc">
+        A dangerous misconception in finance is assuming that an increase of X% can be undone by a decrease of X%. Because percentages are calculated from their new starting points, gaining +50% on $100 yields $150. Losing 50% of $150 drops you to $75—a catastrophic 25% net loss! The reverse percentage drop required to restore the original baseline is <code>Reverse Drop = Increase / (1 + Increase)</code>.
+      </p>
+    </div>
+
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">2. Percentage Points vs. Relative Percentage Increase</div>
+      <p class="pinc-trap-desc">
+        News outlets and corporate earnings reports routinely blur the line between percentage points and percentage increase. If a company's market share expands from 2% to 4%, it gained 2 percentage points. However, its business grew by an astounding +100% relative percentage increase! Conflating these two figures produces massive discrepancies in marketing claims and scientific studies.
+      </p>
+    </div>
+
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">3. The Negative Starting Base Division Trap</div>
+      <p class="pinc-trap-desc">
+        When an initial number is negative (such as moving from -$10,000 net income to +$20,000 net income), standard formulas fail if they omit absolute value signs: <code>(20,000 - (-10,000)) / (-10,000) = 30,000 / -10,000 = -300%</code>. A profit turnaround displayed as negative 300% is nonsensical. Dividing by <code>|-10,000|</code> correctly reflects a +300% improvement.
+      </p>
+    </div>
+
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">4. Multi-Period Compounding vs. Simple Summation</div>
+      <p class="pinc-trap-desc">
+        If a stock gains +10% in Year 1 and +10% in Year 2, simple addition predicts a +20% gain. In reality, compounding expands the portfolio: <code>$100 &times; 1.10 &times; 1.10 = $121.00</code>, representing a +21% cumulative increase. Over 10 years of +10% annual gains, simple addition yields +100%, whereas compound reality delivers an astounding +159.37% (a 2.59&times; multiple).
+      </p>
+    </div>
+
+    <div class="pinc-trap-card">
+      <div class="pinc-trap-title">5. Base Effect Skew (Cherry-Picking Depressed Reference Dates)</div>
+      <p class="pinc-trap-desc">
+        Economic metrics measured immediately following a crisis or lockdown often boast staggering percentage increases. For instance, airline travel surging +80% year-over-year following a pandemic trough may sound extraordinary, but if travel was initially down -70%, an 80% rebound still leaves total passengers 46% below pre-crisis operational capacity.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  var curPINCMode = 'diff';
+
+  function setPINCMode(m) {
+    curPINCMode = m;
+    document.getElementById('btn-pinc-diff').className = 'pinc-tab-btn' + (m === 'diff' ? ' active' : '');
+    document.getElementById('btn-pinc-apply').className = 'pinc-tab-btn' + (m === 'apply' ? ' active' : '');
+    document.getElementById('lbl-pinc-v2').textContent = (m === 'diff') ? 'Final / New Value (V2)' : 'Percentage Increase to Apply (%)';
+    calcPINC();
+  }
+
+  function setPINCPreset(v1, v2) {
+    curPINCMode = 'diff';
+    document.getElementById('btn-pinc-diff').className = 'pinc-tab-btn active';
+    document.getElementById('btn-pinc-apply').className = 'pinc-tab-btn';
+    document.getElementById('lbl-pinc-v2').textContent = 'Final / New Value (V2)';
+    document.getElementById('pinc-v1').value = v1;
+    document.getElementById('pinc-v2').value = v2;
+    document.getElementById('pinc-periods').value = 1;
+    calcPINC();
+  }
+
+  function calcPINC() {
+    var v1 = parseFloat(document.getElementById('pinc-v1').value) || 0;
+    var inp2 = parseFloat(document.getElementById('pinc-v2').value) || 0;
+    var periods = parseInt(document.getElementById('pinc-periods').value, 10) || 1;
+    if (periods < 1) periods = 1;
+
+    var v2 = 0;
+    var pctIncrease = 0;
+    var absDiff = 0;
+    var mult = 1;
+    var reversalPct = 0;
+
+    if (curPINCMode === 'diff') {
+      v2 = inp2;
+      absDiff = v2 - v1;
+      var denom = Math.abs(v1) === 0 ? 1 : Math.abs(v1);
+      pctIncrease = (absDiff / denom) * 100;
+      mult = v1 !== 0 ? (v2 / v1) : (1 + pctIncrease / 100);
+      reversalPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
+    } else {
+      pctIncrease = inp2;
+      mult = 1 + (pctIncrease / 100);
+      v2 = v1 * Math.pow(mult, periods);
+      absDiff = v2 - v1;
+      reversalPct = v2 !== 0 ? ((v1 - v2) / Math.abs(v2)) * 100 : 0;
+    }
+
+    var sign = pctIncrease >= 0 ? '+' : '';
+    document.getElementById('card-pinc-pct').textContent = sign + pctIncrease.toFixed(2) + '%';
+    document.getElementById('card-pinc-pct').style.color = pctIncrease >= 0 ? '#10b981' : '#ef4444';
+
+    var diffSign = absDiff >= 0 ? '+' : '';
+    document.getElementById('card-pinc-diff').textContent = diffSign + absDiff.toFixed(2);
+    document.getElementById('card-pinc-diff-sub').textContent = 'Final value: ' + v2.toFixed(2);
+
+    document.getElementById('card-pinc-mult').textContent = mult.toFixed(2) + '×';
+
+    document.getElementById('card-pinc-reversal').textContent = reversalPct.toFixed(2) + '%';
+
+    renderPINCVisual(v1, v2);
+
+    // Derivations
+    var deriv = [];
+    if (curPINCMode === 'diff') {
+      deriv.push('1. Absolute Gain: Final (' + v2 + ') &minus; Initial (' + v1 + ') = <strong>' + diffSign + absDiff.toFixed(4) + '</strong>');
+      deriv.push('2. Relative Decimal Ratio: ' + diffSign + absDiff.toFixed(4) + ' &divide; |' + v1 + '| = ' + (absDiff / (Math.abs(v1) || 1)).toFixed(5));
+      deriv.push('3. Percentage Increase Formula: ' + (absDiff / (Math.abs(v1) || 1)).toFixed(5) + ' &times; 100% = <strong>' + sign + pctIncrease.toFixed(2) + '%</strong>');
+      deriv.push('4. Growth Multiplier: ' + v2 + ' &divide; ' + v1 + ' = <strong>' + mult.toFixed(4) + '&times;</strong>');
+      deriv.push('5. Asymmetric Drop Recovery: [(' + v1 + ' &minus; ' + v2 + ') &divide; |' + v2 + '|] &times; 100% = <strong>' + reversalPct.toFixed(2) + '%</strong> needed to return to baseline');
+    } else {
+      deriv.push('1. Growth Factor per Period: 1 + (' + pctIncrease + '% &divide; 100) = <strong>' + mult.toFixed(4) + '&times;</strong>');
+      deriv.push('2. Applied Expansion (' + periods + ' period' + (periods > 1 ? 's' : '') + '): ' + v1 + ' &times; (' + mult.toFixed(4) + ')^' + periods + ' = <strong>' + v2.toFixed(2) + ' final value</strong>');
+      deriv.push('3. Net Absolute Gain: ' + v2.toFixed(2) + ' &minus; ' + v1 + ' = <strong>+' + absDiff.toFixed(2) + '</strong>');
+    }
+    document.getElementById('pinc-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderPINCVisual(v1, v2) {
+    var c = document.getElementById('pinc-svg-container');
+    if (!c) return;
+
+    var w = c.clientWidth || 600;
+    var h = 80;
+    var maxVal = Math.max(1, Math.abs(v1), Math.abs(v2));
+
+    var barH = 18;
+    var y1 = 12, y2 = 42;
+
+    function getW(v) {
+      return Math.max(2, Math.min(w - 130, (Math.abs(v) / maxVal) * (w - 130)));
+    }
+
+    var w1 = getW(v1);
+    var w2 = getW(v2);
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Bar 1 (V1)
+    svg += '<text x="0" y="' + (y1 + 14) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Initial (V1):</text>';
+    svg += '<rect x="90" y="' + y1 + '" width="' + (w - 110) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y1 + '" width="' + w1 + '" height="' + barH + '" rx="3" fill="#64748b" />';
+    svg += '<text x="' + (95 + w1) + '" y="' + (y1 + 14) + '" fill="var(--fg)" font-family="var(--mono)" font-size="11">' + v1.toFixed(1) + '</text>';
+
+    // Bar 2 (V2)
+    svg += '<text x="0" y="' + (y2 + 14) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Final (V2):</text>';
+    svg += '<rect x="90" y="' + y2 + '" width="' + (w - 110) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y2 + '" width="' + w2 + '" height="' + barH + '" rx="3" fill="#10b981" />';
+    svg += '<text x="' + (95 + w2) + '" y="' + (y2 + 14) + '" fill="#10b981" font-family="var(--mono)" font-size="11" font-weight="bold">' + v2.toFixed(1) + '</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyPINCReport(btn) {
+    var pct = document.getElementById('card-pinc-pct').textContent;
+    var diff = document.getElementById('card-pinc-diff').textContent;
+    var mult = document.getElementById('card-pinc-mult').textContent;
+    var rev = document.getElementById('card-pinc-reversal').textContent;
+    var v1 = document.getElementById('pinc-v1').value;
+    var v2 = document.getElementById('pinc-v2').value;
+
+    var lines = [
+      '========================================',
+      '     PERCENTAGE INCREASE GROWTH REPORT',
+      '========================================',
+      'Initial Base (V1)    : ' + v1,
+      'Final Value (V2)     : ' + v2,
+      '----------------------------------------',
+      'Percentage Increase  : ' + pct,
+      'Absolute Unit Gain   : ' + diff,
+      'Growth Multiplier    : ' + mult,
+      'Reverse Drop Needed  : ' + rev,
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/percentage-increase-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Growth Report!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcPINC);
+  document.addEventListener('DOMContentLoaded', calcPINC);
+  calcPINC();
+</script>
+`
+  },
+      {
+    slug: "percentage-decrease-calculator",
+    title: "Percentage Decrease Calculator (Discount, Savings & Asymmetric Loss Recovery)",
+    metaDesc: "Calculate percentage decrease, markdown sale discounts, stacked coupon savings, and the exact asymmetric gain required to recover from financial losses with interactive SVG contraction bars.",
+    category: "Math & Finance",
+    faq: [
+        {
+            "q": "What is the mathematical formula for percentage decrease?",
+            "a": "The formula for percentage decrease is: Percentage Decrease = [ (Initial Value - Final Value) / Initial Value ] × 100%. For example, if a product price drops from $150.00 to $105.00: Difference = $150.00 - $105.00 = $45.00. Percentage Decrease = ($45.00 / $150.00) × 100% = 30.0% savings."
+        },
+        {
+            "q": "Why do financial portfolio losses require a disproportionately larger percentage gain to recover?",
+            "a": "Because percentage changes are always evaluated against their immediate baseline. A -50% loss reduces a $10,000 portfolio to $5,000. To recover the $5,000 lost, you must earn $5,000 on a $5,000 base—which requires an extraordinary +100% gain! The formula for the required recovery gain is: Required Gain = [ Loss % / (1 - Loss %) ] × 100%."
+        },
+        {
+            "q": "How do stacked discounts work (e.g., 20% off storewide plus an extra 15% VIP coupon)?",
+            "a": "Stacked discounts are applied sequentially (multiplicatively), never additively. Adding 20% + 15% does NOT equal 35% off. Instead, the first 20% discount reduces a $100 item to $80. The second 15% discount applies to the remaining $80 balance, saving an extra $12.00. The final price is $68.00, representing an effective cumulative discount of 32.0%."
+        },
+        {
+            "q": "Can a percentage decrease ever exceed 100%?",
+            "a": "In standard arithmetic regarding physical quantities, prices, or populations, a percentage decrease cannot exceed 100% because dropping by 100% reaches absolute zero. A decrease greater than 100% is mathematically possible only when a quantity can cross zero into negative territory (such as an operating profit dropping from +$10,000 to -$5,000, representing a -150% change)."
+        },
+        {
+            "q": "What is the difference between a percentage discount and a price markup?",
+            "a": "A discount is calculated backward from the retail selling price, while a markup is calculated forward from the wholesale cost. If an item costs $80 wholesale and retails for $100, the markup is +25% ($20 / $80), but discounting the $100 retail price back to cost is only a -20% discount ($20 / $100)."
+        }
+    ],
+    body: `
+<div class="article-container" style="max-width:1050px;margin:0 auto;padding:1.5rem 1rem;">
+  <nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);">
+    <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Percentage Decrease Calculator
+  </nav>
+
+  <header style="margin-bottom:2rem;text-align:center;">
+    <h1 style="font-family:var(--serif);font-size:2.2rem;margin-bottom:0.5rem;letter-spacing:-0.02em;">Percentage Decrease Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;max-width:750px;margin:0 auto;line-height:1.6;">
+      Calculate percentage reductions, markdown savings, stacked coupon sequences, and determine the exact asymmetric gain required to recover from portfolio losses.
+    </p>
+  </header>
+
+  <style>
+    .pdec-box { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1.75rem; margin-bottom:2rem; }
+    .pdec-grid-3 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:1.25rem; margin-bottom:1.25rem; }
+    .pdec-grid-4 { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1.5rem; }
+    .pdec-card { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; text-align:center; position:relative; }
+    .pdec-badge { position:absolute; top:8px; right:8px; font-family:var(--mono); font-size:0.65rem; padding:2px 6px; border-radius:4px; }
+    .pdec-tab-btn { background:var(--surface-alt); border:1px solid var(--border); color:var(--text-muted); padding:0.6rem 1.25rem; font-family:var(--mono); font-size:0.85rem; border-radius:6px; cursor:pointer; transition:all 0.15s ease; }
+    .pdec-tab-btn.active { background:#ef4444; border-color:#dc2626; color:#ffffff; font-weight:600; }
+    .pdec-trap-card { background:var(--surface-alt); border-left:4px solid #ef4444; border-radius:0 6px 6px 0; padding:1rem 1.25rem; margin-bottom:1rem; }
+    .pdec-trap-title { font-family:var(--serif); font-weight:600; font-size:1.05rem; color:var(--fg); margin-bottom:0.25rem; }
+    .pdec-trap-desc { font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin:0; }
+    .pdec-svg-box { background:var(--surface-alt); border:1px solid var(--border); border-radius:6px; padding:1.25rem; margin-top:1.5rem; }
+  </style>
+
+  <div class="pdec-box">
+    <!-- Mode Switcher -->
+    <div style="display:flex;gap:0.75rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+      <button type="button" class="pdec-tab-btn active" id="btn-pdec-diff" onclick="setPDECMode('diff')">Mode 1: Find % Decrease (V1 &rarr; V2)</button>
+      <button type="button" class="pdec-tab-btn" id="btn-pdec-apply" onclick="setPDECMode('apply')">Mode 2: Apply % Discount (V1 &minus; % &rarr; V2)</button>
+      <button type="button" class="pdec-tab-btn" id="btn-pdec-stacked" onclick="setPDECMode('stacked')">Mode 3: Stacked Coupons (D1 + D2)</button>
+    </div>
+
+    <!-- Inputs Grid -->
+    <div class="pdec-grid-3">
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Original / Initial Value (V1)</label>
+        <input type="number" id="pdec-v1" value="150" step="any" oninput="calcPDEC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+
+      <div>
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;" id="lbl-pdec-v2">New Reduced Value (V2)</label>
+        <input type="number" id="pdec-v2" value="105" step="any" oninput="calcPDEC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;font-weight:bold;box-sizing:border-box;">
+      </div>
+
+      <div id="pdec-stacked-col" style="display:none;">
+        <label style="display:block;font-family:var(--mono);font-size:0.8rem;color:var(--text-muted);margin-bottom:0.35rem;">Secondary Stacked Discount (%)</label>
+        <input type="number" id="pdec-stacked-pct" value="15" min="0" max="100" step="1" oninput="calcPDEC()" style="width:100%;padding:0.75rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-family:var(--mono);font-size:1.25rem;box-sizing:border-box;">
+      </div>
+    </div>
+
+    <!-- Quick Presets -->
+    <div style="margin-bottom:1.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;align-items:center;">
+      <span style="font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);margin-right:0.25rem;">Quick Scenarios:</span>
+      <button type="button" class="btn-sec" onclick="setPDECpreset(100, 75)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">100 &rarr; 75 (-25%)</button>
+      <button type="button" class="btn-sec" onclick="setPDECpreset(100, 50)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Halving 100 &rarr; 50 (-50%)</button>
+      <button type="button" class="btn-sec" onclick="setPDECpreset(200, 160)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Retail Sale $200 &rarr; $160 (-20%)</button>
+      <button type="button" class="btn-sec" onclick="setPDECpreset(1000, 100)" style="font-family:var(--mono);font-size:0.75rem;padding:0.35rem 0.65rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--fg);">Crash $1,000 &rarr; $100 (-90%)</button>
+    </div>
+
+    <!-- Hero Cards -->
+    <div class="pdec-grid-4">
+      <div class="pdec-card" style="border-top:4px solid #ef4444;">
+        <span class="pdec-badge" style="background:rgba(239,68,68,0.15);color:#ef4444;">Reduction</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Percentage Decrease</div>
+        <div id="card-pdec-pct" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#ef4444;">-30.00%</div>
+        <div id="card-pdec-pct-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Relative to initial price</div>
+      </div>
+
+      <div class="pdec-card" style="border-top:4px solid #3b82f6;">
+        <span class="pdec-badge" style="background:rgba(59,130,246,0.15);color:#3b82f6;">Savings</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Absolute Unit Reduction</div>
+        <div id="card-pdec-diff" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#3b82f6;">-$45.00</div>
+        <div id="card-pdec-diff-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">V1 &minus; V2 savings</div>
+      </div>
+
+      <div class="pdec-card" style="border-top:4px solid #8b5cf6;">
+        <span class="pdec-badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;">Factor</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Remaining Multiple</div>
+        <div id="card-pdec-mult" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:var(--fg);">0.70&times;</div>
+        <div id="card-pdec-mult-sub" style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Portion retained</div>
+      </div>
+
+      <div class="pdec-card" style="border-top:4px solid #10b981;">
+        <span class="pdec-badge" style="background:rgba(16,185,129,0.15);color:#10b981;">Break-Even</span>
+        <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.25rem;">Required Recovery Gain</div>
+        <div id="card-pdec-recovery" style="font-family:var(--mono);font-size:2rem;font-weight:bold;color:#10b981;">+42.86%</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);font-family:var(--mono);margin-top:0.25rem;">Gain needed from V2 to reach V1</div>
+      </div>
+    </div>
+
+    <!-- Pure SVG Contraction Visualizer -->
+    <div class="pdec-svg-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;">
+        <span style="font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Visual Contraction &amp; Retention Scale</span>
+        <span style="font-family:var(--mono);font-size:0.78rem;color:var(--text-muted);">Baseline vs. Shrunk Quantity</span>
+      </div>
+      <div id="pdec-svg-container" style="width:100%;height:80px;"></div>
+      <div style="display:flex;gap:1.5rem;margin-top:0.75rem;font-family:var(--mono);font-size:0.75rem;color:var(--text-muted);flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#64748b;border-radius:2px;"></span> Original Value (V1)</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#ef4444;border-radius:2px;"></span> Reduced Balance (V2)</span>
+        <span style="display:inline-flex;align-items:center;gap:0.4rem;"><span style="width:10px;height:10px;background:#3b82f6;border-radius:2px;"></span> Shaved Off Discount (&Delta;)</span>
+      </div>
+    </div>
+
+    <!-- Live Step-by-Step Derivations -->
+    <div style="margin-top:1.5rem;background:var(--surface-alt);border-left:3px solid #ef4444;padding:1.1rem 1.25rem;border-radius:0 6px 6px 0;font-size:0.88rem;line-height:1.6;">
+      <div style="font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Live Mathematical Derivations:</div>
+      <div id="pdec-derivations" style="font-family:var(--mono);color:var(--fg);"></div>
+    </div>
+
+    <!-- One-Click Copy Button -->
+    <div style="margin-top:1.5rem;display:flex;justify-content:flex-end;">
+      <button type="button" class="btn-sec" onclick="copyPDECReport(this)" style="font-family:var(--mono);font-size:0.85rem;padding:0.6rem 1.25rem;background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--fg);">
+        📋 Copy Percentage Decrease Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Real-World Traps Section -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Percentage Decrease Calculations</h2>
+
+    <div class="pdec-trap-card">
+      <div class="pdec-trap-title">1. The Asymmetric Drawdown Recovery Trap</div>
+      <p class="pdec-trap-desc">
+        The most punishing law of arithmetic is that losses require exponential percentage gains to break even. A -20% loss needs +25% to recover. A -50% crash cuts wealth in half, requiring a massive +100% gain to restore principal. A catastrophic -90% drop leaves only 10% of capital, requiring an almost insurmountable +900% gain just to return to the starting line.
+      </p>
+    </div>
+
+    <div class="pdec-trap-card">
+      <div class="pdec-trap-title">2. The Stacked Coupon Addition Illusion</div>
+      <p class="pdec-trap-desc">
+        Retailers frequently advertise "Take 30% off, plus an extra 20% off at checkout!". Shoppers often assume this equals a 50% discount. In reality, discounts compound sequentially: <code>(1 - 0.30) &times; (1 - 0.20) = 0.70 &times; 0.80 = 0.56</code>. You pay 56% of the original price, meaning the true cumulative discount is 44.0%, leaving you paying 6% more than expected.
+      </p>
+    </div>
+
+    <div class="pdec-trap-card">
+      <div class="pdec-trap-title">3. Margin Reduction vs. Retail Discount Inversion</div>
+      <p class="pdec-trap-desc">
+        A merchant selling a $100 item with a 40% gross margin makes $40 profit on a $60 cost of goods. If the merchant offers a seemingly modest 20% discount ($80 price), profit drops to $20. A 20% price cut cut gross dollar profits in half (-50% reduction in earnings)! Price discounts disproportionately crush net profit margins.
+      </p>
+    </div>
+
+    <div class="pdec-trap-card">
+      <div class="pdec-trap-title">4. The Negative Price / "Over 100% Decrease" Trap</div>
+      <p class="pdec-trap-desc">
+        Markdowns on retail goods, weight loss, or inventory units cannot logically exceed 100%. A 100% decrease means the item is completely free or the inventory is 0. Claiming an item is "120% off" would imply the retailer pays the customer to take the merchandise, which violates physical commercial constraints.
+      </p>
+    </div>
+
+    <div class="pdec-trap-card">
+      <div class="pdec-trap-title">5. Inflation Purchasing Power Decay</div>
+      <p class="pdec-trap-desc">
+        Holding uninvested cash during inflation creates a silent, guaranteed percentage decrease in purchasing power. At a 3.5% annual inflation rate, the purchasing power of $100,000 decays to $70,891 over 10 years—a -29.1% permanent erosion in real goods and services that your savings can purchase.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  var curPDECMode = 'diff';
+
+  function setPDECMode(m) {
+    curPDECMode = m;
+    document.getElementById('btn-pdec-diff').className = 'pdec-tab-btn' + (m === 'diff' ? ' active' : '');
+    document.getElementById('btn-pdec-apply').className = 'pdec-tab-btn' + (m === 'apply' ? ' active' : '');
+    document.getElementById('btn-pdec-stacked').className = 'pdec-tab-btn' + (m === 'stacked' ? ' active' : '');
+
+    var stackCol = document.getElementById('pdec-stacked-col');
+    if (m === 'stacked') {
+      stackCol.style.display = 'block';
+      document.getElementById('lbl-pdec-v2').textContent = 'Primary Discount (%)';
+    } else {
+      stackCol.style.display = 'none';
+      document.getElementById('lbl-pdec-v2').textContent = (m === 'diff') ? 'New Reduced Value (V2)' : 'Percentage Discount (%)';
+    }
+    calcPDEC();
+  }
+
+  function setPDECpreset(v1, v2) {
+    curPDECMode = 'diff';
+    document.getElementById('btn-pdec-diff').className = 'pdec-tab-btn active';
+    document.getElementById('btn-pdec-apply').className = 'pdec-tab-btn';
+    document.getElementById('btn-pdec-stacked').className = 'pdec-tab-btn';
+    document.getElementById('pdec-stacked-col').style.display = 'none';
+    document.getElementById('lbl-pdec-v2').textContent = 'New Reduced Value (V2)';
+    document.getElementById('pdec-v1').value = v1;
+    document.getElementById('pdec-v2').value = v2;
+    calcPDEC();
+  }
+
+  function calcPDEC() {
+    var v1 = parseFloat(document.getElementById('pdec-v1').value) || 0;
+    var inp2 = parseFloat(document.getElementById('pdec-v2').value) || 0;
+
+    var v2 = 0;
+    var pctDecrease = 0;
+    var absDiff = 0;
+    var mult = 1;
+    var recoveryGain = 0;
+
+    if (curPDECMode === 'diff') {
+      v2 = inp2;
+      absDiff = v1 - v2;
+      var denom = Math.abs(v1) === 0 ? 1 : Math.abs(v1);
+      pctDecrease = (absDiff / denom) * 100;
+      mult = v1 !== 0 ? (v2 / v1) : (1 - pctDecrease / 100);
+      recoveryGain = v2 > 0 ? ((v1 - v2) / v2) * 100 : 0;
+    } else if (curPDECMode === 'apply') {
+      pctDecrease = inp2;
+      mult = Math.max(0, 1 - (pctDecrease / 100));
+      v2 = v1 * mult;
+      absDiff = v1 - v2;
+      recoveryGain = v2 > 0 ? ((v1 - v2) / v2) * 100 : 0;
+    } else if (curPDECMode === 'stacked') {
+      var d1 = inp2 / 100;
+      var d2 = (parseFloat(document.getElementById('pdec-stacked-pct').value) || 0) / 100;
+      mult = Math.max(0, (1 - d1) * (1 - d2));
+      pctDecrease = (1 - mult) * 100;
+      v2 = v1 * mult;
+      absDiff = v1 - v2;
+      recoveryGain = v2 > 0 ? ((v1 - v2) / v2) * 100 : 0;
+    }
+
+    var sign = pctDecrease > 0 ? '-' : '+';
+    document.getElementById('card-pdec-pct').textContent = (pctDecrease > 0 ? '-' : '') + Math.abs(pctDecrease).toFixed(2) + '%';
+    document.getElementById('card-pdec-pct').style.color = pctDecrease > 0 ? '#ef4444' : '#10b981';
+
+    var diffSign = absDiff >= 0 ? '-$' : '+$';
+    document.getElementById('card-pdec-diff').textContent = diffSign + Math.abs(absDiff).toFixed(2);
+    document.getElementById('card-pdec-diff-sub').textContent = 'Final value: $' + v2.toFixed(2);
+
+    document.getElementById('card-pdec-mult').textContent = mult.toFixed(2) + '×';
+
+    document.getElementById('card-pdec-recovery').textContent = recoveryGain > 0 ? ('+' + recoveryGain.toFixed(2) + '%') : '0.00%';
+
+    renderPDECVisual(v1, v2);
+
+    // Derivations
+    var deriv = [];
+    if (curPDECMode === 'diff') {
+      deriv.push('1. Absolute Reduction: Initial ($' + v1.toFixed(2) + ') &minus; Final ($' + v2.toFixed(2) + ') = <strong>$' + absDiff.toFixed(2) + ' savings</strong>');
+      deriv.push('2. Decimal Ratio: $' + absDiff.toFixed(2) + ' &divide; $' + v1.toFixed(2) + ' = ' + (absDiff / (v1 || 1)).toFixed(5));
+      deriv.push('3. Percentage Decrease Formula: ' + (absDiff / (v1 || 1)).toFixed(5) + ' &times; 100% = <strong>-' + pctDecrease.toFixed(2) + '%</strong>');
+      deriv.push('4. Break-Even Recovery: ($' + absDiff.toFixed(2) + ' &divide; $' + v2.toFixed(2) + ') &times; 100% = <strong>+' + recoveryGain.toFixed(2) + '% gain required</strong> to break even');
+    } else if (curPDECMode === 'apply') {
+      deriv.push('1. Retention Factor: 1 &minus; (' + pctDecrease.toFixed(2) + '% &divide; 100) = <strong>' + mult.toFixed(4) + '&times;</strong>');
+      deriv.push('2. Reduced Price: $' + v1.toFixed(2) + ' &times; ' + mult.toFixed(4) + ' = <strong>$' + v2.toFixed(2) + ' checkout price</strong>');
+      deriv.push('3. Total Discount Saved: $' + v1.toFixed(2) + ' &minus; $' + v2.toFixed(2) + ' = <strong>$' + absDiff.toFixed(2) + '</strong>');
+    } else {
+      deriv.push('1. Sequential Multiplier: (1 &minus; ' + (inp2 / 100).toFixed(2) + ') &times; (1 &minus; ' + ((parseFloat(document.getElementById('pdec-stacked-pct').value) || 0) / 100).toFixed(2) + ') = <strong>' + mult.toFixed(4) + '&times;</strong>');
+      deriv.push('2. True Combined Discount: (1 &minus; ' + mult.toFixed(4) + ') &times; 100% = <strong>' + pctDecrease.toFixed(2) + '% effective savings</strong> (Notice: Not ' + (inp2 + (parseFloat(document.getElementById('pdec-stacked-pct').value) || 0)) + '%)');
+      deriv.push('3. Final Sale Total: $' + v1.toFixed(2) + ' &times; ' + mult.toFixed(4) + ' = <strong>$' + v2.toFixed(2) + '</strong>');
+    }
+    document.getElementById('pdec-derivations').innerHTML = deriv.join('<br>');
+  }
+
+  function renderPDECVisual(v1, v2) {
+    var c = document.getElementById('pdec-svg-container');
+    if (!c) return;
+
+    var w = c.clientWidth || 600;
+    var h = 75;
+    var maxVal = Math.max(1, Math.abs(v1), Math.abs(v2));
+
+    var barH = 18;
+    var y1 = 10, y2 = 38;
+
+    function getW(v) {
+      return Math.max(2, Math.min(w - 130, (Math.abs(v) / maxVal) * (w - 130)));
+    }
+
+    var w1 = getW(v1);
+    var w2 = getW(v2);
+
+    var svg = '<svg width="100%" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" style="display:block;">';
+
+    // Original Bar (V1)
+    svg += '<text x="0" y="' + (y1 + 14) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Initial (V1):</text>';
+    svg += '<rect x="90" y="' + y1 + '" width="' + (w - 110) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y1 + '" width="' + w1 + '" height="' + barH + '" rx="3" fill="#64748b" />';
+    svg += '<text x="' + (95 + w1) + '" y="' + (y1 + 14) + '" fill="var(--fg)" font-family="var(--mono)" font-size="11">$' + v1.toFixed(1) + '</text>';
+
+    // Reduced Bar (V2)
+    svg += '<text x="0" y="' + (y2 + 14) + '" fill="var(--text-muted)" font-family="var(--mono)" font-size="11">Reduced (V2):</text>';
+    svg += '<rect x="90" y="' + y2 + '" width="' + (w - 110) + '" height="' + barH + '" rx="3" fill="#334155" />';
+    svg += '<rect x="90" y="' + y2 + '" width="' + w2 + '" height="' + barH + '" rx="3" fill="#ef4444" />';
+    svg += '<text x="' + (95 + w2) + '" y="' + (y2 + 14) + '" fill="#ef4444" font-family="var(--mono)" font-size="11" font-weight="bold">$' + v2.toFixed(1) + '</text>';
+
+    svg += '</svg>';
+    c.innerHTML = svg;
+  }
+
+  function copyPDECReport(btn) {
+    var pct = document.getElementById('card-pdec-pct').textContent;
+    var diff = document.getElementById('card-pdec-diff').textContent;
+    var mult = document.getElementById('card-pdec-mult').textContent;
+    var rec = document.getElementById('card-pdec-recovery').textContent;
+    var v1 = document.getElementById('pdec-v1').value;
+    var v2 = document.getElementById('pdec-v2').value;
+
+    var lines = [
+      '========================================',
+      '     PERCENTAGE DECREASE REDUCTION REPORT',
+      '========================================',
+      'Initial Base (V1)    : $' + v1,
+      'Final Reduced (V2)   : $' + v2,
+      '----------------------------------------',
+      'Percentage Decrease  : ' + pct,
+      'Absolute Savings     : ' + diff,
+      'Remaining Factor     : ' + mult,
+      'Break-Even Recovery  : ' + rec + ' gain needed',
+      '========================================',
+      'Source: Digital Tools Shed (https://digitaltoolsshed.com/math/percentage-decrease-calculator.html)'
+    ];
+
+    navigator.clipboard.writeText(lines.join('\n')).then(function() {
+      var orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied Reduction Report!';
+      btn.style.borderColor = '#10b981';
+      setTimeout(function() {
+        btn.innerHTML = orig;
+        btn.style.borderColor = '';
+      }, 2000);
+    });
+  }
+
+  window.addEventListener('resize', calcPDEC);
+  document.addEventListener('DOMContentLoaded', calcPDEC);
+  calcPDEC();
+</script>
+`
+  },
     {
       slug: 'standard-deviation-calculator',
       title: 'Standard Deviation Calculator (Sample & Population) with Step-by-Step Solution',
