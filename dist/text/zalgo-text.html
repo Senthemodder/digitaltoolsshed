@@ -1045,60 +1045,172 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Zalgo Text Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Zalgo Glitch Text Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Zalgo Glitch Text Generator &amp; Diacritical Styler</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Stack combining diacritical Unicode marks above, middle, and below characters to generate chaotic glitch text.
+            Stack combining diacritical Unicode marks above, through, and below characters to generate chaotic cursed glitch text with full overflow control.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Plain Text</label>
-              <input type="text" id="zalgo-in" class="text-input" value="He comes" oninput="genZalgo()" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Plain Text</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleZalgo()">Load Sample</button>
+              </div>
+              <input type="text" id="zalgo-in" class="text-input" value="HE COMES" oninput="genZalgo()" style="font-size: 1.1rem; height: 48px;" />
             </div>
 
-            <div class="field-group">
-              <label class="field-label">Corruption Intensity: <span id="zalgo-lvl">5</span></label>
-              <input type="range" id="zalgo-range" min="1" max="15" value="5" style="width: 100%;" oninput="document.getElementById('zalgo-lvl').textContent=this.value; genZalgo();" />
+            <!-- Direction Checkboxes & Corruption Slider -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.25rem 0;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label" style="display: flex; justify-content: space-between;">
+                  <span>Corruption Intensity</span>
+                  <span id="zalgo-lvl" style="font-family: var(--mono); font-weight: bold; color: var(--fg);">6</span>
+                </label>
+                <input type="range" id="zalgo-range" min="1" max="20" value="6" style="width: 100%; cursor: pointer;" oninput="document.getElementById('zalgo-lvl').textContent=this.value; genZalgo();" />
+              </div>
+              <div class="field-group" style="margin: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 0.35rem;">
+                <label class="opt-label"><input type="checkbox" id="zalgo-up" checked onchange="genZalgo()"> Glitch Up (Above)</label>
+                <label class="opt-label"><input type="checkbox" id="zalgo-mid" checked onchange="genZalgo()"> Glitch Middle (Through)</label>
+                <label class="opt-label"><input type="checkbox" id="zalgo-down" checked onchange="genZalgo()"> Glitch Down (Below)</label>
+              </div>
             </div>
 
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Cursed / Glitched Output</label>
-              <div id="zalgo-out" class="result-box" style="font-size: 1.3rem; min-height: 80px; line-height: 2; overflow-x: auto;"></div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Cursed / Corrupted Zalgo Output</label>
+                <span id="zalgoByteStats" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 bytes</span>
+              </div>
+              <div id="zalgo-out" class="result-box" style="font-size: 1.35rem; min-height: 120px; line-height: 2.2; overflow-x: auto; padding: 1.5rem 1rem; word-break: break-all; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;"></div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="copyZalgo()">Copy Glitched Text</button>
+            <!-- Action Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyZalgo" class="btn-primary" onclick="copyZalgoText()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Glitched Zalgo Text</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearZalgoInput()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear Text</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Zalgo Text Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Zalgo Text, Combining Diacritics &amp; Rendering Engines</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Line-Height Explosion &amp; UI Component Overlap Destruction</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Combining diacritical marks in Unicode (U+0300 to U+036F) do not expand container bounding boxes. In web layouts lacking <code>overflow: hidden</code> or substantial padding, stacked accents render directly over upper navigational menus, adjacent buttons, and sidebars, rendering interfaces unusable.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Chat Spam Filtering &amp; Automated Message Dropping</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Communication platforms (Discord, Twitch, Slack, Telegram) deploy automated regex filters that measure combining mark density. Sending messages containing intense Zalgo text instantly triggers spam heuristics, leading to silent message dropping, bot timeouts, or temporary user suspensions.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Database Column Overflow &amp; UTF-8 Byte Bloat</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Every combining mark requires 2 to 3 bytes in UTF-8 encoding. A short 10-character word corrupted at level 15 stacks 450 combining marks, expanding a 10-byte string into over 900 bytes. Attempting to insert this into standard <code>VARCHAR(255)</code> database columns causes catastrophic SQL exceptions.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Terminal Emulator &amp; CLI Shaper Crashes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Many command-line interfaces and terminal emulators (e.g. legacy Windows console, older PuTTY) lack advanced OpenType text shaping engines. Printing heavily accented Zalgo strings to stdout can cause terminal renderers to freeze or enter unbounded glyph caching loops.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Screen Reader Speech Synthesizer Auditory Lockups</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Accessibility software (JAWS, NVDA, Windows Narrator) attempts to vocalize every individual combining mark sequentially (e.g., <em>"Combining Inverted Breve, Combining Diaeresis, Combining Horn..."</em>). Users with screen readers experience painful auditory freezes that can last minutes.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          const ZALGO_UP = [0x030d,0x030e,0x0304,0x0305,0x033f,0x0311,0x0306,0x0310,0x0352,0x0357,0x0358,0x0342,0x0343,0x0344,0x034a,0x034b,0x034c,0x0350,0x0300,0x0301,0x0302,0x0303,0x0307,0x0308,0x0309,0x030a,0x030b,0x030c];
-          const ZALGO_DOWN = [0x0316,0x0317,0x0318,0x0319,0x031c,0x031d,0x031e,0x031f,0x0320,0x0324,0x0325,0x0326,0x0329,0x032a,0x032b,0x032c,0x032d,0x032e,0x032f,0x0330,0x0331,0x0332,0x0333,0x0339,0x033a,0x033b,0x033c];
+          var ZALGO_UP = [0x030d,0x030e,0x0304,0x0305,0x033f,0x0311,0x0306,0x0310,0x0352,0x0357,0x0358,0x0342,0x0343,0x0344,0x034a,0x034b,0x034c,0x0350,0x0300,0x0301,0x0302,0x0303,0x0307,0x0308,0x0309,0x030a,0x030b,0x030c];
+          var ZALGO_MID = [0x0315,0x031b,0x0340,0x0341,0x0358,0x0321,0x0322,0x0327,0x0328,0x0334,0x0335,0x0336,0x0337,0x0338];
+          var ZALGO_DOWN = [0x0316,0x0317,0x0318,0x0319,0x031c,0x031d,0x031e,0x031f,0x0320,0x0324,0x0325,0x0326,0x0329,0x032a,0x032b,0x032c,0x032d,0x032e,0x032f,0x0330,0x0331,0x0332,0x0333,0x0339,0x033a,0x033b,0x033c];
 
-          function genZalgo() {
-            const val = document.getElementById('zalgo-in').value;
-            const lvl = parseInt(document.getElementById('zalgo-range').value, 10);
+          window.genZalgo = function() {
+            var val = document.getElementById('zalgo-in') ? document.getElementById('zalgo-in').value : '';
+            var lvl = parseInt(document.getElementById('zalgo-range').value, 10) || 6;
+            var doUp = document.getElementById('zalgo-up') ? document.getElementById('zalgo-up').checked : true;
+            var doMid = document.getElementById('zalgo-mid') ? document.getElementById('zalgo-mid').checked : true;
+            var doDown = document.getElementById('zalgo-down') ? document.getElementById('zalgo-down').checked : true;
 
-            let res = '';
-            for (const c of val) {
-              if (c === ' ') { res += ' '; continue; }
+            var res = '';
+            for (var i = 0; i < val.length; i++) {
+              var c = val[i];
+              if (c === ' ' || c === '
+') { res += c; continue; }
               res += c;
-              for (let i = 0; i < lvl; i++) {
-                res += String.fromCharCode(ZALGO_UP[Math.floor(Math.random() * ZALGO_UP.length)]);
-                res += String.fromCharCode(ZALGO_DOWN[Math.floor(Math.random() * ZALGO_DOWN.length)]);
+
+              if (doUp) {
+                for (var u = 0; u < lvl; u++) {
+                  res += String.fromCharCode(ZALGO_UP[Math.floor(Math.random() * ZALGO_UP.length)]);
+                }
+              }
+              if (doMid) {
+                for (var m = 0; m < Math.floor(lvl / 2); m++) {
+                  res += String.fromCharCode(ZALGO_MID[Math.floor(Math.random() * ZALGO_MID.length)]);
+                }
+              }
+              if (doDown) {
+                for (var d = 0; d < lvl; d++) {
+                  res += String.fromCharCode(ZALGO_DOWN[Math.floor(Math.random() * ZALGO_DOWN.length)]);
+                }
               }
             }
-            document.getElementById('zalgo-out').textContent = res;
-          }
 
-          function copyZalgo() {
-            navigator.clipboard.writeText(document.getElementById('zalgo-out').textContent);
-          }
+            var outElem = document.getElementById('zalgo-out');
+            if (outElem) outElem.textContent = res;
+
+            var byteLen = typeof TextEncoder !== 'undefined' ? new TextEncoder().encode(res).length : res.length * 2;
+            var stats = document.getElementById('zalgoByteStats');
+            if (stats) stats.textContent = res.length + ' chars (' + byteLen.toLocaleString() + ' UTF-8 bytes)';
+          };
+
+          window.copyZalgoText = function() {
+            var val = document.getElementById('zalgo-out') ? document.getElementById('zalgo-out').textContent : '';
+            if (!val) { genZalgo(); val = document.getElementById('zalgo-out').textContent; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyZalgo');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Glitched Zalgo Copied!</span>';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearZalgoInput = function() {
+            var inp = document.getElementById('zalgo-in');
+            if (inp) inp.value = '';
+            genZalgo();
+          };
+
+          window.loadSampleZalgo = function() {
+            var inp = document.getElementById('zalgo-in');
+            if (inp) inp.value = 'TO INVOKE THE HIVE-MIND REPRESENTING CHAOS';
+            genZalgo();
+          };
 
           document.addEventListener('DOMContentLoaded', genZalgo);
         </script>

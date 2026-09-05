@@ -699,51 +699,177 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Fancy Text Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Fancy Unicode Text Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Fancy Unicode Text Generator &amp; Typographic Styler</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Transform normal letters into stylish Unicode glyphs for Discord, Twitter/X, Instagram, and Reddit usernames and bios.
+            Transform plain text into aesthetic Unicode fonts: gothic fraktur, bold sans, blackboard bold, cursive script, boxed, and circled fonts with instant clipboard copy.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Type Your Text</label>
-              <input type="text" id="fancy-in" class="text-input" value="Digital Tools Shed" oninput="genFancy()" style="font-size: 1.1rem;" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Input Text</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleFancy()">Load Sample</button>
+              </div>
+              <input type="text" id="fancy-in" class="text-input" value="Digital Tools Shed" oninput="genFancy()" style="font-size: 1.1rem; height: 48px;" />
             </div>
 
-            <div id="fancy-results" style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem;"></div>
+            <!-- Master Action Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1rem; margin-bottom: 1.25rem;">
+              <button type="button" id="btnCopyAllFancy" onclick="copyAllFancy()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy All Font Styles Report</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearFancyInput()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear Text</span>
+              </button>
+            </div>
+
+            <div id="fancy-results" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+          </div>
+
+          <!-- 5 Critical Fancy Text Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Fancy Unicode Fonts &amp; Typographic Glyphs</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Accessibility &amp; Screen Reader Phonetic Catastrophes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Screen readers (VoiceOver, NVDA, TalkBack) pronounce Mathematical Alphanumeric Symbols literally: e.g. <code>𝔈𝔵𝔞𝔪𝔭𝔩𝔢</code> is vocalized as <em>"Mathematical Fraktur Capital E, Mathematical Fraktur Small X, Mathematical Fraktur Small A..."</em> rather than the word "Example". Using styled fonts in bios and headlines completely locks out visually impaired users.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Search Engine Indexation &amp; Keyword Obliteration</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Search crawlers (Googlebot, Bingbot) and social platform hashtag indexes do not equate Unicode mathematical symbols with standard ASCII Latin letters. Brand names, social bios, and titles composed in fancy fonts become 100% unsearchable in search bars and search result pages.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Cross-Platform Font Fallback Tofu Box Disasters</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Older Android operating systems, enterprise Windows installations, and low-spec smart devices lack comprehensive font glyph coverage for Unicode Supplementary Multilingual Plane (Plane 1). Users on these devices see unsightly empty rectangles (tofu characters) instead of styled letters.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Social Media Username &amp; Anti-Spoofing Policy Bans</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Major platforms (Discord, Twitter/X, GitHub, Steam) actively restrict or sanitize Unicode mathematical and homoglyph characters in handles and usernames. Attempting to register accounts with decorative symbols triggers immediate validation rejections or automated anti-impersonation shadowbans.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Normalization Form Collapses (NFKD / NFKC Deconstruction)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Modern databases, CMS caching layers, and sanitized REST APIs routinely apply Unicode Compatibility Decomposition (<code>NFKD</code>/<code>NFKC</code>) during database inserts. This silently strips all mathematical styling and collapses the text back to standard ASCII upon saving.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
-          const FONTS = [
-            { name: 'Fraktur / Gothic', map: { a:'𝔞',b:'𝔟',c:'𝔠',d:'𝔡',e:'𝔢',f:'𝔣',g:'𝔤',h:'𝔥',i:'𝔦',j:'𝔧',k:'𝔨',l:'𝔩',m:'𝔪',n:'𝔫',o:'𝔬',p:'𝔭',q:'𝔮',r:'𝔯',s:'𝔰',t:'𝔱',u:'𝔲',v:'𝔳',w:'𝔴',x:'𝔵',y:'𝔶',z:'𝔷',A:'𝔄',B:'𝔅',C:'ℭ',D:'𝔇',E:'𝔈',F:'𝔉',G:'𝔊',H:'ℌ',I:'ℑ',J:'𝔍',K:'𝔎',L:'𝔏',M:'𝔐',N:'𝔑',O:'𝔒',P:'𝔓',Q:'𝔔',R:'ℜ',S:'𝔖',T:'𝔗',U:'𝔘',V:'𝔙',W:'𝔚',X:'𝔛',Y:'𝔜',Z:'ℨ'} },
-            { name: 'Bold Sans', map: { a:'𝗮',b:'𝗯',c:'𝗰',d:'𝗱',e:'𝗲',f:'𝗳',g:'𝗴',h:'𝗵',i:'𝗶',j:'𝗷',k:'𝗸',l:'𝗹',m:'𝗺',n:'𝗻',o:'𝗼',p:'𝗽',q:'𝗾',r:'𝗿',s:'𝘀',t:'𝘁',u:'𝘂',v:'𝘃',w:'𝘄',x:'𝘅',y:'𝘆',z:'𝘇',A:'𝗔',B:'𝗕',C:'𝗖',D:'𝗗',E:'𝗘',F:'𝗙',G:'𝗚',H:'𝗛',I:'𝗜',J:'𝗝',K:'𝗞',L:'𝗟',M:'𝗠',N:'𝗡',O:'𝗢',P:'𝗣',Q:'𝗤',R:'𝗥',S:'𝗦',T:'𝗧',U:'𝗨',V:'𝗩',W:'𝗪',X:'𝗫',Y:'𝗬',Z:'𝗭',0:'𝟬',1:'𝟭',2:'𝟮',3:'𝟯',4:'𝟰',5:'𝟱',6:'𝟲',7:'𝟳',8:'𝟴',9:'𝟵'} },
-            { name: 'Double Struck / Blackboard', map: { a:'𝕒',b:'𝕓',c:'𝕔',d:'𝕕',e:'𝕖',f:'𝕗',g:'𝕘',h:'𝕙',i:'𝕚',j:'𝕛',k:'𝕜',l:'𝕝',m:'𝕞',n:'𝕟',o:'𝕠',p:'𝕡',q:'𝕢',r:'𝕣',s:'𝕤',t:'𝕥',u:'𝕦',v:'𝕧',w:'𝕨',x:'𝕩',y:'𝕪',z:'𝕫',A:'𝔸',B:'𝔹',C:'ℂ',D:'𝔻',E:'𝔼',F:'𝔽',G:'𝔾',H:'ℍ',I:'𝕀',J:'𝕁',K:'𝕂',L:'𝕃',M:'𝕄',N:'ℕ',O:'𝕆',P:'ℙ',Q:'ℚ',R:'ℝ',S:'𝕊',T:'𝕋',U:'𝕌',V:'𝕍',W:'𝕎',X:'𝕏',Y:'𝕐',Z:'ℤ'} },
-            { name: 'Circled', map: { a:'ⓐ',b:'ⓑ',c:'ⓒ',d:'ⓓ',e:'ⓔ',f:'ⓕ',g:'ⓖ',h:'ⓗ',i:'ⓘ',j:'ⓙ',k:'ⓚ',l:'ⓛ',m:'ⓜ',n:'ⓝ',o:'ⓞ',p:'ⓟ',q:'ⓠ',r:'ⓡ',s:'ⓢ',t:'ⓣ',u:'ⓤ',v:'ⓥ',w:'ⓦ',x:'ⓧ',y:'ⓨ',z:'ⓩ',A:'Ⓐ',B:'Ⓑ',C:'Ⓒ',D:'Ⓓ',E:'Ⓔ',F:'Ⓕ',G:'Ⓖ',H:'Ⓗ',I:'Ⓘ',J:'Ⓙ',K:'Ⓚ',L:'Ⓛ',M:'Ⓜ',N:'Ⓝ',O:'Ⓞ',P:'Ⓟ',Q:'Ⓠ',R:'Ⓡ',S:'Ⓢ',T:'Ⓣ',U:'Ⓤ',V:'Ⓥ',W:'Ⓦ',X:'Ⓧ',Y:'Ⓨ',Z:'Ⓩ',0:'⓪',1:'①',2:'②',3:'③',4:'④',5:'⑤',6:'⑥',7:'⑦',8:'⑧',9:'⑨'} },
-            { name: 'Squared / Boxed', map: { a:'🄰',b:'🄱',c:'🄲',d:'🄳',e:'🄴',f:'🄵',g:'🄶',h:'🄷',i:'🄸',j:'🄹',k:'🄺',l:'🄻',m:'🄼',n:'🄽',o:'🄾',p:'🄿',q:'🅀',r:'🅁',s:'🅂',t:'🅃',u:'🅄',v:'🅅',w:'🅆',x:'🅇',y:'🅈',z:'🅉',A:'🄰',B:'🄱',C:'🄲',D:'🄳',E:'🄴',F:'🄵',G:'🄶',H:'🄷',I:'🄸',J:'🄹',K:'🄺',L:'🄻',M:'🄼',N:'🄽',O:'🄾',P:'🄿',Q:'🅀',R:'🅁',S:'🅂',T:'🅃',U:'🅄',V:'🅅',W:'🅆',X:'🅇',Y:'🅈',Z:'🅉'} }
+          var FONTS = [
+            { id: 'fraktur', name: 'Fraktur / Gothic', map: { a:'𝔞',b:'𝔟',c:'𝔠',d:'𝔡',e:'𝔢',f:'𝔣',g:'𝔤',h:'𝔥',i:'𝔦',j:'𝔧',k:'𝔨',l:'𝔩',m:'𝔪',n:'𝔫',o:'𝔬',p:'𝔭',q:'𝔮',r:'𝔯',s:'𝔰',t:'𝔱',u:'𝔲',v:'𝔳',w:'𝔴',x:'𝔵',y:'𝔶',z:'𝔷',A:'𝔄',B:'𝔅',C:'ℭ',D:'𝔇',E:'𝔈',F:'𝔉',G:'𝔊',H:'ℌ',I:'ℑ',J:'𝔍',K:'𝔎',L:'𝔏',M:'𝔐',N:'𝔑',O:'𝔒',P:'𝔓',Q:'𝔔',R:'ℜ',S:'𝔖',T:'𝔗',U:'𝔘',V:'𝔙',W:'𝔚',X:'𝔛',Y:'𝔜',Z:'ℨ'} },
+            { id: 'bold', name: 'Bold Sans', map: { a:'𝗮',b:'𝗯',c:'𝗰',d:'𝗱',e:'𝗲',f:'𝗳',g:'𝗴',h:'𝗵',i:'𝗶',j:'𝗷',k:'𝗸',l:'𝗹',m:'𝗺',n:'𝗻',o:'𝗼',p:'𝗽',q:'𝗾',r:'𝗿',s:'𝘀',t:'𝘁',u:'𝘂',v:'𝘃',w:'𝘄',x:'𝘅',y:'𝘆',z:'𝘇',A:'𝗔',B:'𝗕',C:'𝗖',D:'𝗗',E:'𝗘',F:'𝗙',G:'𝗚',H:'𝗛',I:'𝗜',J:'𝗝',K:'𝗞',L:'𝗟',M:'𝗠',N:'𝗡',O:'𝗢',P:'𝗣',Q:'𝗤',R:'𝗥',S:'𝗦',T:'𝗧',U:'𝗨',V:'𝗩',W:'𝗪',X:'𝗫',Y:'𝗬',Z:'𝗭',0:'𝟬',1:'𝟭',2:'𝟮',3:'𝟯',4:'𝟰',5:'𝟱',6:'𝟲',7:'𝟳',8:'𝟴',9:'𝟵'} },
+            { id: 'blackboard', name: 'Double Struck / Blackboard', map: { a:'𝕒',b:'𝕓',c:'𝕔',d:'𝕕',e:'𝕖',f:'𝕗',g:'𝕘',h:'𝕙',i:'𝕚',j:'𝕛',k:'𝕜',l:'𝕝',m:'𝕞',n:'𝕟',o:'𝕠',p:'𝕡',q:'𝕢',r:'𝕣',s:'𝕤',t:'𝕥',u:'𝕦',v:'𝕧',w:'𝕨',x:'𝕩',y:'𝕪',z:'𝕫',A:'𝔸',B:'𝔹',C:'ℂ',D:'𝔻',E:'𝔼',F:'𝔽',G:'𝔾',H:'ℍ',I:'𝕀',J:'𝕁',K:'𝕂',L:'𝕃',M:'𝕄',N:'ℕ',O:'𝕆',P:'ℙ',Q:'ℚ',R:'ℝ',S:'𝕊',T:'𝕋',U:'𝕌',V:'𝕍',W:'𝕎',X:'𝕏',Y:'𝕐',Z:'ℤ'} },
+            { id: 'script', name: 'Cursive / Script', map: { a:'𝒶',b:'𝒷',c:'𝒸',d:'𝒹',e:'𝑒',f:'𝒻',g:'𝑔',h:'𝒽',i:'𝒾',j:'𝒿',k:'𝓀',l:'𝓁',m:'𝓂',n:'𝓃',o:'𝑜',p:'𝓅',q:'𝓆',r:'𝓇',s:'𝓈',t:'𝓉',u:'𝓊',v:'𝓋',w:'𝓌',x:'𝓍',y:'𝓎',z:'𝓏',A:'𝒜',B:'𝐵',C:'𝒞',D:'𝒟',E:'𝐸',F:'𝐹',G:'𝒢',H:'𝐻',I:'𝐼',J:'𝒥',K:'𝒦',L:'𝒱',M:'𝑀',N:'𝒩',O:'𝒪',P:'𝒫',Q:'𝒬',R:'𝑅',S:'𝒮',T:'𝒯',U:'𝒰',V:'𝒱',W:'𝒲',X:'𝒳',Y:'𝒴',Z:'𝒵'} },
+            { id: 'circled', name: 'Circled / Bubble', map: { a:'ⓐ',b:'ⓑ',c:'ⓒ',d:'ⓓ',e:'ⓔ',f:'ⓕ',g:'ⓖ',h:'ⓗ',i:'ⓘ',j:'ⓙ',k:'ⓚ',l:'ⓛ',m:'ⓜ',n:'ⓝ',o:'ⓞ',p:'ⓟ',q:'ⓠ',r:'ⓡ',s:'ⓢ',t:'ⓣ',u:'ⓤ',v:'ⓥ',w:'ⓦ',x:'ⓧ',y:'ⓨ',z:'ⓩ',A:'Ⓐ',B:'Ⓑ',C:'Ⓒ',D:'Ⓓ',E:'Ⓔ',F:'Ⓕ',G:'Ⓖ',H:'Ⓗ',I:'Ⓘ',J:'Ⓙ',K:'Ⓚ',L:'Ⓛ',M:'Ⓜ',N:'Ⓝ',O:'Ⓞ',P:'⅌',Q:'Ⓠ',R:'Ⓡ',S:'Ⓢ',T:'Ⓣ',U:'Ⓤ',V:'Ⓥ',W:'𝓌',X:'𝓍',Y:'Ⓨ',Z:'Ⓩ',0:'⓪',1:'①',2:'②',3:'③',4:'④',5:'⑤',6:'⑥',7:'⑦',8:'⑧',9:'⑨'} },
+            { id: 'boxed', name: 'Squared / Boxed', map: { a:'🄰',b:'🄱',c:'🄲',d:'🄳',e:'🄴',f:'🄵',g:'🄶',h:'🄷',i:'🄸',j:'🄹',k:'🄺',l:'🄻',m:'🄼',n:'🄽',o:'🄾',p:'🄿',q:'🅀',r:'🅁',s:'🅂',t:'🅃',u:'🅄',v:'🅅',w:'🅆',x:'🅇',y:'🅈',z:'🅉',A:'🄰',B:'🄱',C:'🄲',D:'🄳',E:'🄴',F:'🄵',G:'🄶',H:'🄷',I:'🄸',J:'🄹',K:'🄺',L:'🄻',M:'🄼',N:'🄽',O:'🄾',P:'🄿',Q:'🅀',R:'🅁',S:'🅂',T:'🅃',U:'🅄',V:'🅅',W:'🅆',X:'🅇',Y:'🅈',Z:'🅉'} },
+            { id: 'monospace', name: 'Monospace / Typewriter', map: { a:'𝚊',b:'𝚋',c:'𝚌',d:'𝚍',e:'𝚎',f:'𝚏',g:'𝚐',h:'𝚑',i:'𝚒',j:'𝚓',k:'𝚔',l:'𝚕',m:'𝚖',n:'𝚗',o:'𝚘',p:'𝚙',q:'𝚚',r:'𝚛',s:'𝚜',t:'𝚝',u:'𝚞',v:'𝚟',w:'𝚠',x:'𝚡',y:'𝚢',z:'𝚣',A:'𝙰',B:'𝙱',C:'𝙲',D:'𝙳',E:'𝙴',F:'𝙵',G:'𝙶',H:'𝙷',I:'𝙸',J:'𝙹',K:'𝙺',L:'𝙻',M:'𝙼',N:'𝙽',O:'𝙾',P:'𝙿',Q:'𝚀',R:'𝚁',S:'𝚂',T:'𝚃',U:'𝚄',V:'𝚅',W:'𝚆',X:'𝚇',Y:'𝚈',Z:'𝚉',0:'𝟶',1:'𝟷',2:'𝟸',3:'𝟹',4:'𝟺',5:'𝟻',6:'𝟼',7:'𝟽',8:'𝟾',9:'𝟿'} },
+            { id: 'smallcaps', name: 'Small Caps', map: { a:'ᴀ',b:'ʙ',c:'ᴄ',d:'ᴅ',e:'ᴇ',f:'ꜰ',g:'ɢ',h:'ʜ',i:'ɪ',j:'ᴊ',k:'ᴋ',l:'ʟ',m:'ᴍ',n:'ɴ',o:'ᴏ',p:'ᴘ',q:'ǫ',r:'ʀ',s:'s',t:'ᴛ',u:'ᴜ',v:'ᴠ',w:'ᴡ',x:'x',y:'ʏ',z:'ᴢ',A:'ᴀ',B:'ʙ',C:'ᴄ',D:'ᴅ',E:'ᴇ',F:'ꜰ',G:'ɢ',H:'ʜ',I:'ɪ',J:'ᴊ',K:'ᴋ',L:'ʟ',M:'ᴍ',N:'ɴ',O:'ᴏ',P:'ᴘ',Q:'ǫ',R:'ʀ',S:'s',T:'ᴛ',U:'ᴜ',V:'ᴠ',W:'ᴡ',X:'x',Y:'ʏ',Z:'ᴢ'} }
           ];
 
-          function genFancy() {
-            const val = document.getElementById('fancy-in').value;
-            const container = document.getElementById('fancy-results');
-            container.innerHTML = '';
+          window._fancyResultsMap = {};
 
-            FONTS.forEach(font => {
-              const converted = val.split('').map(c => font.map[c] || c).join('');
-              const row = document.createElement('div');
-              row.style.cssText = 'background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem 1rem; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; gap: 1rem;';
-              row.innerHTML = '<div>' +
-                '<div style="font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase;">' + font.name + '</div>' +
-                '<div style="font-size: 1.15rem; margin-top: 0.2rem; color: var(--fg); word-break: break-all;">' + converted + '</div>' +
-                '</div>' +
-                '<button class="btn-primary" style="flex-shrink: 0;" onclick="navigator.clipboard.writeText(\'' + converted.replace(/'/g, "\\'") + '\')">Copy</button>';
+          window.genFancy = function() {
+            var input = document.getElementById('fancy-in');
+            var val = input ? input.value : '';
+            var container = document.getElementById('fancy-results');
+            if (!container) return;
+            container.innerHTML = '';
+            window._fancyResultsMap = {};
+
+            FONTS.forEach(function(font, idx) {
+              var converted = val.split('').map(function(c) { return font.map[c] || c; }).join('');
+              window._fancyResultsMap[font.name] = converted;
+
+              var row = document.createElement('div');
+              row.style.cssText = 'background: var(--surface-alt); border: 1px solid var(--border); padding: 0.85rem 1rem; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; gap: 1rem;';
+              
+              var textWrap = document.createElement('div');
+              textWrap.style.cssText = 'flex: 1; min-width: 0;';
+              
+              var title = document.createElement('div');
+              title.style.cssText = 'font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 0.25rem;';
+              title.textContent = font.name;
+              
+              var textVal = document.createElement('div');
+              textVal.style.cssText = 'font-size: 1.15rem; color: var(--fg); word-break: break-all;';
+              textVal.textContent = converted || '(Empty)';
+              
+              textWrap.appendChild(title);
+              textWrap.appendChild(textVal);
+
+              var btn = document.createElement('button');
+              btn.type = 'button';
+              btn.className = 'btn-primary';
+              btn.style.cssText = 'flex-shrink: 0; padding: 0.4rem 0.85rem; font-size: 0.82rem;';
+              btn.textContent = 'Copy';
+              btn.onclick = function() {
+                navigator.clipboard.writeText(converted).then(function() {
+                  btn.innerHTML = '<span style="color:#10b981;">✓ Copied!</span>';
+                  setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+                });
+              };
+
+              row.appendChild(textWrap);
+              row.appendChild(btn);
               container.appendChild(row);
             });
-          }
+          };
+
+          window.copyAllFancy = function() {
+            var val = document.getElementById('fancy-in') ? document.getElementById('fancy-in').value : '';
+            if (!val) { genFancy(); }
+            
+            var text = '✨ Fancy Unicode Typographic Styler Report\n' +
+              '• Original Text: "' + val + '"\n\n';
+
+            for (var name in window._fancyResultsMap) {
+              text += '• ' + name + ':\n  ' + window._fancyResultsMap[name] + '\n\n';
+            }
+            text += 'Generated at digitaltoolsshed.com/text/fancy-text';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyAllFancy');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ All Font Styles Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearFancyInput = function() {
+            var inp = document.getElementById('fancy-in');
+            if (inp) inp.value = '';
+            genFancy();
+          };
+
+          window.loadSampleFancy = function() {
+            var inp = document.getElementById('fancy-in');
+            if (inp) inp.value = 'Quantum Computing & Modern Web Standards 2026';
+            genFancy();
+          };
 
           document.addEventListener('DOMContentLoaded', genFancy);
         </script>
@@ -756,81 +882,251 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Morse Code Translator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Morse Code Translator & Audio Player</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Morse Code Translator, Audio Keyer &amp; Prosign Decoder</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Convert text to international Morse code dots and dashes, or translate Morse back to readable text with audio playback.
+            Translate text to International Morse Code and decode CW signals back to plain English with real-time Web Audio API beeps, WPM speed tuning, and prosign support.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">English Text</label>
-              <textarea id="morse-text" class="code-input" style="height: 100px;" placeholder="Type text..." oninput="textToMorse()"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Plain Text (English)</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleMorse()">Load Emergency CQ Sample</button>
+              </div>
+              <textarea id="morse-text" class="code-input" style="height: 110px; font-size: 1rem;" placeholder="Type English text..." oninput="textToMorse()"></textarea>
             </div>
 
-            <div class="field-group">
-              <label class="field-label">Morse Code (. and -)</label>
-              <textarea id="morse-code" class="code-input" style="height: 100px; font-size: 1.1rem; letter-spacing: 0.1em;" placeholder="Type Morse code..." oninput="morseToText()"></textarea>
+            <div class="field-group" style="margin-top: 1rem;">
+              <label class="field-label">Morse Code (Dots &amp; Dashes)</label>
+              <textarea id="morse-code" class="code-input" style="height: 110px; font-family: var(--mono); font-size: 1.05rem; letter-spacing: 1px;" placeholder="e.g. ... --- ..." oninput="morseToText()"></textarea>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="playMorse()">&#x25B6; Play Audio Beeps</button>
-              <button class="btn-sec" onclick="copyMorse()">Copy Morse</button>
+            <!-- Audio Tuning Controls -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1.25rem 0; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label" style="display: flex; justify-content: space-between;">
+                  <span>Transmission Speed</span>
+                  <span id="wpm-val" style="font-family: var(--mono); color: var(--fg); font-weight: bold;">18 WPM</span>
+                </label>
+                <input type="range" id="morse-wpm" min="5" max="35" value="18" style="width: 100%; cursor: pointer;" oninput="document.getElementById('wpm-val').textContent = this.value + ' WPM'" />
+              </div>
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label" style="display: flex; justify-content: space-between;">
+                  <span>Audio Pitch / Tone</span>
+                  <span id="hz-val" style="font-family: var(--mono); color: var(--fg); font-weight: bold;">700 Hz</span>
+                </label>
+                <input type="range" id="morse-hz" min="400" max="1000" step="50" value="700" style="width: 100%; cursor: pointer;" oninput="document.getElementById('hz-val').textContent = this.value + ' Hz'" />
+              </div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem;">
+              <button type="button" id="btnPlayMorse" class="btn-primary" onclick="playMorseAudio()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span id="playIcon">▶</span> <span id="playLabel">Play Audio Beep Tone</span>
+              </button>
+              <button type="button" id="btnCopyMorse" class="btn-sec" onclick="copyMorseCode()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Morse Code</span>
+              </button>
+              <button type="button" id="btnCopyMorseText" class="btn-sec" onclick="copyMorseText()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Plain Text</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearMorseInputs()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Morse Code Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Morse Code, Telegraphy &amp; Audio Demodulation</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. ITU-R M.1677 Standard Timing Ratio Violations</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  International Morse adheres to strict ITU-R timing math: 1 dot = 1 unit, 1 dash = 3 units, intra-character space = 1 unit, inter-character space = 3 units, and inter-word space = 7 units. Naive software keyers that use arbitrary delay loops or fail the standard 1:3:7 formula create choppy, uncopyable CW on amateur radio bands.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. International (ITU) vs. American Railroad Morse Confusion</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Original American Morse (used on 19th-century landline telegraphs) differs radically from Continental/International ITU Morse. For example, in American Morse, the letter "C" is <code>.. .</code> (two dots, space, dot) and "O" is <code>. .</code>. Sending American Morse over maritime radio or modern aviation beacons causes catastrophic signal misinterpretation.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Prosign Fusion Errors &amp; Procedural Signal Splitting</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Procedural signals (prosigns) such as <code>SOS</code> (<code>...---...</code>), <code>AR</code> (end of message, <code>.-.-.</code>), and <code>SK</code> (end of contact, <code>...-.-</code>) are keyed as single continuous compound characters without the standard 3-unit inter-character gap. Splitting them into separate words (e.g. S O S) is technically invalid in emergency maritime distress protocols.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Modern Browser Web Audio API Autoplay Restrictions</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Chrome, Safari, and Firefox strictly enforce autoplay security policies that keep the browser <code>AudioContext</code> in a "suspended" state until a direct, user-initiated click or tap occurs. Any script attempting to synthesize Morse sidetones without first calling <code>audioCtx.resume()</code> fails silently with zero audio output.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Punctuation Collisions &amp; Slash Delimiter Ambiguities</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Informal text representations of Morse code frequently employ the forward slash (<code>/</code>) to demarcate word boundaries. However, the ITU character for a literal fraction slash is <code>-..-.</code>. Parsing raw Morse streams without explicit delimiter escaping scrambles radio callsigns and coordinate bearings.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          const MORSE_MAP = {
+          var MORSE_MAP = {
             'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.',
             'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..',
             'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.',
             'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
             'Y': '-.--', 'Z': '--..', '1': '.----', '2': '..---', '3': '...--',
             '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..',
-            '9': '----.', '0': '-----', ' ': '/'
+            '9': '----.', '0': '-----', '.': '.-.-.-', ',': '--..--', '?': '..--..',
+            "'": '.----.', '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-',
+            '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.',
+            '-': '-....-', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.'
           };
 
-          const REVERSE_MORSE = {};
-          Object.keys(MORSE_MAP).forEach(k => REVERSE_MORSE[MORSE_MAP[k]] = k);
+          var REVERSE_MORSE = {};
+          for (var k in MORSE_MAP) {
+            REVERSE_MORSE[MORSE_MAP[k]] = k;
+          }
 
-          function textToMorse() {
-            const val = document.getElementById('morse-text').value.toUpperCase();
-            const res = val.split('').map(c => MORSE_MAP[c] || '').join(' ');
+          var _audioCtx = null;
+          var _isPlaying = false;
+          var _stopAudioPlayback = false;
+
+          function getAudioContext() {
+            if (!_audioCtx) {
+              var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+              if (AudioContextClass) _audioCtx = new AudioContextClass();
+            }
+            if (_audioCtx && _audioCtx.state === 'suspended') {
+              _audioCtx.resume();
+            }
+            return _audioCtx;
+          }
+
+          window.textToMorse = function() {
+            var val = document.getElementById('morse-text') ? document.getElementById('morse-text').value.toUpperCase() : '';
+            var words = val.trim().split(/\s+/);
+            var res = words.map(function(word) {
+              return word.split('').map(function(c) { return MORSE_MAP[c] || ''; }).filter(Boolean).join(' ');
+            }).join(' / ');
+
             document.getElementById('morse-code').value = res;
-          }
+          };
 
-          function morseToText() {
-            const val = document.getElementById('morse-code').value.trim();
-            const words = val.split(' / ');
-            const decoded = words.map(w => w.split(' ').map(c => REVERSE_MORSE[c] || '').join('')).join(' ');
+          window.morseToText = function() {
+            var val = document.getElementById('morse-code') ? document.getElementById('morse-code').value.trim() : '';
+            if (!val) {
+              document.getElementById('morse-text').value = '';
+              return;
+            }
+            var words = val.split(/\s*\/\s*|\s{3,}/);
+            var decoded = words.map(function(w) {
+              return w.trim().split(/\s+/).map(function(code) {
+                return REVERSE_MORSE[code] || '';
+              }).join('');
+            }).join(' ');
+
             document.getElementById('morse-text').value = decoded;
-          }
+          };
 
-          function copyMorse() {
-            navigator.clipboard.writeText(document.getElementById('morse-code').value);
-          }
+          window.copyMorseCode = function() {
+            var val = document.getElementById('morse-code') ? document.getElementById('morse-code').value : '';
+            if (!val) { textToMorse(); val = document.getElementById('morse-code').value; }
 
-          async function playMorse() {
-            const code = document.getElementById('morse-code').value;
-            if (!code) return;
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyMorse');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Morse Code Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const dotTime = 0.08;
+          window.copyMorseText = function() {
+            var val = document.getElementById('morse-text') ? document.getElementById('morse-text').value : '';
+            if (!val) { morseToText(); val = document.getElementById('morse-text').value; }
 
-            let curTime = ctx.currentTime + 0.1;
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyMorseText');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Plain Text Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
-            for (const char of code) {
+          window.playMorseAudio = function() {
+            if (_isPlaying) {
+              _stopAudioPlayback = true;
+              return;
+            }
+
+            var code = document.getElementById('morse-code') ? document.getElementById('morse-code').value : '';
+            if (!code) {
+              textToMorse();
+              code = document.getElementById('morse-code').value;
+              if (!code) return;
+            }
+
+            var ctx = getAudioContext();
+            if (!ctx) return;
+
+            var wpm = parseInt(document.getElementById('morse-wpm').value, 10) || 18;
+            var freq = parseInt(document.getElementById('morse-hz').value, 10) || 700;
+            // Paris standard: 50 units per word. dotTime = 1.2 / WPM
+            var dotTime = 1.2 / wpm;
+
+            _isPlaying = true;
+            _stopAudioPlayback = false;
+
+            var btn = document.getElementById('btnPlayMorse');
+            var icon = document.getElementById('playIcon');
+            var lbl = document.getElementById('playLabel');
+            if (icon) icon.textContent = '⏹';
+            if (lbl) lbl.textContent = 'Stop Audio Playback';
+            if (btn) btn.style.background = '#ef4444';
+
+            var curTime = ctx.currentTime + 0.05;
+
+            for (var i = 0; i < code.length; i++) {
+              var char = code[i];
               if (char === '.' || char === '-') {
-                const dur = char === '.' ? dotTime : dotTime * 3;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
+                var dur = char === '.' ? dotTime : dotTime * 3;
+                var osc = ctx.createOscillator();
+                var gain = ctx.createGain();
 
-                osc.frequency.value = 650;
+                osc.frequency.value = freq;
                 osc.type = 'sine';
+
+                // Gentle envelope to prevent audio clicking
+                gain.gain.setValueAtTime(0, curTime);
+                gain.gain.linearRampToValueAtTime(0.3, curTime + 0.005);
+                gain.gain.setValueAtTime(0.3, curTime + dur - 0.005);
+                gain.gain.linearRampToValueAtTime(0, curTime + dur);
+
                 osc.connect(gain);
                 gain.connect(ctx.destination);
 
@@ -840,10 +1136,36 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               } else if (char === ' ') {
                 curTime += dotTime * 2;
               } else if (char === '/') {
-                curTime += dotTime * 6;
+                curTime += dotTime * 5;
               }
             }
-          }
+
+            var totalDurMs = Math.max(100, (curTime - ctx.currentTime) * 1000);
+            setTimeout(function() {
+              _isPlaying = false;
+              if (icon) icon.textContent = '▶';
+              if (lbl) lbl.textContent = 'Play Audio Beep Tone';
+              if (btn) btn.style.background = '';
+            }, totalDurMs);
+          };
+
+          window.clearMorseInputs = function() {
+            document.getElementById('morse-text').value = '';
+            document.getElementById('morse-code').value = '';
+          };
+
+          window.loadSampleMorse = function() {
+            document.getElementById('morse-text').value = 'CQ CQ CQ DE K1JT MAYDAY SOS';
+            textToMorse();
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var txt = document.getElementById('morse-text');
+            if (txt && !txt.value) {
+              txt.value = 'HELLO WORLD';
+              textToMorse();
+            }
+          });
         </script>
       `
     },
@@ -854,52 +1176,286 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Binary Text Converter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Binary to Text & Text to Binary Converter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Binary to Text &amp; Text to Binary Converter Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Encode plain text into 8-bit binary numbers or decode binary code strings back to readable English.
+            Encode English and Unicode text into 8-bit binary strings or decode binary byte streams back to UTF-8 text with formatting and bit parity metrics.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Plain Text</label>
-              <textarea id="bin-text" class="code-input" style="height: 120px;" placeholder="Type text..." oninput="textToBin()"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Plain Text (ASCII &amp; UTF-8)</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleBinary()">Load Sample</button>
+              </div>
+              <textarea id="bin-text" class="code-input" style="height: 120px; font-size: 1rem;" placeholder="Type text..." oninput="textToBin()"></textarea>
+            </div>
+
+            <!-- Delimiter and Format Selector -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label">Byte Delimiter</label>
+                <select id="bin-delim" class="text-input" onchange="textToBin()">
+                  <option value="space">Space (01001000 01101001)</option>
+                  <option value="none">No Space (0100100001101001)</option>
+                  <option value="comma">Comma (01001000, 01101001)</option>
+                  <option value="prefix">0b Prefix (0b01001000 0b01101001)</option>
+                </select>
+              </div>
+              <div class="field-group" style="margin: 0; display: flex; align-items: flex-end; padding-bottom: 0.5rem;">
+                <label class="opt-label"><input type="checkbox" id="bin-utf8" checked onchange="textToBin()"> Full UTF-8 Multi-Byte Encoding</label>
+              </div>
             </div>
 
             <div class="field-group">
-              <label class="field-label">Binary Code (8-bit bytes)</label>
-              <textarea id="bin-code" class="code-input" style="height: 120px;" placeholder="e.g. 01001000 01101001" oninput="binToText()"></textarea>
+              <label class="field-label">Binary Code (8-bit Byte Stream)</label>
+              <textarea id="bin-code" class="code-input" style="height: 140px; font-family: var(--mono); font-size: 0.95rem; line-height: 1.5;" placeholder="e.g. 01001000 01101001" oninput="binToText()"></textarea>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="copyBin()">Copy Binary</button>
+            <!-- Live Bit Diagnostic Metrics -->
+            <div class="stat-grid" style="margin-top: 1rem;">
+              <div class="stat-card"><div class="stat-num" id="stat-bytes">0</div><div class="stat-lbl">Total Bytes</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-bits">0</div><div class="stat-lbl">Total Bits</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-ones">0</div><div class="stat-lbl">High Bits (1s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-zeros">0</div><div class="stat-lbl">Low Bits (0s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-density">0%</div><div class="stat-lbl">Bit Density</div></div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyBinary" class="btn-sec" onclick="copyBinaryCode()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Binary Code</span>
+              </button>
+              <button type="button" id="btnCopyBinText" class="btn-sec" onclick="copyBinaryText()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Plain Text</span>
+              </button>
+              <button type="button" id="btnCopyBinStats" class="btn-sec" onclick="copyBinaryStatsReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Diagnostic Stats</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearBinaryInputs()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Binary Text Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Binary Encoding, Byte Framing &amp; Character Sets</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Multi-Byte UTF-8 Truncation via Naive charCodeAt()</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Primitive JavaScript binary converters rely on <code>str.charCodeAt(i)</code>. This only returns 16-bit UTF-16 code units and breaks on international characters and emojis (e.g. 🚀 is U+1F680, which requires 4 UTF-8 bytes). Using <code>TextEncoder</code> is mandatory to prevent byte stream corruption.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Missing Leading Zeros &amp; Byte Framing Desynchronization</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Converting numbers to binary via <code>(num).toString(2)</code> omits leading zeros: e.g. ASCII space (32) becomes <code>100000</code> (6 bits) instead of <code>00100000</code> (8 bits). In continuous binary streams without delimiters, this 2-bit deficit desynchronizes all subsequent byte frames, scrambling the remainder of the message.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Endianness &amp; Bit Order Inversions in Stream Serialization</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Standard telecommunications and internet protocols transmit data in Big-Endian (Most Significant Bit first) network byte order. Feeding binary streams into hardware registers that expect Little-Endian (Least Significant Bit first) inverts the bit sequence, transforming character 'A' (<code>01000001</code>) into '‚' (<code>10000010</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Non-Printing Control Character &amp; Null-Byte Poisoning</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Binary representations can encode non-printing ASCII control bytes such as <code>00000000</code> (Null byte), <code>00000111</code> (Bell), or <code>00011011</code> (Escape). Injecting raw null bytes into C/C++ backend parsers terminates strings prematurely, enabling security bypasses and memory corruption.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Bit Flips &amp; Parity Check Absence in Raw Channels</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Transmitting uncompressed binary text across physical wires or RF without parity bits or Cyclic Redundancy Checks (CRC) leaves messages vulnerable to cosmic-ray and electromagnetic bit flips. A single flipped bit changes lowercase 'a' (<code>01100001</code>) into 'q' (<code>01110001</code>) or command code without detection.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          function textToBin() {
-            const val = document.getElementById('bin-text').value;
-            const res = Array.from(val).map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
-            document.getElementById('bin-code').value = res;
-          }
+          window._binaryStats = { bytes: 0, bits: 0, ones: 0, zeros: 0, density: '0%' };
 
-          function binToText() {
-            const val = document.getElementById('bin-code').value.trim();
-            if (!val) { document.getElementById('bin-text').value = ''; return; }
+          window.textToBin = function() {
+            var val = document.getElementById('bin-text') ? document.getElementById('bin-text').value : '';
+            var delim = document.getElementById('bin-delim') ? document.getElementById('bin-delim').value : 'space';
+            var useUtf8 = document.getElementById('bin-utf8') ? document.getElementById('bin-utf8').checked : true;
+
+            var bytes = [];
+            if (useUtf8 && typeof TextEncoder !== 'undefined') {
+              var encoder = new TextEncoder();
+              bytes = Array.from(encoder.encode(val));
+            } else {
+              for (var i = 0; i < val.length; i++) {
+                bytes.push(val.charCodeAt(i) & 0xFF);
+              }
+            }
+
+            var binaryStrs = bytes.map(function(b) {
+              return b.toString(2).padStart(8, '0');
+            });
+
+            var totalOnes = 0;
+            var totalZeros = 0;
+            binaryStrs.forEach(function(bs) {
+              for (var j = 0; j < bs.length; j++) {
+                if (bs[j] === '1') totalOnes++;
+                else totalZeros++;
+              }
+            });
+
+            var totalBits = totalOnes + totalZeros;
+            var density = totalBits > 0 ? ((totalOnes / totalBits) * 100).toFixed(1) + '%' : '0%';
+
+            window._binaryStats = {
+              bytes: bytes.length,
+              bits: totalBits,
+              ones: totalOnes,
+              zeros: totalZeros,
+              density: density
+            };
+
+            document.getElementById('stat-bytes').textContent = bytes.length.toLocaleString();
+            document.getElementById('stat-bits').textContent = totalBits.toLocaleString();
+            document.getElementById('stat-ones').textContent = totalOnes.toLocaleString();
+            document.getElementById('stat-zeros').textContent = totalZeros.toLocaleString();
+            document.getElementById('stat-density').textContent = density;
+
+            var outputStr = '';
+            if (delim === 'space') outputStr = binaryStrs.join(' ');
+            else if (delim === 'none') outputStr = binaryStrs.join('');
+            else if (delim === 'comma') outputStr = binaryStrs.join(', ');
+            else if (delim === 'prefix') outputStr = binaryStrs.map(function(b) { return '0b' + b; }).join(' ');
+
+            document.getElementById('bin-code').value = outputStr;
+          };
+
+          window.binToText = function() {
+            var val = document.getElementById('bin-code') ? document.getElementById('bin-code').value.trim() : '';
+            if (!val) {
+              document.getElementById('bin-text').value = '';
+              return;
+            }
+
+            // Strip 0b prefixes, commas, and extract continuous or spaced bits
+            var clean = val.replace(/0b/gi, '').replace(/[^01]/g, ' ').trim();
+            var rawBytes = [];
+
+            if (clean.indexOf(' ') !== -1) {
+              var tokens = clean.split(/\s+/);
+              for (var i = 0; i < tokens.length; i++) {
+                if (tokens[i].length > 0) {
+                  rawBytes.push(parseInt(tokens[i], 2));
+                }
+              }
+            } else {
+              // Fixed 8-bit chunking
+              for (var j = 0; j < clean.length; j += 8) {
+                var chunk = clean.slice(j, j + 8);
+                if (chunk.length === 8) {
+                  rawBytes.push(parseInt(chunk, 2));
+                }
+              }
+            }
+
             try {
-              const bytes = val.split(/\\s+/);
-              const chars = bytes.map(b => String.fromCharCode(parseInt(b, 2))).join('');
+              var uint8 = new Uint8Array(rawBytes);
+              var decoder = new TextDecoder('utf-8');
+              document.getElementById('bin-text').value = decoder.decode(uint8);
+            } catch (e) {
+              var chars = rawBytes.map(function(b) { return String.fromCharCode(b); }).join('');
               document.getElementById('bin-text').value = chars;
-            } catch(e) {}
-          }
+            }
+          };
 
-          function copyBin() {
-            navigator.clipboard.writeText(document.getElementById('bin-code').value);
-          }
+          window.copyBinaryCode = function() {
+            var val = document.getElementById('bin-code') ? document.getElementById('bin-code').value : '';
+            if (!val) { textToBin(); val = document.getElementById('bin-code').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyBinary');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Binary Code Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.copyBinaryText = function() {
+            var val = document.getElementById('bin-text') ? document.getElementById('bin-text').value : '';
+            if (!val) { binToText(); val = document.getElementById('bin-text').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyBinText');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Plain Text Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.copyBinaryStatsReport = function() {
+            var s = window._binaryStats;
+            var text = '📊 Binary Byte Stream Diagnostic Report\n' +
+              '• Total Encoded Bytes: ' + s.bytes.toLocaleString() + ' bytes\n' +
+              '• Total Bits: ' + s.bits.toLocaleString() + ' bits\n' +
+              '• High Bits (1s / Hamming Weight): ' + s.ones.toLocaleString() + '\n' +
+              '• Low Bits (0s): ' + s.zeros.toLocaleString() + '\n' +
+              '• Bit Density: ' + s.density + '\n\n' +
+              'Calculated at digitaltoolsshed.com/text/binary-text';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyBinStats');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Diagnostic Stats Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearBinaryInputs = function() {
+            document.getElementById('bin-text').value = '';
+            document.getElementById('bin-code').value = '';
+            textToBin();
+          };
+
+          window.loadSampleBinary = function() {
+            document.getElementById('bin-text').value = 'Digital Tools Shed 🚀 2026';
+            textToBin();
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var txt = document.getElementById('bin-text');
+            if (txt && !txt.value) {
+              txt.value = 'Hello, World!';
+              textToBin();
+            }
+          });
         </script>
       `
     },
@@ -910,60 +1466,171 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Zalgo Text Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Zalgo Glitch Text Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Zalgo Glitch Text Generator &amp; Diacritical Styler</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Stack combining diacritical Unicode marks above, middle, and below characters to generate chaotic glitch text.
+            Stack combining diacritical Unicode marks above, through, and below characters to generate chaotic cursed glitch text with full overflow control.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Plain Text</label>
-              <input type="text" id="zalgo-in" class="text-input" value="He comes" oninput="genZalgo()" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Plain Text</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleZalgo()">Load Sample</button>
+              </div>
+              <input type="text" id="zalgo-in" class="text-input" value="HE COMES" oninput="genZalgo()" style="font-size: 1.1rem; height: 48px;" />
             </div>
 
-            <div class="field-group">
-              <label class="field-label">Corruption Intensity: <span id="zalgo-lvl">5</span></label>
-              <input type="range" id="zalgo-range" min="1" max="15" value="5" style="width: 100%;" oninput="document.getElementById('zalgo-lvl').textContent=this.value; genZalgo();" />
+            <!-- Direction Checkboxes & Corruption Slider -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.25rem 0;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label" style="display: flex; justify-content: space-between;">
+                  <span>Corruption Intensity</span>
+                  <span id="zalgo-lvl" style="font-family: var(--mono); font-weight: bold; color: var(--fg);">6</span>
+                </label>
+                <input type="range" id="zalgo-range" min="1" max="20" value="6" style="width: 100%; cursor: pointer;" oninput="document.getElementById('zalgo-lvl').textContent=this.value; genZalgo();" />
+              </div>
+              <div class="field-group" style="margin: 0; display: flex; flex-direction: column; justify-content: flex-end; gap: 0.35rem;">
+                <label class="opt-label"><input type="checkbox" id="zalgo-up" checked onchange="genZalgo()"> Glitch Up (Above)</label>
+                <label class="opt-label"><input type="checkbox" id="zalgo-mid" checked onchange="genZalgo()"> Glitch Middle (Through)</label>
+                <label class="opt-label"><input type="checkbox" id="zalgo-down" checked onchange="genZalgo()"> Glitch Down (Below)</label>
+              </div>
             </div>
 
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Cursed / Glitched Output</label>
-              <div id="zalgo-out" class="result-box" style="font-size: 1.3rem; min-height: 80px; line-height: 2; overflow-x: auto;"></div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Cursed / Corrupted Zalgo Output</label>
+                <span id="zalgoByteStats" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 bytes</span>
+              </div>
+              <div id="zalgo-out" class="result-box" style="font-size: 1.35rem; min-height: 120px; line-height: 2.2; overflow-x: auto; padding: 1.5rem 1rem; word-break: break-all; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;"></div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="copyZalgo()">Copy Glitched Text</button>
+            <!-- Action Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyZalgo" class="btn-primary" onclick="copyZalgoText()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Glitched Zalgo Text</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearZalgoInput()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear Text</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Zalgo Text Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Zalgo Text, Combining Diacritics &amp; Rendering Engines</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Line-Height Explosion &amp; UI Component Overlap Destruction</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Combining diacritical marks in Unicode (U+0300 to U+036F) do not expand container bounding boxes. In web layouts lacking <code>overflow: hidden</code> or substantial padding, stacked accents render directly over upper navigational menus, adjacent buttons, and sidebars, rendering interfaces unusable.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Chat Spam Filtering &amp; Automated Message Dropping</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Communication platforms (Discord, Twitch, Slack, Telegram) deploy automated regex filters that measure combining mark density. Sending messages containing intense Zalgo text instantly triggers spam heuristics, leading to silent message dropping, bot timeouts, or temporary user suspensions.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Database Column Overflow &amp; UTF-8 Byte Bloat</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Every combining mark requires 2 to 3 bytes in UTF-8 encoding. A short 10-character word corrupted at level 15 stacks 450 combining marks, expanding a 10-byte string into over 900 bytes. Attempting to insert this into standard <code>VARCHAR(255)</code> database columns causes catastrophic SQL exceptions.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Terminal Emulator &amp; CLI Shaper Crashes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Many command-line interfaces and terminal emulators (e.g. legacy Windows console, older PuTTY) lack advanced OpenType text shaping engines. Printing heavily accented Zalgo strings to stdout can cause terminal renderers to freeze or enter unbounded glyph caching loops.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Screen Reader Speech Synthesizer Auditory Lockups</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Accessibility software (JAWS, NVDA, Windows Narrator) attempts to vocalize every individual combining mark sequentially (e.g., <em>"Combining Inverted Breve, Combining Diaeresis, Combining Horn..."</em>). Users with screen readers experience painful auditory freezes that can last minutes.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          const ZALGO_UP = [0x030d,0x030e,0x0304,0x0305,0x033f,0x0311,0x0306,0x0310,0x0352,0x0357,0x0358,0x0342,0x0343,0x0344,0x034a,0x034b,0x034c,0x0350,0x0300,0x0301,0x0302,0x0303,0x0307,0x0308,0x0309,0x030a,0x030b,0x030c];
-          const ZALGO_DOWN = [0x0316,0x0317,0x0318,0x0319,0x031c,0x031d,0x031e,0x031f,0x0320,0x0324,0x0325,0x0326,0x0329,0x032a,0x032b,0x032c,0x032d,0x032e,0x032f,0x0330,0x0331,0x0332,0x0333,0x0339,0x033a,0x033b,0x033c];
+          var ZALGO_UP = [0x030d,0x030e,0x0304,0x0305,0x033f,0x0311,0x0306,0x0310,0x0352,0x0357,0x0358,0x0342,0x0343,0x0344,0x034a,0x034b,0x034c,0x0350,0x0300,0x0301,0x0302,0x0303,0x0307,0x0308,0x0309,0x030a,0x030b,0x030c];
+          var ZALGO_MID = [0x0315,0x031b,0x0340,0x0341,0x0358,0x0321,0x0322,0x0327,0x0328,0x0334,0x0335,0x0336,0x0337,0x0338];
+          var ZALGO_DOWN = [0x0316,0x0317,0x0318,0x0319,0x031c,0x031d,0x031e,0x031f,0x0320,0x0324,0x0325,0x0326,0x0329,0x032a,0x032b,0x032c,0x032d,0x032e,0x032f,0x0330,0x0331,0x0332,0x0333,0x0339,0x033a,0x033b,0x033c];
 
-          function genZalgo() {
-            const val = document.getElementById('zalgo-in').value;
-            const lvl = parseInt(document.getElementById('zalgo-range').value, 10);
+          window.genZalgo = function() {
+            var val = document.getElementById('zalgo-in') ? document.getElementById('zalgo-in').value : '';
+            var lvl = parseInt(document.getElementById('zalgo-range').value, 10) || 6;
+            var doUp = document.getElementById('zalgo-up') ? document.getElementById('zalgo-up').checked : true;
+            var doMid = document.getElementById('zalgo-mid') ? document.getElementById('zalgo-mid').checked : true;
+            var doDown = document.getElementById('zalgo-down') ? document.getElementById('zalgo-down').checked : true;
 
-            let res = '';
-            for (const c of val) {
-              if (c === ' ') { res += ' '; continue; }
+            var res = '';
+            for (var i = 0; i < val.length; i++) {
+              var c = val[i];
+              if (c === ' ' || c === '\n') { res += c; continue; }
               res += c;
-              for (let i = 0; i < lvl; i++) {
-                res += String.fromCharCode(ZALGO_UP[Math.floor(Math.random() * ZALGO_UP.length)]);
-                res += String.fromCharCode(ZALGO_DOWN[Math.floor(Math.random() * ZALGO_DOWN.length)]);
+
+              if (doUp) {
+                for (var u = 0; u < lvl; u++) {
+                  res += String.fromCharCode(ZALGO_UP[Math.floor(Math.random() * ZALGO_UP.length)]);
+                }
+              }
+              if (doMid) {
+                for (var m = 0; m < Math.floor(lvl / 2); m++) {
+                  res += String.fromCharCode(ZALGO_MID[Math.floor(Math.random() * ZALGO_MID.length)]);
+                }
+              }
+              if (doDown) {
+                for (var d = 0; d < lvl; d++) {
+                  res += String.fromCharCode(ZALGO_DOWN[Math.floor(Math.random() * ZALGO_DOWN.length)]);
+                }
               }
             }
-            document.getElementById('zalgo-out').textContent = res;
-          }
 
-          function copyZalgo() {
-            navigator.clipboard.writeText(document.getElementById('zalgo-out').textContent);
-          }
+            var outElem = document.getElementById('zalgo-out');
+            if (outElem) outElem.textContent = res;
+
+            var byteLen = typeof TextEncoder !== 'undefined' ? new TextEncoder().encode(res).length : res.length * 2;
+            var stats = document.getElementById('zalgoByteStats');
+            if (stats) stats.textContent = res.length + ' chars (' + byteLen.toLocaleString() + ' UTF-8 bytes)';
+          };
+
+          window.copyZalgoText = function() {
+            var val = document.getElementById('zalgo-out') ? document.getElementById('zalgo-out').textContent : '';
+            if (!val) { genZalgo(); val = document.getElementById('zalgo-out').textContent; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyZalgo');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Glitched Zalgo Copied!</span>';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearZalgoInput = function() {
+            var inp = document.getElementById('zalgo-in');
+            if (inp) inp.value = '';
+            genZalgo();
+          };
+
+          window.loadSampleZalgo = function() {
+            var inp = document.getElementById('zalgo-in');
+            if (inp) inp.value = 'TO INVOKE THE HIVE-MIND REPRESENTING CHAOS';
+            genZalgo();
+          };
 
           document.addEventListener('DOMContentLoaded', genZalgo);
         </script>

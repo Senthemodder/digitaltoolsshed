@@ -1045,52 +1045,293 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Binary Text Converter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Binary to Text & Text to Binary Converter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Binary to Text &amp; Text to Binary Converter Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Encode plain text into 8-bit binary numbers or decode binary code strings back to readable English.
+            Encode English and Unicode text into 8-bit binary strings or decode binary byte streams back to UTF-8 text with formatting and bit parity metrics.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Plain Text</label>
-              <textarea id="bin-text" class="code-input" style="height: 120px;" placeholder="Type text..." oninput="textToBin()"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Plain Text (ASCII &amp; UTF-8)</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleBinary()">Load Sample</button>
+              </div>
+              <textarea id="bin-text" class="code-input" style="height: 120px; font-size: 1rem;" placeholder="Type text..." oninput="textToBin()"></textarea>
+            </div>
+
+            <!-- Delimiter and Format Selector -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
+              <div class="field-group" style="margin: 0;">
+                <label class="field-label">Byte Delimiter</label>
+                <select id="bin-delim" class="text-input" onchange="textToBin()">
+                  <option value="space">Space (01001000 01101001)</option>
+                  <option value="none">No Space (0100100001101001)</option>
+                  <option value="comma">Comma (01001000, 01101001)</option>
+                  <option value="prefix">0b Prefix (0b01001000 0b01101001)</option>
+                </select>
+              </div>
+              <div class="field-group" style="margin: 0; display: flex; align-items: flex-end; padding-bottom: 0.5rem;">
+                <label class="opt-label"><input type="checkbox" id="bin-utf8" checked onchange="textToBin()"> Full UTF-8 Multi-Byte Encoding</label>
+              </div>
             </div>
 
             <div class="field-group">
-              <label class="field-label">Binary Code (8-bit bytes)</label>
-              <textarea id="bin-code" class="code-input" style="height: 120px;" placeholder="e.g. 01001000 01101001" oninput="binToText()"></textarea>
+              <label class="field-label">Binary Code (8-bit Byte Stream)</label>
+              <textarea id="bin-code" class="code-input" style="height: 140px; font-family: var(--mono); font-size: 0.95rem; line-height: 1.5;" placeholder="e.g. 01001000 01101001" oninput="binToText()"></textarea>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="copyBin()">Copy Binary</button>
+            <!-- Live Bit Diagnostic Metrics -->
+            <div class="stat-grid" style="margin-top: 1rem;">
+              <div class="stat-card"><div class="stat-num" id="stat-bytes">0</div><div class="stat-lbl">Total Bytes</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-bits">0</div><div class="stat-lbl">Total Bits</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-ones">0</div><div class="stat-lbl">High Bits (1s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-zeros">0</div><div class="stat-lbl">Low Bits (0s)</div></div>
+              <div class="stat-card"><div class="stat-num" id="stat-density">0%</div><div class="stat-lbl">Bit Density</div></div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyBinary" class="btn-sec" onclick="copyBinaryCode()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Binary Code</span>
+              </button>
+              <button type="button" id="btnCopyBinText" class="btn-sec" onclick="copyBinaryText()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Plain Text</span>
+              </button>
+              <button type="button" id="btnCopyBinStats" class="btn-sec" onclick="copyBinaryStatsReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Diagnostic Stats</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearBinaryInputs()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Binary Text Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Binary Encoding, Byte Framing &amp; Character Sets</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Multi-Byte UTF-8 Truncation via Naive charCodeAt()</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Primitive JavaScript binary converters rely on <code>str.charCodeAt(i)</code>. This only returns 16-bit UTF-16 code units and breaks on international characters and emojis (e.g. 🚀 is U+1F680, which requires 4 UTF-8 bytes). Using <code>TextEncoder</code> is mandatory to prevent byte stream corruption.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Missing Leading Zeros &amp; Byte Framing Desynchronization</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Converting numbers to binary via <code>(num).toString(2)</code> omits leading zeros: e.g. ASCII space (32) becomes <code>100000</code> (6 bits) instead of <code>00100000</code> (8 bits). In continuous binary streams without delimiters, this 2-bit deficit desynchronizes all subsequent byte frames, scrambling the remainder of the message.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Endianness &amp; Bit Order Inversions in Stream Serialization</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Standard telecommunications and internet protocols transmit data in Big-Endian (Most Significant Bit first) network byte order. Feeding binary streams into hardware registers that expect Little-Endian (Least Significant Bit first) inverts the bit sequence, transforming character 'A' (<code>01000001</code>) into '‚' (<code>10000010</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Non-Printing Control Character &amp; Null-Byte Poisoning</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Binary representations can encode non-printing ASCII control bytes such as <code>00000000</code> (Null byte), <code>00000111</code> (Bell), or <code>00011011</code> (Escape). Injecting raw null bytes into C/C++ backend parsers terminates strings prematurely, enabling security bypasses and memory corruption.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Bit Flips &amp; Parity Check Absence in Raw Channels</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Transmitting uncompressed binary text across physical wires or RF without parity bits or Cyclic Redundancy Checks (CRC) leaves messages vulnerable to cosmic-ray and electromagnetic bit flips. A single flipped bit changes lowercase 'a' (<code>01100001</code>) into 'q' (<code>01110001</code>) or command code without detection.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          function textToBin() {
-            const val = document.getElementById('bin-text').value;
-            const res = Array.from(val).map(c => c.charCodeAt(0).toString(2).padStart(8, '0')).join(' ');
-            document.getElementById('bin-code').value = res;
-          }
+          window._binaryStats = { bytes: 0, bits: 0, ones: 0, zeros: 0, density: '0%' };
 
-          function binToText() {
-            const val = document.getElementById('bin-code').value.trim();
-            if (!val) { document.getElementById('bin-text').value = ''; return; }
+          window.textToBin = function() {
+            var val = document.getElementById('bin-text') ? document.getElementById('bin-text').value : '';
+            var delim = document.getElementById('bin-delim') ? document.getElementById('bin-delim').value : 'space';
+            var useUtf8 = document.getElementById('bin-utf8') ? document.getElementById('bin-utf8').checked : true;
+
+            var bytes = [];
+            if (useUtf8 && typeof TextEncoder !== 'undefined') {
+              var encoder = new TextEncoder();
+              bytes = Array.from(encoder.encode(val));
+            } else {
+              for (var i = 0; i < val.length; i++) {
+                bytes.push(val.charCodeAt(i) & 0xFF);
+              }
+            }
+
+            var binaryStrs = bytes.map(function(b) {
+              return b.toString(2).padStart(8, '0');
+            });
+
+            var totalOnes = 0;
+            var totalZeros = 0;
+            binaryStrs.forEach(function(bs) {
+              for (var j = 0; j < bs.length; j++) {
+                if (bs[j] === '1') totalOnes++;
+                else totalZeros++;
+              }
+            });
+
+            var totalBits = totalOnes + totalZeros;
+            var density = totalBits > 0 ? ((totalOnes / totalBits) * 100).toFixed(1) + '%' : '0%';
+
+            window._binaryStats = {
+              bytes: bytes.length,
+              bits: totalBits,
+              ones: totalOnes,
+              zeros: totalZeros,
+              density: density
+            };
+
+            document.getElementById('stat-bytes').textContent = bytes.length.toLocaleString();
+            document.getElementById('stat-bits').textContent = totalBits.toLocaleString();
+            document.getElementById('stat-ones').textContent = totalOnes.toLocaleString();
+            document.getElementById('stat-zeros').textContent = totalZeros.toLocaleString();
+            document.getElementById('stat-density').textContent = density;
+
+            var outputStr = '';
+            if (delim === 'space') outputStr = binaryStrs.join(' ');
+            else if (delim === 'none') outputStr = binaryStrs.join('');
+            else if (delim === 'comma') outputStr = binaryStrs.join(', ');
+            else if (delim === 'prefix') outputStr = binaryStrs.map(function(b) { return '0b' + b; }).join(' ');
+
+            document.getElementById('bin-code').value = outputStr;
+          };
+
+          window.binToText = function() {
+            var val = document.getElementById('bin-code') ? document.getElementById('bin-code').value.trim() : '';
+            if (!val) {
+              document.getElementById('bin-text').value = '';
+              return;
+            }
+
+            // Strip 0b prefixes, commas, and extract continuous or spaced bits
+            var clean = val.replace(/0b/gi, '').replace(/[^01]/g, ' ').trim();
+            var rawBytes = [];
+
+            if (clean.indexOf(' ') !== -1) {
+              var tokens = clean.split(/s+/);
+              for (var i = 0; i < tokens.length; i++) {
+                if (tokens[i].length > 0) {
+                  rawBytes.push(parseInt(tokens[i], 2));
+                }
+              }
+            } else {
+              // Fixed 8-bit chunking
+              for (var j = 0; j < clean.length; j += 8) {
+                var chunk = clean.slice(j, j + 8);
+                if (chunk.length === 8) {
+                  rawBytes.push(parseInt(chunk, 2));
+                }
+              }
+            }
+
             try {
-              const bytes = val.split(/\s+/);
-              const chars = bytes.map(b => String.fromCharCode(parseInt(b, 2))).join('');
+              var uint8 = new Uint8Array(rawBytes);
+              var decoder = new TextDecoder('utf-8');
+              document.getElementById('bin-text').value = decoder.decode(uint8);
+            } catch (e) {
+              var chars = rawBytes.map(function(b) { return String.fromCharCode(b); }).join('');
               document.getElementById('bin-text').value = chars;
-            } catch(e) {}
-          }
+            }
+          };
 
-          function copyBin() {
-            navigator.clipboard.writeText(document.getElementById('bin-code').value);
-          }
+          window.copyBinaryCode = function() {
+            var val = document.getElementById('bin-code') ? document.getElementById('bin-code').value : '';
+            if (!val) { textToBin(); val = document.getElementById('bin-code').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyBinary');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Binary Code Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.copyBinaryText = function() {
+            var val = document.getElementById('bin-text') ? document.getElementById('bin-text').value : '';
+            if (!val) { binToText(); val = document.getElementById('bin-text').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyBinText');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Plain Text Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.copyBinaryStatsReport = function() {
+            var s = window._binaryStats;
+            var text = '📊 Binary Byte Stream Diagnostic Report
+' +
+              '• Total Encoded Bytes: ' + s.bytes.toLocaleString() + ' bytes
+' +
+              '• Total Bits: ' + s.bits.toLocaleString() + ' bits
+' +
+              '• High Bits (1s / Hamming Weight): ' + s.ones.toLocaleString() + '
+' +
+              '• Low Bits (0s): ' + s.zeros.toLocaleString() + '
+' +
+              '• Bit Density: ' + s.density + '
+
+' +
+              'Calculated at digitaltoolsshed.com/text/binary-text';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyBinStats');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Diagnostic Stats Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearBinaryInputs = function() {
+            document.getElementById('bin-text').value = '';
+            document.getElementById('bin-code').value = '';
+            textToBin();
+          };
+
+          window.loadSampleBinary = function() {
+            document.getElementById('bin-text').value = 'Digital Tools Shed 🚀 2026';
+            textToBin();
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var txt = document.getElementById('bin-text');
+            if (txt && !txt.value) {
+              txt.value = 'Hello, World!';
+              textToBin();
+            }
+          });
         </script>
       
 
