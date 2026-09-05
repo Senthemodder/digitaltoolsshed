@@ -2665,96 +2665,188 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
     },
     {
       slug: 'fraction-to-decimal',
-      title: 'Fraction to Decimal Converter (with Inches & Tape Measure)',
-      metaDesc: 'Convert fractions to decimals instantly. Includes mixed numbers, repeating decimals, percentage conversion, and imperial tape measure chart.',
+      title: 'Fraction to Decimal Converter (with Repeating Decimals & Tape Measure)',
+      metaDesc: 'Convert proper, improper, and mixed fractions into decimals, percentages, and millimeter equivalents. Detects repeating decimals and plots on an interactive tape measure.',
       category: 'Math & Units',
+      faq: [
+        { q: 'How do you convert a fraction to a decimal?', a: 'To convert any fraction to a decimal, divide the numerator (top number) by the denominator (bottom number): Decimal = Numerator ÷ Denominator. For a mixed number (such as 2 3/4), convert the fraction part (3 ÷ 4 = 0.75) and add it to the whole number (2 + 0.75 = 2.75).' },
+        { q: 'How do you know if a fraction produces a terminating or repeating decimal?', a: 'In a fully reduced fraction (where numerator and denominator share no common factors), the decimal will terminate if and only if the prime factorization of the denominator contains ONLY 2s, 5s, or both (such as 1/2, 1/4, 1/5, 1/8, 1/10). If the denominator contains any other prime factor (such as 3, 7, 11, 13), the decimal will repeat infinitely.' },
+        { q: 'What is 3/8 as a decimal and on a tape measure?', a: '3/8 as a decimal is exactly 0.375 (3 ÷ 8 = 0.375, or 37.5%). On an imperial construction tape measure, 3/8 of an inch equals exactly 6 sixteenths (6/16\"), 12 thirty-seconds (12/32\"), or 9.525 millimeters.' },
+        { q: 'How do you convert an improper fraction to a mixed number and decimal?', a: 'Divide the numerator by the denominator using integer division. The quotient becomes the whole number, and the remainder becomes the new numerator over the original denominator. For example, 17/5: 17 ÷ 5 = 3 with remainder 2, which equals the mixed number 3 2/5, or 3.40 as a decimal.' },
+        { q: 'Why do fractions like 1/3 and 1/7 repeat forever?', a: 'Because our base-10 number system is built on powers of 10 (prime factors 2 and 5), any fraction whose denominator cannot evenly divide a power of 10 produces an infinite recurring cycle. 1/3 produces a single repeating digit (0.333...), while 1/7 produces a 6-digit recurring period (0.142857142857...).' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Fraction to Decimal
+            <a href="/">Home</a> &gt; <a href="/math/">Math &amp; Calculators</a> &gt; Fraction to Decimal
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Fraction to Decimal Converter</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert proper fractions, improper fractions, and mixed numbers into exact decimals, percentages, and tape measure equivalents.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Fraction to Decimal Converter</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert proper fractions, improper fractions, and mixed numbers into exact decimals, percentages, and millimeter equivalents. Features automated repeating decimal period detection and interactive tape measure snapping.
           </p>
 
           <div class="tool-box">
+            <!-- Input Fraction Form -->
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; align-items: flex-end;">
               <div class="field-group">
                 <label class="field-label">Whole Number (Optional)</label>
-                <input type="number" id="f2d-whole" class="code-input" placeholder="e.g. 2" oninput="calcF2D()" />
+                <input type="number" id="f2d-whole" class="code-input" placeholder="e.g. 2" oninput="calcF2D()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label">Numerator (Top)</label>
-                <input type="number" id="f2d-num" class="code-input" value="3" oninput="calcF2D()" />
+                <input type="number" id="f2d-num" class="code-input" value="3" oninput="calcF2D()" style="font-size: 1.25rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label">Denominator (Bottom)</label>
-                <input type="number" id="f2d-den" class="code-input" value="8" min="1" oninput="calcF2D()" />
+                <input type="number" id="f2d-den" class="code-input" value="8" min="1" oninput="calcF2D()" style="font-size: 1.25rem;" />
               </div>
             </div>
 
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1rem;">
-              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Popular Fraction Presets:</span>
-              <button type="button" class="btn-sec" onclick="setF2D(0, 1, 2)">1/2</button>
-              <button type="button" class="btn-sec" onclick="setF2D(0, 1, 3)">1/3</button>
-              <button type="button" class="btn-sec" onclick="setF2D(0, 1, 4)">1/4</button>
-              <button type="button" class="btn-sec" onclick="setF2D(0, 3, 4)">3/4</button>
-              <button type="button" class="btn-sec" onclick="setF2D(0, 3, 8)">3/8</button>
-              <button type="button" class="btn-sec" onclick="setF2D(0, 5, 8)">5/8</button>
-              <button type="button" class="btn-sec" onclick="setF2D(0, 7, 16)">7/16</button>
+            <!-- Quick Fraction Presets -->
+            <div style="margin-top: 1rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 600;">
+                Common Construction &amp; Math Presets:
+              </div>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button type="button" class="btn-sec" onclick="setF2D(0, 1, 2)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1/2 (0.5)</button>
+                <button type="button" class="btn-sec" onclick="setF2D(0, 1, 3)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1/3 (0.333...)</button>
+                <button type="button" class="btn-sec" onclick="setF2D(0, 1, 4)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1/4 (0.25)</button>
+                <button type="button" class="btn-sec" onclick="setF2D(0, 3, 8)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem; border-color: #10b981; color: #10b981; font-weight: bold;">3/8 (0.375)</button>
+                <button type="button" class="btn-sec" onclick="setF2D(0, 5, 8)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">5/8 (0.625)</button>
+                <button type="button" class="btn-sec" onclick="setF2D(0, 7, 16)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">7/16 (0.4375)</button>
+                <button type="button" class="btn-sec" onclick="setF2D(1, 3, 4)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1 3/4 (1.75)</button>
+                <button type="button" class="btn-sec" onclick="setF2D(0, 1, 7)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">1/7 (Repeating 6)</button>
+              </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Decimal Equivalent</div>
-              <div id="f2d-dec" class="result-val">0.375</div>
-              <div id="f2d-details" style="font-size: 0.95rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;">37.5% | Formula: 3 ÷ 8 = 0.375</div>
+            <!-- Hero Output Results Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Exact Decimal Equivalent</div>
+                <div id="f2d-dec-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">0.375</div>
+                <div id="f2d-type-badge" style="font-size: 0.82rem; color: #10b981; font-family: var(--mono); font-weight: bold;">Terminating Decimal</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Percentage &amp; Metric (mm)</div>
+                <div id="f2d-pct-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">37.50%</div>
+                <div id="f2d-mm-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">3/8" = 9.525 mm</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Simplified &amp; Improper Form</div>
+                <div id="f2d-simplified-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">3/8</div>
+                <div id="f2d-improper-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Fully Reduced Form (GCD: 1)</div>
+              </div>
+            </div>
+
+            <!-- Interactive Visual Imperial Tape Measure Ruler (1 Inch Span) -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0; color: var(--fg);">
+                  📏 Construction Tape Measure Position (0" to 1" Span):
+                </h4>
+                <span id="f2d-ruler-reading" style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; font-weight: bold;">Position: 3/8" (0.375")</span>
+              </div>
+
+              <div style="position: relative; width: 100%; height: 50px; background: #fbbf24; border: 2px solid #b45309; border-radius: 4px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                <!-- Dynamic SVG Ruler Marks -->
+                <svg id="f2d-tape-svg" width="100%" height="50" style="display: block;"></svg>
+
+                <!-- Indicator Needle Marker -->
+                <div id="f2d-ruler-needle" style="position: absolute; top: 0; left: 37.5%; transform: translateX(-50%); width: 3px; height: 100%; background: #ef4444; z-index: 2; transition: left 0.2s ease;"></div>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); margin-top: 0.4rem;">
+                <span>0" (0.000)</span>
+                <span>1/4" (0.250)</span>
+                <span>1/2" (0.500)</span>
+                <span>3/4" (0.750)</span>
+                <span>1" (1.000)</span>
+              </div>
+            </div>
+
+            <!-- Precision Metric & Tape Measure Equivalents Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
+                📋 Standard Fraction to Decimal &amp; Metric Conversion Table:
+              </h4>
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: center;">
+                  <thead>
+                    <tr style="background: var(--surface); border-bottom: 1px solid var(--border);">
+                      <th style="padding: 0.45rem; text-align: left;">Fraction</th>
+                      <th style="padding: 0.45rem; color: #10b981;">Exact Decimal</th>
+                      <th style="padding: 0.45rem; color: #3b82f6;">Millimeters (mm)</th>
+                      <th style="padding: 0.45rem; color: var(--text-muted);">16ths / 32nds</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">1/16"</td><td>0.0625</td><td>1.5875 mm</td><td style="color: var(--text-muted);">1/16" = 2/32"</td></tr>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">1/8"</td><td>0.1250</td><td>3.1750 mm</td><td style="color: var(--text-muted);">2/16" = 4/32"</td></tr>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">3/16"</td><td>0.1875</td><td>4.7625 mm</td><td style="color: var(--text-muted);">3/16" = 6/32"</td></tr>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">1/4"</td><td>0.2500</td><td>6.3500 mm</td><td style="color: var(--text-muted);">4/16" = 8/32"</td></tr>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">5/16"</td><td>0.3125</td><td>7.9375 mm</td><td style="color: var(--text-muted);">5/16" = 10/32"</td></tr>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">3/8"</td><td>0.3750</td><td>9.5250 mm</td><td style="color: var(--text-muted);">6/16" = 12/32"</td></tr>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">1/2"</td><td>0.5000</td><td>12.7000 mm</td><td style="color: var(--text-muted);">8/16" = 16/32"</td></tr>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">5/8"</td><td>0.6250</td><td>15.8750 mm</td><td style="color: var(--text-muted);">10/16" = 20/32"</td></tr>
+                    <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem; text-align: left; font-weight: bold;">3/4"</td><td>0.7500</td><td>19.0500 mm</td><td style="color: var(--text-muted);">12/16" = 24/32"</td></tr>
+                    <tr><td style="padding: 0.4rem; text-align: left; font-weight: bold;">7/8"</td><td>0.8750</td><td>22.2250 mm</td><td style="color: var(--text-muted);">14/16" = 28/32"</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyF2D" onclick="copyF2DSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Fraction to Decimal Conversion Report
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Long Division -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Division &amp; Period Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Long Division Algorithm</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Conversion derivation showing synthetic decimal division and recurring period analysis:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">1. Decimal Long Division:</strong>
+                <div id="f2d-step-div" style="color: #3b82f6; margin-top: 0.25rem;">
+                  Numerator ÷ Denominator = 3 ÷ 8 = <strong>0.375</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">2. Recurring Decimal Period Status:</strong>
+                <div id="f2d-step-period" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
+                  Denominator 8 factors into 2 &times; 2 &times; 2. Because it contains only prime factors of 2 and 5, the decimal terminates completely after 3 digits.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">3. Imperial &amp; Metric Invariance:</strong>
+                <div id="f2d-step-metric" style="color: #10b981; margin-top: 0.25rem;">
+                  0.375 in &times; 25.4 mm/in = <strong>9.525 mm</strong> &bull; Percentage: 0.375 &times; 100% = <strong>37.50%</strong>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.2rem; margin-bottom: 1rem;">Standard Imperial Tape Measure Chart (16ths & 32nds)</h3>
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;">
-                <thead>
-                  <tr style="border-bottom: 2px solid var(--border); font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase;">
-                    <th style="padding: 0.5rem 0.75rem;">Fraction</th>
-                    <th style="padding: 0.5rem 0.75rem;">Decimal</th>
-                    <th style="padding: 0.5rem 0.75rem;">Millimeters (mm)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">1/16 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.0625</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">1.5875 mm</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">1/8 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.125</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">3.1750 mm</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">3/16 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.1875</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">4.7625 mm</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">1/4 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.25</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">6.3500 mm</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">5/16 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.3125</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">7.9375 mm</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">3/8 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.375</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">9.5250 mm</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">1/2 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.50</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">12.700 mm</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">5/8 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.625</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">15.875 mm</td></tr>
-                  <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 0.4rem 0.75rem; font-weight: bold;">3/4 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.75</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">19.050 mm</td></tr>
-                  <tr><td style="padding: 0.4rem 0.75rem; font-weight: bold;">7/8 in</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">0.875</td><td style="padding: 0.4rem 0.75rem; font-family: var(--mono);">22.225 mm</td></tr>
-                </tbody>
-              </table>
-            </div>
+          <!-- Critical Mathematical Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Fraction &amp; Decimal Conversion Traps</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Floating-Point Truncation Error in CAD &amp; CNC:</strong> When converting 1/3" or 1/7" to decimal for CNC machining or CAD modeling, rounding to 0.33" introduces an unacceptable error of 0.0033" (over 3 thou). In tight-tolerance aerospace or engine machining, always work with exact fractions or at least 6 decimal places (0.333333").</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Base-10 Prime Factorization Rule:</strong> A fraction only terminates if its fully simplified denominator\'s prime factors are strictly 2 and/or 5. Denominators with 3, 7, 11, 13 (or multiples like 6, 12, 14, 15) repeat indefinitely.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Negative Mixed Number Trap:</strong> When evaluating a negative mixed number like -2 3/4, the negative sign applies to the ENTIRE quantity [-(2 + 3/4) = -2.75], NOT (-2 + 0.75 = -1.25).</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function calcF2D() {
-            var w = parseFloat(document.getElementById('f2d-whole').value) || 0;
-            var num = parseFloat(document.getElementById('f2d-num').value) || 0;
-            var den = parseFloat(document.getElementById('f2d-den').value) || 1;
-            if (den === 0) den = 1;
-
-            var dec = w >= 0 ? (w + (num / den)) : (w - (num / den));
-            var pct = (dec * 100).toFixed(2);
-
-            document.getElementById('f2d-dec').textContent = parseFloat(dec.toFixed(8)).toString();
-            document.getElementById('f2d-details').textContent = pct + '% | Formula: (' + (w ? w + ' + ' : '') + num + ' ÷ ' + den + ') = ' + parseFloat(dec.toFixed(8));
-          }
-
           window.setF2D = function(w, n, d) {
             document.getElementById('f2d-whole').value = w || '';
             document.getElementById('f2d-num').value = n;
@@ -2762,106 +2854,534 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             calcF2D();
           };
 
-          document.addEventListener('DOMContentLoaded', calcF2D);
+          function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) {
+              const t = b;
+              b = a % b;
+              a = t;
+            }
+            return a;
+          }
+
+          // Detect repeating decimal cycle
+          function getDecimalRepresentation(num, den) {
+            const integerPart = Math.floor(num / den);
+            let remainder = num % den;
+            if (remainder === 0) {
+              return { isRepeating: false, text: integerPart.toString(), period: 0 };
+            }
+
+            const remainders = {};
+            let decimalDigits = '';
+            let index = 0;
+            let repeatIndex = -1;
+
+            while (remainder !== 0) {
+              if (remainders[remainder] !== undefined) {
+                repeatIndex = remainders[remainder];
+                break;
+              }
+              remainders[remainder] = index;
+              remainder *= 10;
+              const digit = Math.floor(remainder / den);
+              decimalDigits += digit;
+              remainder %= den;
+              index++;
+              if (index > 200) break; // Guard against extreme periods
+            }
+
+            if (repeatIndex !== -1) {
+              const nonRepeat = decimalDigits.substring(0, repeatIndex);
+              const repeat = decimalDigits.substring(repeatIndex);
+              return {
+                isRepeating: true,
+                text: integerPart + '.' + nonRepeat + '(' + repeat + ')',
+                nonRepeat: nonRepeat,
+                repeat: repeat,
+                period: repeat.length
+              };
+            } else {
+              return { isRepeating: false, text: integerPart + '.' + decimalDigits, period: 0 };
+            }
+          }
+
+          function renderTapeMeasureSVG(decimalFraction) {
+            const svg = document.getElementById('f2d-tape-svg');
+            if (!svg) return;
+            let html = '';
+            // 16ths ticks
+            for (let i = 0; i <= 16; i++) {
+              const xPct = (i / 16) * 100;
+              let tickH = 12; // 1/16
+              let strokeW = 1;
+              if (i % 8 === 0) { tickH = 28; strokeW = 2; } // 0, 1/2, 1
+              else if (i % 4 === 0) { tickH = 22; strokeW = 1.5; } // 1/4, 3/4
+              else if (i % 2 === 0) { tickH = 17; strokeW = 1.2; } // 1/8s
+
+              html += '<line x1="' + xPct + '%" y1="0" x2="' + xPct + '%" y2="' + tickH + '" stroke="#78350f" stroke-width="' + strokeW + '" />';
+            }
+            svg.innerHTML = html;
+
+            // Needle positioning (clamped 0 to 100%)
+            const needlePct = Math.min(100, Math.max(0, decimalFraction * 100));
+            document.getElementById('f2d-ruler-needle').style.left = needlePct.toFixed(2) + '%';
+          }
+
+          function calcF2D() {
+            const wholeVal = document.getElementById('f2d-whole').value;
+            const w = wholeVal !== '' ? parseInt(wholeVal, 10) : 0;
+            let n = parseInt(document.getElementById('f2d-num').value, 10) || 0;
+            let d = parseInt(document.getElementById('f2d-den').value, 10) || 1;
+            if (d === 0) d = 1;
+
+            const isNegative = w < 0 || n < 0 || d < 0;
+            n = Math.abs(n);
+            d = Math.abs(d);
+            const absW = Math.abs(w);
+
+            // Improper form
+            const totalNumerator = (absW * d) + n;
+            const decVal = totalNumerator / d;
+            const signedDec = isNegative ? -decVal : decVal;
+
+            // Simplified fraction
+            const commonDiv = gcd(n, d);
+            const simN = n / commonDiv;
+            const simD = d / commonDiv;
+            const totalDiv = gcd(totalNumerator, d);
+            const simTotalN = totalNumerator / totalDiv;
+            const simTotalD = d / totalDiv;
+
+            // Recurring analysis
+            const rep = getDecimalRepresentation(totalNumerator, d);
+
+            // DOM Updates
+            const heroDec = document.getElementById('f2d-dec-hero');
+            const typeBadge = document.getElementById('f2d-type-badge');
+
+            if (rep.isRepeating) {
+              heroDec.innerHTML = (isNegative ? '-' : '') + rep.text.replace(/\(([0-9]+)\)/, '<span style="text-decoration: overline;">$1</span>');
+              typeBadge.textContent = 'Repeating Decimal (Period: ' + rep.period + ' digits)';
+              typeBadge.style.color = '#f59e0b';
+            } else {
+              heroDec.textContent = signedDec.toString();
+              typeBadge.textContent = 'Terminating Decimal';
+              typeBadge.style.color = '#10b981';
+            }
+
+            const pctVal = (signedDec * 100).toFixed(2);
+            document.getElementById('f2d-pct-hero').textContent = pctVal + '%';
+
+            const mmVal = (signedDec * 25.4).toFixed(3);
+            document.getElementById('f2d-mm-sub').textContent = 'Inches to Metric: ' + mmVal + ' mm';
+
+            // Simplified display
+            if (absW > 0) {
+              document.getElementById('f2d-simplified-hero').textContent = (isNegative ? '-' : '') + absW + ' ' + simN + '/' + simD;
+              document.getElementById('f2d-improper-sub').textContent = 'Improper: ' + (isNegative ? '-' : '') + simTotalN + '/' + simTotalD;
+            } else {
+              document.getElementById('f2d-simplified-hero').textContent = (isNegative ? '-' : '') + simN + '/' + simD;
+              document.getElementById('f2d-improper-sub').textContent = 'Fully Reduced Form (GCD: ' + commonDiv + ')';
+            }
+
+            // Tape measure visualization (fractional remainder between 0 and 1)
+            const fractionalPart = (n / d) % 1;
+            renderTapeMeasureSVG(fractionalPart);
+            document.getElementById('f2d-ruler-reading').textContent = 'Position: ' + (absW > 0 ? absW + ' ' : '') + simN + '/' + simD + '" (' + signedDec.toFixed(4) + '")';
+
+            // Steps
+            document.getElementById('f2d-step-div').innerHTML = (absW > 0 ? '(' + absW + ' &times; ' + d + ' + ' + n + ') / ' + d + ' = ' : '') + totalNumerator + ' ÷ ' + d + ' = <strong>' + (rep.isRepeating ? rep.text : signedDec.toString()) + '</strong>';
+
+            if (rep.isRepeating) {
+              document.getElementById('f2d-step-period').innerHTML = 'Denominator ' + d + ' contains prime factors other than 2 and 5. This generates a repeating cycle of <strong>' + rep.period + ' digits</strong> (' + rep.repeat + ').';
+            } else {
+              document.getElementById('f2d-step-period').innerHTML = 'Denominator ' + d + ' factors exclusively into powers of 2 and/or 5, guaranteeing a finite terminating decimal with zero remainder.';
+            }
+
+            document.getElementById('f2d-step-metric').innerHTML = signedDec.toFixed(4) + ' in &times; 25.4 mm/in = <strong>' + mmVal + ' mm</strong> &bull; Percentage: <strong>' + pctVal + '%</strong>';
+          }
+
+          window.copyF2DSummary = function() {
+            const dec = document.getElementById('f2d-dec-hero').innerText;
+            const type = document.getElementById('f2d-type-badge').innerText;
+            const pct = document.getElementById('f2d-pct-hero').innerText;
+            const mm = document.getElementById('f2d-mm-sub').innerText;
+            const sim = document.getElementById('f2d-simplified-hero').innerText;
+
+            const text = [
+              '=== FRACTION TO DECIMAL CONVERSION REPORT ===',
+              'Fraction Form: ' + sim,
+              'Exact Decimal: ' + dec,
+              'Decimal Classification: ' + type,
+              'Percentage Value: ' + pct,
+              mm,
+              '--------------------------------------------',
+              'Standard: Pure Rational Number Mathematics',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/fraction-to-decimal'
+            ].join('\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyF2D');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Conversion Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', function() { calcF2D(); });
           calcF2D();
         </script>
       `
     },
     {
       slug: 'decimal-to-fraction',
-      title: 'Decimal to Fraction Converter (Simplified & Mixed Numbers)',
-      metaDesc: 'Convert any decimal to an exact reduced fraction or mixed number. Automatically find nearest tape measure fraction (16ths, 32nds, 64ths).',
+      title: 'Decimal to Fraction Converter (Simplified, Mixed & Tape Measure)',
+      metaDesc: 'Convert any decimal to a fully simplified fraction or mixed number. Solves terminating and repeating decimals with nearest 16th, 32nd, and 64th tape measure snapping.',
       category: 'Math & Units',
+      faq: [
+        { q: 'How do you convert a terminating decimal into a simplified fraction?', a: 'Count the number of decimal places after the point (N). Place the decimal digits over 10^N (for example, 0.75 has 2 decimal places, so it becomes 75/100). Then find the greatest common divisor (GCD) of the numerator and denominator (GCD of 75 and 100 is 25) and divide both numbers to get the simplest form: 75/25 = 3 and 100/25 = 4, resulting in 3/4.' },
+        { q: 'How do you convert a repeating decimal into an exact fraction?', a: 'Use algebraic substitution. Let x equal the repeating decimal (e.g., x = 0.666...). Multiply both sides by 10^k (where k is the length of the repeating cycle). For a 1-digit cycle, multiply by 10: 10x = 6.666... Subtract the first equation from the second: 10x - x = 6.666... - 0.666..., yielding 9x = 6. Divide both sides by 9 to get x = 6/9 = 2/3.' },
+        { q: 'What is 0.625 as a fraction and on a tape measure?', a: '0.625 as an exact simplified fraction is 5/8 (625/1000 simplified by dividing numerator and denominator by 125). On an imperial tape measure, 0.625 inches corresponds exactly to 5/8 of an inch (or 10 sixteenths, 20 thirty-seconds, and 15.875 mm).' },
+        { q: 'How does the calculator find the nearest tape measure fraction for woodworkers?', a: 'The calculator multiplies the fractional decimal part by the desired resolution denominator (16, 32, or 64), rounds to the nearest integer, and simplifies the resulting fraction. For example, for 0.385 inches: 0.385 × 16 = 6.16 &rarr; rounds to 6/16 = 3/8\" with a tiny error deviation of +0.010 inches.' },
+        { q: 'Can every decimal be converted into a fraction?', a: 'Only rational numbers (terminating decimals and repeating decimals) can be converted into fractions of integers (p/q). Irrational numbers (such as Pi = 3.14159..., Euler\'s number e = 2.71828..., and the square root of 2 = 1.41421...) have infinite non-repeating decimal expansions and cannot be expressed as exact ratios of two integers.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/math/">Math & Calculators</a> &gt; Decimal to Fraction
+            <a href="/">Home</a> &gt; <a href="/math/">Math &amp; Calculators</a> &gt; Decimal to Fraction
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Decimal to Fraction Converter</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Convert terminating or repeating decimals into fully simplified fractions, mixed numbers, and nearest construction tape measure inches.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Decimal to Fraction Converter</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Convert any terminating or repeating decimal into an exact, fully simplified fraction and mixed number. Automatically calculates nearest imperial tape measure marks (16ths, 32nds, 64ths) with tolerance error.
           </p>
 
           <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Decimal Value</label>
-              <input type="number" id="d2f-in" class="code-input" value="0.625" step="0.001" oninput="calcD2F()" style="font-size: 1.25rem;" />
+            <!-- Input Form Grid -->
+            <div class="grid-inputs">
+              <div class="field-group">
+                <label class="field-label">Decimal Value to Convert</label>
+                <input type="number" id="d2f-in" class="code-input" value="0.625" step="any" oninput="calcD2F()" style="font-size: 1.25rem;" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Decimal Type</label>
+                <select id="d2f-type" class="code-input" onchange="toggleD2FType()" style="font-size: 1rem;">
+                  <option value="term" selected>Terminating Decimal (e.g. 0.625, 2.75)</option>
+                  <option value="repeat">Repeating Decimal (e.g. 0.333..., 0.142857...)</option>
+                </select>
+              </div>
+              <div class="field-group" id="grp-repeat-len" style="display: none;">
+                <label class="field-label">Repeating Cycle Length (Digits)</label>
+                <input type="number" id="d2f-repeat-len" class="code-input" value="1" min="1" max="10" step="1" oninput="calcD2F()" style="font-size: 1.25rem;" />
+                <span style="font-size: 0.72rem; color: var(--text-muted);">Length of recurring pattern at end</span>
+              </div>
             </div>
 
-            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 1rem;">
-              <span style="font-size: 0.8rem; color: var(--text-muted); width: 100%;">Sample Decimals:</span>
-              <button type="button" class="btn-sec" onclick="setD2F('0.125')">0.125 (1/8)</button>
-              <button type="button" class="btn-sec" onclick="setD2F('0.375')">0.375 (3/8)</button>
-              <button type="button" class="btn-sec" onclick="setD2F('0.625')">0.625 (5/8)</button>
-              <button type="button" class="btn-sec" onclick="setD2F('0.875')">0.875 (7/8)</button>
-              <button type="button" class="btn-sec" onclick="setD2F('2.5')">2.5 (2 1/2)</button>
+            <!-- Quick Decimal Presets -->
+            <div style="margin-top: 1rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 600;">
+                Popular Decimal Presets:
+              </div>
+              <div style="display: flex; gap: 0.4rem; flex-wrap: wrap;">
+                <button type="button" class="btn-sec" onclick="setD2F('0.5')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.5 (1/2)</button>
+                <button type="button" class="btn-sec" onclick="setD2F('0.25')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.25 (1/4)</button>
+                <button type="button" class="btn-sec" onclick="setD2F('0.75')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.75 (3/4)</button>
+                <button type="button" class="btn-sec" onclick="setD2F('0.125')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.125 (1/8)</button>
+                <button type="button" class="btn-sec" onclick="setD2F('0.375')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.375 (3/8)</button>
+                <button type="button" class="btn-sec" onclick="setD2F('0.625')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem; border-color: #10b981; color: #10b981; font-weight: bold;">0.625 (5/8)</button>
+                <button type="button" class="btn-sec" onclick="setD2F('0.875')" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">0.875 (7/8)</button>
+                <button type="button" class="btn-sec" onclick="setD2F('2.3333333333', 'repeat', 1)" style="font-size: 0.78rem; padding: 0.35rem 0.65rem;">2.333... (2 1/3)</button>
+              </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Simplified Fraction</div>
-              <div id="d2f-res" class="result-val">5/8</div>
-              <div id="d2f-mixed" style="font-size: 1rem; color: var(--fg); font-family: var(--mono); margin-top: 0.4rem;"></div>
-              <div id="d2f-tape" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono); margin-top: 0.5rem;"></div>
+            <!-- Hero Output Results Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Simplified Fraction</div>
+                <div id="d2f-fraction-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">5/8</div>
+                <div id="d2f-improper-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Proper Fraction (5 ÷ 8)</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Mixed Number Form</div>
+                <div id="d2f-mixed-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">5/8</div>
+                <div id="d2f-pct-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Percentage: 62.50%</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Nearest Tape Measure (16th)</div>
+                <div id="d2f-tape-hero" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.25rem 0;">5/8"</div>
+                <div id="d2f-tape-error" style="font-size: 0.82rem; color: #10b981; font-family: var(--mono); font-weight: bold;">Exact Match (0.000" error)</div>
+              </div>
             </div>
+
+            <!-- Tape Measure Tolerances Breakdown Card (16th, 32nd, 64th) -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
+                📏 Woodworking &amp; Machinist Tape Measure Snapping:
+              </h4>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.82rem;">
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Nearest 1/16 Inch:</div>
+                  <div id="d2f-snap-16" style="font-size: 1.3rem; font-weight: bold; color: var(--fg); margin: 0.2rem 0;">5/8"</div>
+                  <div id="d2f-err-16" style="font-size: 0.75rem; color: #10b981;">Error: 0.0000"</div>
+                </div>
+
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Nearest 1/32 Inch:</div>
+                  <div id="d2f-snap-32" style="font-size: 1.3rem; font-weight: bold; color: var(--fg); margin: 0.2rem 0;">20/32" (5/8")</div>
+                  <div id="d2f-err-32" style="font-size: 0.75rem; color: #10b981;">Error: 0.0000"</div>
+                </div>
+
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <div style="color: var(--text-muted); font-size: 0.72rem;">Nearest 1/64 Inch:</div>
+                  <div id="d2f-snap-64" style="font-size: 1.3rem; font-weight: bold; color: var(--fg); margin: 0.2rem 0;">40/64" (5/8")</div>
+                  <div id="d2f-err-64" style="font-size: 0.75rem; color: #10b981;">Error: 0.0000"</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyD2F" onclick="copyD2FSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Decimal to Fraction Calculation &amp; Tape Snapping
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Algebraic Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Algebraic Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Euclidean Reduction</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Conversion of rational decimal to simplest integer fraction:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">1. Power of Ten Base Transformation:</strong>
+                <div id="d2f-step-base" style="color: #3b82f6; margin-top: 0.25rem;">
+                  0.625 has 3 decimal places &rarr; 625 / 10³ = <strong>625 / 1000</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">2. Greatest Common Divisor (GCD) Factorization:</strong>
+                <div id="d2f-step-gcd" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.8rem;">
+                  GCD(625, 1000) = 125 &bull; Divide numerator and denominator by 125.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">3. Simplified Final Fraction:</strong>
+                <div id="d2f-step-final" style="color: #10b981; margin-top: 0.25rem;">
+                  (625 ÷ 125) / (1000 ÷ 125) = <strong>5/8</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Mathematical Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Decimal to Fraction Conversion Traps</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Infinite Repeating Decimal Illusion:</strong> Entering 0.3333 into a basic calculator converts it to 3333/10000, which cannot be simplified to 1/3. If a decimal has a recurring period, you must use algebraic subtraction ($10x - x = 9x$) to find the true denominator of 9, 99, or 999.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Machinist Tolerance vs Rounding Errors:</strong> When cutting stock in a machine shop, rounding 0.387" to 3/8" (0.375") produces a 0.012" error (12 thousandths), which can easily ruin a precision press-fit bearing or sleeve. Snapping to 25/64" (0.3906") cuts the error to just 0.0036".</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Irrational Number Impossibility:</strong> Decimals originating from square roots (e.g. &radic;2 = 1.41421356...) or transcendental constants (&pi; = 3.14159...) can never be exactly converted to a fraction. Ratios like 22/7 or 355/113 are merely close approximations, not exact equivalents.</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function gcd(a, b) {
-            a = Math.abs(a);
-            b = Math.abs(b);
-            while (b) { var t = b; b = a % b; a = t; }
-            return a;
-          }
-
-          function calcD2F() {
-            var val = parseFloat(document.getElementById('d2f-in').value);
-            if (isNaN(val)) {
-              document.getElementById('d2f-res').textContent = '-';
-              return;
-            }
-
-            var sign = val < 0 ? -1 : 1;
-            val = Math.abs(val);
-
-            var whole = Math.floor(val);
-            var fracPart = val - whole;
-
-            // Find denominator based on decimal places (up to 6 places)
-            var str = fracPart.toFixed(6).replace(/0+$/, '');
-            var decPlaces = (str.split('.')[1] || '').length;
-            var den = Math.pow(10, Math.min(decPlaces, 6));
-            var num = Math.round(fracPart * den);
-
-            var g = gcd(num, den);
-            var simpNum = num / g;
-            var simpDen = den / g;
-
-            var totalNum = (whole * simpDen + simpNum) * sign;
-
-            var resStr = simpNum === 0 ? whole.toString() : (simpDen === 1 ? totalNum.toString() : (totalNum + '/' + simpDen));
-            document.getElementById('d2f-res').textContent = resStr;
-
-            if (whole > 0 && simpNum > 0) {
-              document.getElementById('d2f-mixed').textContent = 'Mixed Number: ' + (sign < 0 ? '-' : '') + whole + ' ' + simpNum + '/' + simpDen;
-            } else {
-              document.getElementById('d2f-mixed').textContent = '';
-            }
-
-            // Nearest 16th and 32nd inch
-            var sixteenths = Math.round(fracPart * 16);
-            var g16 = gcd(sixteenths, 16);
-            var tapeStr = (sixteenths / g16) + '/' + (16 / g16) + ' in';
-            document.getElementById('d2f-tape').textContent = 'Nearest Tape Measure: ' + (whole > 0 ? whole + ' ' : '') + tapeStr + ' (within 1/16")';
-          }
-
-          window.setD2F = function(v) {
-            document.getElementById('d2f-in').value = v;
+          window.setD2F = function(val, type, repeatLen) {
+            document.getElementById('d2f-in').value = val;
+            if (type) document.getElementById('d2f-type').value = type;
+            else document.getElementById('d2f-type').value = 'term';
+            if (repeatLen) document.getElementById('d2f-repeat-len').value = repeatLen;
+            toggleD2FType();
             calcD2F();
           };
 
-          document.addEventListener('DOMContentLoaded', calcD2F);
+          window.toggleD2FType = function() {
+            const mode = document.getElementById('d2f-type').value;
+            const repGrp = document.getElementById('grp-repeat-len');
+            if (mode === 'repeat') {
+              repGrp.style.display = 'block';
+            } else {
+              repGrp.style.display = 'none';
+            }
+            calcD2F();
+          };
+
+          function gcd(a, b) {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b) {
+              const t = b;
+              b = a % b;
+              a = t;
+            }
+            return a;
+          }
+
+          function getNearestTapeFraction(val, denom) {
+            const rounded = Math.round(val * denom);
+            const common = gcd(rounded, denom);
+            const n = rounded / common;
+            const d = denom / common;
+            const actualVal = rounded / denom;
+            const error = actualVal - val;
+            return {
+              n: n,
+              d: d,
+              rawN: rounded,
+              rawD: denom,
+              error: error
+            };
+          }
+
+          function calcD2F() {
+            const rawIn = document.getElementById('d2f-in').value.trim();
+            if (rawIn === '') return;
+
+            const dec = parseFloat(rawIn) || 0;
+            const isNegative = dec < 0;
+            const absDec = Math.abs(dec);
+            const mode = document.getElementById('d2f-type').value;
+
+            const whole = Math.floor(absDec);
+            const frac = absDec - whole;
+
+            let n = 0;
+            let d = 1;
+            let stepBaseText = '';
+            let stepGcdText = '';
+
+            if (mode === 'term') {
+              // Terminating decimal
+              const parts = rawIn.split('.');
+              const decPlaces = parts.length > 1 ? parts[1].length : 0;
+              d = Math.pow(10, decPlaces);
+              n = Math.round(frac * d);
+
+              stepBaseText = rawIn + ' has ' + decPlaces + ' decimal places &rarr; ' + n + ' / 10<sup>' + decPlaces + '</sup> = <strong>' + n + ' / ' + d + '</strong>';
+            } else {
+              // Repeating decimal
+              const repLen = parseInt(document.getElementById('d2f-repeat-len').value, 10) || 1;
+              const parts = rawIn.split('.');
+              const fracStr = parts.length > 1 ? parts[1] : '0';
+              const nonRepLen = Math.max(0, fracStr.length - repLen);
+
+              const denomRepeat = Math.pow(10, repLen) - 1;
+              d = denomRepeat * Math.pow(10, nonRepLen);
+              n = Math.round(frac * d);
+
+              stepBaseText = 'Repeating period of ' + repLen + ' digits &rarr; Algebraic denominator: 10<sup>' + (nonRepLen + repLen) + '</sup> - 10<sup>' + nonRepLen + '</sup> = <strong>' + d + '</strong>, Numerator: <strong>' + n + '</strong>';
+            }
+
+            const common = gcd(n, d);
+            const simN = n / common;
+            const simD = d / common;
+
+            // Total improper fraction
+            const totalNumerator = (whole * simD) + simN;
+
+            stepGcdText = 'GCD(' + n + ', ' + d + ') = ' + common + ' &bull; (' + n + ' ÷ ' + common + ') / (' + d + ' ÷ ' + common + ') = <strong>' + simN + '/' + simD + '</strong>';
+
+            // Tape measure snapping
+            const snap16 = getNearestTapeFraction(frac, 16);
+            const snap32 = getNearestTapeFraction(frac, 32);
+            const snap64 = getNearestTapeFraction(frac, 64);
+
+            // DOM Updates
+            const fracHero = document.getElementById('d2f-fraction-hero');
+            const mixedHero = document.getElementById('d2f-mixed-hero');
+            const improperSub = document.getElementById('d2f-improper-sub');
+            const pctSub = document.getElementById('d2f-pct-sub');
+
+            if (whole > 0) {
+              fracHero.textContent = (isNegative ? '-' : '') + totalNumerator + '/' + simD;
+              improperSub.textContent = 'Improper Fraction (GCD: ' + common + ')';
+              mixedHero.textContent = (isNegative ? '-' : '') + whole + ' ' + simN + '/' + simD;
+            } else {
+              fracHero.textContent = (isNegative ? '-' : '') + simN + '/' + simD;
+              improperSub.textContent = 'Proper Fraction (GCD: ' + common + ')';
+              mixedHero.textContent = (isNegative ? '-' : '') + simN + '/' + simD;
+            }
+
+            pctSub.textContent = 'Percentage: ' + (dec * 100).toFixed(2) + '%';
+
+            // Tape display
+            const tapeHero = document.getElementById('d2f-tape-hero');
+            const tapeErr = document.getElementById('d2f-tape-error');
+
+            const snap16Text = (whole > 0 ? whole + ' ' : '') + snap16.n + '/' + snap16.d + '"';
+            tapeHero.textContent = snap16Text;
+
+            if (Math.abs(snap16.error) < 0.0001) {
+              tapeErr.textContent = 'Exact Tape Match (0.000" error)';
+              tapeErr.style.color = '#10b981';
+            } else {
+              const sign = snap16.error >= 0 ? '+' : '';
+              tapeErr.textContent = 'Off by ' + sign + snap16.error.toFixed(4) + '"';
+              tapeErr.style.color = Math.abs(snap16.error) < 0.015 ? '#f59e0b' : '#ef4444';
+            }
+
+            // Snapping card rows
+            document.getElementById('d2f-snap-16').textContent = (whole > 0 ? whole + ' ' : '') + snap16.n + '/' + snap16.d + '"';
+            document.getElementById('d2f-err-16').textContent = 'Error: ' + (snap16.error >= 0 ? '+' : '') + snap16.error.toFixed(4) + '"';
+            document.getElementById('d2f-err-16').style.color = Math.abs(snap16.error) < 0.001 ? '#10b981' : '#f59e0b';
+
+            document.getElementById('d2f-snap-32').textContent = (whole > 0 ? whole + ' ' : '') + snap32.n + '/' + snap32.d + '"';
+            document.getElementById('d2f-err-32').textContent = 'Error: ' + (snap32.error >= 0 ? '+' : '') + snap32.error.toFixed(4) + '"';
+            document.getElementById('d2f-err-32').style.color = Math.abs(snap32.error) < 0.001 ? '#10b981' : '#f59e0b';
+
+            document.getElementById('d2f-snap-64').textContent = (whole > 0 ? whole + ' ' : '') + snap64.n + '/' + snap64.d + '"';
+            document.getElementById('d2f-err-64').textContent = 'Error: ' + (snap64.error >= 0 ? '+' : '') + snap64.error.toFixed(4) + '"';
+            document.getElementById('d2f-err-64').style.color = Math.abs(snap64.error) < 0.001 ? '#10b981' : '#f59e0b';
+
+            // Derivations
+            document.getElementById('d2f-step-base').innerHTML = stepBaseText;
+            document.getElementById('d2f-step-gcd').innerHTML = stepGcdText;
+            document.getElementById('d2f-step-final').innerHTML = (whole > 0 ? whole + ' + ' : '') + simN + '/' + simD + ' = <strong>' + (whole > 0 ? whole + ' ' + simN + '/' + simD + ' (' + totalNumerator + '/' + simD + ')' : simN + '/' + simD) + '</strong>';
+          }
+
+          window.copyD2FSummary = function() {
+            const frac = document.getElementById('d2f-fraction-hero').innerText;
+            const mixed = document.getElementById('d2f-mixed-hero').innerText;
+            const tape = document.getElementById('d2f-tape-hero').innerText;
+            const tapeErr = document.getElementById('d2f-tape-error').innerText;
+            const rawIn = document.getElementById('d2f-in').value;
+
+            const text = [
+              '=== DECIMAL TO FRACTION CONVERSION REPORT ===',
+              'Decimal Input: ' + rawIn,
+              'Simplified Fraction: ' + frac,
+              'Mixed Number Form: ' + mixed,
+              'Nearest Tape Measure (16th): ' + tape + ' (' + tapeErr + ')',
+              'Nearest 32nd: ' + document.getElementById('d2f-snap-32').innerText,
+              'Nearest 64th: ' + document.getElementById('d2f-snap-64').innerText,
+              '--------------------------------------------',
+              'Standard: Euclidean Rational Number Reduction',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/decimal-to-fraction'
+            ].join('\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyD2F');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Fraction Breakdown!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', function() { calcD2F(); });
           calcD2F();
         </script>
       `

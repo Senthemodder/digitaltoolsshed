@@ -3246,121 +3246,329 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
     },
     {
       slug: 'caffeine-half-life-calculator',
-      title: 'Caffeine Half-Life & Sleep Crash Decay Calculator',
-      metaDesc: 'Track active caffeine levels in your bloodstream hour-by-hour using pharmacokinetic 5.7h half-life. Find out when you can actually fall asleep.',
+      title: 'Caffeine Half-Life & Sleep Crash Decay Calculator (CYP1A2 Pharmacokinetics)',
+      metaDesc: 'Track active caffeine levels in your bloodstream hour-by-hour using pharmacokinetic half-life and CYP1A2 metabolic speed. Find out when you can fall into deep sleep.',
       category: 'Health & Sleep',
+      faq: [
+        { q: 'What is the average metabolic half-life of caffeine in healthy adults?', a: 'According to clinical pharmacology data from the FDA and European Food Safety Authority (EFSA), caffeine has an average elimination half-life of 5.0 to 5.7 hours in healthy non-smoking adults. This means if you consume 200mg of caffeine at 2:00 PM, approximately 100mg remains active in your bloodstream at 7:45 PM, and ~50mg remains active at 1:30 AM.' },
+        { q: 'How does the CYP1A2 enzyme determine if you are a fast or slow caffeine metabolizer?', a: 'Hepatic cytochrome P450 1A2 (CYP1A2) accounts for over 95% of caffeine metabolism in the liver. Individuals with the CYP1A2*1A variant are rapid metabolizers with half-lives as short as 3.0 to 4.0 hours, whereas those with the *1F variant are slow metabolizers whose half-lives can exceed 8.0 to 10.0 hours, making late-morning coffee disruptive to night sleep.' },
+        { q: 'How does oral contraception or pregnancy affect caffeine clearance?', a: 'Estrogen and progesterone strongly inhibit hepatic CYP1A2 enzymatic activity. Women taking oral birth control pills experience an approximate doubling of caffeine half-life (averaging 8.0 to 11.0 hours). During the third trimester of pregnancy, caffeine clearance slows dramatically, extending half-life up to 15.0 hours.' },
+        { q: 'At what bloodstream caffeine level is it safe to sleep without disrupting deep sleep?', a: 'Sleep medicine polysomnography indicates that bloodstream caffeine levels must drop below approximately 25mg for the brain to enter uninhibited Stage 3 Slow-Wave Deep Sleep. Even if you fall asleep with 50mg of caffeine active, adenosine receptor antagonism suppresses restorative slow-wave delta sleep by 20% to 30%, causing morning grogginess.' },
+        { q: 'Why does a caffeine crash happen hours after consumption?', a: 'Caffeine does not create energy—it acts as an antagonist that competitively plugs into adenosine receptors, preventing natural sleep pressure from registering. While caffeine is bound to receptors, adenosine continues to accumulate in the brain. Once caffeine is metabolized, the accumulated flood of adenosine binds all available receptors simultaneously, causing a sudden severe energy drop known as the crash.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/health/">Health</a> &gt; Caffeine Half-Life
+            <a href="/">Home</a> &gt; <a href="/health/">Health &amp; Sleep</a> &gt; Caffeine Half-Life
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Caffeine Half-Life & Sleep Decay Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Wide awake at 2 AM? Caffeine has an average metabolic half-life of <strong>5.7 hours</strong>. Calculate how many milligrams are blocking adenosine in your brain right now.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Caffeine Half-Life &amp; Sleep Decay Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate active caffeine concentrations in your bloodstream hour-by-hour using hepatic CYP1A2 pharmacokinetic clearance equations. Pinpoint exactly when your blood levels drop below the deep sleep threshold (&lt;25 mg).
           </p>
 
           <div class="tool-box">
+            <!-- Beverage Preset Selector -->
+            <div class="field-group">
+              <label class="field-label">Quick Beverage Dosage Presets</label>
+              <select id="cafPreset" class="code-input" onchange="applyCafPreset()" style="font-size: 1.05rem;">
+                <option value="64">Single Espresso Shot (64 mg)</option>
+                <option value="95">Standard Brewed Coffee 8oz (95 mg)</option>
+                <option value="160" selected>Monster / Rockstar Energy 16oz (160 mg)</option>
+                <option value="200">Celsius / C4 / Ghost Pre-Workout (200 mg)</option>
+                <option value="310">Starbucks Venti Cold Brew 24oz (310 mg)</option>
+                <option value="390">Panera Charged Lemonade (390 mg)</option>
+                <option value="40">Black Tea / Diet Coke 12oz (40 mg)</option>
+                <option value="custom">Custom Dosage...</option>
+              </select>
+            </div>
+
+            <!-- Primary Inputs Grid -->
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Quick Beverage Preset</label>
-                <select id="cafPreset" class="code-input" onchange="applyCafPreset()" style="font-size: 1.1rem;">
-                  <option value="64">Single Espresso Shot (64 mg)</option>
-                  <option value="95">Standard Brewed Coffee 8oz (95 mg)</option>
-                  <option value="160" selected>Monster / Rockstar 16oz (160 mg)</option>
-                  <option value="200">Celsius / Ghost Energy Drink (200 mg)</option>
-                  <option value="310">Starbucks Venti Cold Brew (310 mg)</option>
-                  <option value="390">Panera Charged Lemonade (390 mg)</option>
-                  <option value="40">Black Tea / Diet Coke 12oz (40 mg)</option>
-                  <option value="custom">Custom Dose...</option>
-                </select>
-              </div>
-
-              <div class="field-group">
                 <label class="field-label">Caffeine Consumed (mg)</label>
-                <input type="number" id="cafDose" class="code-input" value="160" min="1" max="1000" step="10" oninput="calcCaf()" style="font-size: 1.25rem;" />
+                <input type="number" id="cafDose" class="code-input" value="160" min="1" max="1200" step="5" oninput="calcCaf()" style="font-size: 1.25rem;" />
               </div>
-
               <div class="field-group">
                 <label class="field-label">Time Consumed (Hours Ago)</label>
                 <input type="number" id="cafHoursAgo" class="code-input" value="6" min="0" max="48" step="0.5" oninput="calcCaf()" style="font-size: 1.25rem;" />
               </div>
+              <div class="field-group">
+                <label class="field-label">CYP1A2 Metabolic Clearance Speed</label>
+                <select id="cafMetabolism" class="code-input" onchange="calcCaf()" style="font-size: 0.95rem;">
+                  <option value="3.5">Fast Metabolizer (CYP1A2*1A &bull; 3.5h Half-Life)</option>
+                  <option value="5.7" selected>Normal Adult Reference (5.7h Half-Life)</option>
+                  <option value="8.0">Slow Metabolizer (CYP1A2*1F &bull; 8.0h Half-Life)</option>
+                  <option value="9.5">Oral Contraceptives / Estrogen (9.5h Half-Life)</option>
+                  <option value="3.0">Smoker (Nicotine Enzyme Induction &bull; 3.0h)</option>
+                </select>
+              </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+            <!-- Hero Output Results Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
                 <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Current Active Caffeine</div>
                 <div id="cafRemaining" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">77.2 mg</div>
-                <div id="cafPercent" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">48.3% still active in blood</div>
+                <div id="cafPercent" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">48.3% still circulating in blood</div>
               </div>
 
               <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Sleep Readiness Threshold (&lt;25 mg)</div>
-                <div id="cafSleepTime" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">In 5.2 hrs</div>
-                <div id="cafSleepDesc" style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--mono);">When slow-wave REM sleep can begin</div>
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Deep Sleep Readiness (&lt;25 mg)</div>
+                <div id="cafSleepTime" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">In 5.2 hrs</div>
+                <div id="cafSleepClock" style="font-size: 0.82rem; color: var(--fg); font-family: var(--mono); font-weight: bold;">Safe Bedtime: ~11:15 PM</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Total Clearance Time (&lt;5 mg)</div>
+                <div id="cafClearTime" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">In 18.5 hrs</div>
+                <div style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Full adenosine receptor restoration</div>
               </div>
             </div>
 
-            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem; border-radius: 6px;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">Hourly Decay Projection</div>
-              <div id="cafTimeline" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 0.5rem; text-align: center; font-family: var(--mono); font-size: 0.8rem;"></div>
+            <!-- Visual SVG Pharmacokinetic Clearance Curve -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+                  📉 Bloodstream Elimination Curve (24-Hour Pharmacokinetics):
+                </div>
+                <div style="display: flex; gap: 0.75rem; font-family: var(--mono); font-size: 0.72rem;">
+                  <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 12px; height: 3px; background: #ef4444;"></span> Active mg</span>
+                  <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 12px; height: 3px; background: #10b981; border-top: 2px dashed #10b981;"></span> Sleep Threshold (25mg)</span>
+                </div>
+              </div>
+              <div style="width: 100%; height: 180px; position: relative;">
+                <svg id="caf-curve-svg" width="100%" height="180" style="display: block; overflow: visible;"></svg>
+              </div>
             </div>
+
+            <!-- Hourly Decay Interval Projection Cards -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg); margin-bottom: 0.75rem;">
+                ⏱️ Projected Hourly Bloodstream Concentrations:
+              </div>
+              <div id="cafTimeline" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(85px, 1fr)); gap: 0.5rem; text-align: center; font-family: var(--mono); font-size: 0.8rem;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyCaf" onclick="copyCaffeineSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Caffeine Pharmacokinetics &amp; Sleep Safety Report
+            </button>
+          </div>
+
+          <!-- Step-by-Step Pharmacokinetic Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 First-Order Pharmacokinetic Elimination Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Hepatic Clearance Model</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Caffeine undergoes hepatic first-order elimination via CYP1A2 enzymatic oxidation following an exponential decay curve:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">1. Exponential Elimination Equation:</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                  C(t) = C<sub>0</sub> &times; (0.5)<sup>t / t<sub>1/2</sub></sup> = C<sub>0</sub> &times; e<sup>-k &times; t</sup>
+                </div>
+                <div id="caf-step-1" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Worked: 160 mg &times; 0.5<sup>(6 / 5.7)</sup> = 160 &times; 0.4822 = <strong>77.16 mg active</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">2. Elimination Rate Constant (k):</strong>
+                <div id="caf-step-k" style="color: #3b82f6; margin-top: 0.25rem;">
+                  k = ln(2) / t<sub>1/2</sub> = 0.69315 / 5.7 = <strong>0.1216 hr⁻¹</strong> (12.2% cleared per hour)
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">3. Time to Deep Sleep Threshold (&le; 25 mg):</strong>
+                <div id="caf-step-sleep" style="color: #10b981; margin-top: 0.25rem;">
+                  t = t<sub>1/2</sub> &times; log<sub>2</sub>(C<sub>0</sub> / 25) = 5.7 &times; log<sub>2</sub>(160 / 25) = 15.25 hrs total &bull; <strong>9.25 hrs remaining</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Pharmacological Traps & Sleep Traps -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Caffeine Traps &amp; Sleep Disruption Realities</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "I Can Sleep Fine on Coffee" Illusion:</strong> Falling asleep easily after late espresso does NOT mean sleep is healthy. Polysomnographic EEG studies reveal that caffeine circulating in the blood suppresses slow-wave delta power (Stage N3 Deep Sleep) by <strong>20% to 30%</strong>. You lose physical restorative repair and wake up feeling chronically unrefreshed without realizing caffeine was the culprit.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Afternoon Energy Drink Compounding Trap:</strong> Drinking an energy drink (200mg) at 3 PM leaves roughly 100mg in your brain at 9 PM and 50mg at 2:30 AM. Tossing and turning causes fatigue the next morning, triggering another high-dose energy drink—locking you into a vicious cycle of artificial stimulation and chronic sleep fragmentation.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">CYP1A2 Oral Contraceptive Drag:</strong> Women on oral contraceptives or hormone replacement therapies experience 50% to 100% slower caffeine clearance due to estrogen downregulating CYP1A2 mRNA expression. A morning 9 AM latte can remain metabolically active past midnight.</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          function applyCafPreset() {
-            var val = document.getElementById('cafPreset').value;
+          window.applyCafPreset = function() {
+            const val = document.getElementById('cafPreset').value;
             if (val !== 'custom') {
               document.getElementById('cafDose').value = val;
               calcCaf();
             }
+          };
+
+          function renderCaffeineSVG(dose, halfLife, hoursAgo) {
+            const svg = document.getElementById('caf-curve-svg');
+            if (!svg) return;
+
+            const w = svg.clientWidth || 700;
+            const h = 180;
+            const padL = 45;
+            const padR = 25;
+            const padT = 20;
+            const padB = 30;
+
+            const maxHours = 24;
+            const maxDose = Math.max(dose, 200);
+
+            // Coordinates helper
+            function getX(hour) {
+              return padL + (hour / maxHours) * (w - padL - padR);
+            }
+            function getY(val) {
+              return padT + (1 - (val / maxDose)) * (h - padT - padB);
+            }
+
+            let pathD = '';
+            for (let hour = 0; hour <= maxHours; hour += 0.5) {
+              const conc = dose * Math.pow(0.5, hour / halfLife);
+              const x = getX(hour);
+              const y = getY(conc);
+              pathD += (hour === 0 ? 'M ' : ' L ') + x.toFixed(1) + ' ' + y.toFixed(1);
+            }
+
+            // Sleep threshold line (25mg)
+            const y25 = getY(25);
+            const line25 = '<line x1="' + padL + '" y1="' + y25.toFixed(1) + '" x2="' + (w - padR) + '" y2="' + y25.toFixed(1) + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,4" />';
+
+            // Current point marker
+            const curConc = dose * Math.pow(0.5, hoursAgo / halfLife);
+            const curX = getX(hoursAgo);
+            const curY = getY(curConc);
+            const markerPoint = hoursAgo <= maxHours ? '<circle cx="' + curX.toFixed(1) + '" cy="' + curY.toFixed(1) + '" r="5" fill="#ef4444" stroke="#fff" stroke-width="2" />' : '';
+
+            // X-axis & Y-axis labels
+            let labels = '';
+            [0, 6, 12, 18, 24].forEach(function(hr) {
+              labels += '<text x="' + getX(hr).toFixed(1) + '" y="' + (h - 8) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)" text-anchor="middle">+' + hr + 'h</text>';
+            });
+            [0, 50, 100, 200, Math.round(maxDose)].forEach(function(mg) {
+              if (mg <= maxDose) {
+                labels += '<text x="' + (padL - 8) + '" y="' + (getY(mg) + 3).toFixed(1) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)" text-anchor="end">' + mg + '</text>';
+              }
+            });
+
+            svg.innerHTML = 
+              '<path d="' + pathD + '" fill="none" stroke="#ef4444" stroke-width="2.5" />' +
+              line25 +
+              markerPoint +
+              labels;
           }
 
           function calcCaf() {
-            var dose = parseFloat(document.getElementById('cafDose').value) || 0;
-            var t = parseFloat(document.getElementById('cafHoursAgo').value) || 0;
-            var halfLife = 5.7; // average hepatic CYP1A2 clearance half-life in hours
+            const dose = parseFloat(document.getElementById('cafDose').value) || 0;
+            const t = parseFloat(document.getElementById('cafHoursAgo').value) || 0;
+            const halfLife = parseFloat(document.getElementById('cafMetabolism').value) || 5.7;
 
-            // C(t) = C0 * 0.5^(t / halfLife)
-            var current = dose * Math.pow(0.5, t / halfLife);
-            var pct = dose > 0 ? ((current / dose) * 100) : 0;
+            const current = dose * Math.pow(0.5, t / halfLife);
+            const pct = dose > 0 ? ((current / dose) * 100) : 0;
 
             document.getElementById('cafRemaining').textContent = current.toFixed(1) + ' mg';
-            document.getElementById('cafPercent').textContent = pct.toFixed(1) + '% still active in blood';
+            document.getElementById('cafPercent').textContent = pct.toFixed(1) + '% still active in bloodstream';
 
-            // Time until <= 25 mg (threshold for undisturbed sleep)
-            var sleepThreshold = 25;
+            const sleepThreshold = 25;
+            const sleepTimeEl = document.getElementById('cafSleepTime');
+            const sleepClockEl = document.getElementById('cafSleepClock');
+
             if (current <= sleepThreshold) {
-              document.getElementById('cafSleepTime').textContent = 'NOW READY';
-              document.getElementById('cafSleepTime').style.color = '#10b981';
-              document.getElementById('cafSleepDesc').textContent = 'Caffeine level is low enough for deep sleep.';
+              sleepTimeEl.textContent = 'READY NOW ✓';
+              sleepTimeEl.style.color = '#10b981';
+              sleepClockEl.textContent = 'Active level (' + current.toFixed(1) + 'mg) allows deep slow-wave sleep';
+              sleepClockEl.style.color = '#10b981';
             } else {
-              // 25 = dose * 0.5^(t_total / halfLife) => t_total = halfLife * log2(dose / 25)
-              var totalHoursToSleep = halfLife * (Math.log(dose / sleepThreshold) / Math.log(2));
-              var hoursRemaining = Math.max(0, totalHoursToSleep - t);
-              document.getElementById('cafSleepTime').textContent = 'In ' + hoursRemaining.toFixed(1) + ' hrs';
-              document.getElementById('cafSleepTime').style.color = hoursRemaining > 4 ? '#ef4444' : '#f59e0b';
-              document.getElementById('cafSleepDesc').textContent = 'Until blood level drops below ' + sleepThreshold + ' mg.';
+              const totalHoursToSleep = halfLife * (Math.log(dose / sleepThreshold) / Math.log(2));
+              const hoursRemaining = Math.max(0, totalHoursToSleep - t);
+              sleepTimeEl.textContent = 'In ' + hoursRemaining.toFixed(1) + ' hrs';
+              sleepTimeEl.style.color = hoursRemaining > 4 ? '#ef4444' : '#f59e0b';
+
+              const now = new Date();
+              const safeSleepDate = new Date(now.getTime() + (hoursRemaining * 3600000));
+              let sH = safeSleepDate.getHours();
+              const sM = safeSleepDate.getMinutes().toString().padStart(2, '0');
+              const sAmpm = sH >= 12 ? 'PM' : 'AM';
+              sH = sH % 12 || 12;
+
+              sleepClockEl.textContent = 'Safe Bedtime Window: ~' + sH + ':' + sM + ' ' + sAmpm;
+              sleepClockEl.style.color = 'var(--fg)';
             }
 
-            // Timeline for +2h, +4h, +6h, +8h, +12h, +16h
-            var intervals = [0, 2, 4, 6, 8, 12, 16, 24];
-            var tlHtml = '';
-            intervals.forEach(function(h) {
-              var lvl = dose * Math.pow(0.5, h / halfLife);
-              var isPast = h < t;
-              var isNow = Math.abs(h - t) < 1;
-              var color = lvl <= 25 ? '#10b981' : (lvl > 100 ? '#ef4444' : '#f59e0b');
-              tlHtml += '<div style="background: var(--surface); border: 1px solid ' + (isNow ? '#3b82f6' : 'var(--border)') + '; padding: 0.4rem 0.2rem; border-radius: 4px;' + (isNow ? ' box-shadow: 0 0 6px rgba(59,130,246,0.5);' : '') + '">' +
-                '<div style="color: var(--text-muted); font-size: 0.7rem;">+' + h + 'h</div>' +
-                '<div style="font-weight: bold; color: ' + color + '; margin-top: 0.15rem;">' + lvl.toFixed(0) + 'mg</div>' +
+            // Total clearance to <5mg
+            const totalClearanceHours = halfLife * (Math.log(dose / 5) / Math.log(2));
+            const clearRemaining = Math.max(0, totalClearanceHours - t);
+            document.getElementById('cafClearTime').textContent = 'In ' + clearRemaining.toFixed(1) + ' hrs';
+
+            // Timeline cards for +0, +2, +4, +6, +8, +12, +16, +24h
+            const intervals = [0, 2, 4, 6, 8, 12, 16, 24];
+            let tlHtml = '';
+            intervals.forEach(function(hr) {
+              const lvl = dose * Math.pow(0.5, hr / halfLife);
+              const isNow = Math.abs(hr - t) < 1;
+              const color = lvl <= 25 ? '#10b981' : (lvl > 100 ? '#ef4444' : '#f59e0b');
+              tlHtml += '<div style="background: var(--surface); border: 1px solid ' + (isNow ? '#3b82f6' : 'var(--border)') + '; padding: 0.5rem 0.25rem; border-radius: 4px;' + (isNow ? ' box-shadow: 0 0 6px rgba(59,130,246,0.5);' : '') + '">' +
+                '<div style="color: var(--text-muted); font-size: 0.72rem;">+' + hr + 'h</div>' +
+                '<div style="font-weight: bold; color: ' + color + '; margin-top: 0.2rem; font-size: 0.95rem;">' + lvl.toFixed(0) + 'mg</div>' +
+                '<div style="font-size: 0.68rem; color: var(--text-muted);">' + (lvl <= 25 ? 'Deep Sleep' : 'Alert') + '</div>' +
               '</div>';
             });
             document.getElementById('cafTimeline').innerHTML = tlHtml;
+
+            // Render SVG curve
+            renderCaffeineSVG(dose, halfLife, t);
+
+            // Worked steps
+            const k = Math.log(2) / halfLife;
+            document.getElementById('caf-step-1').innerHTML = dose + ' mg &times; 0.5<sup>(' + t + ' / ' + halfLife + ')</sup> = ' + dose + ' &times; ' + Math.pow(0.5, t / halfLife).toFixed(4) + ' = <strong>' + current.toFixed(2) + ' mg currently active</strong>';
+            document.getElementById('caf-step-k').innerHTML = 'k = ln(2) / ' + halfLife + 'h = <strong>' + k.toFixed(4) + ' hr⁻¹</strong> (' + (k * 100).toFixed(1) + '% cleared hourly)';
+            document.getElementById('caf-step-sleep').innerHTML = halfLife + ' &times; log₂(' + dose + ' / 25) = ' + (halfLife * (Math.log(dose / 25) / Math.log(2))).toFixed(2) + ' hrs from consumption &bull; <strong>' + Math.max(0, (halfLife * (Math.log(dose / 25) / Math.log(2))) - t).toFixed(1) + ' hrs remaining</strong>';
           }
 
-          document.addEventListener('DOMContentLoaded', calcCaf);
+          window.copyCaffeineSummary = function() {
+            const dose = document.getElementById('cafDose').value;
+            const hours = document.getElementById('cafHoursAgo').value;
+            const remaining = document.getElementById('cafRemaining').textContent;
+            const sleepTime = document.getElementById('cafSleepTime').textContent;
+            const sleepClock = document.getElementById('cafSleepClock').textContent;
+            const clearTime = document.getElementById('cafClearTime').textContent;
+
+            const text = [
+              '=== CAFFEINE PHARMACOKINETICS & SLEEP REPORT ===',
+              'Initial Dose: ' + dose + ' mg (' + hours + ' hours ago)',
+              'Active Circulating Caffeine: ' + remaining,
+              'Deep Sleep Readiness (<25mg): ' + sleepTime + ' (' + sleepClock + ')',
+              'Total Clearance (<5mg): ' + clearTime,
+              '-----------------------------------------------',
+              'Pharmacology standard: Hepatic CYP1A2 First-Order Elimination',
+              'Timestamp: ' + new Date().toISOString(),
+              'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/caffeine-half-life-calculator'
+            ].join('\n');
+
+            navigator.clipboard.writeText(text).then(function() {
+              const btn = document.getElementById('btnCopyCaf');
+              if (btn) {
+                const old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Caffeine Sleep Report!';
+                btn.style.color = '#10b981';
+                setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
+              }
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', function() { calcCaf(); });
           calcCaf();
         </script>
       `
