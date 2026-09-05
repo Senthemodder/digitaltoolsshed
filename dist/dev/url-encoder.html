@@ -1040,19 +1040,141 @@
       @media (max-width: 768px) { .grid-2col { grid-template-columns: 1fr; } }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; URL Encoder
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Encoder & Decoder</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Percent Encoder &amp; Decoder Studio</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Encode and decode URL parameters, query strings, full URIs, and Base64URL strings with RFC 3986 compliance and diagnostics.
+          </p>
+
           <div class="tool-box">
-            <textarea id="url-in" class="code-input" style="height: 120px;" placeholder="https://example.com/search?q=hello world"></textarea>
-            <div class="action-bar">
-              <button class="btn-primary" onclick="document.getElementById('url-in').value=encodeURIComponent(document.getElementById('url-in').value)">Encode</button>
-              <button class="btn-sec" onclick="try{document.getElementById('url-in').value=decodeURIComponent(document.getElementById('url-in').value)}catch(e){}">Decode</button>
+            <div class="field-group">
+              <label class="field-label">Input String or URL</label>
+              <textarea id="url-in" class="code-input" style="height: 120px;" placeholder="https://example.com/search?category=books &amp; tools&amp;query=hello world#top"></textarea>
+            </div>
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0;">
+              <button type="button" class="btn-primary" onclick="urlTransform('encodeComponent')">Encode Component (RFC 3986)</button>
+              <button type="button" class="btn-sec" onclick="urlTransform('encodeFull')">Encode Full URI</button>
+              <button type="button" class="btn-sec" onclick="urlTransform('decode')">Decode URL / Percent</button>
+              <button type="button" class="btn-sec" onclick="urlTransform('base64url')">Base64URL Safe</button>
+              <button type="button" class="btn-sec" onclick="clearUrlInputs()">Clear</button>
+            </div>
+
+            <div class="field-group" style="margin-top: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Output Result</label>
+                <span id="urlMetrics" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 chars</span>
+              </div>
+              <textarea id="url-out" class="code-input" style="height: 120px;" readonly></textarea>
+            </div>
+
+            <!-- Copy URL Output Button -->
+            <button type="button" id="btnCopyUrl" onclick="copyUrlResult()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Encoded / Decoded URL String</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical URL Encoding Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in URL Percent-Encoding &amp; Parameter Routing</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. 'encodeURI' vs. 'encodeURIComponent' Query Leakage</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using <code>encodeURI()</code> on user query parameters fails to encode <code>&amp;</code>, <code>=</code>, and <code>+</code>. An input like <code>"item&amp;discount=100%"</code> passed into <code>encodeURI</code> remains unescaped, splitting the query into unintended parameters (<code>discount=100%</code>) on the backend server. Always use <code>encodeURIComponent()</code> for parameter keys and values.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Double Percent-Encoding Attack (%252F WAF Bypass)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When an input is encoded twice, a slash <code>/</code> (<code>%2F</code>) becomes <code>%252F</code>. A web application firewall (WAF) inspects <code>%252F</code>, decodes <code>%25</code> to <code>%</code>, sees <code>%2F</code> (non-path slash), and approves the request. The backend application server then decodes it a second time into a literal <code>/</code>, enabling critical path traversal (<code>..%252F..%252Fetc%252Fpasswd</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Plus Sign '+' vs. '%20' Form-Urlencoded Inconsistency</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Legacy HTML form post bodies (<code>application/x-www-form-urlencoded</code>) encode spaces as plus signs (<code>+</code>). However, standard RFC 3986 URI specifications encode spaces strictly as <code>%20</code>. Decoding a query string using standard <code>decodeURIComponent()</code> leaves literal <code>+</code> characters untouched instead of converting them back to spaces.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Uncaught 'URIError: URI malformed' Application Crashes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  JavaScript's native <code>decodeURIComponent()</code> throws a fatal, unhandled <code>URIError</code> exception if the input contains a standalone percent sign (e.g. <code>"100% satisfaction"</code>) or truncated multi-byte UTF-8 sequences (e.g. <code>"%E0%A4"</code>). A single unhandled malformed query parameter in server-side SSR can crash an entire Node.js worker process.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Path Traversal &amp; Null Byte Poisoning (%00 &amp; %5C)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Encoding directory separators (<code>%2F</code>, <code>%5C</code>) or null bytes (<code>%00</code>) bypasses superficial string validation (e.g. <code>!path.includes('/')</code>). If backend file loaders decode parameters without verifying canonical resolved paths via <code>path.resolve()</code>, attackers can read arbitrary system configurations and keys.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
+        <script>
+          window.urlTransform = function(mode) {
+            var raw = (document.getElementById('url-in') ? document.getElementById('url-in').value : '');
+            var out = '';
+            try {
+              if (mode === 'encodeComponent') {
+                out = encodeURIComponent(raw);
+              } else if (mode === 'encodeFull') {
+                out = encodeURI(raw);
+              } else if (mode === 'decode') {
+                // Handle form-urlencoded plus signs before decode
+                var prep = raw.replace(/+/g, ' ');
+                out = decodeURIComponent(prep);
+              } else if (mode === 'base64url') {
+                var b64 = btoa(unescape(encodeURIComponent(raw)));
+                out = b64.replace(/+/g, '-').replace(///g, '_').replace(/=+$/, '');
+              }
+            } catch(e) {
+              out = 'Error: ' + e.message;
+            }
+            document.getElementById('url-out').value = out;
+            document.getElementById('urlMetrics').textContent = out.length + ' chars (' + (new Blob([out]).size) + ' bytes)';
+          };
+
+          window.clearUrlInputs = function() {
+            document.getElementById('url-in').value = '';
+            document.getElementById('url-out').value = '';
+            document.getElementById('urlMetrics').textContent = '0 chars';
+          };
+
+          window.copyUrlResult = function() {
+            var out = document.getElementById('url-out') ? document.getElementById('url-out').value : '';
+            if (!out) {
+              urlTransform('encodeComponent');
+              out = document.getElementById('url-out').value;
+            }
+
+            navigator.clipboard.writeText(out).then(function() {
+              var btn = document.getElementById('btnCopyUrl');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ URL String Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('url-in');
+            if (inp && inp.value) urlTransform('encodeComponent');
+          });
+        </script>
       
 
           
