@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Social Security Benefit Calculator by Age (62 vs 67 vs 70) | Digital Tools Shed</title>
-  <meta name="description" content="Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70.">
+  <meta name="description" content="Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70 with COLA compounding and break-even analysis.">
   <link rel="canonical" href="https://digitaltoolsshed.com/finance/social-security-calculator">
   <meta property="og:title" content="Social Security Benefit Calculator by Age (62 vs 67 vs 70) | Digital Tools Shed">
-  <meta property="og:description" content="Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70.">
+  <meta property="og:description" content="Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70 with COLA compounding and break-even analysis.">
   <meta property="og:url" content="https://digitaltoolsshed.com/finance/social-security-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Social Security Benefit Calculator by Age (62 vs 67 vs 70) | Digital Tools Shed">
-  <meta name="twitter:description" content="Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70.">
+  <meta name="twitter:description" content="Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70 with COLA compounding and break-even analysis.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -91,7 +91,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70.",
+  "description": "Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70 with COLA compounding and break-even analysis.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -136,7 +136,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Social Security Benefit Calculator by Age (62 vs 67 vs 70)",
-  "description": "Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70.",
+  "description": "Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70 with COLA compounding and break-even analysis.",
   "step": [
     {
       "@type": "HowToStep",
@@ -1033,57 +1033,187 @@
         <header style="margin-bottom: 2rem;">
           <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Social Security Retirement Benefit Estimator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-            Estimate your monthly payout and compare the total lifetime benefits of claiming early at age 62, waiting for Full Retirement Age (67), or delaying until age 70 for the maximum 8% annual bonus.
+            Compare monthly payouts and cumulative lifetime wealth across all claiming ages from 62 to 70. Features SSA actuarial formulas, annual COLA compounding, exact break-even crossover analysis, and spousal survivor benefits.
           </p>
         </header>
 
-        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
-            <div>
-              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Estimated Monthly Benefit at Full Age (67):</label>
-              <div style="position: relative;">
-                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
-                <input type="number" id="ss-base" value="2000" step="50" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSS()" />
+        <div class="tool-box">
+          <!-- Primary Benefit & Target Age Inputs -->
+          <div class="grid-inputs">
+            <div class="field-group">
+              <label class="field-label">Estimated Monthly Benefit at Full Age 67 (PIA in $ USD)</label>
+              <input type="number" id="ss-base" class="text-input" value="2200" step="50" oninput="calcSS()" />
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button type="button" class="btn-sec" onclick="setSSPIA(1600)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$1,600 (Avg)</button>
+                <button type="button" class="btn-sec" onclick="setSSPIA(2200)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono); border-color: #3b82f6; color: #3b82f6; font-weight: bold;">$2,200 (Above Avg)</button>
+                <button type="button" class="btn-sec" onclick="setSSPIA(2800)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$2,800 (High)</button>
+                <button type="button" class="btn-sec" onclick="setSSPIA(3911)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$3,911 (2025 Max)</button>
               </div>
-              <small style="color: var(--text-muted); font-size: 0.75rem;">Average US benefit in 2026 is ~$1,900/mo.</small>
             </div>
-            <div>
-              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Expected Longevity / Life Expectancy:</label>
-              <input type="number" id="ss-age-limit" value="85" min="70" max="100" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSS()" />
-              <small style="color: var(--text-muted); font-size: 0.75rem;">Age to project lifetime cumulative benefits.</small>
-            </div>
-          </div>
-        </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
-          <!-- AGE 62 -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.5rem; border-radius: 6px; text-align: center;">
-            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Early Claiming (Age 62)</div>
-            <div style="font-size: 1.1rem; font-weight: bold; margin: 0.4rem 0;">-30% Reduction</div>
-            <div id="ss-62-mo" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #ef4444; margin-bottom: 0.5rem;">$1,400 / mo</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.75rem;">
-              Lifetime Total: <strong id="ss-62-life" style="color: var(--fg);">$386,400</strong>
+            <div class="field-group">
+              <label class="field-label">Your Planned Claiming Age</label>
+              <select id="ss-claim-age" class="text-input" onchange="calcSS()">
+                <option value="62">Age 62 (-30.0% Early Reduction)</option>
+                <option value="63">Age 63 (-25.0% Early Reduction)</option>
+                <option value="64">Age 64 (-20.0% Early Reduction)</option>
+                <option value="65">Age 65 (-13.3% Early Reduction)</option>
+                <option value="66">Age 66 (-6.7% Early Reduction)</option>
+                <option value="67" selected>Age 67 (100% Full Retirement Age)</option>
+                <option value="68">Age 68 (+8.0% Delayed Credit)</option>
+                <option value="69">Age 69 (+16.0% Delayed Credit)</option>
+                <option value="70">Age 70 (+24.0% Maximum Bonus)</option>
+              </select>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">FRA is 67 for all workers born 1960 or later.</small>
             </div>
-          </div>
 
-          <!-- AGE 67 -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.5rem; border-radius: 6px; text-align: center;">
-            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Full Retirement (Age 67)</div>
-            <div style="font-size: 1.1rem; font-weight: bold; margin: 0.4rem 0;">100% Full Benefit</div>
-            <div id="ss-67-mo" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.5rem;">$2,000 / mo</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.75rem;">
-              Lifetime Total: <strong id="ss-67-life" style="color: var(--fg);">$432,000</strong>
+            <div class="field-group">
+              <label class="field-label">Life Expectancy Horizon (Age)</label>
+              <input type="number" id="ss-age-limit" class="text-input" value="85" min="70" max="100" step="1" oninput="calcSS()" />
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Actuarial longevity projection (average is 84–87).</small>
             </div>
           </div>
 
-          <!-- AGE 70 -->
-          <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #22c55e; padding: 1.5rem; border-radius: 6px; text-align: center;">
-            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Delayed Claiming (Age 70)</div>
-            <div style="font-size: 1.1rem; font-weight: bold; margin: 0.4rem 0;">+24% Maximum Bonus</div>
-            <div id="ss-70-mo" style="font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #22c55e; margin-bottom: 0.5rem;">$2,480 / mo</div>
-            <div style="font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.75rem;">
-              Lifetime Total: <strong id="ss-70-life" style="color: var(--fg);">$446,400</strong>
+          <!-- COLA & Spousal Settings -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin: 1.25rem 0;">
+            <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--fg); display: flex; align-items: center; justify-content: space-between;">
+              <span>📈 Inflation & Household Claiming Variables</span>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981;">Actuarial Precision</span>
             </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+              <div>
+                <label class="field-label" style="font-size: 0.75rem;">Annual COLA Compounding Rate</label>
+                <select id="ss-cola" class="text-input" onchange="calcSS()" style="padding: 0.45rem; font-size: 0.85rem;">
+                  <option value="0">0.0% (Purchasing Power / Flat Dollars)</option>
+                  <option value="0.015">1.5% (Conservative Low Inflation)</option>
+                  <option value="0.025" selected>2.5% (Historical SSA 20-Yr Average)</option>
+                  <option value="0.035">3.5% (Higher Inflation Regime)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="field-label" style="font-size: 0.75rem;">Include Spousal Benefit Top-Up?</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
+                  <input type="checkbox" id="ss-spouse-toggle" onchange="calcSS()" style="width: 18px; height: 18px; cursor: pointer;" />
+                  <span style="font-size: 0.85rem; color: var(--fg);">Calculate 50% spousal auxiliary check</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Milestone Comparison Cards (62 vs 67 vs 70) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <!-- AGE 62 -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Early Claiming (Age 62)</div>
+              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #ef4444;">-30.0% Reduction</div>
+              <div id="ss-62-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #ef4444; margin-bottom: 0.4rem;">$1,540 / mo</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                Lifetime Total: <strong id="ss-62-life" style="color: var(--fg); font-family: var(--mono);">$425,040</strong>
+              </div>
+            </div>
+
+            <!-- AGE 67 -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Full Retirement (Age 67)</div>
+              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #3b82f6;">100% Full PIA</div>
+              <div id="ss-67-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.4rem;">$2,200 / mo</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                Lifetime Total: <strong id="ss-67-life" style="color: var(--fg); font-family: var(--mono);">$475,200</strong>
+              </div>
+            </div>
+
+            <!-- AGE 70 -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #22c55e; padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Delayed Claiming (Age 70)</div>
+              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #22c55e;">+24.0% Max Bonus</div>
+              <div id="ss-70-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #22c55e; margin-bottom: 0.4rem;">$2,728 / mo</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                Lifetime Total: <strong id="ss-70-life" style="color: var(--fg); font-family: var(--mono);">$491,040</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Plan Summary Card -->
+          <div class="result-card" style="margin-top: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
+              <div class="field-label">Your Planned Strategy Outcome</div>
+              <div id="ss-plan-badge" style="font-family: var(--mono); font-size: 0.8rem; color: #3b82f6; font-weight: bold;">Claiming at Age 67</div>
+            </div>
+            <div id="ss-selected-monthly" class="result-val">$2,200 / mo</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
+              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
+                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Lifetime Cumulative Payout</span>
+                <div id="ss-selected-lifetime" style="font-size: 1.4rem; font-weight: bold; color: #10b981; font-family: var(--mono);">$475,200</div>
+                <div id="ss-selected-years" style="font-size: 0.75rem; color: var(--text-muted);">Over 18 years of retirement</div>
+              </div>
+
+              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
+                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Break-Even Age (Age 70 vs 62)</span>
+                <div id="ss-breakeven" style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; font-family: var(--mono);">Age 80.4</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Living past this age favors delaying to 70</div>
+              </div>
+
+              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
+                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Spousal Check Addition</span>
+                <div id="ss-spouse-amount" style="font-size: 1.4rem; font-weight: bold; color: var(--fg); font-family: var(--mono);">$0 / mo</div>
+                <div id="ss-spouse-desc" style="font-size: 0.75rem; color: var(--text-muted);">Toggle spousal benefit above</div>
+              </div>
+            </div>
+
+            <button type="button" id="btnCopySS" onclick="copySSSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Social Security Strategy Report
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step SSA Actuarial Formula Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">42 U.S. Code § 402</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              The Social Security Administration calculates reductions and delayed credits on a monthly actuarial scale relative to Full Retirement Age (FRA 67):
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Early Reduction & Delayed Credits Percentage</strong>
+                <div id="ss-step-1" style="color: #3b82f6; margin-top: 0.25rem;">
+                  Full Retirement Age (67): Multiplier = 100.0% of PIA ($2,200.00 / mo)
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Actuarial Reduction Schedule</strong>
+                <div id="ss-step-2" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Early Reduction: 5/9 of 1% per month for first 36 months (20.0%) + 5/12 of 1% per month for next 24 months (10.0%) = 30.0% total reduction at age 62.<br>
+                  Delayed Credit: 2/3 of 1% per month (8.0% per year) for 36 months = +24.0% total bonus at age 70.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 3: Cumulative Lifetime Value with COLA Compounding</strong>
+                <div id="ss-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Lifetime Cumulative = &Sigma; [Monthly &times; 12 &times; (1 + COLA)^t] from Age 67 to Age 85 = <strong>$475,200</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">Step 4: Break-Even Crossover Horizon</strong>
+                <div id="ss-step-4" style="color: #10b981; margin-top: 0.25rem;">
+                  Age 70 ($2,728/mo) starts 96 months after Age 62 ($1,540/mo). Cumulative lines cross at <strong>Age 80.4</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Social Security Traps & Retirement Pitfalls -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Social Security Traps & Retirement Pitfalls</h3>
+            <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+              <li><strong>The Retirement Earnings Test Trap:</strong> If you claim before Full Retirement Age (FRA 67) and continue working, SSA will withhold $1 for every $2 you earn above $23,400 (in 2025/2026). While withheld benefits are actuarially recalculated at FRA, claiming early while working creates an immediate liquidity penalty.</li>
+              <li><strong>The Social Security "Tax Torpedo":</strong> Up to 85% of your Social Security benefits become subject to ordinary federal income tax once your provisional income (AGI + tax-exempt interest + 50% of your Social Security) exceeds $25,000 for single filers or $32,000 for married couples filing jointly. These thresholds were established in 1983 and have NEVER been indexed to inflation!</li>
+              <li><strong>The Survivor Benefit Asymmetry:</strong> When one spouse passes away, the smaller of the two Social Security checks vanishes forever, and the surviving spouse inherits the larger check. Delaying the higher-earning spouse's claim to age 70 locks in the maximum possible guaranteed, inflation-protected lifetime annuity for the surviving spouse.</li>
+              <li><strong>The "Break-Even" Myopia Fallacy:</strong> Many retirees claim at 62 thinking "I break even at 80, so I'll take the money early." But Social Security is not an investment portfolio subject to market volatility; it is government-backed longevity insurance. Claiming late protects you precisely when you are most vulnerable: in your late 80s and 90s after other assets may have dwindled.</li>
+            </ul>
           </div>
         </div>
 
@@ -1092,30 +1222,69 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Social Security Projection Report
           </button>
         </div>
-
-        <section style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; line-height: 1.7; font-size: 0.95rem;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem;">Key Takeaways for Claiming Strategy</h3>
-          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted);">
-            <li><strong>Break-Even Age:</strong> Waiting until age 70 typically breaks even against claiming at age 62 around ages 78–80. If your family has longevity, delaying maximizes lifetime wealth and survivor benefits.</li>
-            <li><strong>COLA Adjustments:</strong> Social Security payouts receive annual Cost-of-Living Adjustments (COLA), meaning larger starting checks compound higher percentage increases over time.</li>
-            <li><strong>Working in Retirement:</strong> Claiming before Full Retirement Age while continuing to work may temporarily withhold benefits under the earnings limit test.</li>
-          </ul>
-        </section>
       </div>
 
       <script>
         function fmtM(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+        window.setSSPIA = function(amt) {
+          document.getElementById('ss-base').value = amt;
+          calcSS();
+        };
+
+        function getAgeMultiplier(age) {
+          // FRA = 67
+          if (age === 67) return 1.00;
+          if (age < 67) {
+            var monthsEarly = (67 - age) * 12;
+            var reduction = 0;
+            if (monthsEarly <= 36) {
+              reduction = monthsEarly * (5 / 9 / 100);
+            } else {
+              reduction = (36 * (5 / 9 / 100)) + ((monthsEarly - 36) * (5 / 12 / 100));
+            }
+            return 1.00 - reduction;
+          } else {
+            var monthsDelayed = (age - 67) * 12;
+            var delayedCredit = monthsDelayed * (2 / 3 / 100);
+            return 1.00 + delayedCredit;
+          }
+        }
+
+        function calcLifetime(monthly, startAge, endAge, colaRate) {
+          var total = 0;
+          var curMo = monthly;
+          for (var yr = startAge; yr < endAge; yr++) {
+            total += curMo * 12;
+            curMo *= (1 + colaRate);
+          }
+          return total;
+        }
+
         function calcSS() {
-          const base = parseFloat(document.getElementById('ss-base').value) || 0;
-          const maxAge = Math.max(71, parseFloat(document.getElementById('ss-age-limit').value) || 85);
+          var base = parseFloat(document.getElementById('ss-base').value) || 0;
+          var plannedAge = parseInt(document.getElementById('ss-claim-age').value, 10) || 67;
+          var maxAge = Math.max(71, parseFloat(document.getElementById('ss-age-limit').value) || 85);
+          var cola = parseFloat(document.getElementById('ss-cola').value) || 0;
+          var hasSpouse = document.getElementById('ss-spouse-toggle').checked;
 
-          const mo62 = base * 0.70;
-          const mo67 = base * 1.00;
-          const mo70 = base * 1.24;
+          var mult62 = getAgeMultiplier(62);
+          var mult67 = getAgeMultiplier(67);
+          var mult70 = getAgeMultiplier(70);
+          var multPlan = getAgeMultiplier(plannedAge);
 
-          const life62 = mo62 * (maxAge - 62) * 12;
-          const life67 = mo67 * (maxAge - 67) * 12;
-          const life70 = mo70 * (maxAge - 70) * 12;
+          var mo62 = base * mult62;
+          var mo67 = base * mult67;
+          var mo70 = base * mult70;
+          var moPlan = base * multPlan;
+
+          var spouseMo = hasSpouse ? (base * 0.50 * multPlan) : 0;
+          var totalMoPlan = moPlan + spouseMo;
+
+          var life62 = calcLifetime(mo62, 62, maxAge, cola);
+          var life67 = calcLifetime(mo67, 67, maxAge, cola);
+          var life70 = calcLifetime(mo70, 70, maxAge, cola);
+          var lifePlan = calcLifetime(totalMoPlan, plannedAge, maxAge, cola);
 
           document.getElementById('ss-62-mo').textContent = fmtM(mo62) + ' / mo';
           document.getElementById('ss-67-mo').textContent = fmtM(mo67) + ' / mo';
@@ -1124,7 +1293,87 @@
           document.getElementById('ss-62-life').textContent = fmtM(life62);
           document.getElementById('ss-67-life').textContent = fmtM(life67);
           document.getElementById('ss-70-life').textContent = fmtM(life70);
+
+          // Selected Plan
+          var pctDiff = Math.round((multPlan - 1.0) * 100);
+          var pctStr = (pctDiff >= 0 ? '+' : '') + pctDiff + '% vs FRA 67';
+          document.getElementById('ss-plan-badge').textContent = 'Claiming at Age ' + plannedAge + ' (' + pctStr + ')';
+          document.getElementById('ss-selected-monthly').textContent = fmtM(totalMoPlan) + ' / mo';
+          document.getElementById('ss-selected-lifetime').textContent = fmtM(lifePlan);
+          document.getElementById('ss-selected-years').textContent = 'Over ' + (maxAge - plannedAge) + ' years of retirement (to Age ' + maxAge + ')';
+
+          // Spousal
+          if (hasSpouse) {
+            document.getElementById('ss-spouse-amount').textContent = '+' + fmtM(spouseMo) + ' / mo';
+            document.getElementById('ss-spouse-desc').textContent = '50% spousal auxiliary benefit';
+          } else {
+            document.getElementById('ss-spouse-amount').textContent = '$0 / mo';
+            document.getElementById('ss-spouse-desc').textContent = 'Single earner calculation';
+          }
+
+          // Break-Even Age (70 vs 62)
+          var beAge = 70;
+          var cum62 = calcLifetime(mo62, 62, 70, cola);
+          var cum70 = 0;
+          var found = false;
+
+          for (var testAge = 70; testAge <= 100; testAge += 0.1) {
+            var c62 = calcLifetime(mo62, 62, testAge, cola);
+            var c70 = calcLifetime(mo70, 70, testAge, cola);
+            if (c70 >= c62) {
+              beAge = testAge;
+              found = true;
+              break;
+            }
+          }
+          document.getElementById('ss-breakeven').textContent = 'Age ' + beAge.toFixed(1);
+
+          // Step Derivations
+          document.getElementById('ss-step-1').innerHTML = 'Selected Claiming Age ' + plannedAge + ': Multiplier = <strong>' + (multPlan * 100).toFixed(1) + '%</strong> of PIA ($' + base.toFixed(2) + ' &times; ' + multPlan.toFixed(3) + ') = <strong>' + fmtM(moPlan) + ' / mo</strong>';
+          document.getElementById('ss-step-3').innerHTML = 'Lifetime Cumulative (' + plannedAge + ' to ' + maxAge + ' with ' + (cola * 100).toFixed(1) + '% COLA) = <strong>' + fmtM(lifePlan) + '</strong>';
+          document.getElementById('ss-step-4').innerHTML = 'Delaying to Age 70 ($' + fmtM(mo70) + '/mo) catches up and surpasses Age 62 ($' + fmtM(mo62) + '/mo) at <strong>Age ' + beAge.toFixed(1) + '</strong>.';
         }
+
+        function copySSSummary() {
+          var base = document.getElementById('ss-base').value;
+          var age = document.getElementById('ss-claim-age').value;
+          var maxAge = document.getElementById('ss-age-limit').value;
+          var selectedMo = document.getElementById('ss-selected-monthly').textContent;
+          var selectedLife = document.getElementById('ss-selected-lifetime').textContent;
+          var be = document.getElementById('ss-breakeven').textContent;
+          var mo62 = document.getElementById('ss-62-mo').textContent;
+          var mo67 = document.getElementById('ss-67-mo').textContent;
+          var mo70 = document.getElementById('ss-70-mo').textContent;
+
+          var text = '🏛️ SOCIAL SECURITY CLAIMING STRATEGY REPORT\n' +
+            '----------------------------------------\n' +
+            '• PIA at Full Retirement Age (67): $' + base + ' / mo\n' +
+            '• Planned Claiming Age: Age ' + age + '\n' +
+            '• Estimated Monthly Benefit: ' + selectedMo + '\n' +
+            '• Cumulative Lifetime (to Age ' + maxAge + '): ' + selectedLife + '\n' +
+            '----------------------------------------\n' +
+            'CLAIMING AGE COMPARISON:\n' +
+            '• Early (Age 62): ' + mo62 + ' (-30% reduction)\n' +
+            '• Full Retirement (Age 67): ' + mo67 + ' (100% PIA)\n' +
+            '• Delayed Maximum (Age 70): ' + mo70 + ' (+24% delayed credit)\n' +
+            '• Delay Break-Even Crossover: ' + be + '\n' +
+            '----------------------------------------\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/social-security-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopySS');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Social Security Summary!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
+        }
+
         document.addEventListener('DOMContentLoaded', calcSS);
       </script>
     

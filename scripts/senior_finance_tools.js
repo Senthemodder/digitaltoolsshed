@@ -10,20 +10,1002 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
   {
     "slug": "social-security-calculator",
     "title": "Social Security Benefit Calculator by Age (62 vs 67 vs 70)",
-    "metaDesc": "Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70.",
-    "body": "\n      <div class=\"article-container\" style=\"max-width: 950px;\">\n        <nav style=\"font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);\">\n          <a href=\"/\">Home</a> &gt; <a href=\"/finance/\">Finance</a> &gt; Social Security Calculator\n        </nav>\n\n        <header style=\"margin-bottom: 2rem;\">\n          <h1 style=\"font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;\">Social Security Retirement Benefit Estimator</h1>\n          <p style=\"color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;\">\n            Estimate your monthly payout and compare the total lifetime benefits of claiming early at age 62, waiting for Full Retirement Age (67), or delaying until age 70 for the maximum 8% annual bonus.\n          </p>\n        </header>\n\n        <div style=\"background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;\">\n          <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;\">\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Estimated Monthly Benefit at Full Age (67):</label>\n              <div style=\"position: relative;\">\n                <span style=\"position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);\">$</span>\n                <input type=\"number\" id=\"ss-base\" value=\"2000\" step=\"50\" style=\"width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcSS()\" />\n              </div>\n              <small style=\"color: var(--text-muted); font-size: 0.75rem;\">Average US benefit in 2026 is ~$1,900/mo.</small>\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Expected Longevity / Life Expectancy:</label>\n              <input type=\"number\" id=\"ss-age-limit\" value=\"85\" min=\"70\" max=\"100\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcSS()\" />\n              <small style=\"color: var(--text-muted); font-size: 0.75rem;\">Age to project lifetime cumulative benefits.</small>\n            </div>\n          </div>\n        </div>\n\n        <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;\">\n          <!-- AGE 62 -->\n          <div style=\"background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.5rem; border-radius: 6px; text-align: center;\">\n            <div style=\"font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);\">Early Claiming (Age 62)</div>\n            <div style=\"font-size: 1.1rem; font-weight: bold; margin: 0.4rem 0;\">-30% Reduction</div>\n            <div id=\"ss-62-mo\" style=\"font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #ef4444; margin-bottom: 0.5rem;\">$1,400 / mo</div>\n            <div style=\"font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.75rem;\">\n              Lifetime Total: <strong id=\"ss-62-life\" style=\"color: var(--fg);\">$386,400</strong>\n            </div>\n          </div>\n\n          <!-- AGE 67 -->\n          <div style=\"background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.5rem; border-radius: 6px; text-align: center;\">\n            <div style=\"font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);\">Full Retirement (Age 67)</div>\n            <div style=\"font-size: 1.1rem; font-weight: bold; margin: 0.4rem 0;\">100% Full Benefit</div>\n            <div id=\"ss-67-mo\" style=\"font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.5rem;\">$2,000 / mo</div>\n            <div style=\"font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.75rem;\">\n              Lifetime Total: <strong id=\"ss-67-life\" style=\"color: var(--fg);\">$432,000</strong>\n            </div>\n          </div>\n\n          <!-- AGE 70 -->\n          <div style=\"background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #22c55e; padding: 1.5rem; border-radius: 6px; text-align: center;\">\n            <div style=\"font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);\">Delayed Claiming (Age 70)</div>\n            <div style=\"font-size: 1.1rem; font-weight: bold; margin: 0.4rem 0;\">+24% Maximum Bonus</div>\n            <div id=\"ss-70-mo\" style=\"font-family: var(--mono); font-size: 2rem; font-weight: bold; color: #22c55e; margin-bottom: 0.5rem;\">$2,480 / mo</div>\n            <div style=\"font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.75rem;\">\n              Lifetime Total: <strong id=\"ss-70-life\" style=\"color: var(--fg);\">$446,400</strong>\n            </div>\n          </div>\n        </div>\n\n        <div style=\"text-align: center; margin: 2rem 0;\">\n          <button onclick=\"window.print()\" style=\"background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;\">\n            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"display:inline-block;vertical-align:middle;margin-right:3px\"><polyline points=\"6 9 6 2 18 2 18 9\"/><path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\"/><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\"/></svg> Print Social Security Projection Report\n          </button>\n        </div>\n\n        <section style=\"background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; line-height: 1.7; font-size: 0.95rem;\">\n          <h3 style=\"font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem;\">Key Takeaways for Claiming Strategy</h3>\n          <ul style=\"margin: 0; padding-left: 1.25rem; color: var(--text-muted);\">\n            <li><strong>Break-Even Age:</strong> Waiting until age 70 typically breaks even against claiming at age 62 around ages 78–80. If your family has longevity, delaying maximizes lifetime wealth and survivor benefits.</li>\n            <li><strong>COLA Adjustments:</strong> Social Security payouts receive annual Cost-of-Living Adjustments (COLA), meaning larger starting checks compound higher percentage increases over time.</li>\n            <li><strong>Working in Retirement:</strong> Claiming before Full Retirement Age while continuing to work may temporarily withhold benefits under the earnings limit test.</li>\n          </ul>\n        </section>\n      </div>\n\n      <script>\n        function fmtM(n) { return '$' + Math.round(n).toLocaleString('en-US'); }\n        function calcSS() {\n          const base = parseFloat(document.getElementById('ss-base').value) || 0;\n          const maxAge = Math.max(71, parseFloat(document.getElementById('ss-age-limit').value) || 85);\n\n          const mo62 = base * 0.70;\n          const mo67 = base * 1.00;\n          const mo70 = base * 1.24;\n\n          const life62 = mo62 * (maxAge - 62) * 12;\n          const life67 = mo67 * (maxAge - 67) * 12;\n          const life70 = mo70 * (maxAge - 70) * 12;\n\n          document.getElementById('ss-62-mo').textContent = fmtM(mo62) + ' / mo';\n          document.getElementById('ss-67-mo').textContent = fmtM(mo67) + ' / mo';\n          document.getElementById('ss-70-mo').textContent = fmtM(mo70) + ' / mo';\n\n          document.getElementById('ss-62-life').textContent = fmtM(life62);\n          document.getElementById('ss-67-life').textContent = fmtM(life67);\n          document.getElementById('ss-70-life').textContent = fmtM(life70);\n        }\n        document.addEventListener('DOMContentLoaded', calcSS);\n      </script>\n    "
+    "metaDesc": "Compare your estimated monthly and lifetime Social Security retirement benefits taking them early at 62, full retirement age (67), or delaying until 70 with COLA compounding and break-even analysis.",
+    "body": `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Social Security Calculator
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Social Security Retirement Benefit Estimator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Compare monthly payouts and cumulative lifetime wealth across all claiming ages from 62 to 70. Features SSA actuarial formulas, annual COLA compounding, exact break-even crossover analysis, and spousal survivor benefits.
+          </p>
+        </header>
+
+        <div class="tool-box">
+          <!-- Primary Benefit & Target Age Inputs -->
+          <div class="grid-inputs">
+            <div class="field-group">
+              <label class="field-label">Estimated Monthly Benefit at Full Age 67 (PIA in $ USD)</label>
+              <input type="number" id="ss-base" class="text-input" value="2200" step="50" oninput="calcSS()" />
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button type="button" class="btn-sec" onclick="setSSPIA(1600)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$1,600 (Avg)</button>
+                <button type="button" class="btn-sec" onclick="setSSPIA(2200)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono); border-color: #3b82f6; color: #3b82f6; font-weight: bold;">$2,200 (Above Avg)</button>
+                <button type="button" class="btn-sec" onclick="setSSPIA(2800)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$2,800 (High)</button>
+                <button type="button" class="btn-sec" onclick="setSSPIA(3911)" style="font-size: 0.72rem; padding: 0.2rem 0.4rem; font-family: var(--mono);">$3,911 (2025 Max)</button>
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Your Planned Claiming Age</label>
+              <select id="ss-claim-age" class="text-input" onchange="calcSS()">
+                <option value="62">Age 62 (-30.0% Early Reduction)</option>
+                <option value="63">Age 63 (-25.0% Early Reduction)</option>
+                <option value="64">Age 64 (-20.0% Early Reduction)</option>
+                <option value="65">Age 65 (-13.3% Early Reduction)</option>
+                <option value="66">Age 66 (-6.7% Early Reduction)</option>
+                <option value="67" selected>Age 67 (100% Full Retirement Age)</option>
+                <option value="68">Age 68 (+8.0% Delayed Credit)</option>
+                <option value="69">Age 69 (+16.0% Delayed Credit)</option>
+                <option value="70">Age 70 (+24.0% Maximum Bonus)</option>
+              </select>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">FRA is 67 for all workers born 1960 or later.</small>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Life Expectancy Horizon (Age)</label>
+              <input type="number" id="ss-age-limit" class="text-input" value="85" min="70" max="100" step="1" oninput="calcSS()" />
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Actuarial longevity projection (average is 84–87).</small>
+            </div>
+          </div>
+
+          <!-- COLA & Spousal Settings -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin: 1.25rem 0;">
+            <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--fg); display: flex; align-items: center; justify-content: space-between;">
+              <span>📈 Inflation & Household Claiming Variables</span>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #10b981;">Actuarial Precision</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+              <div>
+                <label class="field-label" style="font-size: 0.75rem;">Annual COLA Compounding Rate</label>
+                <select id="ss-cola" class="text-input" onchange="calcSS()" style="padding: 0.45rem; font-size: 0.85rem;">
+                  <option value="0">0.0% (Purchasing Power / Flat Dollars)</option>
+                  <option value="0.015">1.5% (Conservative Low Inflation)</option>
+                  <option value="0.025" selected>2.5% (Historical SSA 20-Yr Average)</option>
+                  <option value="0.035">3.5% (Higher Inflation Regime)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="field-label" style="font-size: 0.75rem;">Include Spousal Benefit Top-Up?</label>
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.4rem;">
+                  <input type="checkbox" id="ss-spouse-toggle" onchange="calcSS()" style="width: 18px; height: 18px; cursor: pointer;" />
+                  <span style="font-size: 0.85rem; color: var(--fg);">Calculate 50% spousal auxiliary check</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Milestone Comparison Cards (62 vs 67 vs 70) -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <!-- AGE 62 -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Early Claiming (Age 62)</div>
+              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #ef4444;">-30.0% Reduction</div>
+              <div id="ss-62-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #ef4444; margin-bottom: 0.4rem;">$1,540 / mo</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                Lifetime Total: <strong id="ss-62-life" style="color: var(--fg); font-family: var(--mono);">$425,040</strong>
+              </div>
+            </div>
+
+            <!-- AGE 67 -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Full Retirement (Age 67)</div>
+              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #3b82f6;">100% Full PIA</div>
+              <div id="ss-67-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.4rem;">$2,200 / mo</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                Lifetime Total: <strong id="ss-67-life" style="color: var(--fg); font-family: var(--mono);">$475,200</strong>
+              </div>
+            </div>
+
+            <!-- AGE 70 -->
+            <div style="background: var(--surface); border: 1px solid var(--border); border-top: 4px solid #22c55e; padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Delayed Claiming (Age 70)</div>
+              <div style="font-size: 0.95rem; font-weight: bold; margin: 0.3rem 0; color: #22c55e;">+24.0% Max Bonus</div>
+              <div id="ss-70-mo" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #22c55e; margin-bottom: 0.4rem;">$2,728 / mo</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.5rem;">
+                Lifetime Total: <strong id="ss-70-life" style="color: var(--fg); font-family: var(--mono);">$491,040</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Plan Summary Card -->
+          <div class="result-card" style="margin-top: 1.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap;">
+              <div class="field-label">Your Planned Strategy Outcome</div>
+              <div id="ss-plan-badge" style="font-family: var(--mono); font-size: 0.8rem; color: #3b82f6; font-weight: bold;">Claiming at Age 67</div>
+            </div>
+            <div id="ss-selected-monthly" class="result-val">$2,200 / mo</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem;">
+              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
+                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Lifetime Cumulative Payout</span>
+                <div id="ss-selected-lifetime" style="font-size: 1.4rem; font-weight: bold; color: #10b981; font-family: var(--mono);">$475,200</div>
+                <div id="ss-selected-years" style="font-size: 0.75rem; color: var(--text-muted);">Over 18 years of retirement</div>
+              </div>
+
+              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
+                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Break-Even Age (Age 70 vs 62)</span>
+                <div id="ss-breakeven" style="font-size: 1.4rem; font-weight: bold; color: #3b82f6; font-family: var(--mono);">Age 80.4</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted);">Living past this age favors delaying to 70</div>
+              </div>
+
+              <div style="background: var(--surface); padding: 0.85rem; border-radius: 4px; border: 1px solid var(--border);">
+                <span style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; font-family: var(--mono);">Spousal Check Addition</span>
+                <div id="ss-spouse-amount" style="font-size: 1.4rem; font-weight: bold; color: var(--fg); font-family: var(--mono);">$0 / mo</div>
+                <div id="ss-spouse-desc" style="font-size: 0.75rem; color: var(--text-muted);">Toggle spousal benefit above</div>
+              </div>
+            </div>
+
+            <button type="button" id="btnCopySS" onclick="copySSSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Social Security Strategy Report
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step SSA Actuarial Formula Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">42 U.S. Code § 402</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              The Social Security Administration calculates reductions and delayed credits on a monthly actuarial scale relative to Full Retirement Age (FRA 67):
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Early Reduction & Delayed Credits Percentage</strong>
+                <div id="ss-step-1" style="color: #3b82f6; margin-top: 0.25rem;">
+                  Full Retirement Age (67): Multiplier = 100.0% of PIA ($2,200.00 / mo)
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Actuarial Reduction Schedule</strong>
+                <div id="ss-step-2" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Early Reduction: 5/9 of 1% per month for first 36 months (20.0%) + 5/12 of 1% per month for next 24 months (10.0%) = 30.0% total reduction at age 62.<br>
+                  Delayed Credit: 2/3 of 1% per month (8.0% per year) for 36 months = +24.0% total bonus at age 70.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 3: Cumulative Lifetime Value with COLA Compounding</strong>
+                <div id="ss-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Lifetime Cumulative = &Sigma; [Monthly &times; 12 &times; (1 + COLA)^t] from Age 67 to Age 85 = <strong>$475,200</strong>
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981; font-weight: 700;">Step 4: Break-Even Crossover Horizon</strong>
+                <div id="ss-step-4" style="color: #10b981; margin-top: 0.25rem;">
+                  Age 70 ($2,728/mo) starts 96 months after Age 62 ($1,540/mo). Cumulative lines cross at <strong>Age 80.4</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Social Security Traps & Retirement Pitfalls -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Social Security Traps & Retirement Pitfalls</h3>
+            <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+              <li><strong>The Retirement Earnings Test Trap:</strong> If you claim before Full Retirement Age (FRA 67) and continue working, SSA will withhold $1 for every $2 you earn above $23,400 (in 2025/2026). While withheld benefits are actuarially recalculated at FRA, claiming early while working creates an immediate liquidity penalty.</li>
+              <li><strong>The Social Security "Tax Torpedo":</strong> Up to 85% of your Social Security benefits become subject to ordinary federal income tax once your provisional income (AGI + tax-exempt interest + 50% of your Social Security) exceeds $25,000 for single filers or $32,000 for married couples filing jointly. These thresholds were established in 1983 and have NEVER been indexed to inflation!</li>
+              <li><strong>The Survivor Benefit Asymmetry:</strong> When one spouse passes away, the smaller of the two Social Security checks vanishes forever, and the surviving spouse inherits the larger check. Delaying the higher-earning spouse's claim to age 70 locks in the maximum possible guaranteed, inflation-protected lifetime annuity for the surviving spouse.</li>
+              <li><strong>The "Break-Even" Myopia Fallacy:</strong> Many retirees claim at 62 thinking "I break even at 80, so I'll take the money early." But Social Security is not an investment portfolio subject to market volatility; it is government-backed longevity insurance. Claiming late protects you precisely when you are most vulnerable: in your late 80s and 90s after other assets may have dwindled.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Social Security Projection Report
+          </button>
+        </div>
+      </div>
+
+      <script>
+        function fmtM(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+        window.setSSPIA = function(amt) {
+          document.getElementById('ss-base').value = amt;
+          calcSS();
+        };
+
+        function getAgeMultiplier(age) {
+          // FRA = 67
+          if (age === 67) return 1.00;
+          if (age < 67) {
+            var monthsEarly = (67 - age) * 12;
+            var reduction = 0;
+            if (monthsEarly <= 36) {
+              reduction = monthsEarly * (5 / 9 / 100);
+            } else {
+              reduction = (36 * (5 / 9 / 100)) + ((monthsEarly - 36) * (5 / 12 / 100));
+            }
+            return 1.00 - reduction;
+          } else {
+            var monthsDelayed = (age - 67) * 12;
+            var delayedCredit = monthsDelayed * (2 / 3 / 100);
+            return 1.00 + delayedCredit;
+          }
+        }
+
+        function calcLifetime(monthly, startAge, endAge, colaRate) {
+          var total = 0;
+          var curMo = monthly;
+          for (var yr = startAge; yr < endAge; yr++) {
+            total += curMo * 12;
+            curMo *= (1 + colaRate);
+          }
+          return total;
+        }
+
+        function calcSS() {
+          var base = parseFloat(document.getElementById('ss-base').value) || 0;
+          var plannedAge = parseInt(document.getElementById('ss-claim-age').value, 10) || 67;
+          var maxAge = Math.max(71, parseFloat(document.getElementById('ss-age-limit').value) || 85);
+          var cola = parseFloat(document.getElementById('ss-cola').value) || 0;
+          var hasSpouse = document.getElementById('ss-spouse-toggle').checked;
+
+          var mult62 = getAgeMultiplier(62);
+          var mult67 = getAgeMultiplier(67);
+          var mult70 = getAgeMultiplier(70);
+          var multPlan = getAgeMultiplier(plannedAge);
+
+          var mo62 = base * mult62;
+          var mo67 = base * mult67;
+          var mo70 = base * mult70;
+          var moPlan = base * multPlan;
+
+          var spouseMo = hasSpouse ? (base * 0.50 * multPlan) : 0;
+          var totalMoPlan = moPlan + spouseMo;
+
+          var life62 = calcLifetime(mo62, 62, maxAge, cola);
+          var life67 = calcLifetime(mo67, 67, maxAge, cola);
+          var life70 = calcLifetime(mo70, 70, maxAge, cola);
+          var lifePlan = calcLifetime(totalMoPlan, plannedAge, maxAge, cola);
+
+          document.getElementById('ss-62-mo').textContent = fmtM(mo62) + ' / mo';
+          document.getElementById('ss-67-mo').textContent = fmtM(mo67) + ' / mo';
+          document.getElementById('ss-70-mo').textContent = fmtM(mo70) + ' / mo';
+
+          document.getElementById('ss-62-life').textContent = fmtM(life62);
+          document.getElementById('ss-67-life').textContent = fmtM(life67);
+          document.getElementById('ss-70-life').textContent = fmtM(life70);
+
+          // Selected Plan
+          var pctDiff = Math.round((multPlan - 1.0) * 100);
+          var pctStr = (pctDiff >= 0 ? '+' : '') + pctDiff + '% vs FRA 67';
+          document.getElementById('ss-plan-badge').textContent = 'Claiming at Age ' + plannedAge + ' (' + pctStr + ')';
+          document.getElementById('ss-selected-monthly').textContent = fmtM(totalMoPlan) + ' / mo';
+          document.getElementById('ss-selected-lifetime').textContent = fmtM(lifePlan);
+          document.getElementById('ss-selected-years').textContent = 'Over ' + (maxAge - plannedAge) + ' years of retirement (to Age ' + maxAge + ')';
+
+          // Spousal
+          if (hasSpouse) {
+            document.getElementById('ss-spouse-amount').textContent = '+' + fmtM(spouseMo) + ' / mo';
+            document.getElementById('ss-spouse-desc').textContent = '50% spousal auxiliary benefit';
+          } else {
+            document.getElementById('ss-spouse-amount').textContent = '$0 / mo';
+            document.getElementById('ss-spouse-desc').textContent = 'Single earner calculation';
+          }
+
+          // Break-Even Age (70 vs 62)
+          var beAge = 70;
+          var cum62 = calcLifetime(mo62, 62, 70, cola);
+          var cum70 = 0;
+          var found = false;
+
+          for (var testAge = 70; testAge <= 100; testAge += 0.1) {
+            var c62 = calcLifetime(mo62, 62, testAge, cola);
+            var c70 = calcLifetime(mo70, 70, testAge, cola);
+            if (c70 >= c62) {
+              beAge = testAge;
+              found = true;
+              break;
+            }
+          }
+          document.getElementById('ss-breakeven').textContent = 'Age ' + beAge.toFixed(1);
+
+          // Step Derivations
+          document.getElementById('ss-step-1').innerHTML = 'Selected Claiming Age ' + plannedAge + ': Multiplier = <strong>' + (multPlan * 100).toFixed(1) + '%</strong> of PIA ($' + base.toFixed(2) + ' &times; ' + multPlan.toFixed(3) + ') = <strong>' + fmtM(moPlan) + ' / mo</strong>';
+          document.getElementById('ss-step-3').innerHTML = 'Lifetime Cumulative (' + plannedAge + ' to ' + maxAge + ' with ' + (cola * 100).toFixed(1) + '% COLA) = <strong>' + fmtM(lifePlan) + '</strong>';
+          document.getElementById('ss-step-4').innerHTML = 'Delaying to Age 70 ($' + fmtM(mo70) + '/mo) catches up and surpasses Age 62 ($' + fmtM(mo62) + '/mo) at <strong>Age ' + beAge.toFixed(1) + '</strong>.';
+        }
+
+        function copySSSummary() {
+          var base = document.getElementById('ss-base').value;
+          var age = document.getElementById('ss-claim-age').value;
+          var maxAge = document.getElementById('ss-age-limit').value;
+          var selectedMo = document.getElementById('ss-selected-monthly').textContent;
+          var selectedLife = document.getElementById('ss-selected-lifetime').textContent;
+          var be = document.getElementById('ss-breakeven').textContent;
+          var mo62 = document.getElementById('ss-62-mo').textContent;
+          var mo67 = document.getElementById('ss-67-mo').textContent;
+          var mo70 = document.getElementById('ss-70-mo').textContent;
+
+          var text = '🏛️ SOCIAL SECURITY CLAIMING STRATEGY REPORT\\n' +
+            '----------------------------------------\\n' +
+            '• PIA at Full Retirement Age (67): $' + base + ' / mo\\n' +
+            '• Planned Claiming Age: Age ' + age + '\\n' +
+            '• Estimated Monthly Benefit: ' + selectedMo + '\\n' +
+            '• Cumulative Lifetime (to Age ' + maxAge + '): ' + selectedLife + '\\n' +
+            '----------------------------------------\\n' +
+            'CLAIMING AGE COMPARISON:\\n' +
+            '• Early (Age 62): ' + mo62 + ' (-30% reduction)\\n' +
+            '• Full Retirement (Age 67): ' + mo67 + ' (100% PIA)\\n' +
+            '• Delayed Maximum (Age 70): ' + mo70 + ' (+24% delayed credit)\\n' +
+            '• Delay Break-Even Crossover: ' + be + '\\n' +
+            '----------------------------------------\\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/social-security-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopySS');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Social Security Summary!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', calcSS);
+      </script>
+    `
   },
   {
     "slug": "rmd-calculator",
-    "title": "IRA & 401(k) Required Minimum Distribution (RMD) Calculator",
-    "metaDesc": "Calculate your mandatory annual IRS Required Minimum Distribution (RMD) for Traditional IRAs and 401(k) accounts based on your age and IRS Uniform Lifetime Table.",
-    "body": "\n      <div class=\"article-container\" style=\"max-width: 950px;\">\n        <nav style=\"font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);\">\n          <a href=\"/\">Home</a> &gt; <a href=\"/finance/\">Finance</a> &gt; RMD Calculator\n        </nav>\n\n        <header style=\"margin-bottom: 2rem;\">\n          <h1 style=\"font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;\">IRS Required Minimum Distribution (RMD) Calculator</h1>\n          <p style=\"color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;\">\n            Under the SECURE 2.0 Act, you must begin taking mandatory annual withdrawals from traditional IRAs, 401(k)s, and 403(b)s starting at age 73 to avoid hefty IRS penalties.\n          </p>\n        </header>\n\n        <div style=\"background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;\">\n          <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;\">\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Total Pre-Tax Retirement Balance ($):</label>\n              <div style=\"position: relative;\">\n                <span style=\"position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);\">$</span>\n                <input type=\"number\" id=\"rmd-bal\" value=\"500000\" step=\"10000\" style=\"width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcRMD()\" />\n              </div>\n              <small style=\"color: var(--text-muted); font-size: 0.75rem;\">Balance on Dec 31 of previous tax year.</small>\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Your Age in Current Tax Year:</label>\n              <input type=\"number\" id=\"rmd-age\" value=\"75\" min=\"73\" max=\"100\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcRMD()\" />\n              <small style=\"color: var(--text-muted); font-size: 0.75rem;\">SECURE 2.0 starting age is 73.</small>\n            </div>\n          </div>\n\n          <div style=\"background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem;\">\n            <div style=\"font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);\">Mandatory Annual RMD Withdrawal</div>\n            <div id=\"rmd-amount\" style=\"font-family: var(--mono); font-size: 2.8rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.5rem 0;\">$20,325</div>\n            <div style=\"font-size: 0.9rem; color: var(--text-muted);\">\n              Monthly Equivalent: <strong id=\"rmd-mo\" style=\"color: var(--fg); font-family: var(--mono);\">$1,694 / mo</strong> | IRS Distribution Factor: <strong id=\"rmd-factor\" style=\"color: var(--fg); font-family: var(--mono);\">24.6</strong>\n            </div>\n          </div>\n        </div>\n\n        <div style=\"text-align: center; margin: 1.5rem 0;\">\n          <button onclick=\"window.print()\" style=\"background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;\">\n            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"display:inline-block;vertical-align:middle;margin-right:3px\"><polyline points=\"6 9 6 2 18 2 18 9\"/><path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\"/><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\"/></svg> Print IRS RMD Tax Worksheet\n          </button>\n        </div>\n      </div>\n\n      <script>\n        const irsTable = {\n          73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1,\n          80: 20.2, 81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2,\n          87: 14.4, 88: 13.7, 89: 12.9, 90: 12.2, 91: 11.5, 92: 10.8, 93: 10.1,\n          94: 9.5, 95: 8.9, 96: 8.4, 97: 7.8, 98: 7.3, 99: 6.8, 100: 6.4\n        };\n\n        function calcRMD() {\n          const bal = parseFloat(document.getElementById('rmd-bal').value) || 0;\n          let age = parseInt(document.getElementById('rmd-age').value, 10) || 73;\n          if (age < 73) age = 73;\n          if (age > 100) age = 100;\n\n          const factor = irsTable[age] || 24.6;\n          const rmd = bal / factor;\n          const mo = rmd / 12;\n\n          document.getElementById('rmd-amount').textContent = '$' + Math.round(rmd).toLocaleString('en-US');\n          document.getElementById('rmd-mo').textContent = '$' + Math.round(mo).toLocaleString('en-US') + ' / mo';\n          document.getElementById('rmd-factor').textContent = factor.toString();\n        }\n        document.addEventListener('DOMContentLoaded', calcRMD);\n      </script>\n    "
+    "title": "IRS Required Minimum Distribution (RMD) Calculator (SECURE 2.0 & Table III)",
+    "metaDesc": "Calculate your mandatory annual IRS Required Minimum Distribution (RMD) under SECURE 2.0. Includes IRS Uniform Lifetime Table III, 5-year projections, and QCD tax deductions.",
+    "body": `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; RMD Calculator
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">IRS Required Minimum Distribution (RMD) Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Under the SECURE 2.0 Act and Treasury Reg. § 1.401(a)(9), calculate mandatory annual withdrawals from Traditional IRAs, 401(k)s, and 403(b)s, explore Qualified Charitable Distributions (QCDs), and project multi-year tax obligations.
+          </p>
+        </header>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Pre-Tax Balance as of Dec 31 ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="rmd-bal" value="650000" step="10000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcRMD()" />
+              </div>
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button type="button" onclick="setRMDBal(250000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$250k</button>
+                <button type="button" onclick="setRMDBal(500000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$500k</button>
+                <button type="button" onclick="setRMDBal(1000000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$1.0M</button>
+                <button type="button" onclick="setRMDBal(2000000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$2.0M</button>
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Birth Year / SECURE 2.0 Tier:</label>
+              <select id="rmd-birth" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" onchange="onBirthChange()">
+                <option value="73" selected>Born 1951–1959 (RMD Age: 73)</option>
+                <option value="75">Born 1960 or Later (RMD Age: 75)</option>
+                <option value="72">Born 1950 or Earlier (RMD Age: 72)</option>
+              </select>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">SECURE 2.0 statutory starting age.</small>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Current Age in Tax Year:</label>
+              <input type="number" id="rmd-age" value="75" min="72" max="105" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcRMD()" />
+              <small id="rmd-age-hint" style="color: var(--text-muted); font-size: 0.75rem;">Must be &ge; statutory starting age.</small>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Qualified Charitable Distribution (QCD):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="rmd-qcd" value="0" min="0" max="105000" step="1000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcRMD()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Max $105,000 direct charity gift (tax-free).</small>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">Expected Portfolio Return (% / yr):</label>
+              <input type="number" id="rmd-growth" value="5.5" min="0" max="15" step="0.25" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcRMD()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">Est. Combined Income Tax Rate (%):</label>
+              <input type="number" id="rmd-taxrate" value="22" min="0" max="50" step="1" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcRMD()" />
+            </div>
+          </div>
+
+          <!-- Hero Metrics Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Mandatory Annual RMD</div>
+              <div id="rmd-amount" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$26,423</div>
+              <div id="rmd-mo" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">$2,202 / mo</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">IRS Table III Divisor</div>
+              <div id="rmd-factor" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">24.6</div>
+              <div id="rmd-pct" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">4.07% of portfolio</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Net Taxable Distribution</div>
+              <div id="rmd-taxable" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">$26,423</div>
+              <div id="rmd-tax-est" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Est. Tax: $5,813 (22%)</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Net Spendable Cash Flow</div>
+              <div id="rmd-net-spend" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$20,610</div>
+              <div id="rmd-net-mo" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">$1,717 / mo</div>
+            </div>
+          </div>
+
+          <button type="button" id="btnCopyRMD" onclick="copyRMDSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+            📋 Copy Official IRS RMD Tax Worksheet
+          </button>
+        </div>
+
+        <!-- 5-Year Forward Schedule Projection -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">📅 5-Year Forward Projection Schedule</h3>
+          <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+            Estimated account progression modeling mandatory RMD withdrawals alongside annual compound investment growth:
+          </p>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.85rem; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">
+                  <th style="padding: 0.5rem 0.6rem;">Tax Year</th>
+                  <th style="padding: 0.5rem 0.6rem;">Age</th>
+                  <th style="padding: 0.5rem 0.6rem;">Start Balance</th>
+                  <th style="padding: 0.5rem 0.6rem;">IRS Factor</th>
+                  <th style="padding: 0.5rem 0.6rem;">Mandatory RMD</th>
+                  <th style="padding: 0.5rem 0.6rem;">Growth</th>
+                  <th style="padding: 0.5rem 0.6rem;">End Balance</th>
+                </tr>
+              </thead>
+              <tbody id="rmd-schedule-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Worked Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step IRS RMD Mathematical Derivation</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">26 C.F.R. § 1.401(a)(9)-9</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            The Internal Revenue Code mandates that RMDs be computed strictly by dividing the prior December 31 fair market value by your life expectancy factor from the IRS Uniform Lifetime Table (Table III):
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Baseline Fair Market Value (Dec 31 Prior Year)</strong>
+              <div id="rmd-step-1" style="color: #3b82f6; margin-top: 0.25rem;">
+                Dec 31 Balance = $650,000.00
+              </div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Table III Life Expectancy Factor Lookup</strong>
+              <div id="rmd-step-2" style="color: var(--text-muted); margin-top: 0.25rem;">
+                Age 75 Factor = 24.6 (Equivalent statutory withdrawal percentage = 1 / 24.6 = 4.065%)
+              </div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Gross Statutory RMD Calculation</strong>
+              <div id="rmd-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
+                Gross RMD = $650,000.00 &divide; 24.6 = $26,422.76
+              </div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #10b981; font-weight: 700;">Step 4: Qualified Charitable Distribution (QCD) & Taxable Net</strong>
+              <div id="rmd-step-4" style="color: #10b981; margin-top: 0.25rem;">
+                Net Taxable Distribution = $26,422.76 - $0.00 (QCD) = $26,422.76. Est. Tax (22%) = $5,813.01.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Critical RMD Traps & Tax Pitfalls -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical IRS RMD Traps & Penalties</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>The 25% Missed RMD Excise Tax (IRC § 4974):</strong> If you fail to withdraw the full mandatory RMD amount by December 31, the IRS imposes a severe 25% penalty tax on the shortfall. Under SECURE 2.0, this can be reduced to 10% if corrected in a timely manner and submitted with IRS Form 5329.</li>
+            <li><strong>The First-Year "April 1 Double Tax" Trap:</strong> You have until April 1 of the year <em>after</em> you reach your starting age to take your first RMD. However, doing so forces you to take TWO distributions in that calendar year (the deferred first RMD plus the second year's RMD by Dec 31), which frequently catapults retirees into higher federal and state tax brackets.</li>
+            <li><strong>The Medicare IRMAA Surcharge Cliff:</strong> RMD distributions flow directly into your Adjusted Gross Income (AGI). Crossing Income-Related Monthly Adjustment Amount (IRMAA) cliffs even by $1 triggers steep monthly surcharges on your Medicare Part B and Part D premiums two years later.</li>
+            <li><strong>Aggregation Trap (IRAs vs. Employer Plans):</strong> You can calculate the RMDs for all your Traditional IRAs and withdraw the total amount from one single IRA. However, <strong>401(k) and 403(b) accounts CANNOT be aggregated</strong> across separate employers; each workplace plan must have its own separate RMD withdrawn.</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print IRS RMD Tax Worksheet
+          </button>
+        </div>
+      </div>
+
+      <script>
+        var irsTable = {
+          72: 27.4, 73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1,
+          80: 20.2, 81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2,
+          87: 14.4, 88: 13.7, 89: 12.9, 90: 12.2, 91: 11.5, 92: 10.8, 93: 10.1,
+          94: 9.5, 95: 8.9, 96: 8.4, 97: 7.8, 98: 7.3, 99: 6.8, 100: 6.4,
+          101: 6.0, 102: 5.6, 103: 5.2, 104: 4.9, 105: 4.6
+        };
+
+        function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+        window.setRMDBal = function(bal) {
+          document.getElementById('rmd-bal').value = bal;
+          calcRMD();
+        };
+
+        window.onBirthChange = function() {
+          var startAge = parseInt(document.getElementById('rmd-birth').value, 10);
+          var ageInput = document.getElementById('rmd-age');
+          ageInput.min = startAge;
+          if (parseInt(ageInput.value, 10) < startAge) {
+            ageInput.value = startAge;
+          }
+          document.getElementById('rmd-age-hint').textContent = 'Statutory starting age: ' + startAge + '.';
+          calcRMD();
+        };
+
+        function getTableFactor(age) {
+          if (age < 72) return 27.4;
+          if (age > 105) return 4.6;
+          return irsTable[age] || 24.6;
+        }
+
+        function calcRMD() {
+          var bal = parseFloat(document.getElementById('rmd-bal').value) || 0;
+          var startAge = parseInt(document.getElementById('rmd-birth').value, 10) || 73;
+          var age = parseInt(document.getElementById('rmd-age').value, 10) || startAge;
+          if (age < startAge) {
+            age = startAge;
+            document.getElementById('rmd-age').value = startAge;
+          }
+          var qcd = parseFloat(document.getElementById('rmd-qcd').value) || 0;
+          var growthRate = (parseFloat(document.getElementById('rmd-growth').value) || 0) / 100;
+          var taxRate = (parseFloat(document.getElementById('rmd-taxrate').value) || 0) / 100;
+
+          var factor = getTableFactor(age);
+          var grossRmd = factor > 0 ? (bal / factor) : 0;
+          var taxableRmd = Math.max(0, grossRmd - qcd);
+          var estTax = taxableRmd * taxRate;
+          var netSpend = Math.max(0, grossRmd - qcd - estTax);
+          var pct = factor > 0 ? ((1 / factor) * 100) : 0;
+
+          document.getElementById('rmd-amount').textContent = fmtUSD(grossRmd);
+          document.getElementById('rmd-mo').textContent = fmtUSD(grossRmd / 12) + ' / mo';
+          document.getElementById('rmd-factor').textContent = factor.toFixed(1);
+          document.getElementById('rmd-pct').textContent = pct.toFixed(2) + '% of Dec 31 balance';
+          document.getElementById('rmd-taxable').textContent = fmtUSD(taxableRmd);
+          document.getElementById('rmd-tax-est').textContent = 'Est. Tax: ' + fmtUSD(estTax) + ' (' + Math.round(taxRate * 100) + '%)';
+          document.getElementById('rmd-net-spend').textContent = fmtUSD(netSpend);
+          document.getElementById('rmd-net-mo').textContent = fmtUSD(netSpend / 12) + ' / mo';
+
+          // Step Derivations
+          document.getElementById('rmd-step-1').textContent = 'Dec 31 Prior-Year Pre-Tax Balance = ' + fmtUSD(bal);
+          document.getElementById('rmd-step-2').textContent = 'Age ' + age + ' IRS Table III Factor = ' + factor.toFixed(1) + ' (Distribution percentage = ' + pct.toFixed(3) + '%)';
+          document.getElementById('rmd-step-3').textContent = 'Gross Mandatory RMD = ' + fmtUSD(bal) + ' ÷ ' + factor.toFixed(1) + ' = ' + fmtUSD(grossRmd);
+          document.getElementById('rmd-step-4').textContent = 'Net Taxable = ' + fmtUSD(grossRmd) + ' - ' + fmtUSD(qcd) + ' (QCD) = ' + fmtUSD(taxableRmd) + ' | Est. Tax Due: ' + fmtUSD(estTax);
+
+          // 5-Year Forward Schedule
+          var tbody = document.getElementById('rmd-schedule-body');
+          var html = '';
+          var curBal = bal;
+          var curAge = age;
+          var curYear = new Date().getFullYear();
+
+          for (var i = 0; i < 5; i++) {
+            var f = getTableFactor(curAge);
+            var r = f > 0 ? (curBal / f) : 0;
+            var balAfterRmd = Math.max(0, curBal - r);
+            var grow = balAfterRmd * growthRate;
+            var endBal = balAfterRmd + grow;
+
+            html += '<tr style="border-bottom: 1px solid var(--border);">' +
+              '<td style="padding: 0.5rem 0.6rem; font-weight: bold;">' + (curYear + i) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem;">' + curAge + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem;">' + fmtUSD(curBal) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: var(--text-muted);">' + f.toFixed(1) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: #3b82f6; font-weight: bold;">' + fmtUSD(r) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; color: #10b981;">+' + fmtUSD(grow) + '</td>' +
+              '<td style="padding: 0.5rem 0.6rem; font-weight: bold;">' + fmtUSD(endBal) + '</td>' +
+              '</tr>';
+
+            curBal = endBal;
+            curAge++;
+          }
+          tbody.innerHTML = html;
+        }
+
+        function copyRMDSummary() {
+          var bal = document.getElementById('rmd-bal').value;
+          var age = document.getElementById('rmd-age').value;
+          var gross = document.getElementById('rmd-amount').textContent;
+          var factor = document.getElementById('rmd-factor').textContent;
+          var taxable = document.getElementById('rmd-taxable').textContent;
+          var netSpend = document.getElementById('rmd-net-spend').textContent;
+          var qcd = document.getElementById('rmd-qcd').value;
+
+          var text = '🏛️ IRS REQUIRED MINIMUM DISTRIBUTION (RMD) WORKSHEET\\n' +
+            '----------------------------------------\\n' +
+            '• Prior Dec 31 Pre-Tax Balance: $' + Number(bal).toLocaleString('en-US') + '\\n' +
+            '• Current Tax Year Age: ' + age + ' (SECURE 2.0 Compliant)\\n' +
+            '• IRS Table III Factor: ' + factor + '\\n' +
+            '----------------------------------------\\n' +
+            'DISTRIBUTION OBLIGATION:\\n' +
+            '• Gross Mandatory RMD: ' + gross + ' (' + document.getElementById('rmd-mo').textContent + ')\\n' +
+            '• Qualified Charitable Distribution (QCD): $' + Number(qcd).toLocaleString('en-US') + '\\n' +
+            '• Net Taxable RMD: ' + taxable + '\\n' +
+            '• Estimated Net Spendable: ' + netSpend + '\\n' +
+            '----------------------------------------\\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/rmd-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopyRMD');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied RMD Tax Worksheet!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', calcRMD);
+      </script>
+    `
   },
   {
     "slug": "retirement-calculator",
-    "title": "Retirement Nest Egg & 4% Safe Withdrawal Calculator",
-    "metaDesc": "Determine how long your retirement savings will last based on your annual spending, investment growth rate, inflation, and the Trinity 4% rule.",
-    "body": "\n      <div class=\"article-container\" style=\"max-width: 950px;\">\n        <nav style=\"font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);\">\n          <a href=\"/\">Home</a> &gt; <a href=\"/finance/\">Finance</a> &gt; Retirement Nest Egg Calculator\n        </nav>\n\n        <header style=\"margin-bottom: 2rem;\">\n          <h1 style=\"font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;\">Retirement Savings & 4% Withdrawal Planner</h1>\n          <p style=\"color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;\">\n            Calculate how many years your nest egg will last in retirement and verify if your current withdrawal rate satisfies the 4% safe withdrawal benchmark.\n          </p>\n        </header>\n\n        <div style=\"background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;\">\n          <div style=\"display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem;\">\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Total Retirement Nest Egg ($):</label>\n              <input type=\"number\" id=\"ret-total\" value=\"800000\" step=\"25000\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcRet()\" />\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Annual Spending ($ / Year):</label>\n              <input type=\"number\" id=\"ret-spend\" value=\"45000\" step=\"2000\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcRet()\" />\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Expected Portfolio Return (%):</label>\n              <input type=\"number\" id=\"ret-ret\" value=\"6\" step=\"0.5\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcRet()\" />\n            </div>\n            <div>\n              <label style=\"display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;\">Expected Inflation (%):</label>\n              <input type=\"number\" id=\"ret-inf\" value=\"3\" step=\"0.5\" style=\"width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;\" oninput=\"calcRet()\" />\n            </div>\n          </div>\n\n          <div style=\"background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; text-align: center; margin-top: 1.5rem;\">\n            <div style=\"font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);\">Estimated Nest Egg Longevity</div>\n            <div id=\"ret-years\" style=\"font-family: var(--mono); font-size: 2.8rem; font-weight: bold; color: #22c55e; margin: 0.5rem 0;\">32+ Years (Sustainable)</div>\n            <div style=\"font-size: 0.9rem; color: var(--text-muted);\">\n              Current Withdrawal Rate: <strong id=\"ret-pct\" style=\"color: var(--fg); font-family: var(--mono);\">5.6%</strong> | Recommended 4% Cap: <strong id=\"ret-safe\" style=\"color: var(--fg); font-family: var(--mono);\">$32,000 / yr</strong>\n            </div>\n          </div>\n        </div>\n\n        <div style=\"text-align: center; margin: 1.5rem 0;\">\n          <button onclick=\"window.print()\" style=\"background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;\">\n            <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"display:inline-block;vertical-align:middle;margin-right:3px\"><polyline points=\"6 9 6 2 18 2 18 9\"/><path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\"/><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\"/></svg> Print Retirement Summary\n          </button>\n        </div>\n      </div>\n\n      <script>\n        function calcRet() {\n          const total = parseFloat(document.getElementById('ret-total').value) || 0;\n          const spend = parseFloat(document.getElementById('ret-spend').value) || 0;\n          const r = (parseFloat(document.getElementById('ret-ret').value) || 0) / 100;\n          const inf = (parseFloat(document.getElementById('ret-inf').value) || 0) / 100;\n\n          const rate = (total > 0) ? ((spend / total) * 100) : 0;\n          document.getElementById('ret-pct').textContent = rate.toFixed(1) + '%';\n          document.getElementById('ret-safe').textContent = '$' + Math.round(total * 0.04).toLocaleString('en-US') + ' / yr';\n\n          let balance = total;\n          let currentSpend = spend;\n          let years = 0;\n\n          while (balance > 0 && years < 60) {\n            balance = (balance * (1 + r)) - currentSpend;\n            currentSpend = currentSpend * (1 + inf);\n            years++;\n          }\n\n          const yEl = document.getElementById('ret-years');\n          if (years >= 50) {\n            yEl.textContent = 'Indefinite / Permanent';\n            yEl.style.color = '#22c55e';\n          } else if (years >= 25) {\n            yEl.textContent = years + ' Years';\n            yEl.style.color = '#22c55e';\n          } else if (years >= 15) {\n            yEl.textContent = years + ' Years';\n            yEl.style.color = '#f59e0b';\n          } else {\n            yEl.textContent = years + ' Years (Depletes Early)';\n            yEl.style.color = '#ef4444';\n          }\n        }\n        document.addEventListener('DOMContentLoaded', calcRet);\n      </script>\n    "
+    "title": "Retirement Nest Egg & Safe Withdrawal Calculator (Trinity 4% & Guardrails)",
+    "metaDesc": "Determine how long your retirement portfolio will last using the Trinity 4% rule, Guyton-Klinger guardrails, inflation adjustments, and Sequence of Returns Risk modeling.",
+    "body": `
+      <div class="article-container" style="max-width: 950px;">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+          <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Retirement Planner
+        </nav>
+
+        <header style="margin-bottom: 2rem;">
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Retirement Savings & 4% Safe Withdrawal Planner</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+            Benchmark your retirement readiness across the Trinity Study 4% Safe Withdrawal Rule, dynamic Guyton-Klinger Guardrails, and stress-test your portfolio against Sequence of Returns Risk (SRR).
+          </p>
+        </header>
+
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+          <!-- Primary Inputs -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Total Retirement Nest Egg ($):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="ret-total" value="1000000" step="25000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcRet()" />
+              </div>
+              <div style="display: flex; gap: 0.35rem; margin-top: 0.4rem; flex-wrap: wrap;">
+                <button type="button" onclick="setRetEgg(500000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$500k</button>
+                <button type="button" onclick="setRetEgg(1000000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$1.0M</button>
+                <button type="button" onclick="setRetEgg(1500000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$1.5M</button>
+                <button type="button" onclick="setRetEgg(2500000)" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.2rem 0.4rem; border-radius: 3px; font-size: 0.75rem; font-family: var(--mono); cursor: pointer;">$2.5M</button>
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Desired Annual Spending ($ / yr):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="ret-spend" value="65000" step="2500" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcRet()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Total household living expenses.</small>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Guaranteed Non-Portfolio Income ($ / yr):</label>
+              <div style="position: relative;">
+                <span style="position: absolute; left: 0.75rem; top: 0.6rem; color: var(--text-muted);">$</span>
+                <input type="number" id="ret-guar" value="25000" step="1000" style="width: 100%; padding: 0.6rem 0.6rem 0.6rem 1.8rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcRet()" />
+              </div>
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Social Security, pensions, annuities.</small>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Retirement Horizon (Years):</label>
+              <input type="number" id="ret-horizon" value="30" min="10" max="60" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcRet()" />
+              <small style="color: var(--text-muted); font-size: 0.75rem;">Standard planning window: 30 years.</small>
+            </div>
+          </div>
+
+          <!-- Return & Inflation Adjustments -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border);">
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">Expected Portfolio Nominal Return (%):</label>
+              <input type="number" id="ret-ret" value="6.5" step="0.25" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcRet()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">Expected Long-Term Inflation (%):</label>
+              <input type="number" id="ret-inf" value="2.8" step="0.1" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcRet()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-family: var(--mono); color: var(--text-muted); margin-bottom: 0.25rem;">Stress Test Sequence of Returns Risk:</label>
+              <select id="ret-srr" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.9rem;" onchange="calcRet()">
+                <option value="none" selected>Steady Average Returns</option>
+                <option value="mild">Mild Early Bear Market (-8%, -4%, +6%)</option>
+                <option value="severe">Severe Early Bear Market (-18%, -12%, +2%)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Hero Metrics Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Initial Withdrawal Rate</div>
+              <div id="ret-pct" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">4.0%</div>
+              <div id="ret-rate-status" style="font-size: 0.85rem; color: #10b981; font-weight: bold;">Within Trinity 4.0% Benchmark</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Net Annual Portfolio Draw</div>
+              <div id="ret-net-draw" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.35rem 0;">$40,000 / yr</div>
+              <div id="ret-net-draw-mo" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">$3,333 / mo from nest egg</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Portfolio Longevity</div>
+              <div id="ret-years" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.35rem 0;">30+ Years</div>
+              <div id="ret-years-sub" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Fully Sustainable Horizon</div>
+            </div>
+            <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Recommended 4% Safe Cap</div>
+              <div id="ret-safe" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--fg); margin: 0.35rem 0;">$40,000 / yr</div>
+              <div id="ret-safe-mo" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">$3,333 / mo initial draw</div>
+            </div>
+          </div>
+
+          <button type="button" id="btnCopyRet" onclick="copyRetirementSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+            📋 Copy Retirement Longevity Strategy Report
+          </button>
+        </div>
+
+        <!-- Strategy Comparison Grid -->
+        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚖️ Withdrawal Strategy Benchmark Comparison</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+              <div style="font-weight: bold; color: var(--fg); margin-bottom: 0.25rem;">Trinity Study 4.0% Rule</div>
+              <div id="strat-trinity" style="font-family: var(--mono); font-size: 1.3rem; color: #3b82f6; font-weight: bold; margin-bottom: 0.25rem;">$40,000 / yr</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Withdraw 4% in year one; adjust withdrawal for inflation each subsequent year. 95% historical 30-year survival rate on a 60/40 stock/bond portfolio.</p>
+            </div>
+            <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+              <div style="font-weight: bold; color: var(--fg); margin-bottom: 0.25rem;">Guyton-Klinger Guardrails (3.5% - 5.2%)</div>
+              <div id="strat-guard" style="font-family: var(--mono); font-size: 1.3rem; color: #10b981; font-weight: bold; margin-bottom: 0.25rem;">$35,000 - $52,000</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Dynamic adjustment: forego inflation raises following negative portfolio return years, and trim spending by 10% if withdrawal rate exceeds capital preservation bounds.</p>
+            </div>
+            <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+              <div style="font-weight: bold; color: var(--fg); margin-bottom: 0.25rem;">Fixed Percentage (5.0% Drawdown)</div>
+              <div id="strat-fixed" style="font-family: var(--mono); font-size: 1.3rem; color: var(--fg); font-weight: bold; margin-bottom: 0.25rem;">$50,000 / yr</div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Withdrawing a constant 5% of remaining balance ensures the portfolio mathematically never hits zero, but causes spendable income to fluctuate directly with the market.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step-by-Step Worked Derivation -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Portfolio Decumulation Algebra</h3>
+            <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Trinity Study Methodology</span>
+          </div>
+          <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+            Portfolio decumulation is governed by the recurrence relation \( B_{t+1} = (B_t - W_t) \times (1 + r) \), where initial withdrawal \( W_0 \) indexes to inflation \( W_t = W_0 \times (1 + i)^t \):
+          </p>
+          <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 1: Net Annual Required Portfolio Withdrawal</strong>
+              <div id="ret-step-1" style="color: #3b82f6; margin-top: 0.25rem;">
+                Net Draw = $65,000 (Expense) - $25,000 (Guaranteed) = $40,000.00 / yr
+              </div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 2: Initial Withdrawal Rate Assessment</strong>
+              <div id="ret-step-2" style="color: var(--text-muted); margin-top: 0.25rem;">
+                Rate = ($40,000 ÷ $1,000,000) &times; 100 = 4.00%
+              </div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: var(--fg);">Step 3: Real Compound Growth Rate (Fisher Equation)</strong>
+              <div id="ret-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
+                r_real = [(1 + 0.065) ÷ (1 + 0.028)] - 1 = +3.60% net real purchasing growth
+              </div>
+            </div>
+            <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+              <strong style="color: #10b981; font-weight: 700;">Step 4: Solvency & Capital Preservation Horizon</strong>
+              <div id="ret-step-4" style="color: #10b981; margin-top: 0.25rem;">
+                At 4.00% initial draw, the nest egg sustains beyond the 30-year target horizon without depletion.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Critical Retirement Traps & Pitfalls -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Retirement Nest Egg Traps</h3>
+          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
+            <li><strong>Sequence of Returns Risk (SRR):</strong> Two portfolios with the exact same 7% average arithmetic return over 30 years can have diametrically opposed fates. Experiencing a market crash during the first 3 to 5 years of retirement forces you to sell equities at rock-bottom prices, permanently starving the portfolio of capital needed to recover.</li>
+            <li><strong>The "Average Return" Fallacy:</strong> If a $1,000,000 portfolio drops 20% in Year 1 (to $800k) and gains 20% in Year 2, your average return is 0%, but your portfolio balance is only $960,000. Add $40,000 annual withdrawals, and your balance drops to $912,000. Compounding losses while withdrawing accelerates mathematical ruin.</li>
+            <li><strong>Qualified Account Tax Haircut:</strong> A $1,000,000 Traditional IRA is NOT $1,000,000 of spendable money. Depending on your tax bracket and state, 15% to 30% belongs to federal and state tax authorities. Your gross withdrawal must be sized up to cover tax liabilities.</li>
+            <li><strong>Healthcare & Long-Term Care Inflation Escalator:</strong> While general CPI averages 2.5% to 3.0%, healthcare and assisted living expenses historically escalate at 4.5% to 6.5% annually. A retirement plan that assumes flat inflation across late-stage medical expenses risks severe late-life budget shortfalls.</li>
+          </ul>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button onclick="window.print()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.75rem 1.5rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg> Print Retirement Plan Worksheet
+          </button>
+        </div>
+      </div>
+
+      <script>
+        function fmtUSD(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+        window.setRetEgg = function(amt) {
+          document.getElementById('ret-total').value = amt;
+          calcRet();
+        };
+
+        function calcRet() {
+          var total = parseFloat(document.getElementById('ret-total').value) || 0;
+          var spend = parseFloat(document.getElementById('ret-spend').value) || 0;
+          var guar = parseFloat(document.getElementById('ret-guar').value) || 0;
+          var rNom = (parseFloat(document.getElementById('ret-ret').value) || 0) / 100;
+          var inf = (parseFloat(document.getElementById('ret-inf').value) || 0) / 100;
+          var srrMode = document.getElementById('ret-srr').value;
+          var horizon = parseInt(document.getElementById('ret-horizon').value, 10) || 30;
+
+          var netDraw = Math.max(0, spend - guar);
+          var rate = total > 0 ? ((netDraw / total) * 100) : 0;
+          var safeCap = total * 0.04;
+
+          document.getElementById('ret-pct').textContent = rate.toFixed(1) + '%';
+          document.getElementById('ret-net-draw').textContent = fmtUSD(netDraw) + ' / yr';
+          document.getElementById('ret-net-draw-mo').textContent = fmtUSD(netDraw / 12) + ' / mo from nest egg';
+          document.getElementById('ret-safe').textContent = fmtUSD(safeCap) + ' / yr';
+          document.getElementById('ret-safe-mo').textContent = fmtUSD(safeCap / 12) + ' / mo initial draw';
+
+          var rateEl = document.getElementById('ret-rate-status');
+          var pctValEl = document.getElementById('ret-pct');
+          if (rate <= 4.0) {
+            rateEl.textContent = '✓ Conservative (Trinity Safe ≤ 4.0%)';
+            rateEl.style.color = '#10b981';
+            pctValEl.style.color = '#10b981';
+          } else if (rate <= 5.0) {
+            rateEl.textContent = '⚠️ Moderate Risk (Guardrail Zone 4.1% - 5.0%)';
+            rateEl.style.color = '#f59e0b';
+            pctValEl.style.color = '#f59e0b';
+          } else {
+            rateEl.textContent = '❌ High Risk of Depletion (> 5.0%)';
+            rateEl.style.color = '#ef4444';
+            pctValEl.style.color = '#ef4444';
+          }
+
+          // Benchmark Cards
+          document.getElementById('strat-trinity').textContent = fmtUSD(total * 0.04) + ' / yr';
+          document.getElementById('strat-guard').textContent = fmtUSD(total * 0.035) + ' - ' + fmtUSD(total * 0.052);
+          document.getElementById('strat-fixed').textContent = fmtUSD(total * 0.05) + ' / yr';
+
+          // Simulation
+          var balance = total;
+          var curSpend = netDraw;
+          var years = 0;
+
+          for (var yr = 1; yr <= 60; yr++) {
+            if (balance <= 0) break;
+            var yrReturn = rNom;
+            if (srrMode === 'mild') {
+              if (yr === 1) yrReturn = -0.08;
+              else if (yr === 2) yrReturn = -0.04;
+              else if (yr === 3) yrReturn = 0.06;
+            } else if (srrMode === 'severe') {
+              if (yr === 1) yrReturn = -0.18;
+              else if (yr === 2) yrReturn = -0.12;
+              else if (yr === 3) yrReturn = 0.02;
+            }
+
+            balance = (balance - curSpend) * (1 + yrReturn);
+            curSpend = curSpend * (1 + inf);
+            if (balance > 0) years++;
+          }
+
+          var yEl = document.getElementById('ret-years');
+          var ySubEl = document.getElementById('ret-years-sub');
+          if (years >= 50) {
+            yEl.textContent = '50+ Years';
+            yEl.style.color = '#10b981';
+            ySubEl.textContent = 'Indefinite / Permanent Capital Preservation';
+          } else if (years >= horizon) {
+            yEl.textContent = years + ' Years';
+            yEl.style.color = '#10b981';
+            ySubEl.textContent = 'Meets or Exceeds ' + horizon + '-Year Target Horizon';
+          } else if (years >= 20) {
+            yEl.textContent = years + ' Years';
+            yEl.style.color = '#f59e0b';
+            ySubEl.textContent = 'Short of ' + horizon + '-Year Target (' + (horizon - years) + ' Year Gap)';
+          } else {
+            yEl.textContent = years + ' Years';
+            yEl.style.color = '#ef4444';
+            ySubEl.textContent = 'Depletes Prematurely (Severe Shortfall)';
+          }
+
+          // Step Derivations
+          var rReal = ((1 + rNom) / (1 + inf)) - 1;
+          document.getElementById('ret-step-1').textContent = 'Net Annual Draw = ' + fmtUSD(spend) + ' (Living) - ' + fmtUSD(guar) + ' (Guaranteed) = ' + fmtUSD(netDraw) + ' / yr';
+          document.getElementById('ret-step-2').textContent = 'Initial Draw Rate = (' + fmtUSD(netDraw) + ' ÷ ' + fmtUSD(total) + ') × 100 = ' + rate.toFixed(2) + '%';
+          document.getElementById('ret-step-3').textContent = 'Real Growth = [(1 + ' + rNom.toFixed(3) + ') ÷ (1 + ' + inf.toFixed(3) + ')] - 1 = ' + (rReal >= 0 ? '+' : '') + (rReal * 100).toFixed(2) + '% purchasing power drift';
+          document.getElementById('ret-step-4').textContent = 'At ' + rate.toFixed(2) + '% initial draw, simulated longevity is ' + (years >= 50 ? '50+ Years (Permanent)' : years + ' Years') + ' under selected scenario.';
+        }
+
+        function copyRetirementSummary() {
+          var total = document.getElementById('ret-total').value;
+          var spend = document.getElementById('ret-spend').value;
+          var guar = document.getElementById('ret-guar').value;
+          var rate = document.getElementById('ret-pct').textContent;
+          var netDraw = document.getElementById('ret-net-draw').textContent;
+          var longevity = document.getElementById('ret-years').textContent;
+          var safeCap = document.getElementById('ret-safe').textContent;
+
+          var text = '🏛️ RETIREMENT LONGEVITY & SAFE WITHDRAWAL REPORT\\n' +
+            '----------------------------------------\\n' +
+            '• Total Retirement Nest Egg: $' + Number(total).toLocaleString('en-US') + '\\n' +
+            '• Annual Living Expenses: $' + Number(spend).toLocaleString('en-US') + ' / yr\\n' +
+            '• Guaranteed Non-Portfolio Income: $' + Number(guar).toLocaleString('en-US') + ' / yr\\n' +
+            '• Net Portfolio Annual Draw: ' + netDraw + '\\n' +
+            '----------------------------------------\\n' +
+            'LONGEVITY & SUSTAINABILITY BENCHMARK:\\n' +
+            '• Initial Withdrawal Rate: ' + rate + '\\n' +
+            '• Trinity 4% Recommended Cap: ' + safeCap + '\\n' +
+            '• Projected Portfolio Longevity: ' + longevity + '\\n' +
+            '• Solvency Status: ' + document.getElementById('ret-rate-status').textContent + '\\n' +
+            '----------------------------------------\\n' +
+            'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/retirement-calculator';
+
+          navigator.clipboard.writeText(text).then(function() {
+            var btn = document.getElementById('btnCopyRet');
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Copied Retirement Summary!';
+            btn.style.background = '#10b981';
+            btn.style.color = '#fff';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.background = 'var(--surface-alt)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          });
+        }
+
+        document.addEventListener('DOMContentLoaded', calcRet);
+      </script>
+    `
   },
   {
     "slug": "annuity-calculator",
