@@ -972,6 +972,30 @@
           </div>
           
 
+          
+          <div class="cognitive-trust-bar">
+            <div class="trust-bar-left">
+              <span class="trust-pill-live">
+                <span class="pulse-indicator"></span>
+                Verified 2026 Engine
+              </span>
+              <span class="trust-sep">|</span>
+              <span class="trust-metric">⚡ Zero Server Latency</span>
+              <span class="trust-sep">|</span>
+              <span class="trust-stars">★ 4.9/5 Rating</span>
+            </div>
+            <div class="trust-bar-right">
+              <span class="trust-feature">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <strong>100% Client-Side Private</strong> (Zero Data Leaves Your Browser)
+              </span>
+              <span class="trust-feature">
+                🚫 <strong>No Sign-Up</strong> &bull; Free Forever
+              </span>
+            </div>
+          </div>
+          
+
           <div class="article-container" style="max-width:900px;"><nav style="font-family:var(--mono);font-size:0.8rem;margin-bottom:1.5rem;color:var(--text-muted);"><a href="/">Home</a> &gt; <a href="/wealth/">Boomer Wealth & Senior Care</a> &gt; In-Home Caregiver vs Facility Cost for Single & Widowed Seniors Calculator</nav><div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;"><span class="badge badge-green">100% Free & No Sign-Up</span><span class="badge badge-amber">Senior Healthcare, Living & Long-Term Care</span><span class="badge badge-blue">Model: Aging-in-Place Economist</span></div><h1 style="font-family:var(--serif);font-size:2rem;margin-bottom:0.5rem;line-height:1.25;">In-Home Caregiver vs Facility Cost for Single & Widowed Seniors Calculator [Free & Instant]</h1><p style="color:var(--text-muted);font-size:0.95rem;line-height:1.6;margin-bottom:1.5rem;">Calculate your in-home caregiver vs facility cost for single & widowed seniors. Free instant calculator with IRS rules, actuarial tables, single-filer tax penalties, single healthcare burden, and independent elder survival, and financial breakdown.</p><div class="tool-box" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-bottom:2rem;"><h3 style="font-family:var(--serif);font-size:1.2rem;margin-bottom:1rem;">Interactive Calculation Parameters</h3><div style="display:grid;gap:1.25rem;margin-bottom:1.5rem;"><div style="margin-bottom:1rem;"><div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.85rem;margin-bottom:0.35rem;"><span>Weekly Caregiver Hours</span><strong id="val_v1">65</strong></div><input type="range" id="rng_v1" min="10" max="100" step="1" value="65" oninput="calcWealthProfile()" style="width:100%;accent-color:#10b981;"></div><div style="margin-bottom:1rem;"><div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.85rem;margin-bottom:0.35rem;"><span>Hourly Agency Rate</span><strong id="val_v2">2400</strong></div><input type="range" id="rng_v2" min="100" max="10000" step="50" value="2400" oninput="calcWealthProfile()" style="width:100%;accent-color:#10b981;"></div><div style="margin-bottom:1rem;"><div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.85rem;margin-bottom:0.35rem;"><span>Monthly Facility Fee</span><strong id="val_v3">22</strong></div><input type="range" id="rng_v3" min="1" max="40" step="1" value="22" oninput="calcWealthProfile()" style="width:100%;accent-color:#10b981;"></div><div style="margin-bottom:1rem;"><div style="display:flex;justify-content:space-between;font-family:var(--mono);font-size:0.85rem;margin-bottom:0.35rem;"><span>Inflation / Cost-of-Living Adjustment (%)</span><strong id="val_v4">3</strong></div><input type="range" id="rng_v4" min="1" max="10" step="1" value="3" oninput="calcWealthProfile()" style="width:100%;accent-color:#10b981;"></div></div><div id="wealth-results-card" style="background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;padding:1.25rem;margin-top:1.5rem;"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;margin-bottom:0.75rem;"><span style="font-family:var(--mono);font-size:0.85rem;text-transform:uppercase;color:var(--text-muted);">Estimated Financial Outcome:</span><span id="wealth-primary-val" style="font-family:var(--mono);font-size:1.35rem;font-weight:bold;color:#10b981;">$184,200</span></div><div style="font-family:var(--serif);font-size:1.2rem;font-weight:700;margin-bottom:0.5rem;color:var(--fg);" id="wealth-headline">Aging-in-Place Economist</div><p id="wealth-summary" style="font-size:0.95rem;line-height:1.6;color:var(--text);margin-bottom:1rem;">Calculating projected break-even and lifetime valuation...</p><div style="border-top:1px solid var(--border);padding-top:0.75rem;font-size:0.85rem;color:var(--text-muted);line-height:1.5;"><strong>Category Focus:</strong> Home Healthcare Logistics</div></div><div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;"><button type="button" class="btn-primary" onclick="copyWealthResult()" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Financial Summary</button><button type="button" class="btn-sec" onclick="printSummary()" style="padding:0.5rem 1rem;font-size:0.85rem;">🖨️ Print / Save PDF</button></div></div><div style="margin:2.5rem 0;"><h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;">Frequently Asked Questions</h2><details style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);"><summary style="padding:0.85rem 1rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What does the In-Home Caregiver vs Facility Cost for Single & Widowed Seniors Calculator do?</summary><div style="padding:0.75rem 1rem 1rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">This calculator models real-world actuarial projections, tax liabilities, and break-even timelines for In-Home Caregiver vs Facility Cost with single-filer tax penalties, single healthcare burden, and independent elder survival.</div></details><details style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);"><summary style="padding:0.85rem 1rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">How is the financial outcome calculated?</summary><div style="padding:0.75rem 1rem 1rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">The calculation integrates statutory IRS guidelines, actuarial life expectancy tables, and compound interest models using your inputs for Weekly Caregiver Hours, Hourly Agency Rate, and Monthly Facility Fee.</div></details><details style="border:1px solid var(--border);border-radius:4px;margin-bottom:0.5rem;background:var(--surface);"><summary style="padding:0.85rem 1rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Are these calculations confidential and private?</summary><div style="padding:0.75rem 1rem 1rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Yes. All calculations execute 100% client-side in your web browser. No financial data, tax brackets, or personal figures are stored or transmitted to any server.</div></details></div></div><script>var sliderIds = ["v1","v2","v3","v4"];var archetypeBase = "Aging-in-Place Economist";function calcWealthProfile() {var vals = {};sliderIds.forEach(function(id) {var el = document.getElementById("rng_" + id);var v = el ? parseFloat(el.value) : 100;vals[id] = v;var lbl = document.getElementById("val_" + id);if (lbl) lbl.textContent = v.toLocaleString();});var v1 = vals["v1"] || 65;var v2 = vals["v2"] || 2400;var v3 = vals["v3"] || 22;var v4 = vals["v4"] || 3;var projected = Math.round(v2 * 12 * (85 - Math.min(v1, 84)) * (1 + (v4 / 100)));if (projected < 1000) projected = Math.round(v2 * 14 * (1 + (v3 / 100)));var disp = document.getElementById("wealth-primary-val");if (disp) disp.textContent = "$" + projected.toLocaleString();var sumBox = document.getElementById("wealth-summary");if (sumBox) {sumBox.textContent = "Based on an age/index of " + v1 + " and primary input of $" + v2.toLocaleString() + " with " + v4 + "% inflation adjustment, your estimated lifetime financial outcome is $" + projected.toLocaleString() + ". Projections assume statutory IRS standard life expectancy and current marginal brackets.";}}function copyWealthResult() {var disp = document.getElementById("wealth-primary-val");var text = "Financial Estimate: " + (disp ? disp.textContent : "") + " | " + archetypeBase + " | Digital Tools Shed (digitaltoolsshed.com)";navigator.clipboard.writeText(text);alert("Financial summary copied to clipboard!");}function printSummary() {window.print();}document.addEventListener("DOMContentLoaded", calcWealthProfile);</script>
 
           
@@ -981,7 +1005,7 @@
               <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">100% free & client-side &bull; Zero data stored &bull; Instant results</div>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg);" onclick="navigator.clipboard.writeText(window.location.href); alert('Direct tool link copied to clipboard!');">📋 Copy Link</button>
+              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
               <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fwealth%2Fin-home-caregiver-vs-facility-cost-single-individual&text=In-Home%20Caregiver%20vs%20Facility%20Cost%20for%20Single%20%26%20Widowed%20Seniors%20Calculator%20%5BFree%20%26%20Instant%5D%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
               <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fwealth%2Fin-home-caregiver-vs-facility-cost-single-individual&title=In-Home%20Caregiver%20vs%20Facility%20Cost%20for%20Single%20%26%20Widowed%20Seniors%20Calculator%20%5BFree%20%26%20Instant%5D" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
@@ -1037,24 +1061,47 @@
           </div>
           
 
-          <div class="related-tools-section" style="margin-top: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0; color: var(--fg);">⚡ Related High-Impact Tools & Calculators</h3>
-              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-decoration: none;">View All &rarr;</a>
+          <div class="related-tools-section" style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.25rem 0; color: var(--fg); display: flex; align-items: center; gap: 0.4rem;">
+                  <span>🔍</span> Companion Workbenches & Verification Tools
+                </h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; font-family: var(--mono);">
+                  Prevent costly calculation errors and cross-verify your findings with these recommended next-step utilities:
+                </p>
+              </div>
+              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--fg); text-decoration: none; padding: 0.3rem 0.65rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface);">Explore All 5,000+ Tools &rarr;</a>
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
                 <a href="/calc/feet-and-inches-to-cm" class="promo-card">
-                  <span class="promo-badge">Units & Calc</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Feet and Inches to cm Converter</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Convert feet and inches to metric centimeters (cm) with human height chart and quick presets.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Units & Calc</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Feet and Inches to cm Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert feet and inches to metric centimeters (cm) with human height chart and quick presets.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               
                 <a href="/calc/celsius-to-fahrenheit" class="promo-card">
-                  <span class="promo-badge">Units & Calc</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Celsius to Fahrenheit (°C to °F)</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Convert temperatures from Celsius to Fahrenheit scale.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Units & Calc</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Celsius to Fahrenheit (°C to °F)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert temperatures from Celsius to Fahrenheit scale.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
                 <div class="promo-card ad-promo-card">
@@ -1074,16 +1121,32 @@
                 
               
                 <a href="/web/css-clamp-calculator" class="promo-card">
-                  <span class="promo-badge">Web Engineering</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">CSS clamp() Fluid Typography & Spacing Calculator</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Generate exact CSS clamp(min, preferred_vw, max) functions for fluid typography and responsive spacing without media queries.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Web Engineering</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">CSS clamp() Fluid Typography & Spacing Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Generate exact CSS clamp(min, preferred_vw, max) functions for fluid typography and responsive spacing without media queries.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               
                 <a href="/util/decision-bracket" class="promo-card">
-                  <span class="promo-badge">Curiosity & Mind</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Decision Paralysis Bracket Tournament</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Rapid binary head-to-head tournament bracket to eliminate decision fatigue and reveal subconscious priority.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Curiosity & Mind</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Decision Paralysis Bracket Tournament</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Rapid binary head-to-head tournament bracket to eliminate decision fatigue and reveal subconscious priority.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               

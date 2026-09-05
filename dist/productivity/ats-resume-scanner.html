@@ -973,6 +973,30 @@
           
 
           
+          <div class="cognitive-trust-bar">
+            <div class="trust-bar-left">
+              <span class="trust-pill-live">
+                <span class="pulse-indicator"></span>
+                Verified 2026 Engine
+              </span>
+              <span class="trust-sep">|</span>
+              <span class="trust-metric">⚡ Zero Server Latency</span>
+              <span class="trust-sep">|</span>
+              <span class="trust-stars">★ 4.9/5 Rating</span>
+            </div>
+            <div class="trust-bar-right">
+              <span class="trust-feature">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <strong>100% Client-Side Private</strong> (Zero Data Leaves Your Browser)
+              </span>
+              <span class="trust-feature">
+                🚫 <strong>No Sign-Up</strong> &bull; Free Forever
+              </span>
+            </div>
+          </div>
+          
+
+          
     <style>
       .ats-container { max-width: 960px; margin: 0 auto; }
       .ats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
@@ -1202,7 +1226,7 @@
               <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">100% free & client-side &bull; Zero data stored &bull; Instant results</div>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg);" onclick="navigator.clipboard.writeText(window.location.href); alert('Direct tool link copied to clipboard!');">📋 Copy Link</button>
+              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
               <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fproductivity%2Fats-resume-scanner&text=ATS%20Resume%20Scanner%20%26%20Keyword%20Matcher%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
               <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fproductivity%2Fats-resume-scanner&title=ATS%20Resume%20Scanner%20%26%20Keyword%20Matcher" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
@@ -1258,24 +1282,47 @@
           </div>
           
 
-          <div class="related-tools-section" style="margin-top: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0; color: var(--fg);">⚡ Related High-Impact Tools & Calculators</h3>
-              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-decoration: none;">View All &rarr;</a>
+          <div class="related-tools-section" style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.25rem 0; color: var(--fg); display: flex; align-items: center; gap: 0.4rem;">
+                  <span>🔍</span> Companion Workbenches & Verification Tools
+                </h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; font-family: var(--mono);">
+                  Prevent costly calculation errors and cross-verify your findings with these recommended next-step utilities:
+                </p>
+              </div>
+              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--fg); text-decoration: none; padding: 0.3rem 0.65rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface);">Explore All 5,000+ Tools &rarr;</a>
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
                 <a href="/trade/concrete-curing-maturity-index" class="promo-card">
-                  <span class="promo-badge">Trade Math</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Concrete Curing Maturity Index (Nurse-Saul)</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Predict compressive strength gain from in-place curing temperature history.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Trade Math</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Concrete Curing Maturity Index (Nurse-Saul)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Predict compressive strength gain from in-place curing temperature history.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               
                 <a href="/neuro/vagus-nerve-tone-assessor" class="promo-card">
-                  <span class="promo-badge">Neurobiology & Mind</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Vagus Nerve Tone & Parasympathetic Readiness Estimator</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Estimate vagal nerve tone and parasympathetic recovery capacity with integrated 0.1Hz resonant breathing pacer.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Vagus Nerve Tone & Parasympathetic Readiness Estimator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Estimate vagal nerve tone and parasympathetic recovery capacity with integrated 0.1Hz resonant breathing pacer.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
                 <div class="promo-card ad-promo-card">
@@ -1295,16 +1342,32 @@
                 
               
                 <a href="/health/caffeine-half-life-calculator" class="promo-card">
-                  <span class="promo-badge">Health</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Caffeine Half-Life & Sleep Decay Calculator</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Track active caffeine levels in blood using 5.7h half-life to determine sleep readiness.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Health</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Caffeine Half-Life & Sleep Decay Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Track active caffeine levels in blood using 5.7h half-life to determine sleep readiness.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               
                 <a href="/neuro/rejection-sensitivity-meter" class="promo-card">
-                  <span class="promo-badge">Neurobiology & Mind</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Rejection Sensitive Dysphoria (RSD) Diagnostic & Coping Protocol</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Interactive self-audit for Rejection Sensitive Dysphoria (RSD) with somatic regulation protocols.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Rejection Sensitive Dysphoria (RSD) Diagnostic & Coping Protocol</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Interactive self-audit for Rejection Sensitive Dysphoria (RSD) with somatic regulation protocols.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               

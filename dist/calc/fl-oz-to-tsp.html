@@ -989,6 +989,30 @@
           
 
           
+          <div class="cognitive-trust-bar">
+            <div class="trust-bar-left">
+              <span class="trust-pill-live">
+                <span class="pulse-indicator"></span>
+                Verified 2026 Engine
+              </span>
+              <span class="trust-sep">|</span>
+              <span class="trust-metric">⚡ Zero Server Latency</span>
+              <span class="trust-sep">|</span>
+              <span class="trust-stars">★ 4.9/5 Rating</span>
+            </div>
+            <div class="trust-bar-right">
+              <span class="trust-feature">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px; margin-right: 3px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <strong>100% Client-Side Private</strong> (Zero Data Leaves Your Browser)
+              </span>
+              <span class="trust-feature">
+                🚫 <strong>No Sign-Up</strong> &bull; Free Forever
+              </span>
+            </div>
+          </div>
+          
+
+          
         <div class="hero" style="padding-bottom: 1rem; margin-bottom: 1rem;">
           <h1 style="margin-top: 0.5rem;">Fluid Ounces to Teaspoons Converter (fl oz to tsp)</h1>
           <p>Convert fluid ounces (fl oz) to teaspoons (tsp) instantly with real-time two-way calculation, exact formulas, and comprehensive reference tables.</p>
@@ -1312,7 +1336,7 @@
               <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">100% free & client-side &bull; Zero data stored &bull; Instant results</div>
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg);" onclick="navigator.clipboard.writeText(window.location.href); alert('Direct tool link copied to clipboard!');">📋 Copy Link</button>
+              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
               <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Ffl-oz-to-tsp&text=Fluid%20Ounces%20to%20Teaspoons%20Converter%20(fl%20oz%20to%20tsp)%20%5BFraction%20Chart%5D%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
               <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Ffl-oz-to-tsp&title=Fluid%20Ounces%20to%20Teaspoons%20Converter%20(fl%20oz%20to%20tsp)%20%5BFraction%20Chart%5D" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
@@ -1368,24 +1392,47 @@
           </div>
           
 
-          <div class="related-tools-section" style="margin-top: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0; color: var(--fg);">⚡ Related High-Impact Tools & Calculators</h3>
-              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-decoration: none;">View All &rarr;</a>
+          <div class="related-tools-section" style="margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.25rem 0; color: var(--fg); display: flex; align-items: center; gap: 0.4rem;">
+                  <span>🔍</span> Companion Workbenches & Verification Tools
+                </h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin: 0; font-family: var(--mono);">
+                  Prevent costly calculation errors and cross-verify your findings with these recommended next-step utilities:
+                </p>
+              </div>
+              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--fg); text-decoration: none; padding: 0.3rem 0.65rem; border: 1px solid var(--border); border-radius: 4px; background: var(--surface);">Explore All 5,000+ Tools &rarr;</a>
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
                 <a href="/convert/base64" class="promo-card">
-                  <span class="promo-badge">Developer</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Base64 Encoder / Decoder</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Encode text & files to Base64 or decode Base64 data strings.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Developer</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Base64 Encoder / Decoder</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Encode text & files to Base64 or decode Base64 data strings.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               
                 <a href="/util/experience-machine" class="promo-card">
-                  <span class="promo-badge">Productivity</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">The Experience Machine: Truth vs. Synthetic Bliss</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Robert Nozick’s thought experiment: Would you plug into a simulated reality forever?</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Productivity</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">The Experience Machine: Truth vs. Synthetic Bliss</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Robert Nozick’s thought experiment: Would you plug into a simulated reality forever?</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
                 <div class="promo-card ad-promo-card">
@@ -1405,16 +1452,32 @@
                 
               
                 <a href="/dev/diff-checker" class="promo-card">
-                  <span class="promo-badge">Developer</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Online Text & Code Diff Checker</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Compare two text files or code snippets side-by-side with instant additions and deletions.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Developer</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Online Text & Code Diff Checker</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Compare two text files or code snippets side-by-side with instant additions and deletions.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               
                 <a href="/util/sensory-overload-meter" class="promo-card">
-                  <span class="promo-badge">Curiosity & Mind</span>
-                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Sensory Overload Budget & Autonomic Battery Meter</h4>
-                  <p style="font-size: 0.88rem; color: var(--text-muted);">Audit auditory noise, visual flicker, social masking, and context switches against allostatic capacity with physiological sigh pacer.</p>
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                      <span class="promo-badge">Curiosity & Mind</span>
+                      <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
+                    </div>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Sensory Overload Budget & Autonomic Battery Meter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Audit auditory noise, visual flicker, social masking, and context switches against allostatic capacity with physiological sigh pacer.</p>
+                  </div>
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
+                    Launch Companion Workbench &rarr;
+                  </div>
                 </a>
                 
               

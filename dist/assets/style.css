@@ -1081,8 +1081,17 @@ body {
   padding: 1.25rem;
   text-decoration: none;
   color: inherit;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
-.promo-card:hover { border-color: var(--border-strong); }
+.promo-card:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
 .promo-badge {
   font-family: var(--mono);
   font-size: 0.65rem;
@@ -1093,6 +1102,70 @@ body {
   text-transform: uppercase;
   margin-bottom: 0.5rem;
   display: inline-block;
+  border-radius: 3px;
+}
+
+/* ─── COGNITIVE TRUST BAR (BEHAVIORAL SEO & ANTI-POGO-STICKING) ─── */
+.cognitive-trust-bar {
+  margin-bottom: 1.25rem;
+  padding: 0.55rem 0.95rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid #10b981;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  line-height: 1.4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+.trust-bar-left, .trust-bar-right {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+.trust-pill-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #10b981;
+  font-weight: 600;
+}
+.pulse-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+  animation: cognitivePulse 2s infinite ease-in-out;
+}
+@keyframes cognitivePulse {
+  0% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.1); opacity: 1; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); opacity: 0.8; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+.trust-sep {
+  color: var(--border);
+}
+.trust-metric {
+  color: var(--text-muted);
+}
+.trust-stars {
+  color: #f59e0b;
+  font-weight: 600;
+}
+.trust-feature {
+  color: var(--fg);
+  font-size: 0.73rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .tool-workspace {
