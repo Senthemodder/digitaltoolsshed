@@ -1643,62 +1643,234 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Whitespace Cleaner
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Whitespace Cleaner & Line Formatter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Whitespace Cleaner &amp; Line Formatter Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Clean messy text by removing duplicate spaces, stripping leading/trailing whitespace, and eliminating empty blank lines.
+            Clean messy text by stripping trailing spaces, removing empty lines, collapsing multiple whitespace, converting tabs, and normalizing line endings.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Input Text</label>
-              <textarea id="ws-input" class="code-input" style="height: 180px;" placeholder="Paste text here..."></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Input Text</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleWhitespace()">Load Messy Sample</button>
+              </div>
+              <textarea id="ws-input" class="code-input" style="height: 160px; font-family: var(--mono); font-size: 0.9rem;" placeholder="Paste text here..." oninput="cleanWhitespace()"></textarea>
             </div>
 
-            <div class="grid-options" style="margin-bottom: 1.5rem;">
-              <label class="opt-label"><input type="checkbox" id="ws-trim" checked> Trim Leading & Trailing Spaces</label>
-              <label class="opt-label"><input type="checkbox" id="ws-spaces" checked> Collapse Multiple Spaces</label>
-              <label class="opt-label"><input type="checkbox" id="ws-blank" checked> Remove Blank / Empty Lines</label>
-              <label class="opt-label"><input type="checkbox" id="ws-tabs"> Convert Tabs to 2 Spaces</label>
+            <!-- Cleaning Options Checkboxes -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 1.25rem 0; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+              <label class="opt-label"><input type="checkbox" id="ws-trim" checked onchange="cleanWhitespace()"> Trim Line Leading &amp; Trailing</label>
+              <label class="opt-label"><input type="checkbox" id="ws-spaces" checked onchange="cleanWhitespace()"> Collapse Multiple Spaces</label>
+              <label class="opt-label"><input type="checkbox" id="ws-blank" checked onchange="cleanWhitespace()"> Remove All Blank Lines</label>
+              <label class="opt-label"><input type="checkbox" id="ws-tabs" onchange="cleanWhitespace()"> Convert Tabs to 2 Spaces</label>
+              <label class="opt-label"><input type="checkbox" id="ws-crlf" checked onchange="cleanWhitespace()"> Normalize CRLF to Unix LF (\n)</label>
+              <label class="opt-label"><input type="checkbox" id="ws-zwsp" checked onchange="cleanWhitespace()"> Strip Zero-Width Spaces (\u200B)</label>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="cleanWhitespace()">Clean Whitespace</button>
-              <button class="btn-sec" onclick="copyClean()">Copy Clean Text</button>
+            <div class="field-group">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Cleaned Output</label>
+                <span id="wsSavings" style="font-family: var(--mono); font-size: 0.75rem; color: #10b981;">0 chars saved</span>
+              </div>
+              <textarea id="ws-output" class="code-input" style="height: 160px; font-family: var(--mono); font-size: 0.9rem;" readonly></textarea>
             </div>
 
-            <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Cleaned Output</label>
-              <textarea id="ws-output" class="code-input" style="height: 180px;" readonly></textarea>
+            <!-- Real-time Diagnostic Grid -->
+            <div class="stat-grid" style="margin-top: 1rem;">
+              <div class="stat-card"><div class="stat-num" id="ws-orig-len">0</div><div class="stat-lbl">Original Chars</div></div>
+              <div class="stat-card"><div class="stat-num" id="ws-clean-len">0</div><div class="stat-lbl">Cleaned Chars</div></div>
+              <div class="stat-card"><div class="stat-num" id="ws-orig-lines">0</div><div class="stat-lbl">Original Lines</div></div>
+              <div class="stat-card"><div class="stat-num" id="ws-clean-lines">0</div><div class="stat-lbl">Cleaned Lines</div></div>
+              <div class="stat-card"><div class="stat-num" id="ws-reduction">0%</div><div class="stat-lbl">Size Reduction</div></div>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyCleanWs" class="btn-primary" onclick="copyCleanWhitespace()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Cleaned Text</span>
+              </button>
+              <button type="button" id="btnCopyWsReport" class="btn-sec" onclick="copyWsDiagnosticReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Diagnostic Report</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearWsInputs()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Whitespace Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Whitespace Normalization, Tokenization &amp; Compilers</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Invisible Zero-Width Space (ZWSP) Syntax Poisoning</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Text copied from web CMSs, Notion, or chat clients often contains invisible zero-width spaces (<code>\u200B</code>), byte-order marks (<code>\uFEFF</code>), or zero-width non-joiners. Standard ASCII whitespace matchers (<code>\s</code>) fail to purge them, leaving hidden characters that trigger bizarre compiler syntax errors (such as "Unexpected token ILLEGAL") in JavaScript and Python.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Markdown Hard-Line Break Destruction</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In standard CommonMark and GitHub Flavored Markdown (GFM), exactly two trailing spaces at the end of a line signify a manual line break (<code>&lt;br&gt;</code>). Indiscriminately trimming line-end spaces destroys poem stanzas, street addresses, and lyric line breaks, collapsing structured prose into an illegible run-on block.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Python &amp; YAML Indentation Hierarchy Obliteration</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Stripping leading spaces from code snippets obliterates scope hierarchy in indentation-sensitive languages (Python, YAML, Dockerfiles, Makefiles). Once stripped, restoring correct indentation depth requires manual line-by-line reconstruction.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Cross-Platform CRLF vs. LF Ghost Git Diffs</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Windows text editors terminate lines with Carriage Return + Line Feed (<code>\r\n</code>), whereas Unix/Linux/macOS utilize lone Line Feeds (<code>\n</code>). Cleaning whitespace without normalizing line endings can inadvertently convert entire source code files to CRLF, creating 10,000-line "ghost diffs" in Git PRs.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Semantic Paragraph Merging &amp; Dialogue Flattening</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  A blind "remove all blank lines" rule eliminates the deliberate paragraph separations that distinguish shifts in narrative scene, thought, or dialogue. Always confirm whether collapsing multi-line breaks to a single empty line is preferred over total blank line elimination.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          function cleanWhitespace() {
-            let str = document.getElementById('ws-input').value;
-            if (document.getElementById('ws-tabs').checked) {
-              str = str.replace(/\\t/g, '  ');
-            }
-            if (document.getElementById('ws-spaces').checked) {
-              str = str.replace(/[ \\t]+/g, ' ');
-            }
-            let lines = str.split('\\n');
-            if (document.getElementById('ws-trim').checked) {
-              lines = lines.map(l => l.trim());
-            }
-            if (document.getElementById('ws-blank').checked) {
-              lines = lines.filter(l => l.length > 0);
-            }
-            document.getElementById('ws-output').value = lines.join('\\n');
-          }
+          window._wsStats = { origLen: 0, cleanLen: 0, origLines: 0, cleanLines: 0, reduction: '0%' };
 
-          function copyClean() {
-            navigator.clipboard.writeText(document.getElementById('ws-output').value);
-          }
+          window.cleanWhitespace = function() {
+            var raw = document.getElementById('ws-input') ? document.getElementById('ws-input').value : '';
+            var doTrim = document.getElementById('ws-trim') ? document.getElementById('ws-trim').checked : true;
+            var doSpaces = document.getElementById('ws-spaces') ? document.getElementById('ws-spaces').checked : true;
+            var doBlank = document.getElementById('ws-blank') ? document.getElementById('ws-blank').checked : true;
+            var doTabs = document.getElementById('ws-tabs') ? document.getElementById('ws-tabs').checked : false;
+            var doCrlf = document.getElementById('ws-crlf') ? document.getElementById('ws-crlf').checked : true;
+            var doZwsp = document.getElementById('ws-zwsp') ? document.getElementById('ws-zwsp').checked : true;
+
+            var str = raw;
+
+            // Zero-width space removal
+            if (doZwsp) {
+              str = str.replace(/[\u200B\u200C\u200D\uFEFF]/g, '');
+            }
+
+            // CRLF normalization
+            if (doCrlf) {
+              str = str.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            }
+
+            // Tabs to spaces
+            if (doTabs) {
+              str = str.replace(/\t/g, '  ');
+            }
+
+            // Collapse multiple horizontal spaces
+            if (doSpaces) {
+              str = str.replace(/[ \t]+/g, ' ');
+            }
+
+            var lines = str.split('\n');
+
+            if (doTrim) {
+              lines = lines.map(function(l) { return l.trim(); });
+            }
+
+            if (doBlank) {
+              lines = lines.filter(function(l) { return l.length > 0; });
+            }
+
+            var cleaned = lines.join('\n');
+            document.getElementById('ws-output').value = cleaned;
+
+            var origLen = raw.length;
+            var cleanLen = cleaned.length;
+            var origLines = raw ? raw.split(/\r?\n/).length : 0;
+            var cleanLines = cleaned ? lines.length : 0;
+            var charsSaved = Math.max(0, origLen - cleanLen);
+            var reduction = origLen > 0 ? (((origLen - cleanLen) / origLen) * 100).toFixed(1) + '%' : '0%';
+
+            window._wsStats = {
+              origLen: origLen,
+              cleanLen: cleanLen,
+              origLines: origLines,
+              cleanLines: cleanLines,
+              charsSaved: charsSaved,
+              reduction: reduction
+            };
+
+            document.getElementById('ws-orig-len').textContent = origLen.toLocaleString();
+            document.getElementById('ws-clean-len').textContent = cleanLen.toLocaleString();
+            document.getElementById('ws-orig-lines').textContent = origLines.toLocaleString();
+            document.getElementById('ws-clean-lines').textContent = cleanLines.toLocaleString();
+            document.getElementById('ws-reduction').textContent = reduction;
+            document.getElementById('wsSavings').textContent = charsSaved.toLocaleString() + ' chars saved (' + reduction + ')';
+          };
+
+          window.copyCleanWhitespace = function() {
+            var val = document.getElementById('ws-output') ? document.getElementById('ws-output').value : '';
+            if (!val) { cleanWhitespace(); val = document.getElementById('ws-output').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyCleanWs');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Cleaned Text Copied!</span>';
+                setTimeout(function() { btn.innerHTML = orig; }, 2200);
+              }
+            });
+          };
+
+          window.copyWsDiagnosticReport = function() {
+            var s = window._wsStats;
+            var text = '🧹 Whitespace Cleaning Diagnostic Summary\n' +
+              '• Original Characters: ' + s.origLen.toLocaleString() + '\n' +
+              '• Cleaned Characters: ' + s.cleanLen.toLocaleString() + '\n' +
+              '• Characters Stripped: ' + s.charsSaved.toLocaleString() + ' (' + s.reduction + ' reduction)\n' +
+              '• Original Lines: ' + s.origLines.toLocaleString() + '\n' +
+              '• Final Cleaned Lines: ' + s.cleanLines.toLocaleString() + '\n\n' +
+              'Cleaned with digitaltoolsshed.com/text/whitespace-cleaner';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyWsReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Diagnostic Stats Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearWsInputs = function() {
+            document.getElementById('ws-input').value = '';
+            document.getElementById('ws-output').value = '';
+            cleanWhitespace();
+          };
+
+          window.loadSampleWhitespace = function() {
+            var sample = "   Digital Tools Shed      \n\n\n\t\tHigh-performance   client-side   utilities.  \n\n\n   Zero-overhead execution  with \u200Bno external bloat!   \n\n";
+            document.getElementById('ws-input').value = sample;
+            cleanWhitespace();
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('ws-input');
+            if (inp && !inp.value) {
+              loadSampleWhitespace();
+            }
+          });
         </script>
       `
     },
@@ -1709,43 +1881,191 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Palindrome Checker
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Palindrome Checker</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Palindrome Checker &amp; Anagram Diagnostic Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Test whether phrases or numbers read identically in reverse (e.g. <em>"A man, a plan, a canal: Panama"</em>).
+            Test whether words, phrases, or numbers read identically forward and backward with case-folding, accent decomposition, and visual letter-by-letter verification.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Enter Word or Phrase</label>
-              <input type="text" id="pal-input" class="text-input" value="A man, a plan, a canal: Panama" oninput="checkPal()" style="font-size: 1.1rem;" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Enter Word, Sentence, or Number</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSamplePalindrome()">Load Famous Panama Sample</button>
+              </div>
+              <input type="text" id="pal-input" class="text-input" value="A man, a plan, a canal: Panama" oninput="checkPal()" style="font-size: 1.15rem; height: 48px;" />
             </div>
 
-            <div id="pal-result" class="result-box" style="margin-top: 1.5rem;"></div>
+            <!-- Normalization Options -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 1rem 0; padding: 0.85rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+              <label class="opt-label"><input type="checkbox" id="pal-case" checked onchange="checkPal()"> Ignore Letter Casing (A = a)</label>
+              <label class="opt-label"><input type="checkbox" id="pal-punct" checked onchange="checkPal()"> Ignore Spaces &amp; Punctuation</label>
+              <label class="opt-label"><input type="checkbox" id="pal-accent" checked onchange="checkPal()"> Normalize Accents (é = e)</label>
+            </div>
+
+            <div id="pal-result" class="result-box" style="margin-top: 1.25rem;"></div>
+
+            <!-- Action Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyPalReport" class="btn-sec" onclick="copyPalReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Palindrome Diagnostic Report</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearPalInput()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Palindrome Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Palindrome Detection &amp; Unicode String Reversal</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Unicode Surrogate Pair Splitting &amp; Emoji Inversion</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Reversing strings via <code>str.split('').reverse().join('')</code> splits 32-bit surrogate pairs and compound emojis into detached high and low surrogates. This produces inverted corrupt characters (e.g. <code>\uD83D\uDE00</code> inverted into <code>\uDE00\uD83D</code>), breaking UTF-16 strings completely. Always reverse grapheme clusters or normalize strings beforehand.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Diacritic &amp; Accent Mismatches in European Languages</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Renowned international palindromes (e.g. French <em>"Ésope reste ici et se repose"</em> or Spanish <em>"Dábale arroz a la zorra el abad"</em>) fail simple character equality tests because acute accents (<code>é</code>, <code>á</code>) do not match plain vowels (<code>e</code>, <code>a</code>) without Unicode Canonical Decomposition (<code>normalize('NFD')</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Punctuation Collisions &amp; Smart Typographic Quotes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Complex literary palindromes often feature curly quotes (<code>“ ” ‘ ’</code>), em-dashes (<code>—</code>), and ellipses. Testing phrases with basic ASCII sanitizers (<code>/[^a-zA-Z0-9]/</code>) fails when Unicode typographical punctuation marks are present, triggering false non-palindrome verdicts.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Word-Level vs. Character-Level Palindrome Confusion</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Word-unit palindromes (such as <em>"Fall leaves after leaves fall"</em> or <em>"Did I say you say I did"</em>) read identically word-by-word, whereas character palindromes read letter-by-letter. Conflating the two paradigms results in false negatives in poetry analysis software.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Semordnilap (Heteropalindrome) False Equivalencies</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Words that spell an entirely different, valid word in reverse (e.g. <em>desserts</em> / <em>stressed</em>, <em>live</em> / <em>evil</em>, <em>gateman</em> / <em>nametag</em>) are semordnilaps rather than true palindromes. Treating semordnilaps as palindromes introduces taxonomy errors in linguistic databases.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
-          function checkPal() {
-            const raw = document.getElementById('pal-input').value;
-            const cleaned = raw.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const reversed = cleaned.split('').reverse().join('');
-            const isPal = cleaned.length > 0 && cleaned === reversed;
+          window._palData = { isPal: false, forward: '', backward: '', raw: '', len: 0 };
 
-            const res = document.getElementById('pal-result');
-            if (!cleaned) { res.textContent = 'Enter text to test.'; return; }
+          window.checkPal = function() {
+            var raw = document.getElementById('pal-input') ? document.getElementById('pal-input').value : '';
+            var ignCase = document.getElementById('pal-case') ? document.getElementById('pal-case').checked : true;
+            var ignPunct = document.getElementById('pal-punct') ? document.getElementById('pal-punct').checked : true;
+            var normAccent = document.getElementById('pal-accent') ? document.getElementById('pal-accent').checked : true;
 
-            res.innerHTML = '<div style="font-size: 1.2rem; font-weight: bold; color: ' + (isPal ? '#22c55e' : '#ef4444') + '; margin-bottom: 0.5rem;">' +
-                (isPal ? '✓ Yes, it is a Palindrome!' : '✗ No, not a palindrome.') +
+            var processed = raw;
+
+            if (normAccent) {
+              processed = processed.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            }
+
+            if (ignCase) {
+              processed = processed.toLowerCase();
+            }
+
+            if (ignPunct) {
+              processed = processed.replace(/[^a-zA-Z0-9]/g, '');
+            }
+
+            var forward = processed;
+            var backward = processed.split('').reverse().join('');
+            var isPal = forward.length > 0 && forward === backward;
+
+            window._palData = {
+              isPal: isPal,
+              forward: forward,
+              backward: backward,
+              raw: raw,
+              len: forward.length
+            };
+
+            var res = document.getElementById('pal-result');
+            if (!res) return;
+
+            if (!forward) {
+              res.innerHTML = '<div style="font-family: var(--mono); font-size: 0.9rem; color: var(--text-muted);">Enter a word, phrase, or number above to inspect.</div>';
+              return;
+            }
+
+            var color = isPal ? '#10b981' : '#ef4444';
+            var icon = isPal ? '✓' : '✗';
+            var headline = isPal ? 'PALINDROME CONFIRMED!' : 'NOT A PALINDROME';
+            var desc = isPal 
+              ? 'Reads identically forward and backward across all normalized characters.'
+              : 'Mismatch detected between forward and reversed character sequences.';
+
+            res.innerHTML = '<div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid ' + color + '; padding: 1.25rem; border-radius: 6px;">' +
+              '<div style="font-size: 1.25rem; font-weight: bold; color: ' + color + '; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">' +
+                '<span>' + icon + '</span> <span>' + headline + '</span>' +
               '</div>' +
-              '<div style="font-size: 0.85rem; color: var(--text-muted);">' +
-                'Normalized forward: <code>' + cleaned + '</code><br>' +
-                'Normalized backward: <code>' + reversed + '</code>' +
-              '</div>';
-          }
+              '<p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 1rem 0;">' + desc + '</p>' +
+              '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">' +
+                '<div style="background: var(--surface); padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<div style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.25rem;">Forward Normalized (' + forward.length + ' chars)</div>' +
+                  '<div style="color: var(--fg); word-break: break-all;">' + forward + '</div>' +
+                '</div>' +
+                '<div style="background: var(--surface); padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<div style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.25rem;">Backward Normalized (' + backward.length + ' chars)</div>' +
+                  '<div style="color: var(--fg); word-break: break-all;">' + backward + '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          };
+
+          window.copyPalReport = function() {
+            var d = window._palData;
+            var verdict = d.isPal ? 'CONFIRMED PALINDROME (Identical forward and backward)' : 'NOT A PALINDROME (Mismatch detected)';
+            var text = '🔍 Palindrome Diagnostic Verification Report\n' +
+              '• Input Text: "' + d.raw + '"\n' +
+              '• Verification Verdict: ' + verdict + '\n' +
+              '• Normalized Length: ' + d.len + ' characters\n' +
+              '• Forward Sequence: ' + d.forward + '\n' +
+              '• Reversed Sequence: ' + d.backward + '\n\n' +
+              'Verified at digitaltoolsshed.com/text/palindrome-checker';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyPalReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Diagnostic Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearPalInput = function() {
+            var inp = document.getElementById('pal-input');
+            if (inp) inp.value = '';
+            checkPal();
+          };
+
+          window.loadSamplePalindrome = function() {
+            var inp = document.getElementById('pal-input');
+            if (inp) inp.value = 'Are we not pure? “No, sir!” Panama’s moody Noriega brags. “It is garbage!” Irony dooms a man—a prisoner up to new era.';
+            checkPal();
+          };
+
           document.addEventListener('DOMContentLoaded', checkPal);
         </script>
       `
@@ -1763,64 +2083,115 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       body: `
         ${commonStyle}
         <style>
-          .md-preview-pane { background: var(--bg); border: 1px solid var(--border); padding: 1.25rem; border-radius: 4px; min-height: 350px; line-height: 1.6; color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-          .md-preview-pane h1 { font-size: 1.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-top: 1rem; }
-          .md-preview-pane h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; margin-top: 1rem; }
-          .md-preview-pane h3 { font-size: 1.15rem; margin-top: 0.8rem; }
-          .md-preview-pane pre { background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; overflow-x: auto; font-family: var(--mono); font-size: 0.85rem; border: 1px solid var(--border); }
-          .md-preview-pane code { background: var(--surface-alt); padding: 0.15rem 0.35rem; border-radius: 3px; font-family: var(--mono); font-size: 0.85rem; }
-          .md-preview-pane blockquote { border-left: 4px solid var(--border); margin: 0; padding-left: 1rem; color: var(--text-muted); font-style: italic; }
+          .md-preview-pane { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; min-height: 380px; line-height: 1.6; color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+          .md-preview-pane h1 { font-size: 1.8rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-top: 1rem; color: var(--fg); font-family: var(--serif); }
+          .md-preview-pane h2 { font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 0.2rem; margin-top: 1rem; color: var(--fg); font-family: var(--serif); }
+          .md-preview-pane h3 { font-size: 1.15rem; margin-top: 0.8rem; color: var(--fg); font-family: var(--serif); }
+          .md-preview-pane pre { background: var(--surface); padding: 0.85rem; border-radius: 6px; overflow-x: auto; font-family: var(--mono); font-size: 0.85rem; border: 1px solid var(--border); }
+          .md-preview-pane code { background: var(--surface); padding: 0.15rem 0.35rem; border-radius: 3px; font-family: var(--mono); font-size: 0.85rem; }
+          .md-preview-pane blockquote { border-left: 4px solid #3b82f6; margin: 1rem 0; padding-left: 1rem; color: var(--text-muted); font-style: italic; background: var(--surface); padding-top: 0.5rem; padding-bottom: 0.5rem; border-radius: 0 4px 4px 0; }
           .md-preview-pane table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
           .md-preview-pane th, .md-preview-pane td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; }
-          .md-preview-pane th { background: var(--surface-alt); font-weight: bold; }
+          .md-preview-pane th { background: var(--surface); font-weight: bold; }
         </style>
 
         <div class="article-container" style="max-width: 1000px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Markdown Preview
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Markdown Live Preview & HTML Converter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Markdown Live Preview &amp; HTML Converter Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Write, edit, and preview GitHub Flavored Markdown (GFM) with real-time HTML rendering, word metrics, and instant HTML export.
+            Write, edit, and preview GitHub Flavored Markdown (GFM) with real-time HTML rendering, word metrics, clean copy, and instant HTML export.
           </p>
 
           <div class="tool-box">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">
-                <span id="md-words">0</span> words | <span id="md-chars">0</span> characters | ~<span id="md-read">0</span> min read
+              <div style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">
+                <span id="md-words" style="color: var(--fg); font-weight: bold;">0</span> words | <span id="md-chars" style="color: var(--fg); font-weight: bold;">0</span> characters | ~<span id="md-read" style="color: var(--fg); font-weight: bold;">0</span> min read
               </div>
               <div style="display: flex; gap: 0.5rem;">
-                <button class="btn-sec" onclick="loadSampleMd()" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Load Sample</button>
-                <button class="btn-sec" onclick="copyHtmlOutput()" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Copy HTML</button>
+                <button type="button" class="btn-sec" onclick="loadSampleMd()" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Load GFM Sample</button>
+                <button type="button" id="btnCopyMdHtmlTop" class="btn-sec" onclick="copyHtmlOutput()" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">Copy HTML</button>
               </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" id="md-editor-grid">
               <div>
                 <label class="field-label">Markdown Input</label>
-                <textarea id="md-input" class="code-input" style="height: 450px; font-family: var(--mono); font-size: 0.85rem; resize: vertical;" oninput="renderMarkdown()"></textarea>
+                <textarea id="md-input" class="code-input" style="height: 450px; font-family: var(--mono); font-size: 0.88rem; line-height: 1.5; resize: vertical;" oninput="renderMarkdown()"></textarea>
               </div>
               <div>
-                <label class="field-label">Live Rendered Preview</label>
+                <label class="field-label">Live Rendered HTML Preview</label>
                 <div id="md-preview" class="md-preview-pane" style="height: 450px; overflow-y: auto;"></div>
               </div>
             </div>
 
-            <div class="action-bar" style="margin-top: 1.25rem;">
-              <button class="btn-primary" onclick="copyHtmlOutput()">Copy Generated HTML</button>
-              <button class="btn-sec" onclick="downloadFile('document.html', getConvertedHtml())">Download HTML</button>
-              <button class="btn-sec" onclick="downloadFile('document.md', document.getElementById('md-input').value)">Download Markdown</button>
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyMdHtml" class="btn-primary" onclick="copyHtmlOutput()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                <span>📋 Copy Generated HTML</span>
+              </button>
+              <button type="button" id="btnCopyMdSource" class="btn-sec" onclick="copyMdSource()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Markdown</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="downloadMdFile('document.html', getConvertedHtml())" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>💾 Download HTML</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="downloadMdFile('document.md', document.getElementById('md-input').value)" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>💾 Download .md</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Markdown Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Markdown Parsers, GFM &amp; HTML Translation</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. XSS (Cross-Site Scripting) via Raw Embedded HTML Injection</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  By default, CommonMark allows raw inline HTML tags. Rendering user-submitted Markdown directly into a live DOM element via <code>innerHTML</code> without pre-sanitization permits malicious script payloads (e.g. <code>&lt;img src=x onerror=alert(1)&gt;</code>) to execute arbitrary JavaScript in the victim's session.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. GFM Table Collapse Caused by Unescaped Pipe (|) Symbols</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In GitHub Flavored Markdown, tables rely on pipe characters (<code>|</code>) as column separators. Placing an unescaped pipe inside table text or code snippets (e.g. <code>cmd1 | cmd2</code>) causes parsers to prematurely split columns, completely scrambling row alignment and destroying HTML table rendering.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Catastrophic ReDoS Backtracking in Naive Regex Parsers</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Lightweight client-side Markdown parsers frequently rely on nested regular expressions (e.g. <code>/\*\*(.*?)\*\*/g</code>). Feeding long unclosed sequences of asterisks or underscores into naive regex engines triggers exponential catastrophic backtracking (ReDoS), freezing the browser main thread and crashing user tabs.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Reference-Style Link Collision &amp; Footnote Overwriting</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In extended documents utilizing reference links (e.g. <code>[Specification][1]</code>), case-insensitive duplicate label definitions silently overwrite earlier link destinations. The second reference definition redirects all preceding hyperlinks to the wrong URL without throwing errors.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Hard-Line Break Discrepancy Across GFM vs. CommonMark</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Standard CommonMark requires two trailing spaces or a backslash at the end of a line to generate an HTML line break (<code>&lt;br&gt;</code>). In contrast, GitHub issues and comments treat single newlines as soft breaks. Documents authored across different environments render with severely distorted vertical rhythm.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
           var B = String.fromCharCode(96);
-          var sampleMarkdown = '# Markdown Cheatsheet\\n\\nWelcome to the **Digital Tools Shed** Markdown Previewer!\\n\\n## Formatting Styles\\n- **Bold text** with ' + B + '**double asterisks**' + B + '\\n- *Italic text* with ' + B + '*single asterisks*' + B + '\\n- ~~Strikethrough~~ with ' + B + '~~tildes~~' + B + '\\n\\n### Blockquote Example\\n> \\"Simplicity is prerequisite for reliability.\\" — Edsger W. Dijkstra\\n\\n### Code Block\\n' + B + B + B + 'javascript\\nfunction greet(name) {\\n  console.log(\"Hello, \" + name + \"!\");\\n}\\n' + B + B + B + '\\n\\n### Data Table\\n| Feature | Status | Performance |\\n| :--- | :--- | :--- |\\n| Real-time Parser | Active | 60 FPS |\\n| Zero Uploads | Enabled | 100% Private |\\n| Export to HTML | Ready | Instant |\\n';
+          var sampleMarkdown = '# Markdown Cheatsheet\n\nWelcome to the **Digital Tools Shed** Markdown Previewer Studio!\n\n## Formatting Styles\n- **Bold text** with ' + B + '**double asterisks**' + B + '\n- *Italic text* with ' + B + '*single asterisks*' + B + '\n- ~~Strikethrough~~ with ' + B + '~~tildes~~' + B + '\n\n### Blockquote Example\n> \"Simplicity is prerequisite for reliability.\" — Edsger W. Dijkstra\n\n### Code Block\n' + B + B + B + 'javascript\nfunction greet(name) {\n  console.log("Hello, " + name + "!");\n}\n' + B + B + B + '\n\n### Data Table\n| Feature | Status | Performance |\n| :--- | :--- | :--- |\n| Real-time Parser | Active | 60 FPS |\n| Zero Uploads | Enabled | 100% Private |\n| Export to HTML | Ready | Instant |\n';
 
           function parseMarkdownSimple(md) {
             var B = String.fromCharCode(96);
-            var reCodeBlock = new RegExp(B + B + B + '([a-z]*)\\\\n([\\\\s\\\\S]*?)' + B + B + B, 'g');
+            var reCodeBlock = new RegExp(B + B + B + '([a-z]*)\\n([\\s\\S]*?)' + B + B + B, 'g');
             var reInlineCode = new RegExp(B + '([^' + B + ']+)' + B, 'g');
             var html = md
               .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -1829,56 +2200,96 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               .replace(/^### (.*$)/gim, '<h3>$1</h3>')
               .replace(/^## (.*$)/gim, '<h2>$1</h2>')
               .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-              .replace(/^\\> (.*$)/gim, '<blockquote>$1</blockquote>')
-              .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>')
-              .replace(/\\*(.*?)\\*/g, '<em>$1</em>')
+              .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
+              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+              .replace(/\*(.*?)\*/g, '<em>$1</em>')
               .replace(/~~(.*?)~~/g, '<del>$1</del>')
-              .replace(/\\|(.+)\\|\\n\\|[-| :]+\\|\\n((?:\\|.+\\|\\n?)+)/g, function(match, header, rows) {
+              .replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)+)/g, function(match, header, rows) {
                 var ths = header.split('|').filter(Boolean).map(function(h) { return '<th>' + h.trim() + '</th>'; }).join('');
-                var trs = rows.trim().split('\\n').map(function(r) {
+                var trs = rows.trim().split('\n').map(function(r) {
                   var tds = r.split('|').filter(Boolean).map(function(d) { return '<td>' + d.trim() + '</td>'; }).join('');
                   return '<tr>' + tds + '</tr>';
                 }).join('');
                 return '<table><thead><tr>' + ths + '</tr></thead><tbody>' + trs + '</tbody></table>';
               })
-              .replace(/^\\- (.*$)/gim, '<li>$1</li>')
-              .replace(/\\n\\n+/g, '</p><p>');
+              .replace(/^\- (.*$)/gim, '<li>$1</li>')
+              .replace(/\n\n+/g, '</p><p>');
 
             return '<p>' + html + '</p>';
           }
 
-          function renderMarkdown() {
-            var raw = document.getElementById('md-input').value;
+          window.renderMarkdown = function() {
+            var input = document.getElementById('md-input');
+            var raw = input ? input.value : '';
             var html = parseMarkdownSimple(raw);
-            document.getElementById('md-preview').innerHTML = html;
+            var preview = document.getElementById('md-preview');
+            if (preview) preview.innerHTML = html;
 
-            var words = raw.trim() ? raw.trim().split(/\\s+/).length : 0;
-            document.getElementById('md-words').textContent = words;
-            document.getElementById('md-chars').textContent = raw.length;
-            document.getElementById('md-read').textContent = Math.ceil(words / 200);
-          }
+            var words = raw.trim() ? raw.trim().split(/\s+/).length : 0;
+            var chars = raw.length;
+            var readTime = Math.ceil(words / 200);
 
-          function loadSampleMd() {
-            document.getElementById('md-input').value = sampleMarkdown;
+            var wElem = document.getElementById('md-words');
+            var cElem = document.getElementById('md-chars');
+            var rElem = document.getElementById('md-read');
+            if (wElem) wElem.textContent = words.toLocaleString();
+            if (cElem) cElem.textContent = chars.toLocaleString();
+            if (rElem) rElem.textContent = readTime;
+          };
+
+          window.loadSampleMd = function() {
+            var input = document.getElementById('md-input');
+            if (input) input.value = sampleMarkdown;
             renderMarkdown();
-          }
+          };
 
-          function getConvertedHtml() {
-            return document.getElementById('md-preview').innerHTML;
-          }
+          window.getConvertedHtml = function() {
+            var preview = document.getElementById('md-preview');
+            return preview ? preview.innerHTML : '';
+          };
 
-          function copyHtmlOutput() {
-            navigator.clipboard.writeText(getConvertedHtml());
-            alert('Copied HTML output to clipboard!');
-          }
+          window.copyHtmlOutput = function() {
+            var html = getConvertedHtml();
+            navigator.clipboard.writeText(html).then(function() {
+              var btn1 = document.getElementById('btnCopyMdHtml');
+              var btn2 = document.getElementById('btnCopyMdHtmlTop');
+              if (btn1) {
+                var orig1 = btn1.innerHTML;
+                btn1.innerHTML = '<span style="color:#10b981;">✓ HTML Copied!</span>';
+                setTimeout(function() { btn1.innerHTML = orig1; }, 2200);
+              }
+              if (btn2) {
+                var orig2 = btn2.innerHTML;
+                btn2.innerHTML = '<span style="color:#10b981;">✓ HTML Copied!</span>';
+                setTimeout(function() { btn2.innerHTML = orig2; }, 2200);
+              }
+            });
+          };
 
-          function downloadFile(filename, content) {
+          window.copyMdSource = function() {
+            var input = document.getElementById('md-input');
+            var val = input ? input.value : '';
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyMdSource');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Markdown Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.downloadMdFile = function(filename, content) {
             var blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = filename;
             a.click();
-          }
+          };
 
           document.addEventListener('DOMContentLoaded', loadSampleMd);
           loadSampleMd();

@@ -1045,43 +1045,198 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Palindrome Checker
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Palindrome Checker</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Palindrome Checker &amp; Anagram Diagnostic Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Test whether phrases or numbers read identically in reverse (e.g. <em>"A man, a plan, a canal: Panama"</em>).
+            Test whether words, phrases, or numbers read identically forward and backward with case-folding, accent decomposition, and visual letter-by-letter verification.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Enter Word or Phrase</label>
-              <input type="text" id="pal-input" class="text-input" value="A man, a plan, a canal: Panama" oninput="checkPal()" style="font-size: 1.1rem;" />
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Enter Word, Sentence, or Number</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSamplePalindrome()">Load Famous Panama Sample</button>
+              </div>
+              <input type="text" id="pal-input" class="text-input" value="A man, a plan, a canal: Panama" oninput="checkPal()" style="font-size: 1.15rem; height: 48px;" />
             </div>
 
-            <div id="pal-result" class="result-box" style="margin-top: 1.5rem;"></div>
+            <!-- Normalization Options -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 1rem 0; padding: 0.85rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+              <label class="opt-label"><input type="checkbox" id="pal-case" checked onchange="checkPal()"> Ignore Letter Casing (A = a)</label>
+              <label class="opt-label"><input type="checkbox" id="pal-punct" checked onchange="checkPal()"> Ignore Spaces &amp; Punctuation</label>
+              <label class="opt-label"><input type="checkbox" id="pal-accent" checked onchange="checkPal()"> Normalize Accents (é = e)</label>
+            </div>
+
+            <div id="pal-result" class="result-box" style="margin-top: 1.25rem;"></div>
+
+            <!-- Action Buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyPalReport" class="btn-sec" onclick="copyPalReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Palindrome Diagnostic Report</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearPalInput()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Palindrome Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Palindrome Detection &amp; Unicode String Reversal</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Unicode Surrogate Pair Splitting &amp; Emoji Inversion</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Reversing strings via <code>str.split('').reverse().join('')</code> splits 32-bit surrogate pairs and compound emojis into detached high and low surrogates. This produces inverted corrupt characters (e.g. <code>😀</code> inverted into <code>��</code>), breaking UTF-16 strings completely. Always reverse grapheme clusters or normalize strings beforehand.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Diacritic &amp; Accent Mismatches in European Languages</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Renowned international palindromes (e.g. French <em>"Ésope reste ici et se repose"</em> or Spanish <em>"Dábale arroz a la zorra el abad"</em>) fail simple character equality tests because acute accents (<code>é</code>, <code>á</code>) do not match plain vowels (<code>e</code>, <code>a</code>) without Unicode Canonical Decomposition (<code>normalize('NFD')</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Punctuation Collisions &amp; Smart Typographic Quotes</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Complex literary palindromes often feature curly quotes (<code>“ ” ‘ ’</code>), em-dashes (<code>—</code>), and ellipses. Testing phrases with basic ASCII sanitizers (<code>/[^a-zA-Z0-9]/</code>) fails when Unicode typographical punctuation marks are present, triggering false non-palindrome verdicts.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Word-Level vs. Character-Level Palindrome Confusion</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Word-unit palindromes (such as <em>"Fall leaves after leaves fall"</em> or <em>"Did I say you say I did"</em>) read identically word-by-word, whereas character palindromes read letter-by-letter. Conflating the two paradigms results in false negatives in poetry analysis software.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Semordnilap (Heteropalindrome) False Equivalencies</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Words that spell an entirely different, valid word in reverse (e.g. <em>desserts</em> / <em>stressed</em>, <em>live</em> / <em>evil</em>, <em>gateman</em> / <em>nametag</em>) are semordnilaps rather than true palindromes. Treating semordnilaps as palindromes introduces taxonomy errors in linguistic databases.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
-          function checkPal() {
-            const raw = document.getElementById('pal-input').value;
-            const cleaned = raw.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const reversed = cleaned.split('').reverse().join('');
-            const isPal = cleaned.length > 0 && cleaned === reversed;
+          window._palData = { isPal: false, forward: '', backward: '', raw: '', len: 0 };
 
-            const res = document.getElementById('pal-result');
-            if (!cleaned) { res.textContent = 'Enter text to test.'; return; }
+          window.checkPal = function() {
+            var raw = document.getElementById('pal-input') ? document.getElementById('pal-input').value : '';
+            var ignCase = document.getElementById('pal-case') ? document.getElementById('pal-case').checked : true;
+            var ignPunct = document.getElementById('pal-punct') ? document.getElementById('pal-punct').checked : true;
+            var normAccent = document.getElementById('pal-accent') ? document.getElementById('pal-accent').checked : true;
 
-            res.innerHTML = '<div style="font-size: 1.2rem; font-weight: bold; color: ' + (isPal ? '#22c55e' : '#ef4444') + '; margin-bottom: 0.5rem;">' +
-                (isPal ? '✓ Yes, it is a Palindrome!' : '✗ No, not a palindrome.') +
+            var processed = raw;
+
+            if (normAccent) {
+              processed = processed.normalize('NFD').replace(/[̀-ͯ]/g, '');
+            }
+
+            if (ignCase) {
+              processed = processed.toLowerCase();
+            }
+
+            if (ignPunct) {
+              processed = processed.replace(/[^a-zA-Z0-9]/g, '');
+            }
+
+            var forward = processed;
+            var backward = processed.split('').reverse().join('');
+            var isPal = forward.length > 0 && forward === backward;
+
+            window._palData = {
+              isPal: isPal,
+              forward: forward,
+              backward: backward,
+              raw: raw,
+              len: forward.length
+            };
+
+            var res = document.getElementById('pal-result');
+            if (!res) return;
+
+            if (!forward) {
+              res.innerHTML = '<div style="font-family: var(--mono); font-size: 0.9rem; color: var(--text-muted);">Enter a word, phrase, or number above to inspect.</div>';
+              return;
+            }
+
+            var color = isPal ? '#10b981' : '#ef4444';
+            var icon = isPal ? '✓' : '✗';
+            var headline = isPal ? 'PALINDROME CONFIRMED!' : 'NOT A PALINDROME';
+            var desc = isPal 
+              ? 'Reads identically forward and backward across all normalized characters.'
+              : 'Mismatch detected between forward and reversed character sequences.';
+
+            res.innerHTML = '<div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid ' + color + '; padding: 1.25rem; border-radius: 6px;">' +
+              '<div style="font-size: 1.25rem; font-weight: bold; color: ' + color + '; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">' +
+                '<span>' + icon + '</span> <span>' + headline + '</span>' +
               '</div>' +
-              '<div style="font-size: 0.85rem; color: var(--text-muted);">' +
-                'Normalized forward: <code>' + cleaned + '</code><br>' +
-                'Normalized backward: <code>' + reversed + '</code>' +
-              '</div>';
-          }
+              '<p style="font-size: 0.88rem; color: var(--text-muted); margin: 0 0 1rem 0;">' + desc + '</p>' +
+              '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">' +
+                '<div style="background: var(--surface); padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<div style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.25rem;">Forward Normalized (' + forward.length + ' chars)</div>' +
+                  '<div style="color: var(--fg); word-break: break-all;">' + forward + '</div>' +
+                '</div>' +
+                '<div style="background: var(--surface); padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">' +
+                  '<div style="color: var(--text-muted); font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.25rem;">Backward Normalized (' + backward.length + ' chars)</div>' +
+                  '<div style="color: var(--fg); word-break: break-all;">' + backward + '</div>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          };
+
+          window.copyPalReport = function() {
+            var d = window._palData;
+            var verdict = d.isPal ? 'CONFIRMED PALINDROME (Identical forward and backward)' : 'NOT A PALINDROME (Mismatch detected)';
+            var text = '🔍 Palindrome Diagnostic Verification Report
+' +
+              '• Input Text: "' + d.raw + '"
+' +
+              '• Verification Verdict: ' + verdict + '
+' +
+              '• Normalized Length: ' + d.len + ' characters
+' +
+              '• Forward Sequence: ' + d.forward + '
+' +
+              '• Reversed Sequence: ' + d.backward + '
+
+' +
+              'Verified at digitaltoolsshed.com/text/palindrome-checker';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyPalReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Diagnostic Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearPalInput = function() {
+            var inp = document.getElementById('pal-input');
+            if (inp) inp.value = '';
+            checkPal();
+          };
+
+          window.loadSamplePalindrome = function() {
+            var inp = document.getElementById('pal-input');
+            if (inp) inp.value = 'Are we not pure? “No, sir!” Panama’s moody Noriega brags. “It is garbage!” Irony dooms a man—a prisoner up to new era.';
+            checkPal();
+          };
+
           document.addEventListener('DOMContentLoaded', checkPal);
         </script>
       
