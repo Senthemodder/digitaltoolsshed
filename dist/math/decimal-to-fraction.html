@@ -1167,44 +1167,30 @@
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Decimal to Fraction Conversion</h2>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">1. Truncating Repeating Decimals (The 0.33 vs 1/3 Trap)</div>
-      <p class="d2f-trap-desc">
-        Entering <code>0.33</code> or <code>0.66</code> into a terminating converter produces <code>33/100</code> and <code>33/50</code>, neither of which is 1/3 or 2/3! Repeating decimals have an infinite sequence of repeating digits. To convert repeating decimals to exact fractions, you must use algebraic subtraction: <code>10x - x = 9x &rarr; x = 3/9 = 1/3</code>.
-      </p>
-    </div>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">2. Binary Floating-Point Rounding Drift</div>
-      <p class="d2f-trap-desc">
-        Computers store decimals in IEEE-754 binary floating-point format. Numbers like <code>0.1</code> or <code>0.7</code> cannot be represented with exact precision in binary (e.g., 0.7 is internally stored as <code>0.699999999999999955...</code>). Naive fraction algorithms that do not apply epsilon rounding tolerances can fail to identify simple fractions like 7/10, outputting absurd ratios like <code>7000000000000001 / 10000000000000000</code>.
-      </p>
-    </div>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">3. Carpentry Ruler Tolerance Drift</div>
-      <p class="d2f-trap-desc">
-        Architectural blueprints often specify decimal dimensions such as <code>0.350"</code>. Snapping 0.350" to the nearest 1/16" tick gives 6/16" (3/8" = 0.375"). This introduces an error of +0.025 inches (+25 thousandths). For structural framing, 25 thousandths is acceptable, but in cabinetry, mortise-and-tenon joinery, or metal lathe turning, this error will ruin the fit.
-      </p>
-    </div>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">4. Attempting to Convert Irrational Numbers</div>
-      <p class="d2f-trap-desc">
-        Constants like π (3.14159...) or √2 (1.41421...) are irrational and possess non-repeating infinite decimals. Any fraction representation (like 22/7 for π = 3.142857...) is strictly an engineering approximation. Trying to find an exact integer fraction for an irrational number is mathematically impossible.
-      </p>
-    </div>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">5. Negative Decimal Mixed Number Formatting</div>
-      <p class="d2f-trap-desc">
-        When converting negative decimals like <code>-2.375</code>, writing <code>-2 3/8</code> means <code>-(2 + 3/8) = -19/8</code>. A frequent coding bug treats the negative sign as applying only to the integer: <code>-2 + 3/8 = -13/8 = -1.625</code>. The negative sign must factor out across the entire mixed expression.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Decimal to Fraction Conversion</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">✂️ 1. Truncating Repeating Decimals (The 0.33 vs 1/3 Trap)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Entering <code>0.33</code> or <code>0.66</code> into a terminating decimal converter produces <code>33/100</code> and <code>33/50</code>, not <code>1/3</code> or <code>2/3</code>. Terminating decimals have denominators based on powers of 10 ($10, 100, 1000$), while repeating decimals require fractional denominators based on $9, 99, 999$. Always use repeating decimal notation or tolerance-based continued fraction algorithms.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">💻 2. Binary Floating-Point Rounding Drift</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Computer hardware represents decimals in base-2 floating point, where <code>0.1</code> is actually stored as <code>0.100000000000000005551115123126...</code>. Naive GCD algorithms that treat this binary artifact as a literal integer will generate wild fractions like $3602879701896397 / 36028797018963968$ instead of $1/10$. Always employ epsilon tolerance thresholds ($10^{-10}$) when converting floating-point values.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📐 3. Carpentry Ruler Tolerance Drift</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">When woodworkers convert decimal measurements (e.g. 2.345") to tape measure fractions, rounding to the nearest 1/16" (2 5/16" = 2.3125") incurs a $-0.0325"$ discrepancy. For fine cabinetry, snapping to 1/32" or 1/64" reduces error, but the operator must track cumulative kerf loss across multiple cuts.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🔍 4. Attempting to Convert Irrational Numbers</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Numbers like $pi$ (3.14159...) and $sqrt{2}$ (1.41421...) cannot be expressed as exact ratios of two integers. Converters will provide rational convergents (e.g. $pi approx 22/7$ or $355/113$), but users must understand these are approximations, not exact representations.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">➖ 5. Negative Decimal Mixed Number Formatting</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Converting $-3.25$ must result in $-3rac{1}{4}$ (meaning $-(3 + 1/4) = -13/4$). A software parser that negates only the whole part can output $-3 + 1/4 = -2.75$. Ensure the negative sign governs the entire mixed rational expression.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   var curD2FMode = 'term';

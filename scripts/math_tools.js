@@ -1779,44 +1779,30 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Academic GPA Calculations</h2>
-
-    <div class="gpa-trap-card">
-      <div class="gpa-trap-title">1. The Credit-Hour Weighting Distortion</div>
-      <p class="gpa-trap-desc">
-        A common student error is taking the simple average of letter grades. An 'F' in a 4-credit Organic Chemistry lab carries four times the mathematical drag of an 'A' in a 1-credit physical education seminar. Quality points are strictly proportional to credit units; neglecting course credits produces wildly inaccurate GPA predictions that can lead to unexpected academic probation.
-      </p>
-    </div>
-
-    <div class="gpa-trap-card">
-      <div class="gpa-trap-title">2. The Pass/Fail (P/F) Credit Illusion</div>
-      <p class="gpa-trap-desc">
-        Enrolling in classes on a Pass/Fail (or Credit/No Credit) grading option fulfills graduation requirements, but passing grades do <em>not</em> factor into your GPA numerator or denominator. Therefore, Pass credits cannot be used to raise a depressed GPA. Furthermore, at many major universities, a failing grade ('No Pass' / 'F') in a P/F class is computed as a 0.00 quality point failure, causing your GPA to plummet.
-      </p>
-    </div>
-
-    <div class="gpa-trap-card">
-      <div class="gpa-trap-title">3. Institutional Course Repeat &amp; Grade Forgiveness Rules</div>
-      <p class="gpa-trap-desc">
-        University policies on retaking classes diverge sharply. Under strict "Grade Replacement", the new grade replaces the prior grade in your institutional GPA. However, centralized graduate school admissions application services (e.g., AMCAS for Medical School, LSAC for Law School) reverse institutional grade forgiveness, recalculating every attempt and averaging original 'F' grades back into your cumulative admission GPA.
-      </p>
-    </div>
-
-    <div class="gpa-trap-card">
-      <div class="gpa-trap-title">4. Transfer Credit Exclusion for Latin Honors</div>
-      <p class="gpa-trap-desc">
-        Students who transfer credits from community colleges often discover that transfer coursework carries credit units but zero institutional GPA points. At universities like UCLA, UC Berkeley, and NYU, Latin Honors (Cum Laude, Magna Cum Laude, Summa Cum Laude) are evaluated exclusively on grades earned in residence, meaning a single B- in your senior year can knock you out of the honors cutoff.
-      </p>
-    </div>
-
-    <div class="gpa-trap-card">
-      <div class="gpa-trap-title">5. The Unweighted High School Class Rank Ceiling</div>
-      <p class="gpa-trap-desc">
-        In competitive secondary schools with weighted class ranking, maintaining a perfect 4.00 unweighted GPA in standard college-prep classes will not earn valedictorian status. Students taking 8 to 12 Advanced Placement (AP) or International Baccalaureate (IB) courses receive +1.0 grade point bumps, achieving weighted GPAs of 4.60 to 4.90, displacing unweighted students in percentile rank.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Academic GPA Calculations</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">⚖️ 1. The Credit-Hour Weighting Distortion</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">A common student error is taking the unweighted average of letter grades. An 'F' in a 4-credit Organic Chemistry lecture carries four times more mathematical weight than an 'A' in a 1-credit seminar. Always multiply grade points by credit hours to compute total Quality Points before dividing by total attempted credits.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🚫 2. The Pass/Fail (P/F) Credit Illusion</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Electing Pass/Fail protects GPA from mediocre grades (C/D), but also prevents high grades from raising your cumulative average. Furthermore, graduate schools (medical, law, MBA) routinely recalculate GPAs by treating 'Pass' grades as neutral or requiring letter-graded prerequisites, discounting applicant competitiveness.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🔄 3. Institutional Course Repeat &amp; Grade Forgiveness Rules</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Universities differ sharply on retaken courses: some replace the old grade entirely, while centralized application services (AMCAS for med school, LSAC for law school) count <em>both attempts</em>, neutralizing university-level forgiveness policies and depressing applicant GPAs.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📜 4. Transfer Credit Exclusion for Latin Honors</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Most colleges accept transfer credits toward graduation requirements but exclude transfer grade points from the institutional GPA. A student who earned a 4.0 at a community college might graduate with a 3.4 institutional GPA based solely on upper-division courses taken at their granting university.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🎓 5. The Unweighted High School Class Rank Ceiling</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">In schools with weighted GPAs (AP/IB courses on a 5.0 scale), a straight-A student taking standard classes (4.0 max) will rank significantly lower than students earning A- grades in advanced courses (4.7+). Understanding how your target admissions office recalculates weighted versus unweighted GPA is essential.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   var courseRows = [
@@ -2201,44 +2187,30 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Fraction to Decimal Conversion</h2>
-
-    <div class="f2d-trap-card">
-      <div class="f2d-trap-title">1. The Denominator Prime Factorization Rule</div>
-      <p class="f2d-trap-desc">
-        Why does 1/8 terminate (0.125) while 1/6 repeats (0.1666...)? In base-10 mathematics (factors 2 and 5), a reduced fraction terminates if and only if its denominator's prime factorization contains exclusively 2s and 5s ($2^a 	imes 5^b$). The denominator of 1/6 contains the prime factor 3 ($2 	imes 3$), making an infinite repeating cycle mathematically unavoidable.
-      </p>
-    </div>
-
-    <div class="f2d-trap-card">
-      <div class="f2d-trap-title">2. Dropping Whole Numbers in Mixed Fractions</div>
-      <p class="f2d-trap-desc">
-        A common calculation error is computing the decimal of the fraction part and forgetting the integer: converting <code>3 5/8</code> into <code>0.625</code> instead of <code>3.625</code>. In architectural estimates, cutting a 3-foot board at 0.625 feet results in 73% material waste and ruined construction framing.
-      </p>
-    </div>
-
-    <div class="f2d-trap-card">
-      <div class="f2d-trap-title">3. Premature Rounding of Repeating Decimals</div>
-      <p class="f2d-trap-desc">
-        Rounding 1/3 to <code>0.33</code> in multi-step engineering calculations introduces a 1.0% compound error. In structural civil engineering or pharmaceutical chemical compounding, accumulating rounded decimals across twenty calculation stages causes severe structural drift or hazardous dosage deviations. Always preserve fractions in memory until the final result.
-      </p>
-    </div>
-
-    <div class="f2d-trap-card">
-      <div class="f2d-trap-title">4. Metric Millimeter Imperial Conversion Inaccuracy</div>
-      <p class="f2d-trap-desc">
-        Some international tradespeople use the shortcut rule that 1 inch ≈ 25 mm. Because 1 inch is legally defined as exactly <code>25.4 mm</code>, using 25 mm creates a -1.57% compounding shrinkage error. Over a 100-inch architectural beam span, this shortcut creates an error of nearly 1.6 inches (40 mm), guaranteeing structural misalignment.
-      </p>
-    </div>
-
-    <div class="f2d-trap-card">
-      <div class="f2d-trap-title">5. Sign Placement with Negative Mixed Numbers</div>
-      <p class="f2d-trap-desc">
-        When evaluating <code>-1 1/2</code>, beginners often write <code>-1 + 0.5 = -0.5</code>. In mathematical notation, the negative sign factors across the entire mixed expression: <code>-(1 + 1/2) = -(1.5) = -1.5</code>. Neglecting the parenthesis changes both the sign and magnitude of the result.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Fraction to Decimal Conversion</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">➗ 1. The Denominator Prime Factorization Rule</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Why does 1/8 terminate (0.125) while 1/6 repeats (0.1666...)? In base-10 mathematics (factors 2 and 5), a reduced fraction terminates if and only if the prime factorization of its denominator contains exclusively 2s and/or 5s ($2^a 	imes 5^b$). If any other prime factor exists (3, 7, 11, 13), the decimal expansion is guaranteed to repeat infinitely.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🔢 2. Dropping Whole Numbers in Mixed Fractions</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">When converting mixed numbers like $3rac{3}{8}$, students frequently divide 3 by 8 to get 0.375 and forget to re-add the integer 3, recording 0.375 instead of 3.375. In software engineering, converting mixed numbers via regular expressions requires parsing the whole number integer as a distinct token rather than dropping it before numerator division.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🔄 3. Premature Rounding of Repeating Decimals</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Rounding 1/3 to 0.33 or 2/3 to 0.67 introduces compounding rounding errors in multi-step calculations. For example, $3 	imes (1/3) = 1$, but $3 	imes 0.33 = 0.99$. In financial accounting and scientific research, intermediate calculations must retain full IEEE 754 double precision (or rational fraction representation) until final output display.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📏 4. Metric Millimeter Imperial Conversion Inaccuracy</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Converting fractional inches to millimeters requires the exact international inch definition ($1	ext{ in} = 25.4	ext{ mm}$ exactly). Converting 5/16" by first approximating 0.3125 to 0.31 yields $7.874	ext{ mm}$ instead of the exact $7.9375	ext{ mm}$—an error of $0.0635	ext{ mm}$ that ruins tight-tolerance CNC machining fits.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">➖ 5. Sign Placement with Negative Mixed Numbers</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">A common algebraic bug is evaluating $-2rac{1}{4}$ as $-2 + 0.25 = -1.75$. The negative sign applies to the <em>entire magnitude</em>: $-(2 + 0.25) = -2.25$. Neglecting parentheses around mixed number conversions corrupts both the sign and magnitude of physical engineering coordinates.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   function gcd(a, b) {
@@ -2568,44 +2540,30 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Decimal to Fraction Conversion</h2>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">1. Truncating Repeating Decimals (The 0.33 vs 1/3 Trap)</div>
-      <p class="d2f-trap-desc">
-        Entering <code>0.33</code> or <code>0.66</code> into a terminating converter produces <code>33/100</code> and <code>33/50</code>, neither of which is 1/3 or 2/3! Repeating decimals have an infinite sequence of repeating digits. To convert repeating decimals to exact fractions, you must use algebraic subtraction: <code>10x - x = 9x &rarr; x = 3/9 = 1/3</code>.
-      </p>
-    </div>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">2. Binary Floating-Point Rounding Drift</div>
-      <p class="d2f-trap-desc">
-        Computers store decimals in IEEE-754 binary floating-point format. Numbers like <code>0.1</code> or <code>0.7</code> cannot be represented with exact precision in binary (e.g., 0.7 is internally stored as <code>0.699999999999999955...</code>). Naive fraction algorithms that do not apply epsilon rounding tolerances can fail to identify simple fractions like 7/10, outputting absurd ratios like <code>7000000000000001 / 10000000000000000</code>.
-      </p>
-    </div>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">3. Carpentry Ruler Tolerance Drift</div>
-      <p class="d2f-trap-desc">
-        Architectural blueprints often specify decimal dimensions such as <code>0.350"</code>. Snapping 0.350" to the nearest 1/16" tick gives 6/16" (3/8" = 0.375"). This introduces an error of +0.025 inches (+25 thousandths). For structural framing, 25 thousandths is acceptable, but in cabinetry, mortise-and-tenon joinery, or metal lathe turning, this error will ruin the fit.
-      </p>
-    </div>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">4. Attempting to Convert Irrational Numbers</div>
-      <p class="d2f-trap-desc">
-        Constants like π (3.14159...) or √2 (1.41421...) are irrational and possess non-repeating infinite decimals. Any fraction representation (like 22/7 for π = 3.142857...) is strictly an engineering approximation. Trying to find an exact integer fraction for an irrational number is mathematically impossible.
-      </p>
-    </div>
-
-    <div class="d2f-trap-card">
-      <div class="d2f-trap-title">5. Negative Decimal Mixed Number Formatting</div>
-      <p class="d2f-trap-desc">
-        When converting negative decimals like <code>-2.375</code>, writing <code>-2 3/8</code> means <code>-(2 + 3/8) = -19/8</code>. A frequent coding bug treats the negative sign as applying only to the integer: <code>-2 + 3/8 = -13/8 = -1.625</code>. The negative sign must factor out across the entire mixed expression.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Decimal to Fraction Conversion</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">✂️ 1. Truncating Repeating Decimals (The 0.33 vs 1/3 Trap)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Entering <code>0.33</code> or <code>0.66</code> into a terminating decimal converter produces <code>33/100</code> and <code>33/50</code>, not <code>1/3</code> or <code>2/3</code>. Terminating decimals have denominators based on powers of 10 ($10, 100, 1000$), while repeating decimals require fractional denominators based on $9, 99, 999$. Always use repeating decimal notation or tolerance-based continued fraction algorithms.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">💻 2. Binary Floating-Point Rounding Drift</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Computer hardware represents decimals in base-2 floating point, where <code>0.1</code> is actually stored as <code>0.100000000000000005551115123126...</code>. Naive GCD algorithms that treat this binary artifact as a literal integer will generate wild fractions like $3602879701896397 / 36028797018963968$ instead of $1/10$. Always employ epsilon tolerance thresholds ($10^{-10}$) when converting floating-point values.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">📐 3. Carpentry Ruler Tolerance Drift</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">When woodworkers convert decimal measurements (e.g. 2.345") to tape measure fractions, rounding to the nearest 1/16" (2 5/16" = 2.3125") incurs a $-0.0325"$ discrepancy. For fine cabinetry, snapping to 1/32" or 1/64" reduces error, but the operator must track cumulative kerf loss across multiple cuts.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">🔍 4. Attempting to Convert Irrational Numbers</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Numbers like $pi$ (3.14159...) and $sqrt{2}$ (1.41421...) cannot be expressed as exact ratios of two integers. Converters will provide rational convergents (e.g. $pi approx 22/7$ or $355/113$), but users must understand these are approximations, not exact representations.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:6px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:var(--fg);font-family:var(--serif);">➖ 5. Negative Decimal Mixed Number Formatting</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Converting $-3.25$ must result in $-3rac{1}{4}$ (meaning $-(3 + 1/4) = -13/4$). A software parser that negates only the whole part can output $-3 + 1/4 = -2.75$. Ensure the negative sign governs the entire mixed rational expression.</p>
+      </div>
     </div>
   </div>
-</div>
 
 <script>
   var curD2FMode = 'term';
@@ -5383,17 +5341,65 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
           </div>
 
           <!-- Critical Combinatorics Traps -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Combinatorics Traps &amp; Common Fallacies</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Combination Lock Misnomer:</strong> A standard rotary dial lock is mathematically a <em>permutation lock</em>, because order matters. Dialing 30-10-20 will not open a lock keyed to 10-20-30. True combinations occur only when the order of items is irrelevant (like picking lotto balls or lottery tickets).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Overcounting Fallacy (Duplicate Items):</strong> When calculating arrangements of words with repeated letters (like "MISSISSIPPI"), standard $n!$ drastically overcounts. You must divide by the factorials of each repeated letter count ($11! / (4! 	imes 4! 	imes 2!) = 34,650$).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sampling With vs. Without Replacement:</strong> Drawing cards from a deck without replacement changes the pool size from $52 	o 51 	o 50$. Rolling dice or guessing passwords has replacement, meaning each choice is independent ($n^r$). Mixing these models ruins probability estimates.</li>
-            </ul>
+          <div style="margin: 2.5rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Critical Combinatorics Traps &amp; Common Fallacies</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔐 1. The "Combination Lock" Semantic Misnomer (Order Matters)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A standard rotary dial lock is mathematically a <em>permutation lock</em>, because order strictly matters. Dialing 30-10-20 will not open a mechanism set to 10-20-30. True combinations exist only when item order is completely irrelevant, such as selecting a 5-card poker hand or lottery balls from a hopper.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔄 2. The Duplicate Items Overcounting Fallacy (Multinomial Permutations)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">When calculating arrangements of collections with repeated elements (e.g. anagrams of the word "MISSISSIPPI"), standard $n!$ drastically overcounts identical permutations. You must divide by the factorials of each repeated element: $11! / (4! 	imes 4! 	imes 2!) = 34,650$, rather than the naive $11! = 39,916,800$.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🎲 3. Sampling With vs. Without Replacement Confusion</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Drawing cards from a deck without replacement depletes the candidate pool on each draw ($52 	o 51 	o 50$, evaluating as $nPr$). Conversely, rolling dice, flipping coins, or brute-forcing alphanumeric passwords samples with replacement, meaning trials are independent and possibilities compound exponentially ($n^r$). Mixing up these sampling paradigms completely invalidates probability calculations.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🃏 4. Stars and Bars Partitioning in Combinations with Repetition</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Selecting $r$ items from $n$ types where repetition is allowed (such as choosing 6 donuts from 4 varieties) cannot be solved with naive addition. It requires the "stars and bars" combinatorial theorem: $C(n + r - 1, r) = rac{(n+r-1)!}{r!(n-1)!}$. For 6 donuts from 4 types, this yields $C(4+6-1, 6) = C(9, 6) = 84$ distinct assortments.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🧮 5. Factorial Explosions &amp; 64-Bit Integer Precision Overflow</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Factorials grow faster than exponential functions: $10! = 3.62 	imes 10^6$, but $20! = 2.43 	imes 10^{18}$, exceeding the JavaScript IEEE 754 safe integer limit ($	ext{MAX_SAFE_INTEGER} = 2^{53} - 1 approx 9.007 	imes 10^{15}$). Calculating permutations of $n ge 18$ using standard integers introduces truncation and rounding errors unless arbitrary-precision <code>BigInt</code> or logarithmic summation ($ln(n!)$) is utilized.</p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
+          function generatePermSvg(nPr, nCr, nPrRep, nCrRep) {
+            var vals = [
+              { label: 'Permutations w/ Rep (nʳ)', val: nPrRep, color: '#ef4444' },
+              { label: 'Permutations (nPr)', val: nPr, color: '#f59e0b' },
+              { label: 'Combinations w/ Rep', val: nCrRep, color: '#10b981' },
+              { label: 'Combinations (nCr)', val: nCr, color: '#3b82f6' }
+            ];
+
+            var maxVal = Math.max(nPrRep, nPr, nCrRep, nCr, 1);
+            var logMax = Math.log10(maxVal);
+            if (logMax <= 0) logMax = 1;
+
+            var svg = '<svg id="permSvg" viewBox="0 0 600 180" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 1.5rem auto; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+              '<text x="20" y="24" font-family="var(--serif)" font-size="11" font-weight="bold" fill="var(--fg)">Combinatorial Magnitude Hierarchy (Logarithmic Scale)</text>';
+
+            vals.forEach(function(item, idx) {
+              var y = 45 + idx * 32;
+              var logVal = Math.log10(Math.max(1, item.val));
+              var barW = Math.max(4, Math.min(300, (logVal / logMax) * 300));
+              var valStr = item.val > 1e12 ? item.val.toExponential(3) : item.val.toLocaleString('en-US');
+
+              svg += '<text x="20" y="' + (y + 13) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)">' + item.label + '</text>' +
+                '<rect x="200" y="' + y + '" width="300" height="18" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="0.5"/>' +
+                '<rect x="200" y="' + y + '" width="' + barW + '" height="18" rx="3" fill="' + item.color + '" opacity="0.85"/>' +
+                '<text x="' + (210 + barW) + '" y="' + (y + 13) + '" font-family="var(--mono)" font-size="10" font-weight="bold" fill="var(--fg)">' + valStr + '</text>';
+            });
+
+            svg += '</svg>';
+            return svg;
+          }
+
           // BigInt Arbitrary-Precision Factorial and Combinatorics
           function bigFact(num) {
             if (num < 0) return 0n;
@@ -5763,35 +5769,74 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             </div>
           </div>
 
-          <!-- 3 Real-World Paradox Traps -->
-          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 3 Counter-Intuitive Traps of the Birthday Problem</h3>
+          <!-- 5 Real-World Birthday Paradox Traps -->
+          <div style="margin: 2.5rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Counter-Intuitive Traps of the Birthday Problem</h3>
             <div style="display: grid; gap: 1rem;">
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #ef4444;">
-                <strong style="color: #ef4444; font-size: 0.95rem;">1. The "Targeted Birthday" Fallacy: 23 vs 253 People</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  Human intuition expects the Birthday Paradox to answer: <em>"What are the chances someone shares MY birthday?"</em> If you ask about a single fixed date, each person has a 364/365 failure rate, requiring <strong>253 people</strong> before reaching a 50% probability. The paradox resolves because you are checking <strong>any two people</strong>: with 23 people, there are 253 pairwise comparisons, exactly matching the 253 individuals required in the single-target case!
-                </p>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🎯 1. The "Targeted Birthday" Fallacy (23 vs 253 People)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Human intuition mistakenly interprets the paradox as: <em>"What are the chances someone shares MY birthday?"</em> If you test for a single fixed date, each individual has a 364/365 failure rate, requiring <strong>253 people</strong> before reaching a 50% threshold. The paradox resolves because you are checking <strong>any two people</strong>: with 23 people, there are $(23 	imes 22) / 2 = 253$ pairwise comparisons, precisely matching the 253 individuals required in the single-target case!</p>
               </div>
-
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #f59e0b;">
-                <strong style="color: #f59e0b; font-size: 0.95rem;">2. Non-Uniform Real-World Birth Distribution</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  Standard textbook calculations assume births are evenly distributed across all 365 days (1/365 &approx; 0.274% per day). In reality, hospital birth records show significant non-uniformity: late September experiences a sharp birth peak (conceptions around the winter holidays), while weekends and federal holidays have significantly lower birth rates due to scheduled cesareans. According to mathematical probability theory, <em>any deviation from uniform distribution increases the likelihood of a birthday collision</em>—making 23 people even more likely to share a birthday in real life than on paper!
-                </p>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📅 2. Non-Uniform Real-World Birth Distribution &amp; Seasonal Spikes</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Standard textbook calculations assume births are uniformly distributed across all 365 days (1/365 &approx; 0.274% per day). In reality, hospital birth records show significant non-uniformity: late September experiences a sharp birth peak, while weekends and federal holidays have significantly lower birth rates due to scheduled cesareans. In probability theory, <em>any deviation from uniform distribution strictly increases collision probability</em>, making shared birthdays even more likely in real life than theoretical models predict!</p>
               </div>
-
-              <div style="padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); border-left: 3px solid #3b82f6;">
-                <strong style="color: #3b82f6; font-size: 0.95rem;">3. Cryptographic Hash Collisions and the Square Root Vulnerability</strong>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.35rem 0 0 0; line-height: 1.5;">
-                  A naive engineer might assume that a 64-bit cryptographic hash requires 2^64 (18 quintillion) attempts to break. Due to the Birthday Paradox, finding <strong>any two messages with identical hashes</strong> (a collision attack) requires only &radic;(2^64) = 2^32 &approx; 4.29 billion operations—an effort easily executed on a consumer gaming PC in under 10 seconds. This is why standard cryptography mandates 256-bit hashes (SHA-256), which retain a safe 128-bit collision resistance floor.
-                </p>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🗓️ 3. Leap Year (Feb 29) &amp; Twin Correlation Math Distortion</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Real populations include leap-day births (Feb 29, 1 in 1,461 odds) and non-independent samples such as fraternal and identical twins in schools. While Feb 29 marginally dilutes daily probability by adding a 366th bucket, twin correlations heavily bias collision rates upward. In classroom settings, the presence of just one pair of twins instantly guarantees a 100% collision.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔑 4. Cryptographic Hash Collisions &amp; Square Root Attack ($sqrt{N}$)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A naive engineer might assume that a 64-bit cryptographic hash requires $2^{64}$ (18 quintillion) attempts to break. Due to the Birthday Paradox, finding <strong>any two messages with identical hashes</strong> (a collision attack) requires only $sqrt{2^{64}} = 2^{32} approx 4.29	ext{ billion}$ operations—an effort easily executed on a consumer GPU in seconds. This is why modern cryptography mandates 256-bit hashes (SHA-256) to maintain a secure 128-bit collision resistance floor.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">👥 5. The "Near-Collision" Proximity Explosion ($pm 1$ Day Odds)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">If you relax the criteria from an exact same-day match to birthdays within $pm 1$ day of each other (a 3-day collision window), the group size required for a 50% probability collapses from 23 people down to <strong>just 14 people</strong>! In a standard office of 25 workers, the likelihood of two colleagues having birthdays within one day of each other exceeds 95%.</p>
               </div>
             </div>
           </div>
-        </div>
 
         <script>
+          function generateBPSvg(n) {
+            var points = [];
+            var pComplement = 1.0;
+            for (var i = 0; i <= 70; i++) {
+              if (i > 1) pComplement *= (365 - (i - 1)) / 365;
+              var prob = i <= 1 ? 0 : (1 - pComplement);
+              var x = 50 + (i / 70) * 500;
+              var y = 180 - (prob * 140);
+              points.push(x.toFixed(1) + ',' + y.toFixed(1));
+            }
+
+            var curClamped = Math.max(0, Math.min(70, n));
+            var curPComp = 1.0;
+            for (var j = 1; j <= curClamped; j++) {
+              if (j > 1) curPComp *= (365 - (j - 1)) / 365;
+            }
+            var curProb = curClamped <= 1 ? 0 : (1 - curPComp);
+            var curX = 50 + (curClamped / 70) * 500;
+            var curY = 180 - (curProb * 140);
+
+            return '<svg id="bpSvgCurve" viewBox="0 0 600 220" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 1.5rem auto; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+              '<line x1="50" y1="40" x2="550" y2="40" stroke="var(--border)" stroke-dasharray="3,3"/>' +
+              '<text x="42" y="44" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="end">100%</text>' +
+              '<line x1="50" y1="110" x2="550" y2="110" stroke="#f59e0b" stroke-dasharray="4,4" stroke-width="1.2"/>' +
+              '<text x="42" y="114" font-family="var(--mono)" font-size="9" fill="#f59e0b" font-weight="bold" text-anchor="end">50%</text>' +
+              '<line x1="50" y1="180" x2="550" y2="180" stroke="var(--border)" stroke-width="1.5"/>' +
+              '<text x="42" y="184" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="end">0%</text>' +
+              '<line x1="' + (50 + (23/70)*500) + '" y1="40" x2="' + (50 + (23/70)*500) + '" y2="180" stroke="#10b981" stroke-dasharray="2,2"/>' +
+              '<text x="' + (50 + (23/70)*500) + '" y="196" font-family="var(--mono)" font-size="9" fill="#10b981" font-weight="bold" text-anchor="middle">n=23 (50.7%)</text>' +
+              '<polyline fill="none" stroke="#3b82f6" stroke-width="2.5" points="' + points.join(' ') + '"/>' +
+              '<text x="50" y="196" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">0</text>' +
+              '<text x="300" y="212" font-family="var(--serif)" font-size="10" fill="var(--text-muted)" text-anchor="middle">Room Group Size (n people)</text>' +
+              '<text x="550" y="196" font-family="var(--mono)" font-size="9" fill="var(--text-muted)" text-anchor="middle">70+</text>' +
+              '<line x1="' + curX + '" y1="' + curY + '" x2="' + curX + '" y2="180" stroke="#ef4444" stroke-dasharray="2,2"/>' +
+              '<circle cx="' + curX + '" cy="' + curY + '" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>' +
+              '<rect x="' + Math.max(10, Math.min(470, curX - 60)) + '" y="' + Math.max(10, curY - 28) + '" width="120" height="20" rx="4" fill="var(--surface-alt)" stroke="var(--border)"/>' +
+              '<text x="' + Math.max(70, Math.min(530, curX)) + '" y="' + Math.max(24, curY - 14) + '" font-family="var(--mono)" font-size="9" font-weight="bold" fill="#ef4444" text-anchor="middle">n=' + n + ' &rarr; ' + (curProb * 100).toFixed(1) + '%</text>' +
+              '</svg>';
+          }
+
           var curN = 23;
 
           function updateBPSlider(val) {

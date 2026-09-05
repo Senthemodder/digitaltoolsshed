@@ -1205,17 +1205,65 @@
           </div>
 
           <!-- Critical Combinatorics Traps -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Combinatorics Traps &amp; Common Fallacies</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Combination Lock Misnomer:</strong> A standard rotary dial lock is mathematically a <em>permutation lock</em>, because order matters. Dialing 30-10-20 will not open a lock keyed to 10-20-30. True combinations occur only when the order of items is irrelevant (like picking lotto balls or lottery tickets).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Overcounting Fallacy (Duplicate Items):</strong> When calculating arrangements of words with repeated letters (like "MISSISSIPPI"), standard $n!$ drastically overcounts. You must divide by the factorials of each repeated letter count ($11! / (4! 	imes 4! 	imes 2!) = 34,650$).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Sampling With vs. Without Replacement:</strong> Drawing cards from a deck without replacement changes the pool size from $52 	o 51 	o 50$. Rolling dice or guessing passwords has replacement, meaning each choice is independent ($n^r$). Mixing these models ruins probability estimates.</li>
-            </ul>
+          <div style="margin: 2.5rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Critical Combinatorics Traps &amp; Common Fallacies</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔐 1. The "Combination Lock" Semantic Misnomer (Order Matters)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A standard rotary dial lock is mathematically a <em>permutation lock</em>, because order strictly matters. Dialing 30-10-20 will not open a mechanism set to 10-20-30. True combinations exist only when item order is completely irrelevant, such as selecting a 5-card poker hand or lottery balls from a hopper.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔄 2. The Duplicate Items Overcounting Fallacy (Multinomial Permutations)</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">When calculating arrangements of collections with repeated elements (e.g. anagrams of the word "MISSISSIPPI"), standard $n!$ drastically overcounts identical permutations. You must divide by the factorials of each repeated element: $11! / (4! 	imes 4! 	imes 2!) = 34,650$, rather than the naive $11! = 39,916,800$.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🎲 3. Sampling With vs. Without Replacement Confusion</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Drawing cards from a deck without replacement depletes the candidate pool on each draw ($52 	o 51 	o 50$, evaluating as $nPr$). Conversely, rolling dice, flipping coins, or brute-forcing alphanumeric passwords samples with replacement, meaning trials are independent and possibilities compound exponentially ($n^r$). Mixing up these sampling paradigms completely invalidates probability calculations.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🃏 4. Stars and Bars Partitioning in Combinations with Repetition</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Selecting $r$ items from $n$ types where repetition is allowed (such as choosing 6 donuts from 4 varieties) cannot be solved with naive addition. It requires the "stars and bars" combinatorial theorem: $C(n + r - 1, r) = rac{(n+r-1)!}{r!(n-1)!}$. For 6 donuts from 4 types, this yields $C(4+6-1, 6) = C(9, 6) = 84$ distinct assortments.</p>
+              </div>
+              <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+                <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🧮 5. Factorial Explosions &amp; 64-Bit Integer Precision Overflow</h4>
+                <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Factorials grow faster than exponential functions: $10! = 3.62 	imes 10^6$, but $20! = 2.43 	imes 10^{18}$, exceeding the JavaScript IEEE 754 safe integer limit ($	ext{MAX_SAFE_INTEGER} = 2^{53} - 1 approx 9.007 	imes 10^{15}$). Calculating permutations of $n ge 18$ using standard integers introduces truncation and rounding errors unless arbitrary-precision <code>BigInt</code> or logarithmic summation ($ln(n!)$) is utilized.</p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
+          function generatePermSvg(nPr, nCr, nPrRep, nCrRep) {
+            var vals = [
+              { label: 'Permutations w/ Rep (nʳ)', val: nPrRep, color: '#ef4444' },
+              { label: 'Permutations (nPr)', val: nPr, color: '#f59e0b' },
+              { label: 'Combinations w/ Rep', val: nCrRep, color: '#10b981' },
+              { label: 'Combinations (nCr)', val: nCr, color: '#3b82f6' }
+            ];
+
+            var maxVal = Math.max(nPrRep, nPr, nCrRep, nCr, 1);
+            var logMax = Math.log10(maxVal);
+            if (logMax <= 0) logMax = 1;
+
+            var svg = '<svg id="permSvg" viewBox="0 0 600 180" style="width: 100%; max-width: 600px; height: auto; display: block; margin: 1.5rem auto; background: var(--surface); border: 1px solid var(--border); border-radius: 6px;">' +
+              '<text x="20" y="24" font-family="var(--serif)" font-size="11" font-weight="bold" fill="var(--fg)">Combinatorial Magnitude Hierarchy (Logarithmic Scale)</text>';
+
+            vals.forEach(function(item, idx) {
+              var y = 45 + idx * 32;
+              var logVal = Math.log10(Math.max(1, item.val));
+              var barW = Math.max(4, Math.min(300, (logVal / logMax) * 300));
+              var valStr = item.val > 1e12 ? item.val.toExponential(3) : item.val.toLocaleString('en-US');
+
+              svg += '<text x="20" y="' + (y + 13) + '" font-family="var(--mono)" font-size="10" fill="var(--text-muted)">' + item.label + '</text>' +
+                '<rect x="200" y="' + y + '" width="300" height="18" rx="3" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="0.5"/>' +
+                '<rect x="200" y="' + y + '" width="' + barW + '" height="18" rx="3" fill="' + item.color + '" opacity="0.85"/>' +
+                '<text x="' + (210 + barW) + '" y="' + (y + 13) + '" font-family="var(--mono)" font-size="10" font-weight="bold" fill="var(--fg)">' + valStr + '</text>';
+            });
+
+            svg += '</svg>';
+            return svg;
+          }
+
           // BigInt Arbitrary-Precision Factorial and Combinatorics
           function bigFact(num) {
             if (num < 0) return 0n;
