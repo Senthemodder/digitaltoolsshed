@@ -1096,6 +1096,53 @@
             </div>
 
             <div id="adhdStepsList" style="margin-top: 1.5rem;"></div>
+
+              <!-- Action Copy Button -->
+              <button type="button" id="btnCopyAdhdSteps" onclick="copyAdhdSteps()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Micro-Task Execution Plan &amp; Checklist</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Executive Dysfunction Pitfalls & Neuro-Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps &amp; Gotchas of ADHD Executive Dysfunction</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Task-Initiation Paralysis &amp; Amygdala Threat Hijack</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  When an ADHD brain views a large, unstructured task (e.g., "Clean Garage" or "File Taxes"), the amygdala interprets cognitive ambiguity as physical threat, flooding the system with cortisol and triggering avoidance. Breaking tasks into micro-steps below the "threat threshold" (e.g., "Find one cardboard box") bypasses amygdala alarm networks and allows the prefrontal cortex to engage.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">🧗 2. The "All-or-Nothing" Dopamine Cliff (The Wall of Awful)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Neurotypical brains rely on steady dopamine transmission to sustain routine tasks. ADHD brains operate in a binary "dopamine feast or famine" state. When dopamine plummets midway through a task, the individual experiences sudden acute exhaustion and abandons the project 90% complete. Mitigate this by scheduling artificial milestone rewards every 10–15 minutes.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🧼 3. The "Productive Procrastination" &amp; Prep Stalling Loop</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Spending 2 hours downloading new project management apps, organizing highlighters, or researching productivity methodologies produces cheap anticipatory dopamine without executing the actual task. This "yak shaving" provides the illusion of progress while draining executive energy needed for actual work.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">💾 4. Working Memory RAM Overflow (Holding &gt;3 Steps Concurrently)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  ADHD working memory capacity is biologically restricted. Trying to keep 4 or 5 sequential tasks in head causes immediate cognitive crash and disorientation. Every step must be externalized onto a persistent physical or digital checklist where completed items can be checked off without mental holding cost.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🔄 5. Context-Switching Cognitive Friction &amp; Transition Fatigue</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Switching between disparate tasks imposes an enormous metabolic penalty on the ADHD prefrontal cortex. Leaving a half-finished email to answer a text message creates cognitive "attention residue," requiring 15–20 minutes to re-establish task flow. Single-tasking with full sensory isolation is mandatory.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1227,6 +1274,38 @@
             document.getElementById('adhdProgressBar').style.width = pct + '%';
           }
 
+          
+          window.copyAdhdSteps = function() {
+            var items = document.querySelectorAll('#adhdStepsList input[type="checkbox"]');
+            var title = document.getElementById('adhdTaskInput') ? document.getElementById('adhdTaskInput').value : 'ADHD Task Breakdown';
+            var lines = ['📝 ADHD Execution Plan: ' + (title || 'Task Plan'), ''];
+            
+            items.forEach(function(item, idx) {
+              var parent = item.closest('div');
+              var text = parent ? parent.textContent.trim() : ('Step ' + (idx + 1));
+              var status = item.checked ? '☑️ [DONE]' : '⬜ [TODO]';
+              lines.push(status + ' Step ' + (idx + 1) + ': ' + text);
+            });
+
+            lines.push('');
+            lines.push('Generated at digitaltoolsshed.com/health/adhd-task-breakdown');
+
+            var fullText = lines.join('
+');
+            navigator.clipboard.writeText(fullText).then(function() {
+              var btn = document.getElementById('btnCopyAdhdSteps');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Execution Plan Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           document.addEventListener('DOMContentLoaded', breakdownADHDTask);
         </script>
       

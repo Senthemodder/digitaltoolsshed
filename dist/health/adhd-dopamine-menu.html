@@ -1110,10 +1110,88 @@
                 </ul>
               </div>
             </div>
+
+            <!-- One-Click Diagnostic Copy -->
+            <button type="button" id="btnCopyDopamineMenu" onclick="copyDopaminePlan()" class="btn-sec" style="margin-top: 1.5rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Personalized Dopamine Menu Order &amp; Protocol</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical Dopamine & Neuro-Stimulation Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Dopamine &amp; Neuro-Stimulation Traps</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The "Cheap Dopamine" Receptor Downregulation Spiral</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Bingeing high-dopamine digital novelties (TikTok, Instagram Reels, mobile gaming) delivers supra-physiological dopamine spikes. In response, striatal neurons downregulate D2 receptor availability to prevent excitotoxicity. Baseline dopamine drops below zero, leaving everyday tasks feeling painfully boring and biologically intolerable.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⏳ 2. The Dessert "Quick Check" 4-Hour Time Warp Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  "I'll just watch one video while eating lunch." High-stimulation desserts lack natural stopping cues. The ADHD hyperfocus state disconnects interoceptive clock mechanisms, turning a intended 5-minute break into 4 hours of lost productive time accompanied by acute shame and guilt.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🍲 3. Entree Initiation Friction &amp; Amygdala Task Avoidance</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Deep restorative flow activities (playing guitar, weightlifting, hiking) require an upfront cognitive activation energy payment before dopamine begins flowing. When under-stimulated, the ADHD brain instinctively rejects entrees in favor of instant zero-friction junk stimulation. Always pair entree initiation with an appetizing side dish (e.g., listening to music while gathering gym gear).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🥤 4. Stimulant Tolerance &amp; Pharmacological Rebound Exhaustion</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Over-relying on chemical stimulants (caffeine, energy drinks, or escalating medication doses) without replenishing nutritional neurochemical precursors (tyrosine, B-vitamins, sleep) depletes dopamine stores, triggering evening "rebound crashes" marked by emotional lability, dysphoria, and executive paralysis.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🧘 5. Guilt-Ridden Resting &amp; Autonomic Nervous Exhaustion</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Resting while constantly ruminating about all the tasks you "should" be doing prevents your nervous system from shifting into parasympathetic recovery. This "fake rest" drains executive energy without restoring brain neurochemistry. True intentional resting requires conscious permission and complete detachment from productivity demands.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
+          
+          window.copyDopaminePlan = function() {
+            var selected = document.getElementById('selectedStimulus') ? document.getElementById('selectedStimulus').textContent : '';
+            var category = document.getElementById('stimulusCategory') ? document.getElementById('stimulusCategory').textContent : '';
+
+            var text = '🍽️ ADHD Dopamine Menu Strategy
+' +
+              '• Current Stimulus Order: ' + selected + '
+' +
+              '• Menu Course: ' + category + '
+' +
+              '• Dopamine Menu Framework: Based on Jessica McCabe's neurodivergent pacing model.
+' +
+              '• Protocol: Appetizers (5-min resets), Entrees (deep flow projects), Sides (background sensory aids), Desserts (high-stimulation treats with timers).
+
+' +
+              'Generated at digitaltoolsshed.com/health/adhd-dopamine-menu';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyDopamineMenu');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Dopamine Order Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           var quickSnacks = [
             'Splash face with freezing cold water for 15 seconds.',
             'Step outside barefoot on grass or stand in direct sunlight for 2 minutes.',
