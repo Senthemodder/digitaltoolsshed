@@ -1087,6 +1087,52 @@
               </div>
 
               <div id="noiseAdvice" style="margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem; font-size: 0.95rem; line-height: 1.6;"></div>
+
+              <!-- One-Click Diagnostic Copy -->
+              <button type="button" id="btnCopyNoise" onclick="copyNoiseSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Acoustic Dose &amp; Hearing Protection Summary</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Audiology & Noise Exposure Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Audiology &amp; Industrial Noise Exposure Traps</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Logarithmic Power Fallacy (+3dB Doubles Acoustic Energy)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  The decibel scale is logarithmic, not linear. An increase of just 3 dB (e.g., from 85 dB to 88 dB) exactly <strong>doubles</strong> acoustic sound energy hitting your tympanic membrane and cochlear hair cells, slashing allowable safe exposure time by 50% (from 8 hours to 4 hours). At 100 dB (chainsaw or subway screech), safe exposure plunges to just 15 minutes per 24 hours.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. OSHA 5dB vs. NIOSH 3dB Regulatory Disparity (25% Lifetime Risk)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  OSHA's statutory workplace standard uses a permissive 5 dB exchange rate (permitting 90 dB for 8 hours and 95 dB for 4 hours), originally set in the 1970s for industrial cost compliance. The CDC and NIOSH mandate the scientifically grounded 3 dB exchange rate (85 dB for 8 hours). Working under OSHA minimums leaves workers with a staggering 25% lifetime risk of permanent occupational hearing loss.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🎧 3. Commuter Earbud Overcompensation in Ambient Noise</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In noisy environments like commuter trains, buses, or fitness gyms (ambient 75–80 dB), listeners instinctively crank headphone volume to 80%–90% (92–98 dB) to overcome background masking. Because silicone tips seal the ear canal and direct high-pressure sound waves millimeters from the eardrum, a single 45-minute commute delivers 300%+ of your safe daily acoustic dose.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔇 4. Noise Reduction Rating (NRR) 50% Field Derating Reality</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Foam earplugs and earmuffs advertise laboratory NRR ratings (e.g., NRR 33 dB) achieved under flawless technician fitting. OSHA officially mandates derating manufacturer NRR by 50% for real-world usage: an NRR 33 plug delivers only (33 - 7) / 2 = 13 dB of actual field attenuation. Poorly rolled or loose foam plugs deliver practically zero protection against high-frequency hearing loss.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">⚡ 5. "Hidden Hearing Loss" (Cochlear Synaptopathy &amp; Tinnitus)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Standard clinical audiograms test pure-tone detection in dead-silent sound booths, frequently returning "normal hearing" scores even after severe acoustic trauma. However, high-decibel sound destroys the synaptic ribbons connecting inner hair cells to the auditory nerve (synaptopathy). This causes chronic irreversible tinnitus (ringing) and severe "speech-in-noise" deficits where speech cannot be distinguished in restaurants or meetings.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1156,6 +1202,44 @@
             }
           }
 
+          
+          window.copyNoiseSummary = function() {
+            var db = document.getElementById('dbInput') ? document.getElementById('dbInput').value : '';
+            var mins = document.getElementById('noiseMins') ? document.getElementById('noiseMins').value : '';
+            var dose = document.getElementById('noiseDose') ? document.getElementById('noiseDose').textContent : '';
+            var warn = document.getElementById('doseWarning') ? document.getElementById('doseWarning').textContent : '';
+            var maxSafe = document.getElementById('maxSafeTime') ? document.getElementById('maxSafeTime').textContent : '';
+            var ex = document.getElementById('dbExample') ? document.getElementById('dbExample').textContent : '';
+
+            var text = '🎧 Noise Exposure & Acoustic Dose Assessment
+' +
+              '• Sound Pressure Level: ' + db + ' dB (' + ex.replace('Example: ', '') + ')
+' +
+              '• Exposure Duration: ' + mins + ' minutes
+' +
+              '• Daily Safe Noise Dose: ' + dose + ' (' + warn + ')
+' +
+              '• Max Allowable Safe Limit (NIOSH 3dB Rule): ' + maxSafe + ' per 24 hours
+' +
+              '• Hearing Conservation Standard: NIOSH recommended exposure limit (REL) 85 dBA TWA
+
+' +
+              'Calculated at digitaltoolsshed.com/health/noise-exposure-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyNoise');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Copied Acoustic Report!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           document.addEventListener('DOMContentLoaded', calcNoise);
         </script>
       
