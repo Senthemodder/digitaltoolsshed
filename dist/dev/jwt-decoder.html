@@ -1065,6 +1065,52 @@
                 <textarea id="jwt-payload" class="code-input" style="height: 160px; color: #3b82f6;" readonly></textarea>
               </div>
             </div>
+
+            <!-- Copy JWT Claims -->
+            <button type="button" id="btnCopyJwtClaims" onclick="copyJwtClaims()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Decoded Claims &amp; Header JSON</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical JWT Security & Architectural Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in JSON Web Tokens (JWT) &amp; Auth Architecture</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The "alg: none" Algorithm Downgrade Vulnerability</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In early JWT specs, <code>"alg": "none"</code> was supported for unauthenticated debugging. Attackers can forge arbitrary claims (e.g. <code>{"admin": true}</code>), set <code>"alg": "none"</code> in the header, strip the cryptographic signature, and submit the token. Naive verification libraries accept the forged payload as authentic unless explicitly configured to reject <code>none</code>.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Confusing Decoding with Cryptographic Verification (Base64 is NOT Encryption)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Standard JWTs are JWS (JSON Web Signatures), meaning payload data is merely Base64URL-encoded, not encrypted. Anyone who intercepts a token can read every claim. Furthermore, decoding claims on the client or API gateway without executing asymmetric RSA/ECDSA public-key or HMAC signature verification opens authorization bypass.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Storing Sensitive PII or Secrets in JWT Claims</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Embedding passwords, Social Security numbers, internal system secrets, or detailed customer data in JWT claims creates severe compliance violations (GDPR/HIPAA). JWTs travel in HTTP headers across logs, CDNs, proxies, and browser developer tools. Keep tokens stateless with only non-sensitive subject IDs and scope identifiers.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The Token Revocation Impossibility &amp; Long-Lived Expiration ('exp')</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Because JWT verification is stateless, an issued token CANNOT be easily invalidated before its <code>exp</code> timestamp without querying a centralized Redis blacklist (which destroys the benefit of stateless auth). Issuing access tokens with 7-day or 30-day lifespans means compromised tokens remain valid even after the user changes their password or is terminated. Keep access tokens under 15 minutes.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Storing JWTs in 'localStorage' (Total XSS Exposure)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Storing authentication JWTs in <code>window.localStorage</code> or <code>sessionStorage</code> makes them accessible to ANY JavaScript code running on the page. A single compromised third-party analytics script or NPM dependency can exfiltrate all tokens. Secure session tokens should be delivered in <code>httpOnly</code>, <code>Secure</code>, <code>SameSite=Strict</code> cookies.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1075,6 +1121,38 @@
             return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
           }
 
+          
+          window.copyJwtClaims = function() {
+            var header = document.getElementById('jwt-header') ? document.getElementById('jwt-header').value : '';
+            var payload = document.getElementById('jwt-payload') ? document.getElementById('jwt-payload').value : '';
+
+            var text = '🔑 Decoded JSON Web Token (JWT) Claims
+
+' +
+              '// HEADER
+' + (header || '{}') + '
+
+' +
+              '// PAYLOAD (Claims)
+' + (payload || '{}') + '
+
+' +
+              'Decoded at digitaltoolsshed.com/dev/jwt-decoder';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyJwtClaims');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Decoded JWT Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function decodeJwt() {
             const raw = document.getElementById('jwt-input').value.trim();
             const hEl = document.getElementById('jwt-header');

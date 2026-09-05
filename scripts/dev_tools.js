@@ -53,6 +53,52 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
                 <textarea id="jwt-payload" class="code-input" style="height: 160px; color: #3b82f6;" readonly></textarea>
               </div>
             </div>
+
+            <!-- Copy JWT Claims -->
+            <button type="button" id="btnCopyJwtClaims" onclick="copyJwtClaims()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Decoded Claims &amp; Header JSON</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical JWT Security & Architectural Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in JSON Web Tokens (JWT) &amp; Auth Architecture</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The "alg: none" Algorithm Downgrade Vulnerability</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In early JWT specs, <code>"alg": "none"</code> was supported for unauthenticated debugging. Attackers can forge arbitrary claims (e.g. <code>{"admin": true}</code>), set <code>"alg": "none"</code> in the header, strip the cryptographic signature, and submit the token. Naive verification libraries accept the forged payload as authentic unless explicitly configured to reject <code>none</code>.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Confusing Decoding with Cryptographic Verification (Base64 is NOT Encryption)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Standard JWTs are JWS (JSON Web Signatures), meaning payload data is merely Base64URL-encoded, not encrypted. Anyone who intercepts a token can read every claim. Furthermore, decoding claims on the client or API gateway without executing asymmetric RSA/ECDSA public-key or HMAC signature verification opens authorization bypass.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Storing Sensitive PII or Secrets in JWT Claims</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Embedding passwords, Social Security numbers, internal system secrets, or detailed customer data in JWT claims creates severe compliance violations (GDPR/HIPAA). JWTs travel in HTTP headers across logs, CDNs, proxies, and browser developer tools. Keep tokens stateless with only non-sensitive subject IDs and scope identifiers.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The Token Revocation Impossibility &amp; Long-Lived Expiration ('exp')</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Because JWT verification is stateless, an issued token CANNOT be easily invalidated before its <code>exp</code> timestamp without querying a centralized Redis blacklist (which destroys the benefit of stateless auth). Issuing access tokens with 7-day or 30-day lifespans means compromised tokens remain valid even after the user changes their password or is terminated. Keep access tokens under 15 minutes.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Storing JWTs in 'localStorage' (Total XSS Exposure)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Storing authentication JWTs in <code>window.localStorage</code> or <code>sessionStorage</code> makes them accessible to ANY JavaScript code running on the page. A single compromised third-party analytics script or NPM dependency can exfiltrate all tokens. Secure session tokens should be delivered in <code>httpOnly</code>, <code>Secure</code>, <code>SameSite=Strict</code> cookies.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -63,6 +109,30 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
             return decodeURIComponent(atob(str).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
           }
 
+          
+          window.copyJwtClaims = function() {
+            var header = document.getElementById('jwt-header') ? document.getElementById('jwt-header').value : '';
+            var payload = document.getElementById('jwt-payload') ? document.getElementById('jwt-payload').value : '';
+
+            var text = '🔑 Decoded JSON Web Token (JWT) Claims\n\n' +
+              '// HEADER\n' + (header || '{}') + '\n\n' +
+              '// PAYLOAD (Claims)\n' + (payload || '{}') + '\n\n' +
+              'Decoded at digitaltoolsshed.com/dev/jwt-decoder';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyJwtClaims');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Decoded JWT Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function decodeJwt() {
             const raw = document.getElementById('jwt-input').value.trim();
             const hEl = document.getElementById('jwt-header');
@@ -107,10 +177,94 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
               <label class="field-label">Matches</label>
               <div id="rx-highlight" style="background: var(--bg); border: 1px solid var(--border); padding: 0.85rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; min-height: 60px;"></div>
             </div>
+
+            <!-- Copy Match Results -->
+            <button type="button" id="btnCopyRegexMatches" onclick="copyRegexMatches()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy RegEx Match Results &amp; Diagnostic</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical RegEx Engineering Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Regular Expressions (ReDoS &amp; State Bugs)</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Catastrophic Backtracking (Regular Expression Denial of Service - ReDoS)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Nested quantifiers like <code>(a+)+$</code> or overlapping groupings cause exponential \(O(2^n)\) branch evaluations when evaluated against non-matching payloads (e.g., <code>"aaaaaaaaaaaaaaaaaaaaX"</code>). In single-threaded runtimes like Node.js or browser UI threads, a single malicious string locks 100% CPU, freezing the entire application for minutes or hours.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Unescaped Dot in Domain &amp; IP Validation (Security Bypass)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Writing <code>^192.168.1.1$</code> or <code>api.stripe.com</code> without escaping the dot (<code>\.</code>) allows the dot to match ANY character. An attacker can register <code>api-stripe.com</code> or send <code>192X168Y1Z1</code> to bypass origin checks, CORS rules, and SSRF allowlists. Always escape literal dots.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. The Multiline Newline Blindspot (Missing DotAll / 's' Flag)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Developers frequently assume <code>.*</code> matches all characters across an entire document. In JavaScript, <code>.</code> matches all characters EXCEPT line terminators (<code>\n</code>, <code>\r</code>). Multi-line inputs silently truncate matching at the first newline unless the <code>s</code> (dotAll) flag or character class <code>[\s\S]*</code> is specified.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Greedy vs. Lazy Quantifier Collisions (Token Parsing Failure)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using greedy quantifiers like <code>&lt;.*&gt;</code> to parse HTML/XML tokens matches from the first <code>&lt;</code> to the VERY LAST <code>&gt;</code> on the entire page, gobbling intermediate tags. Use lazy quantifiers (<code>&lt;.*?&gt;</code>) or inverted character sets (<code>&lt;[^&gt;]+&gt;</code>) for deterministic tokenization.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. State Leaks in Global Regexes (Mutating 'lastIndex' Bug)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Reusing a global RegExp instance (<code>const re = /pattern/g</code>) across multiple <code>re.test(str)</code> calls causes stateful bugs. Each successful match mutates <code>re.lastIndex</code> forward, causing subsequent tests on identical matching strings to return <code>false</code>! Always reset <code>re.lastIndex = 0</code> or instantiate fresh regexes per check.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
         <script>
+          
+          window.copyRegexMatches = function() {
+            var pat = document.getElementById('rx-pattern') ? document.getElementById('rx-pattern').value : '';
+            var str = document.getElementById('rx-string') ? document.getElementById('rx-string').value : '';
+            var hl = document.getElementById('rx-highlight');
+            var matches = [];
+            if (pat && str) {
+              try {
+                var re = new RegExp(pat, 'g');
+                var m;
+                while ((m = re.exec(str)) !== null) {
+                  matches.push(m[0]);
+                  if (m.index === re.lastIndex) re.lastIndex++;
+                }
+              } catch(e) {}
+            }
+
+            var text = '⚙️ RegEx Pattern Diagnostic & Match Report\n' +
+              '• Expression: /' + pat + '/g\n' +
+              '• Total Matches Found: ' + matches.length + '\n' +
+              '• Match List: ' + (matches.length ? matches.map(function(item, i) { return '[' + (i+1) + '] ' + item; }).join(', ') : 'None') + '\n' +
+              '• Input Length: ' + str.length + ' characters\n\n' +
+              'Tested at digitaltoolsshed.com/dev/regex-tester';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyRegexMatches');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ RegEx Matches Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function runRegex() {
             const pat = document.getElementById('rx-pattern').value;
             const str = document.getElementById('rx-string').value;
@@ -393,15 +547,162 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
               <div class="field-group"><label class="field-label">CIDR Prefix (/) </label><input type="number" id="ip-cidr" class="text-input" value="24" min="1" max="32" oninput="calcSubnet()" /></div>
             </div>
             <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.9rem; margin-top: 1rem;" id="subnet-res"></div>
+
+            <!-- Copy Subnet Diagnostic -->
+            <button type="button" id="btnCopySubnetReport" onclick="copySubnetReport()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Complete IPv4 Subnet Breakdown</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical IPv4 Subnetting & CIDR Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in IPv4 Subnetting &amp; CIDR Architecture</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The /31 Point-to-Point vs. Legacy Subnet Mask Trap (RFC 3021)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Traditional networking rules dictate that every subnet loses 2 addresses for Network ID (all 0s) and Directed Broadcast (all 1s). Under this rule, a <code>/30</code> allocation provides 4 IPs but only 2 usable hosts (50% waste). RFC 3021 established <code>/31</code> point-to-point links (routers, firewalls) where both addresses are usable host interfaces with NO broadcast, saving hundreds of thousands of public IPv4 addresses globally.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Cloud VPC Reserved IP Addresses (The AWS/Azure 5-IP Tax)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Public cloud providers do NOT follow standard RFC host availability. AWS VPC reserves the first 4 IPs and last 1 IP in every subnet (e.g. <code>.0</code> Network, <code>.1</code> VPC Router, <code>.2</code> DNS, <code>.3</code> Future Use, and <code>.255</code> Broadcast). A <code>/28</code> subnet (16 theoretical IPs) yields only 11 usable instances in AWS! Failing to account for this 5-IP deduction exhausts subnets during auto-scaling.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Overlapping CIDR Blocks in Hybrid Cloud &amp; VPN Peering</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Provisioning common private subnets like <code>10.0.0.0/16</code> or <code>192.168.1.0/24</code> across both on-premises data centers and AWS/GCP VPCs prevents VPC Peering, Transit Gateway attachments, and Site-to-Site IPsec VPN routing. Resolving overlapping IP space requires complex bidirectional Source/Destination 1:1 NAT or disruptive IP renumbering.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The Subnet Mask vs. Wildcard Mask Inversion in Cisco ACLs</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Cisco Access Control Lists (ACLs) and OSPF network statements use inverse wildcard masks rather than subnet masks. For a <code>/24</code> subnet (<code>255.255.255.0</code>), the wildcard mask is <code>0.0.0.255</code> (where 0 indicates an exact bit match and 1 indicates "don't care"). Accidentally entering <code>255.255.255.0</code> in an ACL rule matches the inverse address pattern, accidentally exposing sensitive private subnets to the public internet.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Variable Length Subnet Masking (VLSM) Route Aggregation Failure</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Subdividing contiguous address space into fragmented, non-contiguous subnets prevents BGP and OSPF route summarization (supernetting). When routers cannot aggregate routes into single CIDR prefixes, global and internal routing tables bloat, exhausting router hardware memory (TCAM) and increasing convergence latency.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
+
         <script>
-          function calcSubnet() {
-            const cidr = parseInt(document.getElementById('ip-cidr').value, 10) || 24;
-            const hosts = Math.pow(2, 32 - cidr);
-            const usable = Math.max(0, hosts - 2);
-            document.getElementById('subnet-res').innerHTML = 'Total Addresses: <strong>' + hosts.toLocaleString() + '</strong><br>Usable Host Capacity: <strong>' + usable.toLocaleString() + '</strong>';
+          function intToIpv4(num) {
+            return [(num >>> 24) & 255, (num >>> 16) & 255, (num >>> 8) & 255, num & 255].join('.');
           }
+
+          function ipv4ToInt(ip) {
+            return ip.split('.').reduce((acc, oct) => ((acc << 8) + parseInt(oct, 10)) >>> 0, 0);
+          }
+
+          function calcSubnet() {
+            var ipInput = document.getElementById('ip-addr') ? document.getElementById('ip-addr').value.trim() : '192.168.1.1';
+            var cidr = parseInt(document.getElementById('ip-cidr').value, 10);
+            if (isNaN(cidr) || cidr < 0 || cidr > 32) cidr = 24;
+
+            var maskInt = cidr === 0 ? 0 : (~0 << (32 - cidr)) >>> 0;
+            var wildcardInt = (~maskInt) >>> 0;
+
+            var ipParts = ipInput.split('.');
+            var validIp = ipParts.length === 4 && ipParts.every(p => !isNaN(p) && parseInt(p, 10) >= 0 && parseInt(p, 10) <= 255);
+            var ipInt = validIp ? ipv4ToInt(ipInput) : ipv4ToInt('192.168.1.1');
+
+            var netInt = (ipInt & maskInt) >>> 0;
+            var bcastInt = (netInt | wildcardInt) >>> 0;
+
+            var totalHosts = Math.pow(2, 32 - cidr);
+            var usableHosts = 0;
+            var rangeStr = '';
+
+            if (cidr === 32) {
+              usableHosts = 1;
+              rangeStr = intToIpv4(netInt) + ' (Single Host)';
+            } else if (cidr === 31) {
+              usableHosts = 2;
+              rangeStr = intToIpv4(netInt) + ' – ' + intToIpv4(bcastInt) + ' (RFC 3021 Point-to-Point)';
+            } else {
+              usableHosts = Math.max(0, totalHosts - 2);
+              rangeStr = intToIpv4(netInt + 1) + ' – ' + intToIpv4(bcastInt - 1);
+            }
+
+            var maskStr = intToIpv4(maskInt);
+            var wildcardStr = intToIpv4(wildcardInt);
+            var netStr = intToIpv4(netInt);
+            var bcastStr = intToIpv4(bcastInt);
+
+            var ipClass = 'Classless (CIDR)';
+            var firstOctet = (netInt >>> 24) & 255;
+            if (firstOctet >= 1 && firstOctet <= 126) ipClass = 'Class A';
+            else if (firstOctet >= 128 && firstOctet <= 191) ipClass = 'Class B';
+            else if (firstOctet >= 192 && firstOctet <= 223) ipClass = 'Class C';
+            else if (firstOctet >= 224 && firstOctet <= 239) ipClass = 'Class D (Multicast)';
+            else if (firstOctet >= 240 && firstOctet <= 255) ipClass = 'Class E (Experimental)';
+
+            window._subnetData = {
+              ip: validIp ? ipInput : '192.168.1.1',
+              cidr: cidr,
+              mask: maskStr,
+              wildcard: wildcardStr,
+              network: netStr,
+              broadcast: bcastStr,
+              usableRange: rangeStr,
+              totalHosts: totalHosts,
+              usableHosts: usableHosts,
+              ipClass: ipClass
+            };
+
+            var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:0.75rem;">' +
+              '<div><span style="color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">Subnet Mask</span><br><strong>' + maskStr + '</strong></div>' +
+              '<div><span style="color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">Network Address</span><br><strong style="color:#3b82f6;">' + netStr + '/' + cidr + '</strong></div>' +
+              '<div><span style="color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">Broadcast IP</span><br><strong style="color:#ef4444;">' + bcastStr + '</strong></div>' +
+              '<div><span style="color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">Wildcard Mask</span><br><strong>' + wildcardStr + '</strong></div>' +
+              '<div><span style="color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">Usable Host Range</span><br><strong style="color:#10b981;">' + rangeStr + '</strong></div>' +
+              '<div><span style="color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">Usable Hosts (Capacity)</span><br><strong style="color:#8b5cf6;">' + usableHosts.toLocaleString() + ' hosts (' + totalHosts.toLocaleString() + ' total)</strong></div>' +
+              '<div><span style="color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">Address Architecture</span><br><strong>' + ipClass + '</strong></div>' +
+              '</div>';
+
+            document.getElementById('subnet-res').innerHTML = html;
+          }
+
+          window.copySubnetReport = function() {
+            if (!window._subnetData) calcSubnet();
+            var d = window._subnetData;
+            var text = '🌐 IPv4 CIDR Subnet Architecture Report\n' +
+              '• IP / Prefix: ' + d.ip + '/' + d.cidr + '\n' +
+              '• Network Address: ' + d.network + '\n' +
+              '• Subnet Mask: ' + d.mask + '\n' +
+              '• Wildcard Mask: ' + d.wildcard + '\n' +
+              '• Usable Host Range: ' + d.usableRange + '\n' +
+              '• Usable Host Capacity: ' + d.usableHosts.toLocaleString() + ' addresses\n' +
+              '• Total Subnet Addresses: ' + d.totalHosts.toLocaleString() + '\n' +
+              '• Broadcast Address: ' + d.broadcast + '\n' +
+              '• Network Class: ' + d.ipClass + '\n\n' +
+              'Calculated at digitaltoolsshed.com/dev/ip-subnet-calculator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopySubnetReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Subnet Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
           document.addEventListener('DOMContentLoaded', calcSubnet);
         </script>
       `
@@ -598,16 +899,83 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
             <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin: 1.5rem 0; text-align: center;">
               <div class="field-label">CRON EXPRESSION</div>
               <div id="cron-result" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; margin: 0.5rem 0; color: var(--btn-bg, #3b82f6);">* * * * *</div>
-              <div id="cron-desc" style="font-size: 1.05rem; color: var(--fg); font-weight: 500;">Runs every minute of every hour, every day.</div>
+              <div id="cron-desc" style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--fg); font-weight: 500;">Runs every minute of every hour, every day.</div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('cron-result').textContent); alert('Cron expression copied!');">Copy Expression</button>
+            <!-- Copy Cron Expression -->
+            <button type="button" id="btnCopyCron" onclick="copyCronExpression()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Cron Expression &amp; Schedule Breakdown</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical Cron Engineering Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Cron Schedules &amp; Background Workers</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Daylight Saving Time (DST) Phantom &amp; Double Execution</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Scheduling crons in local server time between 2:00 AM and 3:00 AM creates catastrophic billing or backup failures. In spring, 2:30 AM is skipped entirely (the job never fires); in autumn, 2:30 AM occurs twice (the job executes twice, duplicating payment runs or outbound customer emails). Server crontabs should ALWAYS run strictly on UTC.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Cascading Overlap Deadlock (Execution Duration &gt; Interval)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Running a task every 5 minutes (<code>*/5 * * * *</code>) that takes 7 minutes during peak database load causes concurrent instances to pile up. Each new process consumes CPU and database connection pool slots, slowing down previous runs in a vicious cycle until the server experiences out-of-memory (OOM) panic. Always guard crons with file locks (<code>flock -n /var/lock/job.lock</code>) or distributed Redis mutexes.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. The '0' vs. '7' Sunday &amp; Day-of-Week Parser Dialect Trap</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In standard POSIX / Vixie cron, <code>0</code> and <code>7</code> both represent Sunday. However, in Java Quartz and AWS EventBridge cron dialects, <code>1</code> represents Sunday and <code>7</code> represents Saturday! Copying a crontab string between Linux, Kubernetes, and AWS CloudWatch without verifying the dialect shifts weekly jobs by a full 24 hours.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. The Day-of-Month AND Day-of-Week 'OR' Logic Surprise</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In POSIX crontab specification, if both Day-of-Month (field 3) and Day-of-Week (field 5) are specified (not <code>*</code>), the command executes when EITHER condition matches (logical OR, not AND). For example, <code>0 0 13 * 5</code> does NOT run on Friday the 13th; it executes on EVERY Friday and EVERY 13th day of the month!
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. The Stripped Shell Environment (Exit Code 127 'Command Not Found')</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Crontab executes commands within an extremely minimalist environment where <code>PATH</code> is typically reset to <code>/usr/bin:/bin</code> and user environment variables (like <code>$NODE_ENV</code>, <code>$DATABASE_URL</code>, or virtualenvs) are completely absent. Scripts fail silently with exit code 127 unless absolute binary paths (e.g. <code>/usr/local/bin/node</code>) and explicit <code>.env</code> sourcing are provided.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
+          
+          window.copyCronExpression = function() {
+            var expr = document.getElementById('cron-result') ? document.getElementById('cron-result').textContent.trim() : '* * * * *';
+            var desc = document.getElementById('cron-desc') ? document.getElementById('cron-desc').textContent.trim() : '';
+
+            var text = '⏱️ Cron Schedule Expression & Frequency Specification\n' +
+              '• Expression: ' + expr + '\n' +
+              '• Plain English Schedule: ' + desc + '\n' +
+              '• Fields Format: [Minute] [Hour] [Day-of-Month] [Month] [Day-of-Week]\n\n' +
+              'Generated at digitaltoolsshed.com/dev/cron-generator';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyCron');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Cron Expression Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function setCron(expr) {
             var p = expr.split(' ');
             document.getElementById('cron-m').value = p[0];
