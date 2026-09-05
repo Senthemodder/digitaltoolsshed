@@ -3004,44 +3004,54 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
   </div>
 
   <!-- 5 CRITICAL HOURLY / SALARY TRAPS -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
-    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Hourly vs. Salary Pitfalls &amp; Traps</h2>
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+      <span>⚠️</span> <span>5 Critical Hourly vs. Salary Pitfalls &amp; Traps</span>
+    </h2>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. The Bi-Weekly vs Semi-Monthly Paycheck Confusion</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          Bi-weekly employees receive 26 paychecks per year (every other Friday), meaning two months every year have <strong>three paychecks</strong> instead of two. Semi-monthly employees receive exactly 24 paychecks per year (e.g. 15th and last day of the month). A $60,000 salary pays $2,307 per bi-weekly check versus $2,500 per semi-monthly check.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #ef4444;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>📅</span> <strong>1. The Bi-Weekly vs Semi-Monthly Paycheck Confusion</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Bi-weekly employees receive 26 paychecks per year (every other Friday), meaning two months every year have <strong>three paychecks</strong> instead of two. Semi-monthly employees receive exactly 24 paychecks per year (e.g. 15th and last day of the month). A $60,000 salary pays $2,307 per bi-weekly check versus $2,500 per semi-monthly check. Budgeting based on 2 paychecks per month leads to cash flow mismatches.
+      </p>
+    </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">2. Unpaid PTO &amp; Holiday Salary Erosion</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          Contractors and temp workers earning $40/hour often multiply by 2,080 to estimate an $83,200 salary. However, contractors rarely receive paid holidays (10 days) or paid vacation (10 days). Taking four weeks of unpaid time off reduces paid weeks from 52 down to 48, slashing actual annual earnings by $6,400.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #f59e0b;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>🏖️</span> <strong>2. Unpaid PTO &amp; Holiday Salary Erosion</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Contractors and temp workers earning $40/hour often multiply by 2,080 to estimate an $83,200 salary. However, contractors rarely receive paid holidays (10 days) or paid vacation (10 days). Taking four weeks of unpaid time off reduces paid weeks from 52 down to 48, slashing actual annual earnings by $6,400.
+      </p>
+    </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">3. The "Exempt Salary" Overtime Trap</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          Switching from $25/hour non-exempt to a $55,000 exempt salary sounds like a raise until you work 50 hours a week. At 50 hours/week, a $55,000 salary dilutes to an effective rate of just $21.15/hour—and eliminates all 1.5× overtime pay. Under FLSA, workers earning below federal salary thresholds remain legally entitled to overtime.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #10b981;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>💼</span> <strong>3. The &quot;Exempt Salary&quot; Overtime Trap</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Switching from $25/hour non-exempt to a $55,000 exempt salary sounds like a raise until you work 50 hours a week. At 50 hours/week, a $55,000 salary dilutes to an effective rate of just $21.15/hour—and eliminates all 1.5× overtime pay. Under FLSA, workers earning below federal salary thresholds remain legally entitled to overtime regardless of job title.
+      </p>
+    </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">4. 1099 Self-Employment Tax Shock</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          W-2 employees pay 7.65% for FICA (Social Security and Medicare), and their employer matches the other 7.65%. 1099 independent contractors must pay the full <strong>15.3% Self-Employment Tax (SECA)</strong> themselves. An hourly 1099 rate must be at least 25% to 30% higher than a W-2 rate to achieve equivalent net take-home.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #3b82f6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>🧾</span> <strong>4. 1099 Self-Employment Tax Shock</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        W-2 employees pay 7.65% for FICA (Social Security and Medicare), and their employer matches the other 7.65%. 1099 independent contractors must pay the full <strong>15.3% Self-Employment Tax (SECA)</strong> themselves. An hourly 1099 rate must be at least 25% to 30% higher than a W-2 rate to achieve equivalent net take-home pay after accounting for benefits and taxes.
+      </p>
+    </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">5. The "Higher Tax Bracket" Overtime Myth</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          Workers often refuse overtime hours out of fear that extra pay will "bump them into a higher tax bracket and cause them to make less money." This is mathematically impossible under the US progressive tax code. Only the dollars earned <em>above</em> the bracket threshold are taxed at the higher marginal rate; previous earnings are completely untouched.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #8b5cf6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>📈</span> <strong>5. The &quot;Higher Tax Bracket&quot; Overtime Myth</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Workers often refuse overtime hours out of fear that extra pay will &quot;bump them into a higher tax bracket and cause them to make less money.&quot; This is mathematically impossible under the US progressive tax code. Only the dollars earned <em>above</em> the bracket threshold are taxed at the higher marginal rate; previous earnings remain taxed at their lower rates.
+      </p>
     </div>
   </div>
 
@@ -3380,40 +3390,52 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Sales Tax Calculations</h2>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <span>⚠️</span> <span>5 Fatal Traps &amp; Gotchas in Sales Tax Calculations</span>
+    </h2>
 
-    <div class="st-trap-card">
-      <div class="st-trap-title">1. The "Back-Out Subtraction" Mathematical Fallacy</div>
-      <p class="st-trap-desc">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #ef4444;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>🚨</span> <strong>1. The &quot;Back-Out Subtraction&quot; Mathematical Fallacy</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
         A disastrous retail accounting error is trying to back out sales tax by subtracting the tax rate from the total paid. If you paid $108.00 in an 8% tax jurisdiction, calculating <code>$108.00 - 8% = $99.36</code> is mathematically wrong. The correct pre-tax price is <code>$108.00 / 1.08 = $100.00</code>. Subtraction applies the percentage to the inflated gross amount rather than the initial base, underreporting legitimate revenue and overpaying sales tax liabilities.
       </p>
     </div>
 
-    <div class="st-trap-card">
-      <div class="st-trap-title">2. Origin-Based vs. Destination-Based Sourcing (Wayfair Economic Nexus)</div>
-      <p class="st-trap-desc">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #f59e0b;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>🗺️</span> <strong>2. Origin-Based vs. Destination-Based Sourcing (Wayfair Economic Nexus)</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
         Since the landmark Supreme Court ruling in <em>South Dakota v. Wayfair (2018)</em>, interstate sellers must collect tax based on the buyer's delivery address (destination-based sourcing) in 38+ states once statutory economic nexus thresholds ($100k in gross sales or 200 transactions) are breached. However, intrastate sales in origin-based states (such as Texas, Ohio, and Pennsylvania) source sales tax to the seller's physical warehouse or storefront rather than the shipping destination.
       </p>
     </div>
 
-    <div class="st-trap-card">
-      <div class="st-trap-title">3. The Shipping, Handling &amp; Freight Tax Trap</div>
-      <p class="st-trap-desc">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #10b981;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>📦</span> <strong>3. The Shipping, Handling &amp; Freight Tax Trap</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
         Whether delivery charges are subject to sales tax varies drastically by state jurisdiction. In states like California and Florida, freight is exempt from sales tax only if it is separately itemized on the invoice and delivery occurs via common carrier (USPS, FedEx, UPS). In states like New York and Washington, shipping charges are fully taxable whenever the underlying item being shipped is taxable, regardless of itemization.
       </p>
     </div>
 
-    <div class="st-trap-card">
-      <div class="st-trap-title">4. The "NOMAD" State Illusion (Alaska &amp; Montana Local Surtaxes)</div>
-      <p class="st-trap-desc">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #3b82f6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>🏔️</span> <strong>4. The &quot;NOMAD&quot; State Illusion (Alaska &amp; Montana Local Surtaxes)</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
         While Alaska levies no statewide sales tax (0%), its constitution grants home-rule boroughs and municipalities broad taxation powers. Over 100 Alaskan municipalities impose local sales taxes, ranging from 2% to 7.85% (e.g., Juneau 5%, Wasilla 3%). Similarly, Montana allows designated high-volume resort communities (e.g., Whitefish, Big Sky, Red Lodge) to levy a 3% local option resort tax on lodging, dining, and retail luxuries.
       </p>
     </div>
 
-    <div class="st-trap-card">
-      <div class="st-trap-title">5. Vehicle &amp; Equipment Trade-In Value Credits</div>
-      <p class="st-trap-desc">
-        When purchasing a vehicle, boat, or heavy industrial machinery, 42 states permit a trade-in tax credit where the value of your trade-in vehicle is deducted from the purchase price before sales tax is calculated. On a $40,000 vehicle with a $15,000 trade-in at an 8% tax rate, you are taxed only on the $25,000 difference ($2,000 tax instead of $3,200), generating $1,200 in instant tax savings. However, states like California, Hawaii, and the District of Columbia disallow trade-in credits, taxing the full gross sticker price.
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #8b5cf6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>🚗</span> <strong>5. Vehicle &amp; Equipment Trade-In Value Credits</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        When purchasing a vehicle, boat, or heavy industrial machinery, 42 states permit a trade-in tax credit where the value of your trade-in vehicle is deducted from the purchase price before sales tax is assessed. However, in states like California, Hawaii, the District of Columbia, and Virginia, sales tax is assessed on the full gross purchase price of the replacement vehicle, providing zero sales tax relief for trade-in equity.
       </p>
     </div>
   </div>
@@ -3878,7 +3900,59 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
             </button>
           </div>
         </div>
-      </div>
+      
+
+        <!-- 5 Fatal Simple Interest Traps & Pitfalls -->
+        <div style="margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg); display: flex; align-items: center; gap: 0.5rem;">
+            <span>⚠️</span> <span>5 Fatal Simple Interest Traps &amp; Financing Pitfalls</span>
+          </h3>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>🚨</span> <strong>The Add-On Interest Auto Loan Deception</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              Some subprime vehicle lenders quote a seemingly low &quot;6% simple interest rate&quot; but calculate interest using precomputed &quot;add-on interest.&quot; Under this deceptive structure, interest ($I = Prt$) is computed upfront on the entire starting balance for all years and added to the debt, resulting in an effective APR of nearly 11% to 12% because you continue paying interest on the full original principal even after paying down half the balance.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>📉</span> <strong>The &quot;Rule of 78s&quot; Early Payoff Penalty</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              True simple interest loans only charge interest on the outstanding principal balance for the exact days you borrow the funds. In contrast, precomputed installment contracts governed by the archaic &quot;Rule of 78s&quot; front-load interest charges into early months. Paying off a Rule of 78s loan halfway through its term yields virtually zero interest savings.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>🏦</span> <strong>The Banker&apos;s Rule (360-Day Commercial Year) Surcharge</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              Many commercial banks and bond markets calculate short-term simple interest using the &quot;Banker&apos;s Rule&quot; (Exact/360), which divides the exact number of calendar days elapsed by 360 instead of 365. Because $365 / 360 = 1.01389$, this subtle calendar convention extracts an extra 1.39% in annual interest revenue from borrowers.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>🔢</span> <strong>Simple Interest Rate vs Effective Annual Rate (EAR)</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              A simple interest rate of 12% sounds identical to a compounding rate of 12%. However, if interest is debited or credited on a monthly basis, the compounding effect produces an Effective Annual Rate of $(1 + 0.12/12)^{12} - 1 = 12.68%$, adding hundreds of dollars in unbudgeted financing costs over the life of credit card or line-of-credit balances.
+            </p>
+          </div>
+
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+            <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
+              <span>⏳</span> <strong>Multi-Decade Opportunity Cost vs Compound Growth</strong>
+            </h4>
+            <p style="margin: 0; color: var(--text-muted); font-size: 0.88rem; line-height: 1.55;">
+              Keeping long-term savings in linear simple-interest promissory notes or non-reinvested coupons incurs severe opportunity loss. Over 30 years at 7%, a $10,000 simple interest vehicle yields $21,000 in total interest ($31,000 final value), whereas compound interest produces over $66,122 in interest ($76,122 final value)—a massive $45,122 penalty for linear interest.
+            </p>
+          </div>
+        </div></div>
 
       <script>
         var currentSISolve = 'I';
@@ -4237,44 +4311,54 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
   </div>
 
   <!-- 5 CRITICAL OVERTIME TRAPS -->
-  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
-    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Overtime Wage &amp; Hour Violations</h2>
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+      <span>⚠️</span> <span>5 Critical Overtime Wage &amp; Hour Violations &amp; Wage Pitfalls</span>
+    </h2>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. Excluding Non-Discretionary Bonuses from the Regular Rate</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          This is the most common Department of Labor wage violation. When employers pay attendance, production, or safety bonuses, they cannot calculate overtime strictly on the base wage. Bonuses must be divided by total hours worked to boost the "Regular Rate of Pay" before applying the 1.5× multiplier.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #ef4444;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>🚨</span> <strong>1. Excluding Non-Discretionary Bonuses from the Regular Rate</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        This is the most common Department of Labor wage violation. When employers pay attendance, production, or safety bonuses, they cannot calculate overtime strictly on the base wage. Bonuses must be divided by total hours worked to boost the &quot;Regular Rate of Pay&quot; before applying the 1.5× multiplier.
+      </p>
+    </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">2. Illegal "Comp Time" Substitution in the Private Sector</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          Private employers frequently tell employees they will give them 1.5 hours of paid time off ("comp time") instead of paying cash overtime. Under the federal FLSA, comp time in lieu of cash overtime is <strong>strictly illegal for private employers</strong>; it is only permitted for government and public sector agencies.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #f59e0b;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>🏖️</span> <strong>2. Illegal &quot;Comp Time&quot; Substitution in the Private Sector</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Private employers frequently tell employees they will give them 1.5 hours of paid time off (&quot;comp time&quot;) instead of paying cash overtime. Under the federal FLSA, comp time in lieu of cash overtime is <strong>strictly illegal for private employers</strong>; it is only permitted for government and public sector agencies.
+      </p>
+    </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">3. Refusing to Pay "Unauthorized" Overtime</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          Company policy may state that overtime must be pre-approved by a supervisor. However, if an employee works overtime without authorization, federal law mandates that the employer <strong>must still pay the overtime rate</strong> for all hours worked. The employer may issue disciplinary action for policy violation, but withholding earned wages is illegal.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #10b981;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>💼</span> <strong>3. Refusing to Pay &quot;Unauthorized&quot; Overtime</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Company policy may state that overtime must be pre-approved by a supervisor. However, if an employee works overtime without authorization, federal law mandates that the employer <strong>must still pay the overtime rate</strong> for all hours worked. The employer may issue disciplinary action for policy violation, but withholding earned wages is illegal.
+      </p>
+    </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">4. Overlooking Off-the-Clock "De Minimis" Duties</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          Time spent attending mandatory morning safety briefings, donning specialized protective gear, booting up computer terminals, or locking up warehouse doors at closing is legally compensable working time. If these daily 15-minute tasks push total weekly hours past 40, they must be paid at 1.5× overtime.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #3b82f6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>⏰</span> <strong>4. Overlooking Off-the-Clock &quot;De Minimis&quot; Duties</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Time spent attending mandatory morning safety briefings, donning specialized protective gear, booting up computer terminals, or locking up warehouse doors at closing is legally compensable working time. If these daily 15-minute tasks push total weekly hours past 40, they must be paid at 1.5× overtime.
+      </p>
+    </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">5. Misapplying Federal vs California Daily Overtime</h3>
-        <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
-          Under federal FLSA, overtime triggers only after an employee exceeds 40 hours in a 7-day workweek (working four 10-hour days earns zero overtime). In California, Alaska, and Nevada, state law mandates 1.5× overtime for any hours worked <strong>past 8 in a single day</strong>, and 2.0× double-time past 12 hours in a single day.
-        </p>
-      </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #8b5cf6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-size:0.95rem;margin:0 0 0.35rem 0;color:var(--fg);font-family:var(--serif);display:flex;align-items:center;gap:0.5rem;">
+        <span>⚖️</span> <strong>5. Misapplying Federal vs California Daily Overtime</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Under federal FLSA, overtime triggers only after an employee exceeds 40 hours in a 7-day workweek (working four 10-hour days earns zero overtime). In California, Alaska, and Nevada, state law mandates 1.5× overtime for any hours worked <strong>past 8 in a single day</strong>, and 2.0× double-time past 12 hours in a single day.
+      </p>
     </div>
   </div>
 
@@ -4573,40 +4657,52 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in CAGR &amp; Return Analysis</h2>
+    <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <span>⚠️</span> <span>5 Fatal Traps &amp; Gotchas in CAGR &amp; Return Analysis</span>
+    </h2>
 
-    <div class="cagr-trap-card">
-      <div class="cagr-trap-title">1. The Volatility Drag &amp; Asymmetric Recovery Trap</div>
-      <p class="cagr-trap-desc">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #ef4444;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>📉</span> <strong>1. The Volatility Drag &amp; Asymmetric Recovery Trap</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
         Arithmetic averages hide catastrophic drawdowns. If a $100,000 portfolio suffers a -50% decline in Year 1 to $50,000, it requires an astounding +100% gain in Year 2 just to break even ($100,000). While the arithmetic average return is +25.0% [(-50% + 100%) / 2], the true 2-year CAGR is exactly 0.00%. Volatility drag (approximately half the return variance, &sigma;&sup2; / 2) quietly drains long-term wealth from high-beta holdings.
       </p>
     </div>
 
-    <div class="cagr-trap-card">
-      <div class="cagr-trap-title">2. Endpoint Sensitivity (Cherry-Picking Starting &amp; Ending Dates)</div>
-      <p class="cagr-trap-desc">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #f59e0b;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>🎯</span> <strong>2. Endpoint Sensitivity (Cherry-Picking Starting &amp; Ending Dates)</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
         CAGR is acutely sensitive to the exact starting and ending dates selected. Measuring a technology portfolio from the March 2000 dot-com peak to the October 2002 bottom yields a horrific -45% CAGR, whereas measuring from the March 2009 Great Financial Crisis bottom to December 2021 yields an extraordinary +18% CAGR. Institutional fund managers frequently manipulate marketing pitchbooks by shifting calculation anchor dates by a single quarter.
       </p>
     </div>
 
-    <div class="cagr-trap-card">
-      <div class="cagr-trap-title">3. The Cash Flow Neglect Trap (Lump Sum vs. Dollar-Cost Averaging)</div>
-      <p class="cagr-trap-desc">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #10b981;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>💵</span> <strong>3. The Cash Flow Neglect Trap (Lump Sum vs. Dollar-Cost Averaging)</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
         CAGR assumes a single initial lump-sum deposit with zero subsequent cash infusions or capital withdrawals over the holding period. If you invest $1,000 every month (dollar-cost averaging) into a 401(k) or brokerage account, CAGR will produce highly inaccurate results. In the presence of ongoing capital flows, you must compute the Money-Weighted Return (Internal Rate of Return / IRR) or Time-Weighted Rate of Return (TWRR).
       </p>
     </div>
 
-    <div class="cagr-trap-card">
-      <div class="cagr-trap-title">4. The Nominal Purchasing Power Mirage (Inflation Erosion)</div>
-      <p class="cagr-trap-desc">
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #3b82f6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>🫧</span> <strong>4. The Nominal Purchasing Power Mirage (Inflation Erosion)</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
         A 7.0% nominal CAGR sounds impressive on paper, but if average annual inflation runs at 4.5%, your real purchasing-power expansion is only 2.39% per year [1.07 / 1.045 - 1]. Over a 20-year retirement accumulation phase, taxes on nominal phantom gains combined with compound inflation can completely erase what appeared to be substantial wealth generation.
       </p>
     </div>
 
-    <div class="cagr-trap-card">
-      <div class="cagr-trap-title">5. Price CAGR vs. Total Return CAGR (The Missing Dividend Trap)</div>
-      <p class="cagr-trap-desc">
-        Comparing stock price changes alone severely underestimates true compounded wealth. For the S&amp;P 500 index from 1960 to 2024, reinvested dividends accounted for approximately 84% of total cumulative returns! A "Price Return CAGR" of 6.8% compares dismally against a "Total Return CAGR" of 10.2% with reinvested dividends; over 35 years, that 3.4% annual difference results in a portfolio that is more than triple in final balance.
+    <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #8b5cf6;border-radius:6px;padding:1.1rem 1.25rem;margin-bottom:0.85rem;">
+      <h3 style="font-family:var(--serif);font-size:0.95rem;color:var(--fg);margin:0 0 0.35rem 0;display:flex;align-items:center;gap:0.5rem;">
+        <span>📊</span> <strong>5. Price CAGR vs. Total Return CAGR (The Missing Dividend Trap)</strong>
+      </h3>
+      <p style="font-size:0.88rem;color:var(--text-muted);line-height:1.55;margin:0;">
+        Comparing stock price changes alone severely underestimates true compounded wealth. For the S&amp;P 500 index from 1960 to 2024, reinvested dividends accounted for approximately 84% of total cumulative returns! A &quot;Price Return CAGR&quot; of 6.8% compares dismally against a &quot;Total Return CAGR&quot; of 10.2%, distorting retirement projections by hundreds of thousands of dollars over a 30-year horizon.
       </p>
     </div>
   </div>
