@@ -1190,41 +1190,28 @@
 
   <!-- Real-World Traps Section -->
   <div style="margin-bottom:2.5rem;">
-    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1rem;letter-spacing:-0.01em;">5 Fatal Traps &amp; Gotchas in Age &amp; Date Calculation</h2>
-
-    <div class="age-trap-card">
-      <div class="age-trap-title">1. The "Average 30.4375 Days Per Month" Mathematical Flaw</div>
-      <p class="age-trap-desc">
-        Many amateur calculators divide elapsed days by 365.25 or 30.4375 to determine years and months. Because calendar months vary between 28, 29, 30, and 31 days, naive floating-point division produces errors of 1 to 3 days when computing age intervals. The only actuarially accurate method is calendar borrowing: tracking exact days elapsed within the specific Gregorian month cycle.
-      </p>
-    </div>
-
-    <div class="age-trap-card">
-      <div class="age-trap-title">2. Leap Day Statutory Maturity (February 29 Birthdays)</div>
-      <p class="age-trap-desc">
-        If you were born on Leap Day (February 29), your legal age increments on different dates depending on national laws. Under English common law and UK statute, a leap year baby does not legally turn 18 or 21 until March 1st. In contrast, under Taiwanese and New Zealand legislation, rights vest on February 28th. Airline booking systems frequently reject Feb 29 birthdates on non-leap departure years without automatic rollover logic.
-      </p>
-    </div>
-
-    <div class="age-trap-card">
-      <div class="age-trap-title">3. South Korea's Historic 2023 Age Law Abolition</div>
-      <p class="age-trap-desc">
-        Until June 28, 2023, South Korea operated three competing age systems: "Korean Age" (where you are 1 year old at birth and age up every New Year's Day), "Counting Age" (used for military conscription and alcohol purchase), and "International Age". The confusion resulted in severe administrative disputes regarding COVID-19 vaccine eligibility and insurance payouts until the National Assembly officially mandated the international chronological system.
-      </p>
-    </div>
-
-    <div class="age-trap-card">
-      <div class="age-trap-title">4. The 1752 Calendar Act (The Missing 11 Days Trap)</div>
-      <p class="age-trap-desc">
-        When Great Britain and the American colonies transitioned from the Julian to the Gregorian calendar in September 1752, eleven calendar days were dropped entirely: Wednesday, September 2 was followed directly by Thursday, September 14! Historical figures born before 1752 (such as George Washington, originally born February 11, 1731/32) had their birthdays shifted to February 22, 1732.
-      </p>
-    </div>
-
-    <div class="age-trap-card">
-      <div class="age-trap-title">5. Daylight Saving Time &amp; Midnight Birth Boundary Errors</div>
-      <p class="age-trap-desc">
-        Individuals born within one hour of midnight during the "Fall Back" or "Spring Forward" transitions of Daylight Saving Time can suffer statutory birthdate discrepancies. An infant born at 1:45 AM during the fallback hour might be registered after a twin born at 1:15 AM if clocks were set back to 1:00 AM between births, creating permanent legal identification and birth certificate timing anomalies.
-      </p>
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:1.25rem;letter-spacing:-0.01em;">⚠️ 5 Fatal Traps &amp; Gotchas in Age &amp; Date Calculation</h2>
+    <div style="display:grid;gap:1rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;padding:1.25rem;border-radius:8px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:#ef4444;font-family:var(--serif);">💥 1. The "Average 30.4375 Days Per Month" Mathematical Flaw</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Many amateur calculators divide elapsed days by 365.25 or 30.4375 to determine years and months. Because calendar months vary between 28, 29, 30, and 31 days, naive floating-point division produces errors of 1 to 3 days when computing age intervals. The only actuarially accurate method is calendar borrowing: tracking exact days elapsed within the specific Gregorian month cycle.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;padding:1.25rem;border-radius:8px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:#f59e0b;font-family:var(--serif);">⚖️ 2. Leap Day Statutory Maturity (February 29 Birthdays)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">If you were born on Leap Day (February 29), your legal age increments on different dates depending on national laws. Under English common law and UK statute, a leap year baby does not legally turn 18 or 21 until March 1st. In contrast, under Taiwanese and New Zealand legislation, rights vest on February 28th. Airline booking systems frequently reject Feb 29 birthdates on non-leap departure years without automatic rollover logic.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;padding:1.25rem;border-radius:8px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:#10b981;font-family:var(--serif);">🌏 3. South Korea's Historic 2023 Age Law Abolition</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Until June 28, 2023, South Korea operated three competing age systems: "Korean Age" (where you are 1 year old at birth and age up every New Year's Day), "Counting Age" (used for military conscription and alcohol purchase), and "International Age". The confusion resulted in severe administrative disputes regarding COVID-19 vaccine eligibility and insurance payouts until the National Assembly officially mandated the international chronological system.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;padding:1.25rem;border-radius:8px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:#3b82f6;font-family:var(--serif);">📜 4. The 1752 Calendar Act (The Missing 11 Days Trap)</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">When Great Britain and the American colonies transitioned from the Julian to the Gregorian calendar in September 1752, eleven calendar days were dropped entirely: Wednesday, September 2 was followed directly by Thursday, September 14! Historical figures born before 1752 (such as George Washington, originally born February 11, 1731/32) had their birthdays shifted to February 22, 1732.</p>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;padding:1.25rem;border-radius:8px;">
+        <h4 style="margin:0 0 0.5rem 0;font-size:1rem;color:#8b5cf6;font-family:var(--serif);">⏰ 5. Daylight Saving Time &amp; Midnight Birth Boundary Errors</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--text-muted);line-height:1.6;">Individuals born within one hour of midnight during the "Fall Back" or "Spring Forward" transitions of Daylight Saving Time can suffer statutory birthdate discrepancies. An infant born at 1:45 AM during the fallback hour might be registered after a twin born at 1:15 AM if clocks were set back to 1:00 AM between births, creating permanent legal identification and birth certificate timing anomalies.</p>
+      </div>
     </div>
   </div>
 </div>

@@ -1198,40 +1198,41 @@
     <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;font-family:var(--serif);">5 Critical Video Encoding &amp; Aspect Ratio Pitfalls</h2>
 
     <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:1.25rem;">
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">1. Non-Divisible Macroblock Dimensions (Mod 2 / Mod 16)</h3>
+      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;font-weight:700;">1. Non-Divisible Macroblock Dimensions (Mod 2 / Mod 16)</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Video codecs (H.264, HEVC, ProRes) compress frames in blocks of $8 \times 8$ or $16 \times 16$ pixels. If your scaled height or width is an odd number (e.g. 721px) or not divisible by 2, video encoders will either throw a rendering error or pad the edge with an ugly 1-pixel green or black glitch bar. Always round scaled dimensions to even numbers.
         </p>
       </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">2. Pillarboxing vs Center Cropping in Vertical Video</h3>
+      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;font-weight:700;">2. Pillarboxing vs Center Cropping in Vertical Video</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Converting 16:9 horizontal footage to 9:16 vertical for TikTok or Instagram Reels by center cropping cuts off 67% of the original visual canvas. Important speaker gestures, logos, and lower-third graphics disappear. Use dynamic pan-and-scan or reframe with blurred letterbox margins rather than hard center cropping.
         </p>
       </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">3. Instagram 4:5 Feed Compression vs 9:16 Story Crop</h3>
+      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;font-weight:700;">3. Instagram 4:5 Feed Compression vs 9:16 Story Crop</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Instagram Stories and Reels support full 9:16 vertical video ($1080 \times 1920$). However, standard in-feed posts restrict maximum vertical aspect ratio to 4:5 ($1080 \times 1350$). Posting a 9:16 video directly to the main profile grid forces automatic top-and-bottom cropping that amputates text captions.
         </p>
       </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">4. Storage Aspect Ratio (SAR) vs Display Aspect Ratio (DAR)</h3>
+      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;font-weight:700;">4. Storage Aspect Ratio (SAR) vs Display Aspect Ratio (DAR)</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Standard DVD and broadcast media often store video in $720 \times 480$ pixels (a 3:2 storage ratio), but display it at 16:9 widescreen using non-square anamorphic pixels (Pixel Aspect Ratio = 1.185). Treating anamorphic footage as square pixels causes actors to look squished and circles to appear as ovals.
         </p>
       </div>
 
-      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.25rem;">
-        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;">5. Sub-Pixel Blur from Non-Integer Downscaling</h3>
+      <div style="background:var(--bg);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;font-weight:700;">5. Sub-Pixel Blur from Non-Integer Downscaling</h3>
         <p style="font-size:0.875rem;color:var(--text-muted);line-height:1.5;margin:0;">
           Arbitrarily scaling 4K video ($3840 \times 2160$) down to custom non-standard resolutions (e.g. $1400 \times 788$) causes bilinear interpolation algorithms to blend neighboring pixels, softening crisp text and rendering UI icons blurry. Stick to standard fractional steps (e.g. 50% scale to $1920 \times 1080$).
         </p>
       </div>
+
     </div>
   </div>
 
