@@ -250,201 +250,527 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
     },
     {
       slug: 'tdee-calculator',
-      title: 'TDEE & Calorie Burn Calculator',
-      metaDesc: 'Calculate Total Daily Energy Expenditure (TDEE) and Basal Metabolic Rate (BMR) with Mifflin-St Jeor equation.',
-      category: 'Health',
+      title: 'TDEE & Calorie Burn Calculator (Mifflin-St Jeor, Katch-McArdle & Goal Timeline)',
+      metaDesc: 'Calculate your exact Total Daily Energy Expenditure (TDEE), BMR, calorie deficit targets, fat loss timeline, and custom macronutrient splits with scientific precision.',
+      category: 'Health & Fitness',
+      faq: [
+        { q: 'What is the difference between BMR and TDEE?', a: 'Basal Metabolic Rate (BMR) is the minimum energy (calories) required to sustain vital autonomic biological functions (breathing, cellular repair, heartbeat, brain function) in a resting, post-absorptive state. Total Daily Energy Expenditure (TDEE) is the total energy your body burns in 24 hours, combining BMR with the thermic effect of food (TEF), non-exercise physical activity (NEAT), and structured exercise (EAT).' },
+        { q: 'Which formula is more accurate: Mifflin-St Jeor or Katch-McArdle?', a: 'Mifflin-St Jeor is the most validated and reliable formula for the general population because it relies on weight, height, age, and sex. Katch-McArdle is significantly more accurate for lean, muscular athletes because it uses Lean Body Mass (LBM = weight × (1 - body fat %)), directly accounting for the higher metabolic rate of skeletal muscle compared to adipose tissue.' },
+        { q: 'How large of a calorie deficit should I use to lose body fat without losing muscle?', a: 'Clinical sports nutrition guidelines recommend a moderate deficit of 300 to 500 kcal/day (roughly 15%–20% below TDEE). This produces a sustainable fat loss of approximately 0.5 to 1.0 lb (0.25–0.45 kg) per week. Aggressive deficits (>25% or >750 kcal) cause sharp drops in active thyroid hormones (T3), elevate cortisol, suppress leptin, and accelerate muscle protein catabolism.' },
+        { q: 'Why do fitness trackers and smartwatches overestimate calories burned?', a: 'Multiple peer-reviewed clinical studies (including Stanford University evaluations) demonstrate that wrist-worn fitness trackers overestimate exercise energy expenditure by 25% to 40%. They mistake elevated heart rates from heat, dehydration, or stress for intense calorie consumption. Eating back exercise calories based on smartwatch readouts frequently stalls weight loss.' },
+        { q: 'What is Adaptive Thermogenesis (Metabolic Adaptation)?', a: 'When you maintain a sustained caloric deficit, your body adapts to protect energy stores. BMR drops beyond what would be expected from weight loss alone, and subconscious daily movement (NEAT—fidgeting, pacing, posture) drops by up to 200–300 kcal/day. Incorporating periodic diet breaks (eating at maintenance for 1–2 weeks) helps reset leptin and restore metabolic rate during prolonged fat loss phases.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; TDEE Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">TDEE & Calorie Burn Calculator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Discover your daily maintenance calories, BMR, and caloric targets for weight loss or muscle building.
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">TDEE &amp; Calorie Burn Calculator</h1>
+          <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
+            Calculate your exact Total Daily Energy Expenditure (TDEE), Basal Metabolic Rate (BMR), calorie deficit milestones, fat loss timeline, and custom macronutrient nutrition splits.
           </p>
 
+          <!-- Unit Selector Toggle -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
+            <button type="button" id="btnTdeeMetric" onclick="setTdeeUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (kg / cm)</button>
+            <button type="button" id="btnTdeeImperial" onclick="setTdeeUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (lbs / ft &amp; in)</button>
+          </div>
+
           <div class="tool-box">
+            <!-- Biological Inputs -->
             <div class="grid-inputs">
               <div class="field-group">
-                <label class="field-label">Gender</label>
-                <select id="tdee-gender" class="text-input" onchange="calcTdee()">
+                <label class="field-label">Biological Sex</label>
+                <select id="tdee-gender" class="code-input" onchange="calcTDEE()">
                   <option value="male" selected>Male</option>
                   <option value="female">Female</option>
                 </select>
               </div>
               <div class="field-group">
-                <label class="field-label">Age</label>
-                <input type="number" id="tdee-age" class="text-input" value="25" oninput="calcTdee()" />
+                <label class="field-label">Age (Years)</label>
+                <input type="number" id="tdee-age" class="code-input" value="28" min="15" max="100" step="1" oninput="calcTDEE()" />
               </div>
-              <div class="field-group">
-                <label class="field-label">Weight (kg)</label>
-                <input type="number" id="tdee-weight" class="text-input" value="70" oninput="calcTdee()" />
+
+              <!-- Metric Inputs -->
+              <div class="field-group" id="tdee-grp-w-metric">
+                <label class="field-label">Current Weight (kg)</label>
+                <input type="number" id="tdee-weight-kg" class="code-input" value="78" min="30" max="300" step="0.5" oninput="calcTDEE('kg')" />
               </div>
-              <div class="field-group">
+              <div class="field-group" id="tdee-grp-h-metric">
                 <label class="field-label">Height (cm)</label>
-                <input type="number" id="tdee-height" class="text-input" value="175" oninput="calcTdee()" />
+                <input type="number" id="tdee-height-cm" class="code-input" value="178" min="100" max="250" step="1" oninput="calcTDEE('cm')" />
+              </div>
+
+              <!-- Imperial Inputs -->
+              <div class="field-group" id="tdee-grp-w-imperial" style="display: none;">
+                <label class="field-label">Current Weight (lbs)</label>
+                <input type="number" id="tdee-weight-lbs" class="code-input" value="172" min="65" max="650" step="1" oninput="calcTDEE('lbs')" />
+              </div>
+              <div class="field-group" id="tdee-grp-h-imperial" style="display: none;">
+                <label class="field-label">Height (Feet &amp; Inches)</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="number" id="tdee-height-ft" class="code-input" value="5" min="3" max="7" placeholder="ft" oninput="calcTDEE('ftin')" />
+                  <input type="number" id="tdee-height-in" class="code-input" value="10" min="0" max="11" placeholder="in" oninput="calcTDEE('ftin')" />
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Body Fat % (Optional)</label>
+                <input type="number" id="tdee-bf" class="code-input" placeholder="Unlocks Katch-McArdle" min="3" max="60" step="0.5" oninput="calcTDEE()" />
+              </div>
+
+              <div class="field-group">
+                <label class="field-label">Goal Weight (Optional)</label>
+                <input type="number" id="tdee-goal-weight" class="code-input" value="72" placeholder="e.g. 72 kg / 158 lbs" step="0.5" oninput="calcTDEE()" />
               </div>
             </div>
 
-            <div class="field-group">
-              <label class="field-label">Activity Level</label>
-              <select id="tdee-act" class="text-input" onchange="calcTdee()">
-                <option value="1.2">Sedentary (desk job, little exercise)</option>
-                <option value="1.375" selected>Light Activity (exercise 1-3 times/week)</option>
-                <option value="1.55">Moderate Activity (exercise 3-5 times/week)</option>
-                <option value="1.725">Heavy Activity (intense training 6-7 times/week)</option>
+            <!-- Activity Level Selector -->
+            <div class="field-group" style="margin-top: 0.5rem;">
+              <label class="field-label">Physical Activity Level (PAL)</label>
+              <select id="tdee-pal" class="code-input" onchange="calcTDEE()">
+                <option value="1.2">Sedentary (desk job, minimal walking, <3,000 steps/day)</option>
+                <option value="1.375" selected>Lightly Active (light exercise or sports 1–3 days/wk, ~5,000–7,000 steps)</option>
+                <option value="1.55">Moderately Active (moderate training 3–5 days/wk, ~8,000–10,000 steps)</option>
+                <option value="1.725">Very Active (intense heavy training 6–7 days/wk, or physical labor job)</option>
+                <option value="1.9">Extra Active (elite athlete, endurance training twice daily, heavy construction)</option>
               </select>
             </div>
 
-            <div class="result-card">
-              <div class="field-label">Maintenance Energy (TDEE)</div>
-              <div id="tdee-val" class="result-val">2,305 kcal / day</div>
-              <div style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.5rem;">
-                Basal Metabolic Rate (BMR): <strong id="bmr-val" style="color: var(--fg);">1,675 kcal</strong>
+            <!-- Hero Output Results -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Maintenance Energy (TDEE)</div>
+                <div id="tdee-primary-val" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">2,438 kcal</div>
+                <div id="tdee-weekly-burn" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">17,066 kcal / week</div>
               </div>
 
-              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); font-family: var(--mono); font-size: 0.85rem; text-align: left;">
-                <div style="padding: 0.5rem; background: var(--surface); border-radius: 4px; border: 1px solid var(--border);">
-                  <span style="color: #22c55e; font-weight: bold; display: block;">Mild Cut (-250 kcal)</span>
-                  <span id="cut-mild" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">2,055 kcal</span>
-                  <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">~0.5 lb loss/wk</span>
-                </div>
-                <div style="padding: 0.5rem; background: var(--surface); border-radius: 4px; border: 1px solid var(--border);">
-                  <span style="color: #10b981; font-weight: bold; display: block;">Standard Cut (-500 kcal)</span>
-                  <span id="loss-val" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">1,805 kcal</span>
-                  <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">~1.0 lb loss/wk</span>
-                </div>
-                <div style="padding: 0.5rem; background: var(--surface); border-radius: 4px; border: 1px solid var(--border);">
-                  <span style="color: #3b82f6; font-weight: bold; display: block;">Lean Bulk (+300 kcal)</span>
-                  <span id="bulk-val" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);">2,605 kcal</span>
-                  <span style="font-size: 0.72rem; color: var(--text-muted); display: block;">Muscle hypertrophy</span>
-                </div>
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Basal Metabolic Rate (BMR)</div>
+                <div id="tdee-bmr-val" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">1,773 kcal</div>
+                <div id="tdee-bmr-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">Mifflin-St Jeor Standard</div>
               </div>
 
-              <div style="margin-top: 1rem; padding: 0.75rem; background: var(--surface); border-radius: 4px; border: 1px solid var(--border); font-family: var(--mono); font-size: 0.82rem; text-align: left;">
-                <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">Standard Balanced Macro Split (40C / 30P / 30F at Maintenance):</strong>
-                <div id="tdee-macros" style="color: var(--text-muted);">
-                  Protein: <strong>173g</strong> (692 kcal) &bull; Carbs: <strong>231g</strong> (922 kcal) &bull; Fat: <strong>77g</strong> (692 kcal)
-                </div>
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Selected Target Intake</div>
+                <div id="tdee-target-cal" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">1,950 kcal</div>
+                <div id="tdee-target-sub" style="font-size: 0.82rem; color: var(--text-muted); font-family: var(--mono);">-488 kcal deficit (Moderate Cut)</div>
               </div>
-
-              <button type="button" id="btnCopyTDEE" onclick="copyTDEESummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy Daily Nutrition & Calorie Targets
-              </button>
             </div>
+
+            <!-- Multi-Formula Comparison Strip -->
+            <div style="margin-top: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem;">
+              <div style="font-family: var(--mono); font-size: 0.72rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 600;">
+                Metabolic Formula Comparison:
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.5rem; font-family: var(--mono); font-size: 0.8rem;">
+                <div>Mifflin-St Jeor: <strong id="tdee-f-mifflin" style="color: var(--fg);">1,773 kcal</strong></div>
+                <div>Harris-Benedict (1984): <strong id="tdee-f-harris" style="color: var(--fg);">1,795 kcal</strong></div>
+                <div>Katch-McArdle (LBM): <strong id="tdee-f-katch" style="color: #3b82f6;">1,750 kcal</strong></div>
+              </div>
+            </div>
+
+            <!-- Energy Partitioning Bar (Pure CSS) -->
+            <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Daily Energy Expenditure Partitioning:</span>
+                <span id="tdee-bar-total" style="color: var(--fg);">Total: 2,438 kcal (100%)</span>
+              </div>
+              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
+                <div id="tdee-bar-bmr" style="width: 72.7%; background: #3b82f6;" title="Basal Metabolic Rate">BMR (73%)</div>
+                <div id="tdee-bar-neat" style="width: 15.0%; background: #10b981;" title="Non-Exercise Activity">NEAT (15%)</div>
+                <div id="tdee-bar-tef" style="width: 8.5%; background: #f59e0b;" title="Thermic Effect of Food">TEF (8%)</div>
+                <div id="tdee-bar-eat" style="width: 3.8%; background: #ef4444;" title="Exercise Thermogenesis">EAT</div>
+              </div>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> BMR (Organs at Rest)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> NEAT (Subconscious Walking/Fidgeting)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #f59e0b; border-radius: 2px;"></span> TEF (Digestion Thermic Cost)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> EAT (Structured Workouts)</span>
+              </div>
+            </div>
+
+            <!-- Caloric Target & Fat Loss Simulator Slider -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0; color: var(--fg);">
+                  🎯 Custom Calorie Target &amp; Goal Timeline Simulator:
+                </h4>
+                <span id="tdee-slider-badge" style="font-family: var(--mono); font-size: 0.75rem; color: #8b5cf6; font-weight: bold; background: rgba(139, 92, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">-20% Deficit (Moderate Cut)</span>
+              </div>
+              <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+                Adjust your daily caloric intake from an aggressive deficit to an anabolic lean bulk, and see the exact projected weekly fat loss rate and milestone completion date:
+              </p>
+              <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: center;">
+                <div>
+                  <label class="field-label">Calorie Adjustment: <span id="tdee-slider-pct" style="color: #8b5cf6; font-size: 1rem;">-20%</span></label>
+                  <input type="range" id="tdee-cal-slider" min="-40" max="30" value="-20" step="5" oninput="updateTDEESlider(this.value)" style="width: 100%; cursor: pointer;" />
+                </div>
+                <div style="text-align: right; min-width: 140px;">
+                  <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">Target Daily Calories:</div>
+                  <div id="tdee-slider-calories" style="font-family: var(--mono); font-size: 1.3rem; font-weight: bold; color: var(--fg);">1,950 kcal</div>
+                </div>
+              </div>
+
+              <!-- Milestone Timeline Box -->
+              <div id="tdee-timeline-box" style="margin-top: 1rem; padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.82rem; line-height: 1.5;">
+                <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Nutritional Macronutrient Distribution Protocol -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+                  🥗 Optimal Macronutrient Split for Target (<span id="tdee-macro-cal-label">1,950 kcal</span>):
+                </div>
+                <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+                  <button type="button" class="btn-sec" onclick="setTdeeMacroStrategy('highp')" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">High Protein (40C/35P/25F)</button>
+                  <button type="button" class="btn-sec" onclick="setTdeeMacroStrategy('balanced')" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">Balanced (40C/30P/30F)</button>
+                  <button type="button" class="btn-sec" onclick="setTdeeMacroStrategy('keto')" style="padding: 0.25rem 0.5rem; font-size: 0.72rem;">Keto (<30g C/25P/70F)</button>
+                </div>
+              </div>
+
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border); border-top: 3px solid #ef4444; text-align: center;">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Dietary Protein (4 kcal/g)</div>
+                  <div id="tdee-m-p-g" style="font-size: 1.3rem; font-weight: bold; color: #ef4444; margin: 0.2rem 0;">171g</div>
+                  <div id="tdee-m-p-cal" style="font-size: 0.75rem; color: var(--text-muted);">683 kcal (35%)</div>
+                  <div id="tdee-m-p-meal" style="font-size: 0.72rem; color: var(--fg); margin-top: 0.3rem;">~43g / 4 meals</div>
+                </div>
+
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border); border-top: 3px solid #3b82f6; text-align: center;">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Healthy Fats (9 kcal/g)</div>
+                  <div id="tdee-m-f-g" style="font-size: 1.3rem; font-weight: bold; color: #3b82f6; margin: 0.2rem 0;">54g</div>
+                  <div id="tdee-m-f-cal" style="font-size: 0.75rem; color: var(--text-muted);">488 kcal (25%)</div>
+                  <div id="tdee-m-f-meal" style="font-size: 0.72rem; color: var(--fg); margin-top: 0.3rem;">~14g / 4 meals</div>
+                </div>
+
+                <div style="background: var(--surface-alt); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border); border-top: 3px solid #10b981; text-align: center;">
+                  <div style="color: var(--text-muted); font-size: 0.7rem;">Carbohydrates (4 kcal/g)</div>
+                  <div id="tdee-m-c-g" style="font-size: 1.3rem; font-weight: bold; color: #10b981; margin: 0.2rem 0;">195g</div>
+                  <div id="tdee-m-c-cal" style="font-size: 0.75rem; color: var(--text-muted);">780 kcal (40%)</div>
+                  <div id="tdee-m-c-meal" style="font-size: 0.72rem; color: var(--fg); margin-top: 0.3rem;">~49g / 4 meals</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyTDEE" onclick="copyTDEESummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Complete TDEE, Deficit Targets &amp; Macro Schedule
+            </button>
           </div>
 
           <!-- Step-by-Step Worked Derivation -->
           <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step TDEE & BMR Derivation</h3>
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step TDEE &amp; BMR Clinical Derivation</h3>
               <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">Mifflin-St Jeor Standard</span>
             </div>
             <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Total Daily Energy Expenditure computes the baseline metabolic energy required to sustain vital organs at rest (BMR) multiplied by your daily physical activity level (PAL):
+              Total Daily Energy Expenditure combines Basal Metabolic Rate (BMR) with the Physical Activity Level (PAL) coefficient:
             </p>
             <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
                 <strong style="color: var(--fg);">Step 1: Mifflin-St Jeor BMR Equation</strong>
                 <div style="color: #3b82f6; margin-top: 0.25rem;">
-                  Male: BMR = (10 × W) + (6.25 × H) - (5 × A) + 5<br>
-                  Female: BMR = (10 × W) + (6.25 × H) - (5 × A) - 161
+                  Male: BMR = (10 &times; W<sub>kg</sub>) + (6.25 &times; H<sub>cm</sub>) - (5 &times; Age) + 5<br>
+                  Female: BMR = (10 &times; W<sub>kg</sub>) + (6.25 &times; H<sub>cm</sub>) - (5 &times; Age) - 161
                 </div>
-                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  Worked for Male 70 kg, 175 cm, 25 yo: (10 × 70) + (6.25 × 175) - (5 × 25) + 5 = 700 + 1,093.75 - 125 + 5 = <strong>1,673.75 kcal</strong>.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 2: Physical Activity Level (PAL) Multiplier</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Sedentary: 1.2 &bull; Light (1–3 days/wk): 1.375 &bull; Moderate (3–5 days/wk): 1.55 &bull; Heavy (6–7 days/wk): 1.725
+                <div id="tdee-step-1" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  Worked: (10 &times; 78) + (6.25 &times; 178) - (5 &times; 28) + 5 = 780 + 1112.5 - 140 + 5 = <strong>1,757.5 kcal</strong>.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: var(--fg);">Step 3: Total Daily Energy Expenditure (TDEE)</strong>
-                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
-                  TDEE = BMR × PAL = 1,674 × 1.375 = <strong>2,302 kcal / day (Maintenance)</strong>
+                <strong style="color: var(--fg);">Step 2: Activity Multiplier (PAL)</strong>
+                <div id="tdee-step-2" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  TDEE = BMR &times; PAL = 1,758 &times; 1.375 = <strong>2,417 kcal / day (Maintenance)</strong>.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #8b5cf6;">Step 3: Deficit Calorie Math &amp; The 3,500 kcal Rule</strong>
+                <div id="tdee-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Target = TDEE &times; 0.80 = <strong>1,934 kcal / day</strong> (Deficit = -483 kcal/day = -3,384 kcal/wk &approx; 0.97 lb fat loss/wk).
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Critical Metabolic Traps & Adaptive Thermogenesis -->
+          <!-- Critical Metabolic Traps -->
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Metabolic Traps & Adaptive Thermogenesis</h3>
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Metabolic Traps &amp; Adaptive Thermogenesis</h3>
             <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Adaptive Thermogenesis & Metabolic Slowdown:</strong> Running an aggressive calorie deficit (>750 kcal/day) for prolonged periods triggers metabolic down-regulation (thyroid T3 decreases, leptin crashes, and cortisol spikes). Non-exercise activity thermogenesis (fidgeting, walking speed, posture) drops subconsciously by up to 300 kcal/day, stalling fat loss. Use conservative deficits of 300–500 kcal.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Adaptive Thermogenesis &amp; Metabolic Slowdown:</strong> Running an aggressive calorie deficit (>750 kcal/day) for prolonged periods triggers metabolic down-regulation (thyroid T3 decreases, leptin crashes, and cortisol spikes). Non-exercise activity thermogenesis (fidgeting, walking speed, posture) drops subconsciously by up to 300 kcal/day, stalling fat loss. Use conservative deficits of 300–500 kcal.</li>
               <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Fitness Tracker Caloric Burn Overestimation:</strong> Commercial smartwatches routinely overestimate calories burned during cardio and weight training by <strong>25% to 40%</strong>. "Eating back" workout calories based on watch readouts is the primary reason fitness enthusiasts fail to lose weight.</li>
               <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Thermic Effect of Food (TEF) Advantage:</strong> Not all calories require equal metabolic effort to process. Dietary protein requires <strong>20% to 30% of its caloric value</strong> simply to digest and assimilate, compared to 5–10% for carbs and 0–3% for dietary fats. High-protein diets naturally increase metabolic burn.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Diet Breaks &amp; Refeed Strategy:</strong> After 8 to 12 weeks of continuous cutting, taking a 1-to-2 week planned "diet break" at maintenance calories resets leptin, restores thyroid hormone production, and prevents metabolic adaptation without gaining body fat.</li>
             </ul>
           </div>
         </div>
 
         <script>
-          function calcTdee() {
-            const g = document.getElementById('tdee-gender').value;
-            const age = parseFloat(document.getElementById('tdee-age').value) || 25;
-            const w = parseFloat(document.getElementById('tdee-weight').value) || 70;
-            const h = parseFloat(document.getElementById('tdee-height').value) || 175;
-            const mult = parseFloat(document.getElementById('tdee-act').value) || 1.375;
+          var tdeeUnitMode = 'metric';
+          var curTdeeMacroStrategy = 'highp';
+          var curTdeeDeficitPct = -20;
 
-            // Mifflin-St Jeor
-            let bmr = (10 * w) + (6.25 * h) - (5 * age);
-            bmr += (g === 'male' ? 5 : -161);
+          window.setTdeeUnit = function(mode) {
+            tdeeUnitMode = mode;
+            var btnM = document.getElementById('btnTdeeMetric');
+            var btnI = document.getElementById('btnTdeeImperial');
+            var grpWM = document.getElementById('tdee-grp-w-metric');
+            var grpHM = document.getElementById('tdee-grp-h-metric');
+            var grpWI = document.getElementById('tdee-grp-w-imperial');
+            var grpHI = document.getElementById('tdee-grp-h-imperial');
 
-            const tdee = Math.round(bmr * mult);
-            const mildLoss = tdee - 250;
-            const loss = tdee - 500;
-            const bulk = tdee + 300;
+            if (mode === 'metric') {
+              btnM.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnM.style.borderColor = '#3b82f6';
+              btnM.style.color = '#3b82f6';
+              btnI.style.background = 'var(--surface-alt)';
+              btnI.style.borderColor = 'var(--border)';
+              btnI.style.color = 'var(--fg)';
 
-            document.getElementById('tdee-val').textContent = tdee.toLocaleString() + ' kcal / day';
-            document.getElementById('bmr-val').textContent = Math.round(bmr).toLocaleString() + ' kcal';
-            document.getElementById('cut-mild').textContent = mildLoss.toLocaleString() + ' kcal';
-            document.getElementById('loss-val').textContent = loss.toLocaleString() + ' kcal';
-            document.getElementById('bulk-val').textContent = bulk.toLocaleString() + ' kcal';
+              grpWM.style.display = 'block';
+              grpHM.style.display = 'block';
+              grpWI.style.display = 'none';
+              grpHI.style.display = 'none';
+            } else {
+              btnI.style.background = 'rgba(59, 130, 246, 0.1)';
+              btnI.style.borderColor = '#3b82f6';
+              btnI.style.color = '#3b82f6';
+              btnM.style.background = 'var(--surface-alt)';
+              btnM.style.borderColor = 'var(--border)';
+              btnM.style.color = 'var(--fg)';
 
-            // Macros at maintenance (40% C, 30% P, 30% F)
-            const proteinG = Math.round((tdee * 0.30) / 4);
-            const carbsG = Math.round((tdee * 0.40) / 4);
-            const fatG = Math.round((tdee * 0.30) / 9);
-
-            const macroEl = document.getElementById('tdee-macros');
-            if (macroEl) {
-              macroEl.innerHTML = 'Protein: <strong>' + proteinG + 'g</strong> (' + Math.round(proteinG * 4) + ' kcal) &bull; Carbs: <strong>' + carbsG + 'g</strong> (' + Math.round(carbsG * 4) + ' kcal) &bull; Fat: <strong>' + fatG + 'g</strong> (' + Math.round(fatG * 9) + ' kcal)';
+              grpWM.style.display = 'none';
+              grpHM.style.display = 'none';
+              grpWI.style.display = 'block';
+              grpHI.style.display = 'block';
             }
+            calcTDEE();
+          };
+
+          window.setTdeeMacroStrategy = function(strat) {
+            curTdeeMacroStrategy = strat;
+            calcTDEE();
+          };
+
+          window.updateTDEESlider = function(val) {
+            curTdeeDeficitPct = parseInt(val, 10);
+            calcTDEE();
+          };
+
+          function calcTDEE(origin) {
+            var g = document.getElementById('tdee-gender').value;
+            var age = parseFloat(document.getElementById('tdee-age').value) || 28;
+            var pal = parseFloat(document.getElementById('tdee-pal').value) || 1.375;
+            var bf = parseFloat(document.getElementById('tdee-bf').value) || 0;
+            var goalWeightInput = parseFloat(document.getElementById('tdee-goal-weight').value) || 0;
+
+            var weightKg = 78;
+            var heightCm = 178;
+
+            if (tdeeUnitMode === 'metric') {
+              weightKg = parseFloat(document.getElementById('tdee-weight-kg').value) || 78;
+              heightCm = parseFloat(document.getElementById('tdee-height-cm').value) || 178;
+
+              if (origin === 'kg') {
+                document.getElementById('tdee-weight-lbs').value = Math.round(weightKg * 2.20462);
+              } else if (origin === 'cm') {
+                var totalInches = heightCm / 2.54;
+                var ft = Math.floor(totalInches / 12);
+                var inches = Math.round(totalInches % 12);
+                document.getElementById('tdee-height-ft').value = ft;
+                document.getElementById('tdee-height-in').value = inches;
+              }
+            } else {
+              var lbs = parseFloat(document.getElementById('tdee-weight-lbs').value) || 172;
+              var ft = parseFloat(document.getElementById('tdee-height-ft').value) || 5;
+              var inches = parseFloat(document.getElementById('tdee-height-in').value) || 10;
+              weightKg = lbs / 2.20462;
+              heightCm = ((ft * 12) + inches) * 2.54;
+
+              if (origin === 'lbs') {
+                document.getElementById('tdee-weight-kg').value = (lbs / 2.20462).toFixed(1);
+              } else if (origin === 'ftin') {
+                document.getElementById('tdee-height-cm').value = Math.round(heightCm);
+              }
+            }
+
+            // Formulas
+            // 1. Mifflin-St Jeor
+            var bmrMifflin = (10 * weightKg) + (6.25 * heightCm) - (5 * age);
+            bmrMifflin += (g === 'male' ? 5 : -161);
+
+            // 2. Revised Harris-Benedict (1984)
+            var bmrHarris = 0;
+            if (g === 'male') {
+              bmrHarris = 88.362 + (13.397 * weightKg) + (4.799 * heightCm) - (5.677 * age);
+            } else {
+              bmrHarris = 447.593 + (9.247 * weightKg) + (3.098 * heightCm) - (4.330 * age);
+            }
+
+            // 3. Katch-McArdle (if body fat % given)
+            var bmrKatch = 0;
+            var lbmKg = 0;
+            if (bf > 0 && bf < 60) {
+              lbmKg = weightKg * (1 - (bf / 100));
+              bmrKatch = 370 + (21.6 * lbmKg);
+            } else {
+              // Standard assumption
+              var defaultBf = g === 'male' ? 18 : 25;
+              lbmKg = weightKg * (1 - (defaultBf / 100));
+              bmrKatch = 370 + (21.6 * lbmKg);
+            }
+
+            var chosenBmr = bmrMifflin;
+            var tdee = Math.round(chosenBmr * pal);
+            var weeklyBurn = tdee * 7;
+
+            // Slider targets
+            var targetCal = Math.round(tdee * (1 + (curTdeeDeficitPct / 100)));
+            var dailyDiff = targetCal - tdee;
+
+            // Update Primary Hero Results
+            document.getElementById('tdee-primary-val').textContent = tdee.toLocaleString('en-US') + ' kcal';
+            document.getElementById('tdee-weekly-burn').textContent = weeklyBurn.toLocaleString('en-US') + ' kcal / week';
+
+            document.getElementById('tdee-bmr-val').textContent = Math.round(chosenBmr).toLocaleString('en-US') + ' kcal';
+
+            document.getElementById('tdee-target-cal').textContent = targetCal.toLocaleString('en-US') + ' kcal';
+            var diffStr = (dailyDiff >= 0 ? '+' : '') + dailyDiff + ' kcal';
+            var defLabel = curTdeeDeficitPct === 0 ? 'Maintenance' :
+              (curTdeeDeficitPct === -20 ? 'Moderate Cut (-20%)' :
+              (curTdeeDeficitPct <= -25 ? 'Aggressive Cut (' + curTdeeDeficitPct + '%)' :
+              (curTdeeDeficitPct < 0 ? 'Mild Cut (' + curTdeeDeficitPct + '%)' : 'Hypertrophy Bulk (+' + curTdeeDeficitPct + '%)')));
+            document.getElementById('tdee-target-sub').textContent = diffStr + ' (' + defLabel + ')';
+
+            // Multi-Formula display
+            document.getElementById('tdee-f-mifflin').textContent = Math.round(bmrMifflin).toLocaleString('en-US') + ' kcal';
+            document.getElementById('tdee-f-harris').textContent = Math.round(bmrHarris).toLocaleString('en-US') + ' kcal';
+            document.getElementById('tdee-f-katch').textContent = Math.round(bmrKatch).toLocaleString('en-US') + ' kcal' + (bf > 0 ? ' (exact LBM)' : ' (est)');
+
+            // Slider UI update
+            document.getElementById('tdee-cal-slider').value = curTdeeDeficitPct;
+            document.getElementById('tdee-slider-pct').textContent = (curTdeeDeficitPct >= 0 ? '+' : '') + curTdeeDeficitPct + '%';
+            document.getElementById('tdee-slider-calories').textContent = targetCal.toLocaleString('en-US') + ' kcal';
+            document.getElementById('tdee-slider-badge').textContent = defLabel;
+
+            // Energy Bar partitioning
+            var neatCal = Math.round(chosenBmr * 0.20);
+            var tefCal = Math.round(tdee * 0.08);
+            var eatCal = Math.max(0, tdee - chosenBmr - neatCal - tefCal);
+            var bmrPct = (chosenBmr / tdee) * 100;
+            var neatPct = (neatCal / tdee) * 100;
+            var tefPct = (tefCal / tdee) * 100;
+            var eatPct = (eatCal / tdee) * 100;
+
+            document.getElementById('tdee-bar-bmr').style.width = bmrPct.toFixed(1) + '%';
+            document.getElementById('tdee-bar-neat').style.width = neatPct.toFixed(1) + '%';
+            document.getElementById('tdee-bar-tef').style.width = tefPct.toFixed(1) + '%';
+            document.getElementById('tdee-bar-eat').style.width = eatPct.toFixed(1) + '%';
+            document.getElementById('tdee-bar-total').textContent = 'Total: ' + tdee.toLocaleString('en-US') + ' kcal (100%)';
+
+            // Goal Timeline Math
+            var weeklyLossLbs = (-dailyDiff * 7) / 3500;
+            var weeklyLossKg = weeklyLossLbs * 0.453592;
+
+            var timelineEl = document.getElementById('tdee-timeline-box');
+            var goalWeightKg = tdeeUnitMode === 'metric' ? goalWeightInput : (goalWeightInput / 2.20462);
+
+            if (goalWeightKg > 0 && Math.abs(weightKg - goalWeightKg) > 0.5) {
+              var deltaKg = Math.abs(weightKg - goalWeightKg);
+              var deltaLbs = deltaKg * 2.20462;
+              var isLosing = goalWeightKg < weightKg;
+
+              if (isLosing && weeklyLossKg > 0.05) {
+                var weeksNeeded = Math.ceil(deltaKg / weeklyLossKg);
+                var targetDate = new Date();
+                targetDate.setDate(targetDate.getDate() + (weeksNeeded * 7));
+                var dateOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+
+                timelineEl.innerHTML = '<strong>Goal Projection:</strong> Losing ' + deltaKg.toFixed(1) + ' kg (' + deltaLbs.toFixed(1) + ' lbs) to reach <strong>' + goalWeightInput + (tdeeUnitMode === 'metric' ? ' kg' : ' lbs') + '</strong> at ' + (weeklyLossLbs).toFixed(2) + ' lbs/week (-' + weeklyLossKg.toFixed(2) + ' kg/wk).<br>' +
+                  '⏱️ Estimated Time: <strong>' + weeksNeeded + ' Weeks (~' + (weeksNeeded / 4.3).toFixed(1) + ' Months)</strong> &bull; Projected Milestone Date: <strong style="color: #10b981;">' + targetDate.toLocaleDateString('en-US', dateOptions) + '</strong>.' +
+                  (weeklyLossLbs > 2.0 ? '<br><span style="color: #ef4444; font-weight: bold;">⚠️ Warning:</span> Projected fat loss rate exceeds 2.0 lbs/week. Elevated risk of muscle wasting and metabolic slowdown. Consider reducing deficit.' : '');
+              } else if (!isLosing && weeklyLossKg < -0.05) {
+                var surplusKg = Math.abs(weeklyLossKg);
+                var weeksBulk = Math.ceil(deltaKg / surplusKg);
+                timelineEl.innerHTML = '<strong>Bulking Projection:</strong> Gaining ' + deltaKg.toFixed(1) + ' kg (' + deltaLbs.toFixed(1) + ' lbs) to reach <strong>' + goalWeightInput + (tdeeUnitMode === 'metric' ? ' kg' : ' lbs') + '</strong> at +' + Math.abs(weeklyLossLbs).toFixed(2) + ' lbs/week.<br>' +
+                  '⏱️ Estimated Time: <strong>' + weeksBulk + ' Weeks</strong> for clean hypertrophy pacing.';
+              } else {
+                timelineEl.innerHTML = 'Weight loss rate is near zero at maintenance calories. Adjust the slider to project fat loss timeline.';
+              }
+            } else {
+              timelineEl.innerHTML = 'Enter your <strong>Goal Weight</strong> above to calculate the exact number of weeks and projected calendar date to achieve your physique target!';
+            }
+
+            // Macros calculation
+            document.getElementById('tdee-macro-cal-label').textContent = targetCal.toLocaleString('en-US') + ' kcal';
+
+            var pG = 0, fG = 0, cG = 0;
+            if (curTdeeMacroStrategy === 'highp') {
+              // 40% C, 35% P, 25% F
+              pG = Math.round((targetCal * 0.35) / 4);
+              fG = Math.round((targetCal * 0.25) / 9);
+              cG = Math.round((targetCal * 0.40) / 4);
+            } else if (curTdeeMacroStrategy === 'balanced') {
+              // 40% C, 30% P, 30% F
+              pG = Math.round((targetCal * 0.30) / 4);
+              fG = Math.round((targetCal * 0.30) / 9);
+              cG = Math.round((targetCal * 0.40) / 4);
+            } else if (curTdeeMacroStrategy === 'keto') {
+              cG = 25; // fixed low carb
+              var remCal = targetCal - (cG * 4);
+              pG = Math.round((remCal * 0.30) / 4);
+              fG = Math.round((remCal * 0.70) / 9);
+            }
+
+            document.getElementById('tdee-m-p-g').textContent = pG + 'g';
+            document.getElementById('tdee-m-p-cal').textContent = (pG * 4) + ' kcal (' + Math.round(((pG * 4) / targetCal) * 100) + '%)';
+            document.getElementById('tdee-m-p-meal').textContent = '~' + Math.round(pG / 4) + 'g / 4 meals';
+
+            document.getElementById('tdee-m-f-g').textContent = fG + 'g';
+            document.getElementById('tdee-m-f-cal').textContent = (fG * 9) + ' kcal (' + Math.round(((fG * 9) / targetCal) * 100) + '%)';
+            document.getElementById('tdee-m-f-meal').textContent = '~' + Math.round(fG / 4) + 'g / 4 meals';
+
+            document.getElementById('tdee-m-c-g').textContent = cG + 'g';
+            document.getElementById('tdee-m-c-cal').textContent = (cG * 4) + ' kcal (' + Math.round(((cG * 4) / targetCal) * 100) + '%)';
+            document.getElementById('tdee-m-c-meal').textContent = '~' + Math.round(cG / 4) + 'g / 4 meals';
+
+            // Step Worked Text
+            document.getElementById('tdee-step-1').innerHTML = 'Worked: (10 &times; ' + weightKg.toFixed(1) + ') + (6.25 &times; ' + heightCm.toFixed(1) + ') - (5 &times; ' + age + ') ' + (g === 'male' ? '+ 5' : '- 161') + ' = <strong>' + Math.round(chosenBmr) + ' kcal</strong>.';
+            document.getElementById('tdee-step-2').innerHTML = 'TDEE = BMR &times; PAL = ' + Math.round(chosenBmr) + ' &times; ' + pal + ' = <strong>' + tdee.toLocaleString('en-US') + ' kcal / day (Maintenance)</strong>.';
+            document.getElementById('tdee-step-3').innerHTML = 'Target Intake = TDEE &times; ' + (1 + (curTdeeDeficitPct / 100)).toFixed(2) + ' = <strong>' + targetCal.toLocaleString('en-US') + ' kcal / day</strong> (' + diffStr + ' kcal/day &approx; ' + (weeklyLossLbs).toFixed(2) + ' lbs fat loss/wk).';
           }
 
           window.copyTDEESummary = function() {
-            const gender = document.getElementById('tdee-gender').value;
-            const age = document.getElementById('tdee-age').value;
-            const w = document.getElementById('tdee-weight').value;
-            const h = document.getElementById('tdee-height').value;
-            const tdee = document.getElementById('tdee-val').textContent;
-            const bmr = document.getElementById('bmr-val').textContent;
-            const mild = document.getElementById('cut-mild').textContent;
-            const cut = document.getElementById('loss-val').textContent;
-            const bulk = document.getElementById('bulk-val').textContent;
+            var tdee = document.getElementById('tdee-primary-val').textContent;
+            var bmr = document.getElementById('tdee-bmr-val').textContent;
+            var target = document.getElementById('tdee-target-cal').textContent;
+            var targetSub = document.getElementById('tdee-target-sub').textContent;
+            var p = document.getElementById('tdee-m-p-g').textContent;
+            var f = document.getElementById('tdee-m-f-g').textContent;
+            var c = document.getElementById('tdee-m-c-g').textContent;
 
-            const text = [
+            var text = [
               '=== TDEE & METABOLIC CALORIE REPORT ===',
-              'Parameters: ' + gender + ', ' + age + ' yo, ' + w + ' kg, ' + h + ' cm',
-              '---------------------------------------',
               'Basal Metabolic Rate (BMR): ' + bmr,
-              'Daily Maintenance (TDEE): ' + tdee,
-              'Mild Fat Loss Target (-250 kcal): ' + mild,
-              'Standard Fat Loss Target (-500 kcal): ' + cut,
-              'Lean Hypertrophy Bulk (+300 kcal): ' + bulk,
+              'Daily Maintenance Energy (TDEE): ' + tdee,
+              'Daily Target Caloric Intake: ' + target + ' (' + targetSub + ')',
               '---------------------------------------',
-              'Governing Equation: Mifflin-St Jeor Standard',
+              'Daily Macronutrient Split:',
+              'Protein: ' + p + ' | Healthy Fats: ' + f + ' | Carbohydrates: ' + c,
+              '---------------------------------------',
+              'Standard: Mifflin-St Jeor & Katch-McArdle Equations',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/tdee-calculator'
-            ].join('\\n');
+            ].join('\n');
 
             navigator.clipboard.writeText(text).then(function() {
-              const btn = document.getElementById('btnCopyTDEE');
+              var btn = document.getElementById('btnCopyTDEE');
               if (btn) {
-                const old = btn.innerHTML;
+                var old = btn.innerHTML;
                 btn.innerHTML = '✓ Copied Nutrition Targets!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
@@ -452,158 +778,218 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcTdee);
+          document.addEventListener('DOMContentLoaded', function() { calcTDEE(); });
+          calcTDEE();
         </script>
       `
     },
     {
       slug: 'water-intake',
-      title: 'Daily Water Intake & Hydration Schedule Calculator',
-      metaDesc: 'Calculate optimal daily water consumption in liters and fluid ounces based on body weight, exercise intensity, climate, and elevation with hourly pacing.',
+      title: 'Daily Water Intake & Hydration Schedule Calculator (Clinical Osmolality & Pacing)',
+      metaDesc: 'Calculate optimal daily fluid requirements in liters and ounces based on body weight, workout intensity, sweat rate, climate, and elevation with hourly pacing.',
       category: 'Health & Fitness',
+      faq: [
+        { q: 'How much water should I drink per day according to clinical guidelines?', a: 'The National Academies of Sciences, Engineering, and Medicine (NASEM) recommends a baseline daily fluid intake of approximately 3.7 liters (125 fl oz / 15 cups) for adult men and 2.7 liters (91 fl oz / 11 cups) for adult women. Approximately 20% of this fluid comes from food (fruits, vegetables, soups), leaving 2.2 to 3.0 liters to be consumed as direct beverages.' },
+        { q: 'Does exercise duration and sweat rate increase daily water needs?', a: 'Yes. The American College of Sports Medicine (ACSM) recommends adding 12 to 16 fl oz (350–500 ml) of fluid for every 30 minutes of moderate-to-vigorous exercise. For heavy sweat sessions or endurance athletics exceeding 60 minutes, athletes should weigh themselves before and after training: drink 16 to 24 fl oz (500–750 ml) for every pound of body weight lost during the session.' },
+        { q: 'When should I add electrolytes (sodium, potassium, magnesium) to my water?', a: 'Plain water is optimal for everyday resting hydration. However, during continuous exercise lasting longer than 60 minutes, or in high-heat and humid environments where sweat loss exceeds 1 liter, you must replenish electrolytes—especially sodium (500–800 mg per liter). Drinking large volumes of plain water without sodium dilutes blood plasma and can lead to potentially life-threatening Exercise-Associated Hyponatremia (EAH).' },
+        { q: 'What does urine color reveal about hydration levels?', a: 'Clinically evaluated via the Armstrong Urine Color Chart: Pale yellow or light straw color (Levels 1–3) indicates optimal hydration. Transparent/completely clear urine indicates mild overhydration (you may be washing out electrolytes). Dark amber, tea-colored, or brown urine (Levels 6–8) indicates severe dehydration requiring immediate fluid intake.' },
+        { q: 'Does coffee, tea, or soda count toward daily water intake?', a: 'Yes. Extensive research confirms that caffeine doses under 400 mg/day (equivalent to 3–4 cups of brewed coffee) have a negligible diuretic effect in habitual consumers. Coffee, unsweetened tea, sparkling water, and milk all provide net positive hydration toward your daily fluid baseline.' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/health/">Health & Fitness</a> &gt; Water Intake Calculator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Daily Water Intake & Hydration Calculator</h1>
+          <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Daily Water Intake &amp; Hydration Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate your personalized daily hydration requirement and hourly pacing schedule based on biological weight, sweat rate, environmental heat index, and altitude.
+            Calculate your personalized daily hydration requirement, bottle &amp; glass counts, hourly pacing timeline, and electrolyte replacement schedule based on biological weight, sweat rate, and environment.
           </p>
 
           <!-- Unit Selector Toggle -->
           <div style="display: flex; gap: 0.5rem; margin-bottom: 1.25rem;">
-            <button type="button" id="btnWaterMetric" onclick="setWaterUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (kg / Liters)</button>
-            <button type="button" id="btnWaterImperial" onclick="setWaterUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (lbs / Fl. Oz)</button>
+            <button type="button" id="btnWaterMetric" onclick="setWaterUnit('metric')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Metric (kg / Liters / ml)</button>
+            <button type="button" id="btnWaterImperial" onclick="setWaterUnit('imperial')" style="padding: 0.45rem 1rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Imperial (lbs / Fl. Oz / cups)</button>
           </div>
 
           <div class="tool-box">
+            <!-- Inputs Grid -->
             <div class="grid-inputs">
               <div class="field-group">
                 <label class="field-label" id="lblWaterWeight">Body Weight (kg)</label>
-                <input type="number" id="water-weight" class="text-input" value="70" step="1" oninput="calcWater()" />
+                <input type="number" id="water-weight" class="code-input" value="70" step="1" oninput="calcWater()" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Daily Exercise (Minutes)</label>
-                <input type="number" id="water-exercise" class="text-input" value="45" step="5" oninput="calcWater()" />
+                <label class="field-label">Daily Exercise Duration (Minutes)</label>
+                <input type="number" id="water-exercise" class="code-input" value="45" step="5" min="0" max="300" oninput="calcWater()" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
-                <label class="field-label">Workout Intensity</label>
-                <select id="water-intensity" class="text-input" onchange="calcWater()">
-                  <option value="1.0">Light / Walking (low sweat)</option>
-                  <option value="1.3" selected>Moderate / Jogging / Gym (steady sweat)</option>
-                  <option value="1.7">Vigorous / HIIT / Competitive Sports (heavy sweat)</option>
+                <label class="field-label">Workout Sweat Intensity</label>
+                <select id="water-intensity" class="code-input" onchange="calcWater()">
+                  <option value="1.0">Light / Walking (minimal perspiration)</option>
+                  <option value="1.3" selected>Moderate / Weightlifting / Jogging (steady sweat)</option>
+                  <option value="1.8">Vigorous / HIIT / Competitive Sports (heavy dripping sweat)</option>
+                  <option value="2.4">Endurance / Marathon / Cycling &gt; 90 min (extreme sweat)</option>
                 </select>
               </div>
               <div class="field-group">
-                <label class="field-label">Climate & Environment</label>
-                <select id="water-climate" class="text-input" onchange="calcWater()">
-                  <option value="0" selected>Temperate / Climate-Controlled (indoor)</option>
-                  <option value="400">Warm & Dry (+400 ml / 14 oz)</option>
-                  <option value="750">Hot & Humid (+750 ml / 25 oz)</option>
+                <label class="field-label">Climate &amp; Environmental Heat</label>
+                <select id="water-climate" class="code-input" onchange="calcWater()">
+                  <option value="0" selected>Temperate / Climate-Controlled (Indoor / 20°C / 68°F)</option>
+                  <option value="400">Warm &amp; Dry (+400 ml / 14 oz)</option>
+                  <option value="750">Hot &amp; Humid Summer (+750 ml / 25 oz)</option>
                   <option value="500">High Altitude &gt; 2,000m (+500 ml / 17 oz)</option>
                 </select>
               </div>
               <div class="field-group">
-                <label class="field-label">Life Stage / Physiological State</label>
-                <select id="water-stage" class="text-input" onchange="calcWater()">
-                  <option value="0" selected>Standard Adult</option>
-                  <option value="300">Pregnant (+300 ml / 10 oz)</option>
-                  <option value="700">Lactating (+700 ml / 24 oz)</option>
+                <label class="field-label">Physiological State</label>
+                <select id="water-stage" class="code-input" onchange="calcWater()">
+                  <option value="0" selected>Standard Healthy Adult</option>
+                  <option value="300">Pregnancy (+300 ml / 10 oz)</option>
+                  <option value="700">Lactating / Nursing (+700 ml / 24 oz)</option>
                 </select>
               </div>
             </div>
 
-            <div class="result-card" style="margin-top: 1.5rem;">
-              <div class="field-label">Target Daily Total Fluid Intake</div>
-              <div id="water-primary" class="result-val">3.2 Liters</div>
-              <div id="water-secondary" style="font-size: 1.15rem; color: #10b981; font-family: var(--mono); margin-top: 0.4rem;">
-                108 Fl. Oz &bull; ~13.5 standard glasses (240 ml / 8 oz)
-              </div>
-              <div id="water-electrolyte-note" style="margin-top: 0.75rem; font-size: 0.85rem; padding: 0.5rem 0.75rem; border-radius: 4px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--fg); line-height: 1.5;">
-                ⚡ <strong>Electrolyte Recommendation:</strong> Sustained sweat loss requires 500–800 mg sodium per liter to maintain plasma osmolality.
+            <!-- Hero Output Results -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Target Daily Fluid Intake</div>
+                <div id="water-primary" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">3.20 Liters</div>
+                <div id="water-secondary" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">108 Fl. Oz total beverages</div>
               </div>
 
-              <!-- Paced Hourly Schedule Table -->
-              <div style="margin-top: 1.5rem; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
-                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.5rem; color: var(--fg);">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Glasses (8 oz / 240 ml)</div>
+                <div id="water-glasses" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">13.3 Glasses</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Standard water glasses</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Gym Bottles (500 ml)</div>
+                <div id="water-bottles" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">6.4 Bottles</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">Standard 16.9 oz bottles</div>
+              </div>
+            </div>
+
+            <!-- Electrolyte Guidance Banner -->
+            <div id="water-electrolyte-note" style="margin-top: 1rem; font-size: 0.85rem; padding: 0.75rem 1rem; border-radius: 6px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--fg); line-height: 1.5;">
+              ⚡ <strong>Electrolyte Recommendation:</strong> Sustained workout sweat loss requires ~500–800 mg sodium per liter of replacement fluid to maintain optimal plasma osmolality and prevent cramping.
+            </div>
+
+            <!-- Hourly Pacing Schedule -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
                   ⏰ Optimal Hourly Hydration Pacing Schedule:
                 </div>
-                <div id="water-schedule" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; font-family: var(--mono); font-size: 0.82rem;">
-                  <!-- Dynamic badges inserted by JS -->
-                </div>
+                <span style="font-family: var(--mono); font-size: 0.75rem; color: #10b981;">Prevents Sleep-Disrupting Nocturia</span>
               </div>
-
-              <button type="button" id="btnCopyWater" onclick="copyHydrationPlan()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-                📋 Copy Daily Hydration & Electrolyte Schedule
-              </button>
+              <div id="water-schedule" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; font-family: var(--mono); font-size: 0.82rem;">
+                <!-- Populated dynamically -->
+              </div>
             </div>
 
-            <!-- Step-by-Step Worked Derivation -->
-            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
-                <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Clinical Hydration Derivation</h3>
-                <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">National Academies of Sciences (NASEM) Standard</span>
+            <!-- Armstrong Clinical Urine Color Chart -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.5rem; color: var(--fg);">
+                🔬 Clinical Urine Color Hydration Scale (Armstrong Standards):
               </div>
-              <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-                Daily fluid balance accounts for metabolic baseline turnover, respiratory water loss, sensible perspiration, and thermal loading:
+              <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                Cross-verify your internal hydration status using morning first-void urine coloration:
               </p>
-              <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Step 1: Baseline Basal Water Turnover</strong>
-                  <div style="color: #3b82f6; margin-top: 0.25rem;">
-                    Baseline = Body Weight (kg) &times; 35 ml/kg (or Body Weight (lbs) &times; 0.5 fl. oz)
-                  </div>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                    For 70 kg (154 lbs): 70 &times; 35 = <strong>2,450 ml (2.45 L / 83 oz)</strong>. Covers basal renal clearance (500 ml minimum obligatory urine), insensible pulmonary moisture, and transdermal diffusion.
-                  </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.4rem; font-family: var(--mono); font-size: 0.72rem; text-align: center;">
+                <div style="background: #fbfbd4; color: #333; padding: 0.5rem 0.2rem; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1);">
+                  <strong>Level 1</strong><br>Pale Straw<br><span style="color: #10b981; font-weight: bold;">Optimal</span>
                 </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Step 2: Exercise Sweat Rate Compensation</strong>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                    Sweat Volume = (Exercise Minutes / 30) &times; 350 ml &times; Intensity Multiplier
-                  </div>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                    45 mins moderate workout (1.3x): (45 / 30) &times; 350 &times; 1.3 = <strong>682.5 ml</strong> fluid lost via eccrine sweat glands.
-                  </div>
+                <div style="background: #f7f7a8; color: #333; padding: 0.5rem 0.2rem; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1);">
+                  <strong>Level 2</strong><br>Light Yellow<br><span style="color: #10b981; font-weight: bold;">Well Hydrated</span>
                 </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Step 3: Environmental & Altitude Offset</strong>
-                  <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                    High heat index triggers vasodilation (+400 to 750 ml). Altitude &gt;2,000m increases respiratory evaporation by ~500 ml due to hyperventilation in low-humidity air.
-                  </div>
+                <div style="background: #f0e671; color: #333; padding: 0.5rem 0.2rem; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1);">
+                  <strong>Level 3</strong><br>Bright Yellow<br><span style="color: #10b981; font-weight: bold;">Normal</span>
                 </div>
-                <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                  <strong style="color: var(--fg);">Step 4: Dietary Moisture Offset (The 20% Rule)</strong>
-                  <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem;">
-                    Beverage Target = Total Daily Fluid - Food Moisture (~20%) = 3,132 ml total &bull; Direct Liquids: <strong>~2.5 to 3.2 L / day</strong>
-                  </div>
+                <div style="background: #e2cb3c; color: #333; padding: 0.5rem 0.2rem; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1);">
+                  <strong>Level 4</strong><br>Amber Gold<br><span style="color: #f59e0b; font-weight: bold;">Mild Dehydrated</span>
+                </div>
+                <div style="background: #cbb126; color: #fff; padding: 0.5rem 0.2rem; border-radius: 4px;">
+                  <strong>Level 5</strong><br>Dark Amber<br><span style="color: #f59e0b; font-weight: bold;">Drink 500ml</span>
+                </div>
+                <div style="background: #a98818; color: #fff; padding: 0.5rem 0.2rem; border-radius: 4px;">
+                  <strong>Level 6</strong><br>Orange Tint<br><span style="color: #ef4444; font-weight: bold;">Dehydrated</span>
+                </div>
+                <div style="background: #805c10; color: #fff; padding: 0.5rem 0.2rem; border-radius: 4px;">
+                  <strong>Level 7</strong><br>Brownish<br><span style="color: #ef4444; font-weight: bold;">Severe Deficit</span>
+                </div>
+                <div style="background: #543907; color: #fff; padding: 0.5rem 0.2rem; border-radius: 4px;">
+                  <strong>Level 8</strong><br>Dark Brown<br><span style="color: #ef4444; font-weight: bold;">Critical</span>
                 </div>
               </div>
             </div>
 
-            <!-- Critical Hydration Traps & Hyponatremia Warnings -->
-            <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Hydration Traps & Electrolyte Pitfalls</h3>
-              <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Hyponatremia & Water Intoxication Danger:</strong> Gulping excessive amounts of pure distilled or tap water (&gt;1.2 Liters per hour) without sodium during endurance exercise dilutes extracellular sodium below 135 mmol/L (Exercise-Associated Hyponatremia). Cells swell osmotically, potentially causing headache, confusion, cerebral edema, and seizures. Always pace water intake and add electrolytes during prolonged workouts.</li>
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Clear Urine" Myth:</strong> Completely clear, colorless urine is actually a sign of acute overhydration and renal mineral flushing. The clinical ideal is a <strong>pale straw or light champagne yellow</strong> (Armstrong Urine Color Chart #1–#3). Deep amber indicates dehydration; crystal clear indicates unnecessary electrolyte wasting.</li>
-                <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Caffeine Dehydration Fallacy:</strong> While caffeine is a mild adenosine antagonist with minor diuretic properties, clinical trials show that in habitual coffee/tea drinkers, doses up to 400 mg/day do not cause negative fluid balance. Coffee and tea contribute toward your daily hydration quota at approximately <strong>85% to 95% of equivalent plain water</strong>.</li>
-              </ul>
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyWater" onclick="copyHydrationPlan()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Daily Hydration &amp; Electrolyte Schedule
+            </button>
+          </div>
+
+          <!-- Step-by-Step Worked Derivation -->
+          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0; color: var(--fg);">📐 Step-by-Step Clinical Hydration Derivation</h3>
+              <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">National Academies of Sciences (NASEM) Standard</span>
             </div>
+            <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+              Daily fluid requirements account for metabolic turnover, respiratory evaporative loss, sweat production, and environmental heat load:
+            </p>
+            <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 1: Baseline Metabolic Water Turnover</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                  Baseline Fluid = Body Weight (kg) &times; 35 ml/kg (or Weight in lbs &times; 0.53 oz/lb)
+                </div>
+                <div id="water-step-1" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  For 70 kg: 70 &times; 35 ml = <strong>2,450 ml (2.45 L / 83 oz)</strong>.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: var(--fg);">Step 2: Exercise Sweat Rate Replacement</strong>
+                <div style="color: #3b82f6; margin-top: 0.25rem;">
+                  Exercise Fluid = (Duration in Minutes / 30) &times; 350 ml &times; Sweat Intensity Multiplier
+                </div>
+                <div id="water-step-2" style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
+                  For 45 min moderate sweat: (45 / 30) &times; 350 &times; 1.3 = <strong>682 ml</strong>.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981;">Step 3: Environmental &amp; Life Stage Additions</strong>
+                <div id="water-step-3" style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Climate + Life Stage = 0 ml &bull; Total Daily Beverage Target = 2,450 + 682 = <strong>3,132 ml (3.13 L / 106 oz)</strong>.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Critical Hydration Pitfalls -->
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Hydration Pitfalls &amp; Hyponatremia Risks</h3>
+            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Exercise-Associated Hyponatremia (EAH):</strong> Chugging excessive plain water during long workouts without replacing lost sodium dilutes serum sodium (<135 mmol/L). This causes cellular swelling, cerebral edema, seizures, and can be fatal. Always pair fluids with electrolytes during prolonged sweat sessions (>60 min).</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Evening Fluid Taper (Preventing Nocturia):</strong> Drinking large volumes of water within 2 hours of bedtime forces nighttime awakenings to urinate, fragmenting Stage 3 Slow-Wave Deep Sleep and REM cycles. Front-load 70% of your daily fluids before 4:00 PM.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Thirst is Too Late" Fallacy:</strong> In healthy resting individuals, thirst is an extraordinarily sensitive physiological homeostatic mechanism that triggers when blood osmolality rises by as little as 1%–2%. For everyday desk work, drinking to thirst is completely safe; proactive hydration is strictly required during athletic exertion where thirst sensations lag behind acute sweat volume.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Alcohol Dehydration Multiplier:</strong> Ethanol acts as an anti-diuretic hormone (vasopressin) inhibitor. For every 1 gram of ethanol consumed, the kidneys excrete ~10 ml of extra urine. A standard alcoholic beverage (14g alcohol) causes ~140 ml of net water loss, requiring a 1:1 water backfill to prevent dehydration hangovers.</li>
+            </ul>
           </div>
         </div>
 
         <script>
-          let waterUnitMode = 'metric';
+          var waterUnitMode = 'metric';
 
           window.setWaterUnit = function(mode) {
             waterUnitMode = mode;
-            const btnM = document.getElementById('btnWaterMetric');
-            const btnI = document.getElementById('btnWaterImperial');
-            const lblW = document.getElementById('lblWaterWeight');
-            const inpW = document.getElementById('water-weight');
+            var btnM = document.getElementById('btnWaterMetric');
+            var btnI = document.getElementById('btnWaterImperial');
+            var lblW = document.getElementById('lblWaterWeight');
+            var inpW = document.getElementById('water-weight');
 
             if (mode === 'metric') {
               btnM.style.background = 'rgba(59, 130, 246, 0.1)';
@@ -613,7 +999,7 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               btnI.style.borderColor = 'var(--border)';
               btnI.style.color = 'var(--fg)';
               lblW.textContent = 'Body Weight (kg)';
-              inpW.value = Math.round((parseFloat(inpW.value) || 154) * 0.453592) || 70;
+              inpW.value = Math.round(parseFloat(inpW.value) / 2.20462) || 70;
             } else {
               btnI.style.background = 'rgba(59, 130, 246, 0.1)';
               btnI.style.borderColor = '#3b82f6';
@@ -622,120 +1008,109 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               btnM.style.borderColor = 'var(--border)';
               btnM.style.color = 'var(--fg)';
               lblW.textContent = 'Body Weight (lbs)';
-              inpW.value = Math.round((parseFloat(inpW.value) || 70) * 2.20462) || 154;
+              inpW.value = Math.round(parseFloat(inpW.value) * 2.20462) || 154;
             }
             calcWater();
           };
 
           function calcWater() {
-            let wKg = 70;
-            const wRaw = parseFloat(document.getElementById('water-weight').value) || 0;
+            var rawWeight = parseFloat(document.getElementById('water-weight').value) || (waterUnitMode === 'metric' ? 70 : 154);
+            var exerciseMin = parseFloat(document.getElementById('water-exercise').value) || 0;
+            var intensityMult = parseFloat(document.getElementById('water-intensity').value) || 1.3;
+            var climateAdd = parseFloat(document.getElementById('water-climate').value) || 0;
+            var stageAdd = parseFloat(document.getElementById('water-stage').value) || 0;
+
+            var weightKg = waterUnitMode === 'metric' ? rawWeight : (rawWeight / 2.20462);
+
+            // 1. Baseline: 35 ml per kg
+            var baselineMl = weightKg * 35;
+
+            // 2. Exercise sweat: (mins / 30) * 350ml * intensity
+            var exerciseMl = (exerciseMin / 30) * 350 * intensityMult;
+
+            // 3. Environmental + Stage
+            var totalMl = Math.round(baselineMl + exerciseMl + climateAdd + stageAdd);
+            var totalLiters = (totalMl / 1000).toFixed(2);
+            var totalFlOz = Math.round(totalMl * 0.033814);
+            var totalGlasses = (totalMl / 240).toFixed(1);
+            var totalBottles = (totalMl / 500).toFixed(1);
+
+            // Update UI Hero
             if (waterUnitMode === 'metric') {
-              wKg = wRaw;
+              document.getElementById('water-primary').textContent = totalLiters + ' Liters (' + totalMl.toLocaleString('en-US') + ' ml)';
+              document.getElementById('water-secondary').textContent = totalFlOz + ' Fl. Oz • ~' + totalGlasses + ' glasses (240 ml)';
             } else {
-              wKg = wRaw * 0.453592;
+              document.getElementById('water-primary').textContent = totalFlOz + ' Fl. Oz';
+              document.getElementById('water-secondary').textContent = totalLiters + ' Liters • ~' + totalGlasses + ' glasses (8 oz)';
             }
-            if (wKg <= 0) wKg = 70;
 
-            const exMins = parseFloat(document.getElementById('water-exercise').value) || 0;
-            const intensity = parseFloat(document.getElementById('water-intensity').value) || 1.0;
-            const climateAdd = parseFloat(document.getElementById('water-climate').value) || 0;
-            const stageAdd = parseFloat(document.getElementById('water-stage').value) || 0;
+            document.getElementById('water-glasses').textContent = totalGlasses + ' Glasses';
+            document.getElementById('water-bottles').textContent = totalBottles + ' Bottles';
 
-            // Baseline: 35ml / kg
-            const basalMl = wKg * 35;
-            // Exercise: (mins / 30) * 350ml * intensity
-            const exerciseMl = (exMins / 30) * 350 * intensity;
-            const totalMl = Math.round(basalMl + exerciseMl + climateAdd + stageAdd);
-
-            const liters = (totalMl / 1000).toFixed(1);
-            const flOz = Math.round(totalMl * 0.033814);
-            const glasses = (totalMl / 240).toFixed(1);
-
-            const priEl = document.getElementById('water-primary');
-            const secEl = document.getElementById('water-secondary');
-            const eleNote = document.getElementById('water-electrolyte-note');
-
-            if (waterUnitMode === 'metric') {
-              priEl.textContent = liters + ' Liters / day';
-              secEl.innerHTML = flOz + ' Fl. Oz &bull; ~' + glasses + ' glasses (240 ml each)';
+            // Electrolyte guidance
+            var electroEl = document.getElementById('water-electrolyte-note');
+            if (exerciseMin >= 60 || climateAdd >= 500 || intensityMult >= 1.8) {
+              electroEl.innerHTML = '<span style="color: #f59e0b; font-weight: bold;">⚡ CRITICAL ELECTROLYTE WINDOW:</span> With ' + exerciseMin + ' mins of workout sweat/heat loading, you will lose ~' + Math.round((exerciseMl / 1000) * 900) + '–' + Math.round((exerciseMl / 1000) * 1400) + ' mg of sodium. Drink fluids with <strong>500–800 mg sodium + 200 mg potassium per liter</strong> to maintain blood volume and muscle contractility.';
+              electroEl.style.borderColor = '#f59e0b';
             } else {
-              priEl.textContent = flOz + ' Fl. Oz / day';
-              secEl.innerHTML = liters + ' Liters &bull; ~' + glasses + ' standard 8 oz glasses';
+              electroEl.innerHTML = '⚡ <strong>Electrolyte Recommendation:</strong> For low-to-moderate daily activity (<60 mins), standard dietary sodium from balanced whole meals provides sufficient electrolyte replacement.';
+              electroEl.style.borderColor = 'rgba(59, 130, 246, 0.2)';
             }
 
-            if (totalMl > 3500 || exMins >= 60) {
-              eleNote.style.display = 'block';
-              eleNote.innerHTML = '⚡ <strong>Electrolyte Alert:</strong> Your target exceeds 3.5L or includes &ge;60 mins exercise. Add 500–1,000 mg sodium and 200 mg potassium across your fluids to prevent exercise-associated hyponatremia.';
-            } else {
-              eleNote.style.display = 'block';
-              eleNote.innerHTML = '💧 <strong>Hydration Balance:</strong> Paced drinking maintains plasma volume without straining kidney glomerular filtration.';
+            // Paced Hourly Schedule Table
+            var schedEl = document.getElementById('water-schedule');
+            var morningMl = Math.round(totalMl * 0.20);
+            var midMorningMl = Math.round(totalMl * 0.20);
+            var afternoonMl = Math.round(totalMl * 0.25);
+            var workoutMl = Math.round(exerciseMl > 0 ? exerciseMl : totalMl * 0.15);
+            var eveningMl = Math.round(totalMl * 0.15);
+            var taperMl = Math.max(100, totalMl - morningMl - midMorningMl - afternoonMl - workoutMl - eveningMl);
+
+            function formatVol(ml) {
+              if (waterUnitMode === 'metric') return ml + ' ml';
+              return Math.round(ml * 0.033814) + ' oz';
             }
 
-            // Populate Paced Hourly Schedule
-            const scheduleEl = document.getElementById('water-schedule');
-            if (scheduleEl) {
-              const morningMl = Math.round(totalMl * 0.30);
-              const middayMl = Math.round(totalMl * 0.35);
-              const afternoonMl = Math.round(totalMl * 0.25);
-              const eveningMl = Math.round(totalMl * 0.10);
+            var schedHtml = [
+              '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);"><span style="color: #3b82f6; font-weight: bold;">7:00 AM (Wake-Up)</span><div style="color: var(--fg); font-weight: bold; margin-top: 0.2rem;">' + formatVol(morningMl) + '</div><div style="font-size: 0.7rem; color: var(--text-muted);">Rehydrate overnight losses</div></div>',
+              '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);"><span style="color: #3b82f6; font-weight: bold;">9:00 AM – 11:30 AM</span><div style="color: var(--fg); font-weight: bold; margin-top: 0.2rem;">' + formatVol(midMorningMl) + '</div><div style="font-size: 0.7rem; color: var(--text-muted);">Mid-morning work pacing</div></div>',
+              '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);"><span style="color: #10b981; font-weight: bold;">12:00 PM – 2:30 PM</span><div style="color: var(--fg); font-weight: bold; margin-top: 0.2rem;">' + formatVol(afternoonMl) + '</div><div style="font-size: 0.7rem; color: var(--text-muted);">With lunch & post-meal</div></div>',
+              '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border); border-color: #f59e0b;"><span style="color: #f59e0b; font-weight: bold;">Workout Window</span><div style="color: var(--fg); font-weight: bold; margin-top: 0.2rem;">' + formatVol(workoutMl) + '</div><div style="font-size: 0.7rem; color: var(--text-muted);">Pre/Intra/Post sweat replacement</div></div>',
+              '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);"><span style="color: #8b5cf6; font-weight: bold;">5:00 PM – 7:30 PM</span><div style="color: var(--fg); font-weight: bold; margin-top: 0.2rem;">' + formatVol(eveningMl) + '</div><div style="font-size: 0.7rem; color: var(--text-muted);">Dinner fluid replenishment</div></div>',
+              '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);"><span style="color: var(--text-muted); font-weight: bold;">8:30 PM – Bed (Taper)</span><div style="color: var(--fg); font-weight: bold; margin-top: 0.2rem;">' + formatVol(taperMl) + '</div><div style="font-size: 0.7rem; color: #10b981;">Taper to prevent nocturia</div></div>'
+            ].join('');
 
-              const morningOz = Math.round(morningMl * 0.033814);
-              const middayOz = Math.round(middayMl * 0.033814);
-              const afternoonOz = Math.round(afternoonMl * 0.033814);
-              const eveningOz = Math.round(eveningMl * 0.033814);
+            schedEl.innerHTML = schedHtml;
 
-              scheduleEl.innerHTML = 
-                '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">' +
-                  '<strong style="color: #3b82f6;">🌅 Morning (7–10 AM)</strong>' +
-                  '<div style="color: var(--fg); font-weight: 700; margin-top: 0.2rem;">' + (morningMl/1000).toFixed(1) + ' L (' + morningOz + ' oz)</div>' +
-                  '<div style="color: var(--text-muted); font-size: 0.72rem;">Rehydrates after overnight fast</div>' +
-                '</div>' +
-                '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">' +
-                  '<strong style="color: #10b981;">☀️ Mid-Day (11 AM–2 PM)</strong>' +
-                  '<div style="color: var(--fg); font-weight: 700; margin-top: 0.2rem;">' + (middayMl/1000).toFixed(1) + ' L (' + middayOz + ' oz)</div>' +
-                  '<div style="color: var(--text-muted); font-size: 0.72rem;">Supports digestion and focus</div>' +
-                '</div>' +
-                '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">' +
-                  '<strong style="color: #f59e0b;">🏃 Afternoon (3–6 PM)</strong>' +
-                  '<div style="color: var(--fg); font-weight: 700; margin-top: 0.2rem;">' + (afternoonMl/1000).toFixed(1) + ' L (' + afternoonOz + ' oz)</div>' +
-                  '<div style="color: var(--text-muted); font-size: 0.72rem;">Pre/post workout hydration window</div>' +
-                '</div>' +
-                '<div style="background: var(--surface-alt); padding: 0.6rem; border-radius: 4px; border: 1px solid var(--border);">' +
-                  '<strong style="color: #8b5cf6;">🌙 Evening (7–9 PM)</strong>' +
-                  '<div style="color: var(--fg); font-weight: 700; margin-top: 0.2rem;">' + (eveningMl/1000).toFixed(1) + ' L (' + eveningOz + ' oz)</div>' +
-                  '<div style="color: var(--text-muted); font-size: 0.72rem;">Taper off to avoid nocturia</div>' +
-                '</div>';
-            }
+            // Step worked derivations
+            document.getElementById('water-step-1').innerHTML = 'For ' + weightKg.toFixed(1) + ' kg: ' + weightKg.toFixed(1) + ' &times; 35 ml = <strong>' + Math.round(baselineMl) + ' ml (' + (baselineMl / 1000).toFixed(2) + ' L / ' + Math.round(baselineMl * 0.033814) + ' oz)</strong>.';
+            document.getElementById('water-step-2').innerHTML = 'For ' + exerciseMin + ' min at ' + intensityMult + 'x intensity: (' + exerciseMin + ' / 30) &times; 350 &times; ' + intensityMult + ' = <strong>' + Math.round(exerciseMl) + ' ml</strong>.';
+            document.getElementById('water-step-3').innerHTML = 'Climate (' + climateAdd + ' ml) + Stage (' + stageAdd + ' ml) = ' + (climateAdd + stageAdd) + ' ml &bull; Total Target: ' + Math.round(baselineMl) + ' + ' + Math.round(exerciseMl) + ' + ' + (climateAdd + stageAdd) + ' = <strong>' + totalLiters + ' Liters (' + totalFlOz + ' oz)</strong>.';
           }
 
           window.copyHydrationPlan = function() {
-            const pri = document.getElementById('water-primary').textContent;
-            const sec = document.getElementById('water-secondary').textContent;
-            const wVal = document.getElementById('water-weight').value;
-            const exVal = document.getElementById('water-exercise').value;
+            var primary = document.getElementById('water-primary').textContent;
+            var glasses = document.getElementById('water-glasses').textContent;
+            var bottles = document.getElementById('water-bottles').textContent;
+            var note = document.getElementById('water-electrolyte-note').innerText;
 
-            const text = [
-              '=== CLINICAL DAILY HYDRATION PROTOCOL ===',
-              'Parameters: Weight ' + wVal + ' ' + (waterUnitMode === 'metric' ? 'kg' : 'lbs') + ', ' + exVal + ' mins exercise',
-              '-----------------------------------------',
-              'Target Daily Total: ' + pri,
-              'Equivalent Breakdown: ' + sec,
-              'Hourly Pacing Schedule:',
-              '  • Morning (7–10 AM): 30% of total (Rehydration)',
-              '  • Mid-Day (11 AM–2 PM): 35% of total (Metabolic support)',
-              '  • Afternoon (3–6 PM): 25% of total (Activity window)',
-              '  • Evening (7–9 PM): 10% of total (Taper before sleep)',
-              '-----------------------------------------',
-              'Standards: NASEM Guidelines & Armstrong Hydration Index',
+            var text = [
+              '=== DAILY HYDRATION & PACING PROTOCOL ===',
+              'Total Daily Fluid Target: ' + primary,
+              'Volume in 8-oz Glasses: ' + glasses,
+              'Volume in 500ml Bottles: ' + bottles,
+              '---------------------------------------',
+              'Clinical Guidance: ' + note,
+              '---------------------------------------',
+              'Standard: NASEM Dietary Reference Intakes (DRI) for Water',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/water-intake'
-            ].join('\\n');
+            ].join('\n');
 
             navigator.clipboard.writeText(text).then(function() {
-              const btn = document.getElementById('btnCopyWater');
+              var btn = document.getElementById('btnCopyWater');
               if (btn) {
-                const old = btn.innerHTML;
+                var old = btn.innerHTML;
                 btn.innerHTML = '✓ Copied Hydration Protocol!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
@@ -743,7 +1118,8 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcWater);
+          document.addEventListener('DOMContentLoaded', function() { calcWater(); });
+          calcWater();
         </script>
       `
     },
@@ -1295,9 +1671,16 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
     },
     {
       slug: 'macro-calculator',
-      title: 'Macro Calculator (Protein, Carbs & Fat Targets for Cutting/Bulking)',
-      metaDesc: 'Calculate personalized daily macronutrient targets in grams, calories, and percentages. Tailored for hypertrophy bulking, aggressive cutting, recomp, and keto.',
+      title: 'Macro Calculator (Protein, Carbs & Fat Split for Cutting, Bulking & Keto)',
+      metaDesc: 'Calculate personalized daily macronutrient targets in grams, calories, and meal splits. Anchored by sports science protein floors, hormonal fat minimums, and glycogen demands.',
       category: 'Health & Fitness',
+      faq: [
+        { q: 'How are daily macronutrients calculated from calories?', a: 'Macronutrients are governed by Atwater energy factors: Protein provides 4 calories per gram, Carbohydrates provide 4 calories per gram, and Dietary Fats provide 9 calories per gram. Sports science dictates that protein and fat requirements should be anchored to body weight (e.g. 1.6–2.4 g/kg protein for lifters, 0.7–1.0 g/kg fat for hormone health), with remaining calories allocated to carbohydrates.' },
+        { q: 'How much protein do I really need to preserve muscle while cutting?', a: 'The International Society of Sports Nutrition (ISSN) and extensive meta-analyses recommend 2.0 to 2.4 grams of protein per kilogram of body weight (0.9 to 1.1 g/lb) during a caloric deficit. In lean athletes undergoing aggressive cutting, protein requirements can rise to 2.3–3.1 g/kg of lean body mass to prevent muscle catabolism.' },
+        { q: 'What is the minimum dietary fat intake required for hormonal health?', a: 'Dietary fats should never drop below 15% to 20% of total daily calories, or roughly 0.6 to 0.8 grams per kilogram of body weight (0.3 to 0.4 g/lb). Prolonged ultra-low-fat diets disrupt lipid-derived steroid hormone synthesis (including testosterone and estrogen) and impair the absorption of fat-soluble vitamins (A, D, E, K).' },
+        { q: 'What is the difference between total carbs and net carbs?', a: 'Total carbohydrates include all starches, sugars, dietary fiber, and sugar alcohols. Net carbohydrates are calculated as: Net Carbs = Total Carbs - Dietary Fiber - Sugar Alcohols. Because dietary fiber cannot be digested by human small intestine enzymes into glucose, it does not trigger an insulin spike, making net carbs the metric of choice for ketogenic protocols.' },
+        { q: 'Does nutrient timing and protein distribution per meal matter?', a: 'Yes. To maximize 24-hour Muscle Protein Synthesis (MPS), clinical evidence supports distributing daily protein across 3 to 5 meals, with each meal providing at least 25 to 40 grams of high-quality protein (containing roughly 2.7 to 3.5 grams of leucine to trigger the physiological leucine threshold).' }
+      ],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 900px;">
@@ -1306,7 +1689,7 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           </nav>
           <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Macronutrient Nutrition Calculator</h1>
           <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.5rem;">
-            Calculate your precise daily grams of dietary protein, carbohydrates, and healthy fats tailored to your body weight, calorie target, and training objective.
+            Calculate your precise daily grams of dietary protein, carbohydrates, and healthy fats tailored to your body weight, calorie target, training protocol, and per-meal distribution schedule.
           </p>
 
           <!-- Unit Selector Toggle -->
@@ -1316,49 +1699,167 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
           </div>
 
           <div class="tool-box">
+            <!-- Inputs Grid -->
             <div class="grid-inputs">
               <div class="field-group">
                 <label class="field-label" id="lblMCWeight">Body Weight (kg)</label>
-                <input type="number" id="mc-weight" class="code-input" value="75" step="1" oninput="calcMacros()" />
+                <input type="number" id="mc-weight" class="code-input" value="75" step="0.5" min="30" max="300" oninput="calcMacros()" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label">Daily Calorie Target (kcal)</label>
-                <input type="number" id="mc-cal" class="code-input" value="2300" step="50" oninput="calcMacros()" />
+                <input type="number" id="mc-cal" class="code-input" value="2300" step="50" min="800" max="8000" oninput="calcMacros()" style="font-size: 1.2rem;" />
               </div>
               <div class="field-group">
                 <label class="field-label">Goal / Nutrition Strategy</label>
-                <select id="mc-goal" class="code-input" onchange="calcMacros()">
-                  <option value="cut">Aggressive Fat Loss / Cutting (2.4g/kg P &bull; Low Carb)</option>
-                  <option value="maintain" selected>Maintenance & Recomposition (2.0g/kg P &bull; Balanced)</option>
-                  <option value="bulk">Lean Muscle Hypertrophy / Bulking (1.8g/kg P &bull; High Carb)</option>
-                  <option value="endurance">Endurance & Marathon Loading (1.4g/kg P &bull; High Glycogen)</option>
-                  <option value="keto">Ketogenic Diet (1.8g/kg P &bull; &lt;30g Net Carbs &bull; High Fat)</option>
+                <select id="mc-goal" class="code-input" onchange="calcMacros()" style="font-size: 0.95rem;">
+                  <option value="cut">Aggressive Fat Loss / Cutting (2.4g/kg P &bull; Muscle Sparing)</option>
+                  <option value="recomp" selected>Body Recomposition / Lean Loss (2.0g/kg P &bull; Balanced)</option>
+                  <option value="bulk">Lean Muscle Hypertrophy / Bulking (1.8g/kg P &bull; High Glycogen)</option>
+                  <option value="endurance">Endurance &amp; Marathon Running (1.4g/kg P &bull; 60% Carbs)</option>
+                  <option value="keto">Ketogenic Diet (&lt;30g Net Carbs &bull; High Fat 70%)</option>
+                  <option value="custom">Custom Percentage Split</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Meals per Day</label>
+                <select id="mc-meals" class="code-input" onchange="calcMacros()" style="font-size: 0.95rem;">
+                  <option value="3">3 Meals (Breakfast, Lunch, Dinner)</option>
+                  <option value="4" selected>4 Meals (3 Meals + 1 Post-Workout Shake)</option>
+                  <option value="5">5 Meals (Frequent Feeder Protocol)</option>
+                  <option value="6">6 Meals (Bodybuilder Grazing Schedule)</option>
                 </select>
               </div>
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Protein (4 kcal/g)</div>
-                <div id="mc-p-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">150g</div>
-                <div id="mc-p-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">600 kcal (26%)</div>
+            <!-- Custom Percentage Sliders (Hidden unless custom selected) -->
+            <div id="mc-custom-sliders" style="display: none; margin-top: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+              <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 600;">
+                Custom Macro Ratio (% of Calories — Must Total 100%): Total = <span id="mc-custom-total" style="color: #10b981; font-weight: bold;">100%</span>
               </div>
-
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Fats (9 kcal/g)</div>
-                <div id="mc-f-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">64g</div>
-                <div id="mc-f-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">575 kcal (25%)</div>
-              </div>
-
-              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px; text-align: center;">
-                <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Carbs (4 kcal/g)</div>
-                <div id="mc-c-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">281g</div>
-                <div id="mc-c-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">1,125 kcal (49%)</div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
+                <div>
+                  <label style="font-family: var(--mono); font-size: 0.72rem; color: #ef4444;">Protein %: <span id="mc-pct-p-disp">30%</span></label>
+                  <input type="range" id="mc-pct-p" min="10" max="60" value="30" oninput="updateMCCustom()" style="width: 100%;" />
+                </div>
+                <div>
+                  <label style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6;">Fats %: <span id="mc-pct-f-disp">30%</span></label>
+                  <input type="range" id="mc-pct-f" min="15" max="75" value="30" oninput="updateMCCustom()" style="width: 100%;" />
+                </div>
+                <div>
+                  <label style="font-family: var(--mono); font-size: 0.72rem; color: #10b981;">Carbs %: <span id="mc-pct-c-disp">40%</span></label>
+                  <input type="range" id="mc-pct-c" min="0" max="75" value="40" oninput="updateMCCustom()" style="width: 100%;" />
+                </div>
               </div>
             </div>
 
-            <button type="button" id="btnCopyMacro" onclick="copyMacroSummary()" class="btn-sec" style="margin-top: 1.5rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
-              📋 Copy Macronutrient Nutrition Protocol
+            <!-- Hero Output Results (3 Macro Cards + Fiber) -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Protein (4 kcal/g)</div>
+                <div id="mc-p-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">150g</div>
+                <div id="mc-p-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">600 kcal (26%)</div>
+                <div id="mc-p-ratio" style="font-size: 0.75rem; color: var(--fg); margin-top: 0.35rem; font-family: var(--mono);">2.00 g / kg bodyweight</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Healthy Fats (9 kcal/g)</div>
+                <div id="mc-f-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin: 0.25rem 0;">64g</div>
+                <div id="mc-f-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">575 kcal (25%)</div>
+                <div id="mc-f-ratio" style="font-size: 0.75rem; color: var(--fg); margin-top: 0.35rem; font-family: var(--mono);">0.85 g / kg bodyweight</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #10b981; padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Carbohydrates (4 kcal/g)</div>
+                <div id="mc-c-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin: 0.25rem 0;">281g</div>
+                <div id="mc-c-cal" style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">1,125 kcal (49%)</div>
+                <div id="mc-c-ratio" style="font-size: 0.75rem; color: var(--fg); margin-top: 0.35rem; font-family: var(--mono);">3.75 g / kg bodyweight</div>
+              </div>
+
+              <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px; text-align: center;">
+                <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">Daily Dietary Fiber</div>
+                <div id="mc-fiber-g" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin: 0.25rem 0;">32g</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-family: var(--mono);">14g per 1,000 kcal</div>
+                <div style="font-size: 0.75rem; color: var(--fg); margin-top: 0.35rem; font-family: var(--mono);">Cardiovascular health</div>
+              </div>
+            </div>
+
+            <!-- Proportional Visual Stacked Bar -->
+            <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Caloric Distribution Breakdown:</span>
+                <span id="mc-bar-total" style="color: var(--fg);">2,300 kcal (100%)</span>
+              </div>
+              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
+                <div id="mc-bar-p" style="width: 26.1%; background: #ef4444;" title="Protein">Protein 26%</div>
+                <div id="mc-bar-f" style="width: 25.0%; background: #3b82f6;" title="Fats">Fats 25%</div>
+                <div id="mc-bar-c" style="width: 48.9%; background: #10b981;" title="Carbs">Carbs 49%</div>
+              </div>
+            </div>
+
+            <!-- Meal-by-Meal Distribution Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; color: var(--fg);">
+                  🍽️ Target Per-Meal Macronutrient Split (<span id="mc-meal-count-disp">4 Meals</span>):
+                </div>
+                <span style="font-family: var(--mono); font-size: 0.75rem; color: #10b981;">Meets ~3g Leucine Threshold for MPS</span>
+              </div>
+              <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 0.82rem; text-align: center;">
+                  <thead>
+                    <tr style="background: var(--surface-alt); border-bottom: 1px solid var(--border);">
+                      <th style="padding: 0.45rem 0.6rem; text-align: left;">Meal / Feeding Window</th>
+                      <th style="padding: 0.45rem 0.6rem; color: #ef4444;">Protein (g)</th>
+                      <th style="padding: 0.45rem 0.6rem; color: #3b82f6;">Fats (g)</th>
+                      <th style="padding: 0.45rem 0.6rem; color: #10b981;">Carbs (g)</th>
+                      <th style="padding: 0.45rem 0.6rem; color: var(--fg);">Calories</th>
+                    </tr>
+                  </thead>
+                  <tbody id="mc-meals-tbody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Whole-Food Grocery Macro Benchmark Table -->
+            <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--fg);">
+                🛒 Nutrient-Dense Whole Food Staple Macro Guide (Per 100g Cooked):
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.8rem;">
+                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #ef4444; display: block; margin-bottom: 0.35rem;">Protein Anchors:</strong>
+                  <div>&bull; Chicken Breast: 31g P, 3g F (165 kcal)</div>
+                  <div>&bull; 93/7 Lean Beef: 26g P, 8g F (180 kcal)</div>
+                  <div>&bull; Salmon: 22g P, 12g F (206 kcal)</div>
+                  <div>&bull; Greek Yogurt (0%): 10g P, 3g C (59 kcal)</div>
+                  <div>&bull; Extra Firm Tofu: 12g P, 5g F (94 kcal)</div>
+                </div>
+
+                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #10b981; display: block; margin-bottom: 0.35rem;">Glycogen Carbs:</strong>
+                  <div>&bull; Jasmine / Basmati Rice: 28g C, 3g P (130 kcal)</div>
+                  <div>&bull; Rolled Oats (dry): 66g C, 14g P, 7g F (389 kcal)</div>
+                  <div>&bull; Sweet Potato: 21g C, 2g P (90 kcal)</div>
+                  <div>&bull; Quinoa (cooked): 21g C, 4g P (120 kcal)</div>
+                  <div>&bull; Black Beans: 24g C, 9g P, 8g Fiber (132 kcal)</div>
+                </div>
+
+                <div style="background: var(--surface); padding: 0.75rem; border-radius: 4px; border: 1px solid var(--border);">
+                  <strong style="color: #3b82f6; display: block; margin-bottom: 0.35rem;">Endocrine Fats:</strong>
+                  <div>&bull; Extra Virgin Olive Oil: 100g F (884 kcal)</div>
+                  <div>&bull; Whole Hass Avocado: 15g F, 9g C (160 kcal)</div>
+                  <div>&bull; Almonds / Walnuts: 50g F, 21g P (579 kcal)</div>
+                  <div>&bull; Whole Pasture Eggs: 13g P, 11g F (155 kcal)</div>
+                  <div>&bull; Dark Chocolate (85%): 46g F, 11g P (600 kcal)</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Copy Button -->
+            <button type="button" id="btnCopyMacro" onclick="copyMacroSummary()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.4rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; color: var(--fg); transition: all 0.2s;">
+              📋 Copy Complete Macronutrient Protocol &amp; Meal Split
             </button>
           </div>
 
@@ -1369,59 +1870,60 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               <span style="font-family: var(--mono); font-size: 0.72rem; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px;">ISSN Position Stand Standard</span>
             </div>
             <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
-              Macros are anchored by absolute physiological requirements (protein for lean mass preservation and dietary fat for endocrine production), with remaining calories distributed to carbohydrates for fuel:
+              Macronutrients are calculated by establishing biological protein and lipid floors, then allocating discretionary energy to carbohydrates:
             </p>
             <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
                 <strong style="color: #ef4444;">Step 1: Anchor Protein Requirements</strong>
                 <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Protein = Body Weight (kg) &times; Goal Target Factor &bull; Calories = Protein (g) &times; 4 kcal/g
+                  Protein Grams = Body Weight (kg) &times; Target Factor (2.0 g/kg) &bull; Calories = Protein &times; 4 kcal/g
                 </div>
-                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  For 75 kg lifter at 2.0g/kg: 75 &times; 2.0 = <strong>150g protein</strong> = 600 kcal.
-                </div>
-              </div>
-              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #3b82f6;">Step 2: Allocate Essential Dietary Fats (25% Standard Floor)</strong>
-                <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Fat Calories = Total Target &times; 0.25 &bull; Fat (g) = Fat Calories / 9 kcal/g
-                </div>
-                <div style="color: var(--text-muted); margin-top: 0.25rem; font-size: 0.78rem;">
-                  For 2,300 kcal target: 2,300 &times; 0.25 = 575 kcal &bull; 575 / 9 = <strong>64g dietary fat</strong> (supports hormone precursors & vitamin absorption).
+                <div id="mc-step-1" style="color: var(--fg); margin-top: 0.25rem; font-size: 0.8rem;">
+                  For 75 kg: 75 &times; 2.0 = <strong>150g Protein (600 kcal)</strong>.
                 </div>
               </div>
               <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
-                <strong style="color: #10b981;">Step 3: Fill Remaining Energy with Carbohydrates</strong>
+                <strong style="color: #3b82f6;">Step 2: Anchor Dietary Fat Requirements</strong>
                 <div style="color: var(--text-muted); margin-top: 0.25rem;">
-                  Carb Calories = Total Cal - (Protein Cal + Fat Cal) &bull; Carb (g) = Carb Calories / 4 kcal/g
+                  Fat Grams = (Total Calories &times; Fat %) / 9 kcal/g
                 </div>
-                <div style="color: #10b981; font-weight: 700; margin-top: 0.25rem; font-size: 0.78rem;">
-                  2,300 - (600 + 575) = 1,125 kcal &bull; 1,125 / 4 = <strong>281g carbohydrates</strong> (fuels muscular glycogen & CNS).
+                <div id="mc-step-2" style="color: var(--fg); margin-top: 0.25rem; font-size: 0.8rem;">
+                  For 2,300 kcal: (2,300 &times; 0.25) / 9 = 575 / 9 = <strong>64g Fat (576 kcal)</strong>.
+                </div>
+              </div>
+              <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+                <strong style="color: #10b981;">Step 3: Allocate Remaining Calories to Carbohydrates</strong>
+                <div style="color: var(--text-muted); margin-top: 0.25rem;">
+                  Carb Calories = Total Calories - (Protein Cal + Fat Cal) &bull; Carb Grams = Carb Cal / 4 kcal/g
+                </div>
+                <div id="mc-step-3" style="color: var(--fg); margin-top: 0.25rem; font-size: 0.8rem;">
+                  Carb Cal = 2,300 - (600 + 576) = 1,124 kcal &bull; Carbs = 1,124 / 4 = <strong>281g Carbs (1,124 kcal)</strong>.
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Critical Macro Traps & Pitfalls -->
+          <!-- Critical Nutrition Pitfalls -->
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Macro Traps & Nutrient Timing Pitfalls</h3>
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Macronutrient Traps &amp; Hormone Suppression</h3>
             <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Dietary Fat Floor Trap:</strong> Chronic low-fat dieting (&lt;0.6g/kg or &lt;15% total calories) causes severe endocrine suppression. Testosterone, progesterone, and thyroid output drop precipitously because steroid hormones are synthesized from cholesterol and essential fatty acids. Never cut fat below 20% of daily calories.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Anabolic Window" Myth vs Total Daily Intake:</strong> Meta-analyses show that consuming protein within 30 minutes post-workout offers negligible hypertrophy advantages compared to meeting total daily protein targets (1.6–2.4 g/kg) divided evenly across 3 to 5 meals with ~2.5g leucine per bolus.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Net Carbs vs Total Carbs:</strong> Soluble and insoluble dietary fibers possess minimal digestible caloric impact (0–2 kcal/g) and do not spike blood glucose. Subtracting non-digestible fiber from total carbs gives accurate insulin-stimulating net carbohydrate loads.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Ultra-Low-Fat Endocrine Collapse:</strong> Cutting dietary fat below 15%–20% of total calories crashes cholesterol substrate availability needed for synthesizing testosterone, estrogen, and progesterone. It also severely restricts absorption of fat-soluble vitamins (A, D, E, K). Never compromise fat minimums.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Percentage-Based Protein Fallacy:</strong> Calculating protein purely as a percentage (e.g. 30%) becomes dangerous in deep deficits. In a 1,200 kcal deficit, 30% protein is only 90 grams—catastrophically insufficient for an 80kg lifter seeking to avoid muscle wasting. Always calculate protein in absolute grams per kilogram of body weight.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Net Carbs vs Sugar Alcohols:</strong> Not all sugar alcohols are metabolically inert. While erythritol has a glycemic index of 0, maltitol (frequently used in cheap "sugar-free" bars) has a glycemic index of 35–52 and provides roughly 2.1 kcal/g, triggering blood sugar spikes and gastrointestinal distress.</li>
+              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Myth of the 30-Minute Anabolic Window:</strong> Post-workout nutrient timing is far less critical than total 24-hour macronutrient adherence. Consuming 25–40g of protein every 3 to 4 hours sustains elevated muscle protein synthesis regardless of whether an exact shake is consumed within 30 minutes of lifting.</li>
             </ul>
           </div>
         </div>
 
         <script>
-          let mcUnitMode = 'metric';
+          var mcUnitMode = 'metric';
 
           window.setMCUnit = function(mode) {
             mcUnitMode = mode;
-            const btnM = document.getElementById('btnMCMetric');
-            const btnI = document.getElementById('btnMCImperial');
-            const lblW = document.getElementById('lblMCWeight');
-            const inpW = document.getElementById('mc-weight');
+            var btnM = document.getElementById('btnMCMetric');
+            var btnI = document.getElementById('btnMCImperial');
+            var lblW = document.getElementById('lblMCWeight');
+            var inpW = document.getElementById('mc-weight');
 
             if (mode === 'metric') {
               btnM.style.background = 'rgba(59, 130, 246, 0.1)';
@@ -1431,7 +1933,7 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               btnI.style.borderColor = 'var(--border)';
               btnI.style.color = 'var(--fg)';
               lblW.textContent = 'Body Weight (kg)';
-              inpW.value = Math.round((parseFloat(inpW.value) || 165) * 0.453592) || 75;
+              inpW.value = (parseFloat(inpW.value) / 2.20462).toFixed(1);
             } else {
               btnI.style.background = 'rgba(59, 130, 246, 0.1)';
               btnI.style.borderColor = '#3b82f6';
@@ -1440,108 +1942,199 @@ export function buildHealthToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync,
               btnM.style.borderColor = 'var(--border)';
               btnM.style.color = 'var(--fg)';
               lblW.textContent = 'Body Weight (lbs)';
-              inpW.value = Math.round((parseFloat(inpW.value) || 75) * 2.20462) || 165;
+              inpW.value = Math.round(parseFloat(inpW.value) * 2.20462);
             }
             calcMacros();
           };
 
+          window.updateMCCustom = function() {
+            var p = parseInt(document.getElementById('mc-pct-p').value, 10);
+            var f = parseInt(document.getElementById('mc-pct-f').value, 10);
+            var c = parseInt(document.getElementById('mc-pct-c').value, 10);
+
+            document.getElementById('mc-pct-p-disp').textContent = p + '%';
+            document.getElementById('mc-pct-f-disp').textContent = f + '%';
+            document.getElementById('mc-pct-c-disp').textContent = c + '%';
+
+            var total = p + f + c;
+            var totalEl = document.getElementById('mc-custom-total');
+            totalEl.textContent = total + '%';
+            totalEl.style.color = total === 100 ? '#10b981' : '#ef4444';
+
+            calcMacros();
+          };
+
           function calcMacros() {
-            let wKg = 75;
-            const wRaw = parseFloat(document.getElementById('mc-weight').value) || 0;
-            if (mcUnitMode === 'metric') {
-              wKg = wRaw;
+            var rawWeight = parseFloat(document.getElementById('mc-weight').value) || 75;
+            var cals = parseFloat(document.getElementById('mc-cal').value) || 2300;
+            var goal = document.getElementById('mc-goal').value;
+            var numMeals = parseInt(document.getElementById('mc-meals').value, 10) || 4;
+
+            var weightKg = mcUnitMode === 'metric' ? rawWeight : (rawWeight / 2.20462);
+
+            var customDiv = document.getElementById('mc-custom-sliders');
+            if (goal === 'custom') {
+              customDiv.style.display = 'block';
             } else {
-              wKg = wRaw * 0.453592;
+              customDiv.style.display = 'none';
             }
-            if (wKg <= 0) wKg = 75;
 
-            const cal = parseFloat(document.getElementById('mc-cal').value) || 2000;
-            const goal = document.getElementById('mc-goal').value;
-
-            let pG = 0, fG = 0, cG = 0;
+            var pG = 0, fG = 0, cG = 0;
 
             if (goal === 'cut') {
-              pG = wKg * 2.4; // 2.4g/kg to preserve lean mass in deficit
-              const fCal = cal * 0.25;
-              fG = fCal / 9;
-              const remCal = cal - (pG * 4) - fCal;
-              cG = Math.max(0, remCal / 4);
+              // 2.4 g/kg protein, 20% fat, remainder carbs
+              pG = Math.round(weightKg * 2.4);
+              var fCal = cals * 0.20;
+              fG = Math.round(fCal / 9);
+              var remCal = Math.max(0, cals - (pG * 4) - fCal);
+              cG = Math.round(remCal / 4);
+            } else if (goal === 'recomp') {
+              // 2.0 g/kg protein, 25% fat, remainder carbs
+              pG = Math.round(weightKg * 2.0);
+              var fCal = cals * 0.25;
+              fG = Math.round(fCal / 9);
+              var remCal = Math.max(0, cals - (pG * 4) - fCal);
+              cG = Math.round(remCal / 4);
             } else if (goal === 'bulk') {
-              pG = wKg * 1.8; // 1.8g/kg adequate in caloric surplus
-              const fCal = cal * 0.25;
-              fG = fCal / 9;
-              const remCal = cal - (pG * 4) - fCal;
-              cG = Math.max(0, remCal / 4);
+              // 1.8 g/kg protein, 25% fat, remainder carbs
+              pG = Math.round(weightKg * 1.8);
+              var fCal = cals * 0.25;
+              fG = Math.round(fCal / 9);
+              var remCal = Math.max(0, cals - (pG * 4) - fCal);
+              cG = Math.round(remCal / 4);
             } else if (goal === 'endurance') {
-              pG = wKg * 1.4;
-              const fCal = cal * 0.20;
-              fG = fCal / 9;
-              const remCal = cal - (pG * 4) - fCal;
-              cG = Math.max(0, remCal / 4);
+              // 1.4 g/kg protein, 20% fat, remainder carbs
+              pG = Math.round(weightKg * 1.4);
+              var fCal = cals * 0.20;
+              fG = Math.round(fCal / 9);
+              var remCal = Math.max(0, cals - (pG * 4) - fCal);
+              cG = Math.round(remCal / 4);
             } else if (goal === 'keto') {
-              cG = 30; // 30g net carbs fixed
-              pG = wKg * 1.8;
-              const remCal = cal - (pG * 4) - (cG * 4);
-              fG = Math.max(0, remCal / 9);
-            } else {
-              // Maintenance
-              pG = wKg * 2.0;
-              const fCal = cal * 0.25;
-              fG = fCal / 9;
-              const remCal = cal - (pG * 4) - fCal;
-              cG = Math.max(0, remCal / 4);
+              // 1.8 g/kg protein, 25g net carbs, remainder fats
+              pG = Math.round(weightKg * 1.8);
+              cG = 25;
+              var remCal = Math.max(0, cals - (pG * 4) - (cG * 4));
+              fG = Math.round(remCal / 9);
+            } else if (goal === 'custom') {
+              var pPct = parseInt(document.getElementById('mc-pct-p').value, 10) / 100;
+              var fPct = parseInt(document.getElementById('mc-pct-f').value, 10) / 100;
+              var cPct = parseInt(document.getElementById('mc-pct-c').value, 10) / 100;
+              pG = Math.round((cals * pPct) / 4);
+              fG = Math.round((cals * fPct) / 9);
+              cG = Math.round((cals * cPct) / 4);
             }
 
-            const pCal = pG * 4;
-            const fCalActual = fG * 9;
-            const cCal = cG * 4;
+            var pCal = pG * 4;
+            var fCal = fG * 9;
+            var cCal = cG * 4;
+            var totalMacroCals = pCal + fCal + cCal || 1;
 
-            document.getElementById('mc-p-g').textContent = Math.round(pG) + 'g';
-            document.getElementById('mc-p-cal').textContent = Math.round(pCal) + ' kcal (' + Math.round((pCal / cal) * 100) + '%)';
+            var pPctActual = Math.round((pCal / totalMacroCals) * 100);
+            var fPctActual = Math.round((fCal / totalMacroCals) * 100);
+            var cPctActual = Math.round((cCal / totalMacroCals) * 100);
 
-            document.getElementById('mc-f-g').textContent = Math.round(fG) + 'g';
-            document.getElementById('mc-f-cal').textContent = Math.round(fCalActual) + ' kcal (' + Math.round((fCalActual / cal) * 100) + '%)';
+            var pPerKg = (pG / weightKg).toFixed(2);
+            var fPerKg = (fG / weightKg).toFixed(2);
+            var cPerKg = (cG / weightKg).toFixed(2);
 
-            document.getElementById('mc-c-g').textContent = Math.round(cG) + 'g';
-            document.getElementById('mc-c-cal').textContent = Math.round(cCal) + ' kcal (' + Math.round((cCal / cal) * 100) + '%)';
+            // Fiber recommendation: 14g per 1000 kcal
+            var fiberG = Math.round((cals / 1000) * 14);
+
+            // Update UI Hero
+            document.getElementById('mc-p-g').textContent = pG + 'g';
+            document.getElementById('mc-p-cal').textContent = pCal.toLocaleString('en-US') + ' kcal (' + pPctActual + '%)';
+            document.getElementById('mc-p-ratio').textContent = pPerKg + ' g / kg bodyweight';
+
+            document.getElementById('mc-f-g').textContent = fG + 'g';
+            document.getElementById('mc-f-cal').textContent = fCal.toLocaleString('en-US') + ' kcal (' + fPctActual + '%)';
+            document.getElementById('mc-f-ratio').textContent = fPerKg + ' g / kg bodyweight';
+
+            document.getElementById('mc-c-g').textContent = cG + 'g';
+            document.getElementById('mc-c-cal').textContent = cCal.toLocaleString('en-US') + ' kcal (' + cPctActual + '%)';
+            document.getElementById('mc-c-ratio').textContent = cPerKg + ' g / kg bodyweight';
+
+            document.getElementById('mc-fiber-g').textContent = fiberG + 'g';
+
+            // Stacked Bar
+            document.getElementById('mc-bar-p').style.width = pPctActual + '%';
+            document.getElementById('mc-bar-p').textContent = 'Protein ' + pPctActual + '%';
+            document.getElementById('mc-bar-f').style.width = fPctActual + '%';
+            document.getElementById('mc-bar-f').textContent = 'Fats ' + fPctActual + '%';
+            document.getElementById('mc-bar-c').style.width = cPctActual + '%';
+            document.getElementById('mc-bar-c').textContent = 'Carbs ' + cPctActual + '%';
+            document.getElementById('mc-bar-total').textContent = cals.toLocaleString('en-US') + ' kcal (100%)';
+
+            // Meal by Meal Table
+            document.getElementById('mc-meal-count-disp').textContent = numMeals + ' Meals';
+            var mealP = Math.round(pG / numMeals);
+            var mealF = Math.round(fG / numMeals);
+            var mealC = Math.round(cG / numMeals);
+            var mealCal = Math.round(cals / numMeals);
+
+            var mealNames = [
+              'Meal 1 (Breakfast / Breaking Fast)',
+              'Meal 2 (Mid-Day Nutrition / Lunch)',
+              'Meal 3 (Pre / Post Workout Window)',
+              'Meal 4 (Evening Nutrition / Dinner)',
+              'Meal 5 (Late Afternoon / Pre-Bed Feeding)',
+              'Meal 6 (Late Night Slow-Release Casein)'
+            ];
+
+            var tbody = document.getElementById('mc-meals-tbody');
+            var tHtml = '';
+            for (var m = 0; m < numMeals; m++) {
+              tHtml += '<tr style="border-bottom: 1px solid var(--border);">' +
+                '<td style="padding: 0.45rem 0.6rem; text-align: left; font-weight: 600;">' + (mealNames[m] || ('Meal ' + (m + 1))) + '</td>' +
+                '<td style="padding: 0.45rem 0.6rem; color: #ef4444; font-weight: bold;">' + mealP + 'g</td>' +
+                '<td style="padding: 0.45rem 0.6rem; color: #3b82f6; font-weight: bold;">' + mealF + 'g</td>' +
+                '<td style="padding: 0.45rem 0.6rem; color: #10b981; font-weight: bold;">' + mealC + 'g</td>' +
+                '<td style="padding: 0.45rem 0.6rem; font-weight: bold; color: var(--fg);">' + mealCal + ' kcal</td>' +
+                '</tr>';
+            }
+            tbody.innerHTML = tHtml;
+
+            // Step Worked Text
+            document.getElementById('mc-step-1').innerHTML = 'For ' + weightKg.toFixed(1) + ' kg: ' + weightKg.toFixed(1) + ' &times; ' + pPerKg + ' g/kg = <strong>' + pG + 'g Protein (' + pCal + ' kcal)</strong>.';
+            document.getElementById('mc-step-2').innerHTML = 'For ' + cals + ' kcal: (' + cals + ' &times; ' + (fPctActual / 100).toFixed(2) + ') / 9 = <strong>' + fG + 'g Fat (' + fCal + ' kcal)</strong>.';
+            document.getElementById('mc-step-3').innerHTML = 'Remaining Cal = ' + cals + ' - (' + pCal + ' + ' + fCal + ') = ' + cCal + ' kcal &bull; Carbs = ' + cCal + ' / 4 = <strong>' + cG + 'g Carbs (' + cCal + ' kcal)</strong>.';
           }
 
           window.copyMacroSummary = function() {
-            const cal = document.getElementById('mc-cal').value;
-            const pG = document.getElementById('mc-p-g').textContent;
-            const pCal = document.getElementById('mc-p-cal').textContent;
-            const fG = document.getElementById('mc-f-g').textContent;
-            const fCal = document.getElementById('mc-f-cal').textContent;
-            const cG = document.getElementById('mc-c-g').textContent;
-            const cCal = document.getElementById('mc-c-cal').textContent;
-            const goalText = document.getElementById('mc-goal').options[document.getElementById('mc-goal').selectedIndex].text;
+            var cals = document.getElementById('mc-cal').value;
+            var pG = document.getElementById('mc-p-g').textContent;
+            var fG = document.getElementById('mc-f-g').textContent;
+            var cG = document.getElementById('mc-c-g').textContent;
+            var fiber = document.getElementById('mc-fiber-g').textContent;
+            var pRatio = document.getElementById('mc-p-ratio').textContent;
+            var meals = document.getElementById('mc-meals').value;
 
-            const text = [
-              '=== PERSONALIZED MACRONUTRIENT PROTOCOL ===',
-              'Daily Calorie Target: ' + cal + ' kcal',
-              'Strategy: ' + goalText,
-              '------------------------------------------',
-              'Protein: ' + pG + ' &bull; ' + pCal,
-              'Fats: ' + fG + ' &bull; ' + fCal,
-              'Carbs: ' + cG + ' &bull; ' + cCal,
-              '------------------------------------------',
-              'Governing Standard: International Society of Sports Nutrition (ISSN)',
+            var text = [
+              '=== MACRONUTRIENT NUTRITION TARGETS ===',
+              'Daily Caloric Target: ' + cals + ' kcal',
+              'Protein: ' + pG + ' (' + pRatio + ')',
+              'Healthy Fats: ' + fG,
+              'Carbohydrates: ' + cG,
+              'Dietary Fiber Target: ' + fiber,
+              'Meal Frequency: ' + meals + ' feedings per day',
+              '---------------------------------------',
+              'Standard: ISSN Sports Nutrition Position Stand',
               'Timestamp: ' + new Date().toISOString(),
               'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/health/macro-calculator'
-            ].join('\\n');
+            ].join('\n');
 
             navigator.clipboard.writeText(text).then(function() {
-              const btn = document.getElementById('btnCopyMacro');
+              var btn = document.getElementById('btnCopyMacro');
               if (btn) {
-                const old = btn.innerHTML;
-                btn.innerHTML = '✓ Copied Macro Protocol!';
+                var old = btn.innerHTML;
+                btn.innerHTML = '✓ Copied Nutrition Protocol!';
                 btn.style.color = '#10b981';
                 setTimeout(function() { btn.innerHTML = old; btn.style.color = 'var(--fg)'; }, 2000);
               }
             });
           };
 
-          document.addEventListener('DOMContentLoaded', calcMacros);
+          document.addEventListener('DOMContentLoaded', function() { calcMacros(); });
+          calcMacros();
         </script>
       `
     },
