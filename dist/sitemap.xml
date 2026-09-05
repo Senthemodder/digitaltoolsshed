@@ -1814,6 +1814,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/articles/how-to-cure-sleep-inertia-and-cortisol-awakening-response</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/articles/how-to-decompile-esbuild-bundles</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
@@ -1833,6 +1839,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/articles/minecraft-bedrock-manifest-uuid-guide</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/articles/the-neuroscience-of-adhd-task-paralysis-and-micro-stepping</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

@@ -422,6 +422,102 @@ function convertClientSide(imgElement, format, quality) {
           </div>
         </div>
       `
+    },
+    {
+      slug: 'how-to-cure-sleep-inertia-and-cortisol-awakening-response',
+      title: 'How to Cure Sleep Inertia & Calibrate the Cortisol Awakening Response (CAR)',
+      category: 'Neurobiology & Chronobiology',
+      date: '2026-09-05',
+      readTime: '7 min read',
+      desc: 'The molecular neuroscience of morning grogginess: how adenosine clearance, core body temperature curves, and delayed caffeine intake eliminate the afternoon energy crash.',
+      body: `
+        <div class="article-container">
+          <header class="article-header">
+            <div class="article-journal-tag">Neurobiology & Chronobiology</div>
+            <h1>How to Cure Sleep Inertia & Calibrate the Cortisol Awakening Response (CAR)</h1>
+            <div class="article-meta">
+              <span>By <strong>Cognitive Neuroscience Lab</strong></span>
+              <span>•</span>
+              <span>Published September 5, 2026</span>
+              <span>•</span>
+              <span>7 min read</span>
+            </div>
+          </header>
+
+          <div class="article-body">
+            <p>If you wake up feeling like a walking corpse despite getting eight hours of sleep, you are not suffering from laziness—you are experiencing <strong>sleep inertia</strong>. This biological transition state is governed by lingering adenosine in the prefrontal cortex, incomplete thalamocortical network reactivation, and an uncalibrated <strong>Cortisol Awakening Response (CAR)</strong>.</p>
+
+            <h2>1. The Molecular Mechanism of Sleep Inertia</h2>
+            <p>During wakefulness, your neurons metabolize adenosine triphosphate (ATP) into adenosine, which binds to A1 and A2A receptors in the basal forebrain, creating homeostatic sleep pressure. During slow-wave sleep, cerebrospinal fluid flushes this accumulation via the glymphatic system. However, if wakefulness occurs abruptly—especially during a deep slow-wave trough—adenosine remains bound to receptors for 30 to 90 minutes.</p>
+
+            <h2>2. The Cortisol Awakening Response (CAR)</h2>
+            <p>Within 30 to 45 minutes of natural waking, healthy biology triggers an approximate 50% spike in free cortisol. Far from being a toxic stress hormone, this morning cortisol wave acts as a metabolic ignition switch: it elevates core body temperature, accelerates hepatic gluconeogenesis, and upregulates prefrontal alertness networks.</p>
+
+            <p>To optimize this surge, your suprachiasmatic nucleus (SCN) requires immediate photic signaling. Exposing your eyes to 10,000+ lux of outdoor morning sunlight within 30 minutes of waking triggers melanopsin retinal ganglion cells, synchronizing your central circadian master clock.</p>
+
+            <div class="article-cta-box">
+              <h3 style="margin: 0; font-family: var(--serif);">Interactive Sleep Inertia & CAR Calculator</h3>
+              <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Calculate your personalized adenosine clearance curve, optimal sunlight window, and delayed caffeine intake schedule.</p>
+              <div style="margin-top: 0.5rem;">
+                <a href="/neuro/sleep-inertia-dissipator" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Launch Sleep Inertia Calculator →</a>
+              </div>
+            </div>
+
+            <h2>3. Why You Must Delay Caffeine by 90 to 120 Minutes</h2>
+            <p>Caffeine is a competitive adenosine receptor antagonist. When you drink coffee immediately upon waking, caffeine binds to A1/A2A receptors, preventing adenosine from binding. Crucially, caffeine does not eliminate adenosine; it merely holds it in suspension. When caffeine is metabolized approximately 5 to 7 hours later (around 2:00 PM), the backlog of un-cleared adenosine floods the receptors simultaneously, causing catastrophic afternoon brain fog.</p>
+
+            <p>By waiting 90 to 120 minutes post-wake, your natural Cortisol Awakening Response clears residual adenosine completely. When you subsequently consume caffeine, there is no adenosine backlog, guaranteeing smooth, sustained mental clarity until bedtime.</p>
+          </div>
+        </div>
+      `
+    },
+    {
+      slug: 'the-neuroscience-of-adhd-task-paralysis-and-micro-stepping',
+      title: 'The Neuroscience of ADHD Task Paralysis: Bypassing Prefrontal Gating with Micro-Stepping',
+      category: 'Cognitive Architecture & ADHD',
+      date: '2026-09-05',
+      readTime: '8 min read',
+      desc: 'Why executive dysfunction causes agonizing task freeze, how ambiguous cognitive scope triggers amygdala threat responses, and how 120-second dopamine micro-stepping bypasses prefrontal inertia.',
+      body: `
+        <div class="article-container">
+          <header class="article-header">
+            <div class="article-journal-tag">Cognitive Architecture & ADHD</div>
+            <h1>The Neuroscience of ADHD Task Paralysis: Bypassing Prefrontal Gating with Micro-Stepping</h1>
+            <div class="article-meta">
+              <span>By <strong>Cognitive Neuroscience Lab</strong></span>
+              <span>•</span>
+              <span>Published September 5, 2026</span>
+              <span>•</span>
+              <span>8 min read</span>
+            </div>
+          </header>
+
+          <div class="article-body">
+            <p>You have a critical project due tomorrow. You are sitting at your desk with your laptop open. You want desperately to work. Yet your hands feel physically glued to your sides, your chest tightens, and you find yourself reorganizing your browser bookmarks for the fifth time. This is not poor discipline—it is <strong>ADHD task paralysis</strong>.</p>
+
+            <h2>1. Prefrontal Striatal Gating & Dopamine Deficiency</h2>
+            <p>Task initiation is governed by the frontostriatal network, specifically the striatum and dorsolateral prefrontal cortex (DLPFC). In neurotypical brains, the anticipation of task completion releases a modest surge of tonic dopamine, sufficient to open the basal ganglia gating mechanism and initiate action.</p>
+
+            <p>In ADHD neurobiology, baseline extracellular dopamine and D2 receptor availability are significantly lower. Without sufficient dopamine tone, the neural threshold required to cross from intent into kinetic action feels insurmountable. The brain perceives the ambiguous, overwhelming project not as an opportunity, but as an existential energetic threat.</p>
+
+            <h2>2. The Wall of Awful & The Freeze Response</h2>
+            <p>When a task is large or ill-defined ("write the research paper", "clean the garage", "file tax returns"), the prefrontal cortex cannot calculate a linear computation path. The amygdala activates an evolutionary freeze response: heart rate elevates, working memory narrows, and dopamine-deprived neural circuits seek immediate relief through micro-distractions.</p>
+
+            <div class="article-cta-box">
+              <h3 style="margin: 0; font-family: var(--serif);">Interactive ADHD Task Paralysis Defuser</h3>
+              <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted);">Deconstruct daunting projects into 120-second micro-actions with integrated dopamine audio timers.</p>
+              <div style="margin-top: 0.5rem;">
+                <a href="/neuro/adhd-paralysis-defuser" class="btn btn-primary" style="display: inline-block; padding: 0.6rem 1.25rem;">Launch ADHD Paralysis Defuser →</a>
+              </div>
+            </div>
+
+            <h2>3. The 120-Second Micro-Stepping Protocol</h2>
+            <p>The secret to overcoming task paralysis is reducing the initiation threshold below the amygdala's radar. Instead of "writing the paper", the micro-action is "open the laptop document and type a single imperfect sentence in 120 seconds."</p>
+
+            <p>Once kinetic initiation occurs, the brain releases a pulse of phasic dopamine upon micro-completion. Momentum takes over, the prefrontal gate unfreezes, and you transition effortlessly into the flow state channel.</p>
+          </div>
+        </div>
+      `
     }
   ];
 

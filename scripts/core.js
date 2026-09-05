@@ -626,6 +626,160 @@ body {
   gap: 0.35rem;
 }
 
+.quick-search-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.quick-search-btn:hover {
+  border-color: var(--border-strong);
+  color: var(--fg);
+  background: var(--surface-hover);
+}
+.quick-search-kbd {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  color: var(--text-subtle);
+  line-height: 1;
+}
+@media (max-width: 600px) {
+  .quick-search-text, .quick-search-kbd {
+    display: none;
+  }
+  .quick-search-btn {
+    padding: 0.35rem 0.5rem;
+  }
+}
+.search-modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 10vh;
+}
+.search-modal-card {
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  width: 92%;
+  max-width: 620px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  max-height: 75vh;
+}
+.search-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.search-modal-header input {
+  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  color: var(--fg) !important;
+  font-family: var(--serif) !important;
+  font-size: 1.1rem !important;
+  outline: none !important;
+}
+.search-modal-header input::placeholder {
+  color: var(--text-subtle);
+  font-family: var(--serif);
+}
+.search-modal-close {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.search-modal-close:hover {
+  background: var(--surface-hover);
+  color: var(--fg);
+}
+.search-modal-results {
+  overflow-y: auto;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.search-result-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  text-decoration: none;
+  border-radius: 4px;
+  color: var(--fg);
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  transition: background 0.1s, border-color 0.1s;
+}
+.search-result-item:hover, .search-result-item.selected {
+  background: var(--surface-hover);
+  border-color: var(--border);
+}
+.search-result-title {
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--fg);
+}
+.search-result-badge {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  background: var(--surface-alt);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.search-modal-footer {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+.search-modal-footer kbd {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: var(--text-subtle);
+}
+
 .layout-with-rail {
   display: flex;
   justify-content: center;
@@ -2326,9 +2480,16 @@ function renderPage({ title, metaDesc, canonical, bodyContent, content, currentP
             <span>${title.split('—')[0].trim()}</span>
           </div>
         </div>
-        <div class="privacy-badge">
-          ${ICONS.lock}
-          <span>Everything, Everywhere</span>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <button class="quick-search-btn" onclick="openSearchModal()" title="Search 5,000+ tools (Ctrl+K)">
+            ${ICONS.search}
+            <span class="quick-search-text">Search 5,000+ tools...</span>
+            <kbd class="quick-search-kbd">Ctrl K</kbd>
+          </button>
+          <div class="privacy-badge">
+            ${ICONS.lock}
+            <span>Everything, Everywhere</span>
+          </div>
         </div>
       </div>
 
@@ -2636,6 +2797,22 @@ function renderPage({ title, metaDesc, canonical, bodyContent, content, currentP
   </div>
   `}
 
+  <div class="search-modal-backdrop" id="quickSearchModal" style="display:none;" onclick="if(event.target===this)closeSearchModal()">
+    <div class="search-modal-card" role="dialog" aria-modal="true">
+      <div class="search-modal-header">
+        <span style="display:flex;align-items:center;color:var(--text-muted);">${ICONS.search}</span>
+        <input type="text" id="quickSearchInput" placeholder="Search 5,000+ tools, guides & calculators..." autocomplete="off" />
+        <button class="search-modal-close" onclick="closeSearchModal()" aria-label="Close search">Esc</button>
+      </div>
+      <div class="search-modal-results" id="quickSearchResults"></div>
+      <div class="search-modal-footer">
+        <span>Navigate <kbd>↑</kbd> <kbd>↓</kbd></span>
+        <span>Select <kbd>Enter</kbd></span>
+        <span>Close <kbd>Esc</kbd></span>
+      </div>
+    </div>
+  </div>
+
   <script>
     function toggleSidebar() {
       const sb = document.getElementById('siteSidebar');
@@ -2689,6 +2866,134 @@ function renderPage({ title, metaDesc, canonical, bodyContent, content, currentP
         });
       });
     }
+
+    const DTS_SEARCH_INDEX = ${JSON.stringify(
+      [
+        ...TOOLS.map(t => ({ n: t.name, c: t.category, p: t.path, d: t.desc || '' })),
+        { n: "Human Neurobiology & Cognitive Architecture Suite", c: "Neurobiology & Mind", p: "/neuro/", d: "27 flagship neurobiology & polyvagal tools, NSDR, CAR, flow-state and ADHD defusers" },
+        { n: "Obscure Science & Astrophysics Suite", c: "Science", p: "/science/", d: "115 Planck unit, Schwarzschild radius, and relativistic physics calculators" },
+        { n: "2 AM Existential Dilemmas & Psychology Suite", c: "Psychology", p: "/psychology/", d: "115 ADHD micro-stepping, catastrophizing, and cognitive dissonance tools" },
+        { n: "Niche Construction & Trade Math Suite", c: "Trade Math", p: "/trade/", d: "114 common rafter length, NEC wire gauge, and lumber pricing calculators" },
+        { n: "Esoteric & Historical Unit Systems", c: "Historical Units", p: "/units/", d: "114 ancient Roman, biblical, and apothecary measurement converters" },
+        { n: "Psychological Archetypes & Intelligence Types", c: "Mind & Intelligence", p: "/mind/", d: "500 spatial reasoning, attachment matrix, and executive reserve tools" },
+        { n: "American Boomer Wealth & Senior Care Suite", c: "Boomer Wealth", p: "/wealth/", d: "500 Social Security break-even, IRS RMD tables, and reverse mortgage tools" },
+        { n: "Gen Z Dopamine, Reality Checks & Existential Suite", c: "Dopamine & Reality", p: "/dopamine/", d: "500 screen time loss, dopamine fasting, and REM alarm tools" },
+        { n: "Bizarre Physics, Epigenetics & Niche Math Suite", c: "Curious Physics", p: "/curious/", d: "500 Kleiber metabolic scaling, mammalian heartbeat, and Roche limit tools" },
+        { n: "1,000 Laptop Technical Articles & Deep Dives", c: "Hardware & Laptops", p: "/laptops/", d: "Specs, benchmarks, thermals, and teardowns for 1,000 laptops" },
+        { n: "1,000 Head-to-Head Laptop Comparison Showdowns", c: "Hardware & Laptops", p: "/laptops/compare/", d: "Side-by-side performance, battery, and display comparisons" },
+        { n: "PC Gaming Handhelds Suite & Showdowns", c: "Gaming & Handhelds", p: "/handhelds/", d: "Steam Deck OLED, ROG Ally X, and Legion Go benchmarks" },
+        { n: "Mobile CPU Benchmark Directory", c: "Hardware Benchmarks", p: "/hardware/cpus/", d: "Geekbench 6, Cinebench R23, and efficiency metrics" },
+        { n: "Mobile GPU Benchmark Directory", c: "Hardware Benchmarks", p: "/hardware/gpus/", d: "3DMark Time Spy, ray tracing, and TGP scaling" },
+        { n: "RAM & Storage Upgradeability Directory", c: "Hardware Benchmarks", p: "/laptops/upgrades/", d: "SO-DIMM slots, soldered RAM, and M.2 NVMe SSD expansion" },
+        { n: "Display Eye Strain & PWM Flicker Safety Directory", c: "Hardware Benchmarks", p: "/laptops/pwm/", d: "PWM dimming frequencies, DC dimming, and eye safety tests" },
+        { n: "Technical Articles & Engineering Journal", c: "Tech Journal", p: "/articles/", d: "Clinical neuroscience, ESBuild decompilation, and custom blocks guides" }
+      ]
+    )};
+    var activeSearchIdx = 0;
+
+    function openSearchModal() {
+      var m = document.getElementById('quickSearchModal');
+      if (!m) return;
+      m.style.display = 'flex';
+      var inp = document.getElementById('quickSearchInput');
+      if (inp) {
+        inp.value = '';
+        inp.focus();
+        renderSearchResults('');
+      }
+    }
+
+    function closeSearchModal() {
+      var m = document.getElementById('quickSearchModal');
+      if (m) m.style.display = 'none';
+    }
+
+    function renderSearchResults(query) {
+      var container = document.getElementById('quickSearchResults');
+      if (!container) return;
+      var q = (query || '').toLowerCase().trim();
+      var matches = [];
+      if (!q) {
+        matches = DTS_SEARCH_INDEX.slice(0, 8);
+      } else {
+        matches = DTS_SEARCH_INDEX.filter(function(t) {
+          return t.n.toLowerCase().indexOf(q) !== -1 ||
+                 t.c.toLowerCase().indexOf(q) !== -1 ||
+                 t.d.toLowerCase().indexOf(q) !== -1 ||
+                 t.p.toLowerCase().indexOf(q) !== -1;
+        }).slice(0, 15);
+      }
+
+      activeSearchIdx = 0;
+      if (matches.length === 0) {
+        container.innerHTML = '<div style="padding: 1.5rem; text-align: center; color: var(--text-muted); font-family: var(--mono); font-size: 0.85rem;">No tools found matching &quot;' + query.replace(/</g, '&lt;') + '&quot;</div>';
+        return;
+      }
+
+      var html = '';
+      for (var i = 0; i < matches.length; i++) {
+        var item = matches[i];
+        var isSel = i === 0 ? ' selected' : '';
+        var cleanName = item.n.replace(/\\[.*?\\]/g, '').trim();
+        html += '<a href="' + item.p + '" class="search-result-item' + isSel + '" data-idx="' + i + '">' +
+          '<div style="display:flex; flex-direction:column; gap:0.15rem; overflow:hidden;">' +
+            '<div class="search-result-title">' + cleanName + '</div>' +
+            '<div style="font-size:0.78rem; color:var(--text-muted); text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">' + (item.d || item.p) + '</div>' +
+          '</div>' +
+          '<span class="search-result-badge">' + item.c + '</span>' +
+        '</a>';
+      }
+      container.innerHTML = html;
+    }
+
+    var qInp = document.getElementById('quickSearchInput');
+    if (qInp) {
+      qInp.addEventListener('input', function(e) {
+        renderSearchResults(e.target.value);
+      });
+      qInp.addEventListener('keydown', function(e) {
+        var items = Array.from(document.querySelectorAll('.search-result-item'));
+        if (items.length === 0) return;
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (items[activeSearchIdx]) items[activeSearchIdx].classList.remove('selected');
+          activeSearchIdx = (activeSearchIdx + 1) % items.length;
+          if (items[activeSearchIdx]) {
+            items[activeSearchIdx].classList.add('selected');
+            items[activeSearchIdx].scrollIntoView({ block: 'nearest' });
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (items[activeSearchIdx]) items[activeSearchIdx].classList.remove('selected');
+          activeSearchIdx = (activeSearchIdx - 1 + items.length) % items.length;
+          if (items[activeSearchIdx]) {
+            items[activeSearchIdx].classList.add('selected');
+            items[activeSearchIdx].scrollIntoView({ block: 'nearest' });
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          if (items[activeSearchIdx]) {
+            window.location.href = items[activeSearchIdx].getAttribute('href');
+          }
+        } else if (e.key === 'Escape') {
+          closeSearchModal();
+        }
+      });
+    }
+
+    window.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        var m = document.getElementById('quickSearchModal');
+        if (m && m.style.display === 'flex') closeSearchModal();
+        else openSearchModal();
+      } else if (e.key === '/' && document.activeElement && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        openSearchModal();
+      } else if (e.key === 'Escape') {
+        closeSearchModal();
+      }
+    });
   </script>
 </body>
 </html>`;
