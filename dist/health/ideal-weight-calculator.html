@@ -1147,25 +1147,13 @@
                 <span id="iw-who-window-label" style="color: var(--fg); font-weight: bold;">Healthy: 56.7 – 76.3 kg</span>
               </div>
 
-              <!-- Multi-Segment Visual Spectrum Bar -->
-              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
-                <div style="width: 25%; background: #3b82f6;" title="Underweight (< 18.5 BMI)">Under (<18.5)</div>
-                <div style="width: 50%; background: #10b981;" title="Healthy Normal Weight (18.5–24.9 BMI)">WHO Healthy Weight Window (18.5 – 24.9)</div>
-                <div style="width: 25%; background: #f59e0b;" title="Overweight (≥ 25.0 BMI)">Over (&ge;25.0)</div>
-              </div>
-
-              <!-- Target Marker Needle -->
-              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
-                <div id="iw-marker" style="position: absolute; top: 0; left: 62%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
-              </div>
-
-              <div id="iw-marker-legend" style="margin-top: 0.5rem; font-family: var(--mono); font-size: 0.78rem; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                <span>▲ Pointer: Consensus Ideal Weight (70.1 kg)</span>
-                <span id="iw-who-bounds">WHO Normal: 56.7 kg (125 lbs) &bull; 76.3 kg (168 lbs)</span>
+              <!-- Pure SVG Ideal Weight & Healthy Range Spectrum Visualizer -->
+              <div id="iwSvgContainer" style="width: 100%; overflow-x: auto; margin: 0.5rem 0 0.75rem;">
+                <!-- Drawn dynamically by drawIdealWeightSvg -->
               </div>
             </div>
 
-            <!-- 4 Clinical Formulas Detailed Breakdown Table -->
+            <!-- 4 Clinical Formulas Detailed Breakdown Table --><!-- 4 Clinical Formulas Detailed Breakdown Table -->
             <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
               <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
                 📋 Clinical Formula Breakdown (Adjusted for Frame Size):
@@ -1265,17 +1253,50 @@
             </div>
           </div>
 
-          <!-- Critical Clinical Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls &amp; Pharmacokinetic Origin</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Medication Dosing Origin:</strong> Devine, Robinson, and Hamwi equations were originally created for <strong>pharmacokinetic clearance calculations</strong> (calculating intravenous aminoglycoside and theophylline clearance based on extracellular fluid volume). They were never intended to represent cosmetic ideals or athletic physique goals.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Linear Scaling Flaw:</strong> Human mass naturally scales cubically ($H^3$) rather than linearly with height. Consequently, these equations tend to underestimate healthy weights for individuals over 6'1" (185 cm) and overestimate weights for individuals under 5'2" (157 cm).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Bone Density &amp; Muscle Disregard:</strong> None of these formulas account for bone frame size (wrist/elbow circumference) or lean muscle tissue. A lean, drug-free natural bodybuilder at 10% body fat will almost always weigh 15% to 30% above their Devine 'ideal weight'.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Age &amp; Sarcopenia Neglect:</strong> The equations assume a young adult reference patient. They do not account for natural age-related shifts in bone mineral density or metabolic body composition.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Ideal Weight & Pharmacokinetic Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Ideal Weight Traps &amp; Pharmacokinetic Origin Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Ideal Body Weight (IBW) equations are often misunderstood by the public as aesthetic goals rather than clinical clearance markers:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Pharmacokinetic Clearance Origin (Hospital Dosing vs. Aesthetics)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  The Devine (1974), Robinson (1983), and Hamwi (1964) formulas were developed strictly to estimate renal clearance and extracellular distribution volumes for toxic medications (aminoglycoside antibiotics, theophylline, digoxin). They were engineered to prevent drug overdoses in hospital intensive care units—never as fitness targets or physique ideals.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. The Linear vs. 3D Volumetric Scaling Flaw</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Human bodies are 3-dimensional volumes where mass scales to the height exponent of 2.5 to 3.0. Standard IBW formulas add a flat, linear increment (e.g. 5 lbs or 2.3 kg) for every inch over 5 feet. As a mathematical consequence, these formulas systematically underestimate target weight for tall adults (>6'1" / 185cm) and overestimate target weight for shorter individuals (<5'2" / 157cm).
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. Complete Disregard for Lean Muscle Mass</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  None of the 4 clinical formulas account for skeletal muscle mass. Dense, contractile muscle tissue weighs approximately 18% more per unit volume than adipose tissue. A natural, drug-free athlete with single-digit body fat will routinely weigh 15% to 35% above their calculated Devine ideal weight while having pristine cardiovascular and metabolic health.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Single Deterministic Number Trap</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Obsessing over a single exact weight target induces unnecessary psychological distress. The World Health Organization (WHO) healthy weight range spans a broad 15 to 20 kg (35 to 45 lb) spectrum for any given height, accommodating natural variances in hydration, bone mineral density, and visceral proportions.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. Neglecting Bone Frame Size Adjustments</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Standard formulas assume an average medium skeletal frame. Clinical anthropometry requires a ±10% correction based on wrist styloid circumference. A small-framed person striving for unadjusted IBW may carry excess visceral fat, while a broad-shouldered, large-framed individual attempting to reach standard IBW is forced into an unhealthy, emaciated state.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           let iwUnitMode = 'metric';
@@ -1459,7 +1480,10 @@
             } else {
               markerPct = 25 + (50 * ((consensusKg - whoMinKg) / (whoMaxKg - whoMinKg)));
             }
-            document.getElementById('iw-marker').style.left = markerPct.toFixed(1) + '%';
+            if (document.getElementById('iw-marker')) {
+              document.getElementById('iw-marker').style.left = markerPct.toFixed(1) + '%';
+            }
+            drawIdealWeightSvg(devine, robinson, miller, hamwi, minNormal, maxNormal, curWeight, iwUnitMode);
             document.getElementById('iw-marker-legend').firstElementChild.textContent = '▲ Pointer: Consensus Ideal Weight (' + consensusKg.toFixed(1) + ' kg / ' + (consensusKg * 2.20462).toFixed(1) + ' lbs)';
 
             // Worked step derivations
@@ -1470,7 +1494,66 @@
             document.getElementById('iw-step-hamwi').innerHTML = (isMale ? '48.0' : '45.5') + ' kg + (' + (isMale ? '2.7' : '2.2') + ' &times; ' + inchesOver5Ft.toFixed(1) + ')' + (frameMultiplier !== 1.0 ? ' &times; ' + frameMultiplier : '') + ' = <strong>' + hamwi.toFixed(1) + ' kg (' + (hamwi * 2.20462).toFixed(1) + ' lbs)</strong>';
           }
 
-          window.copyIdealWeightSummary = function() {
+          
+      function drawIdealWeightSvg(devine, robinson, miller, hamwi, minWho, maxWho, curWeight, unitMode) {
+        var container = document.getElementById('iwSvgContainer');
+        if (!container) return;
+
+        var width = 640;
+        var minScale = minWho * 0.85;
+        var maxScale = maxWho * 1.25;
+
+        function getX(val) {
+          return 40 + ((val - minScale) / (maxScale - minScale)) * (width - 80);
+        }
+
+        var xMinWho = getX(minWho);
+        var xMaxWho = getX(maxWho);
+        var xDevine = getX(devine);
+        var xRobinson = getX(robinson);
+        var xMiller = getX(miller);
+        var xHamwi = getX(hamwi);
+        var xUser = curWeight > 0 ? getX(curWeight) : -100;
+
+        var svg = 
+          '<svg viewBox="0 0 640 100" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Underweight Band -->' +
+            '<rect x="40" y="25" width="' + (xMinWho - 40) + '" height="24" rx="3" fill="#3b82f6" />' +
+            '<text x="' + ((40 + xMinWho) / 2) + '" y="41" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">Under (<18.5)</text>' +
+
+            '<!-- WHO Healthy Normal Window -->' +
+            '<rect x="' + xMinWho + '" y="25" width="' + (xMaxWho - xMinWho) + '" height="24" fill="#10b981" />' +
+            '<text x="' + ((xMinWho + xMaxWho) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">WHO Healthy Weight Range (18.5 – 24.9)</text>' +
+
+            '<!-- Overweight Band -->' +
+            '<rect x="' + xMaxWho + '" y="25" width="' + (width - 40 - xMaxWho) + '" height="24" rx="3" fill="#f59e0b" />' +
+            '<text x="' + ((xMaxWho + width - 40) / 2) + '" y="41" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">Over (&ge;25)</text>' +
+
+            '<!-- Formula Markers -->' +
+            '<circle cx="' + xDevine + '" cy="37" r="5" fill="#3b82f6" stroke="#fff" stroke-width="1.5" title="Devine: ' + devine.toFixed(1) + '" />' +
+            '<circle cx="' + xRobinson + '" cy="37" r="5" fill="#059669" stroke="#fff" stroke-width="1.5" title="Robinson: ' + robinson.toFixed(1) + '" />' +
+            '<circle cx="' + xMiller + '" cy="37" r="5" fill="#d97706" stroke="#fff" stroke-width="1.5" title="Miller: ' + miller.toFixed(1) + '" />' +
+            '<circle cx="' + xHamwi + '" cy="37" r="5" fill="#ec4899" stroke="#fff" stroke-width="1.5" title="Hamwi: ' + hamwi.toFixed(1) + '" />' +
+
+            '<!-- User Active Weight Indicator -->' +
+            (xUser >= 40 && xUser <= width - 40 ? 
+              '<line x1="' + xUser + '" y1="10" x2="' + xUser + '" y2="58" stroke="var(--fg)" stroke-width="3" />' +
+              '<polygon points="' + (xUser - 6) + ',10 ' + (xUser + 6) + ',10 ' + xUser + ',22" fill="var(--fg)" />' +
+              '<text x="' + xUser + '" y="75" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">You: ' + curWeight.toFixed(1) + ' ' + (unitMode === 'metric' ? 'kg' : 'lbs') + '</text>' : '') +
+
+            '<!-- Formula Legend -->' +
+            '<g font-size="9" fill="var(--text-muted)" transform="translate(40, 92)">' +
+              '<text x="0" y="0">● Devine (' + devine.toFixed(1) + ')</text>' +
+              '<text x="130" y="0">● Robinson (' + robinson.toFixed(1) + ')</text>' +
+              '<text x="270" y="0">● Miller (' + miller.toFixed(1) + ')</text>' +
+              '<text x="390" y="0">● Hamwi (' + hamwi.toFixed(1) + ')</text>' +
+            '</g>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyIdealWeightSummary = function() {
             const consensus = document.getElementById('iw-consensus-val').textContent;
             const consensusSub = document.getElementById('iw-consensus-sub').textContent;
             const range = document.getElementById('iw-range-val').textContent;

@@ -1157,16 +1157,19 @@
               </div>
             </div>
 
-            <!-- Proportional Visual Stacked Bar -->
+            <!-- Pure SVG Proportional Macronutrient Partitioning Visualizer -->
             <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
-                <span>Caloric Distribution Breakdown:</span>
-                <span id="mc-bar-total" style="color: var(--fg);">2,300 kcal (100%)</span>
+                <span>Caloric Distribution Breakdown (Pure SVG):</span>
+                <span id="mc-bar-total" style="color: var(--fg); font-weight: bold;">2,300 kcal (100%)</span>
               </div>
-              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
-                <div id="mc-bar-p" style="width: 26.1%; background: #ef4444;" title="Protein">Protein 26%</div>
-                <div id="mc-bar-f" style="width: 25.0%; background: #3b82f6;" title="Fats">Fats 25%</div>
-                <div id="mc-bar-c" style="width: 48.9%; background: #10b981;" title="Carbs">Carbs 49%</div>
+              <div id="mcSvgContainer" style="width: 100%; overflow-x: auto;">
+                <!-- Drawn dynamically by drawMacroSvg -->
+              </div>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> Protein (4 kcal/g)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> Healthy Fats (9 kcal/g)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Carbohydrates (4 kcal/g)</span>
               </div>
             </div>
 
@@ -1277,17 +1280,50 @@
             </div>
           </div>
 
-          <!-- Critical Nutrition Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Macronutrient Traps &amp; Hormone Suppression</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Ultra-Low-Fat Endocrine Collapse:</strong> Cutting dietary fat below 15%–20% of total calories crashes cholesterol substrate availability needed for synthesizing testosterone, estrogen, and progesterone. It also severely restricts absorption of fat-soluble vitamins (A, D, E, K). Never compromise fat minimums.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Percentage-Based Protein Fallacy:</strong> Calculating protein purely as a percentage (e.g. 30%) becomes dangerous in deep deficits. In a 1,200 kcal deficit, 30% protein is only 90 grams—catastrophically insufficient for an 80kg lifter seeking to avoid muscle wasting. Always calculate protein in absolute grams per kilogram of body weight.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Net Carbs vs Sugar Alcohols:</strong> Not all sugar alcohols are metabolically inert. While erythritol has a glycemic index of 0, maltitol (frequently used in cheap "sugar-free" bars) has a glycemic index of 35–52 and provides roughly 2.1 kcal/g, triggering blood sugar spikes and gastrointestinal distress.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Myth of the 30-Minute Anabolic Window:</strong> Post-workout nutrient timing is far less critical than total 24-hour macronutrient adherence. Consuming 25–40g of protein every 3 to 4 hours sustains elevated muscle protein synthesis regardless of whether an exact shake is consumed within 30 minutes of lifting.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Macronutrient & Hormone Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Macronutrient Traps &amp; Hormone Suppression Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Macronutrient splits directly modulate muscle protein synthesis, testosterone production, and thyroid status. Avoid these critical mistakes:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Ultra-Low-Fat Endocrine Collapse</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Cutting dietary fats below 15% to 20% of total daily calories (or <0.6 g/kg of body weight) starves the endocrine system of lipid-derived cholesterol precursors needed to synthesize testosterone, estrogen, and progesterone. It also severely restricts assimilation of fat-soluble vitamins (A, D, E, K), leading to joint pain, chronic fatigue, and hormonal shutdown.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. The Percentage-Based Protein Trap in Deep Deficits</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Calculating protein as a fixed percentage (e.g. 25%) rather than absolute grams per kilogram becomes catastrophic in a deficit. In a 1,400 kcal cut, 25% protein delivers only 87 grams—grossly insufficient for an 80kg lifter who requires 160 to 190g (2.0–2.4 g/kg) to stave off muscle wasting. Always anchor protein to body mass first.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. The Net Carbs &amp; High-Glycemic Sugar Alcohol Trap</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Not all sugar alcohols can be subtracted equally from total carbohydrates. While erythritol has a glycemic index of 0, maltitol syrup (prevalent in commercial 'low-carb' protein bars) has a glycemic index of 35 to 52 and yields 2.1 to 3.0 kcal/g. Treating maltitol as zero-carb causes unexpected insulin spikes and stalls fat loss.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The 'Liquid Shakes Replace Whole Foods' Error</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Drinking 100g of protein via liquid whey shakes provides very low satiety and empties from the stomach in under 60 minutes. In contrast, whole food protein anchors (chicken breast, salmon, egg whites, lean beef) demand significant thermic mastication, stimulate the gut peptide satiety hormone PYY, and take 3 to 4 hours to digest, naturally curbing cravings.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. The Carbohydrate Phobia in Resistance Training</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  High-intensity muscular contractions rely on intracellular glycogen through anaerobic glycolysis. Drastically zeroing carbs while lifting heavy forces hepatic gluconeogenesis, elevates systemic cortisol, suppresses active thyroid hormone (T3), and impairs intra-workout strength, leading to stalled progressive overload.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           var mcUnitMode = 'metric';
@@ -1466,6 +1502,7 @@
                 '</tr>';
             }
             tbody.innerHTML = tHtml;
+            drawMacroSvg(pG, fG, cG, pCal, fCal, cCal, cals);
 
             // Step Worked Text
             document.getElementById('mc-step-1').innerHTML = 'For ' + weightKg.toFixed(1) + ' kg: ' + weightKg.toFixed(1) + ' &times; ' + pPerKg + ' g/kg = <strong>' + pG + 'g Protein (' + pCal + ' kcal)</strong>.';
@@ -1473,7 +1510,45 @@
             document.getElementById('mc-step-3').innerHTML = 'Remaining Cal = ' + cals + ' - (' + pCal + ' + ' + fCal + ') = ' + cCal + ' kcal &bull; Carbs = ' + cCal + ' / 4 = <strong>' + cG + 'g Carbs (' + cCal + ' kcal)</strong>.';
           }
 
-          window.copyMacroSummary = function() {
+          
+      function drawMacroSvg(pG, fG, cG, pCal, fCal, cCal, totalCal) {
+        var container = document.getElementById('mcSvgContainer');
+        if (!container) return;
+
+        var safeTotal = Math.max(100, totalCal);
+        var pPct = (pCal / safeTotal) * 100;
+        var fPct = (fCal / safeTotal) * 100;
+        var cPct = Math.max(0, 100 - pPct - fPct);
+
+        var barW = 560;
+        var startX = 40;
+        var wP = (pPct / 100) * barW;
+        var wF = (fPct / 100) * barW;
+        var wC = (cPct / 100) * barW;
+
+        var svg = 
+          '<svg viewBox="0 0 640 85" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Base Background -->' +
+            '<rect x="' + startX + '" y="20" width="' + barW + '" height="32" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1" />' +
+
+            '<!-- Stacked Segments -->' +
+            '<rect x="' + startX + '" y="20" width="' + wP + '" height="32" rx="4" fill="#ef4444" />' +
+            '<rect x="' + (startX + wP) + '" y="20" width="' + wF + '" height="32" fill="#3b82f6" />' +
+            '<rect x="' + (startX + wP + wF) + '" y="20" width="' + wC + '" height="32" rx="4" fill="#10b981" />' +
+
+            '<!-- Segment Labels Inside -->' +
+            (wP > 70 ? '<text x="' + (startX + wP / 2) + '" y="41" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Protein: ' + pG + 'g (' + Math.round(pPct) + '%)</text>' : '') +
+            (wF > 65 ? '<text x="' + (startX + wP + wF / 2) + '" y="41" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Fats: ' + fG + 'g (' + Math.round(fPct) + '%)</text>' : '') +
+            (wC > 70 ? '<text x="' + (startX + wP + wF + wC / 2) + '" y="41" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Carbs: ' + cG + 'g (' + Math.round(cPct) + '%)</text>' : '') +
+
+            '<!-- Subtitle Summary Below -->' +
+            '<text x="320" y="72" fill="var(--text-muted)" font-size="10" text-anchor="middle">Protein: ' + pCal + ' kcal &bull; Fats: ' + fCal + ' kcal &bull; Carbs: ' + cCal + ' kcal (Total: ' + totalCal.toLocaleString('en-US') + ' kcal)</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyMacroSummary = function() {
             var cals = document.getElementById('mc-cal').value;
             var pG = document.getElementById('mc-p-g').textContent;
             var fG = document.getElementById('mc-f-g').textContent;

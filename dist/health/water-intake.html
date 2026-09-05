@@ -1137,6 +1137,17 @@
               ⚡ <strong>Electrolyte Recommendation:</strong> Sustained workout sweat loss requires ~500–800 mg sodium per liter of replacement fluid to maintain optimal plasma osmolality and prevent cramping.
             </div>
 
+            <!-- Pure SVG Hydration Reservoir & Meniscus Visualizer -->
+            <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Daily Hydration Reservoir &amp; Beverage Target:</span>
+                <span id="water-svg-label" style="color: #3b82f6; font-weight: bold;">Target: 3.20 Liters (108 oz)</span>
+              </div>
+              <div id="waterSvgContainer" style="width: 100%; overflow-x: auto;">
+                <!-- Dynamically drawn by drawWaterSvg -->
+              </div>
+            </div>
+
             <!-- Hourly Pacing Schedule -->
             <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -1229,17 +1240,50 @@
             </div>
           </div>
 
-          <!-- Critical Hydration Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Hydration Pitfalls &amp; Hyponatremia Risks</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Exercise-Associated Hyponatremia (EAH):</strong> Chugging excessive plain water during long workouts without replacing lost sodium dilutes serum sodium (<135 mmol/L). This causes cellular swelling, cerebral edema, seizures, and can be fatal. Always pair fluids with electrolytes during prolonged sweat sessions (>60 min).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Evening Fluid Taper (Preventing Nocturia):</strong> Drinking large volumes of water within 2 hours of bedtime forces nighttime awakenings to urinate, fragmenting Stage 3 Slow-Wave Deep Sleep and REM cycles. Front-load 70% of your daily fluids before 4:00 PM.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Thirst is Too Late" Fallacy:</strong> In healthy resting individuals, thirst is an extraordinarily sensitive physiological homeostatic mechanism that triggers when blood osmolality rises by as little as 1%–2%. For everyday desk work, drinking to thirst is completely safe; proactive hydration is strictly required during athletic exertion where thirst sensations lag behind acute sweat volume.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Alcohol Dehydration Multiplier:</strong> Ethanol acts as an anti-diuretic hormone (vasopressin) inhibitor. For every 1 gram of ethanol consumed, the kidneys excrete ~10 ml of extra urine. A standard alcoholic beverage (14g alcohol) causes ~140 ml of net water loss, requiring a 1:1 water backfill to prevent dehydration hangovers.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Hydration & Electrolyte Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Hydration Traps &amp; Electrolyte Dilution Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Fluid balance is governed by strict plasma osmolality. Miscalculating fluid volume or electrolyte ratios can impair performance or trigger clinical emergencies:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. Exercise-Associated Hyponatremia (EAH &amp; Water Intoxication)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Chugging excessive plain water during endurance athletics without replacing lost sodium dilutes serum sodium concentrations below 135 mmol/L. Osmotic pressure forces water out of blood vessels into cerebral brain cells, causing acute cerebral edema, seizures, coma, and potential fatality. When sweating continuously for over 60 minutes, always add 500 to 800 mg of sodium per liter of water.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. The Evening Fluid Chugging Trap (Fragmenting Slow-Wave Deep Sleep)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Drinking 30% or more of your daily fluid allotment within 2 hours of sleep triggers nocturnal bladder distension (nocturia). Waking 2 to 3 times per night to urinate interrupts 90-minute ultradian cycles and shatters restorative Stage 3 Slow-Wave Deep Sleep and REM. Front-load 70% of fluids before 4:00 PM and taper to small sips before bed.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. The 'Clear Urine is Optimal' Fallacy</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Completely transparent, crystal-clear urine is not a badge of superior health—it is a clinical sign of mild overhydration and renal mineral leaching. Sustained over-clear urination washes out potassium, magnesium, and sodium. The optimal physiological hydration benchmark is pale straw or light yellow (Armstrong Levels 1 to 3).
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Thirst Lag in Endurance Athletics</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  At rest in an office, physiological thirst sensations accurately maintain fluid equilibrium. However, during high-intensity training or hot climates, acute sweat rates (1.0 to 2.5 L/hr) far outpace gastric emptying and thirst onset. Waiting until you feel parched during a race or heavy lift means you have already incurred a 2% body mass fluid deficit, degrading cardiac stroke volume and muscular power by 10% to 15%.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. The Alcohol Vasopressin Inhibition Multiplier</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Ethanol directly suppresses the hypothalamic release of Arginine Vasopressin (Anti-Diuretic Hormone). For every 1 gram of ethanol consumed, the renal collecting ducts excrete ~10 ml of excess dilute urine. A standard beer or glass of wine (14g alcohol) extracts ~140 ml of net hydration from body tissues. Every drink must be matched with at least 8 oz of mineral water to avoid morning hypovolemia.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           var waterUnitMode = 'metric';
@@ -1346,9 +1390,69 @@
             document.getElementById('water-step-1').innerHTML = 'For ' + weightKg.toFixed(1) + ' kg: ' + weightKg.toFixed(1) + ' &times; 35 ml = <strong>' + Math.round(baselineMl) + ' ml (' + (baselineMl / 1000).toFixed(2) + ' L / ' + Math.round(baselineMl * 0.033814) + ' oz)</strong>.';
             document.getElementById('water-step-2').innerHTML = 'For ' + exerciseMin + ' min at ' + intensityMult + 'x intensity: (' + exerciseMin + ' / 30) &times; 350 &times; ' + intensityMult + ' = <strong>' + Math.round(exerciseMl) + ' ml</strong>.';
             document.getElementById('water-step-3').innerHTML = 'Climate (' + climateAdd + ' ml) + Stage (' + stageAdd + ' ml) = ' + (climateAdd + stageAdd) + ' ml &bull; Total Target: ' + Math.round(baselineMl) + ' + ' + Math.round(exerciseMl) + ' + ' + (climateAdd + stageAdd) + ' = <strong>' + totalLiters + ' Liters (' + totalFlOz + ' oz)</strong>.';
+            drawWaterSvg(parseFloat(totalLiters), totalFlOz, numGlasses, numBottles);
           }
 
-          window.copyHydrationPlan = function() {
+          
+      function drawWaterSvg(liters, oz, glasses, bottles) {
+        var container = document.getElementById('waterSvgContainer');
+        if (!container) return;
+
+        var maxLiters = 5.0;
+        var fillPct = Math.min(100, Math.max(10, (liters / maxLiters) * 100));
+        var reservoirW = 540;
+        var startX = 50;
+        var fillW = (fillPct / 100) * reservoirW;
+
+        var svg = 
+          '<svg viewBox="0 0 640 120" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Reservoir Outline -->' +
+            '<rect x="' + startX + '" y="25" width="' + reservoirW + '" height="36" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5" />' +
+
+            '<!-- Fluid Fill Level -->' +
+            '<rect x="' + startX + '" y="25" width="' + fillW + '" height="36" rx="6" fill="url(#waterGrad)" />' +
+
+            '<!-- Fluid Meniscus Glow Line -->' +
+            '<line x1="' + (startX + fillW) + '" y1="23" x2="' + (startX + fillW) + '" y2="63" stroke="#93c5fd" stroke-width="3" />' +
+
+            '<!-- Scale Ticks -->' +
+            '<g stroke="var(--text-muted)" stroke-width="1" opacity="0.6">' +
+              '<line x1="' + (startX + reservoirW * 0.2) + '" y1="55" x2="' + (startX + reservoirW * 0.2) + '" y2="61" />' +
+              '<line x1="' + (startX + reservoirW * 0.4) + '" y1="50" x2="' + (startX + reservoirW * 0.4) + '" y2="61" />' +
+              '<line x1="' + (startX + reservoirW * 0.6) + '" y1="55" x2="' + (startX + reservoirW * 0.6) + '" y2="61" />' +
+              '<line x1="' + (startX + reservoirW * 0.8) + '" y1="50" x2="' + (startX + reservoirW * 0.8) + '" y2="61" />' +
+            '</g>' +
+
+            '<!-- Tick Labels -->' +
+            '<text x="' + startX + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">0L</text>' +
+            '<text x="' + (startX + reservoirW * 0.2) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">1.0L</text>' +
+            '<text x="' + (startX + reservoirW * 0.4) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">2.0L</text>' +
+            '<text x="' + (startX + reservoirW * 0.6) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">3.0L</text>' +
+            '<text x="' + (startX + reservoirW * 0.8) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">4.0L</text>' +
+            '<text x="' + (startX + reservoirW) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">5.0L</text>' +
+
+            '<!-- Indicator Badge on Meniscus -->' +
+            '<rect x="' + Math.min(reservoirW - 30, Math.max(startX + 10, startX + fillW - 55)) + '" y="5" width="110" height="18" rx="3" fill="#1e40af" />' +
+            '<text x="' + Math.min(reservoirW + 25, Math.max(startX + 65, startX + fillW)) + '" y="17" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">' + liters.toFixed(2) + 'L (' + oz + ' oz)</text>' +
+
+            '<!-- Bottle and Glass Equivalents Text -->' +
+            '<text x="50" y="105" fill="var(--fg)" font-size="11" font-weight="bold">Equivalent: ' + glasses + ' Glasses (8 oz) &bull; ' + bottles + ' Gym Bottles (500ml)</text>' +
+
+            '<!-- Gradient Definition -->' +
+            '<defs>' +
+              '<linearGradient id="waterGrad" x1="0%" y1="0%" x2="100%" y2="0%">' +
+                '<stop offset="0%" stop-color="#3b82f6" />' +
+                '<stop offset="100%" stop-color="#60a5fa" />' +
+              '</linearGradient>' +
+            '</defs>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+        var lbl = document.getElementById('water-svg-label');
+        if (lbl) lbl.textContent = 'Target: ' + liters.toFixed(2) + ' Liters (' + oz + ' fl oz)';
+      }
+
+window.copyHydrationPlan = function() {
             var primary = document.getElementById('water-primary').textContent;
             var glasses = document.getElementById('water-glasses').textContent;
             var bottles = document.getElementById('water-bottles').textContent;

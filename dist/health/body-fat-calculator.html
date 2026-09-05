@@ -1149,20 +1149,10 @@
                 <span id="bf-spectrum-label" style="color: var(--fg); font-weight: bold;">16.8% (Fitness Category)</span>
               </div>
 
-              <!-- Multi-Segment Spectrum Bar -->
-              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
-                <div id="bf-seg-essential" style="width: 15%; background: #3b82f6;" title="Essential Fat">Essential</div>
-                <div id="bf-seg-athletes" style="width: 25%; background: #10b981;" title="Athletes">Athletes</div>
-                <div id="bf-seg-fitness" style="width: 20%; background: #059669;" title="Fitness">Fitness</div>
-                <div id="bf-seg-average" style="width: 20%; background: #f59e0b;" title="Average">Average</div>
-                <div id="bf-seg-obese" style="width: 20%; background: #ef4444;" title="Obese">Obese</div>
+              <!-- Pure SVG Body Fat Spectrum & Lean Mass Partitioning Gauge -->
+              <div id="bfSvgContainer" style="width: 100%; overflow-x: auto; margin: 0.5rem 0 0.75rem;">
+                <!-- Dynamically drawn by drawBodyFatSvg -->
               </div>
-
-              <!-- Needle / Pointer Position Marker -->
-              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
-                <div id="bf-needle" style="position: absolute; top: 0; left: 45%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
-              </div>
-
               <!-- Body Fat Reference Legend -->
               <div id="bf-legend-text" style="margin-top: 0.5rem; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                 <span>Essential: 2-5% (M) / 10-13% (F)</span>
@@ -1244,17 +1234,50 @@
             </div>
           </div>
 
-          <!-- Critical Pitfalls & Essential Fat Limits -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Body Composition Traps &amp; Essential Fat Limits</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Essential Fat Floor Danger:</strong> Essential fat is required for nerve myelin sheath insulation, hormone precursor synthesis, and bone marrow cellular integrity. The absolute physiological minimum is <strong>2% to 5% for men</strong> and <strong>10% to 13% for women</strong>. Dropping below these levels triggers hypogonadism, amenorrhea (menstrual cessation), immune suppression, and severe bone mineral loss.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Tape Measurement Standard Operating Protocol:</strong> Always measure the neck horizontally just below the larynx (Adam's apple) without compressing tissue. Men measure waist horizontally at the navel at the end of normal passive exhalation. Women measure at the narrowest circumference between ribs and iliac crest, with hips at the maximal gluteal extension.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">DEXA Scan vs Circumference Variance:</strong> The US Navy method has an empirical standard error of estimate (SEE) of approximately <strong>&plusmn;3.0% to 3.5%</strong> compared to dual-energy X-ray absorptiometry (DEXA) or hydrostatic 4-compartment weighing. Intestinal bloat or acute sodium water retention will artificially increase estimated body fat by expanding waist circumference.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Why Body Fat % Matters More Than Scale Weight:</strong> Scale weight fluctuates daily by 2 to 5 lbs due to glycogen storage (each gram of glycogen binds 3–4g of water), gut transit, and hydration. Tracking circumference measurements and body fat % verifies that lost weight is actually adipose tissue rather than metabolically active skeletal muscle.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Body Fat & DoD Tape Test Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Body Fat Traps &amp; Tape Test Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Circumference equations and body composition tracking are susceptible to acute fluid fluctuations and measurement protocol errors:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Physiological Essential Fat Floor Danger</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Essential lipid mass is strictly required for nerve myelin sheath insulation, hormone precursor synthesis, and bone marrow cellular integrity. The absolute minimum is <strong>2% to 5% for men</strong> and <strong>10% to 13% for women</strong>. Dropping below these thresholds induces severe endocrine shutdown, hypogonadism, amenorrhea (menstrual cessation), cardiac arrhythmias, and acute bone mineral degradation.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. Tape Tension &amp; Meal-Induced Abdominal Bloat Bias</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Pulling the circumference tape too taut indents soft subcutaneous tissue, falsely lowering estimated body fat. Conversely, measuring after a meal, during constipation, or during sodium-induced water retention expands waist circumference by 1 to 2 inches, which artificially inflates estimated body fat by <strong>3.0% to 5.0%</strong>. Always measure first thing in the morning fasted at normal passive exhalation.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. DEXA vs. US Navy Method Empirical Variance (±3.5% SEE)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Developed by Hodgdon and Beckett in 1984, the US Navy logarithmic equation has a standard error of estimate (SEE) of approximately <strong>±3.0% to 3.5%</strong> compared to 4-compartment DEXA scans. Individuals with significant neck musculature or atypical visceral-to-subcutaneous fat distribution can register noticeably higher or lower than on dual-energy X-ray absorptiometry.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Scale Weight Obsession (Losing Muscle vs. Adipose Fat)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Scale weight fluctuations fail to distinguish between water, glycogen, muscle, and adipose tissue. Losing 10 lbs on a crash diet typically consists of 4 lbs of water, 3 lbs of lean muscle tissue, and only 3 lbs of fat—worsening your actual body fat percentage and depressing resting metabolic rate. Tracking body fat percentage ensures lost mass is true adipose tissue.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. DoD Directive 1308.3 Age Transition Cliff</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Under military branch regulations (Army AR 600-9, Navy OPNAVINST 6110.1J), allowable body fat percentages scale rigidly by age brackets (17–20, 21–27, 28–39, 40+). Service members testing within weeks of their birthday can face administrative action for exceeding a younger bracket limit (e.g. 22%) that would comfortably pass the next bracket (24%).
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           let bfUnitMode = 'metric';
@@ -1453,7 +1476,10 @@
             catEl.textContent = cat;
             catEl.style.color = catColor;
             document.getElementById('bf-pct').style.color = catColor;
-            document.getElementById('bf-needle').style.left = needleLeft + '%';
+            if (document.getElementById('bf-needle')) {
+              document.getElementById('bf-needle').style.left = needleLeft + '%';
+            }
+            drawBodyFatSvg(bf, bfGender, ageBracket, dodLimit);
             document.getElementById('bf-spectrum-label').textContent = bf.toFixed(1) + '% (' + cat + ')';
 
             // DoD Standards Evaluation
@@ -1528,7 +1554,59 @@
             }
           }
 
-          window.copyBodyFatSummary = function() {
+          
+      function drawBodyFatSvg(bf, gender, ageBracket, dodLimit) {
+        var container = document.getElementById('bfSvgContainer');
+        if (!container) return;
+
+        var minBf = 2;
+        var maxBf = 40;
+        var width = 640;
+        var clampedBf = Math.max(minBf, Math.min(maxBf, bf));
+        var userX = 40 + ((clampedBf - minBf) / (maxBf - minBf)) * (width - 80);
+
+        var isM = (gender === 'male');
+        var eMax = isM ? 5 : 13;
+        var aMax = isM ? 13 : 20;
+        var fMax = isM ? 17 : 24;
+        var avMax = isM ? 24 : 31;
+
+        var xE = 40 + ((eMax - minBf) / (maxBf - minBf)) * (width - 80);
+        var xA = 40 + ((aMax - minBf) / (maxBf - minBf)) * (width - 80);
+        var xF = 40 + ((fMax - minBf) / (maxBf - minBf)) * (width - 80);
+        var xAv = 40 + ((avMax - minBf) / (maxBf - minBf)) * (width - 80);
+        var xDod = 40 + ((dodLimit - minBf) / (maxBf - minBf)) * (width - 80);
+
+        var svg = 
+          '<svg viewBox="0 0 640 105" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Spectrum Bands -->' +
+            '<rect x="40" y="28" width="' + (xE - 40) + '" height="24" rx="3" fill="#3b82f6" />' +
+            '<rect x="' + xE + '" y="28" width="' + (xA - xE) + '" height="24" fill="#10b981" />' +
+            '<rect x="' + xA + '" y="28" width="' + (xF - xA) + '" height="24" fill="#059669" />' +
+            '<rect x="' + xF + '" y="28" width="' + (xAv - xF) + '" height="24" fill="#f59e0b" />' +
+            '<rect x="' + xAv + '" y="28" width="' + (width - 40 - xAv) + '" height="24" rx="3" fill="#ef4444" />' +
+
+            '<!-- Zone Labels -->' +
+            '<text x="' + ((40 + xE) / 2) + '" y="44" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">Essential</text>' +
+            '<text x="' + ((xE + xA) / 2) + '" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Athletes</text>' +
+            '<text x="' + ((xA + xF) / 2) + '" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Fitness</text>' +
+            '<text x="' + ((xF + xAv) / 2) + '" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Average</text>' +
+            '<text x="' + ((xAv + width - 40) / 2) + '" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Obese</text>' +
+
+            '<!-- DoD Cutoff Marker Line -->' +
+            '<line x1="' + xDod + '" y1="20" x2="' + xDod + '" y2="60" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3,3" />' +
+            '<text x="' + xDod + '" y="16" fill="#8b5cf6" font-size="9" font-weight="bold" text-anchor="middle">DoD ' + dodLimit + '% Max</text>' +
+
+            '<!-- User Active Needle -->' +
+            '<line x1="' + userX + '" y1="18" x2="' + userX + '" y2="62" stroke="var(--fg)" stroke-width="3" />' +
+            '<polygon points="' + (userX - 6) + ',18 ' + (userX + 6) + ',18 ' + userX + ',28" fill="var(--fg)" />' +
+            '<text x="' + userX + '" y="80" fill="var(--fg)" font-size="12" font-weight="bold" text-anchor="middle">You: ' + bf.toFixed(1) + '%</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyBodyFatSummary = function() {
             const bf = document.getElementById('bf-pct').textContent;
             const cat = document.getElementById('bf-category').textContent;
             const fatHero = document.getElementById('bf-fat-mass-hero').textContent;

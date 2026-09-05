@@ -1283,6 +1283,17 @@ window.copyTDEESummary = function() {
               ⚡ <strong>Electrolyte Recommendation:</strong> Sustained workout sweat loss requires ~500–800 mg sodium per liter of replacement fluid to maintain optimal plasma osmolality and prevent cramping.
             </div>
 
+            <!-- Pure SVG Hydration Reservoir & Meniscus Visualizer -->
+            <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Daily Hydration Reservoir &amp; Beverage Target:</span>
+                <span id="water-svg-label" style="color: #3b82f6; font-weight: bold;">Target: 3.20 Liters (108 oz)</span>
+              </div>
+              <div id="waterSvgContainer" style="width: 100%; overflow-x: auto;">
+                <!-- Dynamically drawn by drawWaterSvg -->
+              </div>
+            </div>
+
             <!-- Hourly Pacing Schedule -->
             <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -1375,17 +1386,50 @@ window.copyTDEESummary = function() {
             </div>
           </div>
 
-          <!-- Critical Hydration Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Hydration Pitfalls &amp; Hyponatremia Risks</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Exercise-Associated Hyponatremia (EAH):</strong> Chugging excessive plain water during long workouts without replacing lost sodium dilutes serum sodium (<135 mmol/L). This causes cellular swelling, cerebral edema, seizures, and can be fatal. Always pair fluids with electrolytes during prolonged sweat sessions (>60 min).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Evening Fluid Taper (Preventing Nocturia):</strong> Drinking large volumes of water within 2 hours of bedtime forces nighttime awakenings to urinate, fragmenting Stage 3 Slow-Wave Deep Sleep and REM cycles. Front-load 70% of your daily fluids before 4:00 PM.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The "Thirst is Too Late" Fallacy:</strong> In healthy resting individuals, thirst is an extraordinarily sensitive physiological homeostatic mechanism that triggers when blood osmolality rises by as little as 1%–2%. For everyday desk work, drinking to thirst is completely safe; proactive hydration is strictly required during athletic exertion where thirst sensations lag behind acute sweat volume.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Alcohol Dehydration Multiplier:</strong> Ethanol acts as an anti-diuretic hormone (vasopressin) inhibitor. For every 1 gram of ethanol consumed, the kidneys excrete ~10 ml of extra urine. A standard alcoholic beverage (14g alcohol) causes ~140 ml of net water loss, requiring a 1:1 water backfill to prevent dehydration hangovers.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Hydration & Electrolyte Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Hydration Traps &amp; Electrolyte Dilution Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Fluid balance is governed by strict plasma osmolality. Miscalculating fluid volume or electrolyte ratios can impair performance or trigger clinical emergencies:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. Exercise-Associated Hyponatremia (EAH &amp; Water Intoxication)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Chugging excessive plain water during endurance athletics without replacing lost sodium dilutes serum sodium concentrations below 135 mmol/L. Osmotic pressure forces water out of blood vessels into cerebral brain cells, causing acute cerebral edema, seizures, coma, and potential fatality. When sweating continuously for over 60 minutes, always add 500 to 800 mg of sodium per liter of water.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. The Evening Fluid Chugging Trap (Fragmenting Slow-Wave Deep Sleep)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Drinking 30% or more of your daily fluid allotment within 2 hours of sleep triggers nocturnal bladder distension (nocturia). Waking 2 to 3 times per night to urinate interrupts 90-minute ultradian cycles and shatters restorative Stage 3 Slow-Wave Deep Sleep and REM. Front-load 70% of fluids before 4:00 PM and taper to small sips before bed.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. The 'Clear Urine is Optimal' Fallacy</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Completely transparent, crystal-clear urine is not a badge of superior health—it is a clinical sign of mild overhydration and renal mineral leaching. Sustained over-clear urination washes out potassium, magnesium, and sodium. The optimal physiological hydration benchmark is pale straw or light yellow (Armstrong Levels 1 to 3).
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Thirst Lag in Endurance Athletics</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  At rest in an office, physiological thirst sensations accurately maintain fluid equilibrium. However, during high-intensity training or hot climates, acute sweat rates (1.0 to 2.5 L/hr) far outpace gastric emptying and thirst onset. Waiting until you feel parched during a race or heavy lift means you have already incurred a 2% body mass fluid deficit, degrading cardiac stroke volume and muscular power by 10% to 15%.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. The Alcohol Vasopressin Inhibition Multiplier</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Ethanol directly suppresses the hypothalamic release of Arginine Vasopressin (Anti-Diuretic Hormone). For every 1 gram of ethanol consumed, the renal collecting ducts excrete ~10 ml of excess dilute urine. A standard beer or glass of wine (14g alcohol) extracts ~140 ml of net hydration from body tissues. Every drink must be matched with at least 8 oz of mineral water to avoid morning hypovolemia.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           var waterUnitMode = 'metric';
@@ -1492,9 +1536,69 @@ window.copyTDEESummary = function() {
             document.getElementById('water-step-1').innerHTML = 'For ' + weightKg.toFixed(1) + ' kg: ' + weightKg.toFixed(1) + ' &times; 35 ml = <strong>' + Math.round(baselineMl) + ' ml (' + (baselineMl / 1000).toFixed(2) + ' L / ' + Math.round(baselineMl * 0.033814) + ' oz)</strong>.';
             document.getElementById('water-step-2').innerHTML = 'For ' + exerciseMin + ' min at ' + intensityMult + 'x intensity: (' + exerciseMin + ' / 30) &times; 350 &times; ' + intensityMult + ' = <strong>' + Math.round(exerciseMl) + ' ml</strong>.';
             document.getElementById('water-step-3').innerHTML = 'Climate (' + climateAdd + ' ml) + Stage (' + stageAdd + ' ml) = ' + (climateAdd + stageAdd) + ' ml &bull; Total Target: ' + Math.round(baselineMl) + ' + ' + Math.round(exerciseMl) + ' + ' + (climateAdd + stageAdd) + ' = <strong>' + totalLiters + ' Liters (' + totalFlOz + ' oz)</strong>.';
+            drawWaterSvg(parseFloat(totalLiters), totalFlOz, numGlasses, numBottles);
           }
 
-          window.copyHydrationPlan = function() {
+          
+      function drawWaterSvg(liters, oz, glasses, bottles) {
+        var container = document.getElementById('waterSvgContainer');
+        if (!container) return;
+
+        var maxLiters = 5.0;
+        var fillPct = Math.min(100, Math.max(10, (liters / maxLiters) * 100));
+        var reservoirW = 540;
+        var startX = 50;
+        var fillW = (fillPct / 100) * reservoirW;
+
+        var svg = 
+          '<svg viewBox="0 0 640 120" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Reservoir Outline -->' +
+            '<rect x="' + startX + '" y="25" width="' + reservoirW + '" height="36" rx="6" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1.5" />' +
+
+            '<!-- Fluid Fill Level -->' +
+            '<rect x="' + startX + '" y="25" width="' + fillW + '" height="36" rx="6" fill="url(#waterGrad)" />' +
+
+            '<!-- Fluid Meniscus Glow Line -->' +
+            '<line x1="' + (startX + fillW) + '" y1="23" x2="' + (startX + fillW) + '" y2="63" stroke="#93c5fd" stroke-width="3" />' +
+
+            '<!-- Scale Ticks -->' +
+            '<g stroke="var(--text-muted)" stroke-width="1" opacity="0.6">' +
+              '<line x1="' + (startX + reservoirW * 0.2) + '" y1="55" x2="' + (startX + reservoirW * 0.2) + '" y2="61" />' +
+              '<line x1="' + (startX + reservoirW * 0.4) + '" y1="50" x2="' + (startX + reservoirW * 0.4) + '" y2="61" />' +
+              '<line x1="' + (startX + reservoirW * 0.6) + '" y1="55" x2="' + (startX + reservoirW * 0.6) + '" y2="61" />' +
+              '<line x1="' + (startX + reservoirW * 0.8) + '" y1="50" x2="' + (startX + reservoirW * 0.8) + '" y2="61" />' +
+            '</g>' +
+
+            '<!-- Tick Labels -->' +
+            '<text x="' + startX + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">0L</text>' +
+            '<text x="' + (startX + reservoirW * 0.2) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">1.0L</text>' +
+            '<text x="' + (startX + reservoirW * 0.4) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">2.0L</text>' +
+            '<text x="' + (startX + reservoirW * 0.6) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">3.0L</text>' +
+            '<text x="' + (startX + reservoirW * 0.8) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">4.0L</text>' +
+            '<text x="' + (startX + reservoirW) + '" y="78" fill="var(--text-muted)" font-size="10" text-anchor="middle">5.0L</text>' +
+
+            '<!-- Indicator Badge on Meniscus -->' +
+            '<rect x="' + Math.min(reservoirW - 30, Math.max(startX + 10, startX + fillW - 55)) + '" y="5" width="110" height="18" rx="3" fill="#1e40af" />' +
+            '<text x="' + Math.min(reservoirW + 25, Math.max(startX + 65, startX + fillW)) + '" y="17" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">' + liters.toFixed(2) + 'L (' + oz + ' oz)</text>' +
+
+            '<!-- Bottle and Glass Equivalents Text -->' +
+            '<text x="50" y="105" fill="var(--fg)" font-size="11" font-weight="bold">Equivalent: ' + glasses + ' Glasses (8 oz) &bull; ' + bottles + ' Gym Bottles (500ml)</text>' +
+
+            '<!-- Gradient Definition -->' +
+            '<defs>' +
+              '<linearGradient id="waterGrad" x1="0%" y1="0%" x2="100%" y2="0%">' +
+                '<stop offset="0%" stop-color="#3b82f6" />' +
+                '<stop offset="100%" stop-color="#60a5fa" />' +
+              '</linearGradient>' +
+            '</defs>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+        var lbl = document.getElementById('water-svg-label');
+        if (lbl) lbl.textContent = 'Target: ' + liters.toFixed(2) + ' Liters (' + oz + ' fl oz)';
+      }
+
+window.copyHydrationPlan = function() {
             var primary = document.getElementById('water-primary').textContent;
             var glasses = document.getElementById('water-glasses').textContent;
             var bottles = document.getElementById('water-bottles').textContent;
@@ -1589,6 +1693,21 @@ window.copyTDEESummary = function() {
 
               <div id="sleep-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem;">
                 <!-- Populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Pure SVG 90-Minute Ultradian Sleep Cycle Hypnogram Visualizer -->
+            <div style="margin-top: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
+                <span>Ultradian Sleep Architecture &amp; Sleep Inertia Gates:</span>
+                <span id="sleep-hypno-legend" style="color: #10b981; font-weight: bold;">5 Cycles (7.5h) = Optimal Alertness</span>
+              </div>
+              <div id="sleepSvgContainer" style="width: 100%; overflow-x: auto;">
+                <!-- Drawn dynamically by drawSleepHypnogramSvg -->
+              </div>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Optimal Wake Gates (Cycle End / REM / N1)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> Deep Slow-Wave Troughs (N3 Sleep Inertia Hazard)</span>
               </div>
             </div>
 
@@ -1703,17 +1822,50 @@ window.copyTDEESummary = function() {
             </div>
           </div>
 
-          <!-- Critical Sleep Traps & Circadian Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Sleep Traps &amp; Circadian Pitfalls</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Sleep Inertia Paradox (Why 8 Hours Can Feel Worse Than 7.5):</strong> If your alarm jolts you out of Stage N3 Slow-Wave Deep Sleep, prefrontal cortex hypoperfusion persists for 30 to 60 minutes, causing intense grogginess, slowed reaction times, and brain fog. Waking at 7.5 hours (at the conclusion of cycle 5 during light Stage 1/REM) often feels dramatically more alert than waking at 8.0 hours.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Weekend Social Jetlag Trap:</strong> Staying up 3 hours later on Friday and sleeping in Saturday shifts your peripheral circadian clock genes (CLOCK, BMAL1). When you try to sleep early on Sunday, your core temperature hasn\'t dropped and pineal melatonin has not secreted, resulting in debilitating "Sunday Night Insomnia".</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Instant Sleep Fallacy:</strong> Falling asleep within 2–3 minutes of your head hitting the pillow is not a sign of great sleep health—it is a recognized clinical indicator of <strong>severe chronic sleep deprivation</strong> (excess adenosine buildup). Healthy sleep latency is 10 to 20 minutes.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Caffeine Clearance Half-Life Drag:</strong> With an average metabolic half-life of 5.7 hours, 200mg of caffeine consumed at 4 PM leaves ~50mg still circulating at 2 AM, actively blocking adenosine A1/A2A receptors and cutting deep Stage 3 slow-wave sleep by up to 30% even if you fall asleep.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Sleep Cycle & Circadian Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Sleep Cycle Traps &amp; Circadian Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Sleep is not a uniform monolithic block—it is an intricate series of 90-minute neural oscillations. Violating sleep architecture leads to chronic fatigue:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Sleep Inertia Trap (Why 8 Hours Can Feel Worse Than 7.5 Hours)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  If an alarm abruptly wrenches you awake during Stage 3 Slow-Wave Deep Sleep (N3), your prefrontal cortex suffers from severe hypoperfusion for up to 60 minutes. This creates intense morning grogginess, slowed motor reflexes, and brain fog. Waking at 7.5 hours (at the conclusion of cycle 5 in light Stage 1/REM) allows you to feel instantly refreshed, whereas waking at 8.0 hours cuts directly into deep sleep.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. The Weekend Social Jetlag Shift</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Staying up 3 hours later on Friday and sleeping in Saturday shifts your peripheral circadian clock genes (CLOCK, BMAL1). When you attempt to sleep early on Sunday, your core temperature has not yet dropped and pineal melatonin has not secreted, resulting in debilitating 'Sunday Night Insomnia' and Monday morning brain fog.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. The 'Instant Knockout' Fallacy</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Falling asleep within 2 to 3 minutes of your head hitting the pillow is not a sign of exceptional sleep health—it is a recognized clinical indicator of <strong>severe cumulative sleep debt</strong> (excess extracellular adenosine accumulation). Healthy sleep latency is 10 to 20 minutes as the brain naturally relaxes from alpha waves to theta waves.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Afternoon Caffeine Adenosine Receptor Lockout</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  With an average metabolic half-life of 5.7 hours (and quarter-life of ~11.5 hours), a 200mg coffee consumed at 3:00 PM leaves ~50mg still active in your brain at 2:00 AM. Caffeine competitively blocks adenosine A1 and A2A receptors, suppressing Stage 3 slow-wave delta sleep by up to 30% even if you fall asleep without difficulty.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. The Blue Light &amp; Overhead Lux Melatonin Blockade</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Intrinsically photosensitive retinal ganglion cells (ipRGCs) expressing melanopsin are ultra-sensitive to 460–480nm blue photons. Viewing smartphones or sitting under bright overhead lighting (>100 lux) within 90 minutes of sleep suppresses pineal melatonin secretion by up to 88%, artificially delaying circadian sleep onset and truncating early REM phases.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           let currentSleepMode = 'targetWake';
@@ -1881,9 +2033,78 @@ window.copyTDEESummary = function() {
 
             const tmin = new Date(baseWake.getTime() - 2 * 3600000);
             document.getElementById('circ-tmin').textContent = formatTimeString(tmin);
+            drawSleepHypnogramSvg();
           }
 
-          window.copySleepSchedule = function() {
+          
+      function drawSleepHypnogramSvg() {
+        var container = document.getElementById('sleepSvgContainer');
+        if (!container) return;
+
+        var startX = 50;
+        var plotW = 560;
+        var baseY = 25;
+
+        // Draw 6 90-min cycles (0 to 9 hours)
+        var pathD = 'M ' + startX + ' ' + baseY;
+        var cycleW = plotW / 6;
+
+        for (var c = 0; c < 6; c++) {
+          var cx = startX + (c * cycleW);
+          var deepDepth = (c < 3 ? baseY + 70 : baseY + 50);
+          var remHeight = (c > 2 ? baseY + 18 : baseY + 30);
+
+          pathD += ' C ' + (cx + cycleW * 0.2) + ' ' + (baseY + 35) + ', ' +
+                          (cx + cycleW * 0.35) + ' ' + deepDepth + ', ' +
+                          (cx + cycleW * 0.5) + ' ' + deepDepth;
+          pathD += ' C ' + (cx + cycleW * 0.65) + ' ' + deepDepth + ', ' +
+                          (cx + cycleW * 0.8) + ' ' + remHeight + ', ' +
+                          (cx + cycleW) + ' ' + (baseY + 15);
+        }
+
+        var svg = 
+          '<svg viewBox="0 0 640 135" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Stage Guidelines -->' +
+            '<g stroke="var(--border)" stroke-dasharray="2,3" stroke-width="1">' +
+              '<line x1="' + startX + '" y1="' + baseY + '" x2="' + (startX + plotW) + '" y2="' + baseY + '" />' +
+              '<line x1="' + startX + '" y1="' + (baseY + 22) + '" x2="' + (startX + plotW) + '" y2="' + (baseY + 22) + '" />' +
+              '<line x1="' + startX + '" y1="' + (baseY + 45) + '" x2="' + (startX + plotW) + '" y2="' + (baseY + 45) + '" />' +
+              '<line x1="' + startX + '" y1="' + (baseY + 70) + '" x2="' + (startX + plotW) + '" y2="' + (baseY + 70) + '" />' +
+            '</g>' +
+
+            '<!-- Stage Axis Labels -->' +
+            '<text x="42" y="' + (baseY + 3) + '" fill="var(--text-muted)" font-size="9" text-anchor="end">Awake</text>' +
+            '<text x="42" y="' + (baseY + 25) + '" fill="#ec4899" font-size="9" font-weight="bold" text-anchor="end">REM</text>' +
+            '<text x="42" y="' + (baseY + 48) + '" fill="#3b82f6" font-size="9" text-anchor="end">Light</text>' +
+            '<text x="42" y="' + (baseY + 73) + '" fill="#8b5cf6" font-size="9" font-weight="bold" text-anchor="end">Deep</text>' +
+
+            '<!-- Hypnogram Wave Path -->' +
+            '<path d="' + pathD + '" fill="none" stroke="#3b82f6" stroke-width="2.5" />' +
+
+            '<!-- Wake Gates (Green dots at cycle endpoints) -->' +
+            '<circle cx="' + (startX + cycleW * 4) + '" cy="' + (baseY + 15) + '" r="4" fill="#10b981" stroke="var(--fg)" stroke-width="1" />' +
+            '<circle cx="' + (startX + cycleW * 5) + '" cy="' + (baseY + 15) + '" r="5" fill="#10b981" stroke="#ffffff" stroke-width="2" />' +
+            '<circle cx="' + (startX + cycleW * 6) + '" cy="' + (baseY + 15) + '" r="4" fill="#10b981" stroke="var(--fg)" stroke-width="1" />' +
+
+            '<!-- Cycle Hour Markers Along Bottom -->' +
+            '<g fill="var(--text-muted)" font-size="10" text-anchor="middle">' +
+              '<text x="' + (startX + cycleW * 1) + '" y="115">1.5h</text>' +
+              '<text x="' + (startX + cycleW * 2) + '" y="115">3.0h</text>' +
+              '<text x="' + (startX + cycleW * 3) + '" y="115">4.5h (3c)</text>' +
+              '<text x="' + (startX + cycleW * 4) + '" y="115">6.0h (4c)</text>' +
+              '<text x="' + (startX + cycleW * 5) + '" y="115" fill="#10b981" font-weight="bold">7.5h (5c ★)</text>' +
+              '<text x="' + (startX + cycleW * 6) + '" y="115">9.0h (6c)</text>' +
+            '</g>' +
+
+            '<!-- Star Badge on 5 Cycles Optimal Wake -->' +
+            '<rect x="' + (startX + cycleW * 5 - 45) + '" y="' + (baseY - 18) + '" width="90" height="16" rx="3" fill="#10b981" />' +
+            '<text x="' + (startX + cycleW * 5) + '" y="' + (baseY - 6) + '" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">BEST: 7.5h (5 Cycles)</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copySleepSchedule = function() {
             const wakeVal = document.getElementById('sleep-wake-time').value || '07:00';
             const latency = document.getElementById('sleep-latency').value;
             const title = document.getElementById('sleep-results-title').textContent;
@@ -2029,20 +2250,10 @@ window.copyTDEESummary = function() {
                 <span id="bf-spectrum-label" style="color: var(--fg); font-weight: bold;">16.8% (Fitness Category)</span>
               </div>
 
-              <!-- Multi-Segment Spectrum Bar -->
-              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
-                <div id="bf-seg-essential" style="width: 15%; background: #3b82f6;" title="Essential Fat">Essential</div>
-                <div id="bf-seg-athletes" style="width: 25%; background: #10b981;" title="Athletes">Athletes</div>
-                <div id="bf-seg-fitness" style="width: 20%; background: #059669;" title="Fitness">Fitness</div>
-                <div id="bf-seg-average" style="width: 20%; background: #f59e0b;" title="Average">Average</div>
-                <div id="bf-seg-obese" style="width: 20%; background: #ef4444;" title="Obese">Obese</div>
+              <!-- Pure SVG Body Fat Spectrum & Lean Mass Partitioning Gauge -->
+              <div id="bfSvgContainer" style="width: 100%; overflow-x: auto; margin: 0.5rem 0 0.75rem;">
+                <!-- Dynamically drawn by drawBodyFatSvg -->
               </div>
-
-              <!-- Needle / Pointer Position Marker -->
-              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
-                <div id="bf-needle" style="position: absolute; top: 0; left: 45%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
-              </div>
-
               <!-- Body Fat Reference Legend -->
               <div id="bf-legend-text" style="margin-top: 0.5rem; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
                 <span>Essential: 2-5% (M) / 10-13% (F)</span>
@@ -2124,17 +2335,50 @@ window.copyTDEESummary = function() {
             </div>
           </div>
 
-          <!-- Critical Pitfalls & Essential Fat Limits -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Body Composition Traps &amp; Essential Fat Limits</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Essential Fat Floor Danger:</strong> Essential fat is required for nerve myelin sheath insulation, hormone precursor synthesis, and bone marrow cellular integrity. The absolute physiological minimum is <strong>2% to 5% for men</strong> and <strong>10% to 13% for women</strong>. Dropping below these levels triggers hypogonadism, amenorrhea (menstrual cessation), immune suppression, and severe bone mineral loss.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Tape Measurement Standard Operating Protocol:</strong> Always measure the neck horizontally just below the larynx (Adam\'s apple) without compressing tissue. Men measure waist horizontally at the navel at the end of normal passive exhalation. Women measure at the narrowest circumference between ribs and iliac crest, with hips at the maximal gluteal extension.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">DEXA Scan vs Circumference Variance:</strong> The US Navy method has an empirical standard error of estimate (SEE) of approximately <strong>&plusmn;3.0% to 3.5%</strong> compared to dual-energy X-ray absorptiometry (DEXA) or hydrostatic 4-compartment weighing. Intestinal bloat or acute sodium water retention will artificially increase estimated body fat by expanding waist circumference.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Why Body Fat % Matters More Than Scale Weight:</strong> Scale weight fluctuates daily by 2 to 5 lbs due to glycogen storage (each gram of glycogen binds 3–4g of water), gut transit, and hydration. Tracking circumference measurements and body fat % verifies that lost weight is actually adipose tissue rather than metabolically active skeletal muscle.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Body Fat & DoD Tape Test Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Body Fat Traps &amp; Tape Test Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Circumference equations and body composition tracking are susceptible to acute fluid fluctuations and measurement protocol errors:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Physiological Essential Fat Floor Danger</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Essential lipid mass is strictly required for nerve myelin sheath insulation, hormone precursor synthesis, and bone marrow cellular integrity. The absolute minimum is <strong>2% to 5% for men</strong> and <strong>10% to 13% for women</strong>. Dropping below these thresholds induces severe endocrine shutdown, hypogonadism, amenorrhea (menstrual cessation), cardiac arrhythmias, and acute bone mineral degradation.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. Tape Tension &amp; Meal-Induced Abdominal Bloat Bias</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Pulling the circumference tape too taut indents soft subcutaneous tissue, falsely lowering estimated body fat. Conversely, measuring after a meal, during constipation, or during sodium-induced water retention expands waist circumference by 1 to 2 inches, which artificially inflates estimated body fat by <strong>3.0% to 5.0%</strong>. Always measure first thing in the morning fasted at normal passive exhalation.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. DEXA vs. US Navy Method Empirical Variance (±3.5% SEE)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Developed by Hodgdon and Beckett in 1984, the US Navy logarithmic equation has a standard error of estimate (SEE) of approximately <strong>±3.0% to 3.5%</strong> compared to 4-compartment DEXA scans. Individuals with significant neck musculature or atypical visceral-to-subcutaneous fat distribution can register noticeably higher or lower than on dual-energy X-ray absorptiometry.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Scale Weight Obsession (Losing Muscle vs. Adipose Fat)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Scale weight fluctuations fail to distinguish between water, glycogen, muscle, and adipose tissue. Losing 10 lbs on a crash diet typically consists of 4 lbs of water, 3 lbs of lean muscle tissue, and only 3 lbs of fat—worsening your actual body fat percentage and depressing resting metabolic rate. Tracking body fat percentage ensures lost mass is true adipose tissue.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. DoD Directive 1308.3 Age Transition Cliff</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Under military branch regulations (Army AR 600-9, Navy OPNAVINST 6110.1J), allowable body fat percentages scale rigidly by age brackets (17–20, 21–27, 28–39, 40+). Service members testing within weeks of their birthday can face administrative action for exceeding a younger bracket limit (e.g. 22%) that would comfortably pass the next bracket (24%).
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           let bfUnitMode = 'metric';
@@ -2333,7 +2577,10 @@ window.copyTDEESummary = function() {
             catEl.textContent = cat;
             catEl.style.color = catColor;
             document.getElementById('bf-pct').style.color = catColor;
-            document.getElementById('bf-needle').style.left = needleLeft + '%';
+            if (document.getElementById('bf-needle')) {
+              document.getElementById('bf-needle').style.left = needleLeft + '%';
+            }
+            drawBodyFatSvg(bf, bfGender, ageBracket, dodLimit);
             document.getElementById('bf-spectrum-label').textContent = bf.toFixed(1) + '% (' + cat + ')';
 
             // DoD Standards Evaluation
@@ -2408,7 +2655,59 @@ window.copyTDEESummary = function() {
             }
           }
 
-          window.copyBodyFatSummary = function() {
+          
+      function drawBodyFatSvg(bf, gender, ageBracket, dodLimit) {
+        var container = document.getElementById('bfSvgContainer');
+        if (!container) return;
+
+        var minBf = 2;
+        var maxBf = 40;
+        var width = 640;
+        var clampedBf = Math.max(minBf, Math.min(maxBf, bf));
+        var userX = 40 + ((clampedBf - minBf) / (maxBf - minBf)) * (width - 80);
+
+        var isM = (gender === 'male');
+        var eMax = isM ? 5 : 13;
+        var aMax = isM ? 13 : 20;
+        var fMax = isM ? 17 : 24;
+        var avMax = isM ? 24 : 31;
+
+        var xE = 40 + ((eMax - minBf) / (maxBf - minBf)) * (width - 80);
+        var xA = 40 + ((aMax - minBf) / (maxBf - minBf)) * (width - 80);
+        var xF = 40 + ((fMax - minBf) / (maxBf - minBf)) * (width - 80);
+        var xAv = 40 + ((avMax - minBf) / (maxBf - minBf)) * (width - 80);
+        var xDod = 40 + ((dodLimit - minBf) / (maxBf - minBf)) * (width - 80);
+
+        var svg = 
+          '<svg viewBox="0 0 640 105" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Spectrum Bands -->' +
+            '<rect x="40" y="28" width="' + (xE - 40) + '" height="24" rx="3" fill="#3b82f6" />' +
+            '<rect x="' + xE + '" y="28" width="' + (xA - xE) + '" height="24" fill="#10b981" />' +
+            '<rect x="' + xA + '" y="28" width="' + (xF - xA) + '" height="24" fill="#059669" />' +
+            '<rect x="' + xF + '" y="28" width="' + (xAv - xF) + '" height="24" fill="#f59e0b" />' +
+            '<rect x="' + xAv + '" y="28" width="' + (width - 40 - xAv) + '" height="24" rx="3" fill="#ef4444" />' +
+
+            '<!-- Zone Labels -->' +
+            '<text x="' + ((40 + xE) / 2) + '" y="44" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">Essential</text>' +
+            '<text x="' + ((xE + xA) / 2) + '" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Athletes</text>' +
+            '<text x="' + ((xA + xF) / 2) + '" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Fitness</text>' +
+            '<text x="' + ((xF + xAv) / 2) + '" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Average</text>' +
+            '<text x="' + ((xAv + width - 40) / 2) + '" y="44" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Obese</text>' +
+
+            '<!-- DoD Cutoff Marker Line -->' +
+            '<line x1="' + xDod + '" y1="20" x2="' + xDod + '" y2="60" stroke="#8b5cf6" stroke-width="2" stroke-dasharray="3,3" />' +
+            '<text x="' + xDod + '" y="16" fill="#8b5cf6" font-size="9" font-weight="bold" text-anchor="middle">DoD ' + dodLimit + '% Max</text>' +
+
+            '<!-- User Active Needle -->' +
+            '<line x1="' + userX + '" y1="18" x2="' + userX + '" y2="62" stroke="var(--fg)" stroke-width="3" />' +
+            '<polygon points="' + (userX - 6) + ',18 ' + (userX + 6) + ',18 ' + userX + ',28" fill="var(--fg)" />' +
+            '<text x="' + userX + '" y="80" fill="var(--fg)" font-size="12" font-weight="bold" text-anchor="middle">You: ' + bf.toFixed(1) + '%</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyBodyFatSummary = function() {
             const bf = document.getElementById('bf-pct').textContent;
             const cat = document.getElementById('bf-category').textContent;
             const fatHero = document.getElementById('bf-fat-mass-hero').textContent;
@@ -2562,16 +2861,19 @@ window.copyTDEESummary = function() {
               </div>
             </div>
 
-            <!-- Proportional Visual Stacked Bar -->
+            <!-- Pure SVG Proportional Macronutrient Partitioning Visualizer -->
             <div style="margin-top: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1rem;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted);">
-                <span>Caloric Distribution Breakdown:</span>
-                <span id="mc-bar-total" style="color: var(--fg);">2,300 kcal (100%)</span>
+                <span>Caloric Distribution Breakdown (Pure SVG):</span>
+                <span id="mc-bar-total" style="color: var(--fg); font-weight: bold;">2,300 kcal (100%)</span>
               </div>
-              <div style="display: flex; width: 100%; height: 26px; border-radius: 4px; overflow: hidden; font-family: var(--mono); font-size: 0.72rem; font-weight: bold; color: #fff; text-align: center; line-height: 26px;">
-                <div id="mc-bar-p" style="width: 26.1%; background: #ef4444;" title="Protein">Protein 26%</div>
-                <div id="mc-bar-f" style="width: 25.0%; background: #3b82f6;" title="Fats">Fats 25%</div>
-                <div id="mc-bar-c" style="width: 48.9%; background: #10b981;" title="Carbs">Carbs 49%</div>
+              <div id="mcSvgContainer" style="width: 100%; overflow-x: auto;">
+                <!-- Drawn dynamically by drawMacroSvg -->
+              </div>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.5rem; font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted);">
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #ef4444; border-radius: 2px;"></span> Protein (4 kcal/g)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #3b82f6; border-radius: 2px;"></span> Healthy Fats (9 kcal/g)</span>
+                <span style="display: inline-flex; align-items: center; gap: 0.3rem;"><span style="width: 8px; height: 8px; background: #10b981; border-radius: 2px;"></span> Carbohydrates (4 kcal/g)</span>
               </div>
             </div>
 
@@ -2682,17 +2984,50 @@ window.copyTDEESummary = function() {
             </div>
           </div>
 
-          <!-- Critical Nutrition Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Macronutrient Traps &amp; Hormone Suppression</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Ultra-Low-Fat Endocrine Collapse:</strong> Cutting dietary fat below 15%–20% of total calories crashes cholesterol substrate availability needed for synthesizing testosterone, estrogen, and progesterone. It also severely restricts absorption of fat-soluble vitamins (A, D, E, K). Never compromise fat minimums.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Percentage-Based Protein Fallacy:</strong> Calculating protein purely as a percentage (e.g. 30%) becomes dangerous in deep deficits. In a 1,200 kcal deficit, 30% protein is only 90 grams—catastrophically insufficient for an 80kg lifter seeking to avoid muscle wasting. Always calculate protein in absolute grams per kilogram of body weight.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Net Carbs vs Sugar Alcohols:</strong> Not all sugar alcohols are metabolically inert. While erythritol has a glycemic index of 0, maltitol (frequently used in cheap "sugar-free" bars) has a glycemic index of 35–52 and provides roughly 2.1 kcal/g, triggering blood sugar spikes and gastrointestinal distress.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Myth of the 30-Minute Anabolic Window:</strong> Post-workout nutrient timing is far less critical than total 24-hour macronutrient adherence. Consuming 25–40g of protein every 3 to 4 hours sustains elevated muscle protein synthesis regardless of whether an exact shake is consumed within 30 minutes of lifting.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Macronutrient & Hormone Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Macronutrient Traps &amp; Hormone Suppression Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Macronutrient splits directly modulate muscle protein synthesis, testosterone production, and thyroid status. Avoid these critical mistakes:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Ultra-Low-Fat Endocrine Collapse</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Cutting dietary fats below 15% to 20% of total daily calories (or <0.6 g/kg of body weight) starves the endocrine system of lipid-derived cholesterol precursors needed to synthesize testosterone, estrogen, and progesterone. It also severely restricts assimilation of fat-soluble vitamins (A, D, E, K), leading to joint pain, chronic fatigue, and hormonal shutdown.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. The Percentage-Based Protein Trap in Deep Deficits</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Calculating protein as a fixed percentage (e.g. 25%) rather than absolute grams per kilogram becomes catastrophic in a deficit. In a 1,400 kcal cut, 25% protein delivers only 87 grams—grossly insufficient for an 80kg lifter who requires 160 to 190g (2.0–2.4 g/kg) to stave off muscle wasting. Always anchor protein to body mass first.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. The Net Carbs &amp; High-Glycemic Sugar Alcohol Trap</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Not all sugar alcohols can be subtracted equally from total carbohydrates. While erythritol has a glycemic index of 0, maltitol syrup (prevalent in commercial 'low-carb' protein bars) has a glycemic index of 35 to 52 and yields 2.1 to 3.0 kcal/g. Treating maltitol as zero-carb causes unexpected insulin spikes and stalls fat loss.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The 'Liquid Shakes Replace Whole Foods' Error</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Drinking 100g of protein via liquid whey shakes provides very low satiety and empties from the stomach in under 60 minutes. In contrast, whole food protein anchors (chicken breast, salmon, egg whites, lean beef) demand significant thermic mastication, stimulate the gut peptide satiety hormone PYY, and take 3 to 4 hours to digest, naturally curbing cravings.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. The Carbohydrate Phobia in Resistance Training</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  High-intensity muscular contractions rely on intracellular glycogen through anaerobic glycolysis. Drastically zeroing carbs while lifting heavy forces hepatic gluconeogenesis, elevates systemic cortisol, suppresses active thyroid hormone (T3), and impairs intra-workout strength, leading to stalled progressive overload.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           var mcUnitMode = 'metric';
@@ -2871,6 +3206,7 @@ window.copyTDEESummary = function() {
                 '</tr>';
             }
             tbody.innerHTML = tHtml;
+            drawMacroSvg(pG, fG, cG, pCal, fCal, cCal, cals);
 
             // Step Worked Text
             document.getElementById('mc-step-1').innerHTML = 'For ' + weightKg.toFixed(1) + ' kg: ' + weightKg.toFixed(1) + ' &times; ' + pPerKg + ' g/kg = <strong>' + pG + 'g Protein (' + pCal + ' kcal)</strong>.';
@@ -2878,7 +3214,45 @@ window.copyTDEESummary = function() {
             document.getElementById('mc-step-3').innerHTML = 'Remaining Cal = ' + cals + ' - (' + pCal + ' + ' + fCal + ') = ' + cCal + ' kcal &bull; Carbs = ' + cCal + ' / 4 = <strong>' + cG + 'g Carbs (' + cCal + ' kcal)</strong>.';
           }
 
-          window.copyMacroSummary = function() {
+          
+      function drawMacroSvg(pG, fG, cG, pCal, fCal, cCal, totalCal) {
+        var container = document.getElementById('mcSvgContainer');
+        if (!container) return;
+
+        var safeTotal = Math.max(100, totalCal);
+        var pPct = (pCal / safeTotal) * 100;
+        var fPct = (fCal / safeTotal) * 100;
+        var cPct = Math.max(0, 100 - pPct - fPct);
+
+        var barW = 560;
+        var startX = 40;
+        var wP = (pPct / 100) * barW;
+        var wF = (fPct / 100) * barW;
+        var wC = (cPct / 100) * barW;
+
+        var svg = 
+          '<svg viewBox="0 0 640 85" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Base Background -->' +
+            '<rect x="' + startX + '" y="20" width="' + barW + '" height="32" rx="4" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="1" />' +
+
+            '<!-- Stacked Segments -->' +
+            '<rect x="' + startX + '" y="20" width="' + wP + '" height="32" rx="4" fill="#ef4444" />' +
+            '<rect x="' + (startX + wP) + '" y="20" width="' + wF + '" height="32" fill="#3b82f6" />' +
+            '<rect x="' + (startX + wP + wF) + '" y="20" width="' + wC + '" height="32" rx="4" fill="#10b981" />' +
+
+            '<!-- Segment Labels Inside -->' +
+            (wP > 70 ? '<text x="' + (startX + wP / 2) + '" y="41" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Protein: ' + pG + 'g (' + Math.round(pPct) + '%)</text>' : '') +
+            (wF > 65 ? '<text x="' + (startX + wP + wF / 2) + '" y="41" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Fats: ' + fG + 'g (' + Math.round(fPct) + '%)</text>' : '') +
+            (wC > 70 ? '<text x="' + (startX + wP + wF + wC / 2) + '" y="41" fill="#ffffff" font-size="11" font-weight="bold" text-anchor="middle">Carbs: ' + cG + 'g (' + Math.round(cPct) + '%)</text>' : '') +
+
+            '<!-- Subtitle Summary Below -->' +
+            '<text x="320" y="72" fill="var(--text-muted)" font-size="10" text-anchor="middle">Protein: ' + pCal + ' kcal &bull; Fats: ' + fCal + ' kcal &bull; Carbs: ' + cCal + ' kcal (Total: ' + totalCal.toLocaleString('en-US') + ' kcal)</text>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyMacroSummary = function() {
             var cals = document.getElementById('mc-cal').value;
             var pG = document.getElementById('mc-p-g').textContent;
             var fG = document.getElementById('mc-f-g').textContent;
@@ -3021,25 +3395,13 @@ window.copyTDEESummary = function() {
                 <span id="iw-who-window-label" style="color: var(--fg); font-weight: bold;">Healthy: 56.7 – 76.3 kg</span>
               </div>
 
-              <!-- Multi-Segment Visual Spectrum Bar -->
-              <div style="position: relative; width: 100%; height: 28px; border-radius: 4px; overflow: hidden; display: flex; font-family: var(--mono); font-size: 0.7rem; font-weight: bold; color: #fff; text-align: center; line-height: 28px;">
-                <div style="width: 25%; background: #3b82f6;" title="Underweight (< 18.5 BMI)">Under (<18.5)</div>
-                <div style="width: 50%; background: #10b981;" title="Healthy Normal Weight (18.5–24.9 BMI)">WHO Healthy Weight Window (18.5 – 24.9)</div>
-                <div style="width: 25%; background: #f59e0b;" title="Overweight (≥ 25.0 BMI)">Over (&ge;25.0)</div>
-              </div>
-
-              <!-- Target Marker Needle -->
-              <div style="position: relative; width: 100%; height: 16px; margin-top: 4px;">
-                <div id="iw-marker" style="position: absolute; top: 0; left: 62%; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-bottom: 10px solid var(--fg); transition: left 0.3s ease;"></div>
-              </div>
-
-              <div id="iw-marker-legend" style="margin-top: 0.5rem; font-family: var(--mono); font-size: 0.78rem; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
-                <span>▲ Pointer: Consensus Ideal Weight (70.1 kg)</span>
-                <span id="iw-who-bounds">WHO Normal: 56.7 kg (125 lbs) &bull; 76.3 kg (168 lbs)</span>
+              <!-- Pure SVG Ideal Weight & Healthy Range Spectrum Visualizer -->
+              <div id="iwSvgContainer" style="width: 100%; overflow-x: auto; margin: 0.5rem 0 0.75rem;">
+                <!-- Drawn dynamically by drawIdealWeightSvg -->
               </div>
             </div>
 
-            <!-- 4 Clinical Formulas Detailed Breakdown Table -->
+            <!-- 4 Clinical Formulas Detailed Breakdown Table --><!-- 4 Clinical Formulas Detailed Breakdown Table -->
             <div style="margin-top: 1.5rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
               <h4 style="margin: 0 0 0.75rem; font-family: var(--serif); font-size: 1.1rem; color: var(--fg);">
                 📋 Clinical Formula Breakdown (Adjusted for Frame Size):
@@ -3139,17 +3501,50 @@ window.copyTDEESummary = function() {
             </div>
           </div>
 
-          <!-- Critical Clinical Pitfalls -->
-          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ Critical Clinical Pitfalls &amp; Pharmacokinetic Origin</h3>
-            <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Medication Dosing Origin:</strong> Devine, Robinson, and Hamwi equations were originally created for <strong>pharmacokinetic clearance calculations</strong> (calculating intravenous aminoglycoside and theophylline clearance based on extracellular fluid volume). They were never intended to represent cosmetic ideals or athletic physique goals.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">The Linear Scaling Flaw:</strong> Human mass naturally scales cubically ($H^3$) rather than linearly with height. Consequently, these equations tend to underestimate healthy weights for individuals over 6\'1" (185 cm) and overestimate weights for individuals under 5\'2" (157 cm).</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Bone Density &amp; Muscle Disregard:</strong> None of these formulas account for bone frame size (wrist/elbow circumference) or lean muscle tissue. A lean, drug-free natural bodybuilder at 10% body fat will almost always weigh 15% to 30% above their Devine \'ideal weight\'.</li>
-              <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Age &amp; Sarcopenia Neglect:</strong> The equations assume a young adult reference patient. They do not account for natural age-related shifts in bone mineral density or metabolic body composition.</li>
-            </ul>
-          </div>
-        </div>
+          <!-- 5 Fatal Ideal Weight & Pharmacokinetic Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Ideal Weight Traps &amp; Pharmacokinetic Origin Pitfalls</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+              Ideal Body Weight (IBW) equations are often misunderstood by the public as aesthetic goals rather than clinical clearance markers:
+            </p>
+
+            <div style="display: grid; gap: 1rem;">
+              <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">1. The Pharmacokinetic Clearance Origin (Hospital Dosing vs. Aesthetics)</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  The Devine (1974), Robinson (1983), and Hamwi (1964) formulas were developed strictly to estimate renal clearance and extracellular distribution volumes for toxic medications (aminoglycoside antibiotics, theophylline, digoxin). They were engineered to prevent drug overdoses in hospital intensive care units—never as fitness targets or physique ideals.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">2. The Linear vs. 3D Volumetric Scaling Flaw</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Human bodies are 3-dimensional volumes where mass scales to the height exponent of 2.5 to 3.0. Standard IBW formulas add a flat, linear increment (e.g. 5 lbs or 2.3 kg) for every inch over 5 feet. As a mathematical consequence, these formulas systematically underestimate target weight for tall adults (>6'1" / 185cm) and overestimate target weight for shorter individuals (<5'2" / 157cm).
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">3. Complete Disregard for Lean Muscle Mass</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  None of the 4 clinical formulas account for skeletal muscle mass. Dense, contractile muscle tissue weighs approximately 18% more per unit volume than adipose tissue. A natural, drug-free athlete with single-digit body fat will routinely weigh 15% to 35% above their calculated Devine ideal weight while having pristine cardiovascular and metabolic health.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">4. The Single Deterministic Number Trap</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Obsessing over a single exact weight target induces unnecessary psychological distress. The World Health Organization (WHO) healthy weight range spans a broad 15 to 20 kg (35 to 45 lb) spectrum for any given height, accommodating natural variances in hydration, bone mineral density, and visceral proportions.
+                </p>
+              </div>
+
+              <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+                <strong style="color: var(--fg); font-size: 0.95rem;">5. Neglecting Bone Frame Size Adjustments</strong>
+                <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+                  Standard formulas assume an average medium skeletal frame. Clinical anthropometry requires a ±10% correction based on wrist styloid circumference. A small-framed person striving for unadjusted IBW may carry excess visceral fat, while a broad-shouldered, large-framed individual attempting to reach standard IBW is forced into an unhealthy, emaciated state.
+                </p>
+              </div>
+            </div>
+          </div></div>
 
         <script>
           let iwUnitMode = 'metric';
@@ -3333,7 +3728,10 @@ window.copyTDEESummary = function() {
             } else {
               markerPct = 25 + (50 * ((consensusKg - whoMinKg) / (whoMaxKg - whoMinKg)));
             }
-            document.getElementById('iw-marker').style.left = markerPct.toFixed(1) + '%';
+            if (document.getElementById('iw-marker')) {
+              document.getElementById('iw-marker').style.left = markerPct.toFixed(1) + '%';
+            }
+            drawIdealWeightSvg(devine, robinson, miller, hamwi, minNormal, maxNormal, curWeight, iwUnitMode);
             document.getElementById('iw-marker-legend').firstElementChild.textContent = '▲ Pointer: Consensus Ideal Weight (' + consensusKg.toFixed(1) + ' kg / ' + (consensusKg * 2.20462).toFixed(1) + ' lbs)';
 
             // Worked step derivations
@@ -3344,7 +3742,66 @@ window.copyTDEESummary = function() {
             document.getElementById('iw-step-hamwi').innerHTML = (isMale ? '48.0' : '45.5') + ' kg + (' + (isMale ? '2.7' : '2.2') + ' &times; ' + inchesOver5Ft.toFixed(1) + ')' + (frameMultiplier !== 1.0 ? ' &times; ' + frameMultiplier : '') + ' = <strong>' + hamwi.toFixed(1) + ' kg (' + (hamwi * 2.20462).toFixed(1) + ' lbs)</strong>';
           }
 
-          window.copyIdealWeightSummary = function() {
+          
+      function drawIdealWeightSvg(devine, robinson, miller, hamwi, minWho, maxWho, curWeight, unitMode) {
+        var container = document.getElementById('iwSvgContainer');
+        if (!container) return;
+
+        var width = 640;
+        var minScale = minWho * 0.85;
+        var maxScale = maxWho * 1.25;
+
+        function getX(val) {
+          return 40 + ((val - minScale) / (maxScale - minScale)) * (width - 80);
+        }
+
+        var xMinWho = getX(minWho);
+        var xMaxWho = getX(maxWho);
+        var xDevine = getX(devine);
+        var xRobinson = getX(robinson);
+        var xMiller = getX(miller);
+        var xHamwi = getX(hamwi);
+        var xUser = curWeight > 0 ? getX(curWeight) : -100;
+
+        var svg = 
+          '<svg viewBox="0 0 640 100" style="width: 100%; height: auto; display: block; font-family: var(--mono);" xmlns="http://www.w3.org/2000/svg">' +
+            '<!-- Underweight Band -->' +
+            '<rect x="40" y="25" width="' + (xMinWho - 40) + '" height="24" rx="3" fill="#3b82f6" />' +
+            '<text x="' + ((40 + xMinWho) / 2) + '" y="41" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">Under (<18.5)</text>' +
+
+            '<!-- WHO Healthy Normal Window -->' +
+            '<rect x="' + xMinWho + '" y="25" width="' + (xMaxWho - xMinWho) + '" height="24" fill="#10b981" />' +
+            '<text x="' + ((xMinWho + xMaxWho) / 2) + '" y="41" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">WHO Healthy Weight Range (18.5 – 24.9)</text>' +
+
+            '<!-- Overweight Band -->' +
+            '<rect x="' + xMaxWho + '" y="25" width="' + (width - 40 - xMaxWho) + '" height="24" rx="3" fill="#f59e0b" />' +
+            '<text x="' + ((xMaxWho + width - 40) / 2) + '" y="41" fill="#ffffff" font-size="9" font-weight="bold" text-anchor="middle">Over (&ge;25)</text>' +
+
+            '<!-- Formula Markers -->' +
+            '<circle cx="' + xDevine + '" cy="37" r="5" fill="#3b82f6" stroke="#fff" stroke-width="1.5" title="Devine: ' + devine.toFixed(1) + '" />' +
+            '<circle cx="' + xRobinson + '" cy="37" r="5" fill="#059669" stroke="#fff" stroke-width="1.5" title="Robinson: ' + robinson.toFixed(1) + '" />' +
+            '<circle cx="' + xMiller + '" cy="37" r="5" fill="#d97706" stroke="#fff" stroke-width="1.5" title="Miller: ' + miller.toFixed(1) + '" />' +
+            '<circle cx="' + xHamwi + '" cy="37" r="5" fill="#ec4899" stroke="#fff" stroke-width="1.5" title="Hamwi: ' + hamwi.toFixed(1) + '" />' +
+
+            '<!-- User Active Weight Indicator -->' +
+            (xUser >= 40 && xUser <= width - 40 ? 
+              '<line x1="' + xUser + '" y1="10" x2="' + xUser + '" y2="58" stroke="var(--fg)" stroke-width="3" />' +
+              '<polygon points="' + (xUser - 6) + ',10 ' + (xUser + 6) + ',10 ' + xUser + ',22" fill="var(--fg)" />' +
+              '<text x="' + xUser + '" y="75" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">You: ' + curWeight.toFixed(1) + ' ' + (unitMode === 'metric' ? 'kg' : 'lbs') + '</text>' : '') +
+
+            '<!-- Formula Legend -->' +
+            '<g font-size="9" fill="var(--text-muted)" transform="translate(40, 92)">' +
+              '<text x="0" y="0">● Devine (' + devine.toFixed(1) + ')</text>' +
+              '<text x="130" y="0">● Robinson (' + robinson.toFixed(1) + ')</text>' +
+              '<text x="270" y="0">● Miller (' + miller.toFixed(1) + ')</text>' +
+              '<text x="390" y="0">● Hamwi (' + hamwi.toFixed(1) + ')</text>' +
+            '</g>' +
+          '</svg>';
+
+        container.innerHTML = svg;
+      }
+
+window.copyIdealWeightSummary = function() {
             const consensus = document.getElementById('iw-consensus-val').textContent;
             const consensusSub = document.getElementById('iw-consensus-sub').textContent;
             const range = document.getElementById('iw-range-val').textContent;
