@@ -1532,15 +1532,31 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           </div>
         </div>
 
-        <!-- 4 Critical Traps -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 4 Critical Pension Annuity Traps</h3>
-          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
-            <li><strong>The Zero Legacy Risk (Single Life Trap):</strong> If you select a single life annuity and pass away 24 months into retirement, you receive $52,800 total, and the employer retains the remaining $297,200. Zero dollars go to your surviving spouse or children.</li>
-            <li><strong>The Non-Inflation-Adjusted Purchasing Power Crash:</strong> Most corporate pensions are strictly fixed dollar amounts with 0% COLA. Over a 25-year retirement at 3% inflation, your $2,200/month check will feel like only $1,050/month in real goods and groceries.</li>
-            <li><strong>Pension Insolvent Bankruptcy & PBGC Haircuts:</strong> If your former corporate employer declares bankruptcy and the pension is turned over to the federal Pension Benefit Guaranty Corporation (PBGC), statutory maximum benefit caps may force an immediate reduction on high-earner pension payouts.</li>
-            <li><strong>Lump Sum Behavioral Ruin:</strong> While a lump sum offers superior estate planning flexibility, it exposes retirees to panic selling during market crashes and aggressive withdrawals. If you cannot resist high-risk speculation, the forced discipline of an annuity is often mathematically superior.</li>
-          </ul>
+        <!-- 5 Fatal Pension Annuity Traps & Payout Pitfalls -->
+        <div style="margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Fatal Pension Annuity Traps & Payout Pitfalls</h3>
+          <div style="display: grid; gap: 1rem;">
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">⚰️ 1. The Zero Legacy Single Life Trap (Employer Retains Remainder)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Selecting a Single Life annuity maximizes your monthly payout check, but if you pass away just 24 months into retirement, all payments instantly cease. The corporate pension fund retains the entirety of your remaining principal—leaving exactly $0 to your surviving spouse or children unless a Joint & Survivor option was elected.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📉 2. Fixed Annuity Purchasing Power Decay (0% COLA at 3% Inflation)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Over 85% of corporate private pensions provide strictly fixed nominal payments with zero Cost-of-Living Adjustments (COLA). At a standard 3% long-term inflation rate, a $2,500 monthly payment loses over 52% of its real purchasing power by age 85, cutting your standard of living in half when healthcare costs peak.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">⚖️ 3. The Actuarial Crossover & Life Expectancy Break-Even (Ages 78–82)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Annuities are designed by corporate actuaries using conservative mortality tables. If you take a lump sum and achieve a moderate 5% to 6% net return, the cumulative wealth of the lump sum generally outperforms the annuity until ages 78 to 82. If family genetics or personal health suggest a shorter life expectancy, the lump sum is mathematically dominant.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🏛️ 4. Corporate Pension Insolvency & PBGC Statutory Haircuts</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">If your former corporate employer declares bankruptcy and its defined-benefit plan is underfunded, the federal Pension Benefit Guaranty Corporation (PBGC) steps in. However, the PBGC enforces statutory maximum benefit limits and age reductions that frequently slash high-earner executive and senior professional pension payments by 20% to 50%.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🧠 5. Lump-Sum Sequence of Returns Risk vs. Behavioral Panic Selling</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Rolling over a $500,000 lump sum into an IRA provides full control, but creates severe vulnerability to sequence-of-returns risk. A 25% market drawdown in Years 1–3 combined with mandatory 4% living withdrawals permanently impairs capital recovery. Unless you have the emotional discipline to endure bear markets without selling, the forced stability of an annuity acts as crucial longevity insurance.</p>
+            </div>
+          </div>
         </div>
 
         <div style="text-align: center; margin: 2rem 0;">
@@ -1901,15 +1917,31 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           </div>
         </div>
 
-        <!-- 4 Critical Traps -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 4 Critical Senior Downsizing Traps</h3>
-          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
-            <li><strong>The Condo HOA Fee Escalator & Special Assessment Trap:</strong> Many seniors trade a $500/mo property maintenance bill for a $600/mo condo HOA fee, thinking they save money. However, HOA boards routinely hike dues 10%–15% annually to fund deferred maintenance. Furthermore, a single $15,000 Special Assessment for building re-roofing instantly wipes out 18 months of projected downsizing savings.</li>
-            <li><strong>The Furnishing & Moving Replacement Shock:</strong> Oversized furniture designed for a 3,000-square-foot house rarely fits into a 1,200-square-foot condo or townhome. Buying compact furniture, custom window treatments, moving services, and storage units frequently consumes $12,000 to $25,000 in immediate cash.</li>
-            <li><strong>Property Tax Reassessment Cliffs:</strong> If you live in a state with senior tax caps (such as California Proposition 13 or Florida Save Our Homes), selling your home and buying a new one in another county or state may trigger a dramatic property tax reassessment, neutralizing expected tax savings unless specific transfer portability rules apply.</li>
-            <li><strong>Emotional Grieving & Social Isolation:</strong> Leaving a neighborhood where you raised a family and have decades of community ties can produce significant psychological distress. Seniors who move away from friends to save on housing often experience acute loneliness, impacting physical health and increasing healthcare costs.</li>
-          </ul>
+        <!-- 5 Fatal Senior Downsizing Traps & Relocation Pitfalls -->
+        <div style="margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Fatal Senior Downsizing Traps & Relocation Pitfalls</h3>
+          <div style="display: grid; gap: 1rem;">
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🏢 1. The Condo HOA Fee Escalator & Special Assessment Trap</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Seniors often trade a $500/mo home maintenance chore for a $650/mo condo HOA fee believing they save money. However, HOA boards routinely hike monthly dues 8% to 15% annually to cover escalating master insurance premiums. Worse, a single $20,000 Special Assessment for elevator repairs or roof replacements instantly wipes out two full years of projected downsizing savings.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🛋️ 2. The Furnishing, Custom Fitting & Moving Replacement Shock</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Large furniture tailored for a 3,200-sq-ft suburban house rarely fits into a 1,100-sq-ft modern flat. Downsizing retirees frequently spend $15,000 to $30,000 on scaled-down furniture, custom closet systems, blackout window treatments, packing services, junk removal, and ongoing storage unit rentals that erode expected net liquidity.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📑 3. IRS Section 121 Capital Gains Exclusion Cap Overshoot ($250k / $500k)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Retirees who purchased their primary residence 30+ years ago for $90,000 may now sell it for $950,000. Even after the IRS Section 121 exclusion ($250,000 single / $500,000 married filing jointly), taxable gains can easily reach $360,000+. This triggers federal long-term capital gains tax (15%–20%), the 3.8% Net Investment Income Tax (NIIT), and high state income taxes unless basis improvements are meticulously documented.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🏛️ 4. Property Tax Reassessment Cliffs & Senior Portability Loss</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">In states with senior homestead property tax assessment caps (such as California Prop 13, Florida Save Our Homes, or Texas homestead freezes), your current property taxes may be artificially suppressed at $2,500/yr. Moving to a smaller, newly constructed home or across county lines can trigger an un-capped reassessment at full market value, doubling your tax bill.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">💔 5. Psychological Grieving, Relocation Friction & Social Isolation Costs</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Uprooting from a neighborhood with decades of social ties, trusted medical specialists, and family memories produces profound cognitive and emotional friction. Research demonstrates that unexpected social isolation in unfamiliar communities leads to accelerated health declines and higher out-of-pocket medical expenditures that dwarf monthly utility savings.</p>
+            </div>
+          </div>
         </div>
 
         <div style="text-align: center; margin: 2rem 0;">
@@ -2260,15 +2292,31 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           </div>
         </div>
 
-        <!-- 4 Critical Social Security Tax Traps -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 4 Critical Social Security Tax Traps</h3>
-          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
-            <li><strong>The Non-Inflation-Indexed Statutory Trap:</strong> Unlike tax brackets, standard deductions, and 401(k) contribution limits, Congress has <strong>NEVER indexed the $25,000 and $32,000 provisional thresholds for inflation</strong> since they were enacted in 1983. In 1983, less than 10% of seniors paid tax on benefits; today, over 50% of retirees are taxed due to pure inflation creep.</li>
-            <li><strong>The 40.7% "Tax Torpedo" Zone:</strong> In the 85% phase-in zone, each $1.00 of additional IRA distribution pushes $0.85 of previously tax-free Social Security into your taxable income. If your base federal bracket is 22%, your actual marginal tax rate becomes ( 22% 	imes 1.85 = 40.7% ). Middle-class retirees often face higher marginal rates than millionaires.</li>
-            <li><strong>The Municipal Bond Tax Illusion:</strong> Investors purchase municipal bonds believing interest is 100% tax-free. However, IRC § 86 specifically mandates that <em>tax-exempt interest must be added directly into provisional income</em>, silently triggering higher taxes on your Social Security checks.</li>
-            <li><strong>State Taxation Exposure:</strong> 9 states (CO, CT, MN, MT, NM, RI, UT, VT, WV) still levy state income taxes on Social Security. Moving across state lines or taking a large one-time 401(k) withdrawal can trigger double state-and-federal taxation.</li>
-          </ul>
+        <!-- 5 Fatal Social Security Tax Traps & Statutory Pitfalls -->
+        <div style="margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Fatal Social Security Tax Traps & Statutory Pitfalls</h3>
+          <div style="display: grid; gap: 1rem;">
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🛑 1. The Statutory Inflation Freeze ($25,000 / $32,000 Unindexed Since 1983)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Unlike income tax brackets, standard deductions, and IRA contribution limits, Congress has <strong>never indexed the $25,000 (single) and $32,000 (married) provisional income thresholds for inflation</strong> since establishing them in 1983. Had they been indexed to CPI, today's exemption thresholds would exceed $80,000 and $102,000. This deliberate legislative drag transforms what was intended as a luxury tax on the top 10% into an aggressive stealth tax on over 55% of retirees.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🚀 2. The 40.7% "Tax Torpedo" Marginal Spike Zone</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">In the 85% phase-in tier, every additional $1.00 of Traditional IRA withdrawal or part-time wages forces $0.85 of previously tax-free Social Security into your taxable gross income. For a retiree in the modest 22% federal bracket, the effective marginal federal tax rate spikes to <strong>22% × 1.85 = 40.7%</strong> (plus state taxes)—a higher marginal penalty than the highest federal tax bracket (37%).</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📜 3. IRC § 86 Municipal Bond Inclusion Illusion (Phantom Tax)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Many conservative retirees allocate heavily to municipal bonds believing the yield is 100% tax-free. However, Internal Revenue Code Section 86 specifically dictates that <em>tax-exempt interest must be added back into Provisional Income</em>. While the muni interest itself is not directly taxed, it pushes Social Security benefits into the 85% taxable zone, creating a silent phantom tax.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🗺️ 4. State-Level Taxation Exposure (9 Taxing States & Residency Cliffs)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">While 41 states exempt Social Security benefits entirely, 9 states (Colorado, Connecticut, Minnesota, Montana, New Mexico, Rhode Island, Utah, Vermont, West Virginia) still levy state income taxes on benefits under varying exemption formulas. Taking a one-time lump-sum withdrawal or capital gain can push you over state exemption cliffs, triggering dual-tax liability.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🏥 5. The IRMAA Medicare Part B & Part D Cliff Multiplier</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Social Security taxation does not exist in a silo. Additional IRA distributions taken to offset taxes also increase your Modified Adjusted Gross Income (MAGI). Exceeding Medicare Income-Related Monthly Adjustment Amount (IRMAA) tier thresholds by even $1.00 triggers sudden, mandatory surcharges on Medicare Part B and Part D premiums of $1,000 to $4,500+ per individual annually, two years later.</p>
+            </div>
+          </div>
         </div>
 
         <div style="text-align: center; margin: 2rem 0;">
@@ -2591,16 +2639,31 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           </div>
         </div>
 
-        <!-- 5 Critical Car Depreciation Traps -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Critical Vehicle Depreciation Traps</h3>
-          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
-            <li><strong>The "Drive-Off Lot" Immediate 10% Cliff:</strong> The instant a new car drives off a dealership lot, its title converts from Manufacturer Statement of Origin (MSO) to used. It instantly sheds dealer prep charges, retail markup, and destination fees—money you can never recover upon resale.</li>
-            <li><strong>The 72 to 84-Month "Negative Equity" Trap:</strong> Long loan terms mean the outstanding loan balance drops slower than the car depreciates. Buyers who finance over 6 or 7 years remain "underwater" for 4+ years. If the vehicle is totaled, insurance pays market fair value, leaving a multi-thousand-dollar balance unless GAP coverage is active.</li>
-            <li><strong>The EV Battery Obsolescence & Subsidy Distortion:</strong> Rapid advances in battery chemistries and charging architectures make earlier EV generations technologically inferior within 3 to 4 years. Furthermore, original buyers capture federal tax credits ($7,500), which used car buyers price in as an automatic discount.</li>
-            <li><strong>Out-of-Warranty Luxury Depreciation Acceleration:</strong> German luxury brands (BMW, Mercedes, Audi) experience steep secondary depreciation cliffs starting at Year 4 or Year 5 when the original factory warranty expires, as secondary buyers fear high maintenance and specialized repair costs.</li>
-            <li><strong>The High-Mileage Compounding Curve:</strong> Exceeding 15,000 miles/yr accelerates mechanical depreciation faster than simple linear wear, as psychological odometer milestones (36k, 60k, 100k miles) trigger sharp valuation step-downs in dealer valuation algorithms (Black Book & Manheim).</li>
-          </ul>
+        <!-- 5 Fatal Vehicle Depreciation Traps & Financial Pitfalls -->
+        <div style="margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Fatal Vehicle Depreciation Traps & Financial Pitfalls</h3>
+          <div style="display: grid; gap: 1rem;">
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">💥 1. The "Drive-Off Lot" Immediate 10%–15% Titling Cliff</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">The instant a new car's wheels cross the dealership curb, its legal title converts from Manufacturer Statement of Origin (MSO) to used. It instantly sheds retail dealer margins, doc fees, destination charges, and state sales tax—an unrecoverable sunk loss of 10% to 15% before you even reach your first stoplight.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📉 2. The 72 to 84-Month "Negative Equity" Trap (GAP Exposure)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Extended auto loans (6 to 7 years) amortize principal far slower than vehicles shed market value. Buyers remain dangerously underwater for 48+ months. If the vehicle is totaled or stolen, collision insurance pays actual cash value (ACV), leaving thousands in unpaid loan debt unless expensive GAP coverage is maintained.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔋 3. EV Battery Degradation & Federal Subsidy Haircuts ($7,500 Distortion)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Electric vehicles face accelerated secondary market depreciation. First, secondary buyers price in the original owner's $7,500 federal EV tax credit as an immediate baseline price reduction. Second, rapid generational advances in range and fears over out-of-warranty battery replacement ($12,000–$20,000) depress 3-year resale values by up to 52%.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🔧 4. Out-of-Warranty Luxury Depreciation Cliff (Years 4–5)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">German luxury sedans and premium SUVs (BMW, Mercedes-Benz, Audi, Land Rover) plunge off a secondary valuation cliff the month the 4-year/50,000-mile factory bumper-to-bumper warranty expires. Secondary buyers severely discount these vehicles due to exorbitant specialized labor rates and air suspension/electronic failure liabilities.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🛣️ 5. The Algorithmic Odometer Milestones (36k, 60k & 100k Manheim Drops)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Depreciation is not smooth. Dealer wholesale pricing algorithms (Black Book, MMR/Manheim) enforce sharp programmatic step-downs at major psychological odometer barriers: 36,000 miles (standard warranty expiration), 60,000 miles (powertrain expiration), and 100,000 miles (prime retail financing cutoff), causing discrete valuation cliffs.</p>
+            </div>
+          </div>
         </div>
 
         <div style="text-align: center; margin: 2rem 0;">
@@ -5149,16 +5212,31 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
           </div>
         </div>
 
-        <!-- 5 Critical Net Worth Traps -->
-        <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
-          <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Critical Net Worth Traps & Distortions</h3>
-          <ul style="margin: 0; padding-left: 1.25rem; color: var(--text-muted); font-size: 0.92rem; line-height: 1.65; display: grid; gap: 0.6rem;">
-            <li><strong>The "House-Rich, Cash-Poor" Trap:</strong> Primary residence equity represents paper wealth that cannot pay for healthcare, groceries, or emergencies without taking on a second mortgage (HELOC) or selling the home. A high net worth dominated 80%+ by real estate often creates acute cash flow vulnerability.</li>
-            <li><strong>The Pre-Tax Retirement Haircut:</strong> A $500,000 Traditional 401(k) or IRA is not $500,000 in your pocket. The IRS holds an embedded tax lien of 15% to 32% (plus state income tax). Net spendable wealth in pre-tax accounts is only $350,000 to $400,000 after mandatory tax withholding.</li>
-            <li><strong>Depreciating Asset Inflation (Vehicles & Goods):</strong> Listing cars, boats, and electronics at purchase price artificially inflates net worth. Vehicles lose 15% to 25% in Year 1 alone. Always record personal property at conservative wholesale liquidation values.</li>
-            <li><strong>High-Interest Credit Card Compounding Drag:</strong> A $10,000 credit card balance at 24% APR costs $2,400 per year in interest drain, wiping out the entire investment return of a $25,000 index fund portfolio. Consumer debt represents an asymmetric negative compound interest drag.</li>
-            <li><strong>Ignoring Friction & Real Estate Liquidation Costs:</strong> Converting $400,000 of real estate equity to cash costs approximately 6% to 8% in Realtor commissions, transfer fees, and staging, deducting $24,000 to $32,000 off your paper net worth upon actual realization.</li>
-          </ul>
+        <!-- 5 Fatal Net Worth Traps & Balance Sheet Distortions -->
+        <div style="margin: 2rem 0;">
+          <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-top: 0; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Fatal Net Worth Traps & Balance Sheet Distortions</h3>
+          <div style="display: grid; gap: 1rem;">
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🏠 1. The "House-Rich, Cash-Poor" Liquidity Illusion</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Home equity represents illiquid paper wealth that cannot buy food, cover emergency medical procedures, or pay utility bills. When 75%+ of a household's net worth is locked in brick and mortar, the family remains severely vulnerable to cash flow crises, forced borrowing via high-interest HELOCs, or distress selling during market downturns.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #f59e0b; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">✂️ 2. The Pre-Tax Retirement Haircut (Embedded IRS Tax Lien)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A $1,000,000 balance in a Traditional 401(k) or IRA is not $1,000,000 of personal wealth. The federal and state governments hold an embedded senior tax claim ranging from 15% to 35% on every dollar withdrawn. Treating pre-tax retirement accounts at 100% nominal value overstates true purchasing power by $150,000 to $350,000 compared to Roth or taxable brokerage accounts.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #10b981; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">📉 3. Depreciating Asset Inflation (Vehicles, Boats & Electronics)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Recording vehicles, recreational equipment, and household furnishings at purchase price or dealer retail valuation artificially inflates net worth. Vehicles lose 15% to 25% in Year 1 alone and approach zero scrap value within 12 years. Always record personal property at conservative wholesale/trade-in liquidation value.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #3b82f6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">💳 4. High-Interest Consumer Debt Asymmetric Compounding Drag</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">A $15,000 credit card balance compounding at 24.99% APR incurs $3,748 annually in pure interest drain. To offset this single liability, an investor must hold over $47,000 in an index fund returning 8% pre-tax. Unsecured revolving debt is an asymmetric wealth destroyer that mathematically compounds against you twice as fast as market investments grow.</p>
+            </div>
+            <div style="background: var(--surface); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
+              <h4 style="margin: 0 0 0.5rem 0; font-size: 1rem; color: var(--fg); font-family: var(--serif);">🏷️ 5. Ignoring Real Estate & Brokerage Liquidation Friction (6%–10%)</h4>
+              <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.6;">Paper net worth assumes zero transaction friction. Liquidating a $600,000 home incurs Realtor commissions (5%–6%), seller transfer taxes, title policies, staging, and buyer repair concessions (totaling 8%–10% or $48,000–$60,000). Similarly, selling appreciated stock incurs capital gains taxes and trading spreads. Net realizable cash is always substantially lower than gross balance sheet assets.</p>
+            </div>
+          </div>
         </div>
 
         <div style="text-align: center; margin: 2rem 0;">
