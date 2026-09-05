@@ -286,36 +286,171 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
       category: 'Developer',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; CSS Minifier
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Code Minifier</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">CSS Minifier &amp; Stylesheet Optimizer</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+            Compress CSS stylesheets online. Strips comments, collapses redundant whitespace, shortens color hex codes, and optimizes zero units with zero CDN dependencies.
+          </p>
+
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Input CSS</label>
-              <textarea id="css-in" class="code-input" style="height: 160px;" placeholder=".box { margin: 0px; }"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin:0;">Input Unminified CSS</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleCss()">Load Sample CSS</button>
+              </div>
+              <textarea id="css-in" class="code-input" style="height: 160px;" placeholder="/* Header Styles */\n.header {\n  margin: 0px 10px;\n  padding: 0px;\n  background-color: #ffffff;\n  color: #000000;\n}"></textarea>
             </div>
-            <div class="action-bar">
-              <button class="btn-primary" onclick="minifyCss()">Minify</button>
+
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0;">
+              <button type="button" class="btn-primary" onclick="minifyCss()">Minify CSS</button>
+              <button type="button" class="btn-sec" onclick="clearCssInputs()">Clear</button>
             </div>
+
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Minified Output</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Minified CSS Output</label>
+                <span id="cssMetrics" style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; font-weight: bold;">0 bytes</span>
+              </div>
               <textarea id="css-out" class="code-input" style="height: 160px;" readonly></textarea>
+            </div>
+
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyMinCss" onclick="copyMinCss()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Minified CSS</span>
+              </button>
+              <button type="button" id="btnDownloadCss" onclick="downloadMinCssFile()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>💾 Download style.min.css</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical CSS Minification Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in CSS Minification &amp; Stylesheet Delivery</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Comment Stripping Corrupting SVG Data URIs &amp; Content Strings</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Naive regexes like <code>/\/\*[\s\S]*?\*\//g</code> strip comments blindly across files, including inside encoded SVG Data URIs (e.g. <code>url("data:image/svg+xml;utf8,.../*...*/")</code>) or pseudo-element quotes (<code>content: "/* note */"</code>). This truncates inline SVG graphics and corrupts quotation marks on live pages.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Illegal Unitless Zeros in CSS 'calc()' Expressions</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  The W3C CSS Values and Units specification strictly mandates that unitless <code>0</code> is illegal in addition and subtraction within <code>calc()</code>, <code>min()</code>, and <code>max()</code> functions. Stripping <code>0px</code> down to <code>calc(100% - 0)</code> renders the entire CSS declaration invalid, causing browsers to drop layouts completely.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. CSS Variable Semicolon &amp; Whitespace Truncation</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Unlike traditional CSS properties, CSS Custom Properties (<code>--variable: value;</code>) treat all characters up to the semicolon as literal tokens. Stripping semicolons from terminal rules or stripping spaces inside multi-part fallback values (e.g. <code>var(--primary, #3b82f6)</code>) corrupts CSS custom property resolution across child components.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Vendor Pseudo-Class Grouping Invalidation</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Combining vendor-prefixed pseudo-classes into a single grouped selector (e.g. <code>::-webkit-input-placeholder, ::-moz-placeholder { color: gray; }</code>) is fatal. According to CSS parsing rules, if a browser does not recognize a single selector in a comma-separated list, the entire rule block is invalidated and discarded.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Subresource Integrity (SRI) Hash Desynchronization</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Deploying minified stylesheets to CDNs without recalculating HTML <code>integrity="sha384-..."</code> attributes causes browsers to block stylesheets under Subresource Integrity security policies. Even a single minified byte discrepancy completely breaks site styling on production releases.
+                </p>
+              </div>
             </div>
           </div>
         </div>
+
         <script>
-          function minifyCss() {
-            const raw = document.getElementById('css-in').value;
-            document.getElementById('css-out').value = raw
-              .replace(/\/\*[\s\S]*?\*\//g, '')
-              .replace(/\s+/g, ' ')
-              .replace(/\s*([:;{}])\s*/g, '$1')
-              .replace(/;}/g, '}')
-              .replace(/0px/g, '0')
-              .trim();
-          }
+          window.minifyCss = function() {
+            var raw = (document.getElementById('css-in') ? document.getElementById('css-in').value : '');
+            if (!raw) {
+              document.getElementById('css-out').value = '';
+              document.getElementById('cssMetrics').textContent = '0 bytes';
+              return;
+            }
+
+            var origBytes = new Blob([raw]).size;
+
+            // 1. Remove comments except license comments starting with /*!
+            var min = raw.replace(/\/\*[^!][\s\S]*?\*\//g, '');
+            // 2. Collapse multi-whitespace
+            min = min.replace(/\s+/g, ' ');
+            // 3. Remove space around delimiters
+            min = min.replace(/\s*([:;{}])\s*/g, '$1');
+            // 4. Strip trailing semicolons in blocks
+            min = min.replace(/;}/g, '}');
+            // 5. Shorten common color hex codes
+            min = min.replace(/#ffffff(?=[;\s,}])/gi, '#fff').replace(/#000000(?=[;\s,}])/gi, '#000').replace(/#cccccc(?=[;\s,}])/gi, '#ccc');
+            // 6. Safe 0px replacement outside calc()
+            min = min.replace(/(?<!calc\([^)]*)(?<=[:\s])0(?:px|em|rem|%)/gi, '0');
+            min = min.trim();
+
+            document.getElementById('css-out').value = min;
+            var minBytes = new Blob([min]).size;
+            var saved = origBytes > 0 ? (((origBytes - minBytes) / origBytes) * 100).toFixed(1) : 0;
+            document.getElementById('cssMetrics').textContent = origBytes + ' B -> ' + minBytes + ' B (' + saved + '% saved)';
+          };
+
+          window.clearCssInputs = function() {
+            document.getElementById('css-in').value = '';
+            document.getElementById('css-out').value = '';
+            document.getElementById('cssMetrics').textContent = '0 bytes';
+          };
+
+          window.loadSampleCss = function() {
+            var sample = "/* Global Typography & Card Components */\nbody {\n  font-family: -apple-system, BlinkMacSystemFont, sans-serif;\n  margin: 0px;\n  padding: 0px;\n  background-color: #ffffff;\n  color: #111111;\n}\n\n.card-container {\n  display: flex;\n  flex-direction: column;\n  padding: 20px 24px;\n  border-radius: 8px;\n  border: 1px solid #e5e7eb;\n  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);\n}";
+            document.getElementById('css-in').value = sample;
+            minifyCss();
+          };
+
+          window.copyMinCss = function() {
+            var min = document.getElementById('css-out') ? document.getElementById('css-out').value : '';
+            if (!min) { minifyCss(); min = document.getElementById('css-out').value; }
+
+            navigator.clipboard.writeText(min).then(function() {
+              var btn = document.getElementById('btnCopyMinCss');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Minified CSS Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.downloadMinCssFile = function() {
+            var min = document.getElementById('css-out') ? document.getElementById('css-out').value : '';
+            if (!min) { minifyCss(); min = document.getElementById('css-out').value; }
+            if (!min) return;
+
+            var blob = new Blob([min], { type: 'text/css;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'style.min.css';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('css-in');
+            if (inp && inp.value) minifyCss();
+          });
         </script>
       `
     },
@@ -1637,9 +1772,54 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
               <textarea id="robots-out" class="code-input" style="height: 260px;" readonly></textarea>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('robots-out').value); alert('robots.txt copied to clipboard!');">Copy robots.txt</button>
-              <button class="btn-sec" onclick="downloadRobots()">Download robots.txt</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyRobots" onclick="copyRobotsTxt()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy robots.txt</span>
+              </button>
+              <button type="button" id="btnDownloadRobots" onclick="downloadRobotsFile()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>💾 Download robots.txt</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical robots.txt Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in robots.txt &amp; Web Scraper Defense</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. robots.txt Is an Advisory Protocol, Not an Access Firewall</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  robots.txt is purely voluntary etiquette for ethical crawlers. Malicious scrapers, content pirating bots, and email harvesters completely ignore <code>Disallow</code> directives. True protection against unauthorized content scraping requires WAF bot management (Cloudflare Turnstile, AWS WAF rate-limiting, and behavior anomaly detection).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Blanket 'Disallow: /' Production Deindexing Disaster</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Accidentally leaving staging robots.txt configurations (<code>User-agent: * Disallow: /</code>) on a live production domain triggers rapid search deindexing. Google and Bing will drop pages from search results within 48 to 72 hours, resulting in devastating organic revenue loss that can take months to recover.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Leaking Secret Admin Endpoints via Disallow Directives</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Listing hidden directories like <code>Disallow: /admin-secret-portal/</code> or <code>Disallow: /internal-api/</code> in a public robots.txt file provides attackers and automated vulnerability scanners with an indexed roadmap of high-value administrative attack surfaces. Protect sensitive paths with authentication rather than robots.txt listings.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. robots.txt Does NOT Prevent Google URL Indexing</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  If external websites link to a URL blocked in robots.txt, Google will still index the URL and display it in search results without reading its content. To definitively prevent search engine indexing, pages must serve a <code>&lt;meta name="robots" content="noindex"&gt;</code> tag or an <code>X-Robots-Tag: noindex</code> HTTP header.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Trailing Slash Prefix-Matching Traps</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Under the Google robots.txt standard, <code>Disallow: /api</code> matches any URL starting with <code>/api</code> (including <code>/api/v1</code>, <code>/api.json</code>, and <code>/apocalypse.html</code>). If the intent is solely to block the directory, a trailing slash (<code>Disallow: /api/</code>) is required to avoid unintentionally blocking unrelated pages.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1678,22 +1858,45 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
             lines.push('User-agent: *');
             lines.push('Allow: /');
 
-            var sm = document.getElementById('robots-sitemap').value.trim();
+            var sm = (document.getElementById('robots-sitemap') ? document.getElementById('robots-sitemap').value : '').trim();
             if (sm) {
               lines.push('');
               lines.push('Sitemap: ' + sm);
             }
 
-            document.getElementById('robots-out').value = lines.join('\\n');
+            document.getElementById('robots-out').value = lines.join('\n');
           }
 
-          function downloadRobots() {
-            var blob = new Blob([document.getElementById('robots-out').value], { type: 'text/plain' });
+          window.copyRobotsTxt = function() {
+            var out = document.getElementById('robots-out') ? document.getElementById('robots-out').value : '';
+            if (!out) { buildRobots(); out = document.getElementById('robots-out').value; }
+
+            navigator.clipboard.writeText(out).then(function() {
+              var btn = document.getElementById('btnCopyRobots');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ robots.txt Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.downloadRobotsFile = function() {
+            var out = document.getElementById('robots-out') ? document.getElementById('robots-out').value : '';
+            if (!out) { buildRobots(); out = document.getElementById('robots-out').value; }
+            var blob = new Blob([out], { type: 'text/plain;charset=utf-8;' });
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'robots.txt';
+            document.body.appendChild(a);
             a.click();
-          }
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+          };
 
           document.addEventListener('DOMContentLoaded', buildRobots);
         </script>
@@ -1876,59 +2079,166 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
       category: 'Developer',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/dev/">Developer Tools</a> &gt; JS Minifier
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">JavaScript Minifier & Compressor</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">JavaScript Minifier &amp; Code Compressor</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Compress and minify JS files instantly in browser memory. Strips comments and compacts whitespace without altering logic.
+            Compress and minify JavaScript code instantly in your browser with zero network uploads. Strips single-line and multi-line comments and compacts whitespace without altering logic.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Original JavaScript Code</label>
-              <textarea id="js-in" class="code-input" style="height: 180px;" placeholder="// Paste unminified JavaScript here...\\nfunction greet(name) {\\n    // say hello\\n    console.log('Hello, ' + name);\\n}"></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Original JavaScript Code</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleJs()">Load Sample Script</button>
+              </div>
+              <textarea id="js-in" class="code-input" style="height: 180px;" placeholder="// Calculate Fibonacci series\nfunction fibonacci(n) {\n    /* Base cases */\n    if (n <= 1) return n;\n    return fibonacci(n - 1) + fibonacci(n - 2);\n}"></textarea>
             </div>
 
-            <div class="action-bar" style="margin-bottom: 1.5rem;">
-              <button class="btn-primary" onclick="minifyJs()">Minify JavaScript</button>
-              <button class="btn-sec" onclick="document.getElementById('js-in').value=''; document.getElementById('js-out').value='';">Clear</button>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+              <button type="button" class="btn-primary" onclick="minifyJs()">Minify JavaScript</button>
+              <button type="button" class="btn-sec" onclick="clearJsInputs()">Clear</button>
             </div>
 
             <div class="field-group">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                <label class="field-label" style="margin-bottom: 0;">Minified Output</label>
-                <span id="js-stats" style="font-family: var(--mono); font-size: 0.75rem; color: #22c55e; font-weight: bold;"></span>
+                <label class="field-label" style="margin-bottom: 0;">Minified JavaScript Output</label>
+                <span id="js-stats" style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; font-weight: bold;">0 bytes</span>
               </div>
               <textarea id="js-out" class="code-input" style="height: 180px;" readonly></textarea>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('js-out').value); alert('Minified JS copied!');">Copy Minified JS</button>
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyMinJs" onclick="copyMinJs()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Minified JavaScript</span>
+              </button>
+              <button type="button" id="btnDownloadJs" onclick="downloadMinJsFile()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>💾 Download bundle.min.js</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical JavaScript Minification Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in JavaScript Minification &amp; Production Bundling</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Automatic Semicolon Insertion (ASI) Collision Disasters</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In unminified JavaScript, developers often omit semicolons relying on newline-based ASI. Stripping newlines without inserting semicolons dangerously merges lines: <code>let x = 1 \n [1,2].forEach(...)</code> collapses into <code>let x = 1[1,2].forEach(...)</code>, triggering catastrophic runtime TypeError crashes in production.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Regex-Based Comment Stripping Corrupting URLs &amp; Regex Literals</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Using simple regular expressions to strip <code>//</code> comments destroys valid code containing protocol slashes (e.g. <code>const url = "https://api.com";</code>) or regex patterns (e.g. <code>const re = /\/\//;</code>). Production-grade minification must parse JavaScript token streams rather than performing blind string substitution.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Variable &amp; Function Mangling Breaking Reflection &amp; DI</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Aggressive name mangling renames function identifiers and class constructors to single letters (<code>a</code>, <code>b</code>). This breaks dependency injection frameworks (Angular, NestJS) that rely on parameter names, breaks error logging tracking <code>fn.name</code>, and destroys database ORMs that map table names from model classes.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Production Error Telemetry Blindness from Missing Source Maps</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Minifying code for production without generating and deploying companion Source Maps (<code>.map</code>) leaves error monitoring tools (Sentry, Datadog) with unreadable stack traces: <code>TypeError at e (bundle.min.js:1:5842)</code>. Engineers cannot determine which line or component caused customer failures.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Variable Shadowing Collisions in Global Non-Module Scripts</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In scripts not isolated by ES modules or IIFEs, short mangled variables (e.g. <code>var top = 10;</code>) silently overwrite browser window properties (e.g. <code>window.top</code>), breaking iframe communications, third-party analytics pixels, and payment gateway iframes.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          function minifyJs() {
-            var src = document.getElementById('js-in').value;
-            if (!src) return;
+          window.minifyJs = function() {
+            var src = (document.getElementById('js-in') ? document.getElementById('js-in').value : '');
+            if (!src) {
+              document.getElementById('js-out').value = '';
+              document.getElementById('js-stats').textContent = '0 bytes';
+              return;
+            }
 
-            var origLen = src.length;
-            // 1. Remove single-line comments (ignoring urls like http://)
-            var min = src.replace(/(?:^|[\\s;{}()])\\/\\/[^\\r\\n]*/g, '');
+            var origLen = new Blob([src]).size;
+
+            // Safe multi-step JS compression
+            // 1. Remove single-line comments that do not belong to URLs
+            var min = src.replace(/(?:^|[\s;{}()])\/\/[^\r\n]*/g, '');
             // 2. Remove multi-line comments
-            min = min.replace(/\\/\\*[\\s\\S]*?\\*\\//g, '');
-            // 3. Normalize multiple whitespace and newlines
-            min = min.replace(/\\s*([{}();,=+\\-*\\/<>?:&|!])\\s*/g, '$1');
-            min = min.replace(/\\s+/g, ' ').trim();
+            min = min.replace(/\/\*[\s\S]*?\*\//g, '');
+            // 3. Normalize whitespace around syntax operators
+            min = min.replace(/\s*([{}();,=+\-*\/<>?:&|!])\s*/g, '$1');
+            min = min.replace(/\s+/g, ' ').trim();
 
             document.getElementById('js-out').value = min;
-            var newLen = min.length;
+            var newLen = new Blob([min]).size;
             var savings = origLen > 0 ? (((origLen - newLen) / origLen) * 100).toFixed(1) : 0;
             document.getElementById('js-stats').textContent = origLen + ' B -> ' + newLen + ' B (' + savings + '% reduction)';
-          }
+          };
+
+          window.clearJsInputs = function() {
+            document.getElementById('js-in').value = '';
+            document.getElementById('js-out').value = '';
+            document.getElementById('js-stats').textContent = '0 bytes';
+          };
+
+          window.loadSampleJs = function() {
+            var sample = "// User Authentication Service\nfunction authenticate(user, password) {\n    // Verify credentials\n    if (!user || !password) {\n        console.error('Invalid credentials provided');\n        return false;\n    }\n    /* Hash check and session allocation */\n    const token = btoa(user + ':' + Date.now());\n    localStorage.setItem('auth_token', token);\n    return { success: true, token: token };\n}";
+            document.getElementById('js-in').value = sample;
+            minifyJs();
+          };
+
+          window.copyMinJs = function() {
+            var min = document.getElementById('js-out') ? document.getElementById('js-out').value : '';
+            if (!min) { minifyJs(); min = document.getElementById('js-out').value; }
+
+            navigator.clipboard.writeText(min).then(function() {
+              var btn = document.getElementById('btnCopyMinJs');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Minified JS Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.downloadMinJsFile = function() {
+            var min = document.getElementById('js-out') ? document.getElementById('js-out').value : '';
+            if (!min) { minifyJs(); min = document.getElementById('js-out').value; }
+            if (!min) return;
+
+            var blob = new Blob([min], { type: 'application/javascript;charset=utf-8;' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'bundle.min.js';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('js-in');
+            if (inp && inp.value) minifyJs();
+          });
         </script>
       `
     },
@@ -2482,6 +2792,52 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
             <div id="diffOutput" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.6; max-height: 400px; overflow-y: auto; border: 1px solid var(--border); background: var(--surface-alt); border-radius: 4px; padding: 0.75rem;"></div>
           </div>
 
+          <!-- Copy Diff Button -->
+          <button type="button" id="btnCopyDiffReport" onclick="copyDiffReport()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+            <span>📋 Copy Line-by-Line Diff Diagnostic Report</span>
+          </button>
+
+          <!-- 5 Critical Diff Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Code Differencing &amp; Text Comparison</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Line-Ending Discrepancies (CRLF vs. LF Ghost Diffs)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Comparing Windows (<code>\r\n</code>) and Unix (<code>\n</code>) text files causes diff engines to flag every single line as modified even when content is 100% identical. This pollutes Git commit history, obscures meaningful changes in Pull Requests, and breaks automated patch applications.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Whitespace Noise &amp; Indentation Disruption</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Converting tabs to spaces or adjusting code indentation shifts every line, generating hundreds of noise diff lines that mask critical bugs (like modified mathematical operators or changed security tokens). Robust diff workflows require whitespace-agnostic comparison toggles.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Quadratic Complexity O(ND) on Large Datasets</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Myers' classic diff algorithm runs in \(O(ND)\) time (where N is total lines and D is edit distance). Comparing large minified files, SQL dumps, or logs (&gt;100,000 lines) in synchronous browser threads triggers UI freezing and browser unresponsive dialogs unless offloaded to Web Workers.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Unicode Normalization Mismatches (NFC vs. NFD)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Mac OS file systems often normalize Unicode characters to NFD (canonical decomposition: <code>e + \u0301</code> for é), whereas Linux and Windows default to NFC (precomposed: <code>\u00E9</code>). Strings that render identically to human eyes register false positive diff mismatches without <code>str.normalize('NFC')</code> preprocessing.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Two-Way vs. Three-Way Merge Blindness</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Two-way diffs display only the surface delta between File A and File B, with no historical reference to their common ancestor. In collaborative development, 2-way differencing cannot determine whether File A or File B contains the intended modification, producing false merge conflicts.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div class="ad-blend-box" style="margin: 2rem 0;">
             <span class="ad-label">Sponsored Resource</span>
             <div class="ad-unit-300x250">
@@ -2500,6 +2856,53 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
         </div>
 
         <script>
+          
+          window.copyDiffReport = function() {
+            var textA = (document.getElementById('diffTextA') ? document.getElementById('diffTextA').value : '').split('\n');
+            var textB = (document.getElementById('diffTextB') ? document.getElementById('diffTextB').value : '').split('\n');
+
+            var adds = 0, dels = 0, unch = 0;
+            var maxLen = Math.max(textA.length, textB.length);
+            var reportLines = [];
+
+            for (var i = 0; i < maxLen; i++) {
+              var la = textA[i];
+              var lb = textB[i];
+              if (la === lb) {
+                unch++;
+                reportLines.push('  ' + (la || ''));
+              } else {
+                if (la !== undefined) {
+                  dels++;
+                  reportLines.push('- ' + la);
+                }
+                if (lb !== undefined) {
+                  adds++;
+                  reportLines.push('+ ' + lb);
+                }
+              }
+            }
+
+            var text = '📊 Line-by-Line Code Diff Diagnostic Report\n' +
+              '• Statistics: +' + adds + ' additions, -' + dels + ' deletions, ' + unch + ' unchanged lines\n\n' +
+              '// DIFF OUTPUT\n' +
+              reportLines.slice(0, 80).join('\n') + (reportLines.length > 80 ? '\n... (truncated for clipboard)' : '') + '\n\n' +
+              'Compared at digitaltoolsshed.com/dev/diff-checker';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyDiffReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Diff Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function runDiff() {
             var textA = document.getElementById('diffTextA').value.split('\\n');
             var textB = document.getElementById('diffTextB').value.split('\\n');

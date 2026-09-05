@@ -1087,6 +1087,54 @@
             <div id="diffOutput" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.6; max-height: 400px; overflow-y: auto; border: 1px solid var(--border); background: var(--surface-alt); border-radius: 4px; padding: 0.75rem;"></div>
           </div>
 
+          <!-- Copy Diff Button -->
+          <button type="button" id="btnCopyDiffReport" onclick="copyDiffReport()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+            <span>📋 Copy Line-by-Line Diff Diagnostic Report</span>
+          </button>
+
+          <!-- 5 Critical Diff Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Code Differencing &amp; Text Comparison</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Line-Ending Discrepancies (CRLF vs. LF Ghost Diffs)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Comparing Windows (<code>
+</code>) and Unix (<code>
+</code>) text files causes diff engines to flag every single line as modified even when content is 100% identical. This pollutes Git commit history, obscures meaningful changes in Pull Requests, and breaks automated patch applications.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Whitespace Noise &amp; Indentation Disruption</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Converting tabs to spaces or adjusting code indentation shifts every line, generating hundreds of noise diff lines that mask critical bugs (like modified mathematical operators or changed security tokens). Robust diff workflows require whitespace-agnostic comparison toggles.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Quadratic Complexity O(ND) on Large Datasets</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Myers' classic diff algorithm runs in (O(ND)) time (where N is total lines and D is edit distance). Comparing large minified files, SQL dumps, or logs (&gt;100,000 lines) in synchronous browser threads triggers UI freezing and browser unresponsive dialogs unless offloaded to Web Workers.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Unicode Normalization Mismatches (NFC vs. NFD)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Mac OS file systems often normalize Unicode characters to NFD (canonical decomposition: <code>e + ́</code> for é), whereas Linux and Windows default to NFC (precomposed: <code>é</code>). Strings that render identically to human eyes register false positive diff mismatches without <code>str.normalize('NFC')</code> preprocessing.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Two-Way vs. Three-Way Merge Blindness</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Two-way diffs display only the surface delta between File A and File B, with no historical reference to their common ancestor. In collaborative development, 2-way differencing cannot determine whether File A or File B contains the intended modification, producing false merge conflicts.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div class="ad-blend-box" style="margin: 2rem 0;">
             <span class="ad-label">Sponsored Resource</span>
             <div class="ad-unit-300x250">
@@ -1105,6 +1153,63 @@
         </div>
 
         <script>
+          
+          window.copyDiffReport = function() {
+            var textA = (document.getElementById('diffTextA') ? document.getElementById('diffTextA').value : '').split('
+');
+            var textB = (document.getElementById('diffTextB') ? document.getElementById('diffTextB').value : '').split('
+');
+
+            var adds = 0, dels = 0, unch = 0;
+            var maxLen = Math.max(textA.length, textB.length);
+            var reportLines = [];
+
+            for (var i = 0; i < maxLen; i++) {
+              var la = textA[i];
+              var lb = textB[i];
+              if (la === lb) {
+                unch++;
+                reportLines.push('  ' + (la || ''));
+              } else {
+                if (la !== undefined) {
+                  dels++;
+                  reportLines.push('- ' + la);
+                }
+                if (lb !== undefined) {
+                  adds++;
+                  reportLines.push('+ ' + lb);
+                }
+              }
+            }
+
+            var text = '📊 Line-by-Line Code Diff Diagnostic Report
+' +
+              '• Statistics: +' + adds + ' additions, -' + dels + ' deletions, ' + unch + ' unchanged lines
+
+' +
+              '// DIFF OUTPUT
+' +
+              reportLines.slice(0, 80).join('
+') + (reportLines.length > 80 ? '
+... (truncated for clipboard)' : '') + '
+
+' +
+              'Compared at digitaltoolsshed.com/dev/diff-checker';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyDiffReport');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Diff Report Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+  
           function runDiff() {
             var textA = document.getElementById('diffTextA').value.split('\n');
             var textB = document.getElementById('diffTextB').value.split('\n');

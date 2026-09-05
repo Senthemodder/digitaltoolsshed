@@ -1088,9 +1088,54 @@
               <textarea id="robots-out" class="code-input" style="height: 260px;" readonly></textarea>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('robots-out').value); alert('robots.txt copied to clipboard!');">Copy robots.txt</button>
-              <button class="btn-sec" onclick="downloadRobots()">Download robots.txt</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyRobots" onclick="copyRobotsTxt()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy robots.txt</span>
+              </button>
+              <button type="button" id="btnDownloadRobots" onclick="downloadRobotsFile()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>💾 Download robots.txt</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical robots.txt Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in robots.txt &amp; Web Scraper Defense</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. robots.txt Is an Advisory Protocol, Not an Access Firewall</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  robots.txt is purely voluntary etiquette for ethical crawlers. Malicious scrapers, content pirating bots, and email harvesters completely ignore <code>Disallow</code> directives. True protection against unauthorized content scraping requires WAF bot management (Cloudflare Turnstile, AWS WAF rate-limiting, and behavior anomaly detection).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. The Blanket 'Disallow: /' Production Deindexing Disaster</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Accidentally leaving staging robots.txt configurations (<code>User-agent: * Disallow: /</code>) on a live production domain triggers rapid search deindexing. Google and Bing will drop pages from search results within 48 to 72 hours, resulting in devastating organic revenue loss that can take months to recover.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Leaking Secret Admin Endpoints via Disallow Directives</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Listing hidden directories like <code>Disallow: /admin-secret-portal/</code> or <code>Disallow: /internal-api/</code> in a public robots.txt file provides attackers and automated vulnerability scanners with an indexed roadmap of high-value administrative attack surfaces. Protect sensitive paths with authentication rather than robots.txt listings.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. robots.txt Does NOT Prevent Google URL Indexing</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  If external websites link to a URL blocked in robots.txt, Google will still index the URL and display it in search results without reading its content. To definitively prevent search engine indexing, pages must serve a <code>&lt;meta name="robots" content="noindex"&gt;</code> tag or an <code>X-Robots-Tag: noindex</code> HTTP header.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Trailing Slash Prefix-Matching Traps</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Under the Google robots.txt standard, <code>Disallow: /api</code> matches any URL starting with <code>/api</code> (including <code>/api/v1</code>, <code>/api.json</code>, and <code>/apocalypse.html</code>). If the intent is solely to block the directory, a trailing slash (<code>Disallow: /api/</code>) is required to avoid unintentionally blocking unrelated pages.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -1129,22 +1174,46 @@
             lines.push('User-agent: *');
             lines.push('Allow: /');
 
-            var sm = document.getElementById('robots-sitemap').value.trim();
+            var sm = (document.getElementById('robots-sitemap') ? document.getElementById('robots-sitemap').value : '').trim();
             if (sm) {
               lines.push('');
               lines.push('Sitemap: ' + sm);
             }
 
-            document.getElementById('robots-out').value = lines.join('\n');
+            document.getElementById('robots-out').value = lines.join('
+');
           }
 
-          function downloadRobots() {
-            var blob = new Blob([document.getElementById('robots-out').value], { type: 'text/plain' });
+          window.copyRobotsTxt = function() {
+            var out = document.getElementById('robots-out') ? document.getElementById('robots-out').value : '';
+            if (!out) { buildRobots(); out = document.getElementById('robots-out').value; }
+
+            navigator.clipboard.writeText(out).then(function() {
+              var btn = document.getElementById('btnCopyRobots');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ robots.txt Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.downloadRobotsFile = function() {
+            var out = document.getElementById('robots-out') ? document.getElementById('robots-out').value : '';
+            if (!out) { buildRobots(); out = document.getElementById('robots-out').value; }
+            var blob = new Blob([out], { type: 'text/plain;charset=utf-8;' });
             var a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = 'robots.txt';
+            document.body.appendChild(a);
             a.click();
-          }
+            document.body.removeChild(a);
+            URL.revokeObjectURL(a.href);
+          };
 
           document.addEventListener('DOMContentLoaded', buildRobots);
         </script>
