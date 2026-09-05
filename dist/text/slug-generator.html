@@ -1045,22 +1045,22 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; URL Slug Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Slug Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Slug Generator &amp; SEO Permalinker</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Convert titles and headlines into clean, URL-safe, SEO-friendly slugs stripping special characters and normalizing accents.
+            Convert headlines, product titles, and article names into clean, URL-safe, SEO-friendly permalink slugs with diacritic normalization and stop-word controls.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
               <label class="field-label">Input Title / Headline</label>
-              <input type="text" id="slug-in" class="text-input" placeholder="e.g. 10 Best Modern Web Development Tools for 2026!" oninput="makeSlug()" />
+              <input type="text" id="slug-in" class="text-input" value="10 Best Modern Web Development Tools for 2026 &amp; Beyond!" oninput="makeSlug()" />
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
               <div class="field-group">
                 <label class="field-label">Separator</label>
                 <select id="slug-sep" class="text-input" onchange="makeSlug()">
@@ -1076,35 +1076,94 @@
 
             <div class="field-group" style="margin-top: 1rem;">
               <label class="field-label">Generated URL Slug</label>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="slug-out" class="code-input" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);" readonly />
-                <button class="btn-primary" onclick="copySlug()">Copy</button>
+              <input type="text" id="slug-out" class="code-input" style="font-size: 1.1rem; font-weight: bold; color: var(--fg); height: 48px;" readonly />
+            </div>
+
+            <!-- Copy Button -->
+            <button type="button" id="btnCopySlug" onclick="copySlugResult()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy URL Slug</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical URL Slug Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in URL Slug Architecture &amp; SEO Routing</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Changing Established Slugs without 301 Permanent Redirects</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Modifying the URL slug of a published article breaks all external backlinks, bookmarks, and search index rankings, immediately throwing 404 Not Found errors. If a slug must be altered, configure an immediate server-side HTTP 301 redirect from the legacy slug to preserve link equity (PageRank).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Total Obliteration of CJK &amp; Non-Latin International Characters</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Blindly stripping characters with <code>/[^a-z0-9]+/g</code> erases 100% of Chinese, Japanese, Korean, Arabic, and Hebrew characters, leaving completely blank URL slugs for international titles. Multilingual platforms must either transliterate to Latin phonetics (e.g. Pinyin or Romaji) or allow valid UTF-8 percent-encoded path segments.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Stop-Word Removal Causing Semantic Inversion Disasters</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Aggressive stop-word filters that strip words like "no", "not", or "to" invert the fundamental meaning of article titles: e.g. "say-no-to-drugs" turns into <code>say-drugs</code>, or "to-be-or-not-to-be" turns into an empty slug. Always review stripped slugs for semantic distortion.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Consecutive Separators &amp; Punctuation Bloat</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Titles with symbols (e.g. "Rock &amp; Roll -- The 100% Definitive Guide") that replace every symbol with hyphens produce ugly multi-hyphen slugs (<code>rock---roll---the-100--definitive-guide</code>). High-ranking algorithms penalize excessive hyphenation as search manipulation spam.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Database Slug Uniqueness Collisions in CMS Records</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Two distinct blog posts published under identical titles (e.g. "Weekly Company Update") produce duplicate slugs, triggering database unique constraint crashes. Production CMS architectures must automatically verify database slug collisions and append incremental suffixes (e.g. <code>-2</code>).
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         <script>
-          const STOP_WORDS = new Set(["a","an","and","are","as","at","be","but","by","for","if","in","into","is","it","no","not","of","on","or","such","that","the","their","then","there","these","they","this","to","was","will","with"]);
+          var STOP_WORDS = new Set(["a","an","and","are","as","at","be","but","by","for","if","in","into","is","it","no","not","of","on","or","such","that","the","their","then","there","these","they","this","to","was","will","with"]);
 
-          function makeSlug() {
-            let val = document.getElementById('slug-in').value || '';
-            const sep = document.getElementById('slug-sep').value;
-            const rmStop = document.getElementById('slug-stop').checked;
+          window.makeSlug = function() {
+            var val = (document.getElementById('slug-in') ? document.getElementById('slug-in').value : '') || '';
+            var sep = document.getElementById('slug-sep') ? document.getElementById('slug-sep').value : '-';
+            var rmStop = document.getElementById('slug-stop') ? document.getElementById('slug-stop').checked : false;
 
-            val = val.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // strip accents
-            let words = val.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+            // Diacritic normalization
+            val = val.normalize('NFD').replace(/[̀-ͯ]/g, '');
+            var words = val.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/s+/).filter(Boolean);
 
             if (rmStop) {
-              words = words.filter(w => !STOP_WORDS.has(w));
+              words = words.filter(function(w) { return !STOP_WORDS.has(w); });
             }
 
-            document.getElementById('slug-out').value = words.join(sep);
-          }
+            var slug = words.join(sep);
+            document.getElementById('slug-out').value = slug;
+          };
 
-          function copySlug() {
-            navigator.clipboard.writeText(document.getElementById('slug-out').value);
-          }
+          window.copySlugResult = function() {
+            var val = document.getElementById('slug-out') ? document.getElementById('slug-out').value : '';
+            if (!val) { makeSlug(); val = document.getElementById('slug-out').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopySlug');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Slug Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', makeSlug);
         </script>

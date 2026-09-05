@@ -1045,13 +1045,13 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Lorem Ipsum Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Lorem Ipsum Dummy Text Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Lorem Ipsum Dummy Text Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Generate standard Latin placeholder text for UI layouts, wireframes, and mockups.
+            Generate customizable Latin placeholder text for UI wireframes, graphic designs, and web layouts by paragraphs, sentences, or word count.
           </p>
 
           <div class="tool-box">
@@ -1073,73 +1073,143 @@
               </div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="genLorem()">&#x21BA; Generate</button>
-              <button class="btn-sec" onclick="copyLorem()">Copy Text</button>
+            <div class="action-bar" style="margin-top: 1rem;">
+              <button type="button" class="btn-primary" onclick="genLorem()">&#x21BA; Generate Lorem Ipsum</button>
             </div>
 
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Generated Placeholder Text</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Generated Placeholder Text</label>
+                <span id="loremStats" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 words</span>
+              </div>
               <textarea id="lorem-output" class="code-input" style="height: 250px; font-family: sans-serif; font-size: 0.95rem; line-height: 1.6;" readonly></textarea>
+            </div>
+
+            <!-- Copy Button -->
+            <button type="button" id="btnCopyLorem" onclick="copyLoremText()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Lorem Ipsum to Clipboard</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical Lorem Ipsum Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Placeholder Text &amp; UI Mockups</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Accidental Production Deployment &amp; Search Engine Indexation</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Deploying websites containing placeholder Latin text to public production servers results in Google indexing "Lorem ipsum dolor sit amet" across title tags and meta descriptions. This permanently damages organic SEO brand authority and signals unpolished, amateur software to prospective customers.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. German &amp; Finnish Word-Length Layout Ruptures</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Latin placeholder words average 5.5 characters per token. In heavily compounded languages like German, Finnish, or Hungarian, standard words frequently exceed 25 to 35 characters. UI cards, nav bars, and buttons designed exclusively with Lorem Ipsum break, clip, or overflow violently once translated into localized European languages.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Accessibility &amp; Screen Reader Evaluation Masking</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Testing web accessibility (a11y) with screen readers (NVDA, VoiceOver) while using Latin placeholder text obscures reading order, phonetic pronounciation issues, and heading hierarchy errors. Screen readers attempt to pronounce Latin pseudo-words phonetically, making it impossible to audit auditory semantic clarity.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Translation Memory &amp; TMS Token Billing Pollution</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Importing design files (Figma, Sketch) containing dummy Lorem Ipsum into automated localization platforms (Crowdin, Lokalise, Smartling) pollutes enterprise Translation Memories with thousands of useless Latin segments, inflating per-word localization agency invoices unnecessarily.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Optical Texture &amp; Contrast Heuristic Misjudgments</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Latin prose exhibits an unusually uniform distribution of character heights and lacks modern punctuation marks (quotes, brackets, currency signs, numbers). This gives designers an artificially clean "typographic grayness" that shatters when authentic, messy user-generated content is loaded.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          const LOREM_WORDS = ["lorem","ipsum","dolor","sit","amet","consectetur","adipiscing","elit","sed","do","eiusmod","tempor","incididunt","ut","labore","et","dolore","magna","aliqua","enim","ad","minim","veniam","quis","nostrud","exercitation","ullamco","laboris","nisi","aliquip","ex","ea","commodo","consequat","duis","aute","irure","in","reprehenderit","voluptate","velit","esse","cillum","fugiat","nulla","pariatur","excepteur","sint","occaecat","cupidatat","non","proident","sunt","culpa","qui","officia","deserunt","mollit","anim","id","est","laborum"];
+          var LOREM_WORDS = ["lorem","ipsum","dolor","sit","amet","consectetur","adipiscing","elit","sed","do","eiusmod","tempor","incididunt","ut","labore","et","dolore","magna","aliqua","enim","ad","minim","veniam","quis","nostrud","exercitation","ullamco","laboris","nisi","aliquip","ex","ea","commodo","consequat","duis","aute","irure","in","reprehenderit","voluptate","velit","esse","cillum","fugiat","nulla","pariatur","excepteur","sint","occaecat","cupidatat","non","proident","sunt","culpa","qui","officia","deserunt","mollit","anim","id","est","laborum"];
 
           function getRandomWord() {
             return LOREM_WORDS[Math.floor(Math.random() * LOREM_WORDS.length)];
           }
 
-          function makeSentence(numWords = 10) {
-            const arr = [];
-            for (let i = 0; i < numWords; i++) arr.push(getRandomWord());
-            let s = arr.join(' ');
+          function makeSentence(numWords) {
+            numWords = numWords || 10;
+            var arr = [];
+            for (var i = 0; i < numWords; i++) arr.push(getRandomWord());
+            var s = arr.join(' ');
             return s.charAt(0).toUpperCase() + s.slice(1) + '.';
           }
 
-          function makeParagraph(numSentences = 5) {
-            const arr = [];
-            for (let i = 0; i < numSentences; i++) {
-              arr.push(makeSentence(Math.floor(Math.random() * 8) + 8));
-            }
+          function makeParagraph(numSentences) {
+            numSentences = numSentences || 5;
+            var arr = [];
+            for (var i = 0; i < numSentences; i++) arr.push(makeSentence(Math.floor(Math.random() * 8) + 8));
             return arr.join(' ');
           }
 
-          function genLorem() {
-            const count = parseInt(document.getElementById('lorem-count').value, 10) || 3;
-            const type = document.getElementById('lorem-type').value;
-            const start = document.getElementById('lorem-start').checked;
+          window.genLorem = function() {
+            var count = parseInt(document.getElementById('lorem-count').value, 10) || 3;
+            var type = document.getElementById('lorem-type').value;
+            var startLorem = document.getElementById('lorem-start').checked;
 
-            let result = '';
+            var result = [];
             if (type === 'words') {
-              const arr = [];
-              if (start) arr.push('Lorem', 'ipsum', 'dolor', 'sit', 'amet');
-              while (arr.length < count) arr.push(getRandomWord());
-              result = arr.slice(0, count).join(' ');
-            } else if (type === 'sentences') {
-              const arr = [];
-              for (let i = 0; i < count; i++) arr.push(makeSentence(10));
-              if (start && arr.length > 0) {
-                arr[0] = 'Lorem ipsum dolor sit amet, ' + arr[0].charAt(0).toLowerCase() + arr[0].slice(1);
+              for (var i = 0; i < count; i++) result.push(getRandomWord());
+              if (startLorem && result.length >= 2) {
+                result[0] = 'lorem';
+                result[1] = 'ipsum';
               }
-              result = arr.join(' ');
-            } else {
-              const arr = [];
-              for (let i = 0; i < count; i++) arr.push(makeParagraph(5));
-              if (start && arr.length > 0) {
-                arr[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ' + arr[0];
-              }
-              result = arr.join('\n\n');
+              document.getElementById('lorem-output').value = result.join(' ');
+              document.getElementById('loremStats').textContent = count + ' words';
+              return;
             }
 
-            document.getElementById('lorem-output').value = result;
-          }
+            if (type === 'sentences') {
+              for (var j = 0; j < count; j++) result.push(makeSentence(10));
+            } else {
+              for (var k = 0; k < count; k++) result.push(makeParagraph(5));
+            }
 
-          function copyLorem() {
-            navigator.clipboard.writeText(document.getElementById('lorem-output').value);
-          }
+            if (startLorem && result.length > 0) {
+              result[0] = result[0].replace(/^[A-Z][a-z]+ [a-z]+/, 'Lorem ipsum');
+              if (!result[0].startsWith('Lorem ipsum')) {
+                result[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + result[0];
+              }
+            }
+
+            var text = result.join('
+
+');
+            document.getElementById('lorem-output').value = text;
+            var wordCount = text.trim().split(/s+/).length;
+            document.getElementById('loremStats').textContent = wordCount + ' words';
+          };
+
+          window.copyLoremText = function() {
+            var val = document.getElementById('lorem-output') ? document.getElementById('lorem-output').value : '';
+            if (!val) { genLorem(); val = document.getElementById('lorem-output').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyLorem');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Lorem Ipsum Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', genLorem);
         </script>

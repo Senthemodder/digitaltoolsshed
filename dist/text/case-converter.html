@@ -1045,80 +1045,190 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Case Converter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Text Case Converter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Text Case Converter &amp; String Formatter</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Convert any text to sentence case, UPPERCASE, lowercase, Title Case, camelCase, snake_case, kebab-case, or CONSTANT_CASE.
+            Convert any text instantly between UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, kebab-case, and CONSTANT_CASE.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Input Text</label>
-              <textarea id="case-input" class="code-input" style="height: 180px; font-size: 1rem;" placeholder="Type or paste text to convert..."></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Input Text</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleCase()">Load Sample Text</button>
+              </div>
+              <textarea id="case-input" class="code-input" style="height: 150px; font-size: 1rem;" placeholder="Type or paste text to convert..."></textarea>
             </div>
 
-            <div class="action-bar" style="gap: 0.5rem;">
-              <button class="btn-primary" onclick="convertCase('upper')">UPPERCASE</button>
-              <button class="btn-primary" onclick="convertCase('lower')">lowercase</button>
-              <button class="btn-primary" onclick="convertCase('title')">Title Case</button>
-              <button class="btn-primary" onclick="convertCase('sentence')">Sentence case</button>
-              <button class="btn-primary" onclick="convertCase('camel')">camelCase</button>
-              <button class="btn-primary" onclick="convertCase('snake')">snake_case</button>
-              <button class="btn-primary" onclick="convertCase('kebab')">kebab-case</button>
-              <button class="btn-primary" onclick="convertCase('constant')">CONSTANT_CASE</button>
-              <button class="btn-primary" onclick="convertCase('alternating')">aLtErNaTiNg</button>
+            <!-- Case Transformation Buttons Bar -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 1rem 0;">
+              <button type="button" class="btn-primary" onclick="convertCase('upper')">UPPERCASE</button>
+              <button type="button" class="btn-primary" onclick="convertCase('lower')">lowercase</button>
+              <button type="button" class="btn-primary" onclick="convertCase('title')">Title Case</button>
+              <button type="button" class="btn-primary" onclick="convertCase('sentence')">Sentence case</button>
+              <button type="button" class="btn-primary" onclick="convertCase('camel')">camelCase</button>
+              <button type="button" class="btn-primary" onclick="convertCase('pascal')">PascalCase</button>
+              <button type="button" class="btn-primary" onclick="convertCase('snake')">snake_case</button>
+              <button type="button" class="btn-primary" onclick="convertCase('kebab')">kebab-case</button>
+              <button type="button" class="btn-primary" onclick="convertCase('constant')">CONSTANT_CASE</button>
+              <button type="button" class="btn-primary" onclick="convertCase('alternating')">aLtErNaTiNg</button>
             </div>
 
-            <div class="action-bar" style="margin-top: 1rem;">
-              <button class="btn-sec" onclick="copyCaseText()">Copy Result</button>
-              <button class="btn-sec" onclick="document.getElementById('case-input').value=''">Clear</button>
+            <div class="field-group" style="margin-top: 1.25rem;">
+              <label class="field-label">Converted Result</label>
+              <textarea id="case-output" class="code-input" style="height: 150px; font-size: 1rem;" readonly></textarea>
+            </div>
+
+            <!-- Copy Button -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyCase" onclick="copyCaseText()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Converted Text</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearCaseInputs()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Text Case Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Text Case Conversion &amp; Localization</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Turkish Dotted vs. Dotless 'I' Authentication Failure</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In Turkish, lowercase <code>i</code> uppercases to dotted <code>İ</code> (U+0130), while uppercase <code>I</code> lowercases to dotless <code>ı</code> (U+0131). Using naive <code>toUpperCase()</code> or <code>toLowerCase()</code> breaks username lookups, system logins, and case-insensitive SQL matching for Turkish users.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. German Eszett (ß) Uppercase Expansion Irreversibility</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  The German lowercase letter <code>ß</code> (eszett) uppercases to <code>SS</code>. Converting back with <code>toLowerCase()</code> produces <code>ss</code> instead of <code>ß</code>, altering semantic word definitions (e.g. <em>Masse</em> meaning mass vs. <em>Maße</em> meaning dimensions). Case-folding German strings without locale sensitivity irreversibly mutates spellings.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Title Case Preposition &amp; Conjunction Capitalization Flaws</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Naive title casing capitalizes every word indiscriminately (e.g. "War And Peace In The 21st Century"). Major editorial style guides (Chicago Manual of Style, AP, MLA) mandate that short articles, prepositions, and coordinating conjunctions (<em>a, an, and, but, for, in, of, on, the, to</em>) remain lowercase unless positioned as the first or last word.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Consecutive Acronym Collisions in camelCase &amp; snake_case</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Transforming variable names with consecutive uppercase abbreviations (e.g. <code>getHTMLHTTPRequest</code>) with primitive regexes fragments acronyms into isolated letters (<code>get_h_t_m_l_h_t_t_p_request</code>). Production programmatic case converters must preserve cohesive acronym groups (<code>get_html_http_request</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Diacritical Stripping &amp; Accent Loss in ASCII Conversions</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Converting accented European characters (e.g. <em>café, mañana, Zürich</em>) using ASCII-only regular expressions strips umlauts, tildes, and acute accents completely. This corrupts international customer names, shipping labels, and multi-currency invoices.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          function convertCase(type) {
-            const input = document.getElementById('case-input');
-            let str = input.value;
+          window.convertCase = function(type) {
+            var input = document.getElementById('case-input');
+            var str = input ? input.value : '';
             if (!str) return;
+
+            var out = '';
 
             switch(type) {
               case 'upper':
-                input.value = str.toUpperCase();
+                out = str.toUpperCase();
                 break;
               case 'lower':
-                input.value = str.toLowerCase();
+                out = str.toLowerCase();
                 break;
               case 'title':
-                input.value = str.toLowerCase().replace(/(^|\s)\w/g, m => m.toUpperCase());
+                var minorWords = /^(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|via|vs)$/i;
+                var words = str.toLowerCase().split(/s+/);
+                out = words.map(function(w, idx) {
+                  if (idx > 0 && idx < words.length - 1 && minorWords.test(w)) return w;
+                  return w.charAt(0).toUpperCase() + w.slice(1);
+                }).join(' ');
                 break;
               case 'sentence':
-                input.value = str.toLowerCase().replace(/(^|[.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+                out = str.toLowerCase().replace(/(^|[.!?]s+)([a-z])/g, function(m, p1, p2) {
+                  return p1 + p2.toUpperCase();
+                });
                 break;
               case 'camel':
-                input.value = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()).replace(/[^a-zA-Z0-9]/g, '');
+                out = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, function(m, chr) {
+                  return chr.toUpperCase();
+                }).replace(/[^a-zA-Z0-9]/g, '');
+                break;
+              case 'pascal':
+                var camel = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, function(m, chr) {
+                  return chr.toUpperCase();
+                }).replace(/[^a-zA-Z0-9]/g, '');
+                out = camel.charAt(0).toUpperCase() + camel.slice(1);
                 break;
               case 'snake':
-                input.value = str.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_');
+                out = str.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
                 break;
               case 'kebab':
-                input.value = str.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-');
+                out = str.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
                 break;
               case 'constant':
-                input.value = str.trim().toUpperCase().replace(/[^a-zA-Z0-9]+/g, '_');
+                out = str.trim().toUpperCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
                 break;
               case 'alternating':
-                input.value = str.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join('');
+                out = str.split('').map(function(c, i) {
+                  return i % 2 === 0 ? c.toLowerCase() : c.toUpperCase();
+                }).join('');
                 break;
             }
-          }
 
-          function copyCaseText() {
-            navigator.clipboard.writeText(document.getElementById('case-input').value);
-          }
+            document.getElementById('case-output').value = out;
+          };
+
+          window.copyCaseText = function() {
+            var val = document.getElementById('case-output') ? document.getElementById('case-output').value : '';
+            if (!val) {
+              convertCase('title');
+              val = document.getElementById('case-output').value;
+            }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyCase');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Converted Text Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearCaseInputs = function() {
+            document.getElementById('case-input').value = '';
+            document.getElementById('case-output').value = '';
+          };
+
+          window.loadSampleCase = function() {
+            var sample = "the state-of-the-art web platform for modern engineers and designers in 2026!";
+            document.getElementById('case-input').value = sample;
+            convertCase('title');
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('case-input');
+            if (inp && inp.value) convertCase('title');
+          });
         </script>
       
 

@@ -33,18 +33,21 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Word Counter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Word Counter & Character Counter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Word Counter &amp; Character Diagnostic Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Real-time word, character, sentence, syllable, and reading time metrics for writers, students, and SEO copywriters.
+            Real-time word, character, sentence, paragraph, syllable, and reading time metrics for writers, students, and SEO copywriters.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Input Text</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Input Text</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleText()">Load Sample Prose</button>
+              </div>
               <textarea id="wc-input" class="code-input" style="height: 220px; font-family: sans-serif; font-size: 1rem; resize: vertical;" placeholder="Paste or type text here..." oninput="calcWordStats()"></textarea>
             </div>
 
@@ -58,24 +61,71 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               <div class="stat-card"><div class="stat-num" id="s-speaking">0 min</div><div class="stat-lbl">Speaking Time</div></div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="copyInput()">Copy Text</button>
-              <button class="btn-sec" onclick="clearInput()">Clear</button>
+            <!-- Action Buttons Grid -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyWordStats" onclick="copyWordStatsReport()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Word Count Diagnostic Report</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearInput()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear Text</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Word Counting Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Word Counting, Typography &amp; Natural Language Processing</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Unicode Surrogate Pairs &amp; Multi-Byte Emoji Length Distortion</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In JavaScript, <code>string.length</code> measures 16-bit code units rather than grapheme clusters. A single compound emoji (e.g. 👨‍👩‍👧‍👦 or country flags) consumes 7 to 11 code units instead of 1. Systems enforcing character caps (e.g. SMS 160 chars or social media limits) prematurely truncate user copy unless grapheme clusters are counted via <code>Intl.Segmenter</code>.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Hyphenated Compound Words &amp; Tokenization Discrepancies</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Splitting words naively with <code>\s+</code> treats hyphenated terms (e.g. "state-of-the-art" or "co-founder") as a single word, whereas Microsoft Word counts it as 4 words and Google Docs counts it as 1. Academic essay submissions and legal briefs frequently trigger penalties due to divergent tokenizer rules.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Non-Breaking (&amp;nbsp;) &amp; Zero-Width Space Phantom Counts</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Text copied from web CMS editors or PDFs often contains non-breaking spaces (<code>\u00A0</code>), zero-width spaces (<code>\u200B</code>), or soft hyphens (<code>\u00AD</code>). Standard ASCII space matchers fail to detect them, artificially inflating word counts or creating phantom word breaks that ruin typography layouts.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Reading Speed Velocity Oversimplification (200 WPM Myth)</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Assuming a flat 200 words-per-minute reading speed fails for dense technical, medical, or legal literature where cognitive processing drops comprehension speed to 75-100 WPM. Rehearsing presentations or calculating video voiceover scripts with generic reading formulas results in major pacing desynchronizations.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Sentence Boundary Ambiguity &amp; Abbreviation False Breaks</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Counting sentence-ending periods naively (<code>/[.!?]/</code>) triggers false sentence breaks on honorifics ("Dr.", "Mrs."), geographic abbreviations ("U.S.A.", "e.g."), and decimal figures ("3.14"). This skews readability formulas like Flesch-Kincaid Grade Level and Coleman-Liau indices.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          function calcWordStats() {
-            const text = document.getElementById('wc-input').value;
-            const words = text.trim() ? text.trim().split(/\\s+/).length : 0;
-            const chars = text.length;
-            const charsNoSpace = text.replace(/\\s/g, '').length;
-            const sentences = text.trim() ? (text.match(/[^.!?]+[.!?]+(\\s|$)/g) || [1]).length : 0;
-            const paragraphs = text.trim() ? text.split(/\\n+/).filter(p => p.trim()).length : 0;
+          window.calcWordStats = function() {
+            var text = document.getElementById('wc-input') ? document.getElementById('wc-input').value : '';
+            var words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            var chars = text.length;
+            var charsNoSpace = text.replace(/\s/g, '').length;
+            var sentences = text.trim() ? (text.match(/[^.!?]+[.!?]+(\s|$)/g) || [1]).length : 0;
+            var paragraphs = text.trim() ? text.split(/\n+/).filter(function(p) { return p.trim().length > 0; }).length : 0;
 
-            const readMins = Math.ceil(words / 200);
-            const speakMins = Math.ceil(words / 130);
+            var readMins = Math.ceil(words / 200);
+            var speakMins = Math.ceil(words / 130);
+            var avgWordLen = words > 0 ? (charsNoSpace / words).toFixed(1) : 0;
 
             document.getElementById('s-words').textContent = words.toLocaleString();
             document.getElementById('s-chars').textContent = chars.toLocaleString();
@@ -84,15 +134,61 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
             document.getElementById('s-paragraphs').textContent = paragraphs.toLocaleString();
             document.getElementById('s-reading').textContent = readMins + (readMins === 1 ? ' min' : ' mins');
             document.getElementById('s-speaking').textContent = speakMins + (speakMins === 1 ? ' min' : ' mins');
-          }
 
-          function copyInput() {
-            navigator.clipboard.writeText(document.getElementById('wc-input').value);
-          }
-          function clearInput() {
-            document.getElementById('wc-input').value = '';
+            window._wordStatsData = {
+              words: words,
+              chars: chars,
+              charsNoSpace: charsNoSpace,
+              sentences: sentences,
+              paragraphs: paragraphs,
+              readMins: readMins,
+              speakMins: speakMins,
+              avgWordLen: avgWordLen
+            };
+          };
+
+          window.copyWordStatsReport = function() {
+            if (!window._wordStatsData) calcWordStats();
+            var d = window._wordStatsData;
+
+            var text = '📝 Text & Word Count Diagnostic Report\n' +
+              '• Total Words: ' + d.words.toLocaleString() + '\n' +
+              '• Characters (with spaces): ' + d.chars.toLocaleString() + '\n' +
+              '• Characters (without spaces): ' + d.charsNoSpace.toLocaleString() + '\n' +
+              '• Sentences: ' + d.sentences + '\n' +
+              '• Paragraphs: ' + d.paragraphs + '\n' +
+              '• Average Word Length: ' + d.avgWordLen + ' chars\n' +
+              '• Estimated Reading Time (200 WPM): ' + d.readMins + ' min\n' +
+              '• Estimated Speaking Time (130 WPM): ' + d.speakMins + ' min\n\n' +
+              'Calculated at digitaltoolsshed.com/text/word-counter';
+
+            navigator.clipboard.writeText(text).then(function() {
+              var btn = document.getElementById('btnCopyWordStats');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Word Stats Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearInput = function() {
+            var inp = document.getElementById('wc-input');
+            if (inp) inp.value = '';
             calcWordStats();
-          }
+          };
+
+          window.loadSampleText = function() {
+            var sample = "Digital Tools Shed provides blindingly fast, pure client-side developer, mathematical, and health utilities. With zero external CDN bloat and sub-50 millisecond response latencies, every tool guarantees absolute privacy and uninterrupted offline execution. Whether optimizing CSS stylesheets, calculating complex network subnets, or analyzing text readability, the platform combines rigorous precision with instant utility.";
+            document.getElementById('wc-input').value = sample;
+            calcWordStats();
+          };
+
+          document.addEventListener('DOMContentLoaded', calcWordStats);
         </script>
       `
     },
@@ -103,13 +199,13 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Lorem Ipsum Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Lorem Ipsum Dummy Text Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Lorem Ipsum Dummy Text Studio</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Generate standard Latin placeholder text for UI layouts, wireframes, and mockups.
+            Generate customizable Latin placeholder text for UI wireframes, graphic designs, and web layouts by paragraphs, sentences, or word count.
           </p>
 
           <div class="tool-box">
@@ -131,73 +227,141 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
               </div>
             </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="genLorem()">&#x21BA; Generate</button>
-              <button class="btn-sec" onclick="copyLorem()">Copy Text</button>
+            <div class="action-bar" style="margin-top: 1rem;">
+              <button type="button" class="btn-primary" onclick="genLorem()">&#x21BA; Generate Lorem Ipsum</button>
             </div>
 
             <div class="field-group" style="margin-top: 1.5rem;">
-              <label class="field-label">Generated Placeholder Text</label>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Generated Placeholder Text</label>
+                <span id="loremStats" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">0 words</span>
+              </div>
               <textarea id="lorem-output" class="code-input" style="height: 250px; font-family: sans-serif; font-size: 0.95rem; line-height: 1.6;" readonly></textarea>
+            </div>
+
+            <!-- Copy Button -->
+            <button type="button" id="btnCopyLorem" onclick="copyLoremText()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy Lorem Ipsum to Clipboard</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical Lorem Ipsum Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Placeholder Text &amp; UI Mockups</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Accidental Production Deployment &amp; Search Engine Indexation</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Deploying websites containing placeholder Latin text to public production servers results in Google indexing "Lorem ipsum dolor sit amet" across title tags and meta descriptions. This permanently damages organic SEO brand authority and signals unpolished, amateur software to prospective customers.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. German &amp; Finnish Word-Length Layout Ruptures</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Latin placeholder words average 5.5 characters per token. In heavily compounded languages like German, Finnish, or Hungarian, standard words frequently exceed 25 to 35 characters. UI cards, nav bars, and buttons designed exclusively with Lorem Ipsum break, clip, or overflow violently once translated into localized European languages.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Accessibility &amp; Screen Reader Evaluation Masking</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Testing web accessibility (a11y) with screen readers (NVDA, VoiceOver) while using Latin placeholder text obscures reading order, phonetic pronounciation issues, and heading hierarchy errors. Screen readers attempt to pronounce Latin pseudo-words phonetically, making it impossible to audit auditory semantic clarity.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Translation Memory &amp; TMS Token Billing Pollution</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Importing design files (Figma, Sketch) containing dummy Lorem Ipsum into automated localization platforms (Crowdin, Lokalise, Smartling) pollutes enterprise Translation Memories with thousands of useless Latin segments, inflating per-word localization agency invoices unnecessarily.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Optical Texture &amp; Contrast Heuristic Misjudgments</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Latin prose exhibits an unusually uniform distribution of character heights and lacks modern punctuation marks (quotes, brackets, currency signs, numbers). This gives designers an artificially clean "typographic grayness" that shatters when authentic, messy user-generated content is loaded.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          const LOREM_WORDS = ["lorem","ipsum","dolor","sit","amet","consectetur","adipiscing","elit","sed","do","eiusmod","tempor","incididunt","ut","labore","et","dolore","magna","aliqua","enim","ad","minim","veniam","quis","nostrud","exercitation","ullamco","laboris","nisi","aliquip","ex","ea","commodo","consequat","duis","aute","irure","in","reprehenderit","voluptate","velit","esse","cillum","fugiat","nulla","pariatur","excepteur","sint","occaecat","cupidatat","non","proident","sunt","culpa","qui","officia","deserunt","mollit","anim","id","est","laborum"];
+          var LOREM_WORDS = ["lorem","ipsum","dolor","sit","amet","consectetur","adipiscing","elit","sed","do","eiusmod","tempor","incididunt","ut","labore","et","dolore","magna","aliqua","enim","ad","minim","veniam","quis","nostrud","exercitation","ullamco","laboris","nisi","aliquip","ex","ea","commodo","consequat","duis","aute","irure","in","reprehenderit","voluptate","velit","esse","cillum","fugiat","nulla","pariatur","excepteur","sint","occaecat","cupidatat","non","proident","sunt","culpa","qui","officia","deserunt","mollit","anim","id","est","laborum"];
 
           function getRandomWord() {
             return LOREM_WORDS[Math.floor(Math.random() * LOREM_WORDS.length)];
           }
 
-          function makeSentence(numWords = 10) {
-            const arr = [];
-            for (let i = 0; i < numWords; i++) arr.push(getRandomWord());
-            let s = arr.join(' ');
+          function makeSentence(numWords) {
+            numWords = numWords || 10;
+            var arr = [];
+            for (var i = 0; i < numWords; i++) arr.push(getRandomWord());
+            var s = arr.join(' ');
             return s.charAt(0).toUpperCase() + s.slice(1) + '.';
           }
 
-          function makeParagraph(numSentences = 5) {
-            const arr = [];
-            for (let i = 0; i < numSentences; i++) {
-              arr.push(makeSentence(Math.floor(Math.random() * 8) + 8));
-            }
+          function makeParagraph(numSentences) {
+            numSentences = numSentences || 5;
+            var arr = [];
+            for (var i = 0; i < numSentences; i++) arr.push(makeSentence(Math.floor(Math.random() * 8) + 8));
             return arr.join(' ');
           }
 
-          function genLorem() {
-            const count = parseInt(document.getElementById('lorem-count').value, 10) || 3;
-            const type = document.getElementById('lorem-type').value;
-            const start = document.getElementById('lorem-start').checked;
+          window.genLorem = function() {
+            var count = parseInt(document.getElementById('lorem-count').value, 10) || 3;
+            var type = document.getElementById('lorem-type').value;
+            var startLorem = document.getElementById('lorem-start').checked;
 
-            let result = '';
+            var result = [];
             if (type === 'words') {
-              const arr = [];
-              if (start) arr.push('Lorem', 'ipsum', 'dolor', 'sit', 'amet');
-              while (arr.length < count) arr.push(getRandomWord());
-              result = arr.slice(0, count).join(' ');
-            } else if (type === 'sentences') {
-              const arr = [];
-              for (let i = 0; i < count; i++) arr.push(makeSentence(10));
-              if (start && arr.length > 0) {
-                arr[0] = 'Lorem ipsum dolor sit amet, ' + arr[0].charAt(0).toLowerCase() + arr[0].slice(1);
+              for (var i = 0; i < count; i++) result.push(getRandomWord());
+              if (startLorem && result.length >= 2) {
+                result[0] = 'lorem';
+                result[1] = 'ipsum';
               }
-              result = arr.join(' ');
-            } else {
-              const arr = [];
-              for (let i = 0; i < count; i++) arr.push(makeParagraph(5));
-              if (start && arr.length > 0) {
-                arr[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ' + arr[0];
-              }
-              result = arr.join('\\n\\n');
+              document.getElementById('lorem-output').value = result.join(' ');
+              document.getElementById('loremStats').textContent = count + ' words';
+              return;
             }
 
-            document.getElementById('lorem-output').value = result;
-          }
+            if (type === 'sentences') {
+              for (var j = 0; j < count; j++) result.push(makeSentence(10));
+            } else {
+              for (var k = 0; k < count; k++) result.push(makeParagraph(5));
+            }
 
-          function copyLorem() {
-            navigator.clipboard.writeText(document.getElementById('lorem-output').value);
-          }
+            if (startLorem && result.length > 0) {
+              result[0] = result[0].replace(/^[A-Z][a-z]+ [a-z]+/, 'Lorem ipsum');
+              if (!result[0].startsWith('Lorem ipsum')) {
+                result[0] = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' + result[0];
+              }
+            }
+
+            var text = result.join('\n\n');
+            document.getElementById('lorem-output').value = text;
+            var wordCount = text.trim().split(/\s+/).length;
+            document.getElementById('loremStats').textContent = wordCount + ' words';
+          };
+
+          window.copyLoremText = function() {
+            var val = document.getElementById('lorem-output') ? document.getElementById('lorem-output').value : '';
+            if (!val) { genLorem(); val = document.getElementById('lorem-output').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyLorem');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Lorem Ipsum Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', genLorem);
         </script>
@@ -210,80 +374,190 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; Case Converter
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Text Case Converter</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Text Case Converter &amp; String Formatter</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Convert any text to sentence case, UPPERCASE, lowercase, Title Case, camelCase, snake_case, kebab-case, or CONSTANT_CASE.
+            Convert any text instantly between UPPERCASE, lowercase, Title Case, Sentence case, camelCase, PascalCase, snake_case, kebab-case, and CONSTANT_CASE.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
-              <label class="field-label">Input Text</label>
-              <textarea id="case-input" class="code-input" style="height: 180px; font-size: 1rem;" placeholder="Type or paste text to convert..."></textarea>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="field-label" style="margin: 0;">Input Text</label>
+                <button type="button" class="btn-sec" style="font-size: 0.72rem; padding: 0.2rem 0.5rem;" onclick="loadSampleCase()">Load Sample Text</button>
+              </div>
+              <textarea id="case-input" class="code-input" style="height: 150px; font-size: 1rem;" placeholder="Type or paste text to convert..."></textarea>
             </div>
 
-            <div class="action-bar" style="gap: 0.5rem;">
-              <button class="btn-primary" onclick="convertCase('upper')">UPPERCASE</button>
-              <button class="btn-primary" onclick="convertCase('lower')">lowercase</button>
-              <button class="btn-primary" onclick="convertCase('title')">Title Case</button>
-              <button class="btn-primary" onclick="convertCase('sentence')">Sentence case</button>
-              <button class="btn-primary" onclick="convertCase('camel')">camelCase</button>
-              <button class="btn-primary" onclick="convertCase('snake')">snake_case</button>
-              <button class="btn-primary" onclick="convertCase('kebab')">kebab-case</button>
-              <button class="btn-primary" onclick="convertCase('constant')">CONSTANT_CASE</button>
-              <button class="btn-primary" onclick="convertCase('alternating')">aLtErNaTiNg</button>
+            <!-- Case Transformation Buttons Bar -->
+            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin: 1rem 0;">
+              <button type="button" class="btn-primary" onclick="convertCase('upper')">UPPERCASE</button>
+              <button type="button" class="btn-primary" onclick="convertCase('lower')">lowercase</button>
+              <button type="button" class="btn-primary" onclick="convertCase('title')">Title Case</button>
+              <button type="button" class="btn-primary" onclick="convertCase('sentence')">Sentence case</button>
+              <button type="button" class="btn-primary" onclick="convertCase('camel')">camelCase</button>
+              <button type="button" class="btn-primary" onclick="convertCase('pascal')">PascalCase</button>
+              <button type="button" class="btn-primary" onclick="convertCase('snake')">snake_case</button>
+              <button type="button" class="btn-primary" onclick="convertCase('kebab')">kebab-case</button>
+              <button type="button" class="btn-primary" onclick="convertCase('constant')">CONSTANT_CASE</button>
+              <button type="button" class="btn-primary" onclick="convertCase('alternating')">aLtErNaTiNg</button>
             </div>
 
-            <div class="action-bar" style="margin-top: 1rem;">
-              <button class="btn-sec" onclick="copyCaseText()">Copy Result</button>
-              <button class="btn-sec" onclick="document.getElementById('case-input').value=''">Clear</button>
+            <div class="field-group" style="margin-top: 1.25rem;">
+              <label class="field-label">Converted Result</label>
+              <textarea id="case-output" class="code-input" style="height: 150px; font-size: 1rem;" readonly></textarea>
+            </div>
+
+            <!-- Copy Button -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 1.25rem;">
+              <button type="button" id="btnCopyCase" onclick="copyCaseText()" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>📋 Copy Converted Text</span>
+              </button>
+              <button type="button" class="btn-sec" onclick="clearCaseInputs()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+                <span>🗑️ Clear</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Critical Text Case Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in Text Case Conversion &amp; Localization</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. The Turkish Dotted vs. Dotless 'I' Authentication Failure</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  In Turkish, lowercase <code>i</code> uppercases to dotted <code>İ</code> (U+0130), while uppercase <code>I</code> lowercases to dotless <code>ı</code> (U+0131). Using naive <code>toUpperCase()</code> or <code>toLowerCase()</code> breaks username lookups, system logins, and case-insensitive SQL matching for Turkish users.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. German Eszett (ß) Uppercase Expansion Irreversibility</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  The German lowercase letter <code>ß</code> (eszett) uppercases to <code>SS</code>. Converting back with <code>toLowerCase()</code> produces <code>ss</code> instead of <code>ß</code>, altering semantic word definitions (e.g. <em>Masse</em> meaning mass vs. <em>Maße</em> meaning dimensions). Case-folding German strings without locale sensitivity irreversibly mutates spellings.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Title Case Preposition &amp; Conjunction Capitalization Flaws</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Naive title casing capitalizes every word indiscriminately (e.g. "War And Peace In The 21st Century"). Major editorial style guides (Chicago Manual of Style, AP, MLA) mandate that short articles, prepositions, and coordinating conjunctions (<em>a, an, and, but, for, in, of, on, the, to</em>) remain lowercase unless positioned as the first or last word.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Consecutive Acronym Collisions in camelCase &amp; snake_case</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Transforming variable names with consecutive uppercase abbreviations (e.g. <code>getHTMLHTTPRequest</code>) with primitive regexes fragments acronyms into isolated letters (<code>get_h_t_m_l_h_t_t_p_request</code>). Production programmatic case converters must preserve cohesive acronym groups (<code>get_html_http_request</code>).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Diacritical Stripping &amp; Accent Loss in ASCII Conversions</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Converting accented European characters (e.g. <em>café, mañana, Zürich</em>) using ASCII-only regular expressions strips umlauts, tildes, and acute accents completely. This corrupts international customer names, shipping labels, and multi-currency invoices.
+                </p>
+              </div>
             </div>
           </div>
         </div>
 
         <script>
-          function convertCase(type) {
-            const input = document.getElementById('case-input');
-            let str = input.value;
+          window.convertCase = function(type) {
+            var input = document.getElementById('case-input');
+            var str = input ? input.value : '';
             if (!str) return;
+
+            var out = '';
 
             switch(type) {
               case 'upper':
-                input.value = str.toUpperCase();
+                out = str.toUpperCase();
                 break;
               case 'lower':
-                input.value = str.toLowerCase();
+                out = str.toLowerCase();
                 break;
               case 'title':
-                input.value = str.toLowerCase().replace(/(^|\\s)\\w/g, m => m.toUpperCase());
+                var minorWords = /^(a|an|and|as|at|but|by|en|for|if|in|of|on|or|the|to|via|vs)$/i;
+                var words = str.toLowerCase().split(/\s+/);
+                out = words.map(function(w, idx) {
+                  if (idx > 0 && idx < words.length - 1 && minorWords.test(w)) return w;
+                  return w.charAt(0).toUpperCase() + w.slice(1);
+                }).join(' ');
                 break;
               case 'sentence':
-                input.value = str.toLowerCase().replace(/(^|[.!?]\\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+                out = str.toLowerCase().replace(/(^|[.!?]\s+)([a-z])/g, function(m, p1, p2) {
+                  return p1 + p2.toUpperCase();
+                });
                 break;
               case 'camel':
-                input.value = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase()).replace(/[^a-zA-Z0-9]/g, '');
+                out = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, function(m, chr) {
+                  return chr.toUpperCase();
+                }).replace(/[^a-zA-Z0-9]/g, '');
+                break;
+              case 'pascal':
+                var camel = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, function(m, chr) {
+                  return chr.toUpperCase();
+                }).replace(/[^a-zA-Z0-9]/g, '');
+                out = camel.charAt(0).toUpperCase() + camel.slice(1);
                 break;
               case 'snake':
-                input.value = str.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_');
+                out = str.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
                 break;
               case 'kebab':
-                input.value = str.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-');
+                out = str.trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
                 break;
               case 'constant':
-                input.value = str.trim().toUpperCase().replace(/[^a-zA-Z0-9]+/g, '_');
+                out = str.trim().toUpperCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
                 break;
               case 'alternating':
-                input.value = str.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join('');
+                out = str.split('').map(function(c, i) {
+                  return i % 2 === 0 ? c.toLowerCase() : c.toUpperCase();
+                }).join('');
                 break;
             }
-          }
 
-          function copyCaseText() {
-            navigator.clipboard.writeText(document.getElementById('case-input').value);
-          }
+            document.getElementById('case-output').value = out;
+          };
+
+          window.copyCaseText = function() {
+            var val = document.getElementById('case-output') ? document.getElementById('case-output').value : '';
+            if (!val) {
+              convertCase('title');
+              val = document.getElementById('case-output').value;
+            }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopyCase');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Converted Text Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
+
+          window.clearCaseInputs = function() {
+            document.getElementById('case-input').value = '';
+            document.getElementById('case-output').value = '';
+          };
+
+          window.loadSampleCase = function() {
+            var sample = "the state-of-the-art web platform for modern engineers and designers in 2026!";
+            document.getElementById('case-input').value = sample;
+            convertCase('title');
+          };
+
+          document.addEventListener('DOMContentLoaded', function() {
+            var inp = document.getElementById('case-input');
+            if (inp && inp.value) convertCase('title');
+          });
         </script>
       `
     },
@@ -294,22 +568,22 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
       category: 'Text',
       body: `
         ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
+        <div class="article-container" style="max-width: 920px;">
           <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
             <a href="/">Home</a> &gt; <a href="/text/">Text & Writing</a> &gt; URL Slug Generator
           </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Slug Generator</h1>
+          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">URL Slug Generator &amp; SEO Permalinker</h1>
           <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Convert titles and headlines into clean, URL-safe, SEO-friendly slugs stripping special characters and normalizing accents.
+            Convert headlines, product titles, and article names into clean, URL-safe, SEO-friendly permalink slugs with diacritic normalization and stop-word controls.
           </p>
 
           <div class="tool-box">
             <div class="field-group">
               <label class="field-label">Input Title / Headline</label>
-              <input type="text" id="slug-in" class="text-input" placeholder="e.g. 10 Best Modern Web Development Tools for 2026!" oninput="makeSlug()" />
+              <input type="text" id="slug-in" class="text-input" value="10 Best Modern Web Development Tools for 2026 &amp; Beyond!" oninput="makeSlug()" />
             </div>
 
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0;">
               <div class="field-group">
                 <label class="field-label">Separator</label>
                 <select id="slug-sep" class="text-input" onchange="makeSlug()">
@@ -325,35 +599,94 @@ export function buildTextToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
 
             <div class="field-group" style="margin-top: 1rem;">
               <label class="field-label">Generated URL Slug</label>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="slug-out" class="code-input" style="font-size: 1.1rem; font-weight: bold; color: var(--fg);" readonly />
-                <button class="btn-primary" onclick="copySlug()">Copy</button>
+              <input type="text" id="slug-out" class="code-input" style="font-size: 1.1rem; font-weight: bold; color: var(--fg); height: 48px;" readonly />
+            </div>
+
+            <!-- Copy Button -->
+            <button type="button" id="btnCopySlug" onclick="copySlugResult()" class="btn-sec" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; color: var(--fg); font-weight: 600;">
+              <span>📋 Copy URL Slug</span>
+            </button>
+          </div>
+
+          <!-- 5 Critical URL Slug Traps -->
+          <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 2rem 0;">
+            <h3 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 1.25rem; color: var(--fg);">⚠️ 5 Fatal Traps in URL Slug Architecture &amp; SEO Routing</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #ef4444;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #ef4444; font-size: 1rem; font-family: var(--serif);">💥 1. Changing Established Slugs without 301 Permanent Redirects</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Modifying the URL slug of a published article breaks all external backlinks, bookmarks, and search index rankings, immediately throwing 404 Not Found errors. If a slug must be altered, configure an immediate server-side HTTP 301 redirect from the legacy slug to preserve link equity (PageRank).
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #f59e0b;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #f59e0b; font-size: 1rem; font-family: var(--serif);">⚖️ 2. Total Obliteration of CJK &amp; Non-Latin International Characters</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Blindly stripping characters with <code>/[^a-z0-9]+/g</code> erases 100% of Chinese, Japanese, Korean, Arabic, and Hebrew characters, leaving completely blank URL slugs for international titles. Multilingual platforms must either transliterate to Latin phonetics (e.g. Pinyin or Romaji) or allow valid UTF-8 percent-encoded path segments.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #10b981;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #10b981; font-size: 1rem; font-family: var(--serif);">🛡️ 3. Stop-Word Removal Causing Semantic Inversion Disasters</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Aggressive stop-word filters that strip words like "no", "not", or "to" invert the fundamental meaning of article titles: e.g. "say-no-to-drugs" turns into <code>say-drugs</code>, or "to-be-or-not-to-be" turns into an empty slug. Always review stripped slugs for semantic distortion.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #3b82f6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #3b82f6; font-size: 1rem; font-family: var(--serif);">🔍 4. Consecutive Separators &amp; Punctuation Bloat</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Titles with symbols (e.g. "Rock &amp; Roll -- The 100% Definitive Guide") that replace every symbol with hyphens produce ugly multi-hyphen slugs (<code>rock---roll---the-100--definitive-guide</code>). High-ranking algorithms penalize excessive hyphenation as search manipulation spam.
+                </p>
+              </div>
+
+              <div style="padding: 1.25rem; background: var(--surface-alt); border-radius: 8px; border: 1px solid var(--border); border-left: 4px solid #8b5cf6;">
+                <h4 style="margin: 0 0 0.5rem 0; color: #8b5cf6; font-size: 1rem; font-family: var(--serif);">🚀 5. Database Slug Uniqueness Collisions in CMS Records</h4>
+                <p style="font-size: 0.88rem; color: var(--text-muted); margin: 0; line-height: 1.6;">
+                  Two distinct blog posts published under identical titles (e.g. "Weekly Company Update") produce duplicate slugs, triggering database unique constraint crashes. Production CMS architectures must automatically verify database slug collisions and append incremental suffixes (e.g. <code>-2</code>).
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         <script>
-          const STOP_WORDS = new Set(["a","an","and","are","as","at","be","but","by","for","if","in","into","is","it","no","not","of","on","or","such","that","the","their","then","there","these","they","this","to","was","will","with"]);
+          var STOP_WORDS = new Set(["a","an","and","are","as","at","be","but","by","for","if","in","into","is","it","no","not","of","on","or","such","that","the","their","then","there","these","they","this","to","was","will","with"]);
 
-          function makeSlug() {
-            let val = document.getElementById('slug-in').value || '';
-            const sep = document.getElementById('slug-sep').value;
-            const rmStop = document.getElementById('slug-stop').checked;
+          window.makeSlug = function() {
+            var val = (document.getElementById('slug-in') ? document.getElementById('slug-in').value : '') || '';
+            var sep = document.getElementById('slug-sep') ? document.getElementById('slug-sep').value : '-';
+            var rmStop = document.getElementById('slug-stop') ? document.getElementById('slug-stop').checked : false;
 
-            val = val.normalize('NFD').replace(/[\\u0300-\\u036f]/g, ''); // strip accents
-            let words = val.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/\\s+/).filter(Boolean);
+            // Diacritic normalization
+            val = val.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            var words = val.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean);
 
             if (rmStop) {
-              words = words.filter(w => !STOP_WORDS.has(w));
+              words = words.filter(function(w) { return !STOP_WORDS.has(w); });
             }
 
-            document.getElementById('slug-out').value = words.join(sep);
-          }
+            var slug = words.join(sep);
+            document.getElementById('slug-out').value = slug;
+          };
 
-          function copySlug() {
-            navigator.clipboard.writeText(document.getElementById('slug-out').value);
-          }
+          window.copySlugResult = function() {
+            var val = document.getElementById('slug-out') ? document.getElementById('slug-out').value : '';
+            if (!val) { makeSlug(); val = document.getElementById('slug-out').value; }
+
+            navigator.clipboard.writeText(val).then(function() {
+              var btn = document.getElementById('btnCopySlug');
+              if (btn) {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<span style="color:#10b981;">✓ Slug Copied!</span>';
+                btn.style.borderColor = '#10b981';
+                setTimeout(function() {
+                  btn.innerHTML = orig;
+                  btn.style.borderColor = 'var(--border)';
+                }, 2200);
+              }
+            });
+          };
 
           document.addEventListener('DOMContentLoaded', makeSlug);
         </script>
