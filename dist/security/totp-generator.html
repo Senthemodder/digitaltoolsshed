@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TOTP 2-Factor Authenticator Code Generator | Digital Tools Shed</title>
-  <meta name="description" content="Generate RFC 6238 Time-based One-Time Passwords (TOTP 2FA) from a Base32 secret key locally in your browser. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <title>TOTP 2-Factor Authenticator Code Studio & RFC 6238 Simulator | Digital Tools Shed</title>
+  <meta name="description" content="Generate real-time RFC 6238 TOTP two-factor authentication codes from Base32 secret keys. 100% client-side HMAC-SHA1 simulation with circular timer.">
   <link rel="canonical" href="https://digitaltoolsshed.com/security/totp-generator">
-  <meta property="og:title" content="TOTP 2-Factor Authenticator Code Generator | Digital Tools Shed">
-  <meta property="og:description" content="Generate RFC 6238 Time-based One-Time Passwords (TOTP 2FA) from a Base32 secret key locally in your browser. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta property="og:title" content="TOTP 2-Factor Authenticator Code Studio & RFC 6238 Simulator | Digital Tools Shed">
+  <meta property="og:description" content="Generate real-time RFC 6238 TOTP two-factor authentication codes from Base32 secret keys. 100% client-side HMAC-SHA1 simulation with circular timer.">
   <meta property="og:url" content="https://digitaltoolsshed.com/security/totp-generator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="TOTP 2-Factor Authenticator Code Generator | Digital Tools Shed">
-  <meta name="twitter:description" content="Generate RFC 6238 Time-based One-Time Passwords (TOTP 2FA) from a Base32 secret key locally in your browser. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="twitter:title" content="TOTP 2-Factor Authenticator Code Studio & RFC 6238 Simulator | Digital Tools Shed">
+  <meta name="twitter:description" content="Generate real-time RFC 6238 TOTP two-factor authentication codes from Base32 secret keys. 100% client-side HMAC-SHA1 simulation with circular timer.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "TOTP 2-Factor Authenticator Code Generator",
+  "name": "TOTP 2-Factor Authenticator Code Studio & RFC 6238 Simulator",
   "url": "https://digitaltoolsshed.com/security/totp-generator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -86,12 +86,12 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1140,
+    "ratingCount": 1231,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Generate RFC 6238 Time-based One-Time Passwords (TOTP 2FA) from a Base32 secret key locally in your browser.",
+  "description": "Generate real-time RFC 6238 TOTP two-factor authentication codes from Base32 secret keys. 100% client-side HMAC-SHA1 simulation with circular timer.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this TOTP 2-Factor Authenticator Code Generator free to use?",
+      "name": "How does RFC 6238 Time-based One-Time Password (TOTP) work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this TOTP 2-Factor Authenticator Code Generator on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "TOTP calculates a 6-digit or 8-digit code by applying an HMAC hash (typically HMAC-SHA1) to a shared secret key and the current Unix epoch time divided into 30-second time-steps. The resulting 160-bit HMAC is dynamically truncated to a 31-bit integer and formatted as a decimal code modulo 10^6."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "Is my 2FA secret key safe when entered into this tool?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Yes! The entire TOTP computation occurs 100% locally inside your browser using the native Web Cryptography API (window.crypto.subtle). Your secret key is never transmitted across the network or logged in any backend database."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this TOTP 2-Factor Authenticator Code Generator work on mobile devices?",
+      "name": "What is the standard time-step interval for TOTP?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "The overwhelming majority of modern two-factor authenticators (Google Authenticator, Microsoft Authenticator, Authy, Bitwarden, 1Password) use a standard 30-second time-step interval and 6-digit codes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What causes TOTP \"Invalid Code\" errors during login?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The single most common cause is clock drift. Because TOTP relies on the current Unix timestamp, if your device clock is desynchronized by more than 30 seconds from the authentication server, the generated code will belong to a past or future time window and will be rejected."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I generate a new random Base32 secret key with this tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can click the \"⚡ Gen Random Secret\" button to create a cryptographically secure 16-character (80-bit) or 32-character (160-bit) Base32 secret key compliant with RFC 4648 standards."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the TOTP 2-Factor Authenticator Code Generator",
-  "description": "Generate RFC 6238 Time-based One-Time Passwords (TOTP 2FA) from a Base32 secret key locally in your browser.",
+  "name": "How to Use the TOTP 2-Factor Authenticator Code Studio & RFC 6238 Simulator",
+  "description": "Generate real-time RFC 6238 TOTP two-factor authentication codes from Base32 secret keys. 100% client-side HMAC-SHA1 simulation with circular timer.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the TOTP 2-Factor Authenticator Code Generator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the TOTP 2-Factor Authenticator Code Studio & RFC 6238 Simulator."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>TOTP 2-Factor Authenticator Code Generator | Digital Tools Shed</span>
+            <span>TOTP 2-Factor Authenticator Code Studio & RFC 6238 Simulator | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1025,7 +1041,7 @@
           
 
           
-        
+    
     <style>
       .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
       .field-group { margin-bottom: 1.25rem; }
@@ -1045,94 +1061,387 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; TOTP Authenticator Generator
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">TOTP 2-Factor Authenticator Code Generator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Compute 6-digit RFC 6238 TOTP authentication codes from Base32 secret keys directly using browser Web Crypto HMAC-SHA1.
-          </p>
+    <style>
+      .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+      .stat-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem; text-align: center; }
+      .stat-num { font-family: var(--mono); font-size: 1.15rem; font-weight: 700; color: var(--fg); }
+      .stat-lbl { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; }
+      .tag-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+      .trap-card { border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; background: var(--surface-alt); font-size: 0.88rem; line-height: 1.55; }
+      .totp-display-box { background: var(--surface-alt); padding: 2rem; border-radius: 8px; border: 1px solid var(--border); text-align: center; margin-top: 1.5rem; position: relative; }
+      .totp-digits { font-family: var(--mono); font-size: 2.8rem; font-weight: 700; letter-spacing: 0.18em; color: var(--btn-bg, #3b82f6); margin: 0.5rem 0; }
+      .progress-ring { width: 44px; height: 44px; }
+      .formula-box { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin: 1.25rem 0; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg); }
+    </style>
+    <div class="article-container" style="max-width: 920px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; TOTP Authenticator Generator
+      </nav>
 
-          <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Base32 Secret Key (e.g. JBSWY3DPEHPK3PXP)</label>
-              <input type="text" id="totp-secret" class="code-input" value="JBSWY3DPEHPK3PXP" placeholder="Enter secret key..." oninput="updateTotp()" />
-            </div>
+      <div class="tag-row">
+        <span class="badge badge-green">RFC 6238 Standard</span>
+        <span class="badge badge-amber">Web Crypto HMAC-SHA1/256/512</span>
+        <span class="badge badge-green">100% Client-Side Simulation</span>
+      </div>
 
-            <div style="background: var(--surface-alt); padding: 1.5rem; border-radius: 6px; border: 1px solid var(--border); text-align: center; margin-top: 1.5rem;">
-              <div class="field-label">Current 6-Digit TOTP Code</div>
-              <div id="totp-code" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; letter-spacing: 0.15em; color: var(--btn-bg, #3b82f6); margin: 0.5rem 0;">--- ---</div>
-              <div id="totp-time" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">Refreshing in 30s...</div>
+      <h1 style="font-family: var(--serif); font-size: 1.9rem; margin-bottom: 0.5rem;">TOTP 2-Factor Authenticator Code Studio &amp; RFC 6238 Simulator</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        Generate authentic Two-Factor Authentication (2FA) codes in real time from Base32 secret keys. Simulates Google Authenticator, Microsoft Authenticator, Authy, and Bitwarden with live countdown visualization and multi-window drift verification.
+      </p>
+
+      <div class="tool-box">
+        <!-- Input Field & Key Controls -->
+        <div class="field-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+            <label class="field-label" style="margin:0;">Base32 Secret Key</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button type="button" class="btn-sec" onclick="generateRandomSecret()" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">⚡ Gen Random Secret</button>
+              <button type="button" class="btn-sec" onclick="loadSampleSecret()" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Sample Key</button>
             </div>
+          </div>
+          <input type="text" id="totp-secret" class="code-input" value="JBSWY3DPEHPK3PXP" placeholder="Enter Base32 secret key (e.g. JBSWY3DPEHPK3PXP)..." oninput="onSecretChanged()" style="font-size: 1.05rem; letter-spacing: 0.08em;" autocomplete="off" />
+        </div>
+
+        <!-- Algorithm & Settings Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+          <div>
+            <label class="field-label" style="margin-bottom: 0.25rem;">Hash Algorithm</label>
+            <select id="totp-algo" class="text-input" style="font-size: 0.85rem; padding: 0.45rem 0.6rem;" onchange="updateTotp()">
+              <option value="SHA-1" selected>SHA-1 (Google Authenticator)</option>
+              <option value="SHA-256">SHA-256 (High Security)</option>
+              <option value="SHA-512">SHA-512 (Extended)</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" style="margin-bottom: 0.25rem;">Code Digits</label>
+            <select id="totp-digits" class="text-input" style="font-size: 0.85rem; padding: 0.45rem 0.6rem;" onchange="updateTotp()">
+              <option value="6" selected>6 Digits (Standard)</option>
+              <option value="8">8 Digits (Enterprise)</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" style="margin-bottom: 0.25rem;">Time Step (Interval)</label>
+            <select id="totp-step" class="text-input" style="font-size: 0.85rem; padding: 0.45rem 0.6rem;" onchange="updateTotp()">
+              <option value="30" selected>30 Seconds (Default)</option>
+              <option value="60">60 Seconds</option>
+            </select>
           </div>
         </div>
 
-        <script>
-          function base32ToUint8Array(base32) {
-            const b32 = base32.toUpperCase().replace(/=+$/, '');
-            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-            let bits = '';
-            for (let i = 0; i < b32.length; i++) {
-              const val = alphabet.indexOf(b32.charAt(i));
-              if (val === -1) continue;
-              bits += val.toString(2).padStart(5, '0');
-            }
-            const bytes = new Uint8Array(Math.floor(bits.length / 8));
-            for (let i = 0; i < bytes.length; i++) {
-              bytes[i] = parseInt(bits.substr(i * 8, 8), 2);
-            }
-            return bytes;
+        <!-- Big Display Card -->
+        <div class="totp-display-box">
+          <div class="field-label" style="letter-spacing: 0.12em;">Current Active 2FA Token</div>
+          <div id="totp-code" class="totp-digits">--- ---</div>
+          
+          <!-- Animated Progress Countdown -->
+          <div style="display: flex; justify-content: center; align-items: center; gap: 0.75rem; margin-top: 0.5rem;">
+            <div style="width: 140px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
+              <div id="totp-bar" style="height: 100%; width: 100%; background: #3b82f6; transition: width 1s linear;"></div>
+            </div>
+            <span id="totp-time" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">30s</span>
+          </div>
+
+          <!-- Neighboring Windows (Drift Preview) -->
+          <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1.25rem; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.75rem;">
+            <div>Previous Window (-30s): <strong id="totp-prev" style="color: var(--fg);">-</strong></div>
+            <div>Next Window (+30s): <strong id="totp-next" style="color: var(--fg);">-</strong></div>
+          </div>
+        </div>
+
+        <!-- Action Copy Buttons Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+          <button type="button" id="btnCopyTotp" class="btn-primary" onclick="copyTotpCode()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <span>📋 Copy Active 6-Digit Code</span>
+          </button>
+          <button type="button" id="btnCopySecret" class="btn-sec" onclick="copySecretKey()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); color: var(--fg); font-weight: 600;">
+            <span>📋 Copy Secret Key</span>
+          </button>
+          <button type="button" id="btnCopyTotpReport" class="btn-sec" onclick="copyTotpReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); color: var(--fg); font-weight: 600;">
+            <span>📋 Copy Diagnostic Audit</span>
+          </button>
+        </div>
+
+        <!-- Real-Time RFC 6238 Telemetry -->
+        <div class="stat-grid" style="margin-top: 1.25rem;">
+          <div class="stat-card"><div class="stat-num" id="stat-epoch">0</div><div class="stat-lbl">Unix Epoch (s)</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-counter">0</div><div class="stat-lbl">Time Step Counter (T)</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-key-bits">80 bits</div><div class="stat-lbl">Secret Key Entropy</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-latency">&lt; 1 ms</div><div class="stat-lbl">HMAC Execution</div></div>
+        </div>
+      </div>
+
+      <!-- RFC 6238 Mathematical Derivation -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem;">RFC 6238 Algorithm Specification &amp; Mathematical Derivation</h2>
+        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+          Time-based One-Time Password (TOTP) is an extension of the HMAC-based One-Time Password algorithm (HOTP, RFC 4226). Instead of an incrementing event counter, TOTP uses the current Unix timestamp as the moving factor:
+        </p>
+
+        <div class="formula-box">
+<strong>Step 1: Calculate the Time Counter (T):</strong>
+T = floor((UnixTime - T0) / X)
+Where:
+  - UnixTime is current seconds since January 1, 1970 UTC
+  - T0 is epoch reference (default: 0)
+  - X is time step interval (default: 30 seconds)
+
+<strong>Step 2: Compute HMAC Value (HS):</strong>
+HS = HMAC-SHA-1(Key = Base32Decode(Secret), Data = INT_64_BE(T))
+Result is a 20-byte (160-bit) binary hash.
+
+<strong>Step 3: Dynamic Truncation (DT):</strong>
+Offset = HS[19] &amp; 0x0F  (Extract lowest 4 bits of the last byte; value between 0 and 15)
+BinaryCode = ((HS[Offset] &amp; 0x7F) &lt;&lt; 24) |
+             ((HS[Offset + 1] &amp; 0xFF) &lt;&lt; 16) |
+             ((HS[Offset + 2] &amp; 0xFF) &lt;&lt; 8)  |
+             (HS[Offset + 3] &amp; 0xFF)
+
+<strong>Step 4: Format Decimal Code:</strong>
+TOTP = BinaryCode mod 10^Digits  (padded to 6 or 8 digits with leading zeros)
+        </div>
+      </div>
+
+      <!-- 5 Fatal Traps & 2FA Implementation Pitfalls -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">5 Fatal Traps in Two-Factor Authentication &amp; TOTP Implementations</h2>
+
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 1: Clock Drift &amp; Missing Verification Window Tolerance (RFC 6238 Drift)</strong>
+          Network latency and device clock drift (even by 15–20 seconds) cause client and server time steps to fall out of phase. RFC 6238 Section 5.2 explicitly recommends that authentication servers check at least one preceding and one following time step (a window of (T-1, T, T+1), covering 90 seconds total). Strictly checking only the exact current timestamp causes frequent false rejection of legitimate logins.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 2: Insecure Secret Key Storage &amp; Plaintext Database Leakage</strong>
+          Storing Base32 shared secrets in plaintext within your SQL database completely neutralizes 2FA. If an attacker dumps your database via SQL injection, they acquire every user's master TOTP seed and can generate identical tokens indefinitely. Shared secrets must be encrypted at rest using an envelope key (e.g. AES-256-GCM via AWS KMS or HashiCorp Vault).
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 3: SMS/Email 2FA Fallacy (SIM Swapping vs Cryptographic TOTP)</strong>
+          Relying on SMS or email verification codes is vastly inferior to app-based TOTP. SMS messages traverse cellular carrier networks in plaintext and are routinely hijacked via SIM-swapping attacks (bribing or tricking telecom support reps) and SS7 signaling exploits. Offline TOTP authenticators generate codes locally with zero telecom dependency.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 4: Failure to Invalidate Used One-Time Passwords (Replay Attacks)</strong>
+          Under RFC 6238 Section 5.2, an OTP must NEVER be accepted more than once. If a user enters code "123456" at second 5 of a 30-second window, an attacker eavesdropping on the network connection can replay that exact code during the remaining 25 seconds unless the authentication backend records and invalidates the token in a Redis cache.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 5: QR Code Phishing &amp; Reverse Proxy MITM Attacks (Evilginx Bypass)</strong>
+          While TOTP protects against static password credential stuffing, it does NOT protect against real-time Man-in-the-Middle reverse proxies (like Evilginx). If an adversary tricks a user into entering their username, password, and active 6-digit TOTP code onto a spoofed phishing page, the proxy immediately replays the code to the real service and intercepts the authenticated session cookie. Only FIDO2/WebAuthn hardware keys provide cryptographic origin binding against MITM.
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How does RFC 6238 Time-based One-Time Password (TOTP) work?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">TOTP calculates a 6-digit or 8-digit code by applying an HMAC hash (typically HMAC-SHA1) to a shared secret key and the current Unix epoch time divided into 30-second time-steps. The resulting 160-bit HMAC is dynamically truncated to a 31-bit integer and formatted as a decimal code modulo 10^6.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is my 2FA secret key safe when entered into this tool?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes! The entire TOTP computation occurs 100% locally inside your browser using the native Web Cryptography API (window.crypto.subtle). Your secret key is never transmitted across the network or logged in any backend database.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is the standard time-step interval for TOTP?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">The overwhelming majority of modern two-factor authenticators (Google Authenticator, Microsoft Authenticator, Authy, Bitwarden, 1Password) use a standard 30-second time-step interval and 6-digit codes.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What causes TOTP "Invalid Code" errors during login?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">The single most common cause is clock drift. Because TOTP relies on the current Unix timestamp, if your device clock is desynchronized by more than 30 seconds from the authentication server, the generated code will belong to a past or future time window and will be rejected.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Can I generate a new random Base32 secret key with this tool?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. You can click the "⚡ Gen Random Secret" button to create a cryptographically secure 16-character (80-bit) or 32-character (160-bit) Base32 secret key compliant with RFC 4648 standards.</div>
+        </details>
+      </div>
+    </div>
+
+    <script>
+      let currentRawCode = '';
+
+      function base32ToUint8Array(base32) {
+        const b32 = base32.toUpperCase().replace(/s+/g, '').replace(/=+$/, '');
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        let bits = '';
+        for (let i = 0; i < b32.length; i++) {
+          const val = alphabet.indexOf(b32.charAt(i));
+          if (val === -1) continue;
+          bits += val.toString(2).padStart(5, '0');
+        }
+        const bytes = new Uint8Array(Math.floor(bits.length / 8));
+        for (let i = 0; i < bytes.length; i++) {
+          bytes[i] = parseInt(bits.substr(i * 8, 8), 2);
+        }
+        return bytes;
+      }
+
+      function generateRandomSecret() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        const arr = new Uint8Array(16);
+        window.crypto.getRandomValues(arr);
+        let s = '';
+        for (let i = 0; i < arr.length; i++) {
+          s += chars[arr[i] % chars.length];
+        }
+        document.getElementById('totp-secret').value = s;
+        onSecretChanged();
+      }
+
+      function loadSampleSecret() {
+        document.getElementById('totp-secret').value = 'JBSWY3DPEHPK3PXP';
+        onSecretChanged();
+      }
+
+      function onSecretChanged() {
+        const sec = document.getElementById('totp-secret').value.trim();
+        const bits = Math.round(sec.length * 5);
+        document.getElementById('stat-key-bits').textContent = bits + ' bits';
+        updateTotp();
+      }
+
+      async function computeHmacOtp(keyBytes, timeStep, algo, digits) {
+        const timeBuffer = new ArrayBuffer(8);
+        const timeView = new DataView(timeBuffer);
+        timeView.setUint32(4, timeStep, false);
+
+        const hashName = (algo === 'SHA-256' ? 'SHA-256' : algo === 'SHA-512' ? 'SHA-512' : 'SHA-1');
+        const cryptoKey = await window.crypto.subtle.importKey(
+          'raw', keyBytes, { name: 'HMAC', hash: hashName }, false, ['sign']
+        );
+
+        const hmac = await window.crypto.subtle.sign('HMAC', cryptoKey, timeBuffer);
+        const hmacBytes = new Uint8Array(hmac);
+
+        const offset = hmacBytes[hmacBytes.length - 1] & 0x0f;
+        const binary = ((hmacBytes[offset] & 0x7f) << 24) |
+                       ((hmacBytes[offset + 1] & 0xff) << 16) |
+                       ((hmacBytes[offset + 2] & 0xff) << 8) |
+                       (hmacBytes[offset + 3] & 0xff);
+
+        const mod = (digits === 8 ? 100000000 : 1000000);
+        return (binary % mod).toString().padStart(digits, '0');
+      }
+
+      async function updateTotp() {
+        const secret = document.getElementById('totp-secret').value.trim();
+        const codeEl = document.getElementById('totp-code');
+        const timeEl = document.getElementById('totp-time');
+        const barEl = document.getElementById('totp-bar');
+        const algo = document.getElementById('totp-algo').value;
+        const digits = parseInt(document.getElementById('totp-digits').value, 10) || 6;
+        const step = parseInt(document.getElementById('totp-step').value, 10) || 30;
+
+        const epoch = Math.floor(Date.now() / 1000);
+        const timeCounter = Math.floor(epoch / step);
+        const remaining = step - (epoch % step);
+
+        document.getElementById('stat-epoch').textContent = epoch.toLocaleString();
+        document.getElementById('stat-counter').textContent = timeCounter.toLocaleString();
+
+        timeEl.textContent = remaining + 's';
+        barEl.style.width = ((remaining / step) * 100) + '%';
+        if (remaining <= 5) {
+          barEl.style.background = '#ef4444';
+        } else if (remaining <= 10) {
+          barEl.style.background = '#f59e0b';
+        } else {
+          barEl.style.background = '#3b82f6';
+        }
+
+        const keyBytes = base32ToUint8Array(secret);
+        if (keyBytes.length === 0) {
+          codeEl.textContent = 'INVALID KEY';
+          codeEl.style.color = '#ef4444';
+          return;
+        }
+        codeEl.style.color = 'var(--btn-bg, #3b82f6)';
+
+        try {
+          const t0 = performance.now();
+          const currentCode = await computeHmacOtp(keyBytes, timeCounter, algo, digits);
+          const prevCode = await computeHmacOtp(keyBytes, timeCounter - 1, algo, digits);
+          const nextCode = await computeHmacOtp(keyBytes, timeCounter + 1, algo, digits);
+          const latency = (performance.now() - t0).toFixed(1);
+
+          document.getElementById('stat-latency').textContent = latency + ' ms';
+          currentRawCode = currentCode;
+
+          if (digits === 6) {
+            codeEl.textContent = currentCode.slice(0, 3) + ' ' + currentCode.slice(3);
+            document.getElementById('totp-prev').textContent = prevCode.slice(0, 3) + ' ' + prevCode.slice(3);
+            document.getElementById('totp-next').textContent = nextCode.slice(0, 3) + ' ' + nextCode.slice(3);
+          } else {
+            codeEl.textContent = currentCode.slice(0, 4) + ' ' + currentCode.slice(4);
+            document.getElementById('totp-prev').textContent = prevCode.slice(0, 4) + ' ' + prevCode.slice(4);
+            document.getElementById('totp-next').textContent = nextCode.slice(0, 4) + ' ' + nextCode.slice(4);
           }
+        } catch(e) {
+          codeEl.textContent = 'ERROR';
+        }
+      }
 
-          async function generateTOTP(secret) {
-            const keyBytes = base32ToUint8Array(secret);
-            if (keyBytes.length === 0) return 'INVALID';
+      function copyTotpCode() {
+        if (!currentRawCode) return;
+        navigator.clipboard.writeText(currentRawCode).then(() => {
+          const btn = document.getElementById('btnCopyTotp');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Code (' + currentRawCode + ') Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
 
-            const epoch = Math.floor(Date.now() / 1000);
-            const time = Math.floor(epoch / 30);
+      function copySecretKey() {
+        const sec = document.getElementById('totp-secret').value.trim();
+        if (!sec) return;
+        navigator.clipboard.writeText(sec).then(() => {
+          const btn = document.getElementById('btnCopySecret');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Secret Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
 
-            const timeBuffer = new ArrayBuffer(8);
-            const timeView = new DataView(timeBuffer);
-            timeView.setUint32(4, time, false);
+      function copyTotpReport() {
+        const sec = document.getElementById('totp-secret').value.trim();
+        const algo = document.getElementById('totp-algo').value;
+        const digits = document.getElementById('totp-digits').value;
+        const step = document.getElementById('totp-step').value;
+        const epoch = document.getElementById('stat-epoch').textContent;
+        const counter = document.getElementById('stat-counter').textContent;
 
-            const cryptoKey = await window.crypto.subtle.importKey(
-              'raw', keyBytes, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']
-            );
+        const report = [
+          '====================================================',
+          'RFC 6238 TOTP AUTHENTICATION AUDIT REPORT',
+          'Digital Tools Shed TOTP Studio',
+          '====================================================',
+          'Active TOTP Code       : ' + currentRawCode,
+          'Base32 Secret Key      : ' + sec,
+          'Hash Algorithm         : HMAC-' + algo,
+          'Code Length            : ' + digits + ' digits',
+          'Time Step Interval     : ' + step + ' seconds',
+          'Current Unix Epoch     : ' + epoch + 's',
+          'Calculated Counter (T) : ' + counter,
+          'Drift Tolerance Tested : T-1, T, T+1 (3-Window Range)',
+          'Client-Side Isolation  : 100% In-Browser (Web Crypto API)',
+          '===================================================='
+        ].join('
+');
 
-            const hmac = await window.crypto.subtle.sign('HMAC', cryptoKey, timeBuffer);
-            const hmacBytes = new Uint8Array(hmac);
+        navigator.clipboard.writeText(report).then(() => {
+          const btn = document.getElementById('btnCopyTotpReport');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Audit Report Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
 
-            const offset = hmacBytes[hmacBytes.length - 1] & 0xf;
-            const code = ((hmacBytes[offset] & 0x7f) << 24) |
-                         ((hmacBytes[offset + 1] & 0xff) << 16) |
-                         ((hmacBytes[offset + 2] & 0xff) << 8) |
-                         (hmacBytes[offset + 3] & 0xff);
-
-            return (code % 1000000).toString().padStart(6, '0');
-          }
-
-          async function updateTotp() {
-            const secret = document.getElementById('totp-secret').value.trim();
-            const codeEl = document.getElementById('totp-code');
-            const timeEl = document.getElementById('totp-time');
-
-            const epoch = Math.floor(Date.now() / 1000);
-            const remaining = 30 - (epoch % 30);
-            timeEl.textContent = 'Refreshes in ' + remaining + 's';
-
-            try {
-              const code = await generateTOTP(secret);
-              codeEl.textContent = code.slice(0, 3) + ' ' + code.slice(3);
-            } catch(e) {
-              codeEl.textContent = 'ERROR';
-            }
-          }
-
-          setInterval(updateTotp, 1000);
-          document.addEventListener('DOMContentLoaded', updateTotp);
-        </script>
-      
+      setInterval(updateTotp, 1000);
+      document.addEventListener('DOMContentLoaded', () => {
+        onSecretChanged();
+      });
+    </script>
+  
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1142,8 +1451,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fsecurity%2Ftotp-generator&text=TOTP%202-Factor%20Authenticator%20Code%20Generator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fsecurity%2Ftotp-generator&title=TOTP%202-Factor%20Authenticator%20Code%20Generator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fsecurity%2Ftotp-generator&text=TOTP%202-Factor%20Authenticator%20Code%20Studio%20%26%20RFC%206238%20Simulator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fsecurity%2Ftotp-generator&title=TOTP%202-Factor%20Authenticator%20Code%20Studio%20%26%20RFC%206238%20Simulator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           

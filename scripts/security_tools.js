@@ -31,6 +31,28 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       title: 'Strong Password Generator',
       metaDesc: 'Generate strong, cryptographically secure passwords locally in your browser with custom length, symbols, and zero server logging.',
       category: 'Security',
+      faq: [
+        {
+                "q": "How does this password generator create mathematically unpredictable passwords?",
+                "a": "It uses window.crypto.getRandomValues(), the browser's native Cryptographically Secure Pseudorandom Number Generator (CSPRNG), backed by OS hardware entropy pools (e.g. /dev/urandom or Windows BCryptGenRandom)."
+        },
+        {
+                "q": "Are the passwords generated on this page ever sent to a server or saved?",
+                "a": "No. The entire code executes client-side in your web browser. No network requests are made, no credentials are saved in cookies, localStorage, or remote server logs."
+        },
+        {
+                "q": "What is Shannon entropy and how many bits of entropy do I need?",
+                "a": "Entropy measures unpredictability in bits (H = L * log2(N)). NIST recommends at least 64 bits for standard accounts and 80-128 bits for master passwords, root access, and cryptocurrency wallets."
+        },
+        {
+                "q": "Why does this generator exclude ambiguous characters like 0, O, 1, l, and I?",
+                "a": "Excluding ambiguous glyphs prevents human transcription errors when manually typing passwords across terminal consoles, smartphones, or pen-and-paper backups."
+        },
+        {
+                "q": "Can modern GPU clusters crack a 20-character password generated here?",
+                "a": "No. A 20-character password generated from all character pools contains ~131 bits of entropy (2^131 possible permutations). An array of 1,000 RTX 4090 GPUs guessing 100 billion combinations per second would require billions of times the current age of the universe to exhaust the search space."
+        }
+],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 920px;">
@@ -141,7 +163,7 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
                 </p>
               </div>
             </div>
-          </div>
+          \n          <div style="margin: 2.5rem 0;">\n            <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How does this password generator create mathematically unpredictable passwords?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">It uses window.crypto.getRandomValues(), the browser's native Cryptographically Secure Pseudorandom Number Generator (CSPRNG), backed by OS hardware entropy pools (e.g. /dev/urandom or Windows BCryptGenRandom).</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Are the passwords generated on this page ever sent to a server or saved?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">No. The entire code executes client-side in your web browser. No network requests are made, no credentials are saved in cookies, localStorage, or remote server logs.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is Shannon entropy and how many bits of entropy do I need?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Entropy measures unpredictability in bits (H = L * log2(N)). NIST recommends at least 64 bits for standard accounts and 80-128 bits for master passwords, root access, and cryptocurrency wallets.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Why does this generator exclude ambiguous characters like 0, O, 1, l, and I?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Excluding ambiguous glyphs prevents human transcription errors when manually typing passwords across terminal consoles, smartphones, or pen-and-paper backups.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Can modern GPU clusters crack a 20-character password generated here?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">No. A 20-character password generated from all character pools contains ~131 bits of entropy (2^131 possible permutations). An array of 1,000 RTX 4090 GPUs guessing 100 billion combinations per second would require billions of times the current age of the universe to exhaust the search space.</div>\n            </details>\n          </div>\n</div>
         </div>
 
         <script>
@@ -300,6 +322,28 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       title: 'Password Strength & Crack Time Estimator',
       metaDesc: 'Analyze password entropy, brute-force resistance, and estimated crack time without sending your password over the internet.',
       category: 'Security',
+      faq: [
+        {
+                "q": "How is password strength mathematically calculated?",
+                "a": "Strength is determined by calculating the character search space (pool size N), Shannon entropy (H = L * log2(N)), and testing against known dictionary patterns, repeated sequences, and NIST SP 800-63B guidelines."
+        },
+        {
+                "q": "How accurate are the estimated cracking times?",
+                "a": "They reflect real-world adversary capabilities across three benchmarks: online web throttling (100 guesses/sec), slow password hashes like Argon2/bcrypt (10,000/sec), and fast GPU clusters computing MD5/SHA256 (100 billion/sec)."
+        },
+        {
+                "q": "Why does NIST no longer recommend periodic 90-day password changes?",
+                "a": "NIST Special Publication 800-63B advises against forced periodic rotation because users respond by making predictable single-character substitutions (e.g. Spring2024! -> Summer2024!), paradoxically decreasing account security."
+        },
+        {
+                "q": "Is it safe to check my real password on this page?",
+                "a": "Yes, this analyzer runs 100% locally inside your browser with zero network transmission. However, for maximum operational security, you can test a password of identical length and character pattern rather than your actual production secret."
+        },
+        {
+                "q": "Does adding numbers or symbols to a short password make it secure?",
+                "a": "No. A short 8-character password with symbols has only ~52 bits of entropy, which modern GPU clusters can crack in hours. Length is the single most important factor: every additional character multiplies cracking time exponentially."
+        }
+],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 920px;">
@@ -400,7 +444,7 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
                 </p>
               </div>
             </div>
-          </div>
+          \n          <div style="margin: 2.5rem 0;">\n            <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How is password strength mathematically calculated?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Strength is determined by calculating the character search space (pool size N), Shannon entropy (H = L * log2(N)), and testing against known dictionary patterns, repeated sequences, and NIST SP 800-63B guidelines.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How accurate are the estimated cracking times?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">They reflect real-world adversary capabilities across three benchmarks: online web throttling (100 guesses/sec), slow password hashes like Argon2/bcrypt (10,000/sec), and fast GPU clusters computing MD5/SHA256 (100 billion/sec).</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Why does NIST no longer recommend periodic 90-day password changes?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">NIST Special Publication 800-63B advises against forced periodic rotation because users respond by making predictable single-character substitutions (e.g. Spring2024! -> Summer2024!), paradoxically decreasing account security.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is it safe to check my real password on this page?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes, this analyzer runs 100% locally inside your browser with zero network transmission. However, for maximum operational security, you can test a password of identical length and character pattern rather than your actual production secret.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Does adding numbers or symbols to a short password make it secure?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">No. A short 8-character password with symbols has only ~52 bits of entropy, which modern GPU clusters can crack in hours. Length is the single most important factor: every additional character multiplies cracking time exponentially.</div>\n            </details>\n          </div>\n</div>
         </div>
 
         <script>
@@ -571,6 +615,28 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
       title: 'Diceware Passphrase Generator',
       metaDesc: 'Generate memorable, high-security multi-word Diceware passphrases locally in your browser using cryptographically random wordlists.',
       category: 'Security',
+      faq: [
+        {
+                "q": "What is the Diceware passphrase method?",
+                "a": "Invented by Arnold Reinhold in 1995, Diceware uses dice rolls to select random words from a curated wordlist. Combining 5 to 7 random words produces high entropy while remaining easy for human memory to recall and type."
+        },
+        {
+                "q": "Why are passphrases often better than complex random passwords for humans?",
+                "a": "Passphrases like 'correct-horse-battery-staple' provide 70-100 bits of entropy without requiring obscure symbols that humans struggle to remember, making them ideal for master password vault keys and device disk encryption."
+        },
+        {
+                "q": "How many words should my passphrase have for maximum security?",
+                "a": "4 words provide ~52 bits (adequate for low-risk sites), 5 words provide ~65 bits (standard user accounts), and 6 to 7 words provide 78-91 bits (virtually unbreakable against state-level offline GPU attacks)."
+        },
+        {
+                "q": "Does changing the delimiter or capitalizing words increase security?",
+                "a": "Yes. Using random separators (underscores, dots, slashes) and inserting random digits or symbols adds 10 to 25 extra bits of entropy, thwarting naive word-level dictionary attacks."
+        },
+        {
+                "q": "Is this passphrase generator truly random?",
+                "a": "Yes. It uses the Web Cryptography API's window.crypto.getRandomValues() CSPRNG with rejection sampling to eliminate modulo bias, ensuring uniformly random word selection."
+        }
+],
       body: `
         ${commonStyle}
         <div class="article-container" style="max-width: 920px;">
@@ -678,7 +744,7 @@ export function buildSecurityToolsSuite({ DIST, DOMAIN, renderPage, writeFileSyn
                 </p>
               </div>
             </div>
-          </div>
+          \n          <div style="margin: 2.5rem 0;">\n            <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is the Diceware passphrase method?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Invented by Arnold Reinhold in 1995, Diceware uses dice rolls to select random words from a curated wordlist. Combining 5 to 7 random words produces high entropy while remaining easy for human memory to recall and type.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Why are passphrases often better than complex random passwords for humans?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Passphrases like 'correct-horse-battery-staple' provide 70-100 bits of entropy without requiring obscure symbols that humans struggle to remember, making them ideal for master password vault keys and device disk encryption.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How many words should my passphrase have for maximum security?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">4 words provide ~52 bits (adequate for low-risk sites), 5 words provide ~65 bits (standard user accounts), and 6 to 7 words provide 78-91 bits (virtually unbreakable against state-level offline GPU attacks).</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Does changing the delimiter or capitalizing words increase security?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. Using random separators (underscores, dots, slashes) and inserting random digits or symbols adds 10 to 25 extra bits of entropy, thwarting naive word-level dictionary attacks.</div>\n            </details>\n            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">\n              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is this passphrase generator truly random?</summary>\n              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. It uses the Web Cryptography API's window.crypto.getRandomValues() CSPRNG with rejection sampling to eliminate modulo bias, ensuring uniformly random word selection.</div>\n            </details>\n          </div>\n</div>
         </div>
 
         <script>
@@ -2675,229 +2741,1143 @@ Where:
     </script>
   `
     },
-{
+    {
       slug: 'gdpr-checklist',
-      title: 'GDPR Compliance Audit Checklist',
-      metaDesc: 'Interactive GDPR compliance self-assessment checklist for web developers, product managers, and digital publishers.',
+      title: "GDPR Compliance Audit Checklist & Readiness Scanner",
+      metaDesc: "Interactive 18-point GDPR compliance self-assessment checklist for web developers, product managers, and digital businesses. Instant audit scoring and exportable report.",
       category: 'Security',
+      faq: [
+        {
+                "q": "Who does the European Union GDPR apply to?",
+                "a": "The General Data Protection Regulation (GDPR) applies to any organization worldwide that processes the personal data of individuals located within the European Union (EU) or European Economic Area (EEA), regardless of whether the business is physically based in Europe or charges for goods and services."
+        },
+        {
+                "q": "What is the maximum penalty for non-compliance under GDPR?",
+                "a": "Under GDPR Article 83, severe infringements (such as violating core data processing principles, lack of valid consent, or illegal cross-border data transfers) can result in administrative fines of up to €20 million or 4% of the company's total global annual turnover of the preceding financial year, whichever is higher."
+        },
+        {
+                "q": "What is the difference between a Data Controller and a Data Processor?",
+                "a": "A Data Controller determines the purposes and means of processing personal data (i.e. your website or business). A Data Processor processes personal data solely on behalf of the controller (e.g. AWS, Stripe, Google Analytics). Controllers must execute Data Processing Agreements (DPAs) with all processors under Article 28."
+        },
+        {
+                "q": "What qualifies as valid cookie consent under GDPR?",
+                "a": "Under GDPR Article 4(11) and Recital 32, consent must be freely given, specific, informed, and unambiguous. It requires an active affirmative opt-in (e.g. clicking \"Accept\"). Pre-ticked checkboxes, implied consent via scrolling, and cookie walls that deny access unless tracking is accepted are illegal."
+        },
+        {
+                "q": "How long do I have to respond to a Data Subject Access Request (DSAR)?",
+                "a": "Under Article 12(3), you must respond to a user access, rectification, or erasure request without undue delay and at the latest within one calendar month of receipt. This may be extended by two further months where requests are complex or numerous, provided the user is notified within the first month."
+        }
+],
       body: `
-        ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; GDPR Compliance Checklist
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">GDPR Compliance Audit Checklist</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Step-by-step interactive self-audit checklist to assess your site's readiness under the EU General Data Protection Regulation.
-          </p>
+    ${commonStyle}
+    <style>
+      .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+      .stat-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem; text-align: center; }
+      .stat-num { font-family: var(--mono); font-size: 1.15rem; font-weight: 700; color: var(--fg); }
+      .stat-lbl { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; }
+      .tag-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+      .trap-card { border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; background: var(--surface-alt); font-size: 0.88rem; line-height: 1.55; }
+      .checklist-group { margin-bottom: 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; }
+      .group-title { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.75rem; color: var(--fg); display: flex; justify-content: space-between; align-items: center; }
+      .group-badge { font-family: var(--mono); font-size: 0.75rem; font-weight: 600; padding: 0.2rem 0.5rem; border-radius: 4px; }
+      .item-label { display: flex; align-items: flex-start; gap: 0.65rem; padding: 0.5rem 0; cursor: pointer; font-size: 0.88rem; line-height: 1.45; color: var(--fg); border-bottom: 1px solid rgba(120,120,120,0.1); }
+      .item-label:last-child { border-bottom: none; }
+      .item-label input[type="checkbox"] { margin-top: 0.2rem; flex-shrink: 0; }
+      .item-desc { display: block; font-size: 0.8rem; color: var(--text-muted); margin-top: 0.15rem; }
+    </style>
+    <div class="article-container" style="max-width: 920px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; GDPR Compliance Checklist
+      </nav>
 
-          <div class="tool-box">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-              <span class="field-label" style="margin:0;">Audit Progress</span>
-              <span id="gdpr-score" class="badge badge-amber">0% Compliant</span>
-            </div>
-            <div style="height: 8px; width: 100%; background: var(--border); border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem;">
-              <div id="gdpr-bar" style="height: 100%; width: 0%; background: #3b82f6; transition: width 0.3s;"></div>
-            </div>
+      <div class="tag-row">
+        <span class="badge badge-green">18-Point Statutory Audit</span>
+        <span class="badge badge-amber">Articles 5, 6, 12-22, 28, 32-34</span>
+        <span class="badge badge-green">Zero Data Retention</span>
+      </div>
 
-            <div id="checklist-items" style="display: flex; flex-direction: column; gap: 0.85rem;">
-              <label class="opt-label"><input type="checkbox" class="gdpr-cb" onchange="calcGdpr()"> <strong>Consent:</strong> Explicit, opt-in consent obtained before setting non-essential tracking cookies.</label>
-              <label class="opt-label"><input type="checkbox" class="gdpr-cb" onchange="calcGdpr()"> <strong>Privacy Notice:</strong> Clear, accessible privacy policy outlining data collection and processing purposes.</label>
-              <label class="opt-label"><input type="checkbox" class="gdpr-cb" onchange="calcGdpr()"> <strong>Right to Erasure:</strong> Mechanism in place for users to request deletion of personal data ("Right to be Forgotten").</label>
-              <label class="opt-label"><input type="checkbox" class="gdpr-cb" onchange="calcGdpr()"> <strong>Data Minimization:</strong> Only collecting personal data that is strictly necessary for service delivery.</label>
-              <label class="opt-label"><input type="checkbox" class="gdpr-cb" onchange="calcGdpr()"> <strong>Security:</strong> All network traffic encrypted via TLS/HTTPS, passwords hashed with salt (Argon2/bcrypt).</label>
-              <label class="opt-label"><input type="checkbox" class="gdpr-cb" onchange="calcGdpr()"> <strong>Breach Protocol:</strong> Documented procedure to notify supervisory authorities within 72 hours of a data breach.</label>
-            </div>
+      <h1 style="font-family: var(--serif); font-size: 1.9rem; margin-bottom: 0.5rem;">GDPR Compliance Audit Checklist &amp; Readiness Scanner</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        Perform an interactive self-audit of your website, web application, or SaaS platform against European Union General Data Protection Regulation (Regulation 2016/679) requirements. Calculate your readiness score, uncover legal gaps, and export a formal audit summary.
+      </p>
+
+      <div class="tool-box">
+        <!-- Progress & Score Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+          <div>
+            <span class="field-label" style="margin:0;">Overall GDPR Compliance Score</span>
+            <div style="font-family: var(--mono); font-size: 1.3rem; font-weight: 700; color: var(--fg);" id="gdpr-pct">0% (0 / 18 Verified)</div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; align-items: center;">
+            <button type="button" class="btn-sec" onclick="selectAll(true)" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">✓ Select All</button>
+            <button type="button" class="btn-sec" onclick="selectAll(false)" style="padding: 0.35rem 0.75rem; font-size: 0.78rem;">↺ Reset</button>
           </div>
         </div>
 
-        <script>
-          function calcGdpr() {
-            const boxes = document.querySelectorAll('.gdpr-cb');
-            let checked = 0;
-            boxes.forEach(b => { if (b.checked) checked++; });
-            const pct = Math.round((checked / boxes.length) * 100);
+        <div style="height: 10px; width: 100%; background: var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 1.5rem;">
+          <div id="gdpr-bar" style="height: 100%; width: 0%; background: #ef4444; transition: width 0.3s, background 0.3s;"></div>
+        </div>
 
-            const bar = document.getElementById('gdpr-bar');
-            bar.style.width = pct + '%';
+        <!-- Telemetry Cards -->
+        <div class="stat-grid" style="margin-bottom: 1.5rem;">
+          <div class="stat-card"><div class="stat-num" id="stat-verified">0 / 18</div><div class="stat-lbl">Requirements Met</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-gaps">18 Remaining</div><div class="stat-lbl">Compliance Gaps</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-tier" style="color: #ef4444;">Severe Risk</div><div class="stat-lbl">Regulatory Exposure</div></div>
+          <div class="stat-card"><div class="stat-num">€20M / 4%</div><div class="stat-lbl">Max Statutory Fine</div></div>
+        </div>
 
-            const score = document.getElementById('gdpr-score');
-            score.textContent = pct + '% Compliant';
-            score.className = 'badge ' + (pct === 100 ? 'badge-green' : pct >= 50 ? 'badge-amber' : 'badge-red');
+        <!-- Group 1: Lawful Basis & Consent -->
+        <div class="checklist-group">
+          <div class="group-title">
+            <span>1. Lawful Basis &amp; Cookie Consent (Articles 6 &amp; 7)</span>
+            <span class="group-badge badge-amber" id="badge-g1">0/4 Met</span>
+          </div>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="1" onchange="updateAudit()">
+            <div>
+              <strong>Explicit Prior Cookie Consent:</strong> Non-essential tracking cookies (Analytics, Meta Pixel, AdSense) are strictly blocked from loading until the user clicks "Accept".
+              <span class="item-desc">Pre-ticked checkboxes and implied consent via scrolling are prohibited under CJEU Planet49 ruling.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="1" onchange="updateAudit()">
+            <div>
+              <strong>Equal Button Prominence:</strong> The "Reject All" / "Decline" button is just as prominent, accessible, and easily clickable as the "Accept All" button.
+              <span class="item-desc">Hiding rejection options in sub-menus violates EDPB dark pattern guidelines.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="1" onchange="updateAudit()">
+            <div>
+              <strong>Granular Category Choice:</strong> Users can accept or reject specific cookie categories (Analytics vs Marketing vs Functional) independently.
+              <span class="item-desc">Bundled take-it-or-leave-it consent violates Article 4(11) freely given requirements.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="1" onchange="updateAudit()">
+            <div>
+              <strong>Effortless Consent Withdrawal:</strong> A persistent floating button, footer link, or preferences modal allows visitors to revoke consent at any time.
+              <span class="item-desc">Article 7(3): "It shall be as easy to withdraw as to give consent."</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Group 2: Transparency & Privacy Notices -->
+        <div class="checklist-group">
+          <div class="group-title">
+            <span>2. Transparency &amp; Notice (Articles 12, 13 &amp; 14)</span>
+            <span class="group-badge badge-amber" id="badge-g2">0/4 Met</span>
+          </div>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="2" onchange="updateAudit()">
+            <div>
+              <strong>Conspicuous Privacy Notice:</strong> A comprehensive Privacy Policy is permanently hyperlinked in the global site footer and on all signup/checkout forms.
+              <span class="item-desc">Must detail legal identity, registered address, and official Data Protection Officer contact email.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="2" onchange="updateAudit()">
+            <div>
+              <strong>Legal Basis for Each Processing Purpose:</strong> Every data collection activity cites a valid Article 6 legal basis (Consent, Contract, Legal Obligation, or Legitimate Interest).
+              <span class="item-desc">Legitimate interest cannot be used for behavioral tracking or third-party ad targeting.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="2" onchange="updateAudit()">
+            <div>
+              <strong>Third-Party Subprocessor Disclosure:</strong> Complete list of cloud hosts, payment gateways, analytics providers, and CDNs that receive EU user data.
+              <span class="item-desc">Must disclose international transfers (e.g. EU-US Data Privacy Framework or Standard Contractual Clauses).</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="2" onchange="updateAudit()">
+            <div>
+              <strong>Defined Storage Limitation:</strong> Specific retention timelines articulated for server access logs, customer profiles, and analytics telemetry.
+              <span class="item-desc">Article 5(1)(e): Storing personal data indefinitely is strictly illegal.</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Group 3: Data Subject Rights -->
+        <div class="checklist-group">
+          <div class="group-title">
+            <span>3. Data Subject Rights &amp; DSAR Workflows (Articles 15–22)</span>
+            <span class="group-badge badge-amber" id="badge-g3">0/4 Met</span>
+          </div>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="3" onchange="updateAudit()">
+            <div>
+              <strong>Right of Access &amp; DSAR Endpoint:</strong> A dedicated email or web form where users can submit Data Subject Access Requests free of charge.
+              <span class="item-desc">Must be fulfilled within 30 calendar days without charging fees (Article 12(5)).</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="3" onchange="updateAudit()">
+            <div>
+              <strong>Right to Erasure ("Right to be Forgotten"):</strong> Automated or documented manual procedure to purge user profiles, databases, and logs upon request.
+              <span class="item-desc">Excludes records strictly required for legal tax/accounting retention (Article 17(3)(b)).</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="3" onchange="updateAudit()">
+            <div>
+              <strong>Right to Data Portability (Article 20):</strong> Ability to export user-generated data in a structured, commonly used, and machine-readable format (JSON or CSV).
+              <span class="item-desc">Applies to data provided by the user and processed by automated means under consent or contract.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="3" onchange="updateAudit()">
+            <div>
+              <strong>Supervisory Authority Complaint Notice:</strong> Explicit notification informing European users of their statutory right to lodge complaints with their national DPA.
+              <span class="item-desc">E.g. CNIL in France, BfDI in Germany, DPC in Ireland, ICO in the UK.</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Group 4: Security & Technical Safeguards -->
+        <div class="checklist-group">
+          <div class="group-title">
+            <span>4. Security &amp; Technical Safeguards (Article 32)</span>
+            <span class="group-badge badge-amber" id="badge-g4">0/3 Met</span>
+          </div>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="4" onchange="updateAudit()">
+            <div>
+              <strong>End-to-End Transport Layer Encryption:</strong> Strict HTTPS/TLS 1.3 encryption enforced with HSTS headers across all domains, subdomains, and API endpoints.
+              <span class="item-desc">Plaintext HTTP transmission of credentials or personal data constitutes an immediate security failure.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="4" onchange="updateAudit()">
+            <div>
+              <strong>Cryptographic Storage of Authentication Secrets:</strong> User passwords hashed using modern memory-hard key derivation functions (Argon2id or bcrypt with salt).
+              <span class="item-desc">Never use fast legacy hashes like MD5 or SHA-1 for passwords.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="4" onchange="updateAudit()">
+            <div>
+              <strong>Principle of Least Privilege &amp; Access Controls:</strong> Database and server access strictly restricted to authorized engineering staff via MFA and role-based access.
+              <span class="item-desc">Audit logs maintained for employee access to customer personal records.</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Group 5: Governance & Breach Response -->
+        <div class="checklist-group">
+          <div class="group-title">
+            <span>5. Governance &amp; Breach Protocol (Articles 28, 30 &amp; 33)</span>
+            <span class="group-badge badge-amber" id="badge-g5">0/3 Met</span>
+          </div>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="5" onchange="updateAudit()">
+            <div>
+              <strong>72-Hour Data Breach Incident Protocol:</strong> Documented rapid-response plan to notify competent supervisory authorities within 72 hours of detecting a breach.
+              <span class="item-desc">Must also notify affected users without undue delay if high risk to rights and freedoms exists (Article 34).</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="5" onchange="updateAudit()">
+            <div>
+              <strong>Data Processing Agreements (DPAs) Executed:</strong> Signed Article 28 DPAs in place with all cloud providers, analytics vendors, email platforms, and payment processors.
+              <span class="item-desc">Transmitting EU personal data to an uncontracted third party is a direct violation.</span>
+            </div>
+          </label>
+          <label class="item-label">
+            <input type="checkbox" class="gdpr-cb" data-group="5" onchange="updateAudit()">
+            <div>
+              <strong>Privacy by Design &amp; Default (Article 25):</strong> Software architectures designed with data minimization as the default setting (no unnecessary optional data fields).
+              <span class="item-desc">Telemetry opt-outs enabled by default for new features.</span>
+            </div>
+          </label>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.5rem;">
+          <button type="button" id="btnCopyGdprReport" class="btn-primary" onclick="copyGdprReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <span>📋 Copy Audit Summary</span>
+          </button>
+          <button type="button" id="btnDownloadGdpr" class="btn-sec" onclick="downloadGdprReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); color: var(--fg); font-weight: 600;">
+            <span>💾 Download Report (.md)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5 Fatal Traps & Regulatory Pitfalls -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">5 Fatal Traps in GDPR Compliance Audits</h2>
+
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 1: Relying on 'Legitimate Interest' for Behavioral Ad Tracking (Art. 6(1)(f) Misuse)</strong>
+          Many ad-funded web properties claim that running invasive third-party tracking cookies (such as Meta Pixel, Criteo, or Google Remarketing) falls under "legitimate business interest." The European Data Protection Board (EDPB) and Court of Justice of the EU (e.g. <em>Meta v. Bundeskartellamt</em>) have explicitly ruled that cross-site behavioral tracking and profiling CANNOT rely on legitimate interest—it requires unambiguous, explicit opt-in consent.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 2: Failure to Execute Data Processing Agreements (DPAs) with Subprocessors (Art. 28)</strong>
+          Using third-party SaaS tools (error monitoring like Sentry, support widgets like Intercom, hosting on AWS) without an executed Data Processing Agreement makes any data transfer to that service legally unauthorized. Even if the vendor is GDPR-compliant, your company is in direct breach of Article 28(3) until the DPA contract with standard contractual terms is signed and logged.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 3: Missing the Mandatory 72-Hour Data Breach Notification Window (Art. 33)</strong>
+          When a security breach occurs (stolen database, compromised credentials, or ransomware), Article 33 mandates that the lead Data Protection Authority must be notified within 72 hours of becoming aware of the incident. Companies that spend two weeks investigating internally before alerting authorities routinely receive the harshest Tier 2 administrative penalties.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 4: Charging Fees or Creating Friction for Data Subject Access Requests (DSARs - Art. 12)</strong>
+          Article 12(5) strictly establishes that information provided under access, erasure, or portability requests must be provided entirely free of charge. Requiring users to send notarized physical letters, call international telephone numbers, or pay administrative processing fees violates European transparency rules and triggers immediate regulatory investigation.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 5: Pre-Ticked Cookie Banners &amp; Implied Consent (Planet49 &amp; EDPB Guidelines)</strong>
+          Designing cookie consent banners where analytics or marketing categories are checked by default, or where scrolling the webpage is treated as "implied consent", is legally invalid. Under CJEU jurisprudence, only an active affirmative action constitutes legal assent. Pre-ticked boxes provide zero legal cover during an audit.
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Who does the European Union GDPR apply to?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">The General Data Protection Regulation (GDPR) applies to any organization worldwide that processes the personal data of individuals located within the European Union (EU) or European Economic Area (EEA), regardless of whether the business is physically based in Europe or charges for goods and services.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is the maximum penalty for non-compliance under GDPR?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Under GDPR Article 83, severe infringements (such as violating core data processing principles, lack of valid consent, or illegal cross-border data transfers) can result in administrative fines of up to €20 million or 4% of the company's total global annual turnover of the preceding financial year, whichever is higher.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is the difference between a Data Controller and a Data Processor?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">A Data Controller determines the purposes and means of processing personal data (i.e. your website or business). A Data Processor processes personal data solely on behalf of the controller (e.g. AWS, Stripe, Google Analytics). Controllers must execute Data Processing Agreements (DPAs) with all processors under Article 28.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What qualifies as valid cookie consent under GDPR?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Under GDPR Article 4(11) and Recital 32, consent must be freely given, specific, informed, and unambiguous. It requires an active affirmative opt-in (e.g. clicking "Accept"). Pre-ticked checkboxes, implied consent via scrolling, and cookie walls that deny access unless tracking is accepted are illegal.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How long do I have to respond to a Data Subject Access Request (DSAR)?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Under Article 12(3), you must respond to a user access, rectification, or erasure request without undue delay and at the latest within one calendar month of receipt. This may be extended by two further months where requests are complex or numerous, provided the user is notified within the first month.</div>
+        </details>
+      </div>
+    </div>
+
+    <script>
+      const TOTAL_ITEMS = 18;
+
+      function updateAudit() {
+        const boxes = document.querySelectorAll('.gdpr-cb');
+        let checked = 0;
+        const groupCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        const groupTotals = { 1: 4, 2: 4, 3: 4, 4: 3, 5: 3 };
+
+        boxes.forEach(b => {
+          if (b.checked) {
+            checked++;
+            const g = b.getAttribute('data-group');
+            if (groupCounts[g] !== undefined) groupCounts[g]++;
           }
-        </script>
-      `
+        });
+
+        const pct = Math.round((checked / TOTAL_ITEMS) * 100);
+        document.getElementById('gdpr-pct').textContent = pct + '% (' + checked + ' / ' + TOTAL_ITEMS + ' Verified)';
+        document.getElementById('stat-verified').textContent = checked + ' / ' + TOTAL_ITEMS;
+        document.getElementById('stat-gaps').textContent = (TOTAL_ITEMS - checked) + ' Remaining';
+
+        const bar = document.getElementById('gdpr-bar');
+        bar.style.width = pct + '%';
+
+        const tier = document.getElementById('stat-tier');
+        if (pct === 100) {
+          bar.style.background = '#22c55e';
+          tier.textContent = '100% Compliant';
+          tier.style.color = '#22c55e';
+        } else if (pct >= 80) {
+          bar.style.background = '#10b981';
+          tier.textContent = 'Low Risk';
+          tier.style.color = '#10b981';
+        } else if (pct >= 50) {
+          bar.style.background = '#f59e0b';
+          tier.textContent = 'Moderate Risk';
+          tier.style.color = '#f59e0b';
+        } else {
+          bar.style.background = '#ef4444';
+          tier.textContent = 'Severe Risk';
+          tier.style.color = '#ef4444';
+        }
+
+        // Update group badges
+        for (let g = 1; g <= 5; g++) {
+          const badge = document.getElementById('badge-g' + g);
+          if (badge) {
+            const count = groupCounts[g];
+            const tot = groupTotals[g];
+            badge.textContent = count + '/' + tot + ' Met';
+            badge.className = 'group-badge ' + (count === tot ? 'badge-green' : count > 0 ? 'badge-amber' : 'badge-red');
+          }
+        }
+      }
+
+      function selectAll(state) {
+        document.querySelectorAll('.gdpr-cb').forEach(b => b.checked = state);
+        updateAudit();
+      }
+
+      function generateReportText() {
+        const boxes = document.querySelectorAll('.gdpr-cb');
+        let checked = 0;
+        boxes.forEach(b => { if (b.checked) checked++; });
+        const pct = Math.round((checked / TOTAL_ITEMS) * 100);
+        const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        let report = [
+          '# GDPR Compliance Self-Audit Report',
+          '**Generated by:** Digital Tools Shed Compliance Studio',
+          '**Date:** ' + date,
+          '**Readiness Score:** ' + pct + '% (' + checked + ' / ' + TOTAL_ITEMS + ' criteria verified)',
+          '**Status:** ' + (pct === 100 ? 'Fully Compliant' : pct >= 80 ? 'Low Regulatory Exposure' : pct >= 50 ? 'Moderate Risk (Action Required)' : 'High Risk (Severe Non-Compliance)'),
+          '',
+          '---',
+          '## Breakdown by Statutory Requirement'
+        ];
+
+        boxes.forEach((b, idx) => {
+          const text = b.parentElement.querySelector('strong').textContent.replace(':', '');
+          const status = b.checked ? '✅ PASSED' : '❌ UNMET';
+          report.push((idx + 1) + '. [' + status + '] ' + text);
+        });
+
+        report.push('');
+        report.push('---');
+        report.push('## Regulatory Note');
+        report.push('This self-audit provides technical guidance based on GDPR Articles 5, 6, 12–22, 28, and 32–34. It does not substitute for formal legal counsel.');
+        return report.join('\n');
+      }
+
+      function copyGdprReport() {
+        const txt = generateReportText();
+        navigator.clipboard.writeText(txt).then(() => {
+          const btn = document.getElementById('btnCopyGdprReport');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Audit Summary Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      function downloadGdprReport() {
+        const txt = generateReportText();
+        const blob = new Blob([txt], { type: 'text/markdown;charset=utf-8' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'gdpr-audit-report-' + Date.now() + '.md';
+        a.click();
+      }
+
+      document.addEventListener('DOMContentLoaded', updateAudit);
+    </script>
+  `
     },
     {
       slug: 'data-breach-checker',
-      title: 'Password Pwned & Breach Checker',
-      metaDesc: 'Check if a password has been compromised in data breaches using HaveIBeenPwned k-anonymity API (only SHA-1 prefix transmitted).',
+      title: "Password Pwned & Data Breach Checker (k-Anonymity HIBP)",
+      metaDesc: "Check if a password has been compromised in known data breaches using HaveIBeenPwned k-anonymity protocol. 100% private: password never leaves your browser.",
       category: 'Security',
+      faq: [
+        {
+                "q": "Is it safe to type my password into this checker?",
+                "a": "Yes! This tool implements Troy Hunt's mathematical k-Anonymity protocol. Your password is never sent over the network. Your browser computes a 40-character SHA-1 hash locally, transmits ONLY the first 5 characters (prefix) to the HaveIBeenPwned API, and receives a list of ~500 candidate suffixes. Your browser completes the match locally in private memory."
+        },
+        {
+                "q": "What is k-Anonymity in cryptographic privacy?",
+                "a": "k-Anonymity is a mathematical property ensuring that an individual query cannot be distinguished from at least k-1 other candidate queries. By searching only the first 5 hex characters (which has 16^5 = 1,048,576 buckets), the server cannot determine which specific password among hundreds of thousands of possibilities you are checking."
+        },
+        {
+                "q": "What should I do if my password is found in a data breach?",
+                "a": "If your password has appeared in a data breach, you must immediately stop using it across all accounts. Attackers use automated credential-stuffing bots to test breached password lists against thousands of websites. Generate a new, unique 20+ character password or Diceware passphrase and enable Two-Factor Authentication (TOTP)."
+        },
+        {
+                "q": "If my password shows 0 breaches, is it guaranteed secure?",
+                "a": "No. A result of 0 breaches merely confirms that this exact password has not appeared in publicly exposed corporate breach databases. If the password is short, follows common dictionary patterns, or lacks bit-entropy (e.g. \"Tr0ub4dor&3\"), it can still be cracked within minutes by offline GPU clusters."
+        },
+        {
+                "q": "Does this tool store or log any passwords searched?",
+                "a": "No, absolutely not. Digital Tools Shed has zero backend databases for password tracking, zero logging scripts, and zero advertising trackers on this tool. Everything is computed in transient client-side RAM."
+        }
+],
       body: `
-        ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; Breach Checker
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Password Pwned & Breach Checker</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Check if your password has appeared in known data breaches. Uses mathematical <strong>k-Anonymity</strong> (only the first 5 characters of a SHA-1 hash are queried; your actual password never leaves the browser).
-          </p>
+    ${commonStyle}
+    <style>
+      .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+      .stat-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem; text-align: center; }
+      .stat-num { font-family: var(--mono); font-size: 1.15rem; font-weight: 700; color: var(--fg); }
+      .stat-lbl { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; }
+      .tag-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+      .trap-card { border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; background: var(--surface-alt); font-size: 0.88rem; line-height: 1.55; }
+      .telemetry-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.82rem; }
+      .telemetry-row:last-child { border-bottom: none; }
+    </style>
+    <div class="article-container" style="max-width: 920px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; Data Breach Checker
+      </nav>
 
-          <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Test Password</label>
-              <input type="password" id="pwn-input" class="code-input" placeholder="Type password to test..." />
-            </div>
+      <div class="tag-row">
+        <span class="badge badge-green">k-Anonymity Protected</span>
+        <span class="badge badge-amber">HaveIBeenPwned API Integration</span>
+        <span class="badge badge-green">Zero Plaintext Transmission</span>
+      </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="checkPwned()">Search Breach Database</button>
-            </div>
+      <h1 style="font-family: var(--serif); font-size: 1.9rem; margin-bottom: 0.5rem;">Password Pwned &amp; Data Breach Checker</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        Check if your password has been exposed in corporate data breaches without leaking your secret. Utilizes Troy Hunt's mathematical <strong>k-Anonymity</strong> model—only the first 5 characters of a SHA-1 hash leave your device.
+      </p>
 
-            <div id="pwn-result" class="result-box" style="display: none; margin-top: 1.5rem;"></div>
+      <div class="tool-box">
+        <div class="field-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <label class="field-label" style="margin:0;">Test Password</label>
+            <button type="button" id="btnTogglePwn" onclick="togglePwnVisibility()" class="btn-sec" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;">👁 Show</button>
+          </div>
+          <input type="password" id="pwn-input" class="code-input" placeholder="Type password to test against 800M+ breached credentials..." style="font-size: 1rem;" onkeydown="if(event.key==='Enter') checkPwned()" autocomplete="off" />
+        </div>
+
+        <div class="action-bar" style="margin-top: 1rem;">
+          <button type="button" class="btn-primary" onclick="checkPwned()" style="font-size: 0.9rem; padding: 0.7rem 1.4rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🔍 Search Breach Database</span>
+          </button>
+          <button type="button" class="btn-sec" onclick="loadSampleBreached()" style="padding: 0.7rem 1rem; font-size: 0.85rem;">Test Sample (password123)</button>
+          <button type="button" class="btn-sec" onclick="clearPwn()" style="padding: 0.7rem 1rem; font-size: 0.85rem;">Clear</button>
+        </div>
+
+        <!-- Result Box -->
+        <div id="pwn-result" style="display: none; margin-top: 1.5rem; padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border);"></div>
+
+        <!-- Telemetry Breakdown Panel -->
+        <div id="pwn-telemetry" style="display: none; margin-top: 1.25rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+          <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.75rem;">k-Anonymity Cryptographic Telemetry</h4>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">Full SHA-1 Hash (Local)</span>
+            <span id="tel-sha1" style="font-weight: 600; color: var(--fg); word-break: break-all;">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">Transmitted Hash Prefix</span>
+            <span id="tel-prefix" style="color: #3b82f6; font-weight: bold;">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">Locally Evaluated Suffix</span>
+            <span id="tel-suffix" style="color: #10b981; font-weight: bold;">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">HIBP Candidate Pool</span>
+            <span id="tel-candidates">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">Breach Exposure Count</span>
+            <span id="tel-count" style="font-weight: bold;">-</span>
           </div>
         </div>
 
-        <script>
-          async function sha1(str) {
-            const enc = new TextEncoder();
-            const buf = await window.crypto.subtle.digest('SHA-1', enc.encode(str));
-            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-          }
+        <!-- Action Copy Buttons -->
+        <div id="pwn-actions" style="display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+          <button type="button" id="btnCopyBreachReport" class="btn-primary" onclick="copyBreachReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <span>📋 Copy Breach Report</span>
+          </button>
+          <a href="/security/password-generator" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; text-align: center; background: var(--surface); border: 1px solid var(--border); color: var(--fg); font-weight: 600;">
+            <span>⚡ Generate Safe Password</span>
+          </a>
+        </div>
+      </div>
 
-          async function checkPwned() {
-            const val = document.getElementById('pwn-input').value;
-            const res = document.getElementById('pwn-result');
-            if (!val) return;
+      <!-- 5 Fatal Traps & Credential Stuffing Pitfalls -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">5 Fatal Traps in Password Security &amp; Breach Audits</h2>
 
-            res.style.display = 'block';
-            res.textContent = 'Computing SHA-1 and querying k-Anonymity database...';
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 1: Transmitting Plaintext Passwords to Verification APIs</strong>
+          Submitting plaintext passwords over the internet to check if they are breached is a catastrophic security risk. Unscrupulous websites or compromised proxy servers can harvest the very credentials you are testing. Digital Tools Shed enforces strict client-side k-Anonymity: only the first 5 characters of a SHA-1 hash are queried; the remaining 35 characters are compared locally in your browser RAM.
+        </div>
 
-            try {
-              const hash = await sha1(val);
-              const prefix = hash.slice(0, 5);
-              const suffix = hash.slice(5);
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 2: Credential Stuffing Across Reused Accounts (Breached Once, Pwned Everywhere)</strong>
+          When an obscure forum or old gaming site is breached, cybercriminals feed the leaked email and password combinations into automated credential-stuffing engines (like OpenBullet) targeting banking, email, GitHub, and Amazon accounts. If you reuse a breached password on another service, your primary identity is compromised within hours of a public dump.
+        </div>
 
-              const response = await fetch('https://api.pwnedpasswords.com/range/' + prefix);
-              const text = await response.text();
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 3: Believing '0 Breaches' Means Immune to Attacks</strong>
+          A "0 breaches" result simply means this specific character string has not yet surfaced in public collections indexed by HaveIBeenPwned. If the password has low Shannon entropy (e.g. fewer than 60 bits or short length), offline GPU rigs hashing at 100 billion guesses per second can brute-force it in minutes regardless of its breach status.
+        </div>
 
-              const lines = text.split('\\n');
-              let foundCount = 0;
-              for (const line of lines) {
-                const [h, count] = line.split(':');
-                if (h.trim() === suffix) {
-                  foundCount = parseInt(count.trim(), 10);
-                  break;
-                }
-              }
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 4: Subtle Leetspeak &amp; Incremental Number Substitutions</strong>
+          Replacing "E" with "3", "A" with "@", or appending "!" or "2024" to a breached password does not protect you. Modern hash cracking tools (such as Hashcat and John the Ripper) run rule-based mutators (e.g. 'OneRuleToRuleThemAll') that automatically test millions of leetspeak permutations on every breached root word.
+        </div>
 
-              if (foundCount > 0) {
-                res.innerHTML = '<span style="color:#ef4444; font-weight:bold;">⚠️ Compromised!</span> This password has appeared in data breaches <strong>' + foundCount.toLocaleString() + '</strong> times. Do not use it.';
-              } else {
-                res.innerHTML = '<span style="color:#22c55e; font-weight:bold;">✓ Good news!</span> No match found in the database of known breached passwords.';
-              }
-            } catch(e) {
-              res.textContent = 'Query failed (network offline or adblocker blocking HIBP API).';
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 5: Ignoring Breach Context: Email vs Password-Only Dumps</strong>
+          Password-only lists confirm that a passphrase is weak or widely used, but combo-lists (Email + Password pairs, such as the 3.2 billion record COMB dump) represent immediate targeted account takeover risks. Always combine breach audits with unique passwords managed by a password manager.
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is it safe to type my password into this checker?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes! This tool implements Troy Hunt's mathematical k-Anonymity protocol. Your password is never sent over the network. Your browser computes a 40-character SHA-1 hash locally, transmits ONLY the first 5 characters (prefix) to the HaveIBeenPwned API, and receives a list of ~500 candidate suffixes. Your browser completes the match locally in private memory.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is k-Anonymity in cryptographic privacy?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">k-Anonymity is a mathematical property ensuring that an individual query cannot be distinguished from at least k-1 other candidate queries. By searching only the first 5 hex characters (which has 16^5 = 1,048,576 buckets), the server cannot determine which specific password among hundreds of thousands of possibilities you are checking.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What should I do if my password is found in a data breach?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">If your password has appeared in a data breach, you must immediately stop using it across all accounts. Attackers use automated credential-stuffing bots to test breached password lists against thousands of websites. Generate a new, unique 20+ character password or Diceware passphrase and enable Two-Factor Authentication (TOTP).</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">If my password shows 0 breaches, is it guaranteed secure?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">No. A result of 0 breaches merely confirms that this exact password has not appeared in publicly exposed corporate breach databases. If the password is short, follows common dictionary patterns, or lacks bit-entropy (e.g. "Tr0ub4dor&3"), it can still be cracked within minutes by offline GPU clusters.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Does this tool store or log any passwords searched?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">No, absolutely not. Digital Tools Shed has zero backend databases for password tracking, zero logging scripts, and zero advertising trackers on this tool. Everything is computed in transient client-side RAM.</div>
+        </details>
+      </div>
+    </div>
+
+    <script>
+      let lastReport = '';
+
+      function togglePwnVisibility() {
+        const inp = document.getElementById('pwn-input');
+        const btn = document.getElementById('btnTogglePwn');
+        if (inp.type === 'password') {
+          inp.type = 'text';
+          btn.textContent = '🔒 Hide';
+        } else {
+          inp.type = 'password';
+          btn.textContent = '👁 Show';
+        }
+      }
+
+      function loadSampleBreached() {
+        document.getElementById('pwn-input').value = 'password123';
+        checkPwned();
+      }
+
+      function clearPwn() {
+        document.getElementById('pwn-input').value = '';
+        document.getElementById('pwn-result').style.display = 'none';
+        document.getElementById('pwn-telemetry').style.display = 'none';
+        document.getElementById('pwn-actions').style.display = 'none';
+      }
+
+      async function sha1(str) {
+        const enc = new TextEncoder();
+        const buf = await window.crypto.subtle.digest('SHA-1', enc.encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      }
+
+      async function checkPwned() {
+        const val = document.getElementById('pwn-input').value;
+        const res = document.getElementById('pwn-result');
+        const tel = document.getElementById('pwn-telemetry');
+        const acts = document.getElementById('pwn-actions');
+
+        if (!val) {
+          res.style.display = 'block';
+          res.style.background = 'rgba(239, 68, 68, 0.12)';
+          res.style.color = '#ef4444';
+          res.innerHTML = '<strong>Error:</strong> Please enter a password to test.';
+          return;
+        }
+
+        res.style.display = 'block';
+        res.style.background = 'var(--surface-alt)';
+        res.style.color = 'var(--fg)';
+        res.innerHTML = 'Computing SHA-1 hash and querying HIBP k-Anonymity database...';
+
+        try {
+          const hash = await sha1(val);
+          const prefix = hash.slice(0, 5);
+          const suffix = hash.slice(5);
+
+          const response = await fetch('https://api.pwnedpasswords.com/range/' + prefix);
+          if (!response.ok) throw new Error('API returned status ' + response.status);
+          const text = await response.text();
+
+          const lines = text.split('\n');
+          let foundCount = 0;
+          for (const line of lines) {
+            const parts = line.split(':');
+            if (parts[0] && parts[0].trim() === suffix) {
+              foundCount = parseInt(parts[1].trim(), 10) || 0;
+              break;
             }
           }
-        </script>
-      `
+
+          tel.style.display = 'block';
+          acts.style.display = 'grid';
+          document.getElementById('tel-sha1').textContent = hash;
+          document.getElementById('tel-prefix').textContent = prefix + ' (Sent to API)';
+          document.getElementById('tel-suffix').textContent = suffix + ' (Matched locally)';
+          document.getElementById('tel-candidates').textContent = lines.length.toLocaleString() + ' hashes returned in bucket';
+          document.getElementById('tel-count').textContent = foundCount.toLocaleString() + ' times';
+
+          if (foundCount > 0) {
+            res.style.background = 'rgba(239, 68, 68, 0.12)';
+            res.style.color = '#ef4444';
+            res.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+            res.innerHTML = '<div style="font-family: var(--serif); font-size: 1.25rem; font-weight: bold; margin-bottom: 0.35rem;">⚠️ DANGER: Password Compromised in Data Breaches!</div>' +
+              '<p style="margin: 0; line-height: 1.5; font-size: 0.92rem;">This exact password has appeared in publicly leaked breach databases <strong>' + foundCount.toLocaleString() + ' times</strong>. It is actively included in adversary dictionary attack wordlists and credential-stuffing bot scripts. <strong>Change this password immediately!</strong></p>';
+          } else {
+            res.style.background = 'rgba(34, 197, 94, 0.12)';
+            res.style.color = '#22c55e';
+            res.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+            res.innerHTML = '<div style="font-family: var(--serif); font-size: 1.25rem; font-weight: bold; margin-bottom: 0.35rem;">✓ Clean: No Matches Found in Known Breaches</div>' +
+              '<p style="margin: 0; line-height: 1.5; font-size: 0.92rem;">This password was not found in the 800+ million records indexed by HaveIBeenPwned. (Remember: a clean breach record does not replace the need for high entropy and unique credentials across accounts).</p>';
+          }
+
+          lastReport = [
+            '====================================================',
+            'PASSWORD BREACH & PWNED AUDIT REPORT',
+            'Digital Tools Shed - k-Anonymity HIBP Studio',
+            '====================================================',
+            'Breach Status          : ' + (foundCount > 0 ? 'COMPROMISED (' + foundCount.toLocaleString() + ' exposures)' : 'CLEAN (0 exposures found)'),
+            'k-Anonymity Model      : Enforced (Password NEVER left device)',
+            'SHA-1 Prefix Sent     : ' + prefix,
+            'SHA-1 Suffix Matched   : ' + suffix,
+            'Bucket Candidates      : ' + lines.length.toLocaleString() + ' candidate hashes inspected',
+            'Audit Date             : ' + new Date().toISOString(),
+            'Security Recommendation: ' + (foundCount > 0 ? 'Rotate password immediately across all services; enable TOTP 2FA.' : 'Ensure password meets 80+ bit entropy threshold.'),
+            '===================================================='
+          ].join('\n');
+
+        } catch(e) {
+          res.style.background = 'rgba(245, 158, 11, 0.12)';
+          res.style.color = '#f59e0b';
+          res.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+          res.innerHTML = '<strong>API Lookup Offline:</strong> Unable to connect to api.pwnedpasswords.com. This may be due to network disconnection or an aggressive browser adblocker filtering external range queries.';
+        }
+      }
+
+      function copyBreachReport() {
+        if (!lastReport) return;
+        navigator.clipboard.writeText(lastReport).then(() => {
+          const btn = document.getElementById('btnCopyBreachReport');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Breach Report Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
+    </script>
+  `
     },
     {
       slug: 'totp-generator',
-      title: 'TOTP 2-Factor Authenticator Code Generator',
-      metaDesc: 'Generate RFC 6238 Time-based One-Time Passwords (TOTP 2FA) from a Base32 secret key locally in your browser.',
+      title: "TOTP 2-Factor Authenticator Code Studio & RFC 6238 Simulator",
+      metaDesc: "Generate real-time RFC 6238 TOTP two-factor authentication codes from Base32 secret keys. 100% client-side HMAC-SHA1 simulation with circular timer.",
       category: 'Security',
+      faq: [
+        {
+                "q": "How does RFC 6238 Time-based One-Time Password (TOTP) work?",
+                "a": "TOTP calculates a 6-digit or 8-digit code by applying an HMAC hash (typically HMAC-SHA1) to a shared secret key and the current Unix epoch time divided into 30-second time-steps. The resulting 160-bit HMAC is dynamically truncated to a 31-bit integer and formatted as a decimal code modulo 10^6."
+        },
+        {
+                "q": "Is my 2FA secret key safe when entered into this tool?",
+                "a": "Yes! The entire TOTP computation occurs 100% locally inside your browser using the native Web Cryptography API (window.crypto.subtle). Your secret key is never transmitted across the network or logged in any backend database."
+        },
+        {
+                "q": "What is the standard time-step interval for TOTP?",
+                "a": "The overwhelming majority of modern two-factor authenticators (Google Authenticator, Microsoft Authenticator, Authy, Bitwarden, 1Password) use a standard 30-second time-step interval and 6-digit codes."
+        },
+        {
+                "q": "What causes TOTP \"Invalid Code\" errors during login?",
+                "a": "The single most common cause is clock drift. Because TOTP relies on the current Unix timestamp, if your device clock is desynchronized by more than 30 seconds from the authentication server, the generated code will belong to a past or future time window and will be rejected."
+        },
+        {
+                "q": "Can I generate a new random Base32 secret key with this tool?",
+                "a": "Yes. You can click the \"⚡ Gen Random Secret\" button to create a cryptographically secure 16-character (80-bit) or 32-character (160-bit) Base32 secret key compliant with RFC 4648 standards."
+        }
+],
       body: `
-        ${commonStyle}
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; TOTP Authenticator Generator
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">TOTP 2-Factor Authenticator Code Generator</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Compute 6-digit RFC 6238 TOTP authentication codes from Base32 secret keys directly using browser Web Crypto HMAC-SHA1.
-          </p>
+    ${commonStyle}
+    <style>
+      .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+      .stat-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem; text-align: center; }
+      .stat-num { font-family: var(--mono); font-size: 1.15rem; font-weight: 700; color: var(--fg); }
+      .stat-lbl { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; }
+      .tag-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+      .trap-card { border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; background: var(--surface-alt); font-size: 0.88rem; line-height: 1.55; }
+      .totp-display-box { background: var(--surface-alt); padding: 2rem; border-radius: 8px; border: 1px solid var(--border); text-align: center; margin-top: 1.5rem; position: relative; }
+      .totp-digits { font-family: var(--mono); font-size: 2.8rem; font-weight: 700; letter-spacing: 0.18em; color: var(--btn-bg, #3b82f6); margin: 0.5rem 0; }
+      .progress-ring { width: 44px; height: 44px; }
+      .formula-box { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin: 1.25rem 0; font-family: var(--mono); font-size: 0.85rem; overflow-x: auto; color: var(--fg); }
+    </style>
+    <div class="article-container" style="max-width: 920px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; TOTP Authenticator Generator
+      </nav>
 
-          <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Base32 Secret Key (e.g. JBSWY3DPEHPK3PXP)</label>
-              <input type="text" id="totp-secret" class="code-input" value="JBSWY3DPEHPK3PXP" placeholder="Enter secret key..." oninput="updateTotp()" />
-            </div>
+      <div class="tag-row">
+        <span class="badge badge-green">RFC 6238 Standard</span>
+        <span class="badge badge-amber">Web Crypto HMAC-SHA1/256/512</span>
+        <span class="badge badge-green">100% Client-Side Simulation</span>
+      </div>
 
-            <div style="background: var(--surface-alt); padding: 1.5rem; border-radius: 6px; border: 1px solid var(--border); text-align: center; margin-top: 1.5rem;">
-              <div class="field-label">Current 6-Digit TOTP Code</div>
-              <div id="totp-code" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; letter-spacing: 0.15em; color: var(--btn-bg, #3b82f6); margin: 0.5rem 0;">--- ---</div>
-              <div id="totp-time" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">Refreshing in 30s...</div>
+      <h1 style="font-family: var(--serif); font-size: 1.9rem; margin-bottom: 0.5rem;">TOTP 2-Factor Authenticator Code Studio &amp; RFC 6238 Simulator</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        Generate authentic Two-Factor Authentication (2FA) codes in real time from Base32 secret keys. Simulates Google Authenticator, Microsoft Authenticator, Authy, and Bitwarden with live countdown visualization and multi-window drift verification.
+      </p>
+
+      <div class="tool-box">
+        <!-- Input Field & Key Controls -->
+        <div class="field-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.5rem;">
+            <label class="field-label" style="margin:0;">Base32 Secret Key</label>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <button type="button" class="btn-sec" onclick="generateRandomSecret()" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">⚡ Gen Random Secret</button>
+              <button type="button" class="btn-sec" onclick="loadSampleSecret()" style="padding: 0.25rem 0.6rem; font-size: 0.75rem;">Sample Key</button>
             </div>
+          </div>
+          <input type="text" id="totp-secret" class="code-input" value="JBSWY3DPEHPK3PXP" placeholder="Enter Base32 secret key (e.g. JBSWY3DPEHPK3PXP)..." oninput="onSecretChanged()" style="font-size: 1.05rem; letter-spacing: 0.08em;" autocomplete="off" />
+        </div>
+
+        <!-- Algorithm & Settings Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border);">
+          <div>
+            <label class="field-label" style="margin-bottom: 0.25rem;">Hash Algorithm</label>
+            <select id="totp-algo" class="text-input" style="font-size: 0.85rem; padding: 0.45rem 0.6rem;" onchange="updateTotp()">
+              <option value="SHA-1" selected>SHA-1 (Google Authenticator)</option>
+              <option value="SHA-256">SHA-256 (High Security)</option>
+              <option value="SHA-512">SHA-512 (Extended)</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" style="margin-bottom: 0.25rem;">Code Digits</label>
+            <select id="totp-digits" class="text-input" style="font-size: 0.85rem; padding: 0.45rem 0.6rem;" onchange="updateTotp()">
+              <option value="6" selected>6 Digits (Standard)</option>
+              <option value="8">8 Digits (Enterprise)</option>
+            </select>
+          </div>
+          <div>
+            <label class="field-label" style="margin-bottom: 0.25rem;">Time Step (Interval)</label>
+            <select id="totp-step" class="text-input" style="font-size: 0.85rem; padding: 0.45rem 0.6rem;" onchange="updateTotp()">
+              <option value="30" selected>30 Seconds (Default)</option>
+              <option value="60">60 Seconds</option>
+            </select>
           </div>
         </div>
 
-        <script>
-          function base32ToUint8Array(base32) {
-            const b32 = base32.toUpperCase().replace(/=+$/, '');
-            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
-            let bits = '';
-            for (let i = 0; i < b32.length; i++) {
-              const val = alphabet.indexOf(b32.charAt(i));
-              if (val === -1) continue;
-              bits += val.toString(2).padStart(5, '0');
-            }
-            const bytes = new Uint8Array(Math.floor(bits.length / 8));
-            for (let i = 0; i < bytes.length; i++) {
-              bytes[i] = parseInt(bits.substr(i * 8, 8), 2);
-            }
-            return bytes;
+        <!-- Big Display Card -->
+        <div class="totp-display-box">
+          <div class="field-label" style="letter-spacing: 0.12em;">Current Active 2FA Token</div>
+          <div id="totp-code" class="totp-digits">--- ---</div>
+          
+          <!-- Animated Progress Countdown -->
+          <div style="display: flex; justify-content: center; align-items: center; gap: 0.75rem; margin-top: 0.5rem;">
+            <div style="width: 140px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden;">
+              <div id="totp-bar" style="height: 100%; width: 100%; background: #3b82f6; transition: width 1s linear;"></div>
+            </div>
+            <span id="totp-time" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted); font-weight: bold;">30s</span>
+          </div>
+
+          <!-- Neighboring Windows (Drift Preview) -->
+          <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1.25rem; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 0.75rem;">
+            <div>Previous Window (-30s): <strong id="totp-prev" style="color: var(--fg);">-</strong></div>
+            <div>Next Window (+30s): <strong id="totp-next" style="color: var(--fg);">-</strong></div>
+          </div>
+        </div>
+
+        <!-- Action Copy Buttons Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+          <button type="button" id="btnCopyTotp" class="btn-primary" onclick="copyTotpCode()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <span>📋 Copy Active 6-Digit Code</span>
+          </button>
+          <button type="button" id="btnCopySecret" class="btn-sec" onclick="copySecretKey()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); color: var(--fg); font-weight: 600;">
+            <span>📋 Copy Secret Key</span>
+          </button>
+          <button type="button" id="btnCopyTotpReport" class="btn-sec" onclick="copyTotpReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--surface); border: 1px solid var(--border); color: var(--fg); font-weight: 600;">
+            <span>📋 Copy Diagnostic Audit</span>
+          </button>
+        </div>
+
+        <!-- Real-Time RFC 6238 Telemetry -->
+        <div class="stat-grid" style="margin-top: 1.25rem;">
+          <div class="stat-card"><div class="stat-num" id="stat-epoch">0</div><div class="stat-lbl">Unix Epoch (s)</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-counter">0</div><div class="stat-lbl">Time Step Counter (T)</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-key-bits">80 bits</div><div class="stat-lbl">Secret Key Entropy</div></div>
+          <div class="stat-card"><div class="stat-num" id="stat-latency">&lt; 1 ms</div><div class="stat-lbl">HMAC Execution</div></div>
+        </div>
+      </div>
+
+      <!-- RFC 6238 Mathematical Derivation -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem;">RFC 6238 Algorithm Specification &amp; Mathematical Derivation</h2>
+        <p style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-bottom: 1rem;">
+          Time-based One-Time Password (TOTP) is an extension of the HMAC-based One-Time Password algorithm (HOTP, RFC 4226). Instead of an incrementing event counter, TOTP uses the current Unix timestamp as the moving factor:
+        </p>
+
+        <div class="formula-box">
+<strong>Step 1: Calculate the Time Counter (T):</strong>
+T = floor((UnixTime - T0) / X)
+Where:
+  - UnixTime is current seconds since January 1, 1970 UTC
+  - T0 is epoch reference (default: 0)
+  - X is time step interval (default: 30 seconds)
+
+<strong>Step 2: Compute HMAC Value (HS):</strong>
+HS = HMAC-SHA-1(Key = Base32Decode(Secret), Data = INT_64_BE(T))
+Result is a 20-byte (160-bit) binary hash.
+
+<strong>Step 3: Dynamic Truncation (DT):</strong>
+Offset = HS[19] &amp; 0x0F  (Extract lowest 4 bits of the last byte; value between 0 and 15)
+BinaryCode = ((HS[Offset] &amp; 0x7F) &lt;&lt; 24) |
+             ((HS[Offset + 1] &amp; 0xFF) &lt;&lt; 16) |
+             ((HS[Offset + 2] &amp; 0xFF) &lt;&lt; 8)  |
+             (HS[Offset + 3] &amp; 0xFF)
+
+<strong>Step 4: Format Decimal Code:</strong>
+TOTP = BinaryCode mod 10^Digits  (padded to 6 or 8 digits with leading zeros)
+        </div>
+      </div>
+
+      <!-- 5 Fatal Traps & 2FA Implementation Pitfalls -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">5 Fatal Traps in Two-Factor Authentication &amp; TOTP Implementations</h2>
+
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 1: Clock Drift &amp; Missing Verification Window Tolerance (RFC 6238 Drift)</strong>
+          Network latency and device clock drift (even by 15–20 seconds) cause client and server time steps to fall out of phase. RFC 6238 Section 5.2 explicitly recommends that authentication servers check at least one preceding and one following time step (a window of (T-1, T, T+1), covering 90 seconds total). Strictly checking only the exact current timestamp causes frequent false rejection of legitimate logins.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 2: Insecure Secret Key Storage &amp; Plaintext Database Leakage</strong>
+          Storing Base32 shared secrets in plaintext within your SQL database completely neutralizes 2FA. If an attacker dumps your database via SQL injection, they acquire every user's master TOTP seed and can generate identical tokens indefinitely. Shared secrets must be encrypted at rest using an envelope key (e.g. AES-256-GCM via AWS KMS or HashiCorp Vault).
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 3: SMS/Email 2FA Fallacy (SIM Swapping vs Cryptographic TOTP)</strong>
+          Relying on SMS or email verification codes is vastly inferior to app-based TOTP. SMS messages traverse cellular carrier networks in plaintext and are routinely hijacked via SIM-swapping attacks (bribing or tricking telecom support reps) and SS7 signaling exploits. Offline TOTP authenticators generate codes locally with zero telecom dependency.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 4: Failure to Invalidate Used One-Time Passwords (Replay Attacks)</strong>
+          Under RFC 6238 Section 5.2, an OTP must NEVER be accepted more than once. If a user enters code "123456" at second 5 of a 30-second window, an attacker eavesdropping on the network connection can replay that exact code during the remaining 25 seconds unless the authentication backend records and invalidates the token in a Redis cache.
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 5: QR Code Phishing &amp; Reverse Proxy MITM Attacks (Evilginx Bypass)</strong>
+          While TOTP protects against static password credential stuffing, it does NOT protect against real-time Man-in-the-Middle reverse proxies (like Evilginx). If an adversary tricks a user into entering their username, password, and active 6-digit TOTP code onto a spoofed phishing page, the proxy immediately replays the code to the real service and intercepts the authenticated session cookie. Only FIDO2/WebAuthn hardware keys provide cryptographic origin binding against MITM.
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How does RFC 6238 Time-based One-Time Password (TOTP) work?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">TOTP calculates a 6-digit or 8-digit code by applying an HMAC hash (typically HMAC-SHA1) to a shared secret key and the current Unix epoch time divided into 30-second time-steps. The resulting 160-bit HMAC is dynamically truncated to a 31-bit integer and formatted as a decimal code modulo 10^6.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is my 2FA secret key safe when entered into this tool?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes! The entire TOTP computation occurs 100% locally inside your browser using the native Web Cryptography API (window.crypto.subtle). Your secret key is never transmitted across the network or logged in any backend database.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is the standard time-step interval for TOTP?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">The overwhelming majority of modern two-factor authenticators (Google Authenticator, Microsoft Authenticator, Authy, Bitwarden, 1Password) use a standard 30-second time-step interval and 6-digit codes.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What causes TOTP "Invalid Code" errors during login?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">The single most common cause is clock drift. Because TOTP relies on the current Unix timestamp, if your device clock is desynchronized by more than 30 seconds from the authentication server, the generated code will belong to a past or future time window and will be rejected.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Can I generate a new random Base32 secret key with this tool?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. You can click the "⚡ Gen Random Secret" button to create a cryptographically secure 16-character (80-bit) or 32-character (160-bit) Base32 secret key compliant with RFC 4648 standards.</div>
+        </details>
+      </div>
+    </div>
+
+    <script>
+      let currentRawCode = '';
+
+      function base32ToUint8Array(base32) {
+        const b32 = base32.toUpperCase().replace(/\s+/g, '').replace(/=+$/, '');
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        let bits = '';
+        for (let i = 0; i < b32.length; i++) {
+          const val = alphabet.indexOf(b32.charAt(i));
+          if (val === -1) continue;
+          bits += val.toString(2).padStart(5, '0');
+        }
+        const bytes = new Uint8Array(Math.floor(bits.length / 8));
+        for (let i = 0; i < bytes.length; i++) {
+          bytes[i] = parseInt(bits.substr(i * 8, 8), 2);
+        }
+        return bytes;
+      }
+
+      function generateRandomSecret() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+        const arr = new Uint8Array(16);
+        window.crypto.getRandomValues(arr);
+        let s = '';
+        for (let i = 0; i < arr.length; i++) {
+          s += chars[arr[i] % chars.length];
+        }
+        document.getElementById('totp-secret').value = s;
+        onSecretChanged();
+      }
+
+      function loadSampleSecret() {
+        document.getElementById('totp-secret').value = 'JBSWY3DPEHPK3PXP';
+        onSecretChanged();
+      }
+
+      function onSecretChanged() {
+        const sec = document.getElementById('totp-secret').value.trim();
+        const bits = Math.round(sec.length * 5);
+        document.getElementById('stat-key-bits').textContent = bits + ' bits';
+        updateTotp();
+      }
+
+      async function computeHmacOtp(keyBytes, timeStep, algo, digits) {
+        const timeBuffer = new ArrayBuffer(8);
+        const timeView = new DataView(timeBuffer);
+        timeView.setUint32(4, timeStep, false);
+
+        const hashName = (algo === 'SHA-256' ? 'SHA-256' : algo === 'SHA-512' ? 'SHA-512' : 'SHA-1');
+        const cryptoKey = await window.crypto.subtle.importKey(
+          'raw', keyBytes, { name: 'HMAC', hash: hashName }, false, ['sign']
+        );
+
+        const hmac = await window.crypto.subtle.sign('HMAC', cryptoKey, timeBuffer);
+        const hmacBytes = new Uint8Array(hmac);
+
+        const offset = hmacBytes[hmacBytes.length - 1] & 0x0f;
+        const binary = ((hmacBytes[offset] & 0x7f) << 24) |
+                       ((hmacBytes[offset + 1] & 0xff) << 16) |
+                       ((hmacBytes[offset + 2] & 0xff) << 8) |
+                       (hmacBytes[offset + 3] & 0xff);
+
+        const mod = (digits === 8 ? 100000000 : 1000000);
+        return (binary % mod).toString().padStart(digits, '0');
+      }
+
+      async function updateTotp() {
+        const secret = document.getElementById('totp-secret').value.trim();
+        const codeEl = document.getElementById('totp-code');
+        const timeEl = document.getElementById('totp-time');
+        const barEl = document.getElementById('totp-bar');
+        const algo = document.getElementById('totp-algo').value;
+        const digits = parseInt(document.getElementById('totp-digits').value, 10) || 6;
+        const step = parseInt(document.getElementById('totp-step').value, 10) || 30;
+
+        const epoch = Math.floor(Date.now() / 1000);
+        const timeCounter = Math.floor(epoch / step);
+        const remaining = step - (epoch % step);
+
+        document.getElementById('stat-epoch').textContent = epoch.toLocaleString();
+        document.getElementById('stat-counter').textContent = timeCounter.toLocaleString();
+
+        timeEl.textContent = remaining + 's';
+        barEl.style.width = ((remaining / step) * 100) + '%';
+        if (remaining <= 5) {
+          barEl.style.background = '#ef4444';
+        } else if (remaining <= 10) {
+          barEl.style.background = '#f59e0b';
+        } else {
+          barEl.style.background = '#3b82f6';
+        }
+
+        const keyBytes = base32ToUint8Array(secret);
+        if (keyBytes.length === 0) {
+          codeEl.textContent = 'INVALID KEY';
+          codeEl.style.color = '#ef4444';
+          return;
+        }
+        codeEl.style.color = 'var(--btn-bg, #3b82f6)';
+
+        try {
+          const t0 = performance.now();
+          const currentCode = await computeHmacOtp(keyBytes, timeCounter, algo, digits);
+          const prevCode = await computeHmacOtp(keyBytes, timeCounter - 1, algo, digits);
+          const nextCode = await computeHmacOtp(keyBytes, timeCounter + 1, algo, digits);
+          const latency = (performance.now() - t0).toFixed(1);
+
+          document.getElementById('stat-latency').textContent = latency + ' ms';
+          currentRawCode = currentCode;
+
+          if (digits === 6) {
+            codeEl.textContent = currentCode.slice(0, 3) + ' ' + currentCode.slice(3);
+            document.getElementById('totp-prev').textContent = prevCode.slice(0, 3) + ' ' + prevCode.slice(3);
+            document.getElementById('totp-next').textContent = nextCode.slice(0, 3) + ' ' + nextCode.slice(3);
+          } else {
+            codeEl.textContent = currentCode.slice(0, 4) + ' ' + currentCode.slice(4);
+            document.getElementById('totp-prev').textContent = prevCode.slice(0, 4) + ' ' + prevCode.slice(4);
+            document.getElementById('totp-next').textContent = nextCode.slice(0, 4) + ' ' + nextCode.slice(4);
           }
+        } catch(e) {
+          codeEl.textContent = 'ERROR';
+        }
+      }
 
-          async function generateTOTP(secret) {
-            const keyBytes = base32ToUint8Array(secret);
-            if (keyBytes.length === 0) return 'INVALID';
+      function copyTotpCode() {
+        if (!currentRawCode) return;
+        navigator.clipboard.writeText(currentRawCode).then(() => {
+          const btn = document.getElementById('btnCopyTotp');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Code (' + currentRawCode + ') Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
 
-            const epoch = Math.floor(Date.now() / 1000);
-            const time = Math.floor(epoch / 30);
+      function copySecretKey() {
+        const sec = document.getElementById('totp-secret').value.trim();
+        if (!sec) return;
+        navigator.clipboard.writeText(sec).then(() => {
+          const btn = document.getElementById('btnCopySecret');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Secret Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
 
-            const timeBuffer = new ArrayBuffer(8);
-            const timeView = new DataView(timeBuffer);
-            timeView.setUint32(4, time, false);
+      function copyTotpReport() {
+        const sec = document.getElementById('totp-secret').value.trim();
+        const algo = document.getElementById('totp-algo').value;
+        const digits = document.getElementById('totp-digits').value;
+        const step = document.getElementById('totp-step').value;
+        const epoch = document.getElementById('stat-epoch').textContent;
+        const counter = document.getElementById('stat-counter').textContent;
 
-            const cryptoKey = await window.crypto.subtle.importKey(
-              'raw', keyBytes, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']
-            );
+        const report = [
+          '====================================================',
+          'RFC 6238 TOTP AUTHENTICATION AUDIT REPORT',
+          'Digital Tools Shed TOTP Studio',
+          '====================================================',
+          'Active TOTP Code       : ' + currentRawCode,
+          'Base32 Secret Key      : ' + sec,
+          'Hash Algorithm         : HMAC-' + algo,
+          'Code Length            : ' + digits + ' digits',
+          'Time Step Interval     : ' + step + ' seconds',
+          'Current Unix Epoch     : ' + epoch + 's',
+          'Calculated Counter (T) : ' + counter,
+          'Drift Tolerance Tested : T-1, T, T+1 (3-Window Range)',
+          'Client-Side Isolation  : 100% In-Browser (Web Crypto API)',
+          '===================================================='
+        ].join('\n');
 
-            const hmac = await window.crypto.subtle.sign('HMAC', cryptoKey, timeBuffer);
-            const hmacBytes = new Uint8Array(hmac);
+        navigator.clipboard.writeText(report).then(() => {
+          const btn = document.getElementById('btnCopyTotpReport');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Audit Report Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
 
-            const offset = hmacBytes[hmacBytes.length - 1] & 0xf;
-            const code = ((hmacBytes[offset] & 0x7f) << 24) |
-                         ((hmacBytes[offset + 1] & 0xff) << 16) |
-                         ((hmacBytes[offset + 2] & 0xff) << 8) |
-                         (hmacBytes[offset + 3] & 0xff);
-
-            return (code % 1000000).toString().padStart(6, '0');
-          }
-
-          async function updateTotp() {
-            const secret = document.getElementById('totp-secret').value.trim();
-            const codeEl = document.getElementById('totp-code');
-            const timeEl = document.getElementById('totp-time');
-
-            const epoch = Math.floor(Date.now() / 1000);
-            const remaining = 30 - (epoch % 30);
-            timeEl.textContent = 'Refreshes in ' + remaining + 's';
-
-            try {
-              const code = await generateTOTP(secret);
-              codeEl.textContent = code.slice(0, 3) + ' ' + code.slice(3);
-            } catch(e) {
-              codeEl.textContent = 'ERROR';
-            }
-          }
-
-          setInterval(updateTotp, 1000);
-          document.addEventListener('DOMContentLoaded', updateTotp);
-        </script>
-      `
+      setInterval(updateTotp, 1000);
+      document.addEventListener('DOMContentLoaded', () => {
+        onSecretChanged();
+      });
+    </script>
+  `
     }
   ];
 

@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Diceware Passphrase Generator free to use?",
+      "name": "What is the Diceware passphrase method?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Diceware Passphrase Generator on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Invented by Arnold Reinhold in 1995, Diceware uses dice rolls to select random words from a curated wordlist. Combining 5 to 7 random words produces high entropy while remaining easy for human memory to recall and type."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "Why are passphrases often better than complex random passwords for humans?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Passphrases like 'correct-horse-battery-staple' provide 70-100 bits of entropy without requiring obscure symbols that humans struggle to remember, making them ideal for master password vault keys and device disk encryption."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Diceware Passphrase Generator work on mobile devices?",
+      "name": "How many words should my passphrase have for maximum security?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "4 words provide ~52 bits (adequate for low-risk sites), 5 words provide ~65 bits (standard user accounts), and 6 to 7 words provide 78-91 bits (virtually unbreakable against state-level offline GPU attacks)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does changing the delimiter or capitalizing words increase security?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Using random separators (underscores, dots, slashes) and inserting random digits or symbols adds 10 to 25 extra bits of entropy, thwarting naive word-level dictionary attacks."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this passphrase generator truly random?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. It uses the Web Cryptography API's window.crypto.getRandomValues() CSPRNG with rejection sampling to eliminate modulo bias, ensuring uniformly random word selection."
       }
     }
   ]
@@ -1150,7 +1166,31 @@
                 </p>
               </div>
             </div>
+          
+          <div style="margin: 2.5rem 0;">
+            <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is the Diceware passphrase method?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Invented by Arnold Reinhold in 1995, Diceware uses dice rolls to select random words from a curated wordlist. Combining 5 to 7 random words produces high entropy while remaining easy for human memory to recall and type.</div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Why are passphrases often better than complex random passwords for humans?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Passphrases like 'correct-horse-battery-staple' provide 70-100 bits of entropy without requiring obscure symbols that humans struggle to remember, making them ideal for master password vault keys and device disk encryption.</div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How many words should my passphrase have for maximum security?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">4 words provide ~52 bits (adequate for low-risk sites), 5 words provide ~65 bits (standard user accounts), and 6 to 7 words provide 78-91 bits (virtually unbreakable against state-level offline GPU attacks).</div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Does changing the delimiter or capitalizing words increase security?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. Using random separators (underscores, dots, slashes) and inserting random digits or symbols adds 10 to 25 extra bits of entropy, thwarting naive word-level dictionary attacks.</div>
+            </details>
+            <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+              <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is this passphrase generator truly random?</summary>
+              <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes. It uses the Web Cryptography API's window.crypto.getRandomValues() CSPRNG with rejection sampling to eliminate modulo bias, ensuring uniformly random word selection.</div>
+            </details>
           </div>
+</div>
         </div>
 
         <script>

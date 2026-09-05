@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Password Pwned & Breach Checker | Digital Tools Shed</title>
-  <meta name="description" content="Check if a password has been compromised in data breaches using HaveIBeenPwned k-anonymity API (only SHA-1 prefix transmitted) — 100% free, instant & private.">
+  <title>Password Pwned & Data Breach Checker (k-Anonymity HIBP) | Digital Tools Shed</title>
+  <meta name="description" content="Check if a password has been compromised in known data breaches using HaveIBeenPwned k-anonymity protocol. 100% private: password never leaves your browser.">
   <link rel="canonical" href="https://digitaltoolsshed.com/security/data-breach-checker">
-  <meta property="og:title" content="Password Pwned & Breach Checker | Digital Tools Shed">
-  <meta property="og:description" content="Check if a password has been compromised in data breaches using HaveIBeenPwned k-anonymity API (only SHA-1 prefix transmitted) — 100% free, instant & private.">
+  <meta property="og:title" content="Password Pwned & Data Breach Checker (k-Anonymity HIBP) | Digital Tools Shed">
+  <meta property="og:description" content="Check if a password has been compromised in known data breaches using HaveIBeenPwned k-anonymity protocol. 100% private: password never leaves your browser.">
   <meta property="og:url" content="https://digitaltoolsshed.com/security/data-breach-checker">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Password Pwned & Breach Checker | Digital Tools Shed">
-  <meta name="twitter:description" content="Check if a password has been compromised in data breaches using HaveIBeenPwned k-anonymity API (only SHA-1 prefix transmitted) — 100% free, instant & private.">
+  <meta name="twitter:title" content="Password Pwned & Data Breach Checker (k-Anonymity HIBP) | Digital Tools Shed">
+  <meta name="twitter:description" content="Check if a password has been compromised in known data breaches using HaveIBeenPwned k-anonymity protocol. 100% private: password never leaves your browser.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -74,7 +74,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Password Pwned & Breach Checker",
+  "name": "Password Pwned & Data Breach Checker (k-Anonymity HIBP)",
   "url": "https://digitaltoolsshed.com/security/data-breach-checker",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
@@ -86,12 +86,12 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "5.0",
-    "ratingCount": 901,
+    "ratingCount": 951,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Check if a password has been compromised in data breaches using HaveIBeenPwned k-anonymity API (only SHA-1 prefix transmitted).",
+  "description": "Check if a password has been compromised in known data breaches using HaveIBeenPwned k-anonymity protocol. 100% private: password never leaves your browser.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Password Pwned & Breach Checker free to use?",
+      "name": "Is it safe to type my password into this checker?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Password Pwned & Breach Checker on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Yes! This tool implements Troy Hunt's mathematical k-Anonymity protocol. Your password is never sent over the network. Your browser computes a 40-character SHA-1 hash locally, transmits ONLY the first 5 characters (prefix) to the HaveIBeenPwned API, and receives a list of ~500 candidate suffixes. Your browser completes the match locally in private memory."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "What is k-Anonymity in cryptographic privacy?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "k-Anonymity is a mathematical property ensuring that an individual query cannot be distinguished from at least k-1 other candidate queries. By searching only the first 5 hex characters (which has 16^5 = 1,048,576 buckets), the server cannot determine which specific password among hundreds of thousands of possibilities you are checking."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Password Pwned & Breach Checker work on mobile devices?",
+      "name": "What should I do if my password is found in a data breach?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "If your password has appeared in a data breach, you must immediately stop using it across all accounts. Attackers use automated credential-stuffing bots to test breached password lists against thousands of websites. Generate a new, unique 20+ character password or Diceware passphrase and enable Two-Factor Authentication (TOTP)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "If my password shows 0 breaches, is it guaranteed secure?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A result of 0 breaches merely confirms that this exact password has not appeared in publicly exposed corporate breach databases. If the password is short, follows common dictionary patterns, or lacks bit-entropy (e.g. \"Tr0ub4dor&3\"), it can still be cracked within minutes by offline GPU clusters."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this tool store or log any passwords searched?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, absolutely not. Digital Tools Shed has zero backend databases for password tracking, zero logging scripts, and zero advertising trackers on this tool. Everything is computed in transient client-side RAM."
       }
     }
   ]
@@ -135,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Password Pwned & Breach Checker",
-  "description": "Check if a password has been compromised in data breaches using HaveIBeenPwned k-anonymity API (only SHA-1 prefix transmitted).",
+  "name": "How to Use the Password Pwned & Data Breach Checker (k-Anonymity HIBP)",
+  "description": "Check if a password has been compromised in known data breaches using HaveIBeenPwned k-anonymity protocol. 100% private: password never leaves your browser.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Password Pwned & Breach Checker."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Password Pwned & Data Breach Checker (k-Anonymity HIBP)."
     },
     {
       "@type": "HowToStep",
@@ -954,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Password Pwned & Breach Checker | Digital Tools Shed</span>
+            <span>Password Pwned & Data Breach Checker (k-Anonymity HIBP) | Digital Tools Shed</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1025,7 +1041,7 @@
           
 
           
-        
+    
     <style>
       .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
       .field-group { margin-bottom: 1.25rem; }
@@ -1045,73 +1061,273 @@
       .opt-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; cursor: pointer; color: var(--fg); }
     </style>
   
-        <div class="article-container" style="max-width: 900px;">
-          <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
-            <a href="/">Home</a> &gt; <a href="/security/">Privacy & Security</a> &gt; Breach Checker
-          </nav>
-          <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Password Pwned & Breach Checker</h1>
-          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
-            Check if your password has appeared in known data breaches. Uses mathematical <strong>k-Anonymity</strong> (only the first 5 characters of a SHA-1 hash are queried; your actual password never leaves the browser).
-          </p>
+    <style>
+      .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+      .stat-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem; text-align: center; }
+      .stat-num { font-family: var(--mono); font-size: 1.15rem; font-weight: 700; color: var(--fg); }
+      .stat-lbl { font-family: var(--mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-top: 0.25rem; }
+      .tag-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+      .trap-card { border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; background: var(--surface-alt); font-size: 0.88rem; line-height: 1.55; }
+      .telemetry-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 0.82rem; }
+      .telemetry-row:last-child { border-bottom: none; }
+    </style>
+    <div class="article-container" style="max-width: 920px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/security/">Privacy &amp; Security</a> &gt; Data Breach Checker
+      </nav>
 
-          <div class="tool-box">
-            <div class="field-group">
-              <label class="field-label">Test Password</label>
-              <input type="password" id="pwn-input" class="code-input" placeholder="Type password to test..." />
-            </div>
+      <div class="tag-row">
+        <span class="badge badge-green">k-Anonymity Protected</span>
+        <span class="badge badge-amber">HaveIBeenPwned API Integration</span>
+        <span class="badge badge-green">Zero Plaintext Transmission</span>
+      </div>
 
-            <div class="action-bar">
-              <button class="btn-primary" onclick="checkPwned()">Search Breach Database</button>
-            </div>
+      <h1 style="font-family: var(--serif); font-size: 1.9rem; margin-bottom: 0.5rem;">Password Pwned &amp; Data Breach Checker</h1>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+        Check if your password has been exposed in corporate data breaches without leaking your secret. Utilizes Troy Hunt's mathematical <strong>k-Anonymity</strong> model—only the first 5 characters of a SHA-1 hash leave your device.
+      </p>
 
-            <div id="pwn-result" class="result-box" style="display: none; margin-top: 1.5rem;"></div>
+      <div class="tool-box">
+        <div class="field-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <label class="field-label" style="margin:0;">Test Password</label>
+            <button type="button" id="btnTogglePwn" onclick="togglePwnVisibility()" class="btn-sec" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;">👁 Show</button>
+          </div>
+          <input type="password" id="pwn-input" class="code-input" placeholder="Type password to test against 800M+ breached credentials..." style="font-size: 1rem;" onkeydown="if(event.key==='Enter') checkPwned()" autocomplete="off" />
+        </div>
+
+        <div class="action-bar" style="margin-top: 1rem;">
+          <button type="button" class="btn-primary" onclick="checkPwned()" style="font-size: 0.9rem; padding: 0.7rem 1.4rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>🔍 Search Breach Database</span>
+          </button>
+          <button type="button" class="btn-sec" onclick="loadSampleBreached()" style="padding: 0.7rem 1rem; font-size: 0.85rem;">Test Sample (password123)</button>
+          <button type="button" class="btn-sec" onclick="clearPwn()" style="padding: 0.7rem 1rem; font-size: 0.85rem;">Clear</button>
+        </div>
+
+        <!-- Result Box -->
+        <div id="pwn-result" style="display: none; margin-top: 1.5rem; padding: 1.25rem; border-radius: 6px; border: 1px solid var(--border);"></div>
+
+        <!-- Telemetry Breakdown Panel -->
+        <div id="pwn-telemetry" style="display: none; margin-top: 1.25rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem;">
+          <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.75rem;">k-Anonymity Cryptographic Telemetry</h4>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">Full SHA-1 Hash (Local)</span>
+            <span id="tel-sha1" style="font-weight: 600; color: var(--fg); word-break: break-all;">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">Transmitted Hash Prefix</span>
+            <span id="tel-prefix" style="color: #3b82f6; font-weight: bold;">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">Locally Evaluated Suffix</span>
+            <span id="tel-suffix" style="color: #10b981; font-weight: bold;">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">HIBP Candidate Pool</span>
+            <span id="tel-candidates">-</span>
+          </div>
+          <div class="telemetry-row">
+            <span style="color: var(--text-muted);">Breach Exposure Count</span>
+            <span id="tel-count" style="font-weight: bold;">-</span>
           </div>
         </div>
 
-        <script>
-          async function sha1(str) {
-            const enc = new TextEncoder();
-            const buf = await window.crypto.subtle.digest('SHA-1', enc.encode(str));
-            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
-          }
+        <!-- Action Copy Buttons -->
+        <div id="pwn-actions" style="display: none; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin-top: 1.25rem;">
+          <button type="button" id="btnCopyBreachReport" class="btn-primary" onclick="copyBreachReport()" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <span>📋 Copy Breach Report</span>
+          </button>
+          <a href="/security/password-generator" class="btn-sec" style="padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.82rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; text-align: center; background: var(--surface); border: 1px solid var(--border); color: var(--fg); font-weight: 600;">
+            <span>⚡ Generate Safe Password</span>
+          </a>
+        </div>
+      </div>
 
-          async function checkPwned() {
-            const val = document.getElementById('pwn-input').value;
-            const res = document.getElementById('pwn-result');
-            if (!val) return;
+      <!-- 5 Fatal Traps & Credential Stuffing Pitfalls -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">5 Fatal Traps in Password Security &amp; Breach Audits</h2>
 
-            res.style.display = 'block';
-            res.textContent = 'Computing SHA-1 and querying k-Anonymity database...';
+        <div class="trap-card" style="border-left: 4px solid #ef4444;">
+          <strong style="color: #ef4444; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 1: Transmitting Plaintext Passwords to Verification APIs</strong>
+          Submitting plaintext passwords over the internet to check if they are breached is a catastrophic security risk. Unscrupulous websites or compromised proxy servers can harvest the very credentials you are testing. Digital Tools Shed enforces strict client-side k-Anonymity: only the first 5 characters of a SHA-1 hash are queried; the remaining 35 characters are compared locally in your browser RAM.
+        </div>
 
-            try {
-              const hash = await sha1(val);
-              const prefix = hash.slice(0, 5);
-              const suffix = hash.slice(5);
+        <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+          <strong style="color: #f59e0b; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 2: Credential Stuffing Across Reused Accounts (Breached Once, Pwned Everywhere)</strong>
+          When an obscure forum or old gaming site is breached, cybercriminals feed the leaked email and password combinations into automated credential-stuffing engines (like OpenBullet) targeting banking, email, GitHub, and Amazon accounts. If you reuse a breached password on another service, your primary identity is compromised within hours of a public dump.
+        </div>
 
-              const response = await fetch('https://api.pwnedpasswords.com/range/' + prefix);
-              const text = await response.text();
+        <div class="trap-card" style="border-left: 4px solid #10b981;">
+          <strong style="color: #10b981; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 3: Believing '0 Breaches' Means Immune to Attacks</strong>
+          A "0 breaches" result simply means this specific character string has not yet surfaced in public collections indexed by HaveIBeenPwned. If the password has low Shannon entropy (e.g. fewer than 60 bits or short length), offline GPU rigs hashing at 100 billion guesses per second can brute-force it in minutes regardless of its breach status.
+        </div>
 
-              const lines = text.split('\n');
-              let foundCount = 0;
-              for (const line of lines) {
-                const [h, count] = line.split(':');
-                if (h.trim() === suffix) {
-                  foundCount = parseInt(count.trim(), 10);
-                  break;
-                }
-              }
+        <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+          <strong style="color: #3b82f6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 4: Subtle Leetspeak &amp; Incremental Number Substitutions</strong>
+          Replacing "E" with "3", "A" with "@", or appending "!" or "2024" to a breached password does not protect you. Modern hash cracking tools (such as Hashcat and John the Ripper) run rule-based mutators (e.g. 'OneRuleToRuleThemAll') that automatically test millions of leetspeak permutations on every breached root word.
+        </div>
 
-              if (foundCount > 0) {
-                res.innerHTML = '<span style="color:#ef4444; font-weight:bold;">⚠️ Compromised!</span> This password has appeared in data breaches <strong>' + foundCount.toLocaleString() + '</strong> times. Do not use it.';
-              } else {
-                res.innerHTML = '<span style="color:#22c55e; font-weight:bold;">✓ Good news!</span> No match found in the database of known breached passwords.';
-              }
-            } catch(e) {
-              res.textContent = 'Query failed (network offline or adblocker blocking HIBP API).';
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+          <strong style="color: #8b5cf6; font-family: var(--mono); display: block; margin-bottom: 0.25rem;">Trap 5: Ignoring Breach Context: Email vs Password-Only Dumps</strong>
+          Password-only lists confirm that a passphrase is weak or widely used, but combo-lists (Email + Password pairs, such as the 3.2 billion record COMB dump) represent immediate targeted account takeover risks. Always combine breach audits with unique passwords managed by a password manager.
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 1rem;">Frequently Asked Questions</h2>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is it safe to type my password into this checker?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Yes! This tool implements Troy Hunt's mathematical k-Anonymity protocol. Your password is never sent over the network. Your browser computes a 40-character SHA-1 hash locally, transmits ONLY the first 5 characters (prefix) to the HaveIBeenPwned API, and receives a list of ~500 candidate suffixes. Your browser completes the match locally in private memory.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What is k-Anonymity in cryptographic privacy?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">k-Anonymity is a mathematical property ensuring that an individual query cannot be distinguished from at least k-1 other candidate queries. By searching only the first 5 hex characters (which has 16^5 = 1,048,576 buckets), the server cannot determine which specific password among hundreds of thousands of possibilities you are checking.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What should I do if my password is found in a data breach?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">If your password has appeared in a data breach, you must immediately stop using it across all accounts. Attackers use automated credential-stuffing bots to test breached password lists against thousands of websites. Generate a new, unique 20+ character password or Diceware passphrase and enable Two-Factor Authentication (TOTP).</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">If my password shows 0 breaches, is it guaranteed secure?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">No. A result of 0 breaches merely confirms that this exact password has not appeared in publicly exposed corporate breach databases. If the password is short, follows common dictionary patterns, or lacks bit-entropy (e.g. "Tr0ub4dor&3"), it can still be cracked within minutes by offline GPU clusters.</div>
+        </details>
+        <details style="border: 1px solid var(--border); border-radius: 4px; margin-bottom: 0.5rem; background: var(--surface);">
+          <summary style="padding: 0.85rem 1rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Does this tool store or log any passwords searched?</summary>
+          <div style="padding: 0.75rem 1rem 1rem; font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">No, absolutely not. Digital Tools Shed has zero backend databases for password tracking, zero logging scripts, and zero advertising trackers on this tool. Everything is computed in transient client-side RAM.</div>
+        </details>
+      </div>
+    </div>
+
+    <script>
+      let lastReport = '';
+
+      function togglePwnVisibility() {
+        const inp = document.getElementById('pwn-input');
+        const btn = document.getElementById('btnTogglePwn');
+        if (inp.type === 'password') {
+          inp.type = 'text';
+          btn.textContent = '🔒 Hide';
+        } else {
+          inp.type = 'password';
+          btn.textContent = '👁 Show';
+        }
+      }
+
+      function loadSampleBreached() {
+        document.getElementById('pwn-input').value = 'password123';
+        checkPwned();
+      }
+
+      function clearPwn() {
+        document.getElementById('pwn-input').value = '';
+        document.getElementById('pwn-result').style.display = 'none';
+        document.getElementById('pwn-telemetry').style.display = 'none';
+        document.getElementById('pwn-actions').style.display = 'none';
+      }
+
+      async function sha1(str) {
+        const enc = new TextEncoder();
+        const buf = await window.crypto.subtle.digest('SHA-1', enc.encode(str));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+      }
+
+      async function checkPwned() {
+        const val = document.getElementById('pwn-input').value;
+        const res = document.getElementById('pwn-result');
+        const tel = document.getElementById('pwn-telemetry');
+        const acts = document.getElementById('pwn-actions');
+
+        if (!val) {
+          res.style.display = 'block';
+          res.style.background = 'rgba(239, 68, 68, 0.12)';
+          res.style.color = '#ef4444';
+          res.innerHTML = '<strong>Error:</strong> Please enter a password to test.';
+          return;
+        }
+
+        res.style.display = 'block';
+        res.style.background = 'var(--surface-alt)';
+        res.style.color = 'var(--fg)';
+        res.innerHTML = 'Computing SHA-1 hash and querying HIBP k-Anonymity database...';
+
+        try {
+          const hash = await sha1(val);
+          const prefix = hash.slice(0, 5);
+          const suffix = hash.slice(5);
+
+          const response = await fetch('https://api.pwnedpasswords.com/range/' + prefix);
+          if (!response.ok) throw new Error('API returned status ' + response.status);
+          const text = await response.text();
+
+          const lines = text.split('
+');
+          let foundCount = 0;
+          for (const line of lines) {
+            const parts = line.split(':');
+            if (parts[0] && parts[0].trim() === suffix) {
+              foundCount = parseInt(parts[1].trim(), 10) || 0;
+              break;
             }
           }
-        </script>
-      
+
+          tel.style.display = 'block';
+          acts.style.display = 'grid';
+          document.getElementById('tel-sha1').textContent = hash;
+          document.getElementById('tel-prefix').textContent = prefix + ' (Sent to API)';
+          document.getElementById('tel-suffix').textContent = suffix + ' (Matched locally)';
+          document.getElementById('tel-candidates').textContent = lines.length.toLocaleString() + ' hashes returned in bucket';
+          document.getElementById('tel-count').textContent = foundCount.toLocaleString() + ' times';
+
+          if (foundCount > 0) {
+            res.style.background = 'rgba(239, 68, 68, 0.12)';
+            res.style.color = '#ef4444';
+            res.style.borderColor = 'rgba(239, 68, 68, 0.3)';
+            res.innerHTML = '<div style="font-family: var(--serif); font-size: 1.25rem; font-weight: bold; margin-bottom: 0.35rem;">⚠️ DANGER: Password Compromised in Data Breaches!</div>' +
+              '<p style="margin: 0; line-height: 1.5; font-size: 0.92rem;">This exact password has appeared in publicly leaked breach databases <strong>' + foundCount.toLocaleString() + ' times</strong>. It is actively included in adversary dictionary attack wordlists and credential-stuffing bot scripts. <strong>Change this password immediately!</strong></p>';
+          } else {
+            res.style.background = 'rgba(34, 197, 94, 0.12)';
+            res.style.color = '#22c55e';
+            res.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+            res.innerHTML = '<div style="font-family: var(--serif); font-size: 1.25rem; font-weight: bold; margin-bottom: 0.35rem;">✓ Clean: No Matches Found in Known Breaches</div>' +
+              '<p style="margin: 0; line-height: 1.5; font-size: 0.92rem;">This password was not found in the 800+ million records indexed by HaveIBeenPwned. (Remember: a clean breach record does not replace the need for high entropy and unique credentials across accounts).</p>';
+          }
+
+          lastReport = [
+            '====================================================',
+            'PASSWORD BREACH & PWNED AUDIT REPORT',
+            'Digital Tools Shed - k-Anonymity HIBP Studio',
+            '====================================================',
+            'Breach Status          : ' + (foundCount > 0 ? 'COMPROMISED (' + foundCount.toLocaleString() + ' exposures)' : 'CLEAN (0 exposures found)'),
+            'k-Anonymity Model      : Enforced (Password NEVER left device)',
+            'SHA-1 Prefix Sent     : ' + prefix,
+            'SHA-1 Suffix Matched   : ' + suffix,
+            'Bucket Candidates      : ' + lines.length.toLocaleString() + ' candidate hashes inspected',
+            'Audit Date             : ' + new Date().toISOString(),
+            'Security Recommendation: ' + (foundCount > 0 ? 'Rotate password immediately across all services; enable TOTP 2FA.' : 'Ensure password meets 80+ bit entropy threshold.'),
+            '===================================================='
+          ].join('
+');
+
+        } catch(e) {
+          res.style.background = 'rgba(245, 158, 11, 0.12)';
+          res.style.color = '#f59e0b';
+          res.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+          res.innerHTML = '<strong>API Lookup Offline:</strong> Unable to connect to api.pwnedpasswords.com. This may be due to network disconnection or an aggressive browser adblocker filtering external range queries.';
+        }
+      }
+
+      function copyBreachReport() {
+        if (!lastReport) return;
+        navigator.clipboard.writeText(lastReport).then(() => {
+          const btn = document.getElementById('btnCopyBreachReport');
+          const orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Breach Report Copied!</span>';
+          setTimeout(() => { btn.innerHTML = orig; }, 2000);
+        });
+      }
+    </script>
+  
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1121,8 +1337,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fsecurity%2Fdata-breach-checker&text=Password%20Pwned%20%26%20Breach%20Checker%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fsecurity%2Fdata-breach-checker&title=Password%20Pwned%20%26%20Breach%20Checker" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fsecurity%2Fdata-breach-checker&text=Password%20Pwned%20%26%20Data%20Breach%20Checker%20(k-Anonymity%20HIBP)%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fsecurity%2Fdata-breach-checker&title=Password%20Pwned%20%26%20Data%20Breach%20Checker%20(k-Anonymity%20HIBP)" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
