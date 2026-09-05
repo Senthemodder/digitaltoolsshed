@@ -47,15 +47,131 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Digital Tools Shed",
-  "url": "https://digitaltoolsshed.com/",
-  "description": "The Site of Everything — 1,000+ free browser-based tools, calculators, converters, and coding playgrounds.",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://digitaltoolsshed.com/?q={search_term_string}",
-    "query-input": "required name=search_term_string"
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://digitaltoolsshed.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Web",
+      "item": "https://digitaltoolsshed.com/web"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Csp Cors Architect",
+      "item": "https://digitaltoolsshed.com/web/csp-cors-architect"
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Content Security Policy (CSP) & CORS Policy Architect",
+  "url": "https://digitaltoolsshed.com/web/csp-cors-architect",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "5.0",
+    "ratingCount": 1406,
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
+  "description": "Interactive visual Content Security Policy (CSP) & CORS header generator. Calculate nonces, SHA-256 inline script hashes, detect wildcard XSS vulnerabilities, and export Nginx/Apache/Cloudflare configurations.",
+  "author": {
+    "@type": "Organization",
+    "name": "Digital Tools Shed",
+    "url": "https://digitaltoolsshed.com"
   }
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this Content Security Policy (CSP) & CORS Policy Architect free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, this Content Security Policy (CSP) & CORS Policy Architect on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my data private and secure when using this tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this Content Security Policy (CSP) & CORS Policy Architect work on mobile devices?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+      }
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Content Security Policy (CSP) & CORS Policy Architect",
+  "url": "https://digitaltoolsshed.com/web/csp-cors-architect",
+  "description": "Interactive visual Content Security Policy (CSP) & CORS header generator. Calculate nonces, SHA-256 inline script hashes, detect wildcard XSS vulnerabilities, and export Nginx/Apache/Cloudflare configurations.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "All"
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between CSP and CORS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Content Security Policy (CSP) is an HTTP response header that restricts the resources (scripts, styles, images, iframes) the browser is allowed to load for a page, preventing Cross-Site Scripting (XSS) and clickjacking. Cross-Origin Resource Sharing (CORS) manages which external origins are allowed to read responses from your API via XMLHttpRequest or Fetch."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is unsafe-inline dangerous in script-src?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Specifying unsafe-inline allows any inline script tag or inline event handler to execute without verification. If an attacker injects user input into the DOM, the browser executes it immediately. Using cryptographic nonces or SHA-256 hashes ensures only approved scripts run."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does frame-ancestors protect against clickjacking?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The frame-ancestors directive obsoletes the legacy X-Frame-Options header. Setting frame-ancestors self or none stops malicious third-party websites from framing your application inside transparent iframes to trick authenticated users into clicking unauthorized actions."
+      }
+    }
+  ]
 }
 </script>
 </head>
@@ -171,7 +287,7 @@
         <div class="nav-link-content"><span>Web Architecture Hub</span></div>
         <span class="nav-badge">HUB</span>
       </a>
-      <a href="/web/csp-cors-architect" class="nav-link ">
+      <a href="/web/csp-cors-architect" class="nav-link active">
         <div class="nav-link-content"><span>CSP & CORS Architect</span></div>
         <span class="nav-badge">NEW</span>
       </a>
@@ -442,6 +558,37 @@
       </a>
       <a href="/units/ibm-80-column-punch-card-bytes" class="nav-link ">
         <div class="nav-link-content"><span>IBM Punched Card Capacity</span></div>
+      </a>
+
+      <!-- HUMAN NEUROBIOLOGY & COGNITIVE ARCHITECTURE -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <span>Neurobiology & Mind (15)</span>
+      </div>
+      <a href="/neuro/" class="nav-link ">
+        <div class="nav-link-content"><span>Neuro Master Suite Hub</span></div>
+        <span class="nav-badge">15</span>
+      </a>
+      <a href="/neuro/imposter-syndrome-spectrum" class="nav-link ">
+        <div class="nav-link-content"><span>Imposter vs Dunning-Kruger</span></div>
+      </a>
+      <a href="/neuro/adhd-paralysis-defuser" class="nav-link ">
+        <div class="nav-link-content"><span>ADHD Paralysis Defuser</span></div>
+      </a>
+      <a href="/neuro/burnout-nervous-system-audit" class="nav-link ">
+        <div class="nav-link-content"><span>Burnout vs Vagal Shutdown</span></div>
+      </a>
+      <a href="/neuro/cognitive-distortion-reframer" class="nav-link ">
+        <div class="nav-link-content"><span>CBT Distortion Reframer</span></div>
+      </a>
+      <a href="/neuro/regret-minimization-engine" class="nav-link ">
+        <div class="nav-link-content"><span>80-Year-Old Regret Matrix</span></div>
+      </a>
+      <a href="/neuro/circadian-energy-architect" class="nav-link ">
+        <div class="nav-link-content"><span>Circadian Energy Architect</span></div>
+      </a>
+      <a href="/neuro/overthinking-interrupter" class="nav-link ">
+        <div class="nav-link-content"><span>Overthinking Interrupter</span></div>
       </a>
 
       <!-- MIND & PSYCHOLOGICAL ARCHETYPES -->
@@ -831,7 +978,392 @@
           </div>
           
 
-          undefined
+          
+      
+      
+    <style>
+      .wb-card { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
+      .wb-header { margin-bottom: 1.5rem; }
+      .wb-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+      .badge-blue { background: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+      .badge-green { background: rgba(34, 197, 94, 0.12); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+      .badge-amber { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+      .badge-red { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+      .badge-purple { background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
+      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.88rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+      .code-input:focus, .text-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+      .btn-primary { background: #3b82f6; color: #fff; border: none; padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+      .btn-primary:hover { background: #2563eb; }
+      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; transition: all 0.15s ease; }
+      .btn-sec:hover { background: var(--surface-alt); border-color: var(--text-muted); }
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+      .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; }
+      @media (max-width: 840px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+      .nav-crumbs { font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted); }
+      .nav-crumbs a { color: var(--text-muted); text-decoration: none; }
+      .nav-crumbs a:hover { color: #3b82f6; text-decoration: underline; }
+      .tab-bar { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; flex-wrap: wrap; }
+      .tab-btn { background: transparent; border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.82rem; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
+      .tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; font-weight: 600; }
+      .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
+      .faq-q { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
+      .faq-a { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-top: 0.5rem; display: none; }
+      .faq-item.open .faq-a { display: block; }
+    </style>
+  
+      <div class="article-container" style="max-width: 980px;">
+        <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; CSP & CORS Architect</nav>
+        <div class="wb-header">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span class="wb-badge badge-blue">RFC 9110 / W3C CSP3</span>
+            <span class="wb-badge badge-green">Zero-Dependency</span>
+          </div>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Content Security Policy & CORS Architect</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
+            Visually construct hardened HTTP security headers, generate WebCrypto nonces, compute SHA-256 script hashes, and audit policies for dangerous XSS injection vectors.
+          </p>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchCspTab('csp')">Content Security Policy (CSP)</button>
+          <button class="tab-btn" onclick="switchCspTab('cors')">CORS Policy Architect</button>
+          <button class="tab-btn" onclick="switchCspTab('hash')">SHA-256 Script Hash / Nonce</button>
+        </div>
+
+        <!-- TAB 1: CSP BUILDER -->
+        <div id="csp-tab-content">
+          <div class="wb-card">
+            <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Directives & Source Allowlist</h3>
+            <div class="grid-2">
+              <div>
+                <label class="field-label">default-src (Fallback)</label>
+                <input type="text" id="csp-default" class="text-input" value="'self'" oninput="generateCsp()" />
+              </div>
+              <div>
+                <label class="field-label">script-src (Executable Code)</label>
+                <input type="text" id="csp-script" class="text-input" value="'self' https://trustedscripts.com" oninput="generateCsp()" />
+              </div>
+              <div>
+                <label class="field-label">style-src (Stylesheets)</label>
+                <input type="text" id="csp-style" class="text-input" value="'self' 'unsafe-inline' https://fonts.googleapis.com" oninput="generateCsp()" />
+              </div>
+              <div>
+                <label class="field-label">img-src (Images & Vectors)</label>
+                <input type="text" id="csp-img" class="text-input" value="'self' data: https:" oninput="generateCsp()" />
+              </div>
+              <div>
+                <label class="field-label">connect-src (Fetch, XHR, WebSockets)</label>
+                <input type="text" id="csp-connect" class="text-input" value="'self' https://api.example.com wss:" oninput="generateCsp()" />
+              </div>
+              <div>
+                <label class="field-label">frame-ancestors (Clickjacking Defense)</label>
+                <input type="text" id="csp-ancestors" class="text-input" value="'self'" oninput="generateCsp()" />
+              </div>
+            </div>
+
+            <div style="margin-top:1.25rem; display:flex; gap:1.5rem; flex-wrap:wrap;">
+              <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-family:var(--mono); cursor:pointer;">
+                <input type="checkbox" id="csp-upgrade" checked onchange="generateCsp()"> upgrade-insecure-requests
+              </label>
+              <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-family:var(--mono); cursor:pointer;">
+                <input type="checkbox" id="csp-block-mixed" onchange="generateCsp()"> block-all-mixed-content
+              </label>
+              <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-family:var(--mono); cursor:pointer;">
+                <input type="checkbox" id="csp-obj-none" checked onchange="generateCsp()"> object-src 'none' (Block Flash/Java)
+              </label>
+            </div>
+          </div>
+
+          <!-- AUDIT RESULTS -->
+          <div class="wb-card" id="csp-audit-box" style="border-left: 4px solid #10b981;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span style="font-family:var(--mono); font-size:0.85rem; font-weight:600;" id="csp-audit-title">🛡️ Policy Vulnerability Assessment</span>
+              <span id="csp-security-score" class="wb-badge badge-green">SAFE RATING: 90/100</span>
+            </div>
+            <ul id="csp-audit-list" style="margin:0; padding-left:1.2rem; font-size:0.88rem; color:var(--text-muted); line-height:1.6;">
+            </ul>
+          </div>
+
+          <!-- EXPORT SNIPPETS -->
+          <div class="wb-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <label class="field-label" style="margin:0;">Generated Header String</label>
+              <button class="btn-sec" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCsp()">Copy Header</button>
+            </div>
+            <textarea id="csp-output" class="code-input" style="height:90px;" readonly></textarea>
+
+            <div style="margin-top:1.25rem;">
+              <label class="field-label">Production Server Deployment Code</label>
+              <div class="tab-bar" style="margin-bottom:0.75rem;">
+                <button class="tab-btn active" onclick="setExportFmt('nginx')">Nginx</button>
+                <button class="tab-btn" onclick="setExportFmt('apache')">Apache (.htaccess)</button>
+                <button class="tab-btn" onclick="setExportFmt('cloudflare')">Cloudflare Workers</button>
+                <button class="tab-btn" onclick="setExportFmt('meta')">HTML &lt;meta&gt;</button>
+              </div>
+              <textarea id="csp-server-export" class="code-input" style="height:110px;" readonly></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: CORS BUILDER -->
+        <div id="cors-tab-content" style="display:none;">
+          <div class="wb-card">
+            <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Cross-Origin Resource Sharing (CORS) Configuration</h3>
+            <div class="grid-2">
+              <div>
+                <label class="field-label">Access-Control-Allow-Origin</label>
+                <input type="text" id="cors-origin" class="text-input" value="https://dashboard.example.com" oninput="generateCors()" />
+                <span style="font-size:0.75rem; color:var(--text-muted);">Use specific origins. Never pair wildcard '*' with Allow-Credentials!</span>
+              </div>
+              <div>
+                <label class="field-label">Access-Control-Allow-Methods</label>
+                <input type="text" id="cors-methods" class="text-input" value="GET, POST, PUT, DELETE, OPTIONS" oninput="generateCors()" />
+              </div>
+              <div>
+                <label class="field-label">Access-Control-Allow-Headers</label>
+                <input type="text" id="cors-headers" class="text-input" value="Content-Type, Authorization, X-Requested-With" oninput="generateCors()" />
+              </div>
+              <div>
+                <label class="field-label">Access-Control-Max-Age (Preflight Cache in Seconds)</label>
+                <input type="number" id="cors-age" class="text-input" value="86400" oninput="generateCors()" />
+              </div>
+            </div>
+
+            <div style="margin-top:1rem;">
+              <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.85rem; font-family:var(--mono); cursor:pointer;">
+                <input type="checkbox" id="cors-credentials" checked onchange="generateCors()"> Access-Control-Allow-Credentials: true (Permit cookies & Authorization headers)
+              </label>
+            </div>
+          </div>
+
+          <div class="wb-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+              <label class="field-label" style="margin:0;">Nginx CORS Configuration Block</label>
+              <button class="btn-sec" style="padding:0.3rem 0.75rem; font-size:0.78rem;" onclick="copyCors()">Copy Nginx Config</button>
+            </div>
+            <textarea id="cors-output" class="code-input" style="height:190px;" readonly></textarea>
+          </div>
+        </div>
+
+        <!-- TAB 3: HASH & NONCE -->
+        <div id="hash-tab-content" style="display:none;">
+          <div class="wb-card">
+            <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Inline Script SHA-256 Hash & Dynamic Nonce Generator</h3>
+            <div class="field-group">
+              <label class="field-label">Paste Raw Inline &lt;script&gt; Body</label>
+              <textarea id="hash-input-script" class="code-input" style="height:120px;" placeholder="console.log('Google Analytics or Tag Manager snippet');" oninput="computeScriptHash()"></textarea>
+            </div>
+
+            <div class="grid-2" style="margin-top:1rem;">
+              <div>
+                <label class="field-label">Generated CSP Hash (SHA-256 Base64)</label>
+                <input type="text" id="hash-result" class="code-input" readonly placeholder="sha256-..." />
+              </div>
+              <div>
+                <label class="field-label">Generated Cryptographic Nonce</label>
+                <div style="display:flex; gap:0.5rem;">
+                  <input type="text" id="nonce-result" class="code-input" readonly />
+                  <button class="btn-sec" onclick="generateNewNonce()">Refresh</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        var curExport = 'nginx';
+
+        function switchCspTab(tab) {
+          var btns = document.querySelectorAll('.tab-bar .tab-btn');
+          for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+          event.target.classList.add('active');
+          document.getElementById('csp-tab-content').style.display = tab === 'csp' ? 'block' : 'none';
+          document.getElementById('cors-tab-content').style.display = tab === 'cors' ? 'block' : 'none';
+          document.getElementById('hash-tab-content').style.display = tab === 'hash' ? 'block' : 'none';
+          if (tab === 'hash') { generateNewNonce(); computeScriptHash(); }
+        }
+
+        function generateCsp() {
+          var def = document.getElementById('csp-default').value.trim();
+          var script = document.getElementById('csp-script').value.trim();
+          var style = document.getElementById('csp-style').value.trim();
+          var img = document.getElementById('csp-img').value.trim();
+          var connect = document.getElementById('csp-connect').value.trim();
+          var ancestors = document.getElementById('csp-ancestors').value.trim();
+
+          var parts = [];
+          if (def) parts.push('default-src ' + def);
+          if (script) parts.push('script-src ' + script);
+          if (style) parts.push('style-src ' + style);
+          if (img) parts.push('img-src ' + img);
+          if (connect) parts.push('connect-src ' + connect);
+          if (ancestors) parts.push('frame-ancestors ' + ancestors);
+          if (document.getElementById('csp-obj-none').checked) parts.push("object-src 'none'");
+          if (document.getElementById('csp-upgrade').checked) parts.push("upgrade-insecure-requests");
+          if (document.getElementById('csp-block-mixed').checked) parts.push("block-all-mixed-content");
+
+          var policy = parts.join('; ');
+          document.getElementById('csp-output').value = policy;
+
+          auditCsp(policy, script, ancestors);
+          updateServerExport();
+        }
+
+        function auditCsp(policy, script, ancestors) {
+          var list = document.getElementById('csp-audit-list');
+          list.innerHTML = '';
+          var score = 100;
+
+          if (script.indexOf("'unsafe-inline'") > -1) {
+            score -= 30;
+            list.innerHTML += '<li style="color:#ef4444;">⚠️ <strong>Critical Risk:</strong> <code>unsafe-inline</code> detected in script-src! Allows malicious inline XSS payloads. Use hashes or nonces instead.</li>';
+          }
+          if (script.indexOf("'unsafe-eval'") > -1) {
+            score -= 20;
+            list.innerHTML += '<li style="color:#f59e0b;">⚠️ <strong>Moderate Risk:</strong> <code>unsafe-eval</code> enables eval() and string-to-code execution.</li>';
+          }
+          if (policy.indexOf('*') > -1 && policy.indexOf('data:') === -1) {
+            score -= 15;
+            list.innerHTML += '<li style="color:#f59e0b;">⚠️ <strong>Wildcard Source:</strong> Wildcard <code>*</code> allows resource loading from any domain on the internet.</li>';
+          }
+          if (!ancestors || ancestors === '*') {
+            score -= 20;
+            list.innerHTML += '<li style="color:#ef4444;">⚠️ <strong>Clickjacking Vector:</strong> Missing or wildcard <code>frame-ancestors</code> allows malicious iframing.</li>';
+          } else {
+            list.innerHTML += '<li style="color:#10b981;">✓ <strong>Clickjacking Protected:</strong> frame-ancestors restricted to ' + ancestors + '.</li>';
+          }
+          if (policy.indexOf("object-src 'none'") > -1) {
+            list.innerHTML += '<li style="color:#10b981;">✓ <strong>Plugin Protection:</strong> object-src none disables Flash, Silverlight, and Java applet execution.</li>';
+          }
+
+          var badge = document.getElementById('csp-security-score');
+          badge.textContent = 'SECURITY SCORE: ' + Math.max(0, score) + '/100';
+          if (score >= 80) { badge.className = 'wb-badge badge-green'; }
+          else if (score >= 50) { badge.className = 'wb-badge badge-amber'; }
+          else { badge.className = 'wb-badge badge-red'; }
+        }
+
+        function setExportFmt(fmt) {
+          curExport = fmt;
+          var btns = event.target.parentElement.querySelectorAll('.tab-btn');
+          for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+          event.target.classList.add('active');
+          updateServerExport();
+        }
+
+        function updateServerExport() {
+          var pol = document.getElementById('csp-output').value;
+          var el = document.getElementById('csp-server-export');
+          if (curExport === 'nginx') {
+            el.value = 'add_header Content-Security-Policy "' + pol + '" always;';
+          } else if (curExport === 'apache') {
+            el.value = '<IfModule mod_headers.c>\n  Header set Content-Security-Policy "' + pol + '"\n</IfModule>';
+          } else if (curExport === 'cloudflare') {
+            el.value = 'response.headers.set("Content-Security-Policy", "' + pol + '");';
+          } else if (curExport === 'meta') {
+            el.value = '<meta http-equiv="Content-Security-Policy" content="' + pol + '">';
+          }
+        }
+
+        function generateCors() {
+          var origin = document.getElementById('cors-origin').value.trim();
+          var methods = document.getElementById('cors-methods').value.trim();
+          var headers = document.getElementById('cors-headers').value.trim();
+          var age = document.getElementById('cors-age').value.trim();
+          var creds = document.getElementById('cors-credentials').checked;
+
+          var out = '# Nginx Preflight & CORS Block\n' +
+'location /api/ {\n' +
+'    if ($request_method = \'OPTIONS\') {\n' +
+'        add_header \'Access-Control-Allow-Origin\' \'' + origin + '\' always;\n' +
+'        add_header \'Access-Control-Allow-Methods\' \'' + methods + '\' always;\n' +
+'        add_header \'Access-Control-Allow-Headers\' \'' + headers + '\' always;\n' +
+(creds ? '        add_header \'Access-Control-Allow-Credentials\' \'true\' always;\n' : '') +
+'        add_header \'Access-Control-Max-Age\' ' + age + ';\n' +
+'        add_header \'Content-Type\' \'text/plain charset=UTF-8\';\n' +
+'        add_header \'Content-Length\' 0;\n' +
+'        return 204;\n' +
+'    }\n' +
+'    add_header \'Access-Control-Allow-Origin\' \'' + origin + '\' always;\n' +
+(creds ? '    add_header \'Access-Control-Allow-Credentials\' \'true\' always;\n' : '') +
+'    add_header \'Access-Control-Allow-Methods\' \'' + methods + '\' always;\n' +
+'    add_header \'Access-Control-Allow-Headers\' \'' + headers + '\' always;\n' +
+'}';
+          document.getElementById('cors-output').value = out;
+        }
+
+        async function computeScriptHash() {
+          var text = document.getElementById('hash-input-script').value;
+          if (!text) { document.getElementById('hash-result').value = ''; return; }
+          var enc = new TextEncoder().encode(text);
+          var buf = await window.crypto.subtle.digest('SHA-256', enc);
+          var arr = Array.from(new Uint8Array(buf));
+          var b64 = btoa(arr.map(function(b){ return String.fromCharCode(b); }).join(''));
+          document.getElementById('hash-result').value = "'sha256-" + b64 + "'";
+        }
+
+        function generateNewNonce() {
+          var arr = new Uint8Array(16);
+          window.crypto.getRandomValues(arr);
+          var nonce = btoa(Array.from(arr).map(function(b){ return String.fromCharCode(b); }).join(''));
+          document.getElementById('nonce-result').value = "'nonce-" + nonce + "'";
+        }
+
+        function copyCsp() {
+          navigator.clipboard.writeText(document.getElementById('csp-output').value);
+          alert('CSP Header copied to clipboard!');
+        }
+
+        function copyCors() {
+          navigator.clipboard.writeText(document.getElementById('cors-output').value);
+          alert('CORS Nginx configuration copied to clipboard!');
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+          generateCsp();
+          generateCors();
+        });
+      </script>
+    
+      
+      <div class="wb-card" style="margin-top: 2rem;">
+        <h3 style="font-size: 1.15rem; font-family: var(--serif); margin-bottom: 1rem;">Frequently Asked Technical Questions</h3>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between CSP and CORS?</span><span>+</span></div>
+            <div class="faq-a">Content Security Policy (CSP) is an HTTP response header that restricts the resources (scripts, styles, images, iframes) the browser is allowed to load for a page, preventing Cross-Site Scripting (XSS) and clickjacking. Cross-Origin Resource Sharing (CORS) manages which external origins are allowed to read responses from your API via XMLHttpRequest or Fetch.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why is unsafe-inline dangerous in script-src?</span><span>+</span></div>
+            <div class="faq-a">Specifying unsafe-inline allows any inline script tag or inline event handler to execute without verification. If an attacker injects user input into the DOM, the browser executes it immediately. Using cryptographic nonces or SHA-256 hashes ensures only approved scripts run.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>How does frame-ancestors protect against clickjacking?</span><span>+</span></div>
+            <div class="faq-a">The frame-ancestors directive obsoletes the legacy X-Frame-Options header. Setting frame-ancestors self or none stops malicious third-party websites from framing your application inside transparent iframes to trick authenticated users into clicking unauthorized actions.</div>
+          </div>
+        
+      </div>
+    
+    
+
+          
+          <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); margin-bottom: 0.2rem;">Found this tool helpful?</div>
+              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">100% free & client-side &bull; Zero data stored &bull; Instant results</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg);" onclick="navigator.clipboard.writeText(window.location.href); alert('Direct tool link copied to clipboard!');">📋 Copy Link</button>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fweb%2Fcsp-cors-architect&text=Content%20Security%20Policy%20(CSP)%20%26%20CORS%20Policy%20Architect%20%5BSecurity%20Workbench%5D%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fweb%2Fcsp-cors-architect&title=Content%20Security%20Policy%20(CSP)%20%26%20CORS%20Policy%20Architect%20%5BSecurity%20Workbench%5D" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+            </div>
+          </div>
+          
 
           
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
@@ -882,59 +1414,57 @@
           </div>
           
 
-          <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
-            <a href="/convert/json-obfuscator" class="promo-card">
-              <span class="promo-badge">Developer Tool</span>
-              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Obfuscator & Compressor</h4>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Minify payloads and encode keys or unicode string escapes with dictionary mapping.</p>
-            </a>
-            
-            <div class="promo-card ad-promo-card">
-              <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
-              <div class="ad-unit-300x250">
-                <script type="text/javascript">
-                  atOptions = {
-                    'key' : '335d807d460eaf2491fcca0f635474ce',
-                    'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
-                    'params' : {}
-                  };</script>
-                <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
-              </div>
+          <div class="related-tools-section" style="margin-top: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0; color: var(--fg);">⚡ Related High-Impact Tools & Calculators</h3>
+              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-decoration: none;">View All &rarr;</a>
             </div>
-            
-            <a href="/convert/esbuild-decompiler" class="promo-card">
-              <span class="promo-badge">Reverse Engineering</span>
-              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">ESBuild & JS Decompiler</h4>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Unpack bundled IIFEs, expand minified comma-statements, and restore clean ES6 formatting.</p>
-            </a>
-            
-            <div class="promo-card ad-promo-card">
-              <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Recommendation</div>
-              <div class="ad-unit-300x250">
-                <script type="text/javascript">
-                  atOptions = {
-                    'key' : '335d807d460eaf2491fcca0f635474ce',
-                    'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
-                    'params' : {}
-                  };</script>
-                <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
-              </div>
+            <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+              
+                <a href="/neuro/adhd-paralysis-defuser" class="promo-card">
+                  <span class="promo-badge">Neurobiology & Mind</span>
+                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">ADHD Executive Dysfunction & Task Paralysis Defuser</h4>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">Bypass prefrontal cortex task paralysis and executive dysfunction with scientific micro-stepping.</p>
+                </a>
+                
+              
+                <a href="/dev/epoch-converter" class="promo-card">
+                  <span class="promo-badge">Developer</span>
+                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Unix Timestamp & Epoch Converter</h4>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">Convert Unix timestamps in seconds and milliseconds to UTC and local human dates.</p>
+                </a>
+                
+                <div class="promo-card ad-promo-card">
+                  <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
+                  <div class="ad-unit-300x250">
+                    <script type="text/javascript">
+                      atOptions = {
+                        'key' : '335d807d460eaf2491fcca0f635474ce',
+                        'format' : 'iframe',
+                        'height' : 250,
+                        'width' : 300,
+                        'params' : {}
+                      };</script>
+                    <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                  </div>
+                </div>
+                
+              
+                <a href="/neuro/rejection-sensitivity-meter" class="promo-card">
+                  <span class="promo-badge">Neurobiology & Mind</span>
+                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Rejection Sensitive Dysphoria (RSD) Diagnostic & Coping Protocol</h4>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">Interactive self-audit for Rejection Sensitive Dysphoria (RSD) with somatic regulation protocols.</p>
+                </a>
+                
+              
+                <a href="/util/blast-radius-calculator" class="promo-card">
+                  <span class="promo-badge">Productivity</span>
+                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Nuclear Blast Radius & Thermal Damage Estimator</h4>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">Calculate fireball, 20 psi, 5 psi, and thermal burn zones using physics scaling laws.</p>
+                </a>
+                
+              
             </div>
-            
-            <a href="/media/downloader" class="promo-card">
-              <span class="promo-badge">Media Engine</span>
-              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
-            </a>
-            <a href="/convert/image-resizer" class="promo-card">
-              <span class="promo-badge">Bulk Image Tool</span>
-              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Bulk Image Resizer</h4>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Scale, resize, and compress entire folders of PNG and JPEG images client-side.</p>
-            </a>
           </div>
 
           

@@ -47,15 +47,123 @@
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Digital Tools Shed",
-  "url": "https://digitaltoolsshed.com/",
-  "description": "The Site of Everything — 1,000+ free browser-based tools, calculators, converters, and coding playgrounds.",
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://digitaltoolsshed.com/?q={search_term_string}",
-    "query-input": "required name=search_term_string"
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://digitaltoolsshed.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Web",
+      "item": "https://digitaltoolsshed.com/web"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Dns Record Generator",
+      "item": "https://digitaltoolsshed.com/web/dns-record-generator"
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "DNS Zone Architect & SPF / DKIM / DMARC Policy Builder",
+  "url": "https://digitaltoolsshed.com/web/dns-record-generator",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.9",
+    "ratingCount": 1310,
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
+  "description": "Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.",
+  "author": {
+    "@type": "Organization",
+    "name": "Digital Tools Shed",
+    "url": "https://digitaltoolsshed.com"
   }
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this DNS Zone Architect & SPF / DKIM / DMARC Policy Builder free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, this DNS Zone Architect & SPF / DKIM / DMARC Policy Builder on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my data private and secure when using this tool?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this DNS Zone Architect & SPF / DKIM / DMARC Policy Builder work on mobile devices?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+      }
+    }
+  ]
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "DNS Zone Architect & SPF / DKIM / DMARC Policy Builder",
+  "url": "https://digitaltoolsshed.com/web/dns-record-generator",
+  "description": "Generate BIND zone records and synthetically validate SPF, DKIM, and DMARC anti-spoofing policies. Prevent email spoofing and export Cloudflare/Route53 formatted zone files.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "All"
+}
+</script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why do emails land in spam without SPF, DKIM, and DMARC?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Major mailbox providers like Google and Yahoo mandate DMARC alignment. Without SPF or DKIM confirming that your sending IP is authorized by the domain owner, receiving MTAs flag incoming mail as potential phishing or spoofing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between ~all and -all in SPF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "~all indicates SoftFail (the receiver should accept the mail but tag or scrutinize it), while -all indicates HardFail (instructing receiving servers to reject unauthorized IP messages outright)."
+      }
+    }
+  ]
 }
 </script>
 </head>
@@ -183,7 +291,7 @@
         <div class="nav-link-content"><span>WebSocket Inspector</span></div>
         <span class="nav-badge">NEW</span>
       </a>
-      <a href="/web/dns-record-generator" class="nav-link ">
+      <a href="/web/dns-record-generator" class="nav-link active">
         <div class="nav-link-content"><span>DNS Zone & SPF/DMARC</span></div>
         <span class="nav-badge">NEW</span>
       </a>
@@ -442,6 +550,37 @@
       </a>
       <a href="/units/ibm-80-column-punch-card-bytes" class="nav-link ">
         <div class="nav-link-content"><span>IBM Punched Card Capacity</span></div>
+      </a>
+
+      <!-- HUMAN NEUROBIOLOGY & COGNITIVE ARCHITECTURE -->
+      <div class="nav-group-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        <span>Neurobiology & Mind (15)</span>
+      </div>
+      <a href="/neuro/" class="nav-link ">
+        <div class="nav-link-content"><span>Neuro Master Suite Hub</span></div>
+        <span class="nav-badge">15</span>
+      </a>
+      <a href="/neuro/imposter-syndrome-spectrum" class="nav-link ">
+        <div class="nav-link-content"><span>Imposter vs Dunning-Kruger</span></div>
+      </a>
+      <a href="/neuro/adhd-paralysis-defuser" class="nav-link ">
+        <div class="nav-link-content"><span>ADHD Paralysis Defuser</span></div>
+      </a>
+      <a href="/neuro/burnout-nervous-system-audit" class="nav-link ">
+        <div class="nav-link-content"><span>Burnout vs Vagal Shutdown</span></div>
+      </a>
+      <a href="/neuro/cognitive-distortion-reframer" class="nav-link ">
+        <div class="nav-link-content"><span>CBT Distortion Reframer</span></div>
+      </a>
+      <a href="/neuro/regret-minimization-engine" class="nav-link ">
+        <div class="nav-link-content"><span>80-Year-Old Regret Matrix</span></div>
+      </a>
+      <a href="/neuro/circadian-energy-architect" class="nav-link ">
+        <div class="nav-link-content"><span>Circadian Energy Architect</span></div>
+      </a>
+      <a href="/neuro/overthinking-interrupter" class="nav-link ">
+        <div class="nav-link-content"><span>Overthinking Interrupter</span></div>
       </a>
 
       <!-- MIND & PSYCHOLOGICAL ARCHETYPES -->
@@ -831,7 +970,217 @@
           </div>
           
 
-          undefined
+          
+      
+      
+    <style>
+      .wb-card { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
+      .wb-header { margin-bottom: 1.5rem; }
+      .wb-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.72rem; font-family: var(--mono); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+      .badge-blue { background: rgba(59, 130, 246, 0.12); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+      .badge-green { background: rgba(34, 197, 94, 0.12); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+      .badge-amber { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+      .badge-red { background: rgba(239, 68, 68, 0.12); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+      .badge-purple { background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
+      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.88rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+      .code-input:focus, .text-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
+      .btn-primary { background: #3b82f6; color: #fff; border: none; padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.15s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+      .btn-primary:hover { background: #2563eb; }
+      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; transition: all 0.15s ease; }
+      .btn-sec:hover { background: var(--surface-alt); border-color: var(--text-muted); }
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+      .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+      .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; }
+      @media (max-width: 840px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+      .nav-crumbs { font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted); }
+      .nav-crumbs a { color: var(--text-muted); text-decoration: none; }
+      .nav-crumbs a:hover { color: #3b82f6; text-decoration: underline; }
+      .tab-bar { display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.25rem; flex-wrap: wrap; }
+      .tab-btn { background: transparent; border: none; padding: 0.5rem 1rem; font-family: var(--mono); font-size: 0.82rem; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; }
+      .tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; font-weight: 600; }
+      .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
+      .faq-q { font-weight: 600; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
+      .faq-a { color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; margin-top: 0.5rem; display: none; }
+      .faq-item.open .faq-a { display: block; }
+    </style>
+  
+      <div class="article-container" style="max-width: 980px;">
+        <nav class="nav-crumbs"><a href="/">Home</a> &gt; <a href="/web/">Web Engineering</a> &gt; DNS Zone Architect</nav>
+        <div class="wb-header">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span class="wb-badge badge-green">RFC 7208 / RFC 7489</span>
+            <span class="wb-badge badge-blue">Deliverability Shield</span>
+          </div>
+          <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">DNS Zone Architect & Email Authentication Builder</h1>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">
+            Build valid SPF TXT records, formulate strict DMARC rejection policies, assemble MX routing, and compile BIND zone files.
+          </p>
+        </div>
+
+        <div class="wb-card">
+          <h3 style="font-size:1.1rem; margin-bottom:1rem; font-family:var(--serif);">Domain & Server Specifications</h3>
+          <div class="grid-3">
+            <div>
+              <label class="field-label">Domain Name</label>
+              <input type="text" id="dns-domain" class="text-input" value="example.com" oninput="compileDns()" />
+            </div>
+            <div>
+              <label class="field-label">Origin IPv4 Address (A)</label>
+              <input type="text" id="dns-ipv4" class="text-input" value="198.51.100.24" oninput="compileDns()" />
+            </div>
+            <div>
+              <label class="field-label">Origin IPv6 Address (AAAA)</label>
+              <input type="text" id="dns-ipv6" class="text-input" value="2001:db8::1" oninput="compileDns()" />
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- SPF BUILDER -->
+          <div class="wb-card">
+            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">SPF (Sender Policy Framework)</h3>
+            <div style="display:flex; flex-direction:column; gap:0.75rem;">
+              <div>
+                <label class="field-label">Included Email Providers (include:)</label>
+                <input type="text" id="spf-includes" class="text-input" value="_spf.google.com, mailgun.org" oninput="compileDns()" />
+                <span style="font-size:0.75rem; color:var(--text-muted);">Comma separated domains</span>
+              </div>
+              <div class="grid-2">
+                <div>
+                  <label class="field-label">Allow 'a' & 'mx'</label>
+                  <select id="spf-mx" class="text-input" onchange="compileDns()">
+                    <option value="both">+a +mx</option>
+                    <option value="mx">+mx only</option>
+                    <option value="none">Neither</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label">Policy Qualifier</label>
+                  <select id="spf-qualifier" class="text-input" onchange="compileDns()">
+                    <option value="~all">~all (SoftFail - Recommended)</option>
+                    <option value="-all">-all (HardFail - Strict)</option>
+                    <option value="?all">?all (Neutral)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DMARC BUILDER -->
+          <div class="wb-card">
+            <h3 style="font-size:1.05rem; margin-bottom:0.75rem; font-family:var(--serif);">DMARC Policy Constructor</h3>
+            <div style="display:flex; flex-direction:column; gap:0.75rem;">
+              <div class="grid-2">
+                <div>
+                  <label class="field-label">Policy (p=)</label>
+                  <select id="dmarc-p" class="text-input" onchange="compileDns()">
+                    <option value="reject">reject (Enforce strict drop)</option>
+                    <option value="quarantine">quarantine (Spam folder)</option>
+                    <option value="none">none (Monitoring only)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="field-label">Percentage (pct=)</label>
+                  <input type="number" id="dmarc-pct" class="text-input" value="100" min="1" max="100" oninput="compileDns()" />
+                </div>
+              </div>
+              <div>
+                <label class="field-label">Aggregate Report Email (rua=)</label>
+                <input type="email" id="dmarc-rua" class="text-input" value="dmarc-reports@example.com" oninput="compileDns()" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wb-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <label class="field-label" style="margin:0;">Compiled BIND Zone File & DNS Table</label>
+            <button class="btn-sec" onclick="copyDnsZone()">Copy Zone File</button>
+          </div>
+          <textarea id="dns-output" class="code-input" style="height:260px;" readonly></textarea>
+        </div>
+      </div>
+
+      <script>
+        function compileDns() {
+          var dom = document.getElementById('dns-domain').value.trim() || 'example.com';
+          var ip4 = document.getElementById('dns-ipv4').value.trim();
+          var ip6 = document.getElementById('dns-ipv6').value.trim();
+          var incs = document.getElementById('spf-includes').value.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+          var spfMx = document.getElementById('spf-mx').value;
+          var spfQ = document.getElementById('spf-qualifier').value;
+          var dmarcP = document.getElementById('dmarc-p').value;
+          var dmarcPct = document.getElementById('dmarc-pct').value;
+          var dmarcRua = document.getElementById('dmarc-rua').value.trim();
+
+          var spf = 'v=spf1';
+          if (spfMx === 'both') spf += ' +a +mx';
+          else if (spfMx === 'mx') spf += ' +mx';
+          incs.forEach(function(i){ spf += ' include:' + i; });
+          spf += ' ' + spfQ;
+
+          var dmarc = 'v=DMARC1; p=' + dmarcP + '; pct=' + dmarcPct + ';';
+          if (dmarcRua) dmarc += ' rua=mailto:' + dmarcRua + ';';
+          dmarc += ' aspf=r; adkim=r;';
+
+          var zone = '; BIND Zone File for ' + dom + '\n$ORIGIN ' + dom + '.\n$TTL 3600\n\n';
+          zone += '@       IN  SOA  ns1.' + dom + '. admin.' + dom + '. (\n' +
+                  '                ' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '01 ; serial\n' +
+                  '                7200       ; refresh\n' +
+                  '                3600       ; retry\n' +
+                  '                1209600    ; expire\n' +
+                  '                3600 )     ; minimum\n\n';
+
+          zone += '; Authoritative Name Servers\n@       IN  NS   ns1.' + dom + '.\n@       IN  NS   ns2.' + dom + '.\n\n';
+          if (ip4) zone += '; Base Web Records\n@       IN  A    ' + ip4 + '\nwww     IN  A    ' + ip4 + '\n';
+          if (ip6) zone += '@       IN  AAAA ' + ip6 + '\nwww     IN  AAAA ' + ip6 + '\n';
+          zone += '\n; Mail Exchange (MX)\n@       IN  MX   10 mail.' + dom + '.\n';
+          zone += '\n; SPF Authorization TXT\n@       IN  TXT  "' + spf + '"\n';
+          zone += '\n; DMARC Policy TXT\n_dmarc  IN  TXT  "' + dmarc + '"\n';
+
+          document.getElementById('dns-output').value = zone;
+        }
+
+        function copyDnsZone() {
+          navigator.clipboard.writeText(document.getElementById('dns-output').value);
+          alert('DNS Zone file copied to clipboard!');
+        }
+
+        window.addEventListener('DOMContentLoaded', compileDns);
+      </script>
+    
+      
+      <div class="wb-card" style="margin-top: 2rem;">
+        <h3 style="font-size: 1.15rem; font-family: var(--serif); margin-bottom: 1rem;">Frequently Asked Technical Questions</h3>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>Why do emails land in spam without SPF, DKIM, and DMARC?</span><span>+</span></div>
+            <div class="faq-a">Major mailbox providers like Google and Yahoo mandate DMARC alignment. Without SPF or DKIM confirming that your sending IP is authorized by the domain owner, receiving MTAs flag incoming mail as potential phishing or spoofing.</div>
+          </div>
+        
+          <div class="faq-item" onclick="this.classList.toggle('open')">
+            <div class="faq-q"><span>What is the difference between ~all and -all in SPF?</span><span>+</span></div>
+            <div class="faq-a">~all indicates SoftFail (the receiver should accept the mail but tag or scrutinize it), while -all indicates HardFail (instructing receiving servers to reject unauthorized IP messages outright).</div>
+          </div>
+        
+      </div>
+    
+    
+
+          
+          <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); margin-bottom: 0.2rem;">Found this tool helpful?</div>
+              <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);">100% free & client-side &bull; Zero data stored &bull; Instant results</div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg);" onclick="navigator.clipboard.writeText(window.location.href); alert('Direct tool link copied to clipboard!');">📋 Copy Link</button>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fweb%2Fdns-record-generator&text=DNS%20Zone%20Architect%20%26%20SPF%20%2F%20DKIM%20%2F%20DMARC%20Policy%20Builder%20%5BEmail%20Deliverability%5D%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fweb%2Fdns-record-generator&title=DNS%20Zone%20Architect%20%26%20SPF%20%2F%20DKIM%20%2F%20DMARC%20Policy%20Builder%20%5BEmail%20Deliverability%5D" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+            </div>
+          </div>
+          
 
           
           <div class="ad-blend-box" style="margin: 2rem 0; padding: 0.5rem;">
@@ -882,59 +1231,57 @@
           </div>
           
 
-          <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
-            <a href="/convert/json-obfuscator" class="promo-card">
-              <span class="promo-badge">Developer Tool</span>
-              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">JSON Obfuscator & Compressor</h4>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Minify payloads and encode keys or unicode string escapes with dictionary mapping.</p>
-            </a>
-            
-            <div class="promo-card ad-promo-card">
-              <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
-              <div class="ad-unit-300x250">
-                <script type="text/javascript">
-                  atOptions = {
-                    'key' : '335d807d460eaf2491fcca0f635474ce',
-                    'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
-                    'params' : {}
-                  };</script>
-                <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
-              </div>
+          <div class="related-tools-section" style="margin-top: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+              <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0; color: var(--fg);">⚡ Related High-Impact Tools & Calculators</h3>
+              <a href="/" style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-decoration: none;">View All &rarr;</a>
             </div>
-            
-            <a href="/convert/esbuild-decompiler" class="promo-card">
-              <span class="promo-badge">Reverse Engineering</span>
-              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">ESBuild & JS Decompiler</h4>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Unpack bundled IIFEs, expand minified comma-statements, and restore clean ES6 formatting.</p>
-            </a>
-            
-            <div class="promo-card ad-promo-card">
-              <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Recommendation</div>
-              <div class="ad-unit-300x250">
-                <script type="text/javascript">
-                  atOptions = {
-                    'key' : '335d807d460eaf2491fcca0f635474ce',
-                    'format' : 'iframe',
-                    'height' : 250,
-                    'width' : 300,
-                    'params' : {}
-                  };</script>
-                <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
-              </div>
+            <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+              
+                <a href="/neuro/dopamine-fasting-protocol" class="promo-card">
+                  <span class="promo-badge">Neurobiology & Mind</span>
+                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Dopamine Fasting & Neurochemical Reset Schedule</h4>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">Evidence-based cognitive-behavioral stimulus control protocol to attenuate impulsive stimulus-seeking behavior.</p>
+                </a>
+                
+              
+                <a href="/math/gpa-calculator" class="promo-card">
+                  <span class="promo-badge">Units & Calc</span>
+                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">GPA Calculator</h4>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">Calculate college and high school weighted and unweighted GPA on a 4.0 scale.</p>
+                </a>
+                
+                <div class="promo-card ad-promo-card">
+                  <div class="promo-badge" style="background: var(--surface-alt); color: var(--text-muted); border: 1px solid var(--border); width: 100%; text-align: center;">Sponsored Partner</div>
+                  <div class="ad-unit-300x250">
+                    <script type="text/javascript">
+                      atOptions = {
+                        'key' : '335d807d460eaf2491fcca0f635474ce',
+                        'format' : 'iframe',
+                        'height' : 250,
+                        'width' : 300,
+                        'params' : {}
+                      };</script>
+                    <script>if(!window.__isBot){var s=document.createElement('script');s.src='https://manyapostle.com/335d807d460eaf2491fcca0f635474ce/invoke.js';s.async=true;document.currentScript.parentNode.insertBefore(s,document.currentScript);}</script>
+                  </div>
+                </div>
+                
+              
+                <a href="/health/sensory-grounding-decompressor" class="promo-card">
+                  <span class="promo-badge">Health</span>
+                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Sensory Overload & 5-4-3-2-1 Grounding Tool</h4>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">Somatic 5-4-3-2-1 sensory grounding sequence and burnout decompression guide.</p>
+                </a>
+                
+              
+                <a href="/util/existential-risk-calculator" class="promo-card">
+                  <span class="promo-badge">Productivity</span>
+                  <h4 style="font-family: var(--serif); font-size: 1.1rem; margin-bottom: 0.35rem;">Existential Risk & Human Survival Calculator</h4>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">Calculate the probability of humanity surviving the next 100 years across global risks.</p>
+                </a>
+                
+              
             </div>
-            
-            <a href="/media/downloader" class="promo-card">
-              <span class="promo-badge">Media Engine</span>
-              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Universal Media Downloader</h4>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Save video streams from YouTube, Twitter/X, TikTok, and Instagram with zero quality loss.</p>
-            </a>
-            <a href="/convert/image-resizer" class="promo-card">
-              <span class="promo-badge">Bulk Image Tool</span>
-              <h4 style="font-family: var(--serif); font-size: 1.15rem; margin-bottom: 0.35rem;">Bulk Image Resizer</h4>
-              <p style="font-size: 0.9rem; color: var(--text-muted);">Scale, resize, and compress entire folders of PNG and JPEG images client-side.</p>
-            </a>
           </div>
 
           

@@ -8,6 +8,7 @@ import { buildKitchenTools } from './kitchen_tools.js';
 import { buildDailyCalcTools } from './daily_calc_tools.js';
 import { buildCuriosityNeuroSuite } from './curiosity_neuro_suite.js';
 import { buildWebSuite } from './web_suite.js';
+import { buildNeuroSuite } from './neuro_suite.js';
 // scripts/build.js — Master Static Site Generator for Digital Tools Shed
 import { writeFileSync } from 'fs';
 import { join } from 'path';
@@ -76,6 +77,7 @@ function main() {
   buildEpistemicTools();
   buildCuriosityNeuroSuite();
   buildWebSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
+  buildNeuroSuite({ DIST, DOMAIN, renderPage, writeFileSync, join, ensureDir });
   buildUnitCalcSuite();
   buildBodyTools();
   buildKitchenTools();

@@ -82,6 +82,8 @@ function buildSEOAssets() {
   discoveredUrls.push(`${DOMAIN}/handhelds/`);
   collectUrls(join(DIST, 'web'), '/web');
   discoveredUrls.push(`${DOMAIN}/web/`);
+  collectUrls(join(DIST, 'neuro'), '/neuro');
+  discoveredUrls.push(`${DOMAIN}/neuro/`);
 
   const uniqueUrls = [...new Set(discoveredUrls)];
 
