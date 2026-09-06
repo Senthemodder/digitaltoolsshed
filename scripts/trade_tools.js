@@ -2826,6 +2826,1296 @@ export function buildTradeTools() {
   }));
 
 
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 23. TORQUE, HORSEPOWER & RPM ENGINE DYNO CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const torqueBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Torque Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Automotive &amp; Dyno Engineering</span>
+          <span class="badge badge-green">5,252 RPM Crossover Invariance</span>
+          <span class="badge badge-blue">WHP Drivetrain Loss</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Torque, Horsepower &amp; RPM Engine Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Calculate exact relationship between torque, mechanical horsepower, and engine rotational speed. Includes dual-mode solvers (HP from Torque, Torque from HP, RPM limit), wheel horsepower (WHP) driveline parasitic drag, transmission gear multiplication, and interactive dynamometer powerband curves.
+        </p>
+      </header>
+
+      <!-- MAIN INTERACTIVE CONTROLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Calculation Mode:</label>
+            <select id="trq-calc-mode" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="updateTorqueMode()">
+              <option value="solve-hp" selected>Solve for Horsepower (from Torque &amp; RPM)</option>
+              <option value="solve-torque">Solve for Torque (from HP &amp; RPM)</option>
+              <option value="solve-rpm">Solve for RPM (from HP &amp; Torque)</option>
+            </select>
+          </div>
+
+          <div id="trq-input-torque-wrap">
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Engine Torque:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="trq-torque-val" value="350" step="5" min="1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcTorque()" />
+              <select id="trq-torque-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcTorque()">
+                <option value="lb-ft" selected>lb-ft</option>
+                <option value="nm">N·m</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="trq-input-hp-wrap" style="display: none;">
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Mechanical Power:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="trq-hp-val" value="400" step="5" min="1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcTorque()" />
+              <select id="trq-hp-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcTorque()">
+                <option value="hp" selected>HP (mech)</option>
+                <option value="kw">kW</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="trq-input-rpm-wrap">
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Engine Speed (RPM):</label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="range" id="trq-rpm-slider" min="500" max="8500" value="5500" step="50" style="flex: 1; cursor: pointer;" oninput="syncRpmSlider(this.value)" />
+              <input type="number" id="trq-rpm-val" value="5500" min="100" max="25000" step="50" style="width: 80px; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem; text-align: center;" oninput="syncRpmInput(this.value)" />
+            </div>
+          </div>
+        </div>
+
+        <!-- DRIVETRAIN LOSS & GEARING ACCORDION -->
+        <div style="border-top: 1px solid var(--border); padding-top: 1.25rem; margin-bottom: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.35rem;">Drivetrain Loss (WHP):</label>
+            <select id="trq-drive-loss" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcTorque()">
+              <option value="0">0% (Flywheel / Crank BHP)</option>
+              <option value="12">12% (FWD Manual)</option>
+              <option value="15" selected>15% (RWD Manual Standard)</option>
+              <option value="18">18% (RWD Automatic)</option>
+              <option value="22">22% (AWD / 4x4 Drivetrain)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.35rem;">Transmission Gear Ratio:</label>
+            <input type="number" id="trq-gear-ratio" value="1.00" step="0.05" min="0.5" max="6.0" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcTorque()" />
+            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">e.g. 1st: 3.82, 4th: 1.00</span>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.35rem;">Final Drive (Axle) Ratio:</label>
+            <input type="number" id="trq-final-drive" value="3.73" step="0.05" min="1.5" max="6.0" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.95rem;" oninput="calcTorque()" />
+            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">Differential gearing</span>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.35rem;">Motor / Engine Profile:</label>
+            <select id="trq-engine-type" style="width: 100%; padding: 0.55rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcTorque()">
+              <option value="ice-turbo" selected>Gasoline Turbo (Broad Mid-Range)</option>
+              <option value="ice-na">Naturally Aspirated (High RPM Peak)</option>
+              <option value="ev">Electric Vehicle (Instant Peak Torque)</option>
+              <option value="diesel">Turbo Diesel (Extreme Low-End)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #ef4444;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Brake Horsepower (Crank)</div>
+            <div id="trq-res-hp" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin-bottom: 0.2rem;">366.5 HP</div>
+            <div id="trq-res-kw" style="font-size: 0.85rem; color: var(--text-muted);">273.3 kW (Mechanical)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Engine Flywheel Torque</div>
+            <div id="trq-res-torque" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">350.0 lb-ft</div>
+            <div id="trq-res-nm" style="font-size: 0.85rem; color: var(--text-muted);">474.5 N·m (Newton-meters)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Chassis Dyno WHP</div>
+            <div id="trq-res-whp" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">311.5 WHP</div>
+            <div id="trq-res-whp-sub" style="font-size: 0.85rem; color: var(--text-muted);">With 15% Drivetrain Loss</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #8b5cf6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Wheel Axle Torque</div>
+            <div id="trq-res-wheel-trq" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #8b5cf6; margin-bottom: 0.2rem;">1,110 lb-ft</div>
+            <div id="trq-res-wheel-nm" style="font-size: 0.85rem; color: var(--text-muted);">1,505 N·m (1.00 × 3.73 Gear)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE DYNO POWERBAND SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.35rem; margin: 0; color: var(--fg);">
+            📈 Live Chassis &amp; Engine Dyno Curve Simulation
+          </h2>
+          <div style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+            <span style="color: #3b82f6; font-weight: bold;">■ Torque (lb-ft)</span> &nbsp;|&nbsp; 
+            <span style="color: #ef4444; font-weight: bold;">■ Horsepower (HP)</span> &nbsp;|&nbsp; 
+            <span style="color: #10b981; font-weight: bold;">● 5,252 RPM Crossover</span>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Dynamic powerband plotting. Notice the mathematical physical law: whenever torque (lb-ft) and horsepower (HP) are plotted on identical scales, they <strong>must intersect precisely at 5,252 RPM</strong>.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="trq-dyno-svg" viewBox="0 0 800 280" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Mathematical &amp; Physical Derivations
+        </h3>
+        <div id="trq-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating engine power kinematics...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="trq-copy-btn" onclick="copyTorqueReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Engine Dyno &amp; Torque Diagnostic
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Engineering Pitfalls in Dyno &amp; Engine Math
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The 5,252 RPM Crossover Invariance Trap</strong>
+            Any chassis dyno chart where Torque (in lb-ft) and Horsepower (in HP) cross at any rotational speed other than 5,252 RPM is either falsified or plotted on disparate, deceptive Y-axis scales. Because 1 mechanical horsepower is defined as 33,000 foot-pounds of work per minute and a circle contains 2π radians, the constant 33,000 / (2π) equals 5,252.113. Mathematically, HP and lb-ft are identical numbers at exactly 5,252 RPM.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. WHP vs Crank BHP Parasitic Drivetrain Loss</strong>
+            Chassis roller dynamometers (Dynojet, Mustang) measure Wheel Horsepower (WHP), which reflects real-world power delivered to the pavement after transmission gears, differential ring-and-pinion friction, U-joints, and tire slip. Comparing a vehicle's 340 WHP dyno sheet to the manufacturer's 400 BHP crank rating causes unwarranted panic; a 15% to 18% driveline loss is entirely normal mechanical friction.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. EV Flat Torque Roll-off &amp; Field Weakening</strong>
+            Marketing brochures frequently claim electric vehicles deliver "100% maximum torque from 0 to 18,000 RPM." In reality, an EV motor produces constant maximum torque only up to its "base speed" (corner frequency, typically 3,000 to 5,000 RPM). Beyond this speed, the motor controller must enter field weakening to avoid exceeding the battery pack voltage, forcing torque to decline inversely with RPM (1/ω) while keeping horsepower flat.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Transmission Gear Multiplication vs Engine Output Fallacy</strong>
+            In 1st gear, a transmission multiplies engine torque by 3.5x to 4.5x, and the differential multiplies it by another 3.5x to 4.1x. A 300 lb-ft engine thus generates over 3,500 to 4,500 lb-ft of torque at the drive axles! Enthusiasts frequently confuse wheel torque with engine torque. Crucially, gearing multiplies torque while reducing rotational speed, perfectly conserving total mechanical horsepower (minus ~15% heat friction).
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Dyno Heat Soak &amp; Atmospheric Correction Factor Abuse</strong>
+            Running multiple dyno pulls back-to-back without high-velocity cooling fans induces intercooler heat soak. As Intake Air Temperatures (IAT) exceed 120°F (49°C), the vehicle's engine control unit (ECU) pulls 5 to 10 degrees of ignition timing, causing a 10% to 15% collapse in horsepower. Additionally, switching from SAE J1349 standard atmospheric correction to non-standard STP or uncorrected modes artificially inflates horsepower numbers by up to 5%.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function updateTorqueMode() {
+        var mode = document.getElementById('trq-calc-mode').value;
+        var trqWrap = document.getElementById('trq-input-torque-wrap');
+        var hpWrap = document.getElementById('trq-input-hp-wrap');
+        var rpmWrap = document.getElementById('trq-input-rpm-wrap');
+
+        if (mode === 'solve-hp') {
+          trqWrap.style.display = 'block';
+          hpWrap.style.display = 'none';
+          rpmWrap.style.display = 'block';
+        } else if (mode === 'solve-torque') {
+          trqWrap.style.display = 'none';
+          hpWrap.style.display = 'block';
+          rpmWrap.style.display = 'block';
+        } else if (mode === 'solve-rpm') {
+          trqWrap.style.display = 'block';
+          hpWrap.style.display = 'block';
+          rpmWrap.style.display = 'none';
+        }
+        calcTorque();
+      }
+
+      function syncRpmSlider(val) {
+        document.getElementById('trq-rpm-val').value = val;
+        calcTorque();
+      }
+
+      function syncRpmInput(val) {
+        var n = parseFloat(val);
+        if (!isNaN(n)) {
+          document.getElementById('trq-rpm-slider').value = Math.min(8500, Math.max(500, n));
+        }
+        calcTorque();
+      }
+
+      function calcTorque() {
+        var mode = document.getElementById('trq-calc-mode').value;
+        var trqVal = parseFloat(document.getElementById('trq-torque-val').value) || 350;
+        var trqUnit = document.getElementById('trq-torque-unit').value;
+        var hpVal = parseFloat(document.getElementById('trq-hp-val').value) || 400;
+        var hpUnit = document.getElementById('trq-hp-unit').value;
+        var rpm = parseFloat(document.getElementById('trq-rpm-val').value) || 5500;
+        var lossPct = parseFloat(document.getElementById('trq-drive-loss').value) || 0;
+        var gearRatio = parseFloat(document.getElementById('trq-gear-ratio').value) || 1.0;
+        var finalDrive = parseFloat(document.getElementById('trq-final-drive').value) || 3.73;
+
+        // Convert base torque to lb-ft
+        var torqueLbFt = trqUnit === 'nm' ? trqVal / 1.355818 : trqVal;
+        // Convert base HP to mechanical HP
+        var mechHp = hpUnit === 'kw' ? hpVal / 0.7456999 : hpVal;
+
+        if (mode === 'solve-hp') {
+          mechHp = (torqueLbFt * rpm) / 5252.113;
+        } else if (mode === 'solve-torque') {
+          torqueLbFt = rpm > 0 ? (mechHp * 5252.113) / rpm : 0;
+        } else if (mode === 'solve-rpm') {
+          rpm = torqueLbFt > 0 ? (mechHp * 5252.113) / torqueLbFt : 0;
+        }
+
+        var kw = mechHp * 0.7456999;
+        var torqueNm = torqueLbFt * 1.355818;
+
+        var whp = mechHp * (1 - (lossPct / 100));
+        var totalGearRatio = gearRatio * finalDrive;
+        var wheelTorqueLbFt = torqueLbFt * totalGearRatio * (1 - (lossPct / 100));
+        var wheelTorqueNm = wheelTorqueLbFt * 1.355818;
+
+        // Update KPIs
+        document.getElementById('trq-res-hp').textContent = mechHp.toFixed(1) + ' HP';
+        document.getElementById('trq-res-kw').textContent = kw.toFixed(1) + ' kW (Mechanical)';
+
+        document.getElementById('trq-res-torque').textContent = torqueLbFt.toFixed(1) + ' lb-ft';
+        document.getElementById('trq-res-nm').textContent = torqueNm.toFixed(1) + ' N·m (Newton-meters)';
+
+        document.getElementById('trq-res-whp').textContent = whp.toFixed(1) + ' WHP';
+        document.getElementById('trq-res-whp-sub').textContent = 'With ' + lossPct + '% Drivetrain Loss';
+
+        document.getElementById('trq-res-wheel-trq').textContent = Math.round(wheelTorqueLbFt).toLocaleString() + ' lb-ft';
+        document.getElementById('trq-res-wheel-nm').textContent = Math.round(wheelTorqueNm).toLocaleString() + ' N·m (' + totalGearRatio.toFixed(2) + 'x Ratio)';
+
+        // Derivation box
+        var dBox = document.getElementById('trq-derivation-box');
+        dBox.innerHTML = '<strong>1. Core Power-Torque Equivalence:</strong> HP = (Torque [lb-ft] × RPM) / 5,252.113<br>' +
+          '• Calculated: (' + torqueLbFt.toFixed(1) + ' lb-ft × ' + Math.round(rpm).toLocaleString() + ' RPM) / 5,252.113 = <strong>' + mechHp.toFixed(1) + ' Crank HP</strong> (' + kw.toFixed(1) + ' kW).<br>' +
+          '<strong>2. Wheel Dyno Loss:</strong> Parasitic frictional and inertial driveline drag is ' + lossPct + '%.<br>' +
+          '• WHP = ' + mechHp.toFixed(1) + ' × (1 - ' + (lossPct/100).toFixed(2) + ') = <strong>' + whp.toFixed(1) + ' Wheel HP</strong>.<br>' +
+          '<strong>3. Gear Torque Multiplication:</strong> Transmission gear (' + gearRatio.toFixed(2) + ') × Final drive (' + finalDrive.toFixed(2) + ') = <strong>' + totalGearRatio.toFixed(2) + ' total ratio</strong>.<br>' +
+          '• Axle Torque = ' + torqueLbFt.toFixed(1) + ' × ' + totalGearRatio.toFixed(2) + ' × (1 - ' + (lossPct/100).toFixed(2) + ') = <strong>' + Math.round(wheelTorqueLbFt).toLocaleString() + ' lb-ft</strong> at drive tires.<br>' +
+          '<strong>4. Physical Constant Derivation:</strong> 1 HP = 33,000 ft-lb/min. Divided by 2π radians per revolution: 33,000 / (2 × 3.14159265) = <strong>5,252.113</strong>. Below 5,252 RPM, Torque is always numerically higher than HP; above 5,252 RPM, HP is always higher.';
+
+        renderDynoSvg(torqueLbFt, mechHp, rpm);
+      }
+
+      function renderDynoSvg(peakTrq, peakHp, curRpm) {
+        var svg = document.getElementById('trq-dyno-svg');
+        if (!svg) return;
+
+        var w = 800, h = 280;
+        var padL = 60, padR = 60, padT = 30, padB = 40;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        var maxRpm = 8000;
+        var maxY = Math.max(500, Math.max(peakTrq, peakHp) * 1.25);
+
+        var svgHtml = '';
+
+        // Axes
+        svgHtml += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<line x1="' + (padL + plotW) + '" y1="' + padT + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+
+        // 5252 RPM vertical dashed reference line
+        var x5252 = padL + (5252.113 / maxRpm) * plotW;
+        svgHtml += '<line x1="' + x5252 + '" y1="' + padT + '" x2="' + x5252 + '" y2="' + (padT + plotH) + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4,4" />';
+        svgHtml += '<text x="' + x5252 + '" y="' + (padT - 8) + '" fill="#10b981" font-size="10.5" font-weight="bold" text-anchor="middle">5,252 RPM (Torque = HP)</text>';
+
+        // Generate synthetic realistic dyno curves
+        var trqPts = [];
+        var hpPts = [];
+        var steps = 40;
+        for (var i = 0; i <= steps; i++) {
+          var r = (i / steps) * maxRpm;
+          if (r < 800) continue;
+
+          // Torque curve profile (broad engine plateau peaking near 4200 RPM)
+          var trqFactor = Math.sin((r / maxRpm) * Math.PI * 1.15);
+          if (trqFactor < 0.2) trqFactor = 0.2;
+          var tCurve = peakTrq * (0.65 + 0.35 * trqFactor);
+          var hCurve = (tCurve * r) / 5252.113;
+
+          var xPx = padL + (r / maxRpm) * plotW;
+          var yTrqPx = padT + plotH - (tCurve / maxY) * plotH;
+          var yHpPx = padT + plotH - (hCurve / maxY) * plotH;
+
+          trqPts.push(xPx.toFixed(1) + ',' + yTrqPx.toFixed(1));
+          hpPts.push(xPx.toFixed(1) + ',' + yHpPx.toFixed(1));
+        }
+
+        // Torque path (Blue)
+        svgHtml += '<path d="M ' + trqPts.join(' L ') + '" fill="none" stroke="#3b82f6" stroke-width="3" />';
+        // HP path (Red)
+        svgHtml += '<path d="M ' + hpPts.join(' L ') + '" fill="none" stroke="#ef4444" stroke-width="3" />';
+
+        // 5252 Crossover Dot
+        var crossYVal = (peakTrq * (0.65 + 0.35 * Math.sin((5252.113 / maxRpm) * Math.PI * 1.15)));
+        var yCrossPx = padT + plotH - (crossYVal / maxY) * plotH;
+        svgHtml += '<circle cx="' + x5252 + '" cy="' + yCrossPx + '" r="5" fill="#10b981" />';
+
+        // Current Operating RPM Cursor
+        if (curRpm >= 500 && curRpm <= maxRpm) {
+          var curX = padL + (curRpm / maxRpm) * plotW;
+          svgHtml += '<line x1="' + curX + '" y1="' + padT + '" x2="' + curX + '" y2="' + (padT + plotH) + '" stroke="#f59e0b" stroke-width="2" stroke-dasharray="3,3" />';
+          svgHtml += '<circle cx="' + curX + '" cy="' + (padT + plotH - (peakHp / maxY) * plotH) + '" r="5" fill="#f59e0b" />';
+          svgHtml += '<text x="' + curX + '" y="' + (padT + plotH + 20) + '" fill="#f59e0b" font-size="11" font-weight="bold" text-anchor="middle">' + Math.round(curRpm) + ' RPM</text>';
+        }
+
+        // Labels and axes ticks
+        svgHtml += '<text x="' + (padL - 10) + '" y="' + (padT + 12) + '" fill="#3b82f6" font-size="11" font-weight="bold" text-anchor="end">Torque (lb-ft)</text>';
+        svgHtml += '<text x="' + (padL + plotW + 10) + '" y="' + (padT + 12) + '" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="start">Power (HP)</text>';
+        svgHtml += '<text x="' + (padL + plotW/2) + '" y="' + (h - 6) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">Engine Rotational Speed (RPM)</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyTorqueReport(btn) {
+        var hp = document.getElementById('trq-res-hp').textContent;
+        var kw = document.getElementById('trq-res-kw').textContent;
+        var trq = document.getElementById('trq-res-torque').textContent;
+        var nm = document.getElementById('trq-res-nm').textContent;
+        var whp = document.getElementById('trq-res-whp').textContent;
+        var wtrq = document.getElementById('trq-res-wheel-trq').textContent;
+        var rpm = document.getElementById('trq-rpm-val').value;
+
+        var text = '🏎️ ENGINE TORQUE, HORSEPOWER & DYNO REPORT\\n' +
+          '====================================================\\n' +
+          '• Rotational Speed: ' + rpm + ' RPM\\n' +
+          '• Crank Power: ' + hp + ' (' + kw + ')\\n' +
+          '• Flywheel Torque: ' + trq + ' (' + nm + ')\\n' +
+          '• Chassis Dyno (WHP): ' + whp + '\\n' +
+          '• Axle Wheel Torque: ' + wtrq + '\\n' +
+          '• 5,252 RPM Crossover Verified: Invariant (HP = Torque)\\n' +
+          '----------------------------------------------------\\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/torque-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Dyno Diagnostic Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updateTorqueMode);
+      } else {
+        updateTorqueMode();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'torque-calculator.html'), renderTradePage({
+    title: "Torque, Horsepower & RPM Engine Calculator (5252 Crossover & Dyno WHP) | Digital Tools Shed",
+    metaDesc: "Calculate engine horsepower, torque (lb-ft & N·m), and RPM with wheel horsepower (WHP) drivetrain loss, gear ratio multiplication, and interactive dyno curves.",
+    canonical: `${DOMAIN}/calc/torque-calculator`,
+    bodyContent: torqueBody,
+    currentPath: '/calc/torque-calculator',
+    faq: [
+      {
+        "q": "Why do torque and horsepower always cross at 5,252 RPM?",
+        "a": "Horsepower is a derived mathematical rate of work defined as 33,000 foot-pounds per minute. Because rotational work equals torque multiplied by distance per revolution (2π radians), the constant 33,000 / 2π equals 5,252.113. Whenever torque in lb-ft and power in mechanical HP are plotted on identical scales, they must cross at 5,252 RPM."
+      },
+      {
+        "q": "What is the difference between Wheel Horsepower (WHP) and Crank BHP?",
+        "a": "Brake Horsepower (BHP) is gross mechanical power measured directly at the engine crankshaft without accessories. Wheel Horsepower (WHP) is measured by chassis dynamometer rollers at the vehicle's tires, reflecting a 12% to 22% parasitic loss from transmission gears, driveshafts, differential friction, and tire scrub."
+      },
+      {
+        "q": "How does transmission gearing multiply wheel torque?",
+        "a": "Gears act as mechanical levers. The total gear multiplication equals the transmission ratio multiplied by the final drive axle ratio. For example, a 300 lb-ft engine in 1st gear (3.82:1) with a 3.73:1 differential generates 300 × 3.82 × 3.73 × 0.85 (drivetrain efficiency) = 3,631 lb-ft of torque at the drive axles."
+      },
+      {
+        "q": "Do electric vehicle motors produce maximum torque at high RPM?",
+        "a": "No. Electric motors produce flat maximum torque from 0 RPM only up to their base speed (typically 3,000 to 5,000 RPM). Above base speed, the motor inverter must apply field weakening to prevent back-EMF from exceeding battery voltage, causing torque to taper inversely with rotational speed (1/ω) while holding horsepower flat."
+      },
+      {
+        "q": "What is the formula to convert between lb-ft and N·m?",
+        "a": "To convert torque from foot-pounds (lb-ft) to Newton-meters (N·m), multiply by 1.355818. To convert Newton-meters to foot-pounds, divide by 1.355818 (or multiply by 0.737562)."
+      }
+    ]
+  }));
+
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 24. HYDRAULIC CYLINDER FORCE, SPEED & FLOW CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const hydraulicBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Hydraulic Cylinder Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Hydraulic Fluid Power</span>
+          <span class="badge badge-green">ISO 4413 Standards</span>
+          <span class="badge badge-blue">Euler Column Buckling</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Hydraulic Cylinder Force, Speed &amp; Flow Rate Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Calculate push and pull tonnage, rod annulus area, extend and retract velocities, full cycle duration, oil displacement volume, required pump horsepower, and Euler column rod buckling safety thresholds.
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Operating Pressure:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="hyd-psi" value="3000" step="100" min="100" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcHydraulics()" />
+              <select id="hyd-press-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcHydraulics()">
+                <option value="psi" selected>PSI</option>
+                <option value="bar">Bar</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Pump Flow Rate:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="hyd-gpm" value="12" step="0.5" min="0.5" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcHydraulics()" />
+              <select id="hyd-flow-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcHydraulics()">
+                <option value="gpm" selected>GPM</option>
+                <option value="lpm">L/min</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Cylinder Bore Diameter:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="hyd-bore" value="4.0" step="0.25" min="1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcHydraulics()" />
+              <select id="hyd-dim-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcHydraulics()">
+                <option value="in" selected>Inches</option>
+                <option value="mm">mm</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Piston Rod Diameter:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="hyd-rod" value="2.0" step="0.25" min="0.5" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcHydraulics()" />
+              <span id="hyd-rod-unit-lbl" style="width: 40%; display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">Inches</span>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Stroke Length:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="hyd-stroke" value="24" step="1" min="1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcHydraulics()" />
+              <span id="hyd-stroke-unit-lbl" style="width: 40%; display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">Inches</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Push Force (Extension)</div>
+            <div id="hyd-res-push" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">18.8 Tons</div>
+            <div id="hyd-res-push-sub" style="font-size: 0.85rem; color: var(--text-muted);">37,699 lbs (167.7 kN)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Pull Force (Retraction)</div>
+            <div id="hyd-res-pull" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">14.1 Tons</div>
+            <div id="hyd-res-pull-sub" style="font-size: 0.85rem; color: var(--text-muted);">28,274 lbs (-25% Deficit)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Cycle Times</div>
+            <div id="hyd-res-times" style="font-family: var(--mono); font-size: 1.7rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">6.5s Ext / 4.9s Ret</div>
+            <div id="hyd-res-total-cycle" style="font-size: 0.85rem; color: var(--text-muted);">11.4s Full Round-Trip Cycle</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #8b5cf6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Pump Power &amp; Buckling</div>
+            <div id="hyd-res-power" style="font-family: var(--mono); font-size: 2.0rem; font-weight: bold; color: #8b5cf6; margin-bottom: 0.2rem;">24.7 HP</div>
+            <div id="hyd-res-buckling" style="font-size: 0.85rem; color: #10b981; font-weight: bold;">Buckling Safety: 4.8x Safe</div>
+          </div>
+        </div>
+
+        <!-- FLUID KINEMATICS METRICS STRIP -->
+        <div style="margin-top: 1.25rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div>Bore Area: <strong id="hyd-res-bore-area" style="color: var(--fg);">12.57 sq in</strong></div>
+          <div>Rod Annulus Area: <strong id="hyd-res-annulus-area" style="color: var(--fg);">9.42 sq in</strong></div>
+          <div>Extend Speed: <strong id="hyd-res-ext-speed" style="color: #10b981;">3.67 in/s</strong></div>
+          <div>Retract Speed: <strong id="hyd-res-ret-speed" style="color: #3b82f6;">4.90 in/s</strong></div>
+          <div>Extend Volume: <strong id="hyd-res-ext-vol" style="color: var(--fg);">1.31 Gal</strong></div>
+          <div>Retract Volume: <strong id="hyd-res-ret-vol" style="color: var(--fg);">0.98 Gal</strong></div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE HYDRAULIC CYLINDER CUTAWAY SCHEMATIC SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          🔬 Interactive Hydraulic Cylinder Cutaway Schematic
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Illustrates internal cylinder physics: full-bore pressure chamber (green), chrome rod body, annular retraction chamber (blue), and live port flows.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="hyd-cutaway-svg" viewBox="0 0 800 240" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Fluid Power &amp; Column Buckling Derivations
+        </h3>
+        <div id="hyd-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating hydraulic cylinder engineering values...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="hyd-copy-btn" onclick="copyHydraulicReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Hydraulic Engineering Specification
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Engineering Pitfalls in Hydraulic Cylinders
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Euler Column Buckling Under Compressive Push Loads</strong>
+            Cylinders subjected to heavy compressive push loads fail by elastic column buckling long before steel reaches its yield strength. When a 2-inch rod extends 36 inches under 20 tons of force, lateral deflection causes catastrophic instant buckling. Designers must calculate Euler critical buckling load P_cr = (π² · E · I) / (K · L)² and maintain a minimum safety factor of 3.0 to 4.0.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Overlooking Retraction Tonnage Deficit in Pull Applications</strong>
+            Sizing a cylinder solely based on bore diameter results in severe failure when pulling (e.g. log splitter wedge return, knuckle boom cranes, hydraulic pullers). Because the steel rod subtracts 20% to 50% of the active piston surface area, retraction pulling force is always substantially weaker than extension force. Always design for pull loads using net annulus area.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Pressure Intensification in Differential Cylinders</strong>
+            If fluid flow from the rod port is obstructed while hydraulic pressure is applied to the cap end, the piston acts as an intensifier. The pressure in the rod chamber multiplies by the ratio of bore area to annulus area (A_bore / A_annulus). A 3,000 PSI supply on a cylinder with a 2:1 area ratio instantly spikes rod chamber pressure to 6,000 PSI, blowing out rod seals and splitting heavy steel barrels.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. High-Velocity Seal Extrusion &amp; Thermal Degradation</strong>
+            Forcing excessive pump flow (GPM) through narrow ports produces fluid velocities exceeding 25 ft/s (7.6 m/s). This induces extreme localized shear friction, elevating oil temperature past 180°F (82°C). High temperatures harden and bake nitrile and polyurethane rod seals, leading to extrusion failure, metal-on-metal rod scoring, and fluid contamination.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Pump Cavitation from Restricted Suction Lines</strong>
+            Attempting to increase cylinder speed by replacing a 6 GPM pump with an 18 GPM pump without upsizing the pump suction line induces pump cavitation. When fluid velocity in the intake hose exceeds 4 ft/s, atmospheric inlet pressure drops below oil vapor pressure, creating vapor bubbles that violently implode against pump gears, destroying the hydraulic pump within hours.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcHydraulics() {
+        var pRaw = parseFloat(document.getElementById('hyd-psi').value) || 3000;
+        var pUnit = document.getElementById('hyd-press-unit').value;
+        var qRaw = parseFloat(document.getElementById('hyd-gpm').value) || 12;
+        var qUnit = document.getElementById('hyd-flow-unit').value;
+        var boreRaw = parseFloat(document.getElementById('hyd-bore').value) || 4.0;
+        var rodRaw = parseFloat(document.getElementById('hyd-rod').value) || 2.0;
+        var strokeRaw = parseFloat(document.getElementById('hyd-stroke').value) || 24;
+        var dimUnit = document.getElementById('hyd-dim-unit').value;
+
+        document.getElementById('hyd-rod-unit-lbl').textContent = dimUnit === 'mm' ? 'mm' : 'Inches';
+        document.getElementById('hyd-stroke-unit-lbl').textContent = dimUnit === 'mm' ? 'mm' : 'Inches';
+
+        // Convert to PSI, GPM, and Inches
+        var psi = pUnit === 'bar' ? pRaw * 14.5038 : pRaw;
+        var gpm = qUnit === 'lpm' ? qRaw / 3.78541 : qRaw;
+        var boreIn = dimUnit === 'mm' ? boreRaw / 25.4 : boreRaw;
+        var rodIn = dimUnit === 'mm' ? rodRaw / 25.4 : rodRaw;
+        var strokeIn = dimUnit === 'mm' ? strokeRaw / 25.4 : strokeRaw;
+
+        // Ensure rod diameter is strictly less than bore diameter
+        if (rodIn >= boreIn) {
+          rodIn = boreIn * 0.5;
+        }
+
+        var boreArea = Math.PI * Math.pow(boreIn / 2, 2);
+        var rodArea = Math.PI * Math.pow(rodIn / 2, 2);
+        var annulusArea = Math.max(0.01, boreArea - rodArea);
+
+        // Forces
+        var pushLbs = psi * boreArea;
+        var pullLbs = psi * annulusArea;
+        var pushTons = pushLbs / 2000;
+        var pullTons = pullLbs / 2000;
+        var pushKn = pushLbs * 0.00444822;
+        var pullKn = pullLbs * 0.00444822;
+        var pullDeficitPct = ((pushLbs - pullLbs) / pushLbs) * 100;
+
+        // Velocities (in/s)
+        var extSpeedInS = (gpm * 231) / (boreArea * 60);
+        var retSpeedInS = (gpm * 231) / (annulusArea * 60);
+
+        // Times (seconds)
+        var extTimeSec = strokeIn / extSpeedInS;
+        var retTimeSec = strokeIn / retSpeedInS;
+        var cycleTimeSec = extTimeSec + retTimeSec;
+
+        // Volumes (gallons)
+        var extGal = (boreArea * strokeIn) / 231;
+        var retGal = (annulusArea * strokeIn) / 231;
+
+        // Mechanical Pump Power required (assuming 85% mechanical/volumetric efficiency)
+        var pumpHp = (psi * gpm) / (1714 * 0.85);
+
+        // Euler Column Buckling Check
+        // Carbon steel E = 30,000,000 PSI; Moment of inertia I = (pi * d^4) / 64
+        var steelE = 30000000;
+        var inertia = (Math.PI * Math.pow(rodIn, 4)) / 64;
+        var effLen = strokeIn * 1.5;
+        var pCritical = (Math.PI * Math.PI * steelE * inertia) / Math.pow(effLen, 2);
+        var safetyFactor = pCritical / pushLbs;
+
+        // Update KPIs
+        document.getElementById('hyd-res-push').textContent = pushTons.toFixed(1) + ' Tons';
+        document.getElementById('hyd-res-push-sub').textContent = Math.round(pushLbs).toLocaleString() + ' lbs (' + pushKn.toFixed(1) + ' kN)';
+
+        document.getElementById('hyd-res-pull').textContent = pullTons.toFixed(1) + ' Tons';
+        document.getElementById('hyd-res-pull-sub').textContent = Math.round(pullLbs).toLocaleString() + ' lbs (-' + Math.round(pullDeficitPct) + '% Deficit)';
+
+        document.getElementById('hyd-res-times').textContent = extTimeSec.toFixed(1) + 's Ext / ' + retTimeSec.toFixed(1) + 's Ret';
+        document.getElementById('hyd-res-total-cycle').textContent = cycleTimeSec.toFixed(1) + 's Full Round-Trip Cycle';
+
+        document.getElementById('hyd-res-power').textContent = pumpHp.toFixed(1) + ' HP';
+        var buckEl = document.getElementById('hyd-res-buckling');
+        if (safetyFactor >= 3.0) {
+          buckEl.textContent = 'Buckling Safety: ' + safetyFactor.toFixed(1) + 'x (Safe)';
+          buckEl.style.color = '#10b981';
+        } else if (safetyFactor >= 1.5) {
+          buckEl.textContent = 'Buckling Warning: ' + safetyFactor.toFixed(1) + 'x (Marginal)';
+          buckEl.style.color = '#f59e0b';
+        } else {
+          buckEl.textContent = 'CRITICAL BUCKLING HAZARD (' + safetyFactor.toFixed(1) + 'x)';
+          buckEl.style.color = '#ef4444';
+        }
+
+        // Metrics strip
+        document.getElementById('hyd-res-bore-area').textContent = boreArea.toFixed(2) + ' sq in';
+        document.getElementById('hyd-res-annulus-area').textContent = annulusArea.toFixed(2) + ' sq in';
+        document.getElementById('hyd-res-ext-speed').textContent = extSpeedInS.toFixed(2) + ' in/s (' + (extSpeedInS * 5).toFixed(1) + ' ft/min)';
+        document.getElementById('hyd-res-ret-speed').textContent = retSpeedInS.toFixed(2) + ' in/s (' + (retSpeedInS * 5).toFixed(1) + ' ft/min)';
+        document.getElementById('hyd-res-ext-vol').textContent = extGal.toFixed(2) + ' Gal (' + (extGal * 3.785).toFixed(1) + ' L)';
+        document.getElementById('hyd-res-ret-vol').textContent = retGal.toFixed(2) + ' Gal (' + (retGal * 3.785).toFixed(1) + ' L)';
+
+        // Derivation box
+        var dBox = document.getElementById('hyd-derivation-box');
+        dBox.innerHTML = '<strong>1. Effective Hydraulic Working Areas:</strong><br>' +
+          '• Full Bore Area = π × (' + boreIn.toFixed(2) + ' / 2)² = <strong>' + boreArea.toFixed(2) + ' in²</strong>.<br>' +
+          '• Piston Rod Area = π × (' + rodIn.toFixed(2) + ' / 2)² = <strong>' + rodArea.toFixed(2) + ' in²</strong>.<br>' +
+          '• Net Annulus (Retraction) Area = ' + boreArea.toFixed(2) + ' - ' + rodArea.toFixed(2) + ' = <strong>' + annulusArea.toFixed(2) + ' in²</strong>.<br>' +
+          '<strong>2. Tonnage Output:</strong><br>' +
+          '• Extension Force = ' + Math.round(psi) + ' PSI × ' + boreArea.toFixed(2) + ' in² = <strong>' + Math.round(pushLbs).toLocaleString() + ' lbs (' + pushTons.toFixed(1) + ' US Tons)</strong>.<br>' +
+          '• Retraction Force = ' + Math.round(psi) + ' PSI × ' + annulusArea.toFixed(2) + ' in² = <strong>' + Math.round(pullLbs).toLocaleString() + ' lbs (' + pullTons.toFixed(1) + ' US Tons)</strong>.<br>' +
+          '<strong>3. Flow Velocity &amp; Timing:</strong><br>' +
+          '• Extend Speed = (' + gpm.toFixed(1) + ' GPM × 231) / (' + boreArea.toFixed(2) + ' × 60) = <strong>' + extSpeedInS.toFixed(2) + ' in/s</strong> &rarr; <strong>' + extTimeSec.toFixed(1) + 's</strong> stroke.<br>' +
+          '• Retract Speed = (' + gpm.toFixed(1) + ' GPM × 231) / (' + annulusArea.toFixed(2) + ' × 60) = <strong>' + retSpeedInS.toFixed(2) + ' in/s</strong> &rarr; <strong>' + retTimeSec.toFixed(1) + 's</strong> stroke.<br>' +
+          '<strong>4. Euler Column Buckling Critical Capacity:</strong><br>' +
+          '• P_cr = (π² × 30,000,000 × ' + inertia.toFixed(3) + ') / (' + effLen.toFixed(1) + ')² = <strong>' + Math.round(pCritical).toLocaleString() + ' lbs</strong> &rarr; Safety Factor = <strong>' + safetyFactor.toFixed(1) + 'x</strong>.';
+
+        renderHydraulicSvg(boreIn, rodIn, strokeIn);
+      }
+
+      function renderHydraulicSvg(bore, rod, stroke) {
+        var svg = document.getElementById('hyd-cutaway-svg');
+        if (!svg) return;
+
+        var w = 800, h = 240;
+        var svgHtml = '';
+
+        // Cylinder Barrel Dimensions
+        var bX = 100, bY = 50, bW = 380, bH = 140;
+        var rodH = Math.max(30, bH * (rod / bore));
+        var rodY = bY + (bH - rodH) / 2;
+        var pistonW = 45;
+        var pistonX = bX + 160;
+
+        // 1. Fluid in Cap End (Extension Chamber - Green)
+        svgHtml += '<rect x="' + bX + '" y="' + bY + '" width="' + (pistonX - bX) + '" height="' + bH + '" fill="rgba(16, 185, 129, 0.25)" />';
+
+        // 2. Fluid in Rod End (Annulus Chamber - Blue)
+        svgHtml += '<rect x="' + (pistonX + pistonW) + '" y="' + bY + '" width="' + (bX + bW - (pistonX + pistonW)) + '" height="' + ((bH - rodH)/2) + '" fill="rgba(59, 130, 246, 0.25)" />';
+        svgHtml += '<rect x="' + (pistonX + pistonW) + '" y="' + (rodY + rodH) + '" width="' + (bX + bW - (pistonX + pistonW)) + '" height="' + ((bH - rodH)/2) + '" fill="rgba(59, 130, 246, 0.25)" />';
+
+        // 3. Steel Barrel Outer Wall
+        svgHtml += '<rect x="' + bX + '" y="' + bY + '" width="' + bW + '" height="' + bH + '" fill="none" stroke="var(--border)" stroke-width="4" rx="4" />';
+        // End Caps
+        svgHtml += '<rect x="' + (bX - 25) + '" y="' + (bY - 10) + '" width="25" height="' + (bH + 20) + '" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<rect x="' + (bX + bW) + '" y="' + (bY - 10) + '" width="25" height="' + (bH + 20) + '" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="2" />';
+
+        // 4. Piston Head
+        svgHtml += '<rect x="' + pistonX + '" y="' + bY + '" width="' + pistonW + '" height="' + bH + '" fill="var(--border)" stroke="#10b981" stroke-width="2" />';
+
+        // 5. Piston Rod (Chrome)
+        svgHtml += '<rect x="' + (pistonX + pistonW) + '" y="' + rodY + '" width="260" height="' + rodH + '" fill="#94a3b8" stroke="#cbd5e1" stroke-width="2" rx="2" />';
+        // Rod Clevis Eye
+        svgHtml += '<circle cx="' + (pistonX + pistonW + 260) + '" cy="' + (bY + bH/2) + '" r="22" fill="var(--surface-alt)" stroke="var(--border)" stroke-width="3" />';
+        svgHtml += '<circle cx="' + (pistonX + pistonW + 260) + '" cy="' + (bY + bH/2) + '" r="9" fill="var(--bg)" stroke="var(--border)" stroke-width="2" />';
+
+        // 6. Hydraulic Ports
+        // Cap Port (Green)
+        svgHtml += '<rect x="' + (bX + 30) + '" y="' + (bY - 20) + '" width="22" height="20" fill="#10b981" />';
+        svgHtml += '<text x="' + (bX + 41) + '" y="' + (bY - 26) + '" fill="#10b981" font-size="10.5" font-weight="bold" text-anchor="middle">Cap Port</text>';
+        // Rod Port (Blue)
+        svgHtml += '<rect x="' + (bX + bW - 50) + '" y="' + (bY - 20) + '" width="22" height="20" fill="#3b82f6" />';
+        svgHtml += '<text x="' + (bX + bW - 39) + '" y="' + (bY - 26) + '" fill="#3b82f6" font-size="10.5" font-weight="bold" text-anchor="middle">Rod Port</text>';
+
+        // 7. Dynamic Callout Labels
+        svgHtml += '<text x="' + (bX + 80) + '" y="' + (bY + bH/2 + 5) + '" fill="#10b981" font-size="12" font-weight="bold">Bore Area (' + bore.toFixed(1) + '\\")</text>';
+        svgHtml += '<text x="' + (pistonX + pistonW + 100) + '" y="' + (rodY + rodH/2 + 4) + '" fill="#0f172a" font-size="11" font-weight="bold">Rod (' + rod.toFixed(1) + '\\")</text>';
+        svgHtml += '<text x="' + (bX + bW/2) + '" y="' + (bY + bH + 28) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">Stroke Length: ' + stroke.toFixed(1) + ' Inches</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyHydraulicReport(btn) {
+        var push = document.getElementById('hyd-res-push').textContent;
+        var pushSub = document.getElementById('hyd-res-push-sub').textContent;
+        var pull = document.getElementById('hyd-res-pull').textContent;
+        var pullSub = document.getElementById('hyd-res-pull-sub').textContent;
+        var times = document.getElementById('hyd-res-times').textContent;
+        var power = document.getElementById('hyd-res-power').textContent;
+        var buck = document.getElementById('hyd-res-buckling').textContent;
+
+        var text = '⚙️ HYDRAULIC CYLINDER ENGINEERING SPECIFICATION\\n' +
+          '====================================================\\n' +
+          '• Extension Push Force: ' + push + ' (' + pushSub + ')\\n' +
+          '• Retraction Pull Force: ' + pull + ' (' + pullSub + ')\\n' +
+          '• Cycle Speeds: ' + times + '\\n' +
+          '• Hydraulic Power Required: ' + power + '\\n' +
+          '• Column Stability: ' + buck + '\\n' +
+          '----------------------------------------------------\\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/hydraulic-cylinder-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Hydraulic Spec Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcHydraulics);
+      } else {
+        calcHydraulics();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'hydraulic-cylinder-calculator.html'), renderTradePage({
+    title: "Hydraulic Cylinder Force, Speed & Flow Rate Calculator (Push/Pull Tonnage & GPM) | Digital Tools Shed",
+    metaDesc: "Calculate hydraulic cylinder push and pull force in tons and kN, rod displacement speeds, cycle duration, fluid GPM flow requirements, and Euler column buckling limits.",
+    canonical: `${DOMAIN}/calc/hydraulic-cylinder-calculator`,
+    bodyContent: hydraulicBody,
+    currentPath: '/calc/hydraulic-cylinder-calculator',
+    faq: [
+      {
+        "q": "Why does a hydraulic cylinder pull with less force than it pushes?",
+        "a": "During retraction, hydraulic fluid acts exclusively against the ring-shaped annulus area surrounding the rod. Because the solid steel rod subtracts from the overall circular bore area, less surface area is exposed to fluid pressure (F = P × A), reducing pulling tonnage by 20% to 50%."
+      },
+      {
+        "q": "Why does a cylinder retract faster than it extends at the same pump GPM?",
+        "a": "Because the rod occupies internal cylinder barrel volume, the rod-end annulus chamber holds substantially less fluid volume than the full bore chamber. At an identical pump delivery rate (e.g. 10 GPM), fewer gallons are needed to retract the cylinder, causing the rod to retract in less time."
+      },
+      {
+        "q": "What is Euler column buckling in hydraulic cylinders?",
+        "a": "Euler buckling is a structural instability failure mode where a slender piston rod suddenly deflects laterally under compressive axial push load. It depends on rod diameter (moment of inertia), stroke length, and cylinder mounting geometry, rather than hydraulic fluid pressure."
+      },
+      {
+        "q": "How do you calculate hydraulic pump horsepower?",
+        "a": "Hydraulic horsepower is calculated using the formula: HP = (PSI × GPM) / (1714 × η), where η is overall pump mechanical and volumetric efficiency (typically 0.85). For example, 3,000 PSI at 12 GPM requires approximately 24.7 engine horsepower."
+      },
+      {
+        "q": "What causes pressure intensification in a hydraulic cylinder?",
+        "a": "If the rod-end port is blocked while hydraulic pressure is supplied to the cap end, the piston transmits force across the unequal areas. The pressure on the rod side multiplies by the ratio of bore area to annulus area (A_bore / A_annulus), potentially exceeding 6,000 PSI on a 3,000 PSI system."
+      }
+    ]
+  }));
+
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 25. PIPE FLOW RATE, VELOCITY & FRICTION HEAD LOSS CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const pipeFlowBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Pipe Flow Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Fluid Dynamics Engineering</span>
+          <span class="badge badge-green">Darcy-Weisbach &amp; Swamee-Jain</span>
+          <span class="badge badge-blue">Erosion-Corrosion Velocity Guard</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Pipe Flow Rate, Velocity &amp; Friction Head Loss Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Determine exact fluid velocity (ft/s &amp; m/s), Reynolds number flow regime, Darcy friction factor (f), dynamic head loss (feet of head &amp; PSI), and pumping power across Schedule 40/80 steel, copper, PVC, and PEX piping.
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Fluid Flow Rate:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="pf-flow-val" value="25" step="1" min="0.1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcPipeFlow()" />
+              <select id="pf-flow-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcPipeFlow()">
+                <option value="gpm" selected>GPM</option>
+                <option value="lpm">L/min</option>
+                <option value="cfs">ft³/s</option>
+                <option value="m3h">m³/h</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Pipe Material &amp; Roughness:</label>
+            <select id="pf-material" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="updatePipeMaterialPreset()">
+              <option value="pvc" selected>PVC / PEX (Smooth plastic, ε = 0.0015 mm)</option>
+              <option value="copper">Copper Type L / K (ε = 0.0015 mm)</option>
+              <option value="steel">Commercial Steel Sched 40 (ε = 0.045 mm)</option>
+              <option value="steel80">Commercial Steel Sched 80 (ε = 0.045 mm)</option>
+              <option value="castiron">Cast Iron / Ductile Iron (ε = 0.26 mm)</option>
+              <option value="galvanized">Galvanized Steel (ε = 0.15 mm)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Nominal Pipe Size (NPS):</label>
+            <select id="pf-pipe-size" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="syncPipeDiameter()">
+              <option value="0.622">1/2" Pipe</option>
+              <option value="0.824">3/4" Pipe</option>
+              <option value="1.049">1" Pipe</option>
+              <option value="1.380">1-1/4" Pipe</option>
+              <option value="1.610" selected>1-1/2" Pipe (ID: 1.610")</option>
+              <option value="2.067">2" Pipe (ID: 2.067")</option>
+              <option value="2.469">2-1/2" Pipe (ID: 2.469")</option>
+              <option value="3.068">3" Pipe (ID: 3.068")</option>
+              <option value="4.026">4" Pipe (ID: 4.026")</option>
+              <option value="6.065">6" Pipe (ID: 6.065")</option>
+              <option value="custom">Custom Internal Diameter</option>
+            </select>
+          </div>
+
+          <div id="pf-custom-id-wrap">
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Exact Internal Diameter (ID):</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="pf-id-in" value="1.610" step="0.01" min="0.1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcPipeFlow()" />
+              <span style="width: 40%; display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">Inches</span>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Total Pipe Run Length:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="pf-len-val" value="100" step="10" min="1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcPipeFlow()" />
+              <select id="pf-len-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcPipeFlow()">
+                <option value="ft" selected>Feet</option>
+                <option value="m">Meters</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Fluid Flow Velocity</div>
+            <div id="pf-res-vel" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">3.94 ft/s</div>
+            <div id="pf-res-vel-metric" style="font-size: 0.85rem; color: var(--text-muted);">1.20 m/s (Ideal 4–7 ft/s Range)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #ef4444;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Total Pressure Drop (ΔP)</div>
+            <div id="pf-res-psi-drop" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin-bottom: 0.2rem;">2.21 PSI</div>
+            <div id="pf-res-kpa" style="font-size: 0.85rem; color: var(--text-muted);">15.2 kPa (0.152 bar)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Darcy Friction Head Loss</div>
+            <div id="pf-res-head-loss" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">5.10 ft Head</div>
+            <div id="pf-res-head-loss-sub" style="font-size: 0.85rem; color: var(--text-muted);">5.1 ft loss per 100 ft of pipe</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Flow Regime &amp; Power</div>
+            <div id="pf-res-regime" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">Turbulent (Re 43,450)</div>
+            <div id="pf-res-pump-power" style="font-size: 0.85rem; color: var(--text-muted);">Friction Power: 0.032 HP (24 W)</div>
+          </div>
+        </div>
+
+        <!-- FLUID PROPERTY METRICS STRIP -->
+        <div style="margin-top: 1.25rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div>Flow Area: <strong id="pf-res-area" style="color: var(--fg);">2.036 in²</strong></div>
+          <div>Swamee-Jain (f): <strong id="pf-res-f" style="color: var(--fg);">0.0218</strong></div>
+          <div>Relative Roughness: <strong id="pf-res-rough" style="color: var(--fg);">0.000037</strong></div>
+          <div>Hazen-Williams (C=150): <strong id="pf-res-hw" style="color: #3b82f6;">4.78 ft / 100 ft</strong></div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE FLOW PROFILE & ENERGY GRADE LINE SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          🌊 Fluid Velocity Profile &amp; Hydraulic Gradient Line (HGL)
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Cross-sectional boundary layer velocity profile (parabolic laminar vs turbulent flattened profile) and downstream hydraulic energy grade line slope.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="pf-profile-svg" viewBox="0 0 800 240" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Fluid Dynamics Derivations
+        </h3>
+        <div id="pf-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating pipe hydraulics and friction factors...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="pf-copy-btn" onclick="copyPipeFlowReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Pipe Flow &amp; Head Loss Report
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Engineering Pitfalls in Pipe Flow &amp; Hydraulics
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Erosion-Corrosion from Excessive Flow Velocity (>8 ft/s)</strong>
+            Sizing domestic water piping with fluid velocities exceeding 8 ft/s (2.4 m/s) in cold water or 5 ft/s (1.5 m/s) in hot water causes rapid pipe wall destruction. High shear turbulence scours the protective copper oxide passivation layer off inner pipe walls, causing pinhole leaks and pipe blowouts within 24 to 36 months. Always size plumbing for 4 to 7 ft/s.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Water Hammer Kinetic Shock Waves (The Joukowsky Spike)</strong>
+            Suddenly halting water moving at high velocity by closing a solenoid or quarter-turn ball valve converts kinetic energy into an acoustic pressure shock wave (ΔP = ρ · c · Δv). Water moving at 8 ft/s in steel pipe generates an instantaneous 400+ PSI pressure pulse upon valve closure, rupturing PEX crimp fittings, breaking water heaters, and vibrating pipes off hangars.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Nominal Pipe Size (NPS) vs Actual Internal Diameter</strong>
+            Assuming a 2-inch pipe has a 2.000-inch inside diameter introduces severe calculation errors. Schedule 40 2" pipe has an ID of 2.067", while Schedule 80 2" pipe has an ID of 1.939". Because flow area scales with diameter squared (D²) and head loss scales inversely with diameter to the fifth power (1/D⁵), using nominal sizing instead of true ID results in a 30%+ error in pump head calculations.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Minor Fitting Losses Dominating Short Piping Runs</strong>
+            In boiler rooms, pump skids, and mechanical rooms with short piping runs, friction head loss from elbows, tees, check valves, and strainers accounts for over 60% to 75% of total dynamic head. Calculating only straight-pipe friction while neglecting equivalent length fitting losses leads to undersized pumps that fail to achieve design flow.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Temperature-Induced Kinematic Viscosity Spikes</strong>
+            Water viscosity is heavily temperature-dependent. Kinematic viscosity doubles from 70°F (1.0 cSt) down to 34°F (1.75 cSt). In chilled water cooling loops or outdoor winter geothermal systems, cold water experiences significantly higher Darcy friction factors and head loss. Calculating pumping head using room-temperature fluid properties starves chillers of design flow in winter.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function updatePipeMaterialPreset() {
+        var mat = document.getElementById('pf-material').value;
+        var szSelect = document.getElementById('pf-pipe-size');
+        syncPipeDiameter();
+      }
+
+      function syncPipeDiameter() {
+        var szVal = document.getElementById('pf-pipe-size').value;
+        var mat = document.getElementById('pf-material').value;
+
+        if (szVal !== 'custom') {
+          var id = parseFloat(szVal);
+          // If schedule 80 selected, adjust slightly smaller
+          if (mat === 'steel80') {
+            id = id * 0.93;
+          } else if (mat === 'copper') {
+            id = id * 0.98;
+          }
+          document.getElementById('pf-id-in').value = id.toFixed(3);
+        }
+        calcPipeFlow();
+      }
+
+      function calcPipeFlow() {
+        var qRaw = parseFloat(document.getElementById('pf-flow-val').value) || 25;
+        var qUnit = document.getElementById('pf-flow-unit').value;
+        var mat = document.getElementById('pf-material').value;
+        var idIn = parseFloat(document.getElementById('pf-id-in').value) || 1.610;
+        var lenRaw = parseFloat(document.getElementById('pf-len-val').value) || 100;
+        var lenUnit = document.getElementById('pf-len-unit').value;
+
+        // Convert Flow to GPM and cfs (ft^3/s)
+        var gpm = qRaw;
+        if (qUnit === 'lpm') gpm = qRaw / 3.78541;
+        else if (qUnit === 'cfs') gpm = qRaw * 448.831;
+        else if (qUnit === 'm3h') gpm = qRaw * 4.40287;
+
+        var qCfs = gpm / 448.831;
+
+        // Convert Length to Feet
+        var lenFt = lenUnit === 'm' ? lenRaw * 3.28084 : lenRaw;
+
+        // Pipe Geometry
+        var dFt = idIn / 12;
+        var areaSqFt = (Math.PI * Math.pow(dFt, 2)) / 4;
+        var areaSqIn = areaSqFt * 144;
+
+        // Flow Velocity (ft/s)
+        var velFtS = areaSqFt > 0 ? qCfs / areaSqFt : 0;
+        var velMS = velFtS * 0.3048;
+
+        // Water Properties at 60°F
+        var nu = 1.217e-5; // ft^2/s kinematic viscosity
+        var g = 32.174; // ft/s^2 gravity
+
+        // Reynolds Number
+        var re = (velFtS * dFt) / nu;
+
+        // Roughness epsilon in mm -> ft
+        var epsMm = 0.0015; // PVC/PEX
+        if (mat === 'copper') epsMm = 0.0015;
+        else if (mat === 'steel' || mat === 'steel80') epsMm = 0.045;
+        else if (mat === 'castiron') epsMm = 0.26;
+        else if (mat === 'galvanized') epsMm = 0.15;
+
+        var epsFt = (epsMm / 1000) * 3.28084;
+        var relRough = epsFt / dFt;
+
+        // Friction Factor (f)
+        var f = 0.02;
+        if (re < 2300) {
+          f = re > 0 ? 64 / re : 0.02;
+        } else {
+          // Swamee-Jain equation
+          var term1 = relRough / 3.7;
+          var term2 = 5.74 / Math.pow(re, 0.9);
+          f = 0.25 / Math.pow(Math.log10(term1 + term2), 2);
+        }
+
+        // Darcy-Weisbach Friction Head Loss (ft of head)
+        var headLossFt = f * (lenFt / dFt) * (Math.pow(velFtS, 2) / (2 * g));
+        var psiDrop = headLossFt * 0.4335; // 1 ft water = 0.4335 PSI
+        var kpaDrop = psiDrop * 6.89476;
+
+        var headLossPer100 = (headLossFt / lenFt) * 100;
+
+        // Hazen-Williams comparison (C = 150 for PVC, 130 for copper/steel)
+        var hwC = (mat === 'pvc') ? 150 : 130;
+        var hwLossPer100 = (10.67 * 100 * Math.pow(gpm, 1.852)) / (Math.pow(hwC, 1.852) * Math.pow(idIn, 4.87));
+
+        // Hydraulic pumping power (HP)
+        var hydPowerHp = (gpm * headLossFt) / 3960;
+        var hydPowerW = hydPowerHp * 745.7;
+
+        // Update KPIs
+        document.getElementById('pf-res-vel').textContent = velFtS.toFixed(2) + ' ft/s';
+        var velDesc = 'Ideal (4–7 ft/s)';
+        if (velFtS < 2.0) velDesc = 'Low Velocity (<2 ft/s settling)';
+        else if (velFtS > 8.0) velDesc = 'HIGH VELOCITY (>8 ft/s Erosion Risk)';
+        document.getElementById('pf-res-vel-metric').textContent = velMS.toFixed(2) + ' m/s (' + velDesc + ')';
+
+        document.getElementById('pf-res-psi-drop').textContent = psiDrop.toFixed(2) + ' PSI';
+        document.getElementById('pf-res-kpa').textContent = kpaDrop.toFixed(1) + ' kPa (' + (kpaDrop/100).toFixed(3) + ' bar)';
+
+        document.getElementById('pf-res-head-loss').textContent = headLossFt.toFixed(2) + ' ft Head';
+        document.getElementById('pf-res-head-loss-sub').textContent = headLossPer100.toFixed(2) + ' ft loss per 100 ft pipe';
+
+        var regimeStr = re < 2300 ? 'Laminar' : (re <= 4000 ? 'Transitional' : 'Turbulent');
+        document.getElementById('pf-res-regime').textContent = regimeStr + ' (Re ' + Math.round(re).toLocaleString() + ')';
+        document.getElementById('pf-res-pump-power').textContent = 'Friction Power: ' + hydPowerHp.toFixed(3) + ' HP (' + Math.round(hydPowerW) + ' W)';
+
+        // Strip
+        document.getElementById('pf-res-area').textContent = areaSqIn.toFixed(3) + ' in²';
+        document.getElementById('pf-res-f').textContent = f.toFixed(4);
+        document.getElementById('pf-res-rough').textContent = relRough.toFixed(6);
+        document.getElementById('pf-res-hw').textContent = hwLossPer100.toFixed(2) + ' ft / 100 ft';
+
+        // Derivation
+        var dBox = document.getElementById('pf-derivation-box');
+        dBox.innerHTML = '<strong>1. Flow Continuity &amp; Velocity:</strong><br>' +
+          '• Internal Diameter = ' + idIn.toFixed(3) + ' in (' + dFt.toFixed(4) + ' ft) &rarr; Cross-sectional Area = ' + areaSqIn.toFixed(3) + ' in².<br>' +
+          '• Velocity v = Q / A = (' + gpm.toFixed(1) + ' GPM / 448.831) / ' + areaSqFt.toFixed(5) + ' ft² = <strong>' + velFtS.toFixed(2) + ' ft/s</strong> (' + velMS.toFixed(2) + ' m/s).<br>' +
+          '<strong>2. Reynolds Number &amp; Flow Regime:</strong><br>' +
+          '• Re = (v · D) / ν = (' + velFtS.toFixed(2) + ' × ' + dFt.toFixed(4) + ') / 1.217×10⁻⁵ = <strong>' + Math.round(re).toLocaleString() + '</strong> &rarr; <strong>' + regimeStr + ' Flow</strong>.<br>' +
+          '<strong>3. Swamee-Jain Friction Factor (f):</strong><br>' +
+          '• Pipe Relative Roughness ε/D = ' + relRough.toFixed(6) + ' &rarr; f = <strong>' + f.toFixed(4) + '</strong>.<br>' +
+          '<strong>4. Darcy-Weisbach Dynamic Friction Head Loss:</strong><br>' +
+          '• h_f = f · (L / D) · (v² / 2g) = ' + f.toFixed(4) + ' × (' + lenFt.toFixed(1) + ' / ' + dFt.toFixed(4) + ') × (' + Math.pow(velFtS, 2).toFixed(2) + ' / 64.35) = <strong>' + headLossFt.toFixed(2) + ' Feet of Head</strong>.<br>' +
+          '• Pressure Drop ΔP = ' + headLossFt.toFixed(2) + ' ft × 0.4335 PSI/ft = <strong>' + psiDrop.toFixed(2) + ' PSI</strong> (' + kpaDrop.toFixed(1) + ' kPa).';
+
+        renderPipeProfileSvg(velFtS, re, headLossFt);
+      }
+
+      function renderPipeProfileSvg(vel, re, headLoss) {
+        var svg = document.getElementById('pf-profile-svg');
+        if (!svg) return;
+
+        var w = 800, h = 240;
+        var svgHtml = '';
+
+        // Pipe Cross-section Walls
+        var pX = 60, pY = 40, pW = 680, pH = 110;
+        // Top and bottom pipe boundaries
+        svgHtml += '<rect x="' + pX + '" y="' + (pY - 10) + '" width="' + pW + '" height="10" fill="#64748b" />';
+        svgHtml += '<rect x="' + pX + '" y="' + (pY + pH) + '" width="' + pW + '" height="10" fill="#64748b" />';
+        svgHtml += '<rect x="' + pX + '" y="' + pY + '" width="' + pW + '" height="' + pH + '" fill="rgba(59, 130, 246, 0.08)" />';
+
+        // Plot Velocity Boundary Layer Profile on the left
+        var profileStartX = pX + 40;
+        var pts = [];
+        var nPts = 20;
+        for (var i = 0; i <= nPts; i++) {
+          var frac = i / nPts; // 0 (top wall) to 1 (bottom wall)
+          var yPos = pY + frac * pH;
+          // Turbulent profile has 1/7th power law flat profile; laminar is parabola
+          var distFromWall = Math.min(frac, 1 - frac) * 2; // 0 at walls, 1 at center
+          var vFrac = re > 4000 ? Math.pow(distFromWall, 1/7) : (1 - Math.pow(2 * frac - 1, 2));
+          var xPos = profileStartX + vFrac * 90;
+          pts.push(xPos.toFixed(1) + ',' + yPos.toFixed(1));
+        }
+
+        // Velocity Arrows
+        svgHtml += '<path d="M ' + profileStartX + ' ' + pY + ' L ' + pts.join(' L ') + ' L ' + profileStartX + ' ' + (pY + pH) + ' Z" fill="rgba(59, 130, 246, 0.25)" stroke="#3b82f6" stroke-width="2.5" />';
+        svgHtml += '<text x="' + (profileStartX + 45) + '" y="' + (pY + pH/2 + 4) + '" fill="#3b82f6" font-size="11" font-weight="bold" text-anchor="middle">v = ' + vel.toFixed(1) + ' ft/s</text>';
+
+        // Hydraulic Gradient Line (HGL) slope across pipe
+        var hglY1 = pY - 20;
+        var hglDrop = Math.min(25, Math.max(8, headLoss * 2));
+        var hglY2 = hglY1 + hglDrop;
+        svgHtml += '<line x1="' + (pX + 150) + '" y1="' + hglY1 + '" x2="' + (pX + pW - 20) + '" y2="' + hglY2 + '" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,3" />';
+        svgHtml += '<text x="' + (pX + 160) + '" y="' + (hglY1 - 6) + '" fill="#ef4444" font-size="11" font-weight="bold">Hydraulic Grade Line (HGL)</text>';
+        svgHtml += '<text x="' + (pX + pW - 20) + '" y="' + (hglY2 + 18) + '" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="end">Δh = ' + headLoss.toFixed(1) + ' ft</text>';
+
+        // Labels
+        svgHtml += '<text x="' + (pX + pW/2) + '" y="' + (pY + pH + 35) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">Pipe Length &amp; Fluid Direction &rarr;</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyPipeFlowReport(btn) {
+        var vel = document.getElementById('pf-res-vel').textContent;
+        var velM = document.getElementById('pf-res-vel-metric').textContent;
+        var psi = document.getElementById('pf-res-psi-drop').textContent;
+        var head = document.getElementById('pf-res-head-loss').textContent;
+        var reg = document.getElementById('pf-res-regime').textContent;
+        var pwr = document.getElementById('pf-res-pump-power').textContent;
+
+        var text = '🌊 PIPE HYDRAULIC & FRICTION HEAD LOSS REPORT\\n' +
+          '====================================================\\n' +
+          '• Fluid Velocity: ' + vel + ' (' + velM + ')\\n' +
+          '• Total Pressure Drop: ' + psi + '\\n' +
+          '• Darcy Friction Head Loss: ' + head + '\\n' +
+          '• Flow Regime: ' + reg + '\\n' +
+          '• Pumping Power: ' + pwr + '\\n' +
+          '----------------------------------------------------\\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/pipe-flow-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Hydraulics Report Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', updatePipeMaterialPreset);
+      } else {
+        updatePipeMaterialPreset();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'pipe-flow-calculator.html'), renderTradePage({
+    title: "Pipe Flow Rate, Velocity & Friction Head Loss Calculator (Darcy-Weisbach & GPM) | Digital Tools Shed",
+    metaDesc: "Calculate pipe fluid velocity (ft/s & m/s), Darcy-Weisbach friction head loss, pressure drop (PSI & kPa), and Reynolds number across PVC, copper, and steel pipes.",
+    canonical: `${DOMAIN}/calc/pipe-flow-calculator`,
+    bodyContent: pipeFlowBody,
+    currentPath: '/calc/pipe-flow-calculator',
+    faq: [
+      {
+        "q": "What is the recommended fluid velocity in domestic and commercial water pipes?",
+        "a": "Plumbing engineering codes typically mandate fluid velocities between 4 and 7 ft/s (1.2 to 2.1 m/s). Velocities below 2 ft/s allow particulate settlement and biofilm accumulation, while velocities exceeding 8 ft/s cause severe erosion-corrosion, water hammer pressure surges, and pipe wall thinning."
+      },
+      {
+        "q": "What is the difference between the Darcy-Weisbach and Hazen-Williams formulas?",
+        "a": "Darcy-Weisbach is a universal, dimensionally exact physical formula valid for all fluid types, temperatures, and pipe roughness using the friction factor f. Hazen-Williams is an empirical formula calibrated exclusively for water at room temperature (~60°F), failing to account for fluid viscosity or temperature variations."
+      },
+      {
+        "q": "Why does Schedule 80 pipe have higher friction loss than Schedule 40 pipe?",
+        "a": "Schedule 80 pipe features thicker structural walls for higher pressure ratings, which reduces its actual internal diameter (ID). Because fluid velocity varies inversely with diameter squared (1/D²) and head loss varies inversely with diameter to the fifth power (1/D⁵), the smaller ID of Schedule 80 increases friction loss substantially."
+      },
+      {
+        "q": "How does water temperature affect pipe friction loss?",
+        "a": "Kinematic viscosity of water nearly doubles from 70°F (1.0 cSt) down to 34°F (1.75 cSt). In chilled water cooling loops or winter geothermal loops, colder water produces lower Reynolds numbers and higher Darcy friction factors, increasing pumping head loss."
+      },
+      {
+        "q": "What causes water hammer in pipes?",
+        "a": "Water hammer occurs when moving fluid is abruptly stopped by a closing valve. According to the Joukowsky equation (ΔP = ρ · c · Δv), the sudden destruction of kinetic energy generates acoustic pressure shock waves exceeding 300 to 500 PSI, requiring water hammer arrestors."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 

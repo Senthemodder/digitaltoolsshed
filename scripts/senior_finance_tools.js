@@ -8,6 +8,422 @@ export function buildSeniorFinanceSuite({ DIST, DOMAIN, renderPage, writeFileSyn
 
   const financeTools = [
 {
+  "slug": "car-loan-early-payoff-calculator",
+  "title": "Car Loan Early Payoff Calculator — Extra Payments & Negative Equity Accelerator",
+  "metaDesc": "Calculate how extra monthly payments, lump-sum bonuses, or bi-weekly auto loans shorten your car loan, eliminate interest, and exit upside-down negative equity.",
+  "category": "Finance",
+  "faq": [
+    {
+      "q": "How much interest do extra payments save on a car loan?",
+      "a": "On a typical $35,000 60-month auto loan at 7.5% interest ($701/month), contributing an extra $100 per month towards principal shaves 9 months off the repayment schedule and eliminates over $1,250 in unearned bank interest charges."
+    },
+    {
+      "q": "What is the \"paid ahead\" status trap on auto loans?",
+      "a": "Many auto lenders (including Ally, Capital One, and credit unions) automatically classify extra funds as \"advance payments\" for upcoming monthly billing cycles instead of immediate principal paydowns. Under \"paid ahead\" status, your due date advances, but daily interest continues to accrue on the full unpaid principal. Borrowers must verify that payments are designated as \"Principal-Only Prepayment\"."
+    },
+    {
+      "q": "How do extra payments rescue car owners from negative equity (being \"underwater\")?",
+      "a": "New vehicles depreciate approximately 20% in year one and 15% annually thereafter. On 72-month and 84-month auto loans, the vehicle depreciates faster than scheduled principal amortizes, leaving the owner owing more than the car is worth for 3 to 4 years. Extra principal payments compress this negative equity gap, bringing the owner back to positive equity years earlier."
+    },
+    {
+      "q": "Can you get a refund on GAP insurance if you pay off an auto loan early?",
+      "a": "Yes. If you purchased Guaranteed Asset Protection (GAP) insurance or an extended service warranty through the dealership and pay off the loan before the scheduled maturity date, you are legally entitled to a prorated cash refund of the unearned premium. Borrowers must submit a written payoff verification letter to the warranty administrator to claim their refund."
+    },
+    {
+      "q": "What is the difference between simple interest and pre-computed interest on a car loan?",
+      "a": "Most legitimate auto loans use simple interest, where interest accrues daily based strictly on the current outstanding principal. Pre-computed interest (often calculated using the Rule of 78s by subprime lenders) calculates total financing charges upfront; paying off a Rule of 78s loan early yields virtually no interest savings because charges are non-refundable."
+    }
+  ],
+  "body": `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/finance/">Finance</a> &gt; Car Loan Early Payoff Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Auto Amortization Engine</span>
+          <span class="badge badge-green">Negative Equity Accelerator</span>
+          <span class="badge badge-blue">Zero Server Uploads</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Car Loan Early Payoff &amp; Extra Payment Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Determine exactly how extra monthly payments, annual lump sums, or bi-weekly auto loans shorten your debt, eliminate finance charges, and accelerate exit from upside-down negative equity.
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Current Loan Balance ($):</label>
+            <input type="number" id="cl-bal" value="32000" step="500" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcCarLoanPayoff()" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Interest Rate (% APR):</label>
+            <input type="number" id="cl-rate" value="7.49" step="0.1" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcCarLoanPayoff()" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Remaining Term (Months):</label>
+            <input type="number" id="cl-term" value="60" min="6" max="96" step="6" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcCarLoanPayoff()" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Extra Monthly Principal ($):</label>
+            <input type="number" id="cl-extra-mo" value="100" min="0" step="25" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcCarLoanPayoff()" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Current Vehicle Market Value ($):</label>
+            <input type="number" id="cl-car-val" value="30000" step="500" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcCarLoanPayoff()" />
+            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 0.2rem;">For negative equity tracking</span>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Annual Bonus / Tax Refund ($/yr):</label>
+            <input type="number" id="cl-extra-yr" value="1000" min="0" step="250" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcCarLoanPayoff()" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Bi-Weekly Payment Plan:</label>
+            <select id="cl-biweekly" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcCarLoanPayoff()">
+              <option value="no" selected>No (Standard Monthly Schedule)</option>
+              <option value="yes">Yes (26 Half-Payments / Year)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">One-Time Immediate Paydown ($):</label>
+            <input type="number" id="cl-onetime" value="0" min="0" step="500" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcCarLoanPayoff()" />
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Total Time Shaved Off</div>
+            <div id="cl-res-time-saved" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">1 Yr, 4 Mos</div>
+            <div id="cl-res-new-term" style="font-size: 0.85rem; color: var(--text-muted);">Paid off in 44 Mos (vs 60 Mos)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Total Interest Saved</div>
+            <div id="cl-res-interest-saved" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">$1,845</div>
+            <div id="cl-res-interest-sub" style="font-size: 0.85rem; color: var(--text-muted);">Interest reduced from $6,460 to $4,615</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #6366f1;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Scheduled Monthly P&amp;I</div>
+            <div id="cl-res-monthly-pi" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #6366f1; margin-bottom: 0.2rem;">$641 / mo</div>
+            <div id="cl-res-total-monthly" style="font-size: 0.85rem; color: var(--text-muted);">With Extra: $741 / mo</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Equity Crossover Date</div>
+            <div id="cl-res-equity" style="font-family: var(--mono); font-size: 1.5rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">Month 14 (Positive)</div>
+            <div id="cl-res-equity-sub" style="font-size: 0.85rem; color: var(--text-muted);">Exits negative equity 11 mos early</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE AMORTIZATION & DEPRECIATION CURVE SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.35rem; margin: 0; color: var(--fg);">
+            📉 Auto Loan Payoff vs Vehicle Depreciation Trajectory
+          </h2>
+          <div style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+            <span style="color: #ef4444; font-weight: bold;">-- Standard Schedule</span> &nbsp;|&nbsp; 
+            <span style="color: #10b981; font-weight: bold;">■ Accelerated Payoff</span> &nbsp;|&nbsp; 
+            <span style="color: #3b82f6; font-weight: bold;">·· Car Market Value</span>
+          </div>
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Shows remaining principal balance versus estimated vehicle market value. The shaded red area represents the dangerous <strong>"Underwater / Negative Equity Zone"</strong> where loan balance exceeds vehicle value.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="cl-curve-svg" viewBox="0 0 800 250" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Auto Loan Amortization Derivations
+        </h3>
+        <div id="cl-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Simulating auto loan amortization and equity crossover...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="cl-copy-btn" onclick="copyCarLoanReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Accelerated Auto Loan Audit
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps of Early Auto Loan Prepayments
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The "Paid Ahead" (Suspense) Servicer Trap</strong>
+            Auto lenders frequently classify extra payments as "paid ahead" credits for next month's bill instead of applying them directly to principal. If your online portal says "Next Payment Due in 60 Days", you have not saved a dime in interest—the bank is simply holding your cash while daily simple interest accrues on the full balance. Always designate extra payments as "Principal-Only Prepayment".
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Pre-Computed Interest &amp; The Rule of 78s Trap</strong>
+            Subprime auto loans and buy-here-pay-here dealers often write loans using "pre-computed interest" or the Rule of 78s rather than simple interest amortization. On a Rule of 78s loan, total finance charges are calculated upfront and heavily front-loaded into the first 12 months. Prepaying early on these loans yields negligible interest savings because the finance charge is non-refundable.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Rolling Negative Equity into New Car Loans</strong>
+            Trading in a vehicle while underwater and rolling $4,000 to $8,000 of unpaid negative equity into a new 72-month or 84-month auto loan creates a compounding wealth trap. Borrowers instantly begin the new loan at 130% to 150% Loan-to-Value (LTV), guaranteeing that if the vehicle is totaled or stolen, insurance payouts will fall thousands short of retiring the debt.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Forfeiting Unearned GAP &amp; Warranty Refunds</strong>
+            Dealership financing packages bundle $800 to $1,500 GAP insurance policies and $2,500 extended service contracts into the financed loan amount. When you pay off your auto loan early, you are legally entitled to a prorated cash refund for the unused months. Dealerships and lenders never process this automatically; you must submit a written cancellation request.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Prepaying Cheap Auto Debt Ahead of High-APR Toxic Debt</strong>
+            Pouring extra cash into an auto loan carrying a promotional 2.9% to 4.5% APR while carrying credit card debt at 22% APR or failing to capture a 100% 401(k) employer match is financially irrational. Extinguishing a 22% credit card yields a guaranteed 22% return, whereas paying down cheap secured debt offers only a 3% return with severe liquidity loss.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcCarLoanPayoff() {
+        var bal = parseFloat(document.getElementById('cl-bal').value) || 32000;
+        var rate = parseFloat(document.getElementById('cl-rate').value) || 7.49;
+        var termMos = parseInt(document.getElementById('cl-term').value) || 60;
+        var extraMo = parseFloat(document.getElementById('cl-extra-mo').value) || 0;
+        var carVal = parseFloat(document.getElementById('cl-car-val').value) || 30000;
+        var extraYr = parseFloat(document.getElementById('cl-extra-yr').value) || 0;
+        var isBiweekly = document.getElementById('cl-biweekly').value === 'yes';
+        var oneTime = parseFloat(document.getElementById('cl-onetime').value) || 0;
+
+        var monthlyRate = (rate / 100) / 12;
+
+        // Standard Scheduled Monthly P&I
+        var scheduledPI = 0;
+        if (monthlyRate > 0 && termMos > 0) {
+          scheduledPI = bal * (monthlyRate * Math.pow(1 + monthlyRate, termMos)) / (Math.pow(1 + monthlyRate, termMos) - 1);
+        }
+
+        var biweeklyExtraPerMo = isBiweekly ? (scheduledPI / 12) : 0;
+
+        // Baseline Simulation
+        var stdBal = bal;
+        var stdTotalInterest = 0;
+        var stdCurve = [{ m: 0, bal: stdBal }];
+        for (var m = 1; m <= termMos; m++) {
+          var mInt = stdBal * monthlyRate;
+          var mPrin = scheduledPI - mInt;
+          stdTotalInterest += mInt;
+          stdBal -= mPrin;
+          if (stdBal < 0) stdBal = 0;
+          stdCurve.push({ m: m, bal: stdBal });
+        }
+
+        // Accelerated Simulation
+        var accBal = bal - oneTime;
+        var accTotalInterest = 0;
+        var accMonths = 0;
+        var accCurve = [{ m: 0, bal: accBal }];
+
+        while (accBal > 0.01 && accMonths < termMos * 2) {
+          accMonths++;
+          var curInt = accBal * monthlyRate;
+          var curExtra = extraMo + biweeklyExtraPerMo + (accMonths % 12 === 0 ? extraYr : 0);
+          var curPrin = (scheduledPI - curInt) + curExtra;
+
+          if (accBal + curInt <= scheduledPI + curExtra) {
+            accTotalInterest += curInt;
+            accBal = 0;
+            accCurve.push({ m: accMonths, bal: 0 });
+            break;
+          }
+
+          accTotalInterest += curInt;
+          accBal -= curPrin;
+          accCurve.push({ m: accMonths, bal: accBal });
+        }
+
+        var monthsSaved = Math.max(0, termMos - accMonths);
+        var yearsSaved = Math.floor(monthsSaved / 12);
+        var remMonthsSaved = monthsSaved % 12;
+        var interestSaved = Math.max(0, stdTotalInterest - accTotalInterest);
+
+        // Vehicle Depreciation Simulation
+        // Assume ~1.2% per month depreciation from current car value
+        var depCurve = [];
+        var crossoverMonth = -1;
+        var stdCrossoverMonth = -1;
+        var curVal = carVal;
+        for (var dm = 0; dm <= termMos; dm++) {
+          depCurve.push({ m: dm, val: curVal });
+          // Check accelerated crossover
+          var matchingAcc = accCurve.find(function(c) { return c.m === dm; });
+          var aBal = matchingAcc ? matchingAcc.bal : 0;
+          if (crossoverMonth === -1 && aBal <= curVal && aBal > 0) {
+            crossoverMonth = dm;
+          }
+          // Check std crossover
+          var matchingStd = stdCurve.find(function(c) { return c.m === dm; });
+          var sBal = matchingStd ? matchingStd.bal : 0;
+          if (stdCrossoverMonth === -1 && sBal <= curVal && sBal > 0) {
+            stdCrossoverMonth = dm;
+          }
+          curVal *= 0.988; // 1.2% monthly depreciation
+        }
+
+        // Update KPIs
+        document.getElementById('cl-res-time-saved').textContent = yearsSaved + ' Yr' + (yearsSaved !== 1 ? 's' : '') + ', ' + remMonthsSaved + ' Mo' + (remMonthsSaved !== 1 ? 's' : '');
+        document.getElementById('cl-res-new-term').textContent = 'Paid off in ' + accMonths + ' Mos (vs ' + termMos + ' Mos)';
+
+        document.getElementById('cl-res-interest-saved').textContent = '$' + Math.round(interestSaved).toLocaleString();
+        document.getElementById('cl-res-interest-sub').textContent = 'Interest reduced from $' + Math.round(stdTotalInterest).toLocaleString() + ' to $' + Math.round(accTotalInterest).toLocaleString();
+
+        document.getElementById('cl-res-monthly-pi').textContent = '$' + Math.round(scheduledPI).toLocaleString() + ' / mo';
+        document.getElementById('cl-res-total-monthly').textContent = 'With Extra: $' + Math.round(scheduledPI + extraMo + biweeklyExtraPerMo).toLocaleString() + ' / mo';
+
+        var eqEl = document.getElementById('cl-res-equity');
+        var eqSubEl = document.getElementById('cl-res-equity-sub');
+        if (bal <= carVal) {
+          eqEl.textContent = 'Currently Positive Equity';
+          eqEl.style.color = '#10b981';
+          eqSubEl.textContent = 'Car value exceeds loan balance ($' + Math.round(carVal - bal).toLocaleString() + ' equity)';
+        } else if (crossoverMonth > 0) {
+          eqEl.textContent = 'Month ' + crossoverMonth + ' (Positive)';
+          eqEl.style.color = '#10b981';
+          var earlyCross = stdCrossoverMonth > crossoverMonth ? (stdCrossoverMonth - crossoverMonth) : 0;
+          eqSubEl.textContent = 'Exits underwater status ' + earlyCross + ' mos early';
+        } else {
+          eqEl.textContent = 'Underwater Until Payoff';
+          eqEl.style.color = '#f59e0b';
+          eqSubEl.textContent = 'Increase extra payment to exit negative equity';
+        }
+
+        // Derivations Box
+        var dBox = document.getElementById('cl-derivation-box');
+        dBox.innerHTML = '<strong>1. Standard Amortization:</strong> ' + termMos + '-Month P&amp;I = <strong>$' + Math.round(scheduledPI).toLocaleString() + ' / month</strong> over ' + termMos + ' months = $' + Math.round(stdTotalInterest).toLocaleString() + ' total financing charges.<br>' +
+          '<strong>2. Accelerated Principal Contribution:</strong> $' + extraMo.toLocaleString() + '/mo extra principal + $' + extraYr.toLocaleString() + '/yr bonus' + (isBiweekly ? ' + $' + Math.round(biweeklyExtraPerMo).toLocaleString() + '/mo bi-weekly accelerator' : '') + (oneTime > 0 ? ' + $' + oneTime.toLocaleString() + ' lump sum' : '') + '.<br>' +
+          '<strong>3. Accelerated Loan Retirement:</strong> Fully paid off in <strong>' + accMonths + ' months</strong>, shaving off <strong>' + yearsSaved + ' years and ' + remMonthsSaved + ' months (' + monthsSaved + ' months early)</strong>.<br>' +
+          '<strong>4. Total Wealth Protected:</strong> Elimination of <strong>$' + Math.round(interestSaved).toLocaleString() + ' in bank financing interest</strong>.<br>' +
+          '<strong>5. Guaranteed Rate of Return:</strong> Retiring 7.49% debt yields an immutable, tax-exempt guaranteed return equal to the loan APR.';
+
+        renderCarLoanCurveSvg(stdCurve, accCurve, depCurve, termMos, Math.max(bal, carVal));
+      }
+
+      function renderCarLoanCurveSvg(stdCurve, accCurve, depCurve, maxMos, maxVal) {
+        var svg = document.getElementById('cl-curve-svg');
+        if (!svg) return;
+
+        var w = 800, h = 250;
+        var padL = 70, padR = 40, padT = 30, padB = 40;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        var maxY = maxVal * 1.15;
+        var svgHtml = '';
+
+        // Axes
+        svgHtml += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+
+        // Car depreciation line (Blue dotted)
+        var depPts = depCurve.map(function(pt) {
+          var x = padL + (pt.m / maxMos) * plotW;
+          var y = padT + plotH - (pt.val / maxY) * plotH;
+          return x.toFixed(1) + ',' + y.toFixed(1);
+        });
+        svgHtml += '<path d="M ' + depPts.join(' L ') + '" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4,4" />';
+
+        // Standard schedule (Red dashed)
+        var stdPts = stdCurve.map(function(pt) {
+          var x = padL + (pt.m / maxMos) * plotW;
+          var y = padT + plotH - (pt.bal / maxY) * plotH;
+          return x.toFixed(1) + ',' + y.toFixed(1);
+        });
+        svgHtml += '<path d="M ' + stdPts.join(' L ') + '" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="6,4" />';
+
+        // Accelerated schedule (Green solid)
+        var accPts = accCurve.map(function(pt) {
+          var x = padL + (pt.m / maxMos) * plotW;
+          var y = padT + plotH - (pt.bal / maxY) * plotH;
+          return x.toFixed(1) + ',' + y.toFixed(1);
+        });
+        svgHtml += '<path d="M ' + accPts.join(' L ') + '" fill="none" stroke="#10b981" stroke-width="3" />';
+
+        // Accelerated payoff endpoint dot
+        var lastAcc = accCurve[accCurve.length - 1];
+        var endX = padL + (lastAcc.m / maxMos) * plotW;
+        svgHtml += '<circle cx="' + endX + '" cy="' + (padT + plotH) + '" r="5" fill="#10b981" />';
+        svgHtml += '<text x="' + endX + '" y="' + (padT + plotH - 12) + '" fill="#10b981" font-size="11" font-weight="bold" text-anchor="middle">Month ' + lastAcc.m + ' Payoff</text>';
+
+        // Axis Ticks
+        svgHtml += '<text x="' + padL + '" y="' + (padT + plotH + 20) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">Mo 0</text>';
+        svgHtml += '<text x="' + (padL + plotW/2) + '" y="' + (padT + plotH + 20) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">Mo ' + Math.round(maxMos/2) + '</text>';
+        svgHtml += '<text x="' + (padL + plotW) + '" y="' + (padT + plotH + 20) + '" fill="var(--text-muted)" font-size="11" text-anchor="end">Mo ' + maxMos + '</text>';
+
+        svgHtml += '<text x="' + (padL - 10) + '" y="' + (padT + 12) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="end">Balance ($)</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyCarLoanReport(btn) {
+        var timeSaved = document.getElementById('cl-res-time-saved').textContent;
+        var newTerm = document.getElementById('cl-res-new-term').textContent;
+        var intSaved = document.getElementById('cl-res-interest-saved').textContent;
+        var pi = document.getElementById('cl-res-monthly-pi').textContent;
+        var eq = document.getElementById('cl-res-equity').textContent;
+        var bal = document.getElementById('cl-bal').value;
+        var extra = document.getElementById('cl-extra-mo').value;
+
+        var text = '🚗 ACCELERATED AUTO LOAN AUDIT & EARLY PAYOFF\\n' +
+          '====================================================\\n' +
+          '• Loan Balance: $' + parseFloat(bal).toLocaleString() + '\\n' +
+          '• Monthly P&I: ' + pi + ' (+ $' + extra + '/mo extra principal)\\n' +
+          '• Time Shaved Off: ' + timeSaved + ' (' + newTerm + ')\\n' +
+          '• Total Interest Saved: ' + intSaved + '\\n' +
+          '• Equity Status: ' + eq + '\\n' +
+          '----------------------------------------------------\\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/finance/car-loan-early-payoff-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Auto Audit Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcCarLoanPayoff);
+      } else {
+        calcCarLoanPayoff();
+      }
+    </script>
+  `
+},
+
+{
   "slug": "mortgage-payoff-calculator",
   "title": "Mortgage Payoff Calculator — Extra Payments & Early Amortization Accelerator",
   "metaDesc": "Calculate how extra monthly payments, annual lump sums, or bi-weekly mortgages shorten your 30-year home loan. See exact years shaved off, total interest saved, and interactive equity payoff curve.",
