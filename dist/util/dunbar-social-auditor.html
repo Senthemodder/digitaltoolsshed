@@ -106,18 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is Dunbar's Number?",
+      "name": "What is Dunbar's Number in evolutionary anthropology?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Dunbar's Number (approx 150) is the suggested cognitive limit to the number of people with whom one can maintain stable social relationships."
+        "text": "Discovered by British anthropologist Robin Dunbar, Dunbar's Number (approximately 150) is the theoretical cognitive limit to the number of individuals with whom a human can maintain stable, reciprocal social relationships. It correlates directly with primate neocortex volume."
       }
     },
     {
       "@type": "Question",
-      "name": "What are the layers of Dunbar's circles?",
+      "name": "What are the four concentric layers of Dunbar's circles?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "They follow a rule of 3: 5 core intimates, 15 close confidants, 50 good friends, and 150 meaningful contacts."
+        "text": "Dunbar's layers follow a rule of 3: 5 core intimates (Support Clique), 15 close confidants (Sympathy Group), 50 good friends, and 150 meaningful acquaintances. Beyond 150, relationships become transactional and cannot be sustained without formal institutions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is parasocial cognitive displacement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When people spend hours consuming content from online creators and podcasters, our evolutionary brain processes their faces as members of our physical band. This drains neocortical bandwidth and creates an illusion of companionship while leaving real oxytocin and bonding circuits starved."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How fast do friendships decay if not actively maintained?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dunbar's research indicates that moving an individual into your inner 5 requires roughly 200 hours of shared time within a 6-month window. If contact drops to casual messaging, relationship intimacy decays from Tier 1 to Tier 3 within 12 to 18 months."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can digital social media expand our natural neocortex limit beyond 150?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Brain imaging and digital interaction studies demonstrate that while people may collect thousands of followers or Facebook friends, the actual number of reciprocal active conversations remains bounded between 100 and 200 individuals."
       }
     }
   ]
@@ -1033,11 +1057,6 @@
       .neuro-slider-row { margin-bottom: 1.25rem; }
       .neuro-slider-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.35rem; }
       .neuro-slider-input { width: 100%; accent-color: #3b82f6; cursor: pointer; }
-      .faq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 2rem; padding: 1.5rem; }
-      .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
-      .faq-item:last-child { border-bottom: none; }
-      .faq-q { font-family: var(--serif); font-size: 1.1rem; font-weight: bold; margin-bottom: 0.4rem; color: var(--fg); }
-      .faq-a { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
     </style>
   
     <div class="article-container" style="max-width: 950px;">
@@ -1112,25 +1131,82 @@
         <div id="dunbarVerdict" style="font-size: 0.95rem; color: var(--fg); line-height: 1.6;"></div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is Dunbar's Number?</div>
-          <div class="faq-a">
-            British anthropologist Robin Dunbar discovered that primate brain neocortex volume correlates directly with social group size. In humans, this cognitive limit is approximately 150 individuals. Beyond this limit, relationships cannot be maintained without formal laws or institutional rules.
+      <!-- LIVE MATHEMATICAL DERIVATION BREAKDOWN -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Neocortex Ratio &amp; Social Allocation Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Evaluating human social brain capacity algebraically across Dunbar's fractals:
+        </p>
+
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Total Real Active Relationships</strong>
+            <div id="derDunStep1" style="color: #3b82f6; margin-top: 0.25rem;">4 + 12 + 38 + 110 = 164 Active Relationships</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Neocortical Bandwidth Utilization</strong>
+            <div id="derDunStep2" style="color: var(--text-muted); margin-top: 0.25rem;">(164 / 150) &times; 100% = 109.3% of theoretical evolutionary maximum</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Parasocial Displacement Quotient</strong>
+            <div id="derDunStep3" style="color: #a855f7; margin-top: 0.25rem;">3.5 hrs/day consumes ~22% of daily conversational bandwidth</div>
           </div>
         </div>
-        <div class="faq-item">
-          <div class="faq-q">What is parasocial cognitive displacement?</div>
-          <div class="faq-a">
-            When humans spend hours watching video creators and streamers, our ancient evolutionary brain processes their faces as real social connections. This creates a false sensation of social fulfillment, draining our neocortex bandwidth while starving us of genuine physical oxytocin bonds.
+
+        <button id="btnCopyDunbar" onclick="copyDunbarSummary()" class="btn-primary" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Dunbar Social Audit Report
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS & ANTHROPOLOGICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Social Traps &amp; Anthropological Pitfalls</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Our evolutionary hardware was sculpted for Pleistocene hunter-gatherer bands, not global digital hyper-connectivity:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The Parasocial Digital Displacement Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Allocating 4+ hours daily to watching online influencers, podcasters, and streamers. The human neocortex cannot distinguish between broadcast faces and genuine tribe members, tricking your brain into feeling "socially full" while leaving your oxytocin circuits starved.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. The Social Dilution Fallacy</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Attempting to maintain 500+ "friends" on social media. Neocortical constraints mean that widening your outer circle inevitably cannibalizes the time and emotional investment required to sustain your inner 5-person Support Clique.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Neglecting the Inner 5 Support Clique</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Failing to regularly invest deep, uninterrupted time into the 5 core individuals who would shelter, support, or care for you during a severe crisis. Without active maintenance, support tier relationships decay within 12 to 18 months.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. Energy Vampire Retention</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Keeping emotionally draining, one-sided acquaintances in your Sympathy Group (15-layer) out of guilt or inertia, blocking space for mutual, energizing friendships.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. The "Broadcast Communication" Illusion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Confusing public status updates, Instagram stories, and group chats with one-on-one relational maintenance. Deep emotional bonds require personalized dyadic interaction.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      var currentDunbarData = null;
+
       function calcDunbar() {
         var t1 = parseInt(document.getElementById('tier1Input').value, 10) || 0;
         var t2 = parseInt(document.getElementById('tier2Input').value, 10) || 0;
@@ -1157,6 +1233,24 @@
           text += 'Your social architecture is well-balanced across the core layers.';
         }
         v.innerHTML = text;
+
+        var pctNeocortex = ((totalReal / 150) * 100).toFixed(1);
+        var dispPct = Math.min(100, Math.round((paraH / 16) * 100));
+
+        document.getElementById('derDunStep1').innerHTML = 
+          'Total Active Relationships: ' + t1 + ' (Core) + ' + t2 + ' (Sympathy) + ' + t3 + ' (Friends) + ' + t4 + ' (Contacts) = <strong>' + totalReal + ' People</strong>';
+        document.getElementById('derDunStep2').innerHTML = 
+          'Neocortex Capacity Ratio: (' + totalReal + ' / 150) &times; 100% = <strong>' + pctNeocortex + '% of Dunbar Limit</strong>';
+        document.getElementById('derDunStep3').innerHTML = 
+          'Parasocial Time Displacement: ' + paraH.toFixed(1) + ' hrs / 16 waking hrs = <strong>~' + dispPct + '% of daily social bandwidth</strong>';
+
+        currentDunbarData = {
+          total: totalReal,
+          pct: pctNeocortex + '%',
+          tier1: t1,
+          tier2: t2,
+          parasocial: paraH.toFixed(1) + ' hrs/day'
+        };
       }
 
       function renderDunbarCanvas(t1, t2, t3, t4, para) {
@@ -1199,9 +1293,117 @@
         ctx.stroke();
       }
 
+      function copyDunbarSummary() {
+        if (!currentDunbarData) return;
+        var d = currentDunbarData;
+        var text = 
+          'DUNBAR 150 SOCIAL SPHERE AUDIT REPORT
+' +
+          '========================================
+' +
+          '• Total Active Social Sphere: ' + d.total + ' People (' + d.pct + ' of Neocortex Limit)
+' +
+          '• Layer 1 (Support Clique): ' + d.tier1 + ' People (Target ~5)
+' +
+          '• Layer 2 (Sympathy Group): ' + d.tier2 + ' People (Target ~15)
+' +
+          '• Daily Parasocial Media Load: ' + d.parasocial + '
+' +
+          '========================================
+' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopyDunbar');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Dunbar Social Audit!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', calcDunbar);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Dunbar's Number in evolutionary anthropology?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Discovered by British anthropologist Robin Dunbar, Dunbar's Number (approximately 150) is the theoretical cognitive limit to the number of individuals with whom a human can maintain stable, reciprocal social relationships. It correlates directly with primate neocortex volume.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What are the four concentric layers of Dunbar's circles?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Dunbar's layers follow a rule of 3: 5 core intimates (Support Clique), 15 close confidants (Sympathy Group), 50 good friends, and 150 meaningful acquaintances. Beyond 150, relationships become transactional and cannot be sustained without formal institutions.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is parasocial cognitive displacement?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                When people spend hours consuming content from online creators and podcasters, our evolutionary brain processes their faces as members of our physical band. This drains neocortical bandwidth and creates an illusion of companionship while leaving real oxytocin and bonding circuits starved.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How fast do friendships decay if not actively maintained?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Dunbar's research indicates that moving an individual into your inner 5 requires roughly 200 hours of shared time within a 6-month window. If contact drops to casual messaging, relationship intimacy decays from Tier 1 to Tier 3 within 12 to 18 months.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Can digital social media expand our natural neocortex limit beyond 150?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                No. Brain imaging and digital interaction studies demonstrate that while people may collect thousands of followers or Facebook friends, the actual number of reciprocal active conversations remains bounded between 100 and 200 individuals.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

@@ -9,6 +9,52 @@ export function buildCuriosityNeuroSuite() {
   const utilDir = join(DIST, 'util');
   ensureDir(utilDir);
 
+  function renderCuriosityPage(opts) {
+    let visibleFaqHtml = '';
+    if (opts.faq && opts.faq.length > 0) {
+      visibleFaqHtml = `
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          ${opts.faq.map(f => `
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">${f.q}</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                ${f.a}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+    const fullBody = opts.bodyContent + visibleFaqHtml + `
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    `;
+    return renderPage({
+      ...opts,
+      bodyContent: fullBody
+    });
+  }
+
   const sharedStyle = `
     <style>
       .neuro-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
@@ -25,11 +71,6 @@ export function buildCuriosityNeuroSuite() {
       .neuro-slider-row { margin-bottom: 1.25rem; }
       .neuro-slider-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.35rem; }
       .neuro-slider-input { width: 100%; accent-color: #3b82f6; cursor: pointer; }
-      .faq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 2rem; padding: 1.5rem; }
-      .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
-      .faq-item:last-child { border-bottom: none; }
-      .faq-q { font-family: var(--serif); font-size: 1.1rem; font-weight: bold; margin-bottom: 0.4rem; color: var(--fg); }
-      .faq-a { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
     </style>
   `;
 
@@ -55,10 +96,10 @@ export function buildCuriosityNeuroSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Executive Function & Choice Architecture</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Executive Function &amp; Choice Architecture</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Decision Paralysis Bracket Tournament</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          Overwhelmed by too many options? Evaluating 8 or 16 choices at once floods working memory (Miller’s Law). This tool runs a rapid binary elimination tournament (March Madness style) to bypass prefrontal hesitation in under 60 seconds.
+          Overwhelmed by too many competing options? Evaluating 8 or 16 choices at once floods working memory (Miller’s Law). This tool runs a rapid binary elimination tournament (March Madness style) to bypass prefrontal hesitation in under 60 seconds.
         </p>
       </header>
 
@@ -77,7 +118,11 @@ export function buildCuriosityNeuroSuite() {
           <button class="neuro-pill-btn" onclick="loadPreset('movies')">🎬 Movie / Watchlist</button>
         </div>
 
-        <textarea id="itemsInput" class="code-input" style="height: 130px; margin-bottom: 1rem; font-family: var(--mono); font-size: 0.95rem; line-height: 1.5;" placeholder="Enter one option per line (min 4, max 16)...&#10;Thai Food&#10;Tacos&#10;Sushi&#10;Pizza&#10;Burgers&#10;Indian Curry&#10;Ramen&#10;Mediterranean Shawarma"></textarea>
+        <textarea id="itemsInput" class="code-input" style="width: 100%; height: 130px; margin-bottom: 0.5rem; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; line-height: 1.5; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px;" placeholder="Enter one option per line (min 4, max 16)...&#10;Thai Food&#10;Tacos&#10;Sushi&#10;Pizza&#10;Burgers&#10;Indian Curry&#10;Ramen&#10;Mediterranean Shawarma"></textarea>
+
+        <div id="bracketError" style="display: none; color: #ef4444; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.75rem;">
+          ⚠️ Please enter at least 2 options to compare.
+        </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
           <span id="itemCountLabel" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">8 options detected (Quarterfinals ready)</span>
@@ -125,30 +170,77 @@ export function buildCuriosityNeuroSuite() {
         <p id="winnerAnalysis" style="font-size: 1rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 1.5rem; line-height: 1.6;"></p>
 
         <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
-          <button onclick="copyVictory()" class="neuro-btn-primary">📋 Copy Decision Summary</button>
+          <button id="btnCopyBracket" onclick="copyVictory()" class="neuro-btn-primary" style="transition: all 0.2s;">📋 Copy Decision Summary</button>
           <button onclick="cancelTournament()" class="neuro-pill-btn" style="padding: 0.7rem 1.2rem;">Run Another Dilemma</button>
         </div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">Why does binary elimination resolve decision paralysis so fast?</div>
-          <div class="faq-a">
-            According to Hick’s Law (T = b &times; log2(n + 1)), decision time increases logarithmically with the number of options. Simultaneously ranking 8 or 16 choices overwhelms working memory and activates amygdala anxiety. Pitting choices head-to-head in 1-on-1 pairs strips away comparative noise, allowing your subconscious gut intuition to decide in milliseconds.
+      <!-- WORKED DECISION DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Decision Architecture &amp; Hick's Law Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          How binary tournament trees bypass cognitive thrashing:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <div style="color: var(--text-muted); font-size: 0.72rem;">HICK'S LAW LATENCY</div>
+            <div style="font-weight: bold; margin-top: 0.2rem;">T = b &times; log<sub>2</sub>(n + 1)</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">Binary pairs minimize n to 2 at every step.</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <div style="color: var(--text-muted); font-size: 0.72rem;">BINARY TREE DEPTH</div>
+            <div style="font-weight: bold; margin-top: 0.2rem;">Depth = &lceil;log<sub>2</sub>(N)&rceil; Rounds</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">8 items resolve in exactly 3 rapid rounds.</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <div style="color: var(--text-muted); font-size: 0.72rem;">WORKING MEMORY BUFFER</div>
+            <div style="font-weight: bold; margin-top: 0.2rem;">Miller's Law (4 &plusmn; 1 Items)</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">Prevents cognitive overload and analysis freeze.</div>
           </div>
         </div>
-        <div class="faq-item">
-          <div class="faq-q">What if I feel disappointed by the winning choice?</div>
-          <div class="faq-a">
-            Sigmund Freud famously noted that tossing a coin (or running an elimination bracket) reveals your true subconscious desire the instant the result appears. If you feel regret or reluctance about the winner, your brain has just illuminated what you actually wanted: the runner-up.
+      </div>
+
+      <!-- 5 FATAL TRAPS & COGNITIVE PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Decision Paralysis Traps &amp; Executive Pitfalls</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Evaluating options triggers acute cognitive friction. Avoid these 5 common mental traps:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The Endless Symmetrical Deliberation Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Spending 45 minutes comparing options that have virtually identical expected utility. When the difference in outcome value is negligible, any decision executed in 5 seconds is mathematically superior to delaying action.
+            </p>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">Is my input data private?</div>
-          <div class="faq-a">
-            100% private. The tournament runs entirely in your local browser memory using client-side JavaScript. Zero inputs or decision results are ever transmitted to external servers.
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. The Omission Bias Illusion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Believing that delaying or avoiding a decision is "neutral" or carries less risk than making an imperfect choice. In reality, procrastination is an active negative decision that incurs massive compounding opportunity costs.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Working Memory Buffer Overflow (Miller's Law)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Attempting to simultaneously evaluate 6+ options in your conscious mind. The prefrontal cortex can only sustain 4 &plusmn; 1 information chunks simultaneously; attempting more causes cognitive thrashing and decision fatigue.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. Post-Tournament Buyer's Remorse Reversal</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Second-guessing the tournament winner immediately after the final matchup. If you experience sudden reluctance or regret, treat it as a clinical diagnostic of your hidden subconscious preference: you actually wanted the runner-up.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. Asymmetrical Information Hunting</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Postponing decisions under the guise of "needing just one more review or data point." In over 80% of everyday personal and operational dilemmas, marginal information gain drops to zero after the initial comparison.
+            </p>
           </div>
         </div>
       </div>
@@ -171,13 +263,14 @@ export function buildCuriosityNeuroSuite() {
 
       function loadPreset(key) {
         if (presets[key]) {
-          document.getElementById('itemsInput').value = presets[key].join('\\n');
+          document.getElementById('itemsInput').value = presets[key].join('\n');
+          document.getElementById('bracketError').style.display = 'none';
           updateCount();
         }
       }
 
       function updateCount() {
-        var lines = document.getElementById('itemsInput').value.split('\\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+        var lines = document.getElementById('itemsInput').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
         var count = lines.length;
         var valid = [4, 8, 16];
         var msg = count + ' options detected.';
@@ -193,11 +286,13 @@ export function buildCuriosityNeuroSuite() {
       document.getElementById('itemsInput').addEventListener('input', updateCount);
 
       function startTournament() {
-        var raw = document.getElementById('itemsInput').value.split('\\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+        var raw = document.getElementById('itemsInput').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+        var errEl = document.getElementById('bracketError');
         if (raw.length < 2) {
-          alert('Please enter at least 2 options to compare.');
+          errEl.style.display = 'block';
           return;
         }
+        errEl.style.display = 'none';
 
         var targetSize = 2;
         if (raw.length > 8) targetSize = 16;
@@ -277,9 +372,26 @@ export function buildCuriosityNeuroSuite() {
 
       function copyVictory() {
         var win = document.getElementById('winnerName').textContent;
-        var text = '🏆 Decision Bracket Champion: ' + win + '\\nDecided via Digital Tools Shed Prefrontal Cortex Bypass Engine: ' + window.location.href;
+        var text = 
+          'DECISION BRACKET TOURNAMENT RESULT\n' +
+          '========================================\n' +
+          '• Undisputed Champion: ' + win + '\n' +
+          (runnerUp ? '• Runner-Up: ' + runnerUp + '\n' : '') +
+          '• Algorithm: Binary Elimination Tournament (March Madness Style)\n' +
+          '========================================\n' +
+          'Decided via Digital Tools Shed: ' + window.location.href;
+
         navigator.clipboard.writeText(text).then(function() {
-          alert('Decision summary copied to clipboard!');
+          var btn = document.getElementById('btnCopyBracket');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Decision Summary!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
         });
       }
 
@@ -303,16 +415,33 @@ export function buildCuriosityNeuroSuite() {
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'decision-bracket.html'), renderPage({
-    title: 'Decision Paralysis Bracket Tournament [Prefrontal Cortex Bypass Engine] | Digital Tools Shed',
-    metaDesc: 'Eliminate decision fatigue and analysis paralysis with a rapid binary head-to-head tournament bracket. Pit 4, 8, or 16 choices in 1-on-1 matchups to reveal your subconscious priority.',
+  writeFileSync(join(utilDir, 'decision-bracket.html'), renderCuriosityPage({
+    title: "Decision Paralysis Bracket Tournament [Prefrontal Cortex Bypass Engine] | Digital Tools Shed",
+    metaDesc: "Eliminate decision fatigue and analysis paralysis with a rapid binary head-to-head tournament bracket. Pit 4, 8, or 16 choices in 1-on-1 matchups to reveal your subconscious priority.",
     canonical: `${DOMAIN}/util/decision-bracket`,
     bodyContent: decisionBracketHtml,
     currentPath: '/util/decision-bracket',
     faq: [
-      { q: 'Why does binary elimination resolve decision paralysis so fast?', a: 'According to Hick\'s Law, decision time increases logarithmically with choices. Pairwise 1-on-1 elimination strips away comparative noise, allowing your subconscious gut intuition to decide in milliseconds.' },
-      { q: 'What if I feel disappointed by the winning choice?', a: 'Sigmund Freud noted that flipping a coin or running an elimination tournament reveals your true subconscious desire the instant the result appears. If you feel regret about the winner, your brain has just illuminated what you actually wanted: the runner-up.' },
-      { q: 'Is my decision data sent to any servers?', a: 'Zero data is sent to servers. The entire tournament runs client-side in your local browser session with 100% privacy.' }
+      {
+        q: "Why does binary elimination resolve decision paralysis so fast?",
+        a: "According to Hick's Law (T = b * log2(n + 1)), decision time increases logarithmically with the number of options. Simultaneously ranking 8 or 16 choices floods prefrontal working memory. Pairwise 1-on-1 elimination strips away comparative noise, allowing your subconscious gut intuition to decide in milliseconds."
+      },
+      {
+        q: "What if I feel disappointed by the winning choice?",
+        a: "Sigmund Freud noted that flipping a coin or running an elimination tournament reveals your true subconscious desire the instant the result appears. If you feel sudden regret or reluctance about the winner, your brain has illuminated what you actually preferred: the runner-up."
+      },
+      {
+        q: "How many choices can I compare in the tournament?",
+        a: "The engine supports between 2 and 16 choices, automatically balancing brackets into 4, 8, or 16 competitor single-elimination trees to guarantee fair seeding."
+      },
+      {
+        q: "Can I navigate the tournament using keyboard shortcuts?",
+        a: "Yes. You can press '1' or Left Arrow to choose the left option, and '2' or Right Arrow to choose the right option, allowing you to complete an 8-item tournament in under 20 seconds."
+      },
+      {
+        q: "Is my decision data private?",
+        a: "100% private. The tournament runs entirely in your local browser memory using client-side JavaScript. Zero inputs or decision results are ever transmitted to external servers."
+      }
     ]
   }));
 
@@ -334,7 +463,7 @@ export function buildCuriosityNeuroSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">Actuarial Reality Check & Tim Urban's 'The Tail End'</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">Actuarial Reality Check &amp; Tim Urban's 'The Tail End'</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">The Tail End: Loved-One Time Remaining Ledger</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
           By age 18, you have already spent roughly 90% of the total in-person face-to-face time you will ever have with your parents. If your loved ones live elsewhere and you visit twice a year, you don't have "20 years left"—you have 40 visits left.
@@ -345,7 +474,7 @@ export function buildCuriosityNeuroSuite() {
         <div class="neuro-grid-3" style="margin-bottom: 1.5rem;">
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Relationship</label>
-            <select id="relType" class="code-input" onchange="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);">
+            <select id="relType" class="code-input" onchange="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;">
               <option value="parent" selected>Mother / Father</option>
               <option value="grandparent">Grandmother / Grandfather</option>
               <option value="child">Child (Before Age 18)</option>
@@ -355,26 +484,26 @@ export function buildCuriosityNeuroSuite() {
           </div>
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Your Current Age</label>
-            <input type="number" id="userAge" value="30" min="1" max="100" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="userAge" value="30" min="1" max="100" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Loved One's Current Age</label>
-            <input type="number" id="lovedAge" value="62" min="1" max="105" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="lovedAge" value="62" min="1" max="105" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
         </div>
 
         <div class="neuro-grid-3">
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Visits / Encounters Per Year</label>
-            <input type="number" id="visitsPerYear" value="3" min="1" max="365" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="visitsPerYear" value="3" min="1" max="365" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Average Days Per Visit</label>
-            <input type="number" id="daysPerVisit" value="4" min="1" max="60" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="daysPerVisit" value="4" min="1" max="60" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Actuarial Life Expectancy</label>
-            <input type="number" id="targetLifespan" value="82" min="50" max="110" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="targetLifespan" value="82" min="50" max="110" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
         </div>
       </div>
@@ -420,34 +549,91 @@ export function buildCuriosityNeuroSuite() {
         <p id="ledgerSummaryText" style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin: 1rem 0 0;"></p>
       </div>
 
+      <!-- LIVE MATHEMATICAL DERIVATION BREAKDOWN -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Actuarial Derivation &amp; Mathematical Timeline</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          How the mortality ledger evaluates your relationship's temporal boundaries:
+        </p>
+
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Compute Childhood In-Person Baseline (Ages 0–18)</strong>
+            <div id="derTailStep1" style="color: #3b82f6; margin-top: 0.25rem;">18 years &times; ~300 days/year = 5,400 co-present days</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Compute Adult Days Already Expended</strong>
+            <div id="derTailStep2" style="color: var(--text-muted); margin-top: 0.25rem;">(30 - 18) years &times; 3 visits &times; 4 days = 144 days</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Compute Projected Future In-Person Days</strong>
+            <div id="derTailStep3" style="color: #22c55e; margin-top: 0.25rem;">(82 - 62) actuarial years &times; 3 visits &times; 4 days = 240 days</div>
+          </div>
+        </div>
+
+        <button id="btnCopyLedger" onclick="copyLedgerSummary()" class="btn-primary" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Complete Mortality Ledger Summary
+        </button>
+      </div>
+
       <!-- CALL TO ACTION CARD -->
       <div class="neuro-card" style="background: rgba(59,130,246,0.06); border-left: 4px solid #3b82f6;">
         <h4 style="font-family: var(--serif); font-size: 1.2rem; margin: 0 0 0.5rem; color: #3b82f6;">The Immediate Antidote</h4>
         <p style="font-size: 0.92rem; color: var(--fg); line-height: 1.5; margin-bottom: 1rem;">
           Don't let this reality check induce hollow paralysis. Reach out right now while they are here to receive it.
         </p>
-        <button onclick="copyWarmMessage()" class="neuro-btn-primary">📱 Copy Warm Check-In Text to Clipboard</button>
+        <button id="btnCopyWarm" onclick="copyWarmMessage()" class="neuro-btn-primary" style="transition: all 0.2s;">📱 Copy Warm Check-In Text to Clipboard</button>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is 'The Tail End' concept?</div>
-          <div class="faq-a">
-            Popularized by writer Tim Urban on Wait But Why, 'The Tail End' illustrates that the vast majority of our time with parents and childhood friends happens during youth. In childhood, you see your parents every single day (~330 days/year). Once you leave home, that number drops to an average of 5–15 days per year, meaning you enter the final 5–10% 'tail end' of your total relationship in early adulthood.
+      <!-- 5 FATAL TRAPS & ACTUARIAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Time Traps &amp; Actuarial Blindspots</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Human temporal perception dramatically warps how we budget time with aging loved ones:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The "Calendar Years vs. In-Person Hours" Fallacy</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Assuming that because your parents are 60 and have a life expectancy of 82, you have "22 years left" with them. If you live in another city and visit for 4 days twice a year, you do not have 22 years—you have only 176 in-person days remaining.
+            </p>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">How does the calculator estimate remaining lifespan?</div>
-          <div class="faq-a">
-            The calculator uses standard actuarial tables (defaulting to 82 years, matching CDC actuarial median life expectancies for OECD nations). You can customize this threshold to reflect your loved one's specific health and family history.
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. The Diurnal Proximity Assumption</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Assuming future time together will be as physically active, independent, and communicative as past time. Age-related cognitive decline, mobility loss, and sensory impairment drastically reduce the communicative depth of later years.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Post-Adolescence Time Decoupling (The 90% Cliff)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Overlooking that 90% of total parent-child face-to-face hours occur before age 18. Once high school ends and geographic independence begins, the relationship enters the final 10% tail end permanently.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. Quality vs. Presence Distraction Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Spending one of your few remaining in-person visits scrolling on mobile devices or handling remote work in the same room. Physical co-presence with split attention reduces emotional bonding value by >70%.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. "We'll Do It Next Year" Procrastination Mirage</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Postponing annual family reunions or holiday trips due to temporary workplace deadlines. Actuarial mortality curves are non-linear; health shocks occur unpredictably without prior notice.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      var currentTailData = null;
+
       function calcTailEnd() {
         var userAge = parseFloat(document.getElementById('userAge').value) || 30;
         var lovedAge = parseFloat(document.getElementById('lovedAge').value) || 60;
@@ -486,12 +672,67 @@ export function buildCuriosityNeuroSuite() {
         var name = rel === 'parent' ? 'your parents' : (rel === 'grandparent' ? 'your grandparents' : 'your loved one');
         document.getElementById('ledgerSummaryText').innerHTML = 
           'You have approximately <strong>' + totalVisits + ' in-person visits (' + totalDays + ' days total)</strong> remaining with ' + name + '. When spread across the next ' + remainingYears.toFixed(0) + ' years, every single encounter represents a noticeable percentage of the time that remains.';
+
+        // Derivations
+        document.getElementById('derTailStep1').innerHTML = 
+          'Childhood Co-Presence (Ages 0–18): ' + Math.min(userAge, 18) + ' years &times; ~300 days/year = <strong>' + pastChildhoodDays.toLocaleString('en-US') + ' days</strong>';
+        document.getElementById('derTailStep2').innerHTML = 
+          'Adult Co-Presence Expended: ' + adultYears + ' adult years &times; ' + visitsPerYear + ' visits &times; ' + daysPerVisit + ' days = <strong>' + pastAdultDays.toLocaleString('en-US') + ' days</strong>';
+        document.getElementById('derTailStep3').innerHTML = 
+          'Projected Future Co-Presence: (' + targetLifespan + ' - ' + lovedAge + ') actuarial years &times; ' + visitsPerYear + ' visits &times; ' + daysPerVisit + ' days = <strong>' + totalDays.toLocaleString('en-US') + ' days (' + totalVisits + ' visits)</strong>';
+
+        currentTailData = {
+          rel: name,
+          pctElapsed: pctPast.toFixed(1) + '%',
+          daysLeft: totalDays,
+          visitsLeft: totalVisits,
+          holidaysLeft: totalHolidays,
+          yearsLeft: remainingYears.toFixed(0)
+        };
       }
 
       function copyWarmMessage() {
         var msg = "Hey, I was just thinking about you and wanted to check in. I really cherish the time we get together—let's make sure we plan our next visit soon. Love you!";
         navigator.clipboard.writeText(msg).then(function() {
-          alert('Warm check-in text copied to clipboard! Paste it into WhatsApp, iMessage, or SMS.');
+          var btn = document.getElementById('btnCopyWarm');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Warm Check-in Text Copied!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
+      }
+
+      function copyLedgerSummary() {
+        if (!currentTailData) return;
+        var d = currentTailData;
+        var text = 
+          'THE TAIL END: MORTALITY & TIME REMAINING LEDGER\n' +
+          '========================================\n' +
+          '• Relationship: ' + d.rel + '\n' +
+          '• Lifetime Time Already Expended: ' + d.pctElapsed + '\n' +
+          '• Total Remaining In-Person Days: ' + d.daysLeft + ' Days\n' +
+          '• Total Remaining In-Person Visits: ' + d.visitsLeft + ' Visits\n' +
+          '• Projected Remaining Holiday Seasons: ' + d.holidaysLeft + ' Seasons\n' +
+          '• Actuarial Horizon: ~' + d.yearsLeft + ' Years\n' +
+          '========================================\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopyLedger');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Complete Mortality Ledger!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
         });
       }
 
@@ -499,15 +740,33 @@ export function buildCuriosityNeuroSuite() {
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'tail-end-mortality.html'), renderPage({
-    title: 'The Tail End: Loved-One Time Remaining Ledger [Mortality Dot Matrix] | Digital Tools Shed',
-    metaDesc: 'Calculate how much time you have left with your parents, children, or loved ones. Inspired by Tim Urban\'s The Tail End, visualize remaining visits, holidays, and hours in an interactive life dot grid.',
+  writeFileSync(join(utilDir, 'tail-end-mortality.html'), renderCuriosityPage({
+    title: "The Tail End: Loved-One Time Remaining Ledger [Mortality Dot Matrix] | Digital Tools Shed",
+    metaDesc: "Calculate how much time you have left with your parents, children, or loved ones. Inspired by Tim Urban's The Tail End, visualize remaining visits, holidays, and hours in an interactive life dot grid.",
     canonical: `${DOMAIN}/util/tail-end-mortality`,
     bodyContent: tailEndHtml,
     currentPath: '/util/tail-end-mortality',
     faq: [
-      { q: 'What is \'The Tail End\' concept?', a: 'Popularized by Tim Urban on Wait But Why, \'The Tail End\' illustrates that roughly 90% of our lifetime face-to-face time with our parents occurs prior to high school graduation.' },
-      { q: 'How are remaining visits calculated?', a: 'The calculator multiplies projected remaining actuarial life expectancy by your reported annual visit frequency and days per visit to calculate true remaining hours.' }
+      {
+        q: "What is 'The Tail End' concept in philosophy and psychology?",
+        a: "Popularized by writer Tim Urban on Wait But Why, 'The Tail End' illustrates that roughly 90% of our total lifetime face-to-face time with our parents occurs before age 18. Once high school ends and children move out, annual visits drop to 5–15 days per year, permanently entering the final 10% of the relationship."
+      },
+      {
+        q: "How does the calculator estimate remaining actuarial lifespan?",
+        a: "The calculator uses standard demographic life tables (defaulting to 82 years, matching CDC and WHO actuarial median life expectancies for OECD nations). Users can adjust the target lifespan to match family medical history."
+      },
+      {
+        q: "Why is tracking 'visits left' more impactful than tracking 'years left'?",
+        a: "Saying you have '20 years left' creates a false sense of abundance. If you only visit twice a year, 20 years translates to just 40 total encounters. Counting discrete visits eliminates procrastination and highlights the finite nature of each reunion."
+      },
+      {
+        q: "How can I improve the quality of remaining in-person time?",
+        a: "Establish phone-free focus rituals, record oral history interviews asking about their childhood and life lessons, and prioritize active shared experiences over passive co-presence."
+      },
+      {
+        q: "Is any personal data stored or transmitted when using this ledger?",
+        a: "No. All age inputs and visit calculations execute strictly in your local browser memory using vanilla JavaScript. No data is stored, logged, or sent to external servers."
+      }
     ]
   }));
 
@@ -522,7 +781,7 @@ export function buildCuriosityNeuroSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #a855f7; margin-bottom: 0.5rem;">Opponent-Process Theory & Dopamine Nation Neurobiology</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #a855f7; margin-bottom: 0.5rem;">Opponent-Process Theory &amp; Dopamine Nation Neurobiology</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Dopamine Receptor Downregulation Simulator</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
           When supernormal stimuli (endless short-form video, hyperpalatable foods, digital gambling) flood synaptic clefts, your brain aggressively downregulates D2 dopamine receptors (Process B) to restore homeostasis. Simulate your baseline deficit and reset schedule.
@@ -534,7 +793,7 @@ export function buildCuriosityNeuroSuite() {
 
         <div class="neuro-slider-row">
           <div class="neuro-slider-label">
-            <span>High-Spike Stimulus Hours (Reels, TikTok, Gaming, Porn)</span>
+            <span>High-Spike Stimulus Hours (Reels, TikTok, Gaming, Adult Content)</span>
             <strong id="valSpikeHours" style="color: #ef4444;">5.0 Hours/Day</strong>
           </div>
           <input type="range" id="spikeHours" min="0" max="16" step="0.5" value="5" class="neuro-slider-input" oninput="simDopamine()" />
@@ -542,7 +801,7 @@ export function buildCuriosityNeuroSuite() {
 
         <div class="neuro-slider-row">
           <div class="neuro-slider-label">
-            <span>Context Switches & Interruptions (Notifications/Hour)</span>
+            <span>Context Switches &amp; Interruptions (Notifications/Hour)</span>
             <strong id="valSwitches" style="color: #f59e0b;">25 / hour</strong>
           </div>
           <input type="range" id="switches" min="0" max="80" step="5" value="25" class="neuro-slider-input" oninput="simDopamine()" />
@@ -598,31 +857,88 @@ export function buildCuriosityNeuroSuite() {
         </div>
       </div>
 
+      <!-- LIVE STEP-BY-STEP DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Allostatic Load &amp; Downregulation Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Evaluating Solomon's Opponent-Process and Lembke's Dopamine Deficit model algebraically:
+        </p>
+
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Compute Exogenous Stimulus Load</strong>
+            <div id="derDopStep1" style="color: #3b82f6; margin-top: 0.25rem;">(5.0 hrs &times; 6) + (25 switches &times; 0.4) + (log10(45) &times; 12) = 59.8 pts</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Subtract Endogenous Restorative Buffer</strong>
+            <div id="derDopStep2" style="color: var(--text-muted); margin-top: 0.25rem;">1 Protocol &times; 8 = 8.0 offset points</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Derive Net D2 Downregulation &amp; Resensitization Horizon</strong>
+            <div id="derDopStep3" style="color: #22c55e; margin-top: 0.25rem;">Net Deficit: 52% | Resensitization: 7 + (52 &times; 0.35) = 25 Days</div>
+          </div>
+        </div>
+
+        <button id="btnCopyDopamine" onclick="copyDopamineSummary()" class="btn-primary" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Neurochemical Diagnostic Summary
+        </button>
+      </div>
+
       <!-- 3-STAGE RESET PROTOCOL -->
       <div class="neuro-card" style="border-left: 4px solid #10b981;">
         <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.5rem; color: #10b981;">3-Stage Neurochemical Reset Protocol</h3>
         <div id="resetPlan" style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);"></div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is Richard Solomon's Opponent-Process Theory?</div>
-          <div class="faq-a">
-            Opponent-process theory states that emotional and neurochemical states are paired with an opposing homeostatic reaction. When an intense, easy reward (Process A) spikes dopamine, the brain produces an opposing dysphoric trough (Process B) to return to baseline. Over time, Process A weakens while Process B strengthens and lasts longer, leading to chronic tolerance and anhedonia.
+      <!-- 5 FATAL TRAPS & NEUROBIOLOGICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Traps in Dopamine Resets &amp; Behavioral Addiction</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Dopamine is the neurochemical currency of motivation and craving. Avoid these 5 common mistakes:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The "Cold Turkey" Dopamine Crash Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Abruptly cutting off all digital, recreational, and dietary dopamine spikes simultaneously without establishing structural low-dopamine friction buffers. This triggers severe acute anhedonia, driving an intense rebound relapse within 72 hours.
+            </p>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">How long does it take for D2 dopamine receptors to upregulate?</div>
-          <div class="faq-a">
-            Brain imaging studies show significant dopamine receptor recovery within 14 to 30 days of abstaining from chronic supernormal stimulation. Mild resets take 7 to 10 days, while heavy behavioral addictions may require 30 days of friction.
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. Replacement Supernormal Stimuli (The Lateral Shift)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Quitting short-form video only to binge 8 hours of video games, online shopping, or Reddit arguments. Shifting sideways between supernormal stimuli maintains D2 receptor downregulation.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Mistaking Process B Dysphoria for Permanent Depression</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Interpreting the natural homeostatic dopamine trough (Process B) as an intrinsic mental health defect rather than the biological price of previous hyper-stimulation. Understanding the 14–21 day receptor resensitization timeline prevents premature abandonment.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. The "Pure Motivation" Illusion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Relying on conscious willpower to resist algorithmic feeds engineered by thousands of behavioural psychologists. Lasting neurochemical reset requires physical environment design (phone out of bedroom, app blockers, grayscale screens).
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. Zero Effort Dopamine Seduction</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Seeking cheap, friction-free dopamine spikes rather than effort-driven dopamine earned through strenuous physical exercise, intellectual problem solving, or difficult creative work.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      var currentDopamineData = null;
+
       function simDopamine() {
         var spikeH = parseFloat(document.getElementById('spikeHours').value) || 0;
         var switches = parseFloat(document.getElementById('switches').value) || 0;
@@ -650,6 +966,22 @@ export function buildCuriosityNeuroSuite() {
 
         renderWaveform(spikeH, netDeficit);
         renderResetPlan(resetDays, netDeficit);
+
+        // Derivations
+        document.getElementById('derDopStep1').innerHTML = 
+          'Exogenous Stimulus Load: (' + spikeH.toFixed(1) + ' hrs &times; 6) + (' + switches + ' switches &times; 0.4) + (log10(' + cycleD + ') &times; 12) = <strong>' + load.toFixed(1) + ' pts</strong>';
+        document.getElementById('derDopStep2').innerHTML = 
+          'Restorative Offset: ' + restorers + ' protocol(s) &times; 8 = <strong>' + recovery.toFixed(1) + ' offset pts</strong>';
+        document.getElementById('derDopStep3').innerHTML = 
+          'Net D2 Receptor Deficit: <strong>-' + netDeficit + '%</strong> | Neural Resensitization Horizon: 7 + (' + netDeficit + ' &times; 0.35) = <strong>' + resetDays + ' Days</strong>';
+
+        currentDopamineData = {
+          spikeHours: spikeH.toFixed(1),
+          switches: switches,
+          d2Deficit: '-' + netDeficit + '%',
+          boredom: boredomLabel,
+          resensDays: resetDays + ' Days'
+        };
       }
 
       function renderWaveform(spikeH, deficit) {
@@ -708,19 +1040,65 @@ export function buildCuriosityNeuroSuite() {
           '<p><strong>Phase 3: Endogenous Anchoring (Days ' + Math.round(days * 0.7 + 1) + '–' + days + '):</strong> Replace passive dopamine with effort-driven dopamine (cold water immersion, lifting heavy weights, long-form reading). Baseline receptor density fully restabilizes.</p>';
       }
 
+      function copyDopamineSummary() {
+        if (!currentDopamineData) return;
+        var d = currentDopamineData;
+        var text = 
+          'DOPAMINE RECEPTOR DOWNREGULATION DIAGNOSTIC\n' +
+          '========================================\n' +
+          '• High-Spike Stimulus Hours: ' + d.spikeHours + ' hrs/day\n' +
+          '• Context Switching Frequency: ' + d.switches + ' switches/hr\n' +
+          '• Estimated D2 Receptor Sensitivity: ' + d.d2Deficit + '\n' +
+          '• Baseline Boredom / Anhedonia Score: ' + d.boredom + '\n' +
+          '• Target Days to Neural Resensitization: ' + d.resensDays + '\n' +
+          '========================================\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopyDopamine');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Dopamine Diagnostic!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', simDopamine);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'dopamine-reset-simulator.html'), renderPage({
-    title: 'Dopamine Receptor Downregulation Simulator [Opponent-Process Reset Protocol] | Digital Tools Shed',
-    metaDesc: 'Simulate your brain\'s dopamine baseline, D2 receptor downregulation, and opponent-process rebound based on Dr. Anna Lembke and Richard Solomon\'s neurochemical models.',
+  writeFileSync(join(utilDir, 'dopamine-reset-simulator.html'), renderCuriosityPage({
+    title: "Dopamine Receptor Downregulation Simulator [Opponent-Process Reset Protocol] | Digital Tools Shed",
+    metaDesc: "Simulate your brain's dopamine baseline, D2 receptor downregulation, and opponent-process rebound based on Dr. Anna Lembke and Richard Solomon's neurochemical models.",
     canonical: `${DOMAIN}/util/dopamine-reset-simulator`,
     bodyContent: dopamineSimHtml,
     currentPath: '/util/dopamine-reset-simulator',
     faq: [
-      { q: 'What is Richard Solomon\'s Opponent-Process Theory?', a: 'Opponent-process theory describes how every pleasurable spike from supernormal stimuli triggers an equal and opposite compensatory neurological trough to maintain homeostasis.' },
-      { q: 'How long does receptor resensitization take?', a: 'Clinical neuroscience shows D2 receptor density typically recovers within 14 to 30 days of reducing chronic hyper-stimulation.' }
+      {
+        q: "What is Richard Solomon's Opponent-Process Theory?",
+        a: "Opponent-process theory states that emotional and neurochemical states are paired with an opposing homeostatic reaction. When an intense reward (Process A) spikes dopamine, the brain produces an opposing dysphoric trough (Process B) to return to baseline. Over time, Process A weakens while Process B strengthens and lasts longer, leading to chronic tolerance."
+      },
+      {
+        q: "How long does it take for D2 dopamine receptors to upregulate?",
+        a: "Brain imaging studies show significant dopamine receptor recovery within 14 to 30 days of abstaining from chronic supernormal stimulation. Mild resets take 7 to 10 days, while heavy digital or behavioral dependencies require 30 days of structured friction."
+      },
+      {
+        q: "What is the difference between tonic and phasic dopamine?",
+        a: "Tonic dopamine is your slow, steady baseline level that provides general drive, focus, and emotional equilibrium. Phasic dopamine consists of sharp, transient spikes triggered by unexpected rewards. Chronic excessive phasic spikes exhaust synaptic machinery, suppressing your tonic baseline."
+      },
+      {
+        q: "Why does unmedicated boredom feel physically painful after screen binging?",
+        a: "Because D2 receptors have downregulated, ordinary resting states feel deficient in dopamine. The brain perceives this trough as an urgent deficit and generates restlessness and agitation to compel you to seek another spike."
+      },
+      {
+        q: "How does effort-generated dopamine differ from passive digital dopamine?",
+        a: "Dopamine released after difficult effort (such as intense exercise, cold exposure, or completing complex creative work) results in a prolonged, stable elevated baseline without an immediate dysphoric crash."
+      }
     ]
   }));
 
@@ -735,8 +1113,8 @@ export function buildCuriosityNeuroSuite() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Polyvagal Theory & Allostatic Load</div>
-        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Sensory Overload Budget & Autonomic Battery Meter</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Polyvagal Theory &amp; Allostatic Load</div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Sensory Overload Budget &amp; Autonomic Battery Meter</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
           Your nervous system has a finite daily capacity for sensory input. Audit ambient decibels, visual glare, social masking, and context switches to diagnose autonomic overload and trigger an immediate physiological reset.
         </p>
@@ -756,7 +1134,7 @@ export function buildCuriosityNeuroSuite() {
 
         <div class="neuro-slider-row">
           <div class="neuro-slider-label">
-            <span>Screen Glare & Fluorescent Lighting Exposure</span>
+            <span>Screen Glare &amp; Fluorescent Lighting Exposure</span>
             <strong id="valVisual" style="color: #f59e0b;">7 Hours</strong>
           </div>
           <input type="range" id="visualInput" min="1" max="16" step="1" value="7" class="neuro-slider-input" oninput="calcSensory()" />
@@ -764,11 +1142,11 @@ export function buildCuriosityNeuroSuite() {
 
         <div class="neuro-slider-row">
           <div class="neuro-slider-label">
-            <span>Social Masking & Public Performance Hours</span>
+            <span>Social Masking &amp; Public Performance Hours</span>
             <strong id="valMasking" style="color: #a855f7;">5 Hours</strong>
           </div>
           <input type="range" id="maskingInput" min="0" max="12" step="1" value="5" class="neuro-slider-input" oninput="calcSensory()" />
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Hours spent hiding fatigue, smiling politely, or suppressing natural neurodivergent traits</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Hours spent hiding fatigue, smiling politely, or suppressing natural traits</span>
         </div>
 
         <div class="neuro-slider-row">
@@ -793,6 +1171,33 @@ export function buildCuriosityNeuroSuite() {
         <p id="polyvagalDesc" style="font-size: 0.95rem; color: var(--text-muted); max-width: 650px; margin: 0 auto; line-height: 1.6;"></p>
       </div>
 
+      <!-- LIVE STEP-BY-STEP DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Polyvagal Allostatic Battery Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Evaluating autonomic energy drain algebraically across neurological stressors:
+        </p>
+
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Baseline Sleep Capacity</strong>
+            <div id="derSensStep1" style="color: #3b82f6; margin-top: 0.25rem;">Sleep Score 6.5 &times; 10 = 65.0 Base Points</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Cumulative Allostatic Sensory Drain</strong>
+            <div id="derSensStep2" style="color: var(--text-muted); margin-top: 0.25rem;">Acoustic (15.8) + Visual (19.6) + Masking (19.0) = 54.4 Drain Points</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Residual Autonomic Charge &amp; State</strong>
+            <div id="derSensStep3" style="color: #f59e0b; margin-top: 0.25rem;">Residual Battery: 38% &rarr; Sympathetic Hyper-Vigilance</div>
+          </div>
+        </div>
+
+        <button id="btnCopySensory" onclick="copySensorySummary()" class="btn-primary" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Autonomic Battery Diagnostic
+        </button>
+      </div>
+
       <!-- PHYSIOLOGICAL SIGH INTERACTIVE PACER -->
       <div class="neuro-card" style="border-left: 4px solid #3b82f6;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
@@ -813,25 +1218,55 @@ export function buildCuriosityNeuroSuite() {
         </div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is the Polyvagal Theory?</div>
-          <div class="faq-a">
-            Developed by Dr. Stephen Porges, Polyvagal Theory models how the autonomic nervous system shifts between three physiological states: Ventral Vagal (safe, socially engaged, resting), Sympathetic (threat, stress, sensory overload), and Dorsal Vagal (freeze, burnout, dissociation).
+      <!-- 5 FATAL TRAPS & SENSORY PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Sensory Overload Traps &amp; Polyvagal Pitfalls</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Autonomic dysregulation creeps in quietly before precipitating full executive exhaustion:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The "Push Through It" Dissociation Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Ignoring early sympathetic warning signs (jaw clenching, eye fatigue, sensory irritability) and forcing yourself to remain in noisy, bright environments until your nervous system collapses into dorsal vagal freeze or shutdown.
+            </p>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">Why is the Physiological Sigh so effective?</div>
-          <div class="faq-a">
-            The dual-inhalation reinflates collapsed alveoli in the lungs, increasing surface area for oxygen/CO2 exchange. The prolonged exhalation slows the heart rate via the vagus nerve.
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. Social Masking Exhaustion Mirage</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Underestimating the intense metabolic and neurological cost of maintaining a pleasant, neurotypical facade during back-to-back social gatherings or corporate meetings. Masking drains allostatic battery twice as fast as physical labor.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Acoustic &amp; Subconscious Micro-Noise Creep</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Habitually existing in environments with 60–75 dB ambient background noise (open-plan offices, HVAC hum, traffic, cafes) without recognizing that continuous sound forces the auditory cortex into chronic low-grade vigilance.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. Digital "Relaxation" Stimulus Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Attempting to recharge an overstimulated nervous system by consuming fast-paced video games, YouTube videos, or Twitter debates. True autonomic recovery requires sensory deprivation (dark, quiet, horizontal rest).
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. Chronic Sleep Debt Depletion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Treating sleep as negotiable while expecting daytime sensory resilience. Every hour of lost sleep depresses baseline vagal tone and lowers the threshold for sensory overwhelm by 25%.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      var currentSensoryData = null;
+
       function calcSensory() {
         var noise = parseFloat(document.getElementById('noiseInput').value) || 50;
         var visual = parseFloat(document.getElementById('visualInput').value) || 6;
@@ -845,7 +1280,10 @@ export function buildCuriosityNeuroSuite() {
         document.getElementById('valSleep').textContent = sleep + ' / 10';
 
         var baseBattery = sleep * 10;
-        var drain = ((noise - 30) * 0.45) + (visual * 2.8) + (masking * 3.8);
+        var acousticDrain = (noise - 30) * 0.45;
+        var visualDrain = visual * 2.8;
+        var maskingDrain = masking * 3.8;
+        var drain = acousticDrain + visualDrain + maskingDrain;
         var remaining = Math.max(5, Math.min(100, Math.round(baseBattery - drain)));
 
         document.getElementById('batteryVal').textContent = remaining + '%';
@@ -854,26 +1292,74 @@ export function buildCuriosityNeuroSuite() {
 
         var stateEl = document.getElementById('polyvagalState');
         var descEl = document.getElementById('polyvagalDesc');
+        var stateTitle = '';
 
         if (remaining >= 60) {
           bar.style.background = '#10b981';
           document.getElementById('batteryVal').style.color = '#10b981';
-          stateEl.textContent = 'Ventral Vagal (Safe, Regulated & Social)';
+          stateTitle = 'Ventral Vagal (Safe, Regulated & Social)';
+          stateEl.textContent = stateTitle;
           stateEl.style.color = '#10b981';
           descEl.textContent = 'Your nervous system has sufficient allostatic bandwidth. Sensory filtering is optimal, working memory is fluid, and social engagement feels natural.';
         } else if (remaining >= 30) {
           bar.style.background = '#f59e0b';
           document.getElementById('batteryVal').style.color = '#f59e0b';
-          stateEl.textContent = 'Sympathetic Activation (Fight / Flight / Hyper-Vigilance)';
+          stateTitle = 'Sympathetic Activation (Fight / Flight / Hyper-Vigilance)';
+          stateEl.textContent = stateTitle;
           stateEl.style.color = '#f59e0b';
           descEl.textContent = 'Your autonomic battery is depleted. You may feel irritable, restless, sensitive to sudden noises, or overwhelmed by light. Prioritize immediate sensory reduction.';
         } else {
           bar.style.background = '#ef4444';
           document.getElementById('batteryVal').style.color = '#ef4444';
-          stateEl.textContent = 'Dorsal Vagal Shutdown (Sensory Freeze & Dissociation)';
+          stateTitle = 'Dorsal Vagal Shutdown (Sensory Freeze & Dissociation)';
+          stateEl.textContent = stateTitle;
           stateEl.style.color = '#ef4444';
           descEl.textContent = 'Critical depletion threshold. The nervous system is defending itself through numbness, severe executive dysfunction, and emotional exhaustion. Eliminate all non-essential stimuli immediately.';
         }
+
+        // Live math derivations
+        document.getElementById('derSensStep1').innerHTML = 
+          'Sleep Rest Baseline: ' + sleep + ' / 10 &times; 10 = <strong>' + baseBattery.toFixed(1) + ' Base Points</strong>';
+        document.getElementById('derSensStep2').innerHTML = 
+          'Sensory Drain: Acoustic (' + acousticDrain.toFixed(1) + ') + Visual (' + visualDrain.toFixed(1) + ') + Masking (' + maskingDrain.toFixed(1) + ') = <strong>' + drain.toFixed(1) + ' Drain Points</strong>';
+        document.getElementById('derSensStep3').innerHTML = 
+          'Residual Autonomic Battery: ' + baseBattery.toFixed(1) + ' - ' + drain.toFixed(1) + ' = <strong>' + remaining + '% (' + stateTitle + ')</strong>';
+
+        currentSensoryData = {
+          battery: remaining + '%',
+          state: stateTitle,
+          noise: noiseLabel,
+          visual: visual + ' Hours',
+          masking: masking + ' Hours'
+        };
+      }
+
+      function copySensorySummary() {
+        if (!currentSensoryData) return;
+        var d = currentSensoryData;
+        var text = 
+          'AUTONOMIC SENSORY BATTERY DIAGNOSTIC\n' +
+          '========================================\n' +
+          '• Residual Battery Level: ' + d.battery + '\n' +
+          '• Current Polyvagal State: ' + d.state + '\n' +
+          '• Noise Exposure: ' + d.noise + '\n' +
+          '• Screen & Glare Exposure: ' + d.visual + '\n' +
+          '• Social Masking Load: ' + d.masking + '\n' +
+          '========================================\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopySensory');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Autonomic Battery Diagnostic!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
       }
 
       var pacerRunning = false;
@@ -928,15 +1414,33 @@ export function buildCuriosityNeuroSuite() {
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'sensory-overload-meter.html'), renderPage({
-    title: 'Sensory Overload Budget & Autonomic Battery Meter [Polyvagal Stress Diagnostic] | Digital Tools Shed',
-    metaDesc: 'Calculate your nervous system\'s daily sensory load against allostatic capacity. Audit auditory noise, visual flicker, social masking, and context switches to prevent neurodivergent burnout.',
+  writeFileSync(join(utilDir, 'sensory-overload-meter.html'), renderCuriosityPage({
+    title: "Sensory Overload Budget & Autonomic Battery Meter [Polyvagal Stress Diagnostic] | Digital Tools Shed",
+    metaDesc: "Calculate your nervous system's daily sensory load against allostatic capacity. Audit auditory noise, visual flicker, social masking, and context switches to prevent neurodivergent burnout.",
     canonical: `${DOMAIN}/util/sensory-overload-meter`,
     bodyContent: sensoryMeterHtml,
     currentPath: '/util/sensory-overload-meter',
     faq: [
-      { q: 'What is the Polyvagal Theory?', a: 'Polyvagal Theory, formulated by Dr. Stephen Porges, explains how the autonomic nervous system transitions between social engagement, fight-or-flight, and freeze/shutdown.' },
-      { q: 'How does the Physiological Sigh reset the nervous system?', a: 'Two nasal inhalations followed by an extended mouth exhalation stimulates the vagus nerve, rapidly lowering heart rate.' }
+      {
+        q: "What is the Polyvagal Theory in autonomic neuroscience?",
+        a: "Developed by Dr. Stephen Porges, Polyvagal Theory models how the autonomic nervous system shifts between three physiological states: Ventral Vagal (safe, socially engaged, resting), Sympathetic (threat, stress, sensory overload), and Dorsal Vagal (freeze, burnout, dissociation)."
+      },
+      {
+        q: "Why is the Physiological Sigh so effective for instant autonomic regulation?",
+        a: "Two rapid nasal inhalations reinflate collapsed pulmonary alveoli, maximizing oxygen/carbon dioxide diffusion. The subsequent prolonged mouth exhalation stimulates the vagus nerve, rapidly decelerating heart rate and dropping sympathetic arousal faster than traditional meditation."
+      },
+      {
+        q: "What is allostatic load in sensory processing?",
+        a: "Allostatic load represents the cumulative physiological wear and tear on the body and brain resulting from chronic neurochemical stress responses to environmental stimuli (acoustic noise, blue light glare, social masking)."
+      },
+      {
+        q: "Why is social masking particularly exhausting for neurodivergent individuals?",
+        a: "Social masking requires continuous active cognitive compensation—monitoring facial expressions, suppressing stimming, modulating voice tone, and analyzing conversational subtext. This forces the prefrontal cortex to work in high-demand mode continuously without rest."
+      },
+      {
+        q: "How can I quickly recharge an autonomic battery below 30%?",
+        a: "Engage in immediate sensory deprivation: enter a dark, quiet room, lie horizontally, place a cool cloth over your eyes, perform 3–5 cycles of the physiological sigh, and avoid all interactive screens for at least 20 minutes."
+      }
     ]
   }));
 
@@ -1017,25 +1521,82 @@ export function buildCuriosityNeuroSuite() {
         <div id="dunbarVerdict" style="font-size: 0.95rem; color: var(--fg); line-height: 1.6;"></div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is Dunbar's Number?</div>
-          <div class="faq-a">
-            British anthropologist Robin Dunbar discovered that primate brain neocortex volume correlates directly with social group size. In humans, this cognitive limit is approximately 150 individuals. Beyond this limit, relationships cannot be maintained without formal laws or institutional rules.
+      <!-- LIVE MATHEMATICAL DERIVATION BREAKDOWN -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Neocortex Ratio &amp; Social Allocation Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Evaluating human social brain capacity algebraically across Dunbar's fractals:
+        </p>
+
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Total Real Active Relationships</strong>
+            <div id="derDunStep1" style="color: #3b82f6; margin-top: 0.25rem;">4 + 12 + 38 + 110 = 164 Active Relationships</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Neocortical Bandwidth Utilization</strong>
+            <div id="derDunStep2" style="color: var(--text-muted); margin-top: 0.25rem;">(164 / 150) &times; 100% = 109.3% of theoretical evolutionary maximum</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Parasocial Displacement Quotient</strong>
+            <div id="derDunStep3" style="color: #a855f7; margin-top: 0.25rem;">3.5 hrs/day consumes ~22% of daily conversational bandwidth</div>
           </div>
         </div>
-        <div class="faq-item">
-          <div class="faq-q">What is parasocial cognitive displacement?</div>
-          <div class="faq-a">
-            When humans spend hours watching video creators and streamers, our ancient evolutionary brain processes their faces as real social connections. This creates a false sensation of social fulfillment, draining our neocortex bandwidth while starving us of genuine physical oxytocin bonds.
+
+        <button id="btnCopyDunbar" onclick="copyDunbarSummary()" class="btn-primary" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Dunbar Social Audit Report
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS & ANTHROPOLOGICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Social Traps &amp; Anthropological Pitfalls</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Our evolutionary hardware was sculpted for Pleistocene hunter-gatherer bands, not global digital hyper-connectivity:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The Parasocial Digital Displacement Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Allocating 4+ hours daily to watching online influencers, podcasters, and streamers. The human neocortex cannot distinguish between broadcast faces and genuine tribe members, tricking your brain into feeling "socially full" while leaving your oxytocin circuits starved.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. The Social Dilution Fallacy</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Attempting to maintain 500+ "friends" on social media. Neocortical constraints mean that widening your outer circle inevitably cannibalizes the time and emotional investment required to sustain your inner 5-person Support Clique.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Neglecting the Inner 5 Support Clique</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Failing to regularly invest deep, uninterrupted time into the 5 core individuals who would shelter, support, or care for you during a severe crisis. Without active maintenance, support tier relationships decay within 12 to 18 months.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. Energy Vampire Retention</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Keeping emotionally draining, one-sided acquaintances in your Sympathy Group (15-layer) out of guilt or inertia, blocking space for mutual, energizing friendships.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. The "Broadcast Communication" Illusion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Confusing public status updates, Instagram stories, and group chats with one-on-one relational maintenance. Deep emotional bonds require personalized dyadic interaction.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      var currentDunbarData = null;
+
       function calcDunbar() {
         var t1 = parseInt(document.getElementById('tier1Input').value, 10) || 0;
         var t2 = parseInt(document.getElementById('tier2Input').value, 10) || 0;
@@ -1062,6 +1623,24 @@ export function buildCuriosityNeuroSuite() {
           text += 'Your social architecture is well-balanced across the core layers.';
         }
         v.innerHTML = text;
+
+        var pctNeocortex = ((totalReal / 150) * 100).toFixed(1);
+        var dispPct = Math.min(100, Math.round((paraH / 16) * 100));
+
+        document.getElementById('derDunStep1').innerHTML = 
+          'Total Active Relationships: ' + t1 + ' (Core) + ' + t2 + ' (Sympathy) + ' + t3 + ' (Friends) + ' + t4 + ' (Contacts) = <strong>' + totalReal + ' People</strong>';
+        document.getElementById('derDunStep2').innerHTML = 
+          'Neocortex Capacity Ratio: (' + totalReal + ' / 150) &times; 100% = <strong>' + pctNeocortex + '% of Dunbar Limit</strong>';
+        document.getElementById('derDunStep3').innerHTML = 
+          'Parasocial Time Displacement: ' + paraH.toFixed(1) + ' hrs / 16 waking hrs = <strong>~' + dispPct + '% of daily social bandwidth</strong>';
+
+        currentDunbarData = {
+          total: totalReal,
+          pct: pctNeocortex + '%',
+          tier1: t1,
+          tier2: t2,
+          parasocial: paraH.toFixed(1) + ' hrs/day'
+        };
       }
 
       function renderDunbarCanvas(t1, t2, t3, t4, para) {
@@ -1104,19 +1683,64 @@ export function buildCuriosityNeuroSuite() {
         ctx.stroke();
       }
 
+      function copyDunbarSummary() {
+        if (!currentDunbarData) return;
+        var d = currentDunbarData;
+        var text = 
+          'DUNBAR 150 SOCIAL SPHERE AUDIT REPORT\n' +
+          '========================================\n' +
+          '• Total Active Social Sphere: ' + d.total + ' People (' + d.pct + ' of Neocortex Limit)\n' +
+          '• Layer 1 (Support Clique): ' + d.tier1 + ' People (Target ~5)\n' +
+          '• Layer 2 (Sympathy Group): ' + d.tier2 + ' People (Target ~15)\n' +
+          '• Daily Parasocial Media Load: ' + d.parasocial + '\n' +
+          '========================================\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopyDunbar');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Dunbar Social Audit!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', calcDunbar);
     </script>
   `;
 
-  writeFileSync(join(utilDir, 'dunbar-social-auditor.html'), renderPage({
-    title: 'Dunbar\'s 150 Social Sphere Auditor [Neocortex Bandwidth Diagnostic] | Digital Tools Shed',
-    metaDesc: 'Audit your personal relationships against Robin Dunbar\'s 5-15-50-150 cognitive limit layers. Discover if digital feeds and energy vampires are exhausting your neocortex bandwidth.',
+  writeFileSync(join(utilDir, 'dunbar-social-auditor.html'), renderCuriosityPage({
+    title: "Dunbar's 150 Social Sphere Auditor [Neocortex Bandwidth Diagnostic] | Digital Tools Shed",
+    metaDesc: "Audit your personal relationships against Robin Dunbar's 5-15-50-150 cognitive limit layers. Discover if digital feeds and energy vampires are exhausting your neocortex bandwidth.",
     canonical: `${DOMAIN}/util/dunbar-social-auditor`,
     bodyContent: dunbarHtml,
     currentPath: '/util/dunbar-social-auditor',
     faq: [
-      { q: 'What is Dunbar\'s Number?', a: 'Dunbar\'s Number (approx 150) is the suggested cognitive limit to the number of people with whom one can maintain stable social relationships.' },
-      { q: 'What are the layers of Dunbar\'s circles?', a: 'They follow a rule of 3: 5 core intimates, 15 close confidants, 50 good friends, and 150 meaningful contacts.' }
+      {
+        q: "What is Dunbar's Number in evolutionary anthropology?",
+        a: "Discovered by British anthropologist Robin Dunbar, Dunbar's Number (approximately 150) is the theoretical cognitive limit to the number of individuals with whom a human can maintain stable, reciprocal social relationships. It correlates directly with primate neocortex volume."
+      },
+      {
+        q: "What are the four concentric layers of Dunbar's circles?",
+        a: "Dunbar's layers follow a rule of 3: 5 core intimates (Support Clique), 15 close confidants (Sympathy Group), 50 good friends, and 150 meaningful acquaintances. Beyond 150, relationships become transactional and cannot be sustained without formal institutions."
+      },
+      {
+        q: "What is parasocial cognitive displacement?",
+        a: "When people spend hours consuming content from online creators and podcasters, our evolutionary brain processes their faces as members of our physical band. This drains neocortical bandwidth and creates an illusion of companionship while leaving real oxytocin and bonding circuits starved."
+      },
+      {
+        q: "How fast do friendships decay if not actively maintained?",
+        a: "Dunbar's research indicates that moving an individual into your inner 5 requires roughly 200 hours of shared time within a 6-month window. If contact drops to casual messaging, relationship intimacy decays from Tier 1 to Tier 3 within 12 to 18 months."
+      },
+      {
+        q: "Can digital social media expand our natural neocortex limit beyond 150?",
+        a: "No. Brain imaging and digital interaction studies demonstrate that while people may collect thousands of followers or Facebook friends, the actual number of reciprocal active conversations remains bounded between 100 and 200 individuals."
+      }
     ]
   }));
 

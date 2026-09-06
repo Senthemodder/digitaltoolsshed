@@ -109,15 +109,39 @@
       "name": "What is Richard Solomon's Opponent-Process Theory?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Opponent-process theory describes how every pleasurable spike from supernormal stimuli triggers an equal and opposite compensatory neurological trough to maintain homeostasis."
+        "text": "Opponent-process theory states that emotional and neurochemical states are paired with an opposing homeostatic reaction. When an intense reward (Process A) spikes dopamine, the brain produces an opposing dysphoric trough (Process B) to return to baseline. Over time, Process A weakens while Process B strengthens and lasts longer, leading to chronic tolerance."
       }
     },
     {
       "@type": "Question",
-      "name": "How long does receptor resensitization take?",
+      "name": "How long does it take for D2 dopamine receptors to upregulate?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Clinical neuroscience shows D2 receptor density typically recovers within 14 to 30 days of reducing chronic hyper-stimulation."
+        "text": "Brain imaging studies show significant dopamine receptor recovery within 14 to 30 days of abstaining from chronic supernormal stimulation. Mild resets take 7 to 10 days, while heavy digital or behavioral dependencies require 30 days of structured friction."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between tonic and phasic dopamine?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tonic dopamine is your slow, steady baseline level that provides general drive, focus, and emotional equilibrium. Phasic dopamine consists of sharp, transient spikes triggered by unexpected rewards. Chronic excessive phasic spikes exhaust synaptic machinery, suppressing your tonic baseline."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does unmedicated boredom feel physically painful after screen binging?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because D2 receptors have downregulated, ordinary resting states feel deficient in dopamine. The brain perceives this trough as an urgent deficit and generates restlessness and agitation to compel you to seek another spike."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does effort-generated dopamine differ from passive digital dopamine?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dopamine released after difficult effort (such as intense exercise, cold exposure, or completing complex creative work) results in a prolonged, stable elevated baseline without an immediate dysphoric crash."
       }
     }
   ]
@@ -1033,11 +1057,6 @@
       .neuro-slider-row { margin-bottom: 1.25rem; }
       .neuro-slider-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.35rem; }
       .neuro-slider-input { width: 100%; accent-color: #3b82f6; cursor: pointer; }
-      .faq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 2rem; padding: 1.5rem; }
-      .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
-      .faq-item:last-child { border-bottom: none; }
-      .faq-q { font-family: var(--serif); font-size: 1.1rem; font-weight: bold; margin-bottom: 0.4rem; color: var(--fg); }
-      .faq-a { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
     </style>
   
     <div class="article-container" style="max-width: 950px;">
@@ -1046,7 +1065,7 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #a855f7; margin-bottom: 0.5rem;">Opponent-Process Theory & Dopamine Nation Neurobiology</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #a855f7; margin-bottom: 0.5rem;">Opponent-Process Theory &amp; Dopamine Nation Neurobiology</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Dopamine Receptor Downregulation Simulator</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
           When supernormal stimuli (endless short-form video, hyperpalatable foods, digital gambling) flood synaptic clefts, your brain aggressively downregulates D2 dopamine receptors (Process B) to restore homeostasis. Simulate your baseline deficit and reset schedule.
@@ -1058,7 +1077,7 @@
 
         <div class="neuro-slider-row">
           <div class="neuro-slider-label">
-            <span>High-Spike Stimulus Hours (Reels, TikTok, Gaming, Porn)</span>
+            <span>High-Spike Stimulus Hours (Reels, TikTok, Gaming, Adult Content)</span>
             <strong id="valSpikeHours" style="color: #ef4444;">5.0 Hours/Day</strong>
           </div>
           <input type="range" id="spikeHours" min="0" max="16" step="0.5" value="5" class="neuro-slider-input" oninput="simDopamine()" />
@@ -1066,7 +1085,7 @@
 
         <div class="neuro-slider-row">
           <div class="neuro-slider-label">
-            <span>Context Switches & Interruptions (Notifications/Hour)</span>
+            <span>Context Switches &amp; Interruptions (Notifications/Hour)</span>
             <strong id="valSwitches" style="color: #f59e0b;">25 / hour</strong>
           </div>
           <input type="range" id="switches" min="0" max="80" step="5" value="25" class="neuro-slider-input" oninput="simDopamine()" />
@@ -1122,31 +1141,88 @@
         </div>
       </div>
 
+      <!-- LIVE STEP-BY-STEP DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Allostatic Load &amp; Downregulation Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Evaluating Solomon's Opponent-Process and Lembke's Dopamine Deficit model algebraically:
+        </p>
+
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Compute Exogenous Stimulus Load</strong>
+            <div id="derDopStep1" style="color: #3b82f6; margin-top: 0.25rem;">(5.0 hrs &times; 6) + (25 switches &times; 0.4) + (log10(45) &times; 12) = 59.8 pts</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Subtract Endogenous Restorative Buffer</strong>
+            <div id="derDopStep2" style="color: var(--text-muted); margin-top: 0.25rem;">1 Protocol &times; 8 = 8.0 offset points</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Derive Net D2 Downregulation &amp; Resensitization Horizon</strong>
+            <div id="derDopStep3" style="color: #22c55e; margin-top: 0.25rem;">Net Deficit: 52% | Resensitization: 7 + (52 &times; 0.35) = 25 Days</div>
+          </div>
+        </div>
+
+        <button id="btnCopyDopamine" onclick="copyDopamineSummary()" class="btn-primary" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Neurochemical Diagnostic Summary
+        </button>
+      </div>
+
       <!-- 3-STAGE RESET PROTOCOL -->
       <div class="neuro-card" style="border-left: 4px solid #10b981;">
         <h3 style="font-family: var(--serif); font-size: 1.3rem; margin-bottom: 0.5rem; color: #10b981;">3-Stage Neurochemical Reset Protocol</h3>
         <div id="resetPlan" style="font-size: 0.92rem; line-height: 1.6; color: var(--fg);"></div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is Richard Solomon's Opponent-Process Theory?</div>
-          <div class="faq-a">
-            Opponent-process theory states that emotional and neurochemical states are paired with an opposing homeostatic reaction. When an intense, easy reward (Process A) spikes dopamine, the brain produces an opposing dysphoric trough (Process B) to return to baseline. Over time, Process A weakens while Process B strengthens and lasts longer, leading to chronic tolerance and anhedonia.
+      <!-- 5 FATAL TRAPS & NEUROBIOLOGICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Traps in Dopamine Resets &amp; Behavioral Addiction</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Dopamine is the neurochemical currency of motivation and craving. Avoid these 5 common mistakes:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The "Cold Turkey" Dopamine Crash Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Abruptly cutting off all digital, recreational, and dietary dopamine spikes simultaneously without establishing structural low-dopamine friction buffers. This triggers severe acute anhedonia, driving an intense rebound relapse within 72 hours.
+            </p>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">How long does it take for D2 dopamine receptors to upregulate?</div>
-          <div class="faq-a">
-            Brain imaging studies show significant dopamine receptor recovery within 14 to 30 days of abstaining from chronic supernormal stimulation. Mild resets take 7 to 10 days, while heavy behavioral addictions may require 30 days of friction.
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. Replacement Supernormal Stimuli (The Lateral Shift)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Quitting short-form video only to binge 8 hours of video games, online shopping, or Reddit arguments. Shifting sideways between supernormal stimuli maintains D2 receptor downregulation.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Mistaking Process B Dysphoria for Permanent Depression</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Interpreting the natural homeostatic dopamine trough (Process B) as an intrinsic mental health defect rather than the biological price of previous hyper-stimulation. Understanding the 14–21 day receptor resensitization timeline prevents premature abandonment.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. The "Pure Motivation" Illusion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Relying on conscious willpower to resist algorithmic feeds engineered by thousands of behavioural psychologists. Lasting neurochemical reset requires physical environment design (phone out of bedroom, app blockers, grayscale screens).
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. Zero Effort Dopamine Seduction</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Seeking cheap, friction-free dopamine spikes rather than effort-driven dopamine earned through strenuous physical exercise, intellectual problem solving, or difficult creative work.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      var currentDopamineData = null;
+
       function simDopamine() {
         var spikeH = parseFloat(document.getElementById('spikeHours').value) || 0;
         var switches = parseFloat(document.getElementById('switches').value) || 0;
@@ -1174,6 +1250,22 @@
 
         renderWaveform(spikeH, netDeficit);
         renderResetPlan(resetDays, netDeficit);
+
+        // Derivations
+        document.getElementById('derDopStep1').innerHTML = 
+          'Exogenous Stimulus Load: (' + spikeH.toFixed(1) + ' hrs &times; 6) + (' + switches + ' switches &times; 0.4) + (log10(' + cycleD + ') &times; 12) = <strong>' + load.toFixed(1) + ' pts</strong>';
+        document.getElementById('derDopStep2').innerHTML = 
+          'Restorative Offset: ' + restorers + ' protocol(s) &times; 8 = <strong>' + recovery.toFixed(1) + ' offset pts</strong>';
+        document.getElementById('derDopStep3').innerHTML = 
+          'Net D2 Receptor Deficit: <strong>-' + netDeficit + '%</strong> | Neural Resensitization Horizon: 7 + (' + netDeficit + ' &times; 0.35) = <strong>' + resetDays + ' Days</strong>';
+
+        currentDopamineData = {
+          spikeHours: spikeH.toFixed(1),
+          switches: switches,
+          d2Deficit: '-' + netDeficit + '%',
+          boredom: boredomLabel,
+          resensDays: resetDays + ' Days'
+        };
       }
 
       function renderWaveform(spikeH, deficit) {
@@ -1232,9 +1324,119 @@
           '<p><strong>Phase 3: Endogenous Anchoring (Days ' + Math.round(days * 0.7 + 1) + '–' + days + '):</strong> Replace passive dopamine with effort-driven dopamine (cold water immersion, lifting heavy weights, long-form reading). Baseline receptor density fully restabilizes.</p>';
       }
 
+      function copyDopamineSummary() {
+        if (!currentDopamineData) return;
+        var d = currentDopamineData;
+        var text = 
+          'DOPAMINE RECEPTOR DOWNREGULATION DIAGNOSTIC
+' +
+          '========================================
+' +
+          '• High-Spike Stimulus Hours: ' + d.spikeHours + ' hrs/day
+' +
+          '• Context Switching Frequency: ' + d.switches + ' switches/hr
+' +
+          '• Estimated D2 Receptor Sensitivity: ' + d.d2Deficit + '
+' +
+          '• Baseline Boredom / Anhedonia Score: ' + d.boredom + '
+' +
+          '• Target Days to Neural Resensitization: ' + d.resensDays + '
+' +
+          '========================================
+' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopyDopamine');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Dopamine Diagnostic!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', simDopamine);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is Richard Solomon's Opponent-Process Theory?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Opponent-process theory states that emotional and neurochemical states are paired with an opposing homeostatic reaction. When an intense reward (Process A) spikes dopamine, the brain produces an opposing dysphoric trough (Process B) to return to baseline. Over time, Process A weakens while Process B strengthens and lasts longer, leading to chronic tolerance.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How long does it take for D2 dopamine receptors to upregulate?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Brain imaging studies show significant dopamine receptor recovery within 14 to 30 days of abstaining from chronic supernormal stimulation. Mild resets take 7 to 10 days, while heavy digital or behavioral dependencies require 30 days of structured friction.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the difference between tonic and phasic dopamine?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Tonic dopamine is your slow, steady baseline level that provides general drive, focus, and emotional equilibrium. Phasic dopamine consists of sharp, transient spikes triggered by unexpected rewards. Chronic excessive phasic spikes exhaust synaptic machinery, suppressing your tonic baseline.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why does unmedicated boredom feel physically painful after screen binging?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Because D2 receptors have downregulated, ordinary resting states feel deficient in dopamine. The brain perceives this trough as an urgent deficit and generates restlessness and agitation to compel you to seek another spike.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does effort-generated dopamine differ from passive digital dopamine?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Dopamine released after difficult effort (such as intense exercise, cold exposure, or completing complex creative work) results in a prolonged, stable elevated baseline without an immediate dysphoric crash.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

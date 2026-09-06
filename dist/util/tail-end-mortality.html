@@ -106,18 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is 'The Tail End' concept?",
+      "name": "What is 'The Tail End' concept in philosophy and psychology?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Popularized by Tim Urban on Wait But Why, 'The Tail End' illustrates that roughly 90% of our lifetime face-to-face time with our parents occurs prior to high school graduation."
+        "text": "Popularized by writer Tim Urban on Wait But Why, 'The Tail End' illustrates that roughly 90% of our total lifetime face-to-face time with our parents occurs before age 18. Once high school ends and children move out, annual visits drop to 5–15 days per year, permanently entering the final 10% of the relationship."
       }
     },
     {
       "@type": "Question",
-      "name": "How are remaining visits calculated?",
+      "name": "How does the calculator estimate remaining actuarial lifespan?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The calculator multiplies projected remaining actuarial life expectancy by your reported annual visit frequency and days per visit to calculate true remaining hours."
+        "text": "The calculator uses standard demographic life tables (defaulting to 82 years, matching CDC and WHO actuarial median life expectancies for OECD nations). Users can adjust the target lifespan to match family medical history."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is tracking 'visits left' more impactful than tracking 'years left'?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Saying you have '20 years left' creates a false sense of abundance. If you only visit twice a year, 20 years translates to just 40 total encounters. Counting discrete visits eliminates procrastination and highlights the finite nature of each reunion."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I improve the quality of remaining in-person time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Establish phone-free focus rituals, record oral history interviews asking about their childhood and life lessons, and prioritize active shared experiences over passive co-presence."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is any personal data stored or transmitted when using this ledger?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. All age inputs and visit calculations execute strictly in your local browser memory using vanilla JavaScript. No data is stored, logged, or sent to external servers."
       }
     }
   ]
@@ -1033,11 +1057,6 @@
       .neuro-slider-row { margin-bottom: 1.25rem; }
       .neuro-slider-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.35rem; }
       .neuro-slider-input { width: 100%; accent-color: #3b82f6; cursor: pointer; }
-      .faq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 2rem; padding: 1.5rem; }
-      .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
-      .faq-item:last-child { border-bottom: none; }
-      .faq-q { font-family: var(--serif); font-size: 1.1rem; font-weight: bold; margin-bottom: 0.4rem; color: var(--fg); }
-      .faq-a { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
     </style>
   
     <style>
@@ -1053,7 +1072,7 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">Actuarial Reality Check & Tim Urban's 'The Tail End'</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">Actuarial Reality Check &amp; Tim Urban's 'The Tail End'</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">The Tail End: Loved-One Time Remaining Ledger</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
           By age 18, you have already spent roughly 90% of the total in-person face-to-face time you will ever have with your parents. If your loved ones live elsewhere and you visit twice a year, you don't have "20 years left"—you have 40 visits left.
@@ -1064,7 +1083,7 @@
         <div class="neuro-grid-3" style="margin-bottom: 1.5rem;">
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Relationship</label>
-            <select id="relType" class="code-input" onchange="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);">
+            <select id="relType" class="code-input" onchange="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;">
               <option value="parent" selected>Mother / Father</option>
               <option value="grandparent">Grandmother / Grandfather</option>
               <option value="child">Child (Before Age 18)</option>
@@ -1074,26 +1093,26 @@
           </div>
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Your Current Age</label>
-            <input type="number" id="userAge" value="30" min="1" max="100" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="userAge" value="30" min="1" max="100" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Loved One's Current Age</label>
-            <input type="number" id="lovedAge" value="62" min="1" max="105" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="lovedAge" value="62" min="1" max="105" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
         </div>
 
         <div class="neuro-grid-3">
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Visits / Encounters Per Year</label>
-            <input type="number" id="visitsPerYear" value="3" min="1" max="365" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="visitsPerYear" value="3" min="1" max="365" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Average Days Per Visit</label>
-            <input type="number" id="daysPerVisit" value="4" min="1" max="60" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="daysPerVisit" value="4" min="1" max="60" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
           <div>
             <label class="field-label" style="display:block;font-family:var(--mono);font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.35rem;">Actuarial Life Expectancy</label>
-            <input type="number" id="targetLifespan" value="82" min="50" max="110" class="code-input" oninput="calcTailEnd()" style="padding:0.6rem;font-family:var(--mono);" />
+            <input type="number" id="targetLifespan" value="82" min="50" max="110" class="code-input" oninput="calcTailEnd()" style="width:100%;padding:0.6rem;font-family:var(--mono);background:var(--bg);color:var(--fg);border:1px solid var(--border);border-radius:4px;" />
           </div>
         </div>
       </div>
@@ -1139,34 +1158,91 @@
         <p id="ledgerSummaryText" style="font-size: 0.95rem; color: var(--fg); line-height: 1.6; margin: 1rem 0 0;"></p>
       </div>
 
+      <!-- LIVE MATHEMATICAL DERIVATION BREAKDOWN -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Actuarial Derivation &amp; Mathematical Timeline</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          How the mortality ledger evaluates your relationship's temporal boundaries:
+        </p>
+
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Compute Childhood In-Person Baseline (Ages 0–18)</strong>
+            <div id="derTailStep1" style="color: #3b82f6; margin-top: 0.25rem;">18 years &times; ~300 days/year = 5,400 co-present days</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Compute Adult Days Already Expended</strong>
+            <div id="derTailStep2" style="color: var(--text-muted); margin-top: 0.25rem;">(30 - 18) years &times; 3 visits &times; 4 days = 144 days</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Compute Projected Future In-Person Days</strong>
+            <div id="derTailStep3" style="color: #22c55e; margin-top: 0.25rem;">(82 - 62) actuarial years &times; 3 visits &times; 4 days = 240 days</div>
+          </div>
+        </div>
+
+        <button id="btnCopyLedger" onclick="copyLedgerSummary()" class="btn-primary" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Complete Mortality Ledger Summary
+        </button>
+      </div>
+
       <!-- CALL TO ACTION CARD -->
       <div class="neuro-card" style="background: rgba(59,130,246,0.06); border-left: 4px solid #3b82f6;">
         <h4 style="font-family: var(--serif); font-size: 1.2rem; margin: 0 0 0.5rem; color: #3b82f6;">The Immediate Antidote</h4>
         <p style="font-size: 0.92rem; color: var(--fg); line-height: 1.5; margin-bottom: 1rem;">
           Don't let this reality check induce hollow paralysis. Reach out right now while they are here to receive it.
         </p>
-        <button onclick="copyWarmMessage()" class="neuro-btn-primary">📱 Copy Warm Check-In Text to Clipboard</button>
+        <button id="btnCopyWarm" onclick="copyWarmMessage()" class="neuro-btn-primary" style="transition: all 0.2s;">📱 Copy Warm Check-In Text to Clipboard</button>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is 'The Tail End' concept?</div>
-          <div class="faq-a">
-            Popularized by writer Tim Urban on Wait But Why, 'The Tail End' illustrates that the vast majority of our time with parents and childhood friends happens during youth. In childhood, you see your parents every single day (~330 days/year). Once you leave home, that number drops to an average of 5–15 days per year, meaning you enter the final 5–10% 'tail end' of your total relationship in early adulthood.
+      <!-- 5 FATAL TRAPS & ACTUARIAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Time Traps &amp; Actuarial Blindspots</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Human temporal perception dramatically warps how we budget time with aging loved ones:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The "Calendar Years vs. In-Person Hours" Fallacy</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Assuming that because your parents are 60 and have a life expectancy of 82, you have "22 years left" with them. If you live in another city and visit for 4 days twice a year, you do not have 22 years—you have only 176 in-person days remaining.
+            </p>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">How does the calculator estimate remaining lifespan?</div>
-          <div class="faq-a">
-            The calculator uses standard actuarial tables (defaulting to 82 years, matching CDC actuarial median life expectancies for OECD nations). You can customize this threshold to reflect your loved one's specific health and family history.
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. The Diurnal Proximity Assumption</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Assuming future time together will be as physically active, independent, and communicative as past time. Age-related cognitive decline, mobility loss, and sensory impairment drastically reduce the communicative depth of later years.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Post-Adolescence Time Decoupling (The 90% Cliff)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Overlooking that 90% of total parent-child face-to-face hours occur before age 18. Once high school ends and geographic independence begins, the relationship enters the final 10% tail end permanently.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. Quality vs. Presence Distraction Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Spending one of your few remaining in-person visits scrolling on mobile devices or handling remote work in the same room. Physical co-presence with split attention reduces emotional bonding value by >70%.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. "We'll Do It Next Year" Procrastination Mirage</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Postponing annual family reunions or holiday trips due to temporary workplace deadlines. Actuarial mortality curves are non-linear; health shocks occur unpredictably without prior notice.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      var currentTailData = null;
+
       function calcTailEnd() {
         var userAge = parseFloat(document.getElementById('userAge').value) || 30;
         var lovedAge = parseFloat(document.getElementById('lovedAge').value) || 60;
@@ -1205,18 +1281,156 @@
         var name = rel === 'parent' ? 'your parents' : (rel === 'grandparent' ? 'your grandparents' : 'your loved one');
         document.getElementById('ledgerSummaryText').innerHTML = 
           'You have approximately <strong>' + totalVisits + ' in-person visits (' + totalDays + ' days total)</strong> remaining with ' + name + '. When spread across the next ' + remainingYears.toFixed(0) + ' years, every single encounter represents a noticeable percentage of the time that remains.';
+
+        // Derivations
+        document.getElementById('derTailStep1').innerHTML = 
+          'Childhood Co-Presence (Ages 0–18): ' + Math.min(userAge, 18) + ' years &times; ~300 days/year = <strong>' + pastChildhoodDays.toLocaleString('en-US') + ' days</strong>';
+        document.getElementById('derTailStep2').innerHTML = 
+          'Adult Co-Presence Expended: ' + adultYears + ' adult years &times; ' + visitsPerYear + ' visits &times; ' + daysPerVisit + ' days = <strong>' + pastAdultDays.toLocaleString('en-US') + ' days</strong>';
+        document.getElementById('derTailStep3').innerHTML = 
+          'Projected Future Co-Presence: (' + targetLifespan + ' - ' + lovedAge + ') actuarial years &times; ' + visitsPerYear + ' visits &times; ' + daysPerVisit + ' days = <strong>' + totalDays.toLocaleString('en-US') + ' days (' + totalVisits + ' visits)</strong>';
+
+        currentTailData = {
+          rel: name,
+          pctElapsed: pctPast.toFixed(1) + '%',
+          daysLeft: totalDays,
+          visitsLeft: totalVisits,
+          holidaysLeft: totalHolidays,
+          yearsLeft: remainingYears.toFixed(0)
+        };
       }
 
       function copyWarmMessage() {
         var msg = "Hey, I was just thinking about you and wanted to check in. I really cherish the time we get together—let's make sure we plan our next visit soon. Love you!";
         navigator.clipboard.writeText(msg).then(function() {
-          alert('Warm check-in text copied to clipboard! Paste it into WhatsApp, iMessage, or SMS.');
+          var btn = document.getElementById('btnCopyWarm');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Warm Check-in Text Copied!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
+      }
+
+      function copyLedgerSummary() {
+        if (!currentTailData) return;
+        var d = currentTailData;
+        var text = 
+          'THE TAIL END: MORTALITY & TIME REMAINING LEDGER
+' +
+          '========================================
+' +
+          '• Relationship: ' + d.rel + '
+' +
+          '• Lifetime Time Already Expended: ' + d.pctElapsed + '
+' +
+          '• Total Remaining In-Person Days: ' + d.daysLeft + ' Days
+' +
+          '• Total Remaining In-Person Visits: ' + d.visitsLeft + ' Visits
+' +
+          '• Projected Remaining Holiday Seasons: ' + d.holidaysLeft + ' Seasons
+' +
+          '• Actuarial Horizon: ~' + d.yearsLeft + ' Years
+' +
+          '========================================
+' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopyLedger');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Complete Mortality Ledger!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
         });
       }
 
       document.addEventListener('DOMContentLoaded', calcTailEnd);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is 'The Tail End' concept in philosophy and psychology?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Popularized by writer Tim Urban on Wait But Why, 'The Tail End' illustrates that roughly 90% of our total lifetime face-to-face time with our parents occurs before age 18. Once high school ends and children move out, annual visits drop to 5–15 days per year, permanently entering the final 10% of the relationship.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does the calculator estimate remaining actuarial lifespan?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The calculator uses standard demographic life tables (defaulting to 82 years, matching CDC and WHO actuarial median life expectancies for OECD nations). Users can adjust the target lifespan to match family medical history.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why is tracking 'visits left' more impactful than tracking 'years left'?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Saying you have '20 years left' creates a false sense of abundance. If you only visit twice a year, 20 years translates to just 40 total encounters. Counting discrete visits eliminates procrastination and highlights the finite nature of each reunion.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How can I improve the quality of remaining in-person time?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Establish phone-free focus rituals, record oral history interviews asking about their childhood and life lessons, and prioritize active shared experiences over passive co-presence.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Is any personal data stored or transmitted when using this ledger?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                No. All age inputs and visit calculations execute strictly in your local browser memory using vanilla JavaScript. No data is stored, logged, or sent to external servers.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

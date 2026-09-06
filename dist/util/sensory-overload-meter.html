@@ -106,18 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the Polyvagal Theory?",
+      "name": "What is the Polyvagal Theory in autonomic neuroscience?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Polyvagal Theory, formulated by Dr. Stephen Porges, explains how the autonomic nervous system transitions between social engagement, fight-or-flight, and freeze/shutdown."
+        "text": "Developed by Dr. Stephen Porges, Polyvagal Theory models how the autonomic nervous system shifts between three physiological states: Ventral Vagal (safe, socially engaged, resting), Sympathetic (threat, stress, sensory overload), and Dorsal Vagal (freeze, burnout, dissociation)."
       }
     },
     {
       "@type": "Question",
-      "name": "How does the Physiological Sigh reset the nervous system?",
+      "name": "Why is the Physiological Sigh so effective for instant autonomic regulation?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Two nasal inhalations followed by an extended mouth exhalation stimulates the vagus nerve, rapidly lowering heart rate."
+        "text": "Two rapid nasal inhalations reinflate collapsed pulmonary alveoli, maximizing oxygen/carbon dioxide diffusion. The subsequent prolonged mouth exhalation stimulates the vagus nerve, rapidly decelerating heart rate and dropping sympathetic arousal faster than traditional meditation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is allostatic load in sensory processing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Allostatic load represents the cumulative physiological wear and tear on the body and brain resulting from chronic neurochemical stress responses to environmental stimuli (acoustic noise, blue light glare, social masking)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is social masking particularly exhausting for neurodivergent individuals?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Social masking requires continuous active cognitive compensation—monitoring facial expressions, suppressing stimming, modulating voice tone, and analyzing conversational subtext. This forces the prefrontal cortex to work in high-demand mode continuously without rest."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I quickly recharge an autonomic battery below 30%?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Engage in immediate sensory deprivation: enter a dark, quiet room, lie horizontally, place a cool cloth over your eyes, perform 3–5 cycles of the physiological sigh, and avoid all interactive screens for at least 20 minutes."
       }
     }
   ]
@@ -1033,11 +1057,6 @@
       .neuro-slider-row { margin-bottom: 1.25rem; }
       .neuro-slider-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.35rem; }
       .neuro-slider-input { width: 100%; accent-color: #3b82f6; cursor: pointer; }
-      .faq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 2rem; padding: 1.5rem; }
-      .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
-      .faq-item:last-child { border-bottom: none; }
-      .faq-q { font-family: var(--serif); font-size: 1.1rem; font-weight: bold; margin-bottom: 0.4rem; color: var(--fg); }
-      .faq-a { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
     </style>
   
     <div class="article-container" style="max-width: 950px;">
@@ -1046,8 +1065,8 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Polyvagal Theory & Allostatic Load</div>
-        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Sensory Overload Budget & Autonomic Battery Meter</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #10b981; margin-bottom: 0.5rem;">Polyvagal Theory &amp; Allostatic Load</div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Sensory Overload Budget &amp; Autonomic Battery Meter</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
           Your nervous system has a finite daily capacity for sensory input. Audit ambient decibels, visual glare, social masking, and context switches to diagnose autonomic overload and trigger an immediate physiological reset.
         </p>
@@ -1067,7 +1086,7 @@
 
         <div class="neuro-slider-row">
           <div class="neuro-slider-label">
-            <span>Screen Glare & Fluorescent Lighting Exposure</span>
+            <span>Screen Glare &amp; Fluorescent Lighting Exposure</span>
             <strong id="valVisual" style="color: #f59e0b;">7 Hours</strong>
           </div>
           <input type="range" id="visualInput" min="1" max="16" step="1" value="7" class="neuro-slider-input" oninput="calcSensory()" />
@@ -1075,11 +1094,11 @@
 
         <div class="neuro-slider-row">
           <div class="neuro-slider-label">
-            <span>Social Masking & Public Performance Hours</span>
+            <span>Social Masking &amp; Public Performance Hours</span>
             <strong id="valMasking" style="color: #a855f7;">5 Hours</strong>
           </div>
           <input type="range" id="maskingInput" min="0" max="12" step="1" value="5" class="neuro-slider-input" oninput="calcSensory()" />
-          <span style="font-size: 0.75rem; color: var(--text-muted);">Hours spent hiding fatigue, smiling politely, or suppressing natural neurodivergent traits</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Hours spent hiding fatigue, smiling politely, or suppressing natural traits</span>
         </div>
 
         <div class="neuro-slider-row">
@@ -1104,6 +1123,33 @@
         <p id="polyvagalDesc" style="font-size: 0.95rem; color: var(--text-muted); max-width: 650px; margin: 0 auto; line-height: 1.6;"></p>
       </div>
 
+      <!-- LIVE STEP-BY-STEP DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Polyvagal Allostatic Battery Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          Evaluating autonomic energy drain algebraically across neurological stressors:
+        </p>
+
+        <div style="display: grid; gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 1: Baseline Sleep Capacity</strong>
+            <div id="derSensStep1" style="color: #3b82f6; margin-top: 0.25rem;">Sleep Score 6.5 &times; 10 = 65.0 Base Points</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 2: Cumulative Allostatic Sensory Drain</strong>
+            <div id="derSensStep2" style="color: var(--text-muted); margin-top: 0.25rem;">Acoustic (15.8) + Visual (19.6) + Masking (19.0) = 54.4 Drain Points</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <strong style="color: var(--fg);">Step 3: Residual Autonomic Charge &amp; State</strong>
+            <div id="derSensStep3" style="color: #f59e0b; margin-top: 0.25rem;">Residual Battery: 38% &rarr; Sympathetic Hyper-Vigilance</div>
+          </div>
+        </div>
+
+        <button id="btnCopySensory" onclick="copySensorySummary()" class="btn-primary" style="margin-top: 1.25rem; width: 100%; padding: 0.65rem 1rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; transition: all 0.2s;">
+          📋 Copy Autonomic Battery Diagnostic
+        </button>
+      </div>
+
       <!-- PHYSIOLOGICAL SIGH INTERACTIVE PACER -->
       <div class="neuro-card" style="border-left: 4px solid #3b82f6;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 1rem;">
@@ -1124,25 +1170,55 @@
         </div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">What is the Polyvagal Theory?</div>
-          <div class="faq-a">
-            Developed by Dr. Stephen Porges, Polyvagal Theory models how the autonomic nervous system shifts between three physiological states: Ventral Vagal (safe, socially engaged, resting), Sympathetic (threat, stress, sensory overload), and Dorsal Vagal (freeze, burnout, dissociation).
+      <!-- 5 FATAL TRAPS & SENSORY PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Sensory Overload Traps &amp; Polyvagal Pitfalls</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Autonomic dysregulation creeps in quietly before precipitating full executive exhaustion:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The "Push Through It" Dissociation Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Ignoring early sympathetic warning signs (jaw clenching, eye fatigue, sensory irritability) and forcing yourself to remain in noisy, bright environments until your nervous system collapses into dorsal vagal freeze or shutdown.
+            </p>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">Why is the Physiological Sigh so effective?</div>
-          <div class="faq-a">
-            The dual-inhalation reinflates collapsed alveoli in the lungs, increasing surface area for oxygen/CO2 exchange. The prolonged exhalation slows the heart rate via the vagus nerve.
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. Social Masking Exhaustion Mirage</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Underestimating the intense metabolic and neurological cost of maintaining a pleasant, neurotypical facade during back-to-back social gatherings or corporate meetings. Masking drains allostatic battery twice as fast as physical labor.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Acoustic &amp; Subconscious Micro-Noise Creep</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Habitually existing in environments with 60–75 dB ambient background noise (open-plan offices, HVAC hum, traffic, cafes) without recognizing that continuous sound forces the auditory cortex into chronic low-grade vigilance.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. Digital "Relaxation" Stimulus Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Attempting to recharge an overstimulated nervous system by consuming fast-paced video games, YouTube videos, or Twitter debates. True autonomic recovery requires sensory deprivation (dark, quiet, horizontal rest).
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. Chronic Sleep Debt Depletion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Treating sleep as negotiable while expecting daytime sensory resilience. Every hour of lost sleep depresses baseline vagal tone and lowers the threshold for sensory overwhelm by 25%.
+            </p>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      var currentSensoryData = null;
+
       function calcSensory() {
         var noise = parseFloat(document.getElementById('noiseInput').value) || 50;
         var visual = parseFloat(document.getElementById('visualInput').value) || 6;
@@ -1156,7 +1232,10 @@
         document.getElementById('valSleep').textContent = sleep + ' / 10';
 
         var baseBattery = sleep * 10;
-        var drain = ((noise - 30) * 0.45) + (visual * 2.8) + (masking * 3.8);
+        var acousticDrain = (noise - 30) * 0.45;
+        var visualDrain = visual * 2.8;
+        var maskingDrain = masking * 3.8;
+        var drain = acousticDrain + visualDrain + maskingDrain;
         var remaining = Math.max(5, Math.min(100, Math.round(baseBattery - drain)));
 
         document.getElementById('batteryVal').textContent = remaining + '%';
@@ -1165,26 +1244,82 @@
 
         var stateEl = document.getElementById('polyvagalState');
         var descEl = document.getElementById('polyvagalDesc');
+        var stateTitle = '';
 
         if (remaining >= 60) {
           bar.style.background = '#10b981';
           document.getElementById('batteryVal').style.color = '#10b981';
-          stateEl.textContent = 'Ventral Vagal (Safe, Regulated & Social)';
+          stateTitle = 'Ventral Vagal (Safe, Regulated & Social)';
+          stateEl.textContent = stateTitle;
           stateEl.style.color = '#10b981';
           descEl.textContent = 'Your nervous system has sufficient allostatic bandwidth. Sensory filtering is optimal, working memory is fluid, and social engagement feels natural.';
         } else if (remaining >= 30) {
           bar.style.background = '#f59e0b';
           document.getElementById('batteryVal').style.color = '#f59e0b';
-          stateEl.textContent = 'Sympathetic Activation (Fight / Flight / Hyper-Vigilance)';
+          stateTitle = 'Sympathetic Activation (Fight / Flight / Hyper-Vigilance)';
+          stateEl.textContent = stateTitle;
           stateEl.style.color = '#f59e0b';
           descEl.textContent = 'Your autonomic battery is depleted. You may feel irritable, restless, sensitive to sudden noises, or overwhelmed by light. Prioritize immediate sensory reduction.';
         } else {
           bar.style.background = '#ef4444';
           document.getElementById('batteryVal').style.color = '#ef4444';
-          stateEl.textContent = 'Dorsal Vagal Shutdown (Sensory Freeze & Dissociation)';
+          stateTitle = 'Dorsal Vagal Shutdown (Sensory Freeze & Dissociation)';
+          stateEl.textContent = stateTitle;
           stateEl.style.color = '#ef4444';
           descEl.textContent = 'Critical depletion threshold. The nervous system is defending itself through numbness, severe executive dysfunction, and emotional exhaustion. Eliminate all non-essential stimuli immediately.';
         }
+
+        // Live math derivations
+        document.getElementById('derSensStep1').innerHTML = 
+          'Sleep Rest Baseline: ' + sleep + ' / 10 &times; 10 = <strong>' + baseBattery.toFixed(1) + ' Base Points</strong>';
+        document.getElementById('derSensStep2').innerHTML = 
+          'Sensory Drain: Acoustic (' + acousticDrain.toFixed(1) + ') + Visual (' + visualDrain.toFixed(1) + ') + Masking (' + maskingDrain.toFixed(1) + ') = <strong>' + drain.toFixed(1) + ' Drain Points</strong>';
+        document.getElementById('derSensStep3').innerHTML = 
+          'Residual Autonomic Battery: ' + baseBattery.toFixed(1) + ' - ' + drain.toFixed(1) + ' = <strong>' + remaining + '% (' + stateTitle + ')</strong>';
+
+        currentSensoryData = {
+          battery: remaining + '%',
+          state: stateTitle,
+          noise: noiseLabel,
+          visual: visual + ' Hours',
+          masking: masking + ' Hours'
+        };
+      }
+
+      function copySensorySummary() {
+        if (!currentSensoryData) return;
+        var d = currentSensoryData;
+        var text = 
+          'AUTONOMIC SENSORY BATTERY DIAGNOSTIC
+' +
+          '========================================
+' +
+          '• Residual Battery Level: ' + d.battery + '
+' +
+          '• Current Polyvagal State: ' + d.state + '
+' +
+          '• Noise Exposure: ' + d.noise + '
+' +
+          '• Screen & Glare Exposure: ' + d.visual + '
+' +
+          '• Social Masking Load: ' + d.masking + '
+' +
+          '========================================
+' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('btnCopySensory');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Autonomic Battery Diagnostic!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
+        });
       }
 
       var pacerRunning = false;
@@ -1238,6 +1373,80 @@
       document.addEventListener('DOMContentLoaded', calcSensory);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the Polyvagal Theory in autonomic neuroscience?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Developed by Dr. Stephen Porges, Polyvagal Theory models how the autonomic nervous system shifts between three physiological states: Ventral Vagal (safe, socially engaged, resting), Sympathetic (threat, stress, sensory overload), and Dorsal Vagal (freeze, burnout, dissociation).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why is the Physiological Sigh so effective for instant autonomic regulation?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Two rapid nasal inhalations reinflate collapsed pulmonary alveoli, maximizing oxygen/carbon dioxide diffusion. The subsequent prolonged mouth exhalation stimulates the vagus nerve, rapidly decelerating heart rate and dropping sympathetic arousal faster than traditional meditation.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is allostatic load in sensory processing?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Allostatic load represents the cumulative physiological wear and tear on the body and brain resulting from chronic neurochemical stress responses to environmental stimuli (acoustic noise, blue light glare, social masking).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why is social masking particularly exhausting for neurodivergent individuals?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Social masking requires continuous active cognitive compensation—monitoring facial expressions, suppressing stimming, modulating voice tone, and analyzing conversational subtext. This forces the prefrontal cortex to work in high-demand mode continuously without rest.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How can I quickly recharge an autonomic battery below 30%?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Engage in immediate sensory deprivation: enter a dark, quiet room, lie horizontally, place a cool cloth over your eyes, perform 3–5 cycles of the physiological sigh, and avoid all interactive screens for at least 20 minutes.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

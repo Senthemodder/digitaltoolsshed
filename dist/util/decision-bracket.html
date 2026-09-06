@@ -109,7 +109,7 @@
       "name": "Why does binary elimination resolve decision paralysis so fast?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "According to Hick's Law, decision time increases logarithmically with choices. Pairwise 1-on-1 elimination strips away comparative noise, allowing your subconscious gut intuition to decide in milliseconds."
+        "text": "According to Hick's Law (T = b * log2(n + 1)), decision time increases logarithmically with the number of options. Simultaneously ranking 8 or 16 choices floods prefrontal working memory. Pairwise 1-on-1 elimination strips away comparative noise, allowing your subconscious gut intuition to decide in milliseconds."
       }
     },
     {
@@ -117,15 +117,31 @@
       "name": "What if I feel disappointed by the winning choice?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sigmund Freud noted that flipping a coin or running an elimination tournament reveals your true subconscious desire the instant the result appears. If you feel regret about the winner, your brain has just illuminated what you actually wanted: the runner-up."
+        "text": "Sigmund Freud noted that flipping a coin or running an elimination tournament reveals your true subconscious desire the instant the result appears. If you feel sudden regret or reluctance about the winner, your brain has illuminated what you actually preferred: the runner-up."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my decision data sent to any servers?",
+      "name": "How many choices can I compare in the tournament?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Zero data is sent to servers. The entire tournament runs client-side in your local browser session with 100% privacy."
+        "text": "The engine supports between 2 and 16 choices, automatically balancing brackets into 4, 8, or 16 competitor single-elimination trees to guarantee fair seeding."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I navigate the tournament using keyboard shortcuts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. You can press '1' or Left Arrow to choose the left option, and '2' or Right Arrow to choose the right option, allowing you to complete an 8-item tournament in under 20 seconds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my decision data private?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "100% private. The tournament runs entirely in your local browser memory using client-side JavaScript. Zero inputs or decision results are ever transmitted to external servers."
       }
     }
   ]
@@ -1041,11 +1057,6 @@
       .neuro-slider-row { margin-bottom: 1.25rem; }
       .neuro-slider-label { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.35rem; }
       .neuro-slider-input { width: 100%; accent-color: #3b82f6; cursor: pointer; }
-      .faq-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; margin-top: 2rem; padding: 1.5rem; }
-      .faq-item { border-bottom: 1px solid var(--border); padding: 1rem 0; }
-      .faq-item:last-child { border-bottom: none; }
-      .faq-q { font-family: var(--serif); font-size: 1.1rem; font-weight: bold; margin-bottom: 0.4rem; color: var(--fg); }
-      .faq-a { font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; }
     </style>
   
     <style>
@@ -1065,10 +1076,10 @@
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Executive Function & Choice Architecture</div>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">Executive Function &amp; Choice Architecture</div>
         <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.6rem;">Decision Paralysis Bracket Tournament</h1>
         <p style="color: var(--text-muted); font-size: 1.1rem; line-height: 1.6;">
-          Overwhelmed by too many options? Evaluating 8 or 16 choices at once floods working memory (Miller’s Law). This tool runs a rapid binary elimination tournament (March Madness style) to bypass prefrontal hesitation in under 60 seconds.
+          Overwhelmed by too many competing options? Evaluating 8 or 16 choices at once floods working memory (Miller’s Law). This tool runs a rapid binary elimination tournament (March Madness style) to bypass prefrontal hesitation in under 60 seconds.
         </p>
       </header>
 
@@ -1087,7 +1098,11 @@
           <button class="neuro-pill-btn" onclick="loadPreset('movies')">🎬 Movie / Watchlist</button>
         </div>
 
-        <textarea id="itemsInput" class="code-input" style="height: 130px; margin-bottom: 1rem; font-family: var(--mono); font-size: 0.95rem; line-height: 1.5;" placeholder="Enter one option per line (min 4, max 16)...&#10;Thai Food&#10;Tacos&#10;Sushi&#10;Pizza&#10;Burgers&#10;Indian Curry&#10;Ramen&#10;Mediterranean Shawarma"></textarea>
+        <textarea id="itemsInput" class="code-input" style="width: 100%; height: 130px; margin-bottom: 0.5rem; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; line-height: 1.5; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px;" placeholder="Enter one option per line (min 4, max 16)...&#10;Thai Food&#10;Tacos&#10;Sushi&#10;Pizza&#10;Burgers&#10;Indian Curry&#10;Ramen&#10;Mediterranean Shawarma"></textarea>
+
+        <div id="bracketError" style="display: none; color: #ef4444; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 0.75rem;">
+          ⚠️ Please enter at least 2 options to compare.
+        </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
           <span id="itemCountLabel" style="font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">8 options detected (Quarterfinals ready)</span>
@@ -1135,30 +1150,77 @@
         <p id="winnerAnalysis" style="font-size: 1rem; color: var(--text-muted); max-width: 650px; margin: 0 auto 1.5rem; line-height: 1.6;"></p>
 
         <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
-          <button onclick="copyVictory()" class="neuro-btn-primary">📋 Copy Decision Summary</button>
+          <button id="btnCopyBracket" onclick="copyVictory()" class="neuro-btn-primary" style="transition: all 0.2s;">📋 Copy Decision Summary</button>
           <button onclick="cancelTournament()" class="neuro-pill-btn" style="padding: 0.7rem 1.2rem;">Run Another Dilemma</button>
         </div>
       </div>
 
-      <!-- FAQ SECTION -->
-      <div class="faq-card">
-        <h3 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions</h3>
-        <div class="faq-item">
-          <div class="faq-q">Why does binary elimination resolve decision paralysis so fast?</div>
-          <div class="faq-a">
-            According to Hick’s Law (T = b &times; log2(n + 1)), decision time increases logarithmically with the number of options. Simultaneously ranking 8 or 16 choices overwhelms working memory and activates amygdala anxiety. Pitting choices head-to-head in 1-on-1 pairs strips away comparative noise, allowing your subconscious gut intuition to decide in milliseconds.
+      <!-- WORKED DECISION DERIVATION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.5rem;">📐 Decision Architecture &amp; Hick's Law Derivation</h3>
+        <p style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1rem;">
+          How binary tournament trees bypass cognitive thrashing:
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <div style="color: var(--text-muted); font-size: 0.72rem;">HICK'S LAW LATENCY</div>
+            <div style="font-weight: bold; margin-top: 0.2rem;">T = b &times; log<sub>2</sub>(n + 1)</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">Binary pairs minimize n to 2 at every step.</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <div style="color: var(--text-muted); font-size: 0.72rem;">BINARY TREE DEPTH</div>
+            <div style="font-weight: bold; margin-top: 0.2rem;">Depth = &lceil;log<sub>2</sub>(N)&rceil; Rounds</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">8 items resolve in exactly 3 rapid rounds.</div>
+          </div>
+          <div style="padding: 0.75rem; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+            <div style="color: var(--text-muted); font-size: 0.72rem;">WORKING MEMORY BUFFER</div>
+            <div style="font-weight: bold; margin-top: 0.2rem;">Miller's Law (4 &plusmn; 1 Items)</div>
+            <div style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.2rem;">Prevents cognitive overload and analysis freeze.</div>
           </div>
         </div>
-        <div class="faq-item">
-          <div class="faq-q">What if I feel disappointed by the winning choice?</div>
-          <div class="faq-a">
-            Sigmund Freud famously noted that tossing a coin (or running an elimination bracket) reveals your true subconscious desire the instant the result appears. If you feel regret or reluctance about the winner, your brain has just illuminated what you actually wanted: the runner-up.
+      </div>
+
+      <!-- 5 FATAL TRAPS & COGNITIVE PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin-top: 0; margin-bottom: 0.75rem; color: var(--fg);">⚠️ 5 Fatal Decision Paralysis Traps &amp; Executive Pitfalls</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          Evaluating options triggers acute cognitive friction. Avoid these 5 common mental traps:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: var(--fg);">1. The Endless Symmetrical Deliberation Trap</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Spending 45 minutes comparing options that have virtually identical expected utility. When the difference in outcome value is negligible, any decision executed in 5 seconds is mathematically superior to delaying action.
+            </p>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-q">Is my input data private?</div>
-          <div class="faq-a">
-            100% private. The tournament runs entirely in your local browser memory using client-side JavaScript. Zero inputs or decision results are ever transmitted to external servers.
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: var(--fg);">2. The Omission Bias Illusion</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Believing that delaying or avoiding a decision is "neutral" or carries less risk than making an imperfect choice. In reality, procrastination is an active negative decision that incurs massive compounding opportunity costs.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: var(--fg);">3. Working Memory Buffer Overflow (Miller's Law)</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Attempting to simultaneously evaluate 6+ options in your conscious mind. The prefrontal cortex can only sustain 4 &plusmn; 1 information chunks simultaneously; attempting more causes cognitive thrashing and decision fatigue.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: var(--fg);">4. Post-Tournament Buyer's Remorse Reversal</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Second-guessing the tournament winner immediately after the final matchup. If you experience sudden reluctance or regret, treat it as a clinical diagnostic of your hidden subconscious preference: you actually wanted the runner-up.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: var(--fg);">5. Asymmetrical Information Hunting</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Postponing decisions under the guise of "needing just one more review or data point." In over 80% of everyday personal and operational dilemmas, marginal information gain drops to zero after the initial comparison.
+            </p>
           </div>
         </div>
       </div>
@@ -1181,13 +1243,16 @@
 
       function loadPreset(key) {
         if (presets[key]) {
-          document.getElementById('itemsInput').value = presets[key].join('\n');
+          document.getElementById('itemsInput').value = presets[key].join('
+');
+          document.getElementById('bracketError').style.display = 'none';
           updateCount();
         }
       }
 
       function updateCount() {
-        var lines = document.getElementById('itemsInput').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+        var lines = document.getElementById('itemsInput').value.split('
+').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
         var count = lines.length;
         var valid = [4, 8, 16];
         var msg = count + ' options detected.';
@@ -1203,11 +1268,14 @@
       document.getElementById('itemsInput').addEventListener('input', updateCount);
 
       function startTournament() {
-        var raw = document.getElementById('itemsInput').value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+        var raw = document.getElementById('itemsInput').value.split('
+').map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+        var errEl = document.getElementById('bracketError');
         if (raw.length < 2) {
-          alert('Please enter at least 2 options to compare.');
+          errEl.style.display = 'block';
           return;
         }
+        errEl.style.display = 'none';
 
         var targetSize = 2;
         if (raw.length > 8) targetSize = 16;
@@ -1287,9 +1355,32 @@
 
       function copyVictory() {
         var win = document.getElementById('winnerName').textContent;
-        var text = '🏆 Decision Bracket Champion: ' + win + '\nDecided via Digital Tools Shed Prefrontal Cortex Bypass Engine: ' + window.location.href;
+        var text = 
+          'DECISION BRACKET TOURNAMENT RESULT
+' +
+          '========================================
+' +
+          '• Undisputed Champion: ' + win + '
+' +
+          (runnerUp ? '• Runner-Up: ' + runnerUp + '
+' : '') +
+          '• Algorithm: Binary Elimination Tournament (March Madness Style)
+' +
+          '========================================
+' +
+          'Decided via Digital Tools Shed: ' + window.location.href;
+
         navigator.clipboard.writeText(text).then(function() {
-          alert('Decision summary copied to clipboard!');
+          var btn = document.getElementById('btnCopyBracket');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Copied Decision Summary!';
+          btn.style.background = '#10b981';
+          btn.style.color = '#fff';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.background = '';
+            btn.style.color = '';
+          }, 2000);
         });
       }
 
@@ -1312,6 +1403,80 @@
       document.addEventListener('DOMContentLoaded', updateCount);
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why does binary elimination resolve decision paralysis so fast?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                According to Hick's Law (T = b * log2(n + 1)), decision time increases logarithmically with the number of options. Simultaneously ranking 8 or 16 choices floods prefrontal working memory. Pairwise 1-on-1 elimination strips away comparative noise, allowing your subconscious gut intuition to decide in milliseconds.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What if I feel disappointed by the winning choice?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Sigmund Freud noted that flipping a coin or running an elimination tournament reveals your true subconscious desire the instant the result appears. If you feel sudden regret or reluctance about the winner, your brain has illuminated what you actually preferred: the runner-up.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many choices can I compare in the tournament?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The engine supports between 2 and 16 choices, automatically balancing brackets into 4, 8, or 16 competitor single-elimination trees to guarantee fair seeding.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Can I navigate the tournament using keyboard shortcuts?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Yes. You can press '1' or Left Arrow to choose the left option, and '2' or Right Arrow to choose the right option, allowing you to complete an 8-item tournament in under 20 seconds.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Is my decision data private?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                100% private. The tournament runs entirely in your local browser memory using client-side JavaScript. Zero inputs or decision results are ever transmitted to external servers.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
