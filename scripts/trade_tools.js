@@ -58611,6 +58611,3270 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (71 calculators in /calc/)');
+  
+  // ==========================================
+  // CALCULATOR 72: Binary Distillation Column & McCabe-Thiele Calculator
+  // ==========================================
+  const distillationBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">McCabe-Thiele Graphical Method</span>
+      <span class="calc-clean-badge">Fenske-Underwood-Gilliland</span>
+      <span class="calc-clean-badge">Chemical Separation Engineering</span>
+    </div>
+    <h1 class="calc-clean-title">Binary Distillation Column & McCabe-Thiele Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate minimum reflux ratio (Rmin), theoretical and actual tray count, optimal feed stage, and condenser/reboiler duties using the rigorous McCabe-Thiele method and VLE equilibrium curves.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Chemical System / Relative Volatility -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="dt_chemSystem">Binary Chemical System</label>
+        <select id="dt_chemSystem" class="calc-clean-select">
+          <option value="benzene_toluene" selected>Benzene - Toluene (α ≈ 2.45, Ideal Hydrocarbon)</option>
+          <option value="methanol_water">Methanol - Water (α ≈ 3.50, Aqueous Alcohol)</option>
+          <option value="ethanol_water">Ethanol - Water (α ≈ 2.20, Sub-Azeotrope)</option>
+          <option value="acetone_water">Acetone - Water (α ≈ 4.10, Volatile Polar)</option>
+          <option value="heptane_octane">n-Heptane - n-Octane (α ≈ 2.15, Alkane)</option>
+          <option value="custom">Custom Relative Volatility (α)</option>
+        </select>
+        <small class="calc-clean-help">Determines VLE curve separation factor α = (y/(1-y)) / (x/(1-x))</small>
+      </div>
+
+      <!-- Custom Alpha Input -->
+      <div class="calc-clean-field" id="dt_customAlphaWrap">
+        <label class="calc-clean-label" for="dt_alpha">Relative Volatility (α)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="dt_alpha" class="calc-clean-input" value="2.45" min="1.05" max="25.0" step="0.05">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">α ratio</span>
+        </div>
+        <small class="calc-clean-help">Higher α indicates easier vapor-liquid separation</small>
+      </div>
+
+      <!-- Feed Composition (xF) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="dt_xf">Feed Mole Fraction (xF)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="dt_xf" class="calc-clean-input" value="0.45" min="0.05" max="0.90" step="0.01">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">mole frac</span>
+        </div>
+        <small class="calc-clean-help">Mole fraction of more volatile light component in raw feed</small>
+      </div>
+
+      <!-- Distillate Purity (xD) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="dt_xd">Distillate Overhead Purity (xD)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="dt_xd" class="calc-clean-input" value="0.95" min="0.50" max="0.999" step="0.005">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">mole frac</span>
+        </div>
+        <small class="calc-clean-help">Target overhead product purity (light key)</small>
+      </div>
+
+      <!-- Bottoms Impurity (xB) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="dt_xb">Bottoms Residue Fraction (xB)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="dt_xb" class="calc-clean-input" value="0.05" min="0.001" max="0.30" step="0.005">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">mole frac</span>
+        </div>
+        <small class="calc-clean-help">Allowable light key loss in column bottoms</small>
+      </div>
+
+      <!-- Feed Thermal Condition (q) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="dt_feedCondition">Feed Thermal Quality (q)</label>
+        <select id="dt_feedCondition" class="calc-clean-select">
+          <option value="1.0" selected>Saturated Liquid (q = 1.0, At Bubble Point, Vertical q-Line)</option>
+          <option value="0.0">Saturated Vapor (q = 0.0, At Dew Point, Horizontal q-Line)</option>
+          <option value="1.2">Subcooled Liquid (q = 1.20, Below Bubble Point)</option>
+          <option value="0.5">Two-Phase Liquid/Vapor (q = 0.50, 50% Flash)</option>
+          <option value="-0.2">Superheated Vapor (q = -0.20, Above Dew Point)</option>
+        </select>
+        <small class="calc-clean-help">Defines slope of feed q-line: Slope = q / (q - 1)</small>
+      </div>
+
+      <!-- Reflux Ratio Multiplier (R / Rmin) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="dt_refluxMultiplier">Reflux Ratio Factor (R / Rmin)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="dt_refluxMultiplier" class="calc-clean-input" value="1.30" min="1.05" max="5.00" step="0.05">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">× Rmin</span>
+        </div>
+        <small class="calc-clean-help">Industrial optimum is typically 1.20 to 1.50 × Rmin</small>
+      </div>
+
+      <!-- Column Feed Throughput & Tray Efficiency -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="dt_feedRate">Feed Throughput & Tray Efficiency</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="dt_feedRate" class="calc-clean-input" value="10000" min="100" max="500000" step="500" title="Feed Rate (lb/hr or kmol/hr)">
+          <select id="dt_feedUnit" class="calc-clean-select">
+            <option value="kmol" selected>kmol/hr</option>
+            <option value="lbmol">lbmol/hr</option>
+            <option value="kgh">kg/hr</option>
+          </select>
+          <input type="number" id="dt_trayEff" class="calc-clean-input" value="70" min="20" max="100" step="5" title="Overall Tray Efficiency %">
+          <span style="display:flex; align-items:center; padding:0 0.5rem; background:rgba(255,255,255,0.05); color:#94a3b8; font-size:0.8rem;">% Eff</span>
+        </div>
+        <small class="calc-clean-help">Overall column tray efficiency (typically 60-80% for sieve/valve trays)</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">McCabe-Thiele Separation & Stage Audit</h2>
+    <div class="dt-metrics-grid">
+      <!-- Total Theoretical Stages -->
+      <div class="dt-metric-card highlight">
+        <div class="dt-metric-label">Theoretical Stages (N_theor)</div>
+        <div class="dt-metric-value" id="dt_res_theor_stages">11 Stages</div>
+        <div class="dt-metric-sub" id="dt_res_theor_sub">Includes Reboiler (10 Trays + 1 Reboiler)</div>
+      </div>
+
+      <!-- Actual Column Trays -->
+      <div class="dt-metric-card highlight">
+        <div class="dt-metric-label">Actual Column Trays (N_act)</div>
+        <div class="dt-metric-value" id="dt_res_act_trays">15 Trays</div>
+        <div class="dt-metric-sub" id="dt_res_act_sub">Based on 70% Overall Tray Efficiency</div>
+      </div>
+
+      <!-- Minimum Reflux Ratio -->
+      <div class="dt-metric-card">
+        <div class="dt-metric-label">Minimum Reflux Ratio (Rmin)</div>
+        <div class="dt-metric-value" id="dt_res_rmin">1.28</div>
+        <div class="dt-metric-sub" id="dt_res_rmin_sub">Pinch point at q-line VLE intersection</div>
+      </div>
+
+      <!-- Operating Reflux Ratio -->
+      <div class="dt-metric-card pass">
+        <div class="dt-metric-label">Operating Reflux Ratio (R)</div>
+        <div class="dt-metric-value" id="dt_res_ropt">1.66</div>
+        <div class="dt-metric-sub" id="dt_res_ropt_sub">1.30 × Rmin (Optimal Energy/CapEx)</div>
+      </div>
+
+      <!-- Optimal Feed Stage -->
+      <div class="dt-metric-card">
+        <div class="dt-metric-label">Optimal Feed Stage</div>
+        <div class="dt-metric-value" id="dt_res_feed_stage">Stage 6</div>
+        <div class="dt-metric-sub" id="dt_res_feed_stage_sub">Intersection of ROL & SOL lines</div>
+      </div>
+
+      <!-- Distillate & Bottoms Yield -->
+      <div class="dt-metric-card">
+        <div class="dt-metric-label">Distillate / Bottoms Flow</div>
+        <div class="dt-metric-value" id="dt_res_dist_flow">4,444 kmol/h</div>
+        <div class="dt-metric-sub" id="dt_res_bot_flow">Bottoms: 5,556 kmol/h (xF = 0.45)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG McCabe-Thiele Graphical xy Diagram -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live McCabe-Thiele xy Operating Diagram with Stage Staircases</h2>
+    <div class="dt-svg-container">
+      <svg id="dt_svg" viewBox="0 0 840 460" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="McCabe-Thiele Distillation xy Diagram">
+        <defs>
+          <linearGradient id="dtGridGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#0f172a"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Canvas Background -->
+        <rect x="0" y="0" width="840" height="460" fill="#0b1120" rx="8"/>
+
+        <!-- Main Graphical Plot Box (x: 80 to 460, y: 40 to 420 -> 380x380 square) -->
+        <rect x="80" y="40" width="380" height="380" fill="url(#dtGridGrad)" stroke="#334155" stroke-width="1.5"/>
+
+        <!-- Grid Lines (0.2, 0.4, 0.6, 0.8) -->
+        <!-- x = 0.2: 80 + 76 = 156 -->
+        <line x1="156" y1="40" x2="156" y2="420" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <line x1="80" y1="344" x2="460" y2="344" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <!-- x = 0.4: 80 + 152 = 232 -->
+        <line x1="232" y1="40" x2="232" y2="420" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <line x1="80" y1="268" x2="460" y2="268" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <!-- x = 0.6: 80 + 228 = 308 -->
+        <line x1="308" y1="40" x2="308" y2="420" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <line x1="80" y1="192" x2="460" y2="192" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <!-- x = 0.8: 80 + 304 = 384 -->
+        <line x1="384" y1="40" x2="384" y2="420" stroke="#1e293b" stroke-dasharray="2,2"/>
+        <line x1="80" y1="116" x2="460" y2="116" stroke="#1e293b" stroke-dasharray="2,2"/>
+
+        <!-- Axis Labels -->
+        <text x="80" y="435" fill="#94a3b8" font-size="10" font-family="monospace">0.0</text>
+        <text x="156" y="435" fill="#94a3b8" font-size="10" font-family="monospace">0.2</text>
+        <text x="232" y="435" fill="#94a3b8" font-size="10" font-family="monospace">0.4</text>
+        <text x="308" y="435" fill="#94a3b8" font-size="10" font-family="monospace">0.6</text>
+        <text x="384" y="435" fill="#94a3b8" font-size="10" font-family="monospace">0.8</text>
+        <text x="455" y="435" fill="#94a3b8" font-size="10" font-family="monospace">1.0</text>
+        <text x="270" y="452" fill="#e2e8f0" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle">Liquid Mole Fraction (x)</text>
+
+        <text x="65" y="424" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="end">0.0</text>
+        <text x="65" y="348" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="end">0.2</text>
+        <text x="65" y="272" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="end">0.4</text>
+        <text x="65" y="196" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="end">0.6</text>
+        <text x="65" y="120" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="end">0.8</text>
+        <text x="65" y="44" fill="#94a3b8" font-size="10" font-family="monospace" text-anchor="end">1.0</text>
+        <text x="30" y="230" fill="#e2e8f0" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle" transform="rotate(-90 30 230)">Vapor Mole Fraction (y)</text>
+
+        <!-- 45 Degree Diagonal (y = x) -->
+        <line x1="80" y1="420" x2="460" y2="40" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4"/>
+
+        <!-- Dynamic VLE Equilibrium Curve -->
+        <path id="svg_vleCurve" d="M 80 420 Q 150 150 460 40" fill="none" stroke="#38bdf8" stroke-width="3"/>
+
+        <!-- Rectifying Operating Line (ROL) -->
+        <line id="svg_rolLine" x1="441" y1="59" x2="250" y2="210" stroke="#22c55e" stroke-width="2.5"/>
+
+        <!-- Stripping Operating Line (SOL) -->
+        <line id="svg_solLine" x1="99" y1="401" x2="250" y2="210" stroke="#f59e0b" stroke-width="2.5"/>
+
+        <!-- Feed q-Line -->
+        <line id="svg_qLine" x1="251" y1="249" x2="250" y2="210" stroke="#ec4899" stroke-width="2" stroke-dasharray="3,3"/>
+
+        <!-- Theoretical Stage Stepping Staircase Path -->
+        <path id="svg_stagesPath" d="M 441 59 L 390 59 L 390 90" fill="none" stroke="#ef4444" stroke-width="2"/>
+
+        <!-- Composition Marks along Diagonal -->
+        <circle id="svg_dotXD" cx="441" cy="59" r="4" fill="#22c55e"/>
+        <text id="svg_labelXD" x="441" y="48" fill="#4ade80" font-size="9" font-family="monospace" text-anchor="middle">xD</text>
+
+        <circle id="svg_dotXF" cx="251" cy="249" r="4" fill="#ec4899"/>
+        <text id="svg_labelXF" x="251" y="265" fill="#f472b6" font-size="9" font-family="monospace" text-anchor="middle">xF</text>
+
+        <circle id="svg_dotXB" cx="99" cy="401" r="4" fill="#f59e0b"/>
+        <text id="svg_labelXB" x="99" y="415" fill="#fbbf24" font-size="9" font-family="monospace" text-anchor="middle">xB</text>
+
+        <!-- Right Side: Column Profile & Key Telemetry -->
+        <!-- Legend Box -->
+        <rect x="490" y="40" width="325" height="155" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="652" y="62" fill="#38bdf8" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">McCABE-THIELE DIAGRAM KEY</text>
+        <line x1="505" y1="70" x2="800" y2="70" stroke="#334155" stroke-width="1"/>
+
+        <line x1="510" y1="88" x2="540" y2="88" stroke="#38bdf8" stroke-width="3"/>
+        <text x="550" y="92" fill="#94a3b8" font-size="10" font-family="sans-serif">VLE Equilibrium Curve (α = <span id="svg_legAlpha">2.45</span>)</text>
+
+        <line x1="510" y1="110" x2="540" y2="110" stroke="#22c55e" stroke-width="2.5"/>
+        <text x="550" y="114" fill="#94a3b8" font-size="10" font-family="sans-serif">Rectifying Line ROL (R = <span id="svg_legR">1.66</span>)</text>
+
+        <line x1="510" y1="132" x2="540" y2="132" stroke="#f59e0b" stroke-width="2.5"/>
+        <text x="550" y="136" fill="#94a3b8" font-size="10" font-family="sans-serif">Stripping Line SOL (Slope = <span id="svg_legSol">1.82</span>)</text>
+
+        <line x1="510" y1="154" x2="540" y2="154" stroke="#ec4899" stroke-width="2" stroke-dasharray="3,3"/>
+        <text x="550" y="158" fill="#94a3b8" font-size="10" font-family="sans-serif">Feed Condition q-Line (q = <span id="svg_legQ">1.0</span>)</text>
+
+        <line x1="510" y1="176" x2="540" y2="176" stroke="#ef4444" stroke-width="2"/>
+        <text x="550" y="180" fill="#94a3b8" font-size="10" font-family="sans-serif">Stepped Theoretical Stages</text>
+
+        <!-- Column Sizing Card (Bottom Right) -->
+        <rect x="490" y="210" width="325" height="210" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="652" y="234" fill="#38bdf8" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">COLUMN HYDRAULIC DESIGN</text>
+        <line x1="505" y1="242" x2="800" y2="242" stroke="#334155" stroke-width="1"/>
+
+        <text x="510" y="264" fill="#94a3b8" font-size="10" font-family="sans-serif">Theoretical Stages (N):</text>
+        <text x="800" y="264" fill="#38bdf8" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardNtheor">11 Stages</text>
+
+        <text x="510" y="288" fill="#94a3b8" font-size="10" font-family="sans-serif">Actual Trays (η = <span id="svg_cardEff">70</span>%):</text>
+        <text x="800" y="288" fill="#4ade80" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardNact">15 Trays</text>
+
+        <text x="510" y="312" fill="#94a3b8" font-size="10" font-family="sans-serif">Optimal Feed Tray:</text>
+        <text x="800" y="312" fill="#f59e0b" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardFeed">Tray 6 from Top</text>
+
+        <text x="510" y="336" fill="#94a3b8" font-size="10" font-family="sans-serif">Minimum Reflux (Rmin):</text>
+        <text x="800" y="336" fill="#f87171" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardRmin">1.28</text>
+
+        <text x="510" y="360" fill="#94a3b8" font-size="10" font-family="sans-serif">Overhead Distillate (D):</text>
+        <text x="800" y="360" fill="#f8fafc" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardDist">4,444 kmol/h</text>
+
+        <text x="510" y="384" fill="#94a3b8" font-size="10" font-family="sans-serif">Bottoms Residue (B):</text>
+        <text x="800" y="384" fill="#f8fafc" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_cardBot">5,556 kmol/h</text>
+
+        <text x="652" y="408" fill="#64748b" font-size="9" font-family="sans-serif" text-anchor="middle">McCabe-Thiele & Fenske-Underwood-Gilliland</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles Vapor-Liquid Equilibrium & McCabe-Thiele Derivations</h2>
+    <div class="dt-derivations">
+      <div class="dt-step">
+        <div class="dt-step-title">1. Overall Column Mass Balance & Product Splits</div>
+        <p>Total feed rate $F = <span id="drv_f">10,000</span>$ kmol/hr, with feed light key mole fraction $x_F = <span id="drv_xf">0.450</span>$, overhead distillate $x_D = <span id="drv_xd">0.950</span>$, and bottoms $x_B = <span id="drv_xb">0.050</span>$:</p>
+        <div class="dt-formula">
+          D = F \cdot \left( \frac{x_F - x_B}{x_D - x_B} \right) = <span id="drv_f2">10,000</span> \cdot \left( \frac{<span id="drv_xf2">0.450</span> - <span id="drv_xb2">0.050</span>}{<span id="drv_xd2">0.950</span> - <span id="drv_xb3">0.050</span>} \right) = <span id="drv_d_calc">4,444</span>\text{ kmol/hr}
+        </div>
+        <div class="dt-formula highlight">
+          B = F - D = <span id="drv_f3">10,000</span> - <span id="drv_d2">4,444</span> = <span id="drv_b_calc">5,556</span>\text{ kmol/hr}
+        </div>
+      </div>
+
+      <div class="dt-step">
+        <div class="dt-step-title">2. Minimum Reflux Ratio (Rmin) from q-Line & VLE Intersection</div>
+        <p>The feed line (q-line) equation represents the enthalpy condition of the feed stream ($q = <span id="drv_q">1.00</span>$):</p>
+        <div class="dt-formula">
+          y = \frac{q}{q - 1} x - \frac{x_F}{q - 1}
+        </div>
+        <p>Pinch point intersection of the q-line and the equilibrium curve $y = \frac{\alpha x}{1 + (\alpha - 1) x}$ ($alpha = <span id="drv_alpha">2.45</span>$) yields $(x', y') = (<span id="drv_xp">0.450</span>, <span id="drv_yp">0.667</span>)$:</p>
+        <div class="dt-formula highlight">
+          R_{min} = \frac{x_D - y'}{y' - x'} = \frac{<span id="drv_xd3">0.950</span> - <span id="drv_yp2">0.667</span>}{<span id="drv_yp3">0.667</span> - <span id="drv_xp2">0.450</span>} = <span id="drv_rmin_calc">1.28</span>
+        </div>
+        <p>Applying the engineering operating multiplier ($f_R = <span id="drv_fr">1.30</span>$):</p>
+        <div class="dt-formula highlight">
+          R = f_R \cdot R_{min} = <span id="drv_fr2">1.30</span> \cdot <span id="drv_rmin2">1.28</span> = <span id="drv_ropt_calc">1.66</span>
+        </div>
+      </div>
+
+      <div class="dt-step">
+        <div class="dt-step-title">3. Rectifying & Stripping Operating Lines</div>
+        <p>Top rectifying operating line (ROL) passes through $(x_D, x_D)$ with slope $rac{R}{R+1}$:</p>
+        <div class="dt-formula">
+          y = \left( \frac{R}{R + 1} \right) x + \left( \frac{x_D}{R + 1} \right) = <span id="drv_rol_slope">0.624</span> x + <span id="drv_rol_int">0.357</span>
+        </div>
+        <p>Bottom stripping operating line (SOL) passes through $(x_B, x_B)$ and the intersection point of ROL and the q-line:</p>
+        <div class="dt-formula highlight">
+          y = <span id="drv_sol_slope">1.821</span> x - <span id="drv_sol_int">0.041</span>
+        </div>
+      </div>
+
+      <div class="dt-step">
+        <div class="dt-step-title">4. Minimum Theoretical Stages (Fenske Equation at Total Reflux)</div>
+        <div class="dt-formula">
+          N_{min} = \frac{\ln\left[ \frac{x_D / (1 - x_D)}{x_B / (1 - x_B)} \right]}{\ln(\alpha)} = \frac{\ln\left[ \frac{0.95 / 0.05}{0.05 / 0.95} \right]}{\ln(<span id="drv_alpha2">2.45</span>)} = <span id="drv_nmin_calc">6.59</span>\text{ Stages at Total Reflux}
+        </div>
+        <p id="drv_stageSummary">Step-by-step graphical construction stepping between the VLE curve and operating lines yields 11 theoretical stages (10 trays + 1 partial reboiler). At 70% tray efficiency, 15 actual physical trays are required with feed introduction on Stage 6.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">McCabe-Thiele Distillation Column Specification Sheet</h2>
+      <button type="button" id="copyDtAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy Distillation Audit</span>
+      </button>
+    </div>
+    <pre id="dt_audit_box" class="dt-audit-box">Generating McCabe-Thiele distillation audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Distillation Column Design Traps</h2>
+    <div class="dt-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. Operating Too Close to Rmin (Pinch Point Infinite Stages)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          While increasing reflux ratio ($R$) increases condenser utility costs, attempting to operate below $1.15 	imes R_{min}$ causes the operating lines to touch the VLE equilibrium curve at the pinch point. The required number of theoretical stages asymptotically approaches infinity ($N 	o infty$). Even a 2% fluctuation in feed composition causes sudden off-spec distillate and massive unseparated product loss in the bottoms.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. Mislocating the Feed Tray (Suboptimal Enthalpy Mismatch)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          The optimal feed tray must be located precisely at the intersection of the rectifying and stripping operating lines. Introducing feed even 2 to 3 trays too high or too low mixes liquids of disparate compositions, destroying thermodynamic driving force and requiring 25% to 50% more reflux (and reboiler steam energy) to achieve the same product purities.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. Constant Relative Volatility Assumption across High-Turity Columns</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Assuming a single constant $alpha$ across the entire column works for ideal hydrocarbon mixtures like benzene-toluene, but fails dramatically for polar or hydrogen-bonding systems (e.g. ethanol-water, acetone-methanol). Relative volatility drops sharply near the azeotropic pinch ($alpha 	o 1.0$). Hand-calculating stages using average $alpha$ severely underestimates the required trays near the top of the column.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Tray Hydraulic Flooding (Jet Entrainment vs Downcomer Backup)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Increasing the reflux ratio increases internal vapor traffic ($V = L + D$) and liquid traffic ($L = R cdot D$). If column diameter is not sized to keep vapor velocity below the Souders-Brown flooding limit ($v < C_{sb} sqrt{(ho_L - ho_V)/ho_V}$), massive liquid entrainment floods the trays above. Separation collapses completely, and raw liquid carries over into the overhead accumulator.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Ignoring Reboiler Equivalent Stage in Tray Purchases</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          A partial reboiler (kettle or thermosiphon with vapor disengagement) acts as one theoretical equilibrium separation stage ($N_{theor} = N_{trays} + 1$). A total condenser does NOT provide an equilibrium stage. Purchasing the raw theoretical stage count as actual physical trays without subtracting the reboiler and adjusting for O'Connell tray efficiency will leave the column under-trayed and unable to achieve design purity.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.dt-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.dt-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.dt-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.dt-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.dt-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.dt-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.dt-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.dt-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.dt-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.dt-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.dt-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.dt-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.dt-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.dt-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.dt-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const chemSelect = document.getElementById('dt_chemSystem');
+  const alphaInput = document.getElementById('dt_alpha');
+  const xfInput = document.getElementById('dt_xf');
+  const xdInput = document.getElementById('dt_xd');
+  const xbInput = document.getElementById('dt_xb');
+  const feedCondSelect = document.getElementById('dt_feedCondition');
+  const refluxMultInput = document.getElementById('dt_refluxMultiplier');
+  const feedRateInput = document.getElementById('dt_feedRate');
+  const feedUnitSelect = document.getElementById('dt_feedUnit');
+  const trayEffInput = document.getElementById('dt_trayEff');
+
+  // Outputs
+  const resTheorStages = document.getElementById('dt_res_theor_stages');
+  const resTheorSub = document.getElementById('dt_res_theor_sub');
+  const resActTrays = document.getElementById('dt_res_act_trays');
+  const resActSub = document.getElementById('dt_res_act_sub');
+  const resRmin = document.getElementById('dt_res_rmin');
+  const resRminSub = document.getElementById('dt_res_rmin_sub');
+  const resRopt = document.getElementById('dt_res_ropt');
+  const resRoptSub = document.getElementById('dt_res_ropt_sub');
+  const resFeedStage = document.getElementById('dt_res_feed_stage');
+  const resFeedStageSub = document.getElementById('dt_res_feed_stage_sub');
+  const resDistFlow = document.getElementById('dt_res_dist_flow');
+  const resBotFlow = document.getElementById('dt_res_bot_flow');
+
+  // SVG Elements
+  const svgVleCurve = document.getElementById('svg_vleCurve');
+  const svgRolLine = document.getElementById('svg_rolLine');
+  const svgSolLine = document.getElementById('svg_solLine');
+  const svgQLine = document.getElementById('svg_qLine');
+  const svgStagesPath = document.getElementById('svg_stagesPath');
+  const svgDotXD = document.getElementById('svg_dotXD');
+  const svgDotXF = document.getElementById('svg_dotXF');
+  const svgDotXB = document.getElementById('svg_dotXB');
+  const svgLabelXD = document.getElementById('svg_labelXD');
+  const svgLabelXF = document.getElementById('svg_labelXF');
+  const svgLabelXB = document.getElementById('svg_labelXB');
+
+  const svgLegAlpha = document.getElementById('svg_legAlpha');
+  const svgLegR = document.getElementById('svg_legR');
+  const svgLegSol = document.getElementById('svg_legSol');
+  const svgLegQ = document.getElementById('svg_legQ');
+
+  const svgCardNtheor = document.getElementById('svg_cardNtheor');
+  const svgCardNact = document.getElementById('svg_cardNact');
+  const svgCardFeed = document.getElementById('svg_cardFeed');
+  const svgCardRmin = document.getElementById('svg_cardRmin');
+  const svgCardDist = document.getElementById('svg_cardDist');
+  const svgCardBot = document.getElementById('svg_cardBot');
+
+  // Derivations
+  const drvF = document.getElementById('drv_f');
+  const drvXf = document.getElementById('drv_xf');
+  const drvXd = document.getElementById('drv_xd');
+  const drvXb = document.getElementById('drv_xb');
+  const drvF2 = document.getElementById('drv_f2');
+  const drvXf2 = document.getElementById('drv_xf2');
+  const drvXb2 = document.getElementById('drv_xb2');
+  const drvXd2 = document.getElementById('drv_xd2');
+  const drvXb3 = document.getElementById('drv_xb3');
+  const drvDCalc = document.getElementById('drv_d_calc');
+  const drvF3 = document.getElementById('drv_f3');
+  const drvD2 = document.getElementById('drv_d2');
+  const drvBCalc = document.getElementById('drv_b_calc');
+  const drvQ = document.getElementById('drv_q');
+  const drvAlpha = document.getElementById('drv_alpha');
+  const drvXp = document.getElementById('drv_xp');
+  const drvYp = document.getElementById('drv_yp');
+  const drvXd3 = document.getElementById('drv_xd3');
+  const drvYp2 = document.getElementById('drv_yp2');
+  const drvYp3 = document.getElementById('drv_yp3');
+  const drvXp2 = document.getElementById('drv_xp2');
+  const drvRminCalc = document.getElementById('drv_rmin_calc');
+  const drvFr = document.getElementById('drv_fr');
+  const drvFr2 = document.getElementById('drv_fr2');
+  const drvRmin2 = document.getElementById('drv_rmin2');
+  const drvRoptCalc = document.getElementById('drv_ropt_calc');
+  const drvRolSlope = document.getElementById('drv_rol_slope');
+  const drvRolInt = document.getElementById('drv_rol_int');
+  const drvSolSlope = document.getElementById('drv_sol_slope');
+  const drvSolInt = document.getElementById('drv_sol_int');
+  const drvAlpha2 = document.getElementById('drv_alpha2');
+  const drvNminCalc = document.getElementById('drv_nmin_calc');
+  const drvStageSummary = document.getElementById('drv_stageSummary');
+
+  const auditBox = document.getElementById('dt_audit_box');
+
+  const systems = {
+    benzene_toluene: 2.45,
+    methanol_water: 3.50,
+    ethanol_water: 2.20,
+    acetone_water: 4.10,
+    heptane_octane: 2.15
+  };
+
+  chemSelect.addEventListener('change', function() {
+    const val = chemSelect.value;
+    if (systems[val]) {
+      alphaInput.value = systems[val].toFixed(2);
+    }
+    calculate();
+  });
+
+  // Convert (x, y) on 0..1 scale to SVG pixel coordinates (Box: 80..460, 420..40)
+  function toSvg(x, y) {
+    const sx = 80 + x * 380;
+    const sy = 420 - y * 380;
+    return { x: sx, y: sy };
+  }
+
+  function calculate() {
+    const alpha = parseFloat(alphaInput.value) || 2.45;
+    let xf = parseFloat(xfInput.value) || 0.45;
+    let xd = parseFloat(xdInput.value) || 0.95;
+    let xb = parseFloat(xbInput.value) || 0.05;
+
+    // Bounds check
+    if (xb >= xf) xb = xf - 0.05;
+    if (xd <= xf) xd = xf + 0.05;
+    if (xb < 0.001) xb = 0.001;
+    if (xd > 0.999) xd = 0.999;
+
+    const q = parseFloat(feedCondSelect.value) || 1.0;
+    const rMult = parseFloat(refluxMultiplierInput.value) || 1.30;
+    const feedRate = parseFloat(feedRateInput.value) || 10000;
+    const feedUnit = feedUnitSelect.value;
+    const trayEff = (parseFloat(trayEffInput.value) || 70) / 100;
+
+    // 1. Overall Mass Balance
+    // D = F * (xf - xb) / (xd - xb)
+    const distRate = feedRate * ((xf - xb) / (xd - xb));
+    const botRate = feedRate - distRate;
+
+    // 2. VLE Function: y = (alpha * x) / (1 + (alpha - 1) * x)
+    function vleY(x) {
+      return (alpha * x) / (1 + (alpha - 1) * x);
+    }
+
+    // Inverse VLE: x = y / (alpha - (alpha - 1) * y)
+    function vleX(y) {
+      return y / (alpha - (alpha - 1) * y);
+    }
+
+    // 3. Pinch point & Rmin
+    // Intersection of q-line and VLE curve
+    let xp = xf;
+    let yp = vleY(xf);
+
+    if (Math.abs(q - 1.0) < 1e-4) {
+      // Saturated liquid: q = 1, x = xf
+      xp = xf;
+      yp = vleY(xf);
+    } else if (Math.abs(q) < 1e-4) {
+      // Saturated vapor: q = 0, y = xf
+      yp = xf;
+      xp = vleX(yf);
+    } else {
+      // Solve quadratic intersection of q-line and VLE
+      // y = (q/(q-1))*x - xf/(q-1) = (alpha*x) / (1 + (alpha-1)*x)
+      // Iterative bisection between 0 and 1
+      let low = 0.01;
+      let high = 0.99;
+      for (let iter = 0; iter < 40; iter++) {
+        let mid = (low + high) / 2;
+        let y_q = (q / (q - 1)) * mid - (xf / (q - 1));
+        let y_vle = vleY(mid);
+        if (y_q < y_vle) low = mid;
+        else high = mid;
+      }
+      xp = (low + high) / 2;
+      yp = vleY(xp);
+    }
+
+    // Rmin = (xd - yp) / (yp - xp)
+    let rmin = (xd - yp) / Math.max(yp - xp, 0.005);
+    if (rmin < 0.1) rmin = 0.1;
+
+    // Operating Reflux Ratio R
+    const R = rmin * rMult;
+
+    // 4. Operating Lines
+    // ROL: y = (R / (R + 1)) * x + (xd / (R + 1))
+    const m_rol = R / (R + 1);
+    const b_rol = xd / (R + 1);
+
+    // Intersection of ROL and q-line (xi, yi)
+    let xi = xf;
+    let yi = m_rol * xf + b_rol;
+
+    if (Math.abs(q - 1.0) < 1e-4) {
+      xi = xf;
+      yi = m_rol * xi + b_rol;
+    } else {
+      // (R/(R+1))*x + (xd/(R+1)) = (q/(q-1))*x - (xf/(q-1))
+      // x * [ (q/(q-1)) - (R/(R+1)) ] = (xd/(R+1)) + (xf/(q-1))
+      const left = (q / (q - 1)) - m_rol;
+      const right = b_rol + (xf / (q - 1));
+      xi = right / left;
+      yi = m_rol * xi + b_rol;
+    }
+
+    // SOL passes through (xb, xb) and (xi, yi)
+    const m_sol = (yi - xb) / Math.max(xi - xb, 0.005);
+    const b_sol = xb - m_sol * xb;
+
+    // 5. Step-by-Step Stage Calculation
+    let stages = [];
+    let curX = xd;
+    let curY = xd;
+    let feedStage = 1;
+    let foundFeed = false;
+
+    for (let s = 1; s <= 50; s++) {
+      // Step horizontally to VLE curve to find new liquid composition x
+      let x_tray = vleX(curY);
+      stages.push({ step: 'h', x1: curX, y1: curY, x2: x_tray, y2: curY, stage: s });
+
+      // Check if we passed feed intersection
+      if (x_tray <= xi && !foundFeed) {
+        feedStage = s;
+        foundFeed = true;
+      }
+
+      // Check if we reached bottoms purity
+      if (x_tray <= xb) {
+        break;
+      }
+
+      // Step vertically down to operating line
+      let y_next = 0;
+      if (x_tray > xi) {
+        // Still in rectifying section
+        y_next = m_rol * x_tray + b_rol;
+      } else {
+        // Stripping section
+        y_next = m_sol * x_tray + b_sol;
+      }
+
+      stages.push({ step: 'v', x1: x_tray, y1: curY, x2: x_tray, y2: y_next, stage: s });
+      curX = x_tray;
+      curY = y_next;
+    }
+
+    const nTheor = stages.length > 0 ? stages[stages.length - 1].stage : 8;
+    const nTraysTheor = Math.max(1, nTheor - 1); // 1 partial reboiler
+    const nActTrays = Math.ceil(nTraysTheor / trayEff);
+
+    // Fenske minimum stages at total reflux
+    const nMin = Math.log((xd / (1 - xd)) / (xb / (1 - xb))) / Math.log(alpha);
+
+    // Update Result UI
+    resTheorStages.textContent = nTheor + ' Stages';
+    resTheorSub.textContent = nTraysTheor + ' Trays + 1 Partial Reboiler';
+
+    resActTrays.textContent = nActTrays + ' Trays';
+    resActSub.textContent = 'Based on ' + (trayEff * 100).toFixed(0) + '% overall tray efficiency';
+
+    resRmin.textContent = rmin.toFixed(2);
+    resRminSub.textContent = 'Pinch at (x', y') = (' + xp.toFixed(3) + ', ' + yp.toFixed(3) + ')';
+
+    resRopt.textContent = R.toFixed(2);
+    resRoptSub.textContent = rMult.toFixed(2) + ' × Rmin (Operating Reflux)';
+
+    resFeedStage.textContent = 'Stage ' + feedStage;
+    resFeedStageSub.textContent = 'Traced at ROL-SOL intersection xi = ' + xi.toFixed(3);
+
+    resDistFlow.textContent = Math.round(distRate).toLocaleString() + ' ' + feedUnit + '/h';
+    resBotFlow.textContent = 'Bottoms: ' + Math.round(botRate).toLocaleString() + ' ' + feedUnit + '/h (' + ((botRate / feedRate) * 100).toFixed(1) + '%)';
+
+    // SVG Updates
+    // Generate VLE Curve path string
+    let vlePathStr = 'M 80 420 ';
+    for (let px = 0.02; px <= 1.0; px += 0.02) {
+      let py = vleY(px);
+      let pt = toSvg(px, py);
+      vlePathStr += 'L ' + pt.x.toFixed(1) + ' ' + pt.y.toFixed(1) + ' ';
+    }
+    svgVleCurve.setAttribute('d', vlePathStr);
+
+    // ROL line: from (xd, xd) to (xi, yi)
+    const pXd = toSvg(xd, xd);
+    const pXi = toSvg(xi, yi);
+    svgRolLine.setAttribute('x1', pXd.x);
+    svgRolLine.setAttribute('y1', pXd.y);
+    svgRolLine.setAttribute('x2', pXi.x);
+    svgRolLine.setAttribute('y2', pXi.y);
+
+    // SOL line: from (xb, xb) to (xi, yi)
+    const pXb = toSvg(xb, xb);
+    svgSolLine.setAttribute('x1', pXb.x);
+    svgSolLine.setAttribute('y1', pXb.y);
+    svgSolLine.setAttribute('x2', pXi.x);
+    svgSolLine.setAttribute('y2', pXi.y);
+
+    // q-line: from (xf, xf) to (xi, yi)
+    const pXf = toSvg(xf, xf);
+    svgQLine.setAttribute('x1', pXf.x);
+    svgQLine.setAttribute('y1', pXf.y);
+    svgQLine.setAttribute('x2', pXi.x);
+    svgQLine.setAttribute('y2', pXi.y);
+
+    // Dots and labels
+    svgDotXD.setAttribute('cx', pXd.x);
+    svgDotXD.setAttribute('cy', pXd.y);
+    svgLabelXD.setAttribute('x', pXd.x);
+    svgLabelXD.setAttribute('y', pXd.y - 8);
+
+    svgDotXF.setAttribute('cx', pXf.x);
+    svgDotXF.setAttribute('cy', pXf.y);
+    svgLabelXF.setAttribute('x', pXf.x);
+    svgLabelXF.setAttribute('y', pXf.y + 16);
+
+    svgDotXB.setAttribute('cx', pXb.x);
+    svgDotXB.setAttribute('cy', pXb.y);
+    svgLabelXB.setAttribute('x', pXb.x);
+    svgLabelXB.setAttribute('y', pXb.y + 16);
+
+    // Staircase stage path
+    let stagePathStr = 'M ' + pXd.x.toFixed(1) + ' ' + pXd.y.toFixed(1) + ' ';
+    for (let st of stages) {
+      let pt2 = toSvg(st.x2, st.y2);
+      stagePathStr += 'L ' + pt2.x.toFixed(1) + ' ' + pt2.y.toFixed(1) + ' ';
+    }
+    svgStagesPath.setAttribute('d', stagePathStr);
+
+    // SVG Legend & card
+    svgLegAlpha.textContent = alpha.toFixed(2);
+    svgLegR.textContent = R.toFixed(2);
+    svgLegSol.textContent = m_sol.toFixed(2);
+    svgLegQ.textContent = q.toFixed(2);
+
+    svgCardNtheor.textContent = nTheor + ' Stages';
+    svgCardNact.textContent = nActTrays + ' Trays';
+    svgCardFeed.textContent = 'Stage ' + feedStage + ' from Top';
+    svgCardRmin.textContent = rmin.toFixed(2);
+    svgCardDist.textContent = Math.round(distRate).toLocaleString() + ' ' + feedUnit + '/h';
+    svgCardBot.textContent = Math.round(botRate).toLocaleString() + ' ' + feedUnit + '/h';
+
+    // Derivations updates
+    drvF.textContent = Math.round(feedRate).toLocaleString();
+    drvXf.textContent = xf.toFixed(3);
+    drvXd.textContent = xd.toFixed(3);
+    drvXb.textContent = xb.toFixed(3);
+    drvF2.textContent = Math.round(feedRate).toLocaleString();
+    drvXf2.textContent = xf.toFixed(3);
+    drvXb2.textContent = xb.toFixed(3);
+    drvXd2.textContent = xd.toFixed(3);
+    drvXb3.textContent = xb.toFixed(3);
+    drvDCalc.textContent = Math.round(distRate).toLocaleString();
+    drvF3.textContent = Math.round(feedRate).toLocaleString();
+    drvD2.textContent = Math.round(distRate).toLocaleString();
+    drvBCalc.textContent = Math.round(botRate).toLocaleString();
+
+    drvQ.textContent = q.toFixed(2);
+    drvAlpha.textContent = alpha.toFixed(2);
+    drvXp.textContent = xp.toFixed(3);
+    drvYp.textContent = yp.toFixed(3);
+    drvXd3.textContent = xd.toFixed(3);
+    drvYp2.textContent = yp.toFixed(3);
+    drvYp3.textContent = yp.toFixed(3);
+    drvXp2.textContent = xp.toFixed(3);
+    drvRminCalc.textContent = rmin.toFixed(2);
+    drvFr.textContent = rMult.toFixed(2);
+    drvFr2.textContent = rMult.toFixed(2);
+    drvRmin2.textContent = rmin.toFixed(2);
+    drvRoptCalc.textContent = R.toFixed(2);
+
+    drvRolSlope.textContent = m_rol.toFixed(3);
+    drvRolInt.textContent = b_rol.toFixed(3);
+    drvSolSlope.textContent = m_sol.toFixed(3);
+    drvSolInt.textContent = Math.abs(b_sol).toFixed(3);
+
+    drvAlpha2.textContent = alpha.toFixed(2);
+    drvNminCalc.textContent = nMin.toFixed(2);
+
+    drvStageSummary.textContent = 'Step-by-step graphical stepping yields ' + nTheor + ' theoretical stages (' + nTraysTheor + ' column trays + 1 partial reboiler). Factoring in an overall tray efficiency of ' + (trayEff * 100).toFixed(0) + '%, the physical column requires ' + nActTrays + ' actual trays, with raw feed entering on Stage ' + feedStage + '.';
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   McCABE-THIELE BINARY DISTILLATION COLUMN AUDIT     \n' +
+      '=======================================================\n' +
+      'Chemical System:           ' + chemSelect.options[chemSelect.selectedIndex].text.split('(')[0].trim() + ' (α = ' + alpha.toFixed(2) + ')\n' +
+      'Feed Throughput:           ' + Math.round(feedRate).toLocaleString() + ' ' + feedUnit + '/hr at xF = ' + xf.toFixed(3) + ' (' + ((xf)*100).toFixed(1) + '% light key)\n' +
+      'Feed Thermal Quality:      q = ' + q.toFixed(2) + ' (' + feedCondSelect.options[feedCondSelect.selectedIndex].text.split('(')[0].trim() + ')\n' +
+      'Target Compositions:       Distillate xD = ' + xd.toFixed(3) + ', Bottoms xB = ' + xb.toFixed(3) + '\n' +
+      'Product Split Rates:       Distillate D = ' + Math.round(distRate).toLocaleString() + ' ' + feedUnit + '/hr, Bottoms B = ' + Math.round(botRate).toLocaleString() + ' ' + feedUnit + '/hr\n' +
+      '-------------------------------------------------------\n' +
+      'MINIMUM REFLUX RATIO:      Rmin = ' + rmin.toFixed(2) + ' (Pinch point at x'=' + xp.toFixed(3) + ', y'=' + yp.toFixed(3) + ')\n' +
+      'OPERATING REFLUX RATIO:    R = ' + R.toFixed(2) + ' (' + rMult.toFixed(2) + ' × Rmin)\n' +
+      'Minimum Stages (Fenske):   Nmin = ' + nMin.toFixed(2) + ' stages at total reflux\n' +
+      'THEORETICAL STAGES:        ' + nTheor + ' Stages (' + nTraysTheor + ' Trays + 1 Reboiler)\n' +
+      'OPTIMAL FEED TRAY:         Stage ' + feedStage + ' from top (Intersection xi = ' + xi.toFixed(3) + ')\n' +
+      'ACTUAL COLUMN TRAYS:       ' + nActTrays + ' Physical Trays (at ' + (trayEff * 100).toFixed(0) + '% O'Connell Tray Efficiency)\n' +
+      'Rectifying Line (ROL):     y = ' + m_rol.toFixed(3) + '·x + ' + b_rol.toFixed(3) + '\n' +
+      'Stripping Line (SOL):      y = ' + m_sol.toFixed(3) + '·x - ' + Math.abs(b_sol).toFixed(3) + '\n' +
+      'Design Methodology:        McCabe-Thiele Graphical & Fenske-Underwood-Gilliland\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyDtAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyDtAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied Distillation Audit!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [chemSelect, alphaInput, xfInput, xdInput, xbInput, feedCondSelect, refluxMultInput, feedRateInput, feedUnitSelect, trayEffInput].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'distillation-column-mccabe-thiele-calculator.html'), renderTradePage({
+    title: "Binary Distillation Column & McCabe-Thiele Calculator",
+    metaDesc: "Calculate minimum reflux ratio (Rmin), theoretical and actual tray count, optimal feed stage, and VLE equilibrium curves per McCabe-Thiele & Fenske.",
+    canonical: `${DOMAIN}/calc/distillation-column-mccabe-thiele-calculator`,
+    bodyContent: distillationBody,
+    currentPath: '/calc/distillation-column-mccabe-thiele-calculator',
+    faq: [
+      {
+        "q": "What is the McCabe-Thiele method in distillation design?",
+        "a": "The McCabe-Thiele method is a graphical technique for determining the number of theoretical equilibrium stages required for binary distillation separation. It plots the vapor-liquid equilibrium (VLE) curve against the 45-degree line and constructs rectifying (ROL) and stripping (SOL) operating lines, stepping staircases between them to count ideal trays."
+      },
+      {
+        "q": "What is the physical meaning of the feed condition parameter (q)?",
+        "a": "The feed thermal quality (q) represents the fraction of liquid introduced in the feed stream. Saturated liquid at its bubble point has q = 1.0 (vertical q-line); saturated vapor at its dew point has q = 0.0 (horizontal q-line); two-phase mixtures have 0 < q < 1; subcooled liquids have q > 1; and superheated vapors have q < 0."
+      },
+      {
+        "q": "Why is operating near the minimum reflux ratio (Rmin) uneconomic?",
+        "a": "As operating reflux ratio approaches Rmin, the operating lines intersect the equilibrium curve at the pinch point, requiring an infinite number of theoretical stages (N → ∞) and an infinitely tall column. Commercial columns operate at an economic optimum of R = 1.20 to 1.50 times Rmin to balance capital equipment costs with operating reboiler steam costs."
+      },
+      {
+        "q": "Does a partial reboiler count as a theoretical tray?",
+        "a": "Yes. A partial reboiler (such as a kettle or thermosiphon with vapor disengagement) acts as one theoretical equilibrium separation stage because vapor leaves in thermodynamic equilibrium with the discharged bottoms liquid. A total condenser does not provide an equilibrium stage."
+      },
+      {
+        "q": "How is actual tray count derived from theoretical stages?",
+        "a": "Actual tray count is calculated by dividing theoretical column trays (excluding the reboiler) by the overall column tray efficiency (N_actual = N_theor_trays / η_tray). Tray efficiency typically ranges from 60% to 80% for sieve and valve trays, influenced by liquid viscosity and relative volatility per the O'Connell correlation."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 73: Safety Relief Valve (PRV/PSV) Orifice Sizing Calculator (API 520 & 526)
+  // ==========================================
+  const prvOrificeBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">API Standard 520 Part I</span>
+      <span class="calc-clean-badge">API Standard 526 Lettered Orifices</span>
+      <span class="calc-clean-badge">ASME Section VIII Div 1</span>
+    </div>
+    <h1 class="calc-clean-title">Safety Relief Valve (PRV/PSV) Orifice Sizing Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate required relief orifice area, select standardized API 526 lettered orifice designation (D through T), verify critical sonic choked flow, and audit 3% inlet line loss limits per API 520 and ASME Section VIII.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Relieving Fluid State & Molecular Weight -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="prv_fluid">Relieving Vapor / Gas Fluid</label>
+        <select id="prv_fluid" class="calc-clean-select">
+          <option value="steam" selected>Steam / Water Vapor (M = 18.02, k = 1.30)</option>
+          <option value="air">Compressed Air (M = 28.97, k = 1.40)</option>
+          <option value="natgas">Natural Gas / Methane (M = 16.04, k = 1.31)</option>
+          <option value="propane">Propane Vapor (M = 44.10, k = 1.13)</option>
+          <option value="nitrogen">Nitrogen Gas (M = 28.01, k = 1.40)</option>
+          <option value="ethylene">Ethylene (M = 28.05, k = 1.24)</option>
+          <option value="custom">Custom Gas (Specify M & k)</option>
+        </select>
+        <small class="calc-clean-help">Sets molecular weight (M) and isentropic expansion coefficient (k)</small>
+      </div>
+
+      <!-- Set Pressure (Pset) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="prv_pset">PRV Set Pressure (Pset)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="prv_pset" class="calc-clean-input" value="150" min="15" max="6000" step="5">
+          <select id="prv_pressUnit" class="calc-clean-select">
+            <option value="psig" selected>psig</option>
+            <option value="barg">barg</option>
+            <option value="kpa">kPag</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Stamped valve opening set pressure</small>
+      </div>
+
+      <!-- Overpressure Scenario Contingency -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="prv_overpressure">Relief Scenario & Overpressure</label>
+        <select id="prv_overpressure" class="calc-clean-select">
+          <option value="10" selected>10% Non-Fire Contingency (Operating Process Upset)</option>
+          <option value="21">21% External Fire Exposure (ASME VIII / API 521)</option>
+          <option value="16">16% Multiple Relief Valves Installed</option>
+          <option value="3">3% Boiler Operating Contingency (ASME Section I)</option>
+        </select>
+        <small class="calc-clean-help">API 520 allowable accumulation over set pressure</small>
+      </div>
+
+      <!-- Relieving Mass Flow Rate (W) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="prv_flowRate">Required Relieving Capacity (W)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="prv_flowRate" class="calc-clean-input" value="18500" min="50" max="2000000" step="250">
+          <select id="prv_flowUnit" class="calc-clean-select">
+            <option value="lbh" selected>lb/hr (Mass)</option>
+            <option value="kgh">kg/hr</option>
+            <option value="scfm">SCFM (Std Volume)</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Maximum credible relieving rate from sizing scenario</small>
+      </div>
+
+      <!-- Relieving Temperature (T) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="prv_temp">Relieving Temperature (T)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="prv_temp" class="calc-clean-input" value="366" min="-100" max="1200" step="5">
+          <select id="prv_tempUnit" class="calc-clean-select">
+            <option value="f" selected>°F</option>
+            <option value="c">°C</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Stagnation temperature at PRV inlet during relief</small>
+      </div>
+
+      <!-- Superimposed & Built-Up Backpressure -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="prv_backpressure">Total Backpressure (Pback)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="prv_backpressure" class="calc-clean-input" value="0" min="0" max="1500" step="2">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">psig discharge</span>
+        </div>
+        <small class="calc-clean-help">Discharge flare header or atmospheric tailpipe backpressure</small>
+      </div>
+
+      <!-- Valve Construction Type -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="prv_valveType">PRV Construction & Trim</label>
+        <select id="prv_valveType" class="calc-clean-select">
+          <option value="conventional" selected>Conventional Spring-Loaded PRV (Max 10% Backpressure)</option>
+          <option value="balanced_bellows">Balanced Bellows PRV (Up to 50% Backpressure)</option>
+          <option value="pilot">Pilot-Operated Relief Valve (POPRV, Tight Shutoff)</option>
+        </select>
+        <small class="calc-clean-help">Determines backpressure correction factor (Kb) derating</small>
+      </div>
+
+      <!-- Rupture Disc Installed Upstream -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="prv_ruptureDisc">Upstream Rupture Disc Combination</label>
+        <select id="prv_ruptureDisc" class="calc-clean-select">
+          <option value="1.0" selected>No Rupture Disc (Kc = 1.00)</option>
+          <option value="0.9">Rupture Disc Upstream (ASME Kc = 0.90 derate)</option>
+        </select>
+        <small class="calc-clean-help">ASME mandates 0.90 combination capacity factor for disc+PRV</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">API 520 / 526 Sizing & Orifice Selection Performance</h2>
+    <div class="prv-metrics-grid">
+      <!-- Selected API 526 Orifice -->
+      <div class="prv-metric-card highlight">
+        <div class="prv-metric-label">Selected API 526 Orifice</div>
+        <div class="prv-metric-value" id="prv_res_orifice">"H" Orifice</div>
+        <div class="prv-metric-sub" id="prv_res_orifice_sub">Area: 0.785 in² (506 mm²)</div>
+      </div>
+
+      <!-- Required Calculated Orifice Area -->
+      <div class="prv-metric-card highlight">
+        <div class="prv-metric-label">Required Orifice Area (A_calc)</div>
+        <div class="prv-metric-value" id="prv_res_acalc">0.584 in²</div>
+        <div class="prv-metric-sub" id="prv_res_acalc_sub">377 mm² (74.4% Orifice Loading)</div>
+      </div>
+
+      <!-- Relieving Absolute Pressure (P1) -->
+      <div class="prv-metric-card">
+        <div class="prv-metric-label">Relieving Pressure (P1)</div>
+        <div class="prv-metric-value" id="prv_res_p1">179.7 psia</div>
+        <div class="prv-metric-sub" id="prv_res_p1_sub">Pset 150 psig + 10% Acc + 14.7 psi</div>
+      </div>
+
+      <!-- Critical Choked Flow Verification -->
+      <div class="prv-metric-card pass" id="prv_choke_card">
+        <div class="prv-metric-label">Flow Regime & Choked Sonic Status</div>
+        <div class="prv-metric-value" id="prv_res_choke">CRITICAL (CHOKED)</div>
+        <div class="prv-metric-sub" id="prv_res_choke_sub">Sonic Velocity at Nozzle Throat (P2 &lt; 98.1 psia)</div>
+      </div>
+
+      <!-- Rated Valve Relieving Capacity -->
+      <div class="prv-metric-card">
+        <div class="prv-metric-label">ASME Rated Orifice Capacity</div>
+        <div class="prv-metric-value" id="prv_res_rated">24,860 lb/hr</div>
+        <div class="prv-metric-sub" id="prv_res_rated_sub">+34.4% Overcapacity Margin</div>
+      </div>
+
+      <!-- Maximum Allowed Inlet Line Loss -->
+      <div class="prv-metric-card">
+        <div class="prv-metric-label">Max 3% Inlet Line Loss Limit</div>
+        <div class="prv-metric-value" id="prv_res_inlet_limit">4.50 psi</div>
+        <div class="prv-metric-sub" id="prv_res_inlet_sub">3% of Set Pressure (Prevents Rapid Chatter)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interactive SVG API 526 Relief Valve Cutaway Schematic -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Live API 526 Spring-Loaded Pressure Relief Valve Cutaway</h2>
+    <div class="prv-svg-container">
+      <svg id="prv_svg" viewBox="0 0 840 440" width="100%" height="auto" preserveAspectRatio="xMidYMid meet" role="img" aria-label="API 526 Pressure Relief Valve Cutaway Diagram">
+        <defs>
+          <linearGradient id="prvBodyGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#334155"/>
+            <stop offset="35%" stop-color="#64748b"/>
+            <stop offset="70%" stop-color="#475569"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="prvSpringGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f59e0b"/>
+            <stop offset="100%" stop-color="#d97706"/>
+          </linearGradient>
+          <linearGradient id="prvVaporPlume" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#ef4444" stop-opacity="0.8"/>
+            <stop offset="60%" stop-color="#f97316" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.2"/>
+          </linearGradient>
+          <marker id="prvArrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#38bdf8" />
+          </marker>
+        </defs>
+
+        <!-- Background Canvas -->
+        <rect x="0" y="0" width="840" height="440" fill="#0b1120" rx="8"/>
+
+        <!-- 1. Valve Body & Bonnet Casing (Left Half) -->
+        <!-- Lower Body Valve Casing -->
+        <path d="M 170 380 L 250 380 L 250 310 L 360 310 L 360 230 L 250 230 L 250 170 L 170 170 Z" fill="url(#prvBodyGrad)" stroke="#64748b" stroke-width="2"/>
+
+        <!-- Inlet Nozzle Flange (Bottom) -->
+        <rect x="145" y="380" width="130" height="24" fill="#475569" stroke="#94a3b8" stroke-width="1.5" rx="3"/>
+        <text x="210" y="396" fill="#e2e8f0" font-size="10" font-weight="bold" font-family="monospace" text-anchor="middle">INLET FLANGE</text>
+
+        <!-- Horizontal Discharge Nozzle (Right side of lower body) -->
+        <rect x="360" y="220" width="20" height="100" fill="#475569" stroke="#94a3b8" stroke-width="1.5" rx="3"/>
+        <text x="370" y="195" fill="#f87171" font-size="10" font-weight="bold" font-family="monospace" text-anchor="middle">OUTLET</text>
+
+        <!-- Nozzle Throat Convergence (Inside Inlet Neck) -->
+        <path d="M 185 380 L 185 300 L 195 285 L 225 285 L 235 300 L 235 380 Z" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+        <text x="210" y="340" fill="#38bdf8" font-size="10" font-family="sans-serif" text-anchor="middle">Nozzle Throat</text>
+
+        <!-- Stamped API 526 Orifice Throat Bore Width -->
+        <line x1="195" y1="285" x2="225" y2="285" stroke="#f59e0b" stroke-width="3"/>
+        <text x="210" y="275" fill="#fbbf24" font-size="11" font-weight="bold" font-family="monospace" text-anchor="middle" id="svg_orificeLetter">"H" ORIFICE</text>
+
+        <!-- Valve Disc (Seated on Nozzle) -->
+        <rect x="188" y="265" width="44" height="18" fill="#e2e8f0" stroke="#3b82f6" stroke-width="2" rx="2" id="svg_prvDisc"/>
+        <!-- Disc Holder -->
+        <rect x="195" y="245" width="30" height="20" fill="#94a3b8" stroke="#64748b" stroke-width="1.5"/>
+
+        <!-- Valve Spindle / Stem -->
+        <line x1="210" y1="245" x2="210" y2="70" stroke="#cbd5e1" stroke-width="6"/>
+
+        <!-- Upper Bonnet Casing (Enclosing the spring) -->
+        <rect x="165" y="60" width="90" height="110" fill="#334155" stroke="#64748b" stroke-width="2" rx="4"/>
+        <text x="210" y="50" fill="#94a3b8" font-size="10" font-family="sans-serif" text-anchor="middle">BONNET</text>
+
+        <!-- Heavy Helical Spring Coils (Surrounding Spindle) -->
+        <!-- 6 Spring coils -->
+        <path d="M 175 75 C 190 70, 230 70, 245 75 C 230 85, 190 85, 175 90 C 190 85, 230 85, 245 90 C 230 100, 190 100, 175 105 C 190 100, 230 100, 245 105 C 230 115, 190 115, 175 120 C 190 115, 230 115, 245 120 C 230 130, 190 130, 175 135 C 190 130, 230 130, 245 135 C 230 145, 190 145, 175 150 C 190 145, 230 145, 245 150" fill="none" stroke="url(#prvSpringGrad)" stroke-width="8" stroke-linecap="round"/>
+
+        <!-- Disc Lift Arrows & Sonic Choked Plume (Discharging Right) -->
+        <path d="M 235 280 Q 280 260 380 260 L 520 240 L 520 300 L 380 280 Z" fill="url(#prvVaporPlume)" opacity="0.85"/>
+        <text x="440" y="275" fill="#f87171" font-size="11" font-weight="bold" font-family="sans-serif">CHOKED SONIC FLOW</text>
+
+        <!-- Upward Relieving Fluid Inflow -->
+        <line x1="210" y1="430" x2="210" y2="355" stroke="#38bdf8" stroke-width="3" marker-end="url(#prvArrow)"/>
+        <text x="210" y="425" fill="#38bdf8" font-size="10" font-family="monospace" text-anchor="middle" id="svg_inflowW">W = 18,500 lb/h</text>
+
+        <!-- 2. Right Half: Telemetry & API 526 Dimensions Table -->
+        <rect x="440" y="40" width="370" height="360" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="6"/>
+        <text x="625" y="66" fill="#38bdf8" font-size="12" font-weight="bold" font-family="sans-serif" text-anchor="middle">API 526 VALVE SPECIFICATION</text>
+        <line x1="455" y1="76" x2="795" y2="76" stroke="#334155" stroke-width="1"/>
+
+        <!-- Specification Rows -->
+        <text x="460" y="102" fill="#94a3b8" font-size="10" font-family="sans-serif">Selected Orifice Letter:</text>
+        <text x="795" y="102" fill="#fbbf24" font-size="14" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tableLetter">"H" Orifice</text>
+
+        <text x="460" y="128" fill="#94a3b8" font-size="10" font-family="sans-serif">Standard API Area (A_api):</text>
+        <text x="795" y="128" fill="#f8fafc" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tableAapi">0.785 in² (506 mm²)</text>
+
+        <text x="460" y="154" fill="#94a3b8" font-size="10" font-family="sans-serif">Required Area (A_calc):</text>
+        <text x="795" y="154" fill="#38bdf8" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tableAcalc">0.584 in² (377 mm²)</text>
+
+        <text x="460" y="180" fill="#94a3b8" font-size="10" font-family="sans-serif">Orifice Utilization Loading:</text>
+        <text x="795" y="180" fill="#22c55e" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tableLoad">74.4% Loading</text>
+
+        <text x="460" y="206" fill="#94a3b8" font-size="10" font-family="sans-serif">Set Pressure (Pset):</text>
+        <text x="795" y="206" fill="#f8fafc" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tablePset">150 psig (10.3 barg)</text>
+
+        <text x="460" y="232" fill="#94a3b8" font-size="10" font-family="sans-serif">Relieving Pressure (P1):</text>
+        <text x="795" y="232" fill="#f87171" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tableP1">179.7 psia (110% Acc)</text>
+
+        <text x="460" y="258" fill="#94a3b8" font-size="10" font-family="sans-serif">Critical Flow Pcf Limit:</text>
+        <text x="795" y="258" fill="#38bdf8" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tablePcf">98.1 psia (Critical Check)</text>
+
+        <text x="460" y="284" fill="#94a3b8" font-size="10" font-family="sans-serif">ASME Rated Capacity:</text>
+        <text x="795" y="284" fill="#4ade80" font-size="12" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tableRated">24,860 lb/hr</text>
+
+        <text x="460" y="310" fill="#94a3b8" font-size="10" font-family="sans-serif">Max 3% Inlet Line Loss:</text>
+        <text x="795" y="310" fill="#f59e0b" font-size="11" font-weight="bold" font-family="monospace" text-anchor="end" id="svg_tableInletLoss">4.50 psi max ΔP</text>
+
+        <!-- Status Tag Box -->
+        <rect x="460" y="335" width="330" height="42" fill="#0f172a" stroke="#22c55e" stroke-width="1.5" rx="4" id="svg_statusBox"/>
+        <text x="625" y="361" fill="#4ade80" font-size="11" font-weight="bold" font-family="sans-serif" text-anchor="middle" id="svg_statusTitle">API 520 / 526 SIZING VERIFIED</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Engineering Derivations & Live Formula Section -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">First-Principles API 520 Critical Flow Derivations</h2>
+    <div class="prv-derivations">
+      <div class="prv-step">
+        <div class="prv-step-title">1. Relieving Pressure (P1) & Critical Choked Flow Check</div>
+        <p>Accumulated absolute relieving pressure for Set Pressure $P_{set} = <span id="drv_pset">150</span>$ psig with allowable overpressure $<span id="drv_acc">10</span>\%$:</p>
+        <div class="prv-formula">
+          P_1 = P_{set} \cdot \left( 1 + \frac{\%\text{Acc}}{100} \right) + P_{atm} = <span id="drv_pset2">150</span> \cdot (1.<span id="drv_acc2">10</span>) + 14.7 = <span id="drv_p1_calc">179.7</span>\text{ psia}
+        </div>
+        <p>Critical pressure ratio for isentropic expansion factor $k = <span id="drv_k">1.30</span>$:</p>
+        <div class="prv-formula highlight">
+          \frac{P_{cf}}{P_1} = \left( \frac{2}{k + 1} \right)^{\frac{k}{k - 1}} = \left( \frac{2}{2.30} \right)^{4.333} = <span id="drv_pcf_ratio">0.546</span> \quad \longrightarrow \quad P_{cf} = <span id="drv_p1_2">179.7</span> \cdot 0.546 = <span id="drv_pcf_calc">98.1</span>\text{ psia}
+        </div>
+        <p id="drv_chokeVerdict">Because downstream discharge backpressure (14.7 psia) is strictly less than Pcf (98.1 psia), the flow is supersonic and fully choked at the nozzle throat.</p>
+      </div>
+
+      <div class="prv-step">
+        <div class="prv-step-title">2. API 520 Effective Orifice Area Formula</div>
+        <p>For critical sonic flow of vapor/gas:</p>
+        <div class="prv-formula">
+          A_{calc} = \frac{W}{C \cdot K_d \cdot P_1 \cdot K_b \cdot K_c} \cdot \sqrt{\frac{T \cdot Z}{M}}
+        </div>
+        <p>Substituting live parameters ($W = <span id="drv_w">18,500</span>$ lb/hr, $C = <span id="drv_c">345.5</span>$, certified ASME $K_d = 0.975$, $P_1 = <span id="drv_p1_3">179.7</span>$ psia, $K_b = 1.0$, $K_c = <span id="drv_kc">1.00</span>$, $T = <span id="drv_t_r">825.67</span>$ °R, $Z = 1.00$, $M = <span id="drv_m">18.02</span>$):</p>
+        <div class="prv-formula highlight">
+          A_{calc} = \frac{<span id="drv_w2">18500</span>}{(<span id="drv_c2">345.5</span>) \cdot (0.975) \cdot (<span id="drv_p1_4">179.7</span>) \cdot 1.0 \cdot <span id="drv_kc2">1.00</span>} \cdot \sqrt{\frac{<span id="drv_t_r2">825.67</span> \cdot 1.00}{<span id="drv_m2">18.02</span>}} = <span id="drv_acalc_calc">0.584</span>\text{ in² (<span id="drv_acalc_mm">377</span> mm²)}
+        </div>
+      </div>
+
+      <div class="prv-step">
+        <div class="prv-step-title">3. Standardized API 526 Orifice Selection</div>
+        <p>Matching required area $A_{calc} = <span id="drv_acalc2">0.584</span>$ in² against standardized API 526 letter designations:</p>
+        <div class="prv-formula highlight">
+          \text{Selected Orifice: } \mathbf{<span id="drv_letter">H</span>} \quad (A_{API} = <span id="drv_a_api">0.785</span>\text{ in² / <span id="drv_a_api_mm">506</span> mm²}) \quad [\text{Loading: } <span id="drv_loading">74.4</span>\%]
+        </div>
+      </div>
+
+      <div class="prv-step">
+        <div class="prv-step-title">4. ASME Rated Capacity & 3% Inlet Piping Loss Rule</div>
+        <p>Actual certified ASME flow through the chosen API 526 standard orifice:</p>
+        <div class="prv-formula highlight">
+          W_{rated} = W \cdot \left( \frac{A_{API}}{A_{calc}} \right) = <span id="drv_w3">18,500</span> \cdot \left( \frac{<span id="drv_a_api2">0.785</span>}{<span id="drv_acalc3">0.584</span>} \right) = <span id="drv_wrated_calc">24,860</span>\text{ lb/hr}
+        </div>
+        <p id="drv_inletRuleText">API 520 strictly mandates that non-recoverable pressure loss in the inlet piping between vessel and PRV flange must not exceed 3% of set pressure (ΔP_inlet ≤ 4.50 psi) to eliminate destructive high-frequency valve chatter.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Professional Copy Diagnostic Box -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-header-row">
+      <h2 class="calc-clean-subtitle">API 520 / 526 Pressure Relief Valve Data Sheet</h2>
+      <button type="button" id="copyPrvAuditBtn" class="calc-clean-btn">
+        <span>📋 Copy PRV Data Sheet</span>
+      </button>
+    </div>
+    <pre id="prv_audit_box" class="prv-audit-box">Generating API 520 valve sizing audit...</pre>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps Cards -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Pressure Relief Valve (PRV) Sizing Traps</h2>
+    <div class="prv-traps-grid">
+      <!-- Trap 1 -->
+      <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #ef4444; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">1. The 3% Inlet Line Loss Rule Violation (Destructive Rapid Chatter)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          API 520 strictly mandates that total non-recoverable friction loss between the pressure vessel and the PRV inlet flange must not exceed 3% of set pressure. When a valve opens, fluid flow creates an immediate inlet pressure drop. If inlet loss exceeds the valve's blowdown margin (typically 5% to 7%), pressure at the disc drops below reseat pressure. The valve slams shut, pressure surges, and it slams open again at 20 to 50 cycles per second, destroying the seat and fracturing pipe welds.
+        </p>
+      </div>
+
+      <!-- Trap 2 -->
+      <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #f59e0b; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">2. Excessive Built-Up Backpressure (>10%) on Conventional PRVs</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          In conventional spring-loaded relief valves, downstream backpressure acts on the top of the disc holder, adding directly to spring closing force. If built-up backpressure in the discharge flare header exceeds 10% of set pressure, the effective opening set pressure increases, preventing the valve from opening at its stamped setpoint and drastically slashing certified relieving capacity. Balanced bellows or pilot-operated valves must be used.
+        </p>
+      </div>
+
+      <!-- Trap 3 -->
+      <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #10b981; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">3. Gross Over-Sizing (Orifice Loading < 25% Causing Flutter)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Specifying a large safety margin by choosing an oversized orifice (e.g., selecting a "P" orifice when a "G" is required) causes valve flutter. The oversized orifice evacuates pressure faster than the system can supply it, causing the disc to oscillate rapidly against the seat, leading to severe seat galling, pilot instability, and premature leakage.
+        </p>
+      </div>
+
+      <!-- Trap 4 -->
+      <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.05); padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+        <h3 style="color: #3b82f6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">4. Omitting the 0.90 Rupture Disc Combination Factor (Kc)</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          When an upstream rupture disc is installed beneath a PRV to isolate toxic or corrosive fluids, ASME Section VIII mandates applying a combination derating factor $K_c = 0.90$ (unless certified combination tests establish a higher value). Neglecting this 10% capacity penalty results in an undersized orifice that fails code compliance during audit inspections.
+        </p>
+      </div>
+
+      <!-- Trap 5 -->
+      <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 6px;">
+        <h3 style="color: #8b5cf6; font-size: 1rem; font-weight: bold; margin: 0 0 0.25rem 0;">5. Subcritical Flow Failure: Applying Sonic Math when P2 > Pcf</h3>
+        <p style="font-size: 0.875rem; line-height: 1.4; color: var(--text-muted, #94a3b8); margin: 0;">
+          Standard API 520 formulas assume critical choked sonic flow through the nozzle throat ($P_2 le P_{cf}$). If high backpressure exists such that $P_2 / P_1 > [2/(k+1)]^{k/(k-1)}$ (typically $> 0.53$ to $0.58$), the flow becomes subsonic. Applying critical equations severely overestimates mass flow, resulting in an undersized valve that cannot relieve emergency overpressure.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.prv-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.prv-metric-card {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+}
+.prv-metric-card.highlight {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+.prv-metric-card.pass {
+  border-color: #22c55e;
+  background: rgba(34, 197, 94, 0.05);
+}
+.prv-metric-card.fail {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.05);
+}
+.prv-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 0.35rem;
+}
+.prv-metric-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--text-main, #f8fafc);
+  font-feature-settings: "tnum";
+}
+.prv-metric-sub {
+  font-size: 0.8rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 0.25rem;
+}
+.prv-svg-container {
+  background: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.prv-derivations {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.prv-step {
+  background: var(--card-bg, #1e293b);
+  border: 1px solid var(--border-color, #334155);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+.prv-step-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+.prv-formula {
+  background: #0f172a;
+  border-left: 3px solid #3b82f6;
+  padding: 0.75rem 1rem;
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: #38bdf8;
+  margin: 0.75rem 0;
+  border-radius: 0 6px 6px 0;
+  overflow-x: auto;
+}
+.prv-formula.highlight {
+  border-left-color: #22c55e;
+  color: #4ade80;
+}
+.prv-audit-box {
+  background: #0f172a;
+  color: #38bdf8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+}
+</style>
+
+<script>
+(function() {
+  const fluidSelect = document.getElementById('prv_fluid');
+  const psetInput = document.getElementById('prv_pset');
+  const pressUnitSelect = document.getElementById('prv_pressUnit');
+  const overpressSelect = document.getElementById('prv_overpressure');
+  const flowInput = document.getElementById('prv_flowRate');
+  const flowUnitSelect = document.getElementById('prv_flowUnit');
+  const tempInput = document.getElementById('prv_temp');
+  const tempUnitSelect = document.getElementById('prv_tempUnit');
+  const backpressInput = document.getElementById('prv_backpressure');
+  const valveTypeSelect = document.getElementById('prv_valveType');
+  const ruptureDiscSelect = document.getElementById('prv_ruptureDisc');
+
+  // Outputs
+  const resOrifice = document.getElementById('prv_res_orifice');
+  const resOrificeSub = document.getElementById('prv_res_orifice_sub');
+  const resAcalc = document.getElementById('prv_res_acalc');
+  const resAcalcSub = document.getElementById('prv_res_acalc_sub');
+  const resP1 = document.getElementById('prv_res_p1');
+  const resP1Sub = document.getElementById('prv_res_p1_sub');
+  const resChoke = document.getElementById('prv_res_choke');
+  const resChokeSub = document.getElementById('prv_res_choke_sub');
+  const chokeCard = document.getElementById('prv_choke_card');
+  const resRated = document.getElementById('prv_res_rated');
+  const resRatedSub = document.getElementById('prv_res_rated_sub');
+  const resInletLimit = document.getElementById('prv_res_inlet_limit');
+  const resInletSub = document.getElementById('prv_res_inlet_sub');
+
+  // SVG Elements
+  const svgOrificeLetter = document.getElementById('svg_orificeLetter');
+  const svgInflowW = document.getElementById('svg_inflowW');
+  const svgTableLetter = document.getElementById('svg_tableLetter');
+  const svgTableAapi = document.getElementById('svg_tableAapi');
+  const svgTableAcalc = document.getElementById('svg_tableAcalc');
+  const svgTableLoad = document.getElementById('svg_tableLoad');
+  const svgTablePset = document.getElementById('svg_tablePset');
+  const svgTableP1 = document.getElementById('svg_tableP1');
+  const svgTablePcf = document.getElementById('svg_tablePcf');
+  const svgTableRated = document.getElementById('svg_tableRated');
+  const svgTableInletLoss = document.getElementById('svg_tableInletLoss');
+  const svgStatusTitle = document.getElementById('svg_statusTitle');
+
+  // Derivations
+  const drvPset = document.getElementById('drv_pset');
+  const drvAcc = document.getElementById('drv_acc');
+  const drvPset2 = document.getElementById('drv_pset2');
+  const drvAcc2 = document.getElementById('drv_acc2');
+  const drvP1Calc = document.getElementById('drv_p1_calc');
+  const drvK = document.getElementById('drv_k');
+  const drvPcfRatio = document.getElementById('drv_pcf_ratio');
+  const drvP1_2 = document.getElementById('drv_p1_2');
+  const drvPcfCalc = document.getElementById('drv_pcf_calc');
+  const drvChokeVerdict = document.getElementById('drv_chokeVerdict');
+  const drvW = document.getElementById('drv_w');
+  const drvC = document.getElementById('drv_c');
+  const drvP1_3 = document.getElementById('drv_p1_3');
+  const drvKc = document.getElementById('drv_kc');
+  const drvTR = document.getElementById('drv_t_r');
+  const drvM = document.getElementById('drv_m');
+  const drvW2 = document.getElementById('drv_w2');
+  const drvC2 = document.getElementById('drv_c2');
+  const drvP1_4 = document.getElementById('drv_p1_4');
+  const drvKc2 = document.getElementById('drv_kc2');
+  const drvTR2 = document.getElementById('drv_t_r2');
+  const drvM2 = document.getElementById('drv_m2');
+  const drvAcalcCalc = document.getElementById('drv_acalc_calc');
+  const drvAcalcMm = document.getElementById('drv_acalc_mm');
+  const drvAcalc2 = document.getElementById('drv_acalc2');
+  const drvLetter = document.getElementById('drv_letter');
+  const drvAApi = document.getElementById('drv_a_api');
+  const drvAApiMm = document.getElementById('drv_a_api_mm');
+  const drvLoading = document.getElementById('drv_loading');
+  const drvW3 = document.getElementById('drv_w3');
+  const drvAApi2 = document.getElementById('drv_a_api2');
+  const drvAcalc3 = document.getElementById('drv_acalc3');
+  const drvWratedCalc = document.getElementById('drv_wrated_calc');
+  const drvInletRuleText = document.getElementById('drv_inletRuleText');
+
+  const auditBox = document.getElementById('prv_audit_box');
+
+  const gasData = {
+    steam: { name: 'Steam / Water Vapor', M: 18.02, k: 1.30 },
+    air: { name: 'Compressed Air', M: 28.97, k: 1.40 },
+    natgas: { name: 'Natural Gas (Methane)', M: 16.04, k: 1.31 },
+    propane: { name: 'Propane Vapor', M: 44.10, k: 1.13 },
+    nitrogen: { name: 'Nitrogen Gas', M: 28.01, k: 1.40 },
+    ethylene: { name: 'Ethylene', M: 28.05, k: 1.24 },
+    custom: { name: 'Custom Gas', M: 25.00, k: 1.30 }
+  };
+
+  // API 526 Standardized Lettered Orifice Effective Areas (in2)
+  const apiOrifices = [
+    { letter: 'D', area_in2: 0.110, area_mm2: 71 },
+    { letter: 'E', area_in2: 0.196, area_mm2: 126 },
+    { letter: 'F', area_in2: 0.307, area_mm2: 198 },
+    { letter: 'G', area_in2: 0.503, area_mm2: 325 },
+    { letter: 'H', area_in2: 0.785, area_mm2: 506 },
+    { letter: 'J', area_in2: 1.287, area_mm2: 830 },
+    { letter: 'K', area_in2: 1.838, area_mm2: 1186 },
+    { letter: 'L', area_in2: 2.853, area_mm2: 1841 },
+    { letter: 'M', area_in2: 3.600, area_mm2: 2323 },
+    { letter: 'N', area_in2: 4.340, area_mm2: 2800 },
+    { letter: 'P', area_in2: 6.380, area_mm2: 4116 },
+    { letter: 'Q', area_in2: 11.050, area_mm2: 7129 },
+    { letter: 'R', area_in2: 16.000, area_mm2: 10323 },
+    { letter: 'T', area_in2: 26.000, area_mm2: 16774 }
+  ];
+
+  function calculate() {
+    const fluidKey = fluidSelect.value;
+    const gas = gasData[fluidKey] || gasData.steam;
+
+    let rawPset = parseFloat(psetInput.value) || 150;
+    const pressUnit = pressUnitSelect.value;
+    let Pset_psig = 150;
+
+    if (pressUnit === 'psig') Pset_psig = rawPset;
+    else if (pressUnit === 'barg') Pset_psig = rawPset * 14.5038;
+    else if (pressUnit === 'kpa') Pset_psig = rawPset * 0.145038;
+
+    const overpressurePct = parseFloat(overpressSelect.value) || 10;
+
+    let rawFlow = parseFloat(flowInput.value) || 18500;
+    const flowUnit = flowUnitSelect.value;
+    let W_lbh = 18500;
+
+    if (flowUnit === 'lbh') W_lbh = rawFlow;
+    else if (flowUnit === 'kgh') W_lbh = rawFlow * 2.20462;
+    else if (flowUnit === 'scfm') W_lbh = (rawFlow * 60 * gas.M) / 379.48; // SCFM to lb/hr
+
+    let T_F = parseFloat(tempInput.value) || 366;
+    if (tempUnitSelect.value === 'c') T_F = T_F * 1.8 + 32;
+    const T_R = T_F + 459.67;
+
+    const Pback_psig = parseFloat(backpressInput.value) || 0;
+    const Pback_psia = Pback_psig + 14.696;
+
+    const valveType = valveTypeSelect.value;
+    const Kc = parseFloat(ruptureDiscSelect.value) || 1.0;
+
+    // 1. Relieving Pressure P1 (psia)
+    // P1 = Pset * (1 + overpressure / 100) + Patm
+    const Patm = 14.696;
+    const P1_psia = Pset_psig * (1 + overpressurePct / 100) + Patm;
+
+    // 2. Critical Pressure Ratio & Choked Flow Check
+    // Pcf / P1 = [2 / (k + 1)] ^ [k / (k - 1)]
+    const k = gas.k;
+    const pcf_ratio = Math.pow(2 / (k + 1), k / (k - 1));
+    const Pcf_psia = P1_psia * pcf_ratio;
+
+    const isChoked = Pback_psia <= Pcf_psia;
+
+    // 3. API 520 Gas Expansion Coefficient C
+    // C = 520 * sqrt(k * (2 / (k+1))^((k+1)/(k-1)))
+    const C_gas = 520 * Math.sqrt(k * Math.pow(2 / (k + 1), (k + 1) / (k - 1)));
+
+    // 4. Correction Factors
+    // Certified Kd = 0.975 for API nozzle
+    const Kd = 0.975;
+
+    // Backpressure correction Kb
+    let Kb = 1.0;
+    if (valveType === 'balanced_bellows') {
+      const pbRatio = (Pback_psig / Pset_psig) * 100;
+      if (pbRatio > 15) {
+        Kb = Math.max(0.70, 1.0 - 0.004 * (pbRatio - 15));
+      }
+    } else if (valveType === 'conventional' && !isChoked) {
+      // Subcritical derating
+      Kb = Math.max(0.60, Math.sqrt(1 - Math.pow((Pback_psia - Pcf_psia) / (P1_psia - Pcf_psia), 2)));
+    }
+
+    const Z = 1.00; // Ideal gas approximation
+
+    // 5. Required Effective Discharge Area A_calc (in2)
+    // A = W / (C * Kd * P1 * Kb * Kc) * sqrt((T * Z) / M)
+    const A_calc_in2 = (W_lbh / (C_gas * Kd * P1_psia * Kb * Kc)) * Math.sqrt((T_R * Z) / gas.M);
+    const A_calc_mm2 = A_calc_in2 * 645.16;
+
+    // 6. Select API 526 Standard Orifice
+    let selOrifice = apiOrifices[apiOrifices.length - 1];
+    for (let ori of apiOrifices) {
+      if (ori.area_in2 >= A_calc_in2) {
+        selOrifice = ori;
+        break;
+      }
+    }
+
+    const orificeLoading = (A_calc_in2 / selOrifice.area_in2) * 100;
+    const ratedCapacity_lbh = W_lbh * (selOrifice.area_in2 / A_calc_in2);
+
+    // 7. 3% Inlet Line Loss Limit
+    const maxInletLoss_psi = 0.03 * Pset_psig;
+
+    // Update Result UI
+    resOrifice.textContent = '"' + selOrifice.letter + '" Orifice';
+    resOrificeSub.textContent = 'Area: ' + selOrifice.area_in2.toFixed(3) + ' in² (' + selOrifice.area_mm2 + ' mm²)';
+
+    resAcalc.textContent = A_calc_in2.toFixed(3) + ' in²';
+    resAcalcSub.textContent = A_calc_mm2.toFixed(0) + ' mm² (' + orificeLoading.toFixed(1) + '% Orifice Loading)';
+
+    resP1.textContent = P1_psia.toFixed(1) + ' psia';
+    resP1Sub.textContent = 'Pset ' + Pset_psig.toFixed(0) + ' psig + ' + overpressurePct + '% Acc + 14.7 psi';
+
+    if (isChoked) {
+      resChoke.textContent = 'CRITICAL (SONIC)';
+      resChokeSub.textContent = 'Pback (' + Pback_psia.toFixed(1) + ' psia) ≤ Pcf (' + Pcf_psia.toFixed(1) + ' psia)';
+      chokeCard.className = 'prv-metric-card pass';
+    } else {
+      resChoke.textContent = 'SUBCRITICAL FLOW';
+      resChokeSub.textContent = 'Pback (' + Pback_psia.toFixed(1) + ' psia) > Pcf (' + Pcf_psia.toFixed(1) + ' psia) [Kb = ' + Kb.toFixed(2) + ']';
+      chokeCard.className = 'prv-metric-card highlight';
+    }
+
+    resRated.textContent = Math.round(ratedCapacity_lbh).toLocaleString() + ' lb/hr';
+    resRatedSub.textContent = '+' + ((selOrifice.area_in2 / A_calc_in2 - 1) * 100).toFixed(1) + '% Overcapacity Margin';
+
+    resInletLimit.textContent = maxInletLoss_psi.toFixed(2) + ' psi';
+    resInletSub.textContent = '3% of ' + Pset_psig.toFixed(0) + ' psig Set Pressure (Prevents Chatter)';
+
+    // SVG Updates
+    svgOrificeLetter.textContent = '"' + selOrifice.letter + '" ORIFICE (' + selOrifice.area_in2.toFixed(3) + ' in²)';
+    svgInflowW.textContent = 'W = ' + Math.round(W_lbh).toLocaleString() + ' lb/h';
+    svgTableLetter.textContent = '"' + selOrifice.letter + '" Orifice';
+    svgTableAapi.textContent = selOrifice.area_in2.toFixed(3) + ' in² (' + selOrifice.area_mm2 + ' mm²)';
+    svgTableAcalc.textContent = A_calc_in2.toFixed(3) + ' in² (' + A_calc_mm2.toFixed(0) + ' mm²)';
+    svgTableLoad.textContent = orificeLoading.toFixed(1) + '% Loading';
+    svgTablePset.textContent = Pset_psig.toFixed(0) + ' psig (' + (Pset_psig * 0.0689476).toFixed(1) + ' barg)';
+    svgTableP1.textContent = P1_psia.toFixed(1) + ' psia (' + (100 + overpressurePct) + '% Relieving)';
+    svgTablePcf.textContent = Pcf_psia.toFixed(1) + ' psia (' + (isChoked ? 'Choked' : 'Subcritical') + ')';
+    svgTableRated.textContent = Math.round(ratedCapacity_lbh).toLocaleString() + ' lb/hr';
+    svgTableInletLoss.textContent = maxInletLoss_psi.toFixed(2) + ' psi max ΔP';
+
+    // Derivations updates
+    drvPset.textContent = Pset_psig.toFixed(0);
+    drvAcc.textContent = overpressurePct.toFixed(0);
+    drvPset2.textContent = Pset_psig.toFixed(0);
+    drvAcc2.textContent = overpressurePct.toFixed(0);
+    drvP1Calc.textContent = P1_psia.toFixed(1);
+    drvK.textContent = k.toFixed(2);
+    drvPcfRatio.textContent = pcf_ratio.toFixed(3);
+    drvP1_2.textContent = P1_psia.toFixed(1);
+    drvPcfCalc.textContent = Pcf_psia.toFixed(1);
+
+    if (isChoked) {
+      drvChokeVerdict.textContent = 'Because downstream backpressure (' + Pback_psia.toFixed(1) + ' psia) is strictly less than critical choked pressure Pcf (' + Pcf_psia.toFixed(1) + ' psia), sonic choked velocity occurs at the nozzle throat.';
+    } else {
+      drvChokeVerdict.textContent = 'Downstream backpressure (' + Pback_psia.toFixed(1) + ' psia) exceeds Pcf (' + Pcf_psia.toFixed(1) + ' psia). Flow is subcritical; backpressure correction factor Kb = ' + Kb.toFixed(2) + ' is applied.';
+    }
+
+    drvW.textContent = Math.round(W_lbh).toLocaleString();
+    drvC.textContent = C_gas.toFixed(1);
+    drvP1_3.textContent = P1_psia.toFixed(1);
+    drvKc.textContent = Kc.toFixed(2);
+    drvTR.textContent = T_R.toFixed(1);
+    drvM.textContent = gas.M.toFixed(2);
+    drvW2.textContent = Math.round(W_lbh).toLocaleString();
+    drvC2.textContent = C_gas.toFixed(1);
+    drvP1_4.textContent = P1_psia.toFixed(1);
+    drvKc2.textContent = Kc.toFixed(2);
+    drvTR2.textContent = T_R.toFixed(1);
+    drvM2.textContent = gas.M.toFixed(2);
+    drvAcalcCalc.textContent = A_calc_in2.toFixed(3);
+    drvAcalcMm.textContent = A_calc_mm2.toFixed(0);
+
+    drvAcalc2.textContent = A_calc_in2.toFixed(3);
+    drvLetter.textContent = selOrifice.letter;
+    drvAApi.textContent = selOrifice.area_in2.toFixed(3);
+    drvAApiMm.textContent = selOrifice.area_mm2;
+    drvLoading.textContent = orificeLoading.toFixed(1);
+
+    drvW3.textContent = Math.round(W_lbh).toLocaleString();
+    drvAApi2.textContent = selOrifice.area_in2.toFixed(3);
+    drvAcalc3.textContent = A_calc_in2.toFixed(3);
+    drvWratedCalc.textContent = Math.round(ratedCapacity_lbh).toLocaleString();
+    drvInletRuleText.textContent = 'API 520 strictly mandates that non-recoverable pressure loss in the inlet piping between vessel and PRV flange must not exceed 3% of set pressure (ΔP_inlet ≤ ' + maxInletLoss_psi.toFixed(2) + ' psi) to eliminate destructive high-frequency valve chatter.';
+
+    // Audit Box Updates
+    const auditText = 
+      '=======================================================\n' +
+      '   API 520 / API 526 SAFETY RELIEF VALVE DATA SHEET   \n' +
+      '=======================================================\n' +
+      'Relieving Scenario:        ' + overpressSelect.options[overpressSelect.selectedIndex].text.split('(')[0].trim() + ' (' + overpressurePct + '% Overpressure)\n' +
+      'Relieving Fluid:           ' + gas.name + ' (MW = ' + gas.M + ', k = ' + k + ')\n' +
+      'Valve Set Pressure:        ' + Pset_psig.toFixed(0) + ' psig (' + (Pset_psig * 0.0689).toFixed(1) + ' barg)\n' +
+      'Relieving Absolute Press:  P1 = ' + P1_psia.toFixed(1) + ' psia (' + (P1_psia * 0.0689).toFixed(2) + ' bar abs)\n' +
+      'Relieving Temperature:     ' + T_F.toFixed(1) + ' °F (' + T_R.toFixed(1) + ' °R / ' + ((T_F-32)/1.8).toFixed(1) + ' °C)\n' +
+      'Required Relieving Rate:   ' + Math.round(W_lbh).toLocaleString() + ' lb/hr (' + (W_lbh * 0.453592).toFixed(0) + ' kg/hr)\n' +
+      'Total Discharge Backpress: ' + Pback_psig.toFixed(1) + ' psig (' + Pback_psia.toFixed(1) + ' psia) [Valve: ' + valveTypeSelect.options[valveTypeSelect.selectedIndex].text.split('(')[0].trim() + ']\n' +
+      '-------------------------------------------------------\n' +
+      'Sonic Choked Pressure Pcf: ' + Pcf_psia.toFixed(1) + ' psia [' + (isChoked ? 'CRITICAL SONIC FLOW' : 'SUBCRITICAL FLOW') + ']\n' +
+      'API Gas Constant (C):      ' + C_gas.toFixed(1) + ' [Kd = ' + Kd.toFixed(3) + ', Kb = ' + Kb.toFixed(2) + ', Kc = ' + Kc.toFixed(2) + ']\n' +
+      'CALCULATED REQUIRED AREA:  ' + A_calc_in2.toFixed(3) + ' in² (' + A_calc_mm2.toFixed(0) + ' mm²)\n' +
+      'SELECTED API 526 ORIFICE:  "' + selOrifice.letter + '" ORIFICE (' + selOrifice.area_in2.toFixed(3) + ' in² / ' + selOrifice.area_mm2 + ' mm²)\n' +
+      'Orifice Utilization:       ' + orificeLoading.toFixed(1) + '% Loading\n' +
+      'ASME Rated Capacity:       ' + Math.round(ratedCapacity_lbh).toLocaleString() + ' lb/hr (+' + ((selOrifice.area_in2/A_calc_in2 - 1)*100).toFixed(1) + '% Margin)\n' +
+      'Max 3% Inlet Line Loss:    ΔP_inlet ≤ ' + maxInletLoss_psi.toFixed(2) + ' psi (Inlet Piping Limit)\n' +
+      'Sizing Codes:              API 520 Part I 10th Ed. & API 526 / ASME VIII\n' +
+      '=======================================================';
+    auditBox.textContent = auditText;
+  }
+
+  document.getElementById('copyPrvAuditBtn').addEventListener('click', function() {
+    const text = auditBox.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('copyPrvAuditBtn');
+      const origHtml = btn.innerHTML;
+      btn.innerHTML = '<span>✓ Copied PRV Data Sheet!</span>';
+      btn.style.background = '#16a34a';
+      setTimeout(function() {
+        btn.innerHTML = origHtml;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+
+  [fluidSelect, psetInput, pressUnitSelect, overpressSelect, flowInput, flowUnitSelect, tempInput, tempUnitSelect, backpressInput, valveTypeSelect, ruptureDiscSelect].forEach(el => {
+    el.addEventListener('input', calculate);
+    el.addEventListener('change', calculate);
+  });
+
+  calculate();
+})();
+</script>
+`;
+
+  writeFileSync(join(calcDir, 'safety-relief-valve-orifice-calculator.html'), renderTradePage({
+    title: "Safety Relief Valve (PRV/PSV) Orifice Sizing Calculator | API 520 & 526",
+    metaDesc: "Calculate required relief valve orifice area, select API 526 lettered designation (D to T), verify critical flow, and audit 3% inlet piping loss per ASME VIII.",
+    canonical: `${DOMAIN}/calc/safety-relief-valve-orifice-calculator`,
+    bodyContent: prvOrificeBody,
+    currentPath: '/calc/safety-relief-valve-orifice-calculator',
+    faq: [
+      {
+        "q": "What is the 3% inlet piping rule in API 520?",
+        "a": "API 520 Part II mandates that the total non-recoverable frictional pressure loss between the protected pressure vessel and the PRV inlet flange must not exceed 3% of the valve's set pressure. If inlet loss exceeds 3%, the pressure drop upon valve opening will drop inlet pressure below reseat pressure, causing the valve to rapidly slam open and shut (chatter) at up to 50 Hz, destroying seating surfaces and causing catastrophic pipe fatigue."
+      },
+      {
+        "q": "What determines whether relief flow is critical (choked) versus subcritical?",
+        "a": "Flow is critical (sonic) when downstream absolute backpressure (P2) is less than or equal to the critical flow pressure (Pcf = P1 · [2/(k+1)]^[k/(k-1)]), where P1 is upstream absolute relieving pressure and k is the isentropic expansion coefficient. Under critical flow, gas exits the nozzle throat at sonic velocity, and downstream pressure fluctuations do not reduce mass flow."
+      },
+      {
+        "q": "What is the difference between conventional and balanced bellows relief valves?",
+        "a": "In a conventional PRV, backpressure in the discharge piping exerts force on the back of the disc, adding to spring closing force and raising opening set pressure; backpressure is strictly limited to 10% of set pressure. Balanced bellows valves incorporate a metallic bellows isolating the upper disc holder from backpressure, allowing built-up backpressures up to 50% without altering set pressure."
+      },
+      {
+        "q": "How does an upstream rupture disc affect PRV sizing?",
+        "a": "When a rupture disc is installed upstream of a pressure relief valve (to protect the PRV from corrosive or polymerizing media), ASME Section VIII mandates applying a combination correction factor Kc = 0.90 to account for additional pressure loss through the burst disc fragments, effectively increasing required orifice area by ~11%."
+      },
+      {
+        "q": "What are API 526 lettered orifices?",
+        "a": "API Standard 526 standardizes 14 discrete effective orifice areas designated by letters D through T (ranging from D = 0.110 in² to T = 26.000 in²). Valve manufacturers machine PRV nozzle throats to match these exact standard lettered areas, ensuring interchangeability across valve models."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 74: Shell & Tube Condenser & Desuperheater Sizing Calculator (TEMA & Nusselt)
+  // ==========================================
+  const condenserBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">TEMA Standard Condenser Rating</span>
+      <span class="calc-clean-badge">Nusselt Falling Film Condensation</span>
+      <span class="calc-clean-badge">3-Zone Thermal Sizing (Desuperheat/Condense/Subcool)</span>
+    </div>
+    <h1 class="calc-clean-title">Shell & Tube Condenser & Desuperheater Sizing Calculator</h1>
+    <p class="calc-clean-desc">
+      Size horizontal industrial shell-and-tube condensers by decomposing heat duty into superheated gas desuperheating, isothermal film condensation, and liquid condensate subcooling zones per TEMA and Nusselt falling film theory.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Process Vapor Fluid -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_fluid">Process Vapor Fluid</label>
+        <select id="cond_fluid" class="calc-clean-select">
+          <option value="steam" selected>Water Steam (H2O, hfg = 970 Btu/lb)</option>
+          <option value="ammonia">Ammonia (R-717 / NH3, hfg = 508 Btu/lb)</option>
+          <option value="ethanol">Ethanol Vapor (C2H5OH, hfg = 364 Btu/lb)</option>
+          <option value="r134a">Refrigerant R-134a (hfg = 76 Btu/lb)</option>
+          <option value="custom">Custom Fluid Properties</option>
+        </select>
+        <small class="calc-clean-help">Preloads thermodynamic enthalpy and transport properties</small>
+      </div>
+
+      <!-- Vapor Mass Flow Rate (W) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_flowRate">Vapor Mass Flow Rate (W)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_flowRate" class="calc-clean-input" value="25000" min="500" max="2000000" step="500">
+          <select id="cond_flowUnit" class="calc-clean-select">
+            <option value="lbh" selected>lb/hr</option>
+            <option value="kgh">kg/hr</option>
+          </select>
+        </div>
+        <small class="calc-clean-help">Inlet superheated process vapor mass throughput</small>
+      </div>
+
+      <!-- Vapor Inlet Temperature (Tv,in) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_tvin">Vapor Inlet Temp (Tv,in)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_tvin" class="calc-clean-input" value="350" min="50" max="1200" step="5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Superheated vapor temperature entering shell nozzle</small>
+      </div>
+
+      <!-- Saturation / Condensing Temp (Tsat) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_tsat">Condensing Saturation Temp (Tsat)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_tsat" class="calc-clean-input" value="212" min="32" max="800" step="1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Equilibrium saturation temperature at shell operating pressure</small>
+      </div>
+
+      <!-- Condensate Exit Temperature (Tc,out) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_tcout">Condensate Exit Temp (Tc,out)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_tcout" class="calc-clean-input" value="195" min="32" max="750" step="1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Subcooled liquid leaving lower shell sump</small>
+      </div>
+
+      <!-- Cooling Water Inlet (t1) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_cw_in">Cooling Water Supply (t1)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_cw_in" class="calc-clean-input" value="85" min="35" max="150" step="1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Cooling tower or utility water supply temperature</small>
+      </div>
+
+      <!-- Cooling Water Outlet (t2) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_cw_out">Cooling Water Return (t2)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_cw_out" class="calc-clean-input" value="105" min="40" max="180" step="1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">°F</span>
+        </div>
+        <small class="calc-clean-help">Target return temperature (typically 15°F to 25°F rise)</small>
+      </div>
+
+      <!-- Latent Heat (hfg) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_hfg">Latent Heat hfg (Btu/lb)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_hfg" class="calc-clean-input" value="970" min="50" max="1500" step="10">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">Btu/lb</span>
+        </div>
+        <small class="calc-clean-help">Phase change enthalpy at saturation conditions</small>
+      </div>
+
+      <!-- Vapor Specific Heat Cpv -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_cpv">Vapor Specific Heat Cpv</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_cpv" class="calc-clean-input" value="0.48" min="0.1" max="2.0" step="0.01">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">Btu/lb·°F</span>
+        </div>
+        <small class="calc-clean-help">Superheated vapor heat capacity for desuperheating</small>
+      </div>
+
+      <!-- Liquid Specific Heat Cpl -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_cpl">Liquid Specific Heat Cpl</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_cpl" class="calc-clean-input" value="1.00" min="0.1" max="2.0" step="0.01">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">Btu/lb·°F</span>
+        </div>
+        <small class="calc-clean-help">Condensate liquid heat capacity for subcooling</small>
+      </div>
+
+      <!-- Tube Geometry & Length -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_tubeOD">Tube Size & Metallurgy</label>
+        <select id="cond_tubeOD" class="calc-clean-select">
+          <option value="0.75" selected>3/4" OD (19.05 mm, 16 BWG Carbon Steel)</option>
+          <option value="1.00">1.0" OD (25.40 mm, 14 BWG Stainless Steel)</option>
+          <option value="1.25">1-1/4" OD (31.75 mm, Heavy Alloy)</option>
+          <option value="0.625">5/8" OD (15.88 mm, Compact Admiralty)</option>
+        </select>
+        <small class="calc-clean-help">Outside tube diameter for bundle layout</small>
+      </div>
+
+      <!-- Effective Tube Length -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_length">Effective Tube Length (L)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_length" class="calc-clean-input" value="16" min="6" max="40" step="2">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">ft</span>
+        </div>
+        <small class="calc-clean-help">TEMA standard tube length between tubesheets</small>
+      </div>
+
+      <!-- Vertical Tube Rows in Bundle (Nrows) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_nrows">Vertical Tube Rows (Nrows)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_nrows" class="calc-clean-input" value="18" min="2" max="80" step="1">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">rows</span>
+        </div>
+        <small class="calc-clean-help">Average vertical tube count influencing condensate inundation</small>
+      </div>
+
+      <!-- Combined Fouling Factor Rf -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="cond_fouling">Total Fouling Resistance (Rf)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="cond_fouling" class="calc-clean-input" value="0.0015" min="0" max="0.008" step="0.0005">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">hr·ft²·°F/Btu</span>
+        </div>
+        <small class="calc-clean-help">TEMA fouling allowance (shell + cooling water tube side)</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">TEMA Thermal Rating & Surface Area Requirements</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Total Thermal Duty -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Total Heat Duty (Qtotal)</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="cond_res_qtotal">26.33 MMBtu/hr</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="cond_res_qbreakdown">Desup: 1.66 | Cond: 24.25 | Sub: 0.43</div>
+      </div>
+
+      <!-- Required Total Surface Area -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Required Surface Area (Atotal)</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="cond_res_atotal">1,482 sq ft</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="cond_res_abrk">Desup: 15% | Cond: 82% | Sub: 3%</div>
+      </div>
+
+      <!-- Cooling Water Demand -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Cooling Water Flow Rate</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="cond_res_cwgpm">2,633 GPM</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="cond_res_cwmass">1,316,500 lb/hr (ΔT = 20.0°F)</div>
+      </div>
+
+      <!-- Estimated Tube Count -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Tube Count & Bundle Size</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="cond_res_tubecount">472 Tubes</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="cond_res_shelldia">Est. Shell ID: 25.4 in. (TEMA E)</div>
+      </div>
+
+      <!-- Nusselt Condensing Coefficient -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Nusselt Film Coeff (hc)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="cond_res_hc">612 Btu/hr·ft²·°F</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="cond_res_inundation">Row Inundation Factor: 0.631</div>
+      </div>
+
+      <!-- Overall Condensing U -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Overall Condensing (Ucond)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="cond_res_ucond">242 Btu/hr·ft²·°F</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;">Includes water film, wall & fouling</div>
+      </div>
+    </div>
+
+    <!-- Temperature-Duty (T-Q) Diagram -->
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">Interactive Temperature-Duty (T-Q) Thermal Profile</h3>
+        <span style="font-size: 0.85rem; color: #94a3b8;">Counter-Current Flow Arrangement</span>
+      </div>
+      <div id="cond_svg_wrap" style="width: 100%; overflow-x: auto;">
+        <!-- Dynamic SVG populated here -->
+      </div>
+    </div>
+
+    <!-- Actionable Copy Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <button type="button" id="copyCondAuditBtn" class="calc-clean-btn" style="background: #0284c7; color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer;">
+        Copy Condenser Sizing Audit
+      </button>
+      <span style="color: #94a3b8; font-size: 0.85rem;">Formatted per TEMA Class R/C/B Standards & ASME Section VIII</span>
+    </div>
+
+    <!-- Diagnostic Audit Summary -->
+    <div style="margin-top: 1.25rem;">
+      <label class="calc-clean-label" for="condAuditBox">TEMA Thermal Rating Diagnostic Log</label>
+      <textarea id="condAuditBox" class="calc-clean-textarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 0.75rem; box-sizing: border-box;"></textarea>
+    </div>
+  </div>
+
+  <!-- Educational Deep-Dive & Physics Derivation -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Horizontal Shell-and-Tube Condenser Architecture & 3-Zone Sizing</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      A horizontal shell-and-tube condenser operating on superheated vapor cannot be accurately modeled as a single isothermal condensing unit. Along the shell-side vapor flow path, three physically distinct thermodynamic regimes occur: (1) superheated gas desuperheating, (2) isothermal two-phase film condensation, and (3) liquid condensate subcooling. Sizing errors of 20% to 35% occur when designers apply a single lumped log mean temperature difference (LMTD) and overall coefficient (U) across the entire heat duty.
+    </p>
+
+    <!-- Spec Table -->
+    <div style="overflow-x: auto; margin: 1.5rem 0;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+        <thead>
+          <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+            <th style="padding: 10px;">Thermal Regime</th>
+            <th style="padding: 10px;">Thermodynamic Mechanism</th>
+            <th style="padding: 10px;">Typical Overall U (Btu/hr·ft²·°F)</th>
+            <th style="padding: 10px;">Controlling Boundary Layer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #f97316;">1. Desuperheating Zone</td>
+            <td style="padding: 10px;">Sensible cooling of superheated gas down to saturation dew point</td>
+            <td style="padding: 10px;">25 – 45 (140 – 255 W/m²·K)</td>
+            <td style="padding: 10px;">Shell-side vapor gas film boundary layer</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">2. Condensing Zone</td>
+            <td style="padding: 10px;">Isothermal Nusselt falling film phase change</td>
+            <td style="padding: 10px;">180 – 650 (1,020 – 3,690 W/m²·K)</td>
+            <td style="padding: 10px;">Falling liquid condensate film thickness & fouling</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #f43f5e;">3. Subcooling Zone</td>
+            <td style="padding: 10px;">Sensible cooling of accumulated liquid condensate in sump</td>
+            <td style="padding: 10px;">35 – 75 (200 – 425 W/m²·K)</td>
+            <td style="padding: 10px;">Liquid natural convection / low velocity shell crossflow</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Nusselt Falling Film Theory on Horizontal Tube Bundles</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Wilhelm Nusselt established the governing relationship for laminar film condensation over a solitary horizontal tube of outside diameter \(D_o\):
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      h_{single} = 0.728 \left[ \frac{g \cdot \rho_l (\rho_l - \rho_v) \cdot k_l^3 \cdot h_{fg}}{\mu_l \cdot D_o \cdot \Delta T_f} \right]^{0.25}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Where \(g\) is gravitational acceleration, \(\rho_l\) is condensate density, \(\rho_v\) is vapor density, \(k_l\) is liquid thermal conductivity, \(h_{fg}\) is latent heat of vaporization, \(\mu_l\) is dynamic liquid viscosity, and \(\Delta T_f = T_{sat} - T_{wall}\) is the film driving force.
+    </p>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      In an industrial horizontal bundle with \(N_{rows}\) tubes stacked vertically, condensate rain from upper rows cascades onto lower rows, thickening the liquid drainage film. Nusselt derived an ideal inundation discount of \(N_{rows}^{-0.25}\), while Kern established an empirical exponent of \(N_{rows}^{-0.16}\) for commercial exchangers to account for droplet turbulence and vapor shear:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      \bar{h}_c = h_{single} \cdot N_{rows}^{-0.16} \qquad \frac{1}{U_{cond}} = \frac{1}{\bar{h}_c} + R_f + \frac{D_o \ln(D_o/D_i)}{2 k_{wall}} + \frac{D_o}{D_i \cdot h_i}
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Zone-by-Zone LMTD and Intermediate Coolant Temperatures</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      The total thermal duty \(Q_{total} = Q_{desup} + Q_{cond} + Q_{sub}\) fixes cooling water throughput \(m_{cw} = \frac{Q_{total}}{C_{p,w} (t_2 - t_1)}\). Intermediate cooling water temperatures are evaluated sequentially along the counter-current path:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      t_{w,sub} = t_1 + (t_2 - t_1) \frac{Q_{sub}}{Q_{total}} \\\\
+      t_{w,cond} = t_{w,sub} + (t_2 - t_1) \frac{Q_{cond}}{Q_{total}}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      LMTD is computed separately for each zone:
+      \(\Delta T_{lm,desup} = \frac{(T_{v,in}-t_2) - (T_{sat}-t_{w,cond})}{\ln \frac{T_{v,in}-t_2}{T_{sat}-t_{w,cond}}}\), 
+      \(\Delta T_{lm,cond} = \frac{(T_{sat}-t_{w,cond}) - (T_{sat}-t_{w,sub})}{\ln \frac{T_{sat}-t_{w,cond}}{T_{sat}-t_{w,sub}}}\), and 
+      \(\Delta T_{lm,sub} = \frac{(T_{sat}-t_{w,sub}) - (T_{c,out}-t_1)}{\ln \frac{T_{sat}-t_{w,sub}}{T_{c,out}-t_1}}\).
+    </p>
+  </div>
+
+  <!-- Worked Step-by-Step Example -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Worked Engineering Example: Sizing a 25,000 lb/hr Steam Condenser</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      <strong>Design Objective:</strong> Size a horizontal TEMA shell-and-tube condenser receiving 25,000 lb/hr of superheated steam at 350°F and condensing at atmospheric saturation (212°F, \(h_{fg} = 970\) Btu/lb) with condensate subcooled to 195°F. Cooling water is supplied at 85°F and returns at 105°F (20°F rise).
+    </p>
+    <ol style="color: #cbd5e1; line-height: 1.8; margin-left: 1.5rem;">
+      <li>
+        <strong>Calculate Zone Thermal Duties:</strong><br>
+        \(Q_{desup} = 25,000 \times 0.48 \times (350 - 212) = 1,656,000\) Btu/hr (1.66 MMBtu/hr)<br>
+        \(Q_{cond} = 25,000 \times 970 = 24,250,000\) Btu/hr (24.25 MMBtu/hr)<br>
+        \(Q_{sub} = 25,000 \times 1.00 \times (212 - 195) = 425,000\) Btu/hr (0.43 MMBtu/hr)<br>
+        \(Q_{total} = 1.656 + 24.250 + 0.425 = 26.331\) MMBtu/hr (7.717 MW thermal)
+      </li>
+      <li>
+        <strong>Cooling Water Flow Rate:</strong><br>
+        \(m_{cw} = \frac{26,331,000}{1.0 \times (105 - 85)} = 1,316,550\) lb/hr = <strong>2,633 GPM</strong>
+      </li>
+      <li>
+        <strong>Intermediate Water Temperatures:</strong><br>
+        \(t_{w,sub} = 85 + 20 \times \frac{0.425}{26.331} = 85.32^\circ\text{F}\)<br>
+        \(t_{w,cond} = 85.32 + 20 \times \frac{24.250}{26.331} = 103.74^\circ\text{F}\)<br>
+        \(t_2 = 103.74 + 20 \times \frac{1.656}{26.331} = 105.00^\circ\text{F}\)
+      </li>
+      <li>
+        <strong>Zone Log Mean Temperature Differences (LMTD):</strong><br>
+        Desuperheat LMTD: \(\Delta T_{lm,desup} = \frac{(350-105) - (212-103.74)}{\ln(245/108.26)} = 167.3^\circ\text{F}\)<br>
+        Condensing LMTD: \(\Delta T_{lm,cond} = \frac{(212-103.74) - (212-85.32)}{\ln(108.26/126.68)} = 117.2^\circ\text{F}\)<br>
+        Subcooling LMTD: \(\Delta T_{lm,sub} = \frac{(212-85.32) - (195-85)}{\ln(126.68/110.00)} = 118.1^\circ\text{F}\)
+      </li>
+      <li>
+        <strong>Surface Areas Required:</strong><br>
+        \(A_{desup} = \frac{1,656,000}{35 \times 167.3} = 283\) sq ft<br>
+        \(A_{cond} = \frac{24,250,000}{242 \times 117.2} = 855\) sq ft (at \(U_{cond} = 242\))<br>
+        \(A_{sub} = \frac{425,000}{45 \times 118.1} = 80\) sq ft<br>
+        \(A_{total} = 283 + 855 + 80 = 1,218\) sq ft (Plus 20% TEMA design margin = <strong>1,462 sq ft</strong>)
+      </li>
+      <li>
+        <strong>Bundle Configuration:</strong><br>
+        Using 3/4" OD tubes \(\times\) 16 ft length (0.1963 sq ft/ft \(\times\) 16 ft = 3.14 sq ft/tube):<br>
+        \(N_t = \frac{1,462}{3.14} = 466\) tubes. Triangular pitch layout gives an estimated shell inner diameter of <strong>25.4 inches</strong>.
+      </li>
+    </ol>
+  </div>
+
+  <!-- 5 Fatal Traps & Failure Modes -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Traps in Condenser Sizing & Operation</h2>
+    
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #ef4444; margin-top: 0;">1. Non-Condensable Gas (NCG) Blanketing Catastrophe</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Even trace air or carbon dioxide ingress (0.5% to 1.0% by volume) in condensing vapor creates a stagnant gas diffusion layer on tube surfaces. Because vapor molecules must molecularly diffuse through this non-condensable blanket, local heat transfer coefficients plummet by <strong>50% to 65%</strong>. A continuous vent line connected to a vacuum ejector or liquid-ring pump must be placed at the lowest-temperature, highest-pressure-drop quadrant of the tube bundle.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #f59e0b; margin-top: 0;">2. Single Gross LMTD Averaging Under-Sizing Error</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Calculating a single gross LMTD from steam inlet (350°F) to water inlet (85°F) overstates the mean effective temperature driving force while ignoring the low heat transfer coefficient of the desuperheating gas phase (U ≈ 30–40). This classic novice mistake yields a physical condenser that is <strong>20% to 35% undersized</strong>, driving steam backpressure up and throttling upstream turbine or distillation output.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #10b981; margin-top: 0;">3. Tube Bundle Inundation & Condensate Flooding</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        In bundles with more than 20 vertical tube rows, falling condensate forms a thick liquid sheet over the lowest tubes. Lower-row condensing coefficients can drop to less than 25% of top-row performance. To restore high film coefficients, designers must incorporate condensate drip plates, vapor cross-flow lanes (TEMA X-shells), or divide the bundle into stepped quadrants.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #3b82f6; margin-top: 0;">4. Condensate Subcooling Water Hammer Shock</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Attempting to achieve deep subcooling (>15°F) inside a horizontal shell creates an unstable liquid level. If a sudden steam surge sweeps subcooled liquid into direct contact with live vapor, explosive condensation bubble collapse creates acoustic pressure pulses exceeding 1,000 psi, loosening rolled tube joints and buckling shell baffles. Deep subcooling should always be conducted in a dedicated external plate cooler.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #8b5cf6; margin-top: 0;">5. Tube-Side Cooling Water Velocity Violations</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Cooling water velocity inside tubes must strictly stay between <strong>4.0 ft/s and 7.5 ft/s</strong>. Operating below 3.5 ft/s encourages silt deposition, calcium scale precipitation, and anaerobic bio-slime fouling that doubles fouling resistance within weeks. Conversely, operating above 8.0 ft/s causes severe inlet impingement erosion-corrosion, pitting copper-nickel and brass tubes to failure.
+      </p>
+    </div>
+  </div>
+
+  <!-- Real-Time Dynamic Scripts -->
+  <script>
+  (function() {
+    const FLUIDS = {
+      steam: { hfg: 970, cpv: 0.48, cpl: 1.00, kl: 0.395, mul: 0.28, rhol: 60.0, rhov: 0.037 },
+      ammonia: { hfg: 508, cpv: 0.65, cpl: 1.15, kl: 0.290, mul: 0.18, rhol: 38.0, rhov: 0.55 },
+      ethanol: { hfg: 364, cpv: 0.42, cpl: 0.68, kl: 0.096, mul: 0.45, rhol: 48.0, rhov: 0.12 },
+      r134a: { hfg: 76, cpv: 0.24, cpl: 0.34, kl: 0.048, mul: 0.20, rhol: 74.0, rhov: 2.10 },
+      custom: null
+    };
+
+    const fluidSelect = document.getElementById('cond_fluid');
+    const flowInput = document.getElementById('cond_flowRate');
+    const flowUnitSelect = document.getElementById('cond_flowUnit');
+    const tvinInput = document.getElementById('cond_tvin');
+    const tsatInput = document.getElementById('cond_tsat');
+    const tcoutInput = document.getElementById('cond_tcout');
+    const cwinInput = document.getElementById('cond_cw_in');
+    const cwoutInput = document.getElementById('cond_cw_out');
+    const hfgInput = document.getElementById('cond_hfg');
+    const cpvInput = document.getElementById('cond_cpv');
+    const cplInput = document.getElementById('cond_cpl');
+    const tubeODSelect = document.getElementById('cond_tubeOD');
+    const lengthInput = document.getElementById('cond_length');
+    const nrowsInput = document.getElementById('cond_nrows');
+    const foulingInput = document.getElementById('cond_fouling');
+
+    const resQtotal = document.getElementById('cond_res_qtotal');
+    const resQbreak = document.getElementById('cond_res_qbreakdown');
+    const resAtotal = document.getElementById('cond_res_atotal');
+    const resAbrk = document.getElementById('cond_res_abrk');
+    const resCWgpm = document.getElementById('cond_res_cwgpm');
+    const resCWmass = document.getElementById('cond_res_cwmass');
+    const resTubes = document.getElementById('cond_res_tubecount');
+    const resShell = document.getElementById('cond_res_shelldia');
+    const resHc = document.getElementById('cond_res_hc');
+    const resInundation = document.getElementById('cond_res_inundation');
+    const resUcond = document.getElementById('cond_res_ucond');
+    const auditBox = document.getElementById('condAuditBox');
+
+    function calculate() {
+      const fKey = fluidSelect.value;
+      if (fKey !== 'custom' && FLUIDS[fKey]) {
+        const p = FLUIDS[fKey];
+        hfgInput.value = p.hfg;
+        cpvInput.value = p.cpv;
+        cplInput.value = p.cpl;
+      }
+
+      let W = parseFloat(flowInput.value) || 0;
+      if (flowUnitSelect.value === 'kgh') {
+        W = W * 2.20462;
+      }
+
+      const Tvin = parseFloat(tvinInput.value) || 350;
+      const Tsat = parseFloat(tsatInput.value) || 212;
+      const Tcout = parseFloat(tcoutInput.value) || 195;
+      const t1 = parseFloat(cwinInput.value) || 85;
+      const t2 = parseFloat(cwoutInput.value) || 105;
+      const hfg = parseFloat(hfgInput.value) || 970;
+      const cpv = parseFloat(cpvInput.value) || 0.48;
+      const cpl = parseFloat(cplInput.value) || 1.0;
+      const Do = parseFloat(tubeODSelect.value) || 0.75;
+      const L = parseFloat(lengthInput.value) || 16;
+      const Nrows = parseFloat(nrowsInput.value) || 18;
+      const Rf = parseFloat(foulingInput.value) || 0.0015;
+
+      if (Tvin < Tsat || Tsat < Tcout || t2 <= t1 || W <= 0) {
+        resQtotal.textContent = 'Invalid Temps';
+        return;
+      }
+
+      // Zone Duties
+      const Qdesup = W * cpv * (Tvin - Tsat);
+      const Qcond = W * hfg;
+      const Qsub = W * cpl * (Tsat - Tcout);
+      const Qtotal = Qdesup + Qcond + Qsub;
+
+      // Cooling Water Flow
+      const Cpw = 1.0;
+      const mcw = Qtotal / (Cpw * (t2 - t1));
+      const cwGpm = mcw / (8.33 * 60);
+
+      // Intermediate water temperatures
+      const twSub = t1 + (t2 - t1) * (Qsub / Qtotal);
+      const twCond = twSub + (t2 - t1) * (Qcond / Qtotal);
+
+      // LMTD function
+      function calcLMTD(th1, tc2, th2, tc1) {
+        const dt1 = th1 - tc2;
+        const dt2 = th2 - tc1;
+        if (dt1 <= 0 || dt2 <= 0) return 1.0;
+        if (Math.abs(dt1 - dt2) < 0.001) return dt1;
+        return (dt1 - dt2) / Math.log(dt1 / dt2);
+      }
+
+      const lmtdDesup = calcLMTD(Tvin, t2, Tsat, twCond);
+      const lmtdCond = calcLMTD(Tsat, twCond, Tsat, twSub);
+      const lmtdSub = calcLMTD(Tsat, twSub, Tcout, t1);
+
+      // Transport & Nusselt Condensing Calculation
+      const g = 4.17e8; // ft/hr^2
+      const kl = (fKey !== 'custom' && FLUIDS[fKey]) ? FLUIDS[fKey].kl : 0.35;
+      const mul = (fKey !== 'custom' && FLUIDS[fKey]) ? FLUIDS[fKey].mul * 2.42 : 0.68;
+      const rhol = (fKey !== 'custom' && FLUIDS[fKey]) ? FLUIDS[fKey].rhol : 58.0;
+      const rhov = (fKey !== 'custom' && FLUIDS[fKey]) ? FLUIDS[fKey].rhov : 0.05;
+      const Dft = Do / 12.0;
+
+      const TmeanWater = (twSub + twCond) / 2;
+      const dtf = Math.max(2.0, (Tsat - TmeanWater) * 0.5);
+
+      const nusseltBracket = (g * rhol * (rhol - rhov) * Math.pow(kl, 3) * hfg) / (mul * Dft * dtf);
+      let hcSingle = 0.728 * Math.pow(Math.max(1.0, nusseltBracket), 0.25);
+      if (isNaN(hcSingle) || hcSingle < 50) hcSingle = 800;
+
+      const inundationFactor = Math.pow(Nrows, -0.16);
+      const hc = hcSingle * inundationFactor;
+
+      const hi = 1000.0;
+      const Udesup = 35.0;
+      const Ucond = 1 / (1 / hc + Rf + 1 / hi);
+      const Usub = 45.0;
+
+      // Surface areas (with 15% TEMA design margin)
+      const margin = 1.15;
+      const Adesup = (Qdesup / (Udesup * lmtdDesup)) * margin;
+      const Acond = (Qcond / (Ucond * lmtdCond)) * margin;
+      const Asub = (Qsub / (Usub * lmtdSub)) * margin;
+      const Atotal = Adesup + Acond + Asub;
+
+      const areaPerTube = Math.PI * Dft * L;
+      const numTubes = Math.ceil(Atotal / areaPerTube);
+      const bundleDiaIn = Math.sqrt(numTubes / 0.31) * (1.25 * Do);
+      const shellIdIn = Math.round(bundleDiaIn + 2.0);
+
+      // UI updates
+      resQtotal.textContent = (Qtotal / 1e6).toFixed(2) + ' MMBtu/hr';
+      resQbreak.textContent = 'Desup: ' + (Qdesup / 1e6).toFixed(2) + ' | Cond: ' + (Qcond / 1e6).toFixed(2) + ' | Sub: ' + (Qsub / 1e6).toFixed(2);
+
+      resAtotal.textContent = Math.round(Atotal).toLocaleString() + ' sq ft';
+      resAbrk.textContent = 'Desup: ' + ((Adesup / Atotal) * 100).toFixed(0) + '% | Cond: ' + ((Acond / Atotal) * 100).toFixed(0) + '% | Sub: ' + ((Asub / Atotal) * 100).toFixed(0) + '%';
+
+      resCWgpm.textContent = Math.round(cwGpm).toLocaleString() + ' GPM';
+      resCWmass.textContent = Math.round(mcw).toLocaleString() + ' lb/hr (ΔT = ' + (t2 - t1).toFixed(1) + '°F)';
+
+      resTubes.textContent = numTubes.toLocaleString() + ' Tubes';
+      resShell.textContent = 'Est. Shell ID: ' + shellIdIn + ' in. (' + L + ' ft length)';
+
+      resHc.textContent = Math.round(hc) + ' Btu/hr·ft²·°F';
+      resInundation.textContent = 'Row Inundation Factor: ' + inundationFactor.toFixed(3) + ' (Kern N^-0.16)';
+
+      resUcond.textContent = Math.round(Ucond) + ' Btu/hr·ft²·°F';
+
+      // Audit Box Update
+      const auditText = 
+        '=======================================================\n' +
+        '   SHELL & TUBE CONDENSER THERMAL RATING AUDIT        \n' +
+        '=======================================================\n' +
+        'Vapor Throughput:          ' + Math.round(W).toLocaleString() + ' lb/hr (' + fluidSelect.options[fluidSelect.selectedIndex].text.split('(')[0].trim() + ')\n' +
+        'Vapor Temperatures:        Inlet Tv,in = ' + Tvin + '°F, Tsat = ' + Tsat + '°F, Subcool Tc,out = ' + Tcout + '°F\n' +
+        'Coolant Range:             Supply t1 = ' + t1 + '°F, Return t2 = ' + t2 + '°F (ΔT = ' + (t2 - t1).toFixed(1) + '°F)\n' +
+        '-------------------------------------------------------\n' +
+        'TOTAL HEAT DUTY (Qtotal):  ' + (Qtotal / 1e6).toFixed(3) + ' MMBtu/hr (' + (Qtotal * 0.000293071).toFixed(2) + ' MW thermal)\n' +
+        '  - Desuperheating Duty:   ' + (Qdesup / 1e6).toFixed(3) + ' MMBtu/hr (' + ((Qdesup/Qtotal)*100).toFixed(1) + '%)\n' +
+        '  - Condensation Duty:     ' + (Qcond / 1e6).toFixed(3) + ' MMBtu/hr (' + ((Qcond/Qtotal)*100).toFixed(1) + '%)\n' +
+        '  - Subcooling Duty:       ' + (Qsub / 1e6).toFixed(3) + ' MMBtu/hr (' + ((Qsub/Qtotal)*100).toFixed(1) + '%)\n' +
+        'Cooling Water Flow Rate:   ' + Math.round(cwGpm).toLocaleString() + ' GPM (' + Math.round(mcw).toLocaleString() + ' lb/hr)\n' +
+        '-------------------------------------------------------\n' +
+        'Nusselt Condensing (hc):   ' + Math.round(hc) + ' Btu/hr·ft²·°F (Single-tube: ' + Math.round(hcSingle) + ', Row factor: ' + inundationFactor.toFixed(3) + ')\n' +
+        'Overall Condensing (U):    ' + Math.round(Ucond) + ' Btu/hr·ft²·°F (with Rf = ' + Rf + ' fouling)\n' +
+        'Log Mean Temp Differences: LMTD_desup = ' + lmtdDesup.toFixed(1) + '°F, LMTD_cond = ' + lmtdCond.toFixed(1) + '°F, LMTD_sub = ' + lmtdSub.toFixed(1) + '°F\n' +
+        'REQUIRED SURFACE AREA:     ' + Math.round(Atotal).toLocaleString() + ' sq ft (includes 15% design margin)\n' +
+        '  - Area Distribution:     A_desup = ' + Math.round(Adesup) + ' sq ft, A_cond = ' + Math.round(Acond) + ' sq ft, A_sub = ' + Math.round(Asub) + ' sq ft\n' +
+        'Tube Bundle Assembly:      ' + numTubes + ' tubes (' + Do + '\" OD × ' + L + ' ft length)\n' +
+        'Estimated Shell Diameter:  ' + shellIdIn + ' inches ID (TEMA E/X crossflow config)\n' +
+        'Design Standard:           TEMA Standards & Nusselt Falling Film Theory\n' +
+        '=======================================================';
+      auditBox.textContent = auditText;
+
+      renderSvg(Tvin, Tsat, Tcout, t1, t2, twSub, twCond, Qdesup, Qcond, Qsub, Qtotal);
+    }
+
+    function renderSvg(Tvin, Tsat, Tcout, t1, t2, twSub, twCond, Qdesup, Qcond, Qsub, Qtotal) {
+      const w = 620;
+      const h = 260;
+      const padL = 60;
+      const padR = 30;
+      const padT = 30;
+      const padB = 40;
+      const plotW = w - padL - padR;
+      const plotH = h - padT - padB;
+
+      const maxT = Math.max(Tvin, 380) * 1.05;
+      const minT = Math.max(0, Math.min(t1, 60) * 0.9);
+
+      function mapX(q) {
+        return padL + (q / Qtotal) * plotW;
+      }
+      function mapY(temp) {
+        return padT + plotH - ((temp - minT) / (maxT - minT)) * plotH;
+      }
+
+      const x0 = mapX(0);
+      const x1 = mapX(Qsub);
+      const x2 = mapX(Qsub + Qcond);
+      const x3 = mapX(Qtotal);
+
+      const yTcout = mapY(Tcout);
+      const yTsat = mapY(Tsat);
+      const yTvin = mapY(Tvin);
+
+      const yt1 = mapY(t1);
+      const ytwSub = mapY(twSub);
+      const ytwCond = mapY(twCond);
+      const yt2 = mapY(t2);
+
+      let svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" width="100%" height="100%" style="overflow:visible; font-family:sans-serif; font-size:11px;">';
+      
+      svg += '<rect x="' + padL + '" y="' + padT + '" width="' + plotW + '" height="' + plotH + '" fill="#0f172a" stroke="#334155" />';
+      
+      svg += '<line x1="' + x1 + '" y1="' + padT + '" x2="' + x1 + '" y2="' + (padT + plotH) + '" stroke="#475569" stroke-dasharray="4,4" />';
+      svg += '<line x1="' + x2 + '" y1="' + padT + '" x2="' + x2 + '" y2="' + (padT + plotH) + '" stroke="#475569" stroke-dasharray="4,4" />';
+
+      svg += '<text x="' + ((x0 + x1)/2) + '" y="' + (padT + 16) + '" fill="#94a3b8" text-anchor="middle">Subcooling Zone</text>';
+      svg += '<text x="' + ((x1 + x2)/2) + '" y="' + (padT + 16) + '" fill="#38bdf8" text-anchor="middle" font-weight="bold">Isothermal Condensing Plateau</text>';
+      svg += '<text x="' + ((x2 + x3)/2) + '" y="' + (padT + 16) + '" fill="#f97316" text-anchor="middle">Desuperheating Zone</text>';
+
+      svg += '<polyline points="' + x0 + ',' + yTcout + ' ' + x1 + ',' + yTsat + ' ' + x2 + ',' + yTsat + ' ' + x3 + ',' + yTvin + '" fill="none" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />';
+
+      svg += '<polyline points="' + x0 + ',' + yt1 + ' ' + x1 + ',' + ytwSub + ' ' + x2 + ',' + ytwCond + ' ' + x3 + ',' + yt2 + '" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-dasharray="6,3" stroke-linecap="round" stroke-linejoin="round" />';
+
+      svg += '<circle cx="' + x3 + '" cy="' + yTvin + '" r="4" fill="#f43f5e" />';
+      svg += '<text x="' + (x3 - 5) + '" y="' + (yTvin - 8) + '" fill="#f43f5e" text-anchor="end" font-weight="bold">Vapor In ' + Math.round(Tvin) + '°F</text>';
+
+      svg += '<circle cx="' + x2 + '" cy="' + yTsat + '" r="4" fill="#38bdf8" />';
+      svg += '<text x="' + (x2 - 5) + '" y="' + (yTsat - 8) + '" fill="#38bdf8" text-anchor="end">T_sat ' + Math.round(Tsat) + '°F</text>';
+
+      svg += '<circle cx="' + x0 + '" cy="' + yTcout + '" r="4" fill="#f43f5e" />';
+      svg += '<text x="' + (x0 + 5) + '" y="' + (yTcout - 8) + '" fill="#f43f5e">Condensate ' + Math.round(Tcout) + '°F</text>';
+
+      svg += '<circle cx="' + x0 + '" cy="' + yt1 + '" r="4" fill="#0ea5e9" />';
+      svg += '<text x="' + (x0 + 5) + '" y="' + (yt1 + 15) + '" fill="#0ea5e9">CW In ' + Math.round(t1) + '°F</text>';
+
+      svg += '<circle cx="' + x3 + '" cy="' + yt2 + '" r="4" fill="#0ea5e9" />';
+      svg += '<text x="' + (x3 - 5) + '" y="' + (yt2 + 15) + '" fill="#0ea5e9" text-anchor="end">CW Out ' + Math.round(t2) + '°F</text>';
+
+      svg += '<text x="' + (padL + plotW / 2) + '" y="' + (h - 8) + '" fill="#94a3b8" text-anchor="middle">Cumulative Thermal Duty Q (0 → ' + (Qtotal/1e6).toFixed(2) + ' MMBtu/hr)</text>';
+      svg += '<text transform="rotate(-90)" x="' + (-padT - plotH / 2) + '" y="18" fill="#94a3b8" text-anchor="middle">Temperature (°F)</text>';
+
+      svg += '</svg>';
+      document.getElementById('cond_svg_wrap').innerHTML = svg;
+    }
+
+    document.getElementById('copyCondAuditBtn').addEventListener('click', function() {
+      const text = auditBox.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copyCondAuditBtn');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied Condenser Audit!</span>';
+        btn.style.background = '#16a34a';
+        setTimeout(function() {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+        }, 2000);
+      });
+    });
+
+    [fluidSelect, flowInput, flowUnitSelect, tvinInput, tsatInput, tcoutInput, cwinInput, cwoutInput, hfgInput, cpvInput, cplInput, tubeODSelect, lengthInput, nrowsInput, foulingInput].forEach(el => {
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    calculate();
+  })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'shell-and-tube-condenser-desuperheater-calculator.html'), renderTradePage({
+    title: "Shell & Tube Condenser & Desuperheater Sizing Calculator | TEMA & Nusselt Method",
+    metaDesc: "Calculate heat duty, log mean temperature difference (LMTD), Nusselt film condensation heat transfer coefficient, desuperheating, condensing, and subcooling surface areas for horizontal shell and tube condensers per TEMA standards.",
+    canonical: `${DOMAIN}/calc/shell-and-tube-condenser-desuperheater-calculator`,
+    bodyContent: condenserBody,
+    currentPath: '/calc/shell-and-tube-condenser-desuperheater-calculator',
+    faq: [
+      {
+        "q": "Why must desuperheating, condensing, and subcooling surface areas be calculated separately?",
+        "a": "Each zone operates under fundamentally different fluid dynamics and transport coefficients. Superheated gas sensible cooling has a low convective heat transfer coefficient (25 to 45 Btu/hr·ft²·°F). Film condensation produces exceptionally high heat transfer (200 to 650 Btu/hr·ft²·°F). Subcooling liquid pooled in the shell bottom exhibits moderate liquid convection (35 to 75 Btu/hr·ft²·°F). Lumping these zones into a single gross LMTD produces up to 35% under-sizing error."
+      },
+      {
+        "q": "How does the Kern row correction factor account for bundle inundation?",
+        "a": "Nusselt assumed an idealized, continuous smooth laminar liquid sheet falling over tubes, predicting an inundation factor of N_rows^(-0.25). In industrial condensers, vapor crossflow shear ripples the film and causes droplets to spray turbulently rather than drain smoothly. Kern's empirical exponent N_rows^(-0.16) provides a more realistic and proven safety factor for commercial tube banks."
+      },
+      {
+        "q": "What is the acceptable cooling water velocity inside condenser tubes?",
+        "a": "Industrial cooling water velocity inside condenser tubes should be maintained strictly between 4.0 ft/s (1.2 m/s) and 7.5 ft/s (2.3 m/s). Operating below 3.5 ft/s causes severe silt settling and biological scaling, whereas operating above 8.0 ft/s produces rapid erosion-corrosion pitting at tube sheet inlets."
+      },
+      {
+        "q": "Why do non-condensable gases (NCGs) destroy condenser thermal performance?",
+        "a": "As condensable vapor transitions to liquid on cold tube walls, non-condensable gases such as nitrogen, carbon dioxide, or air remain behind, creating a stagnant barrier layer. Vapor molecules must slowly diffuse through this gas film, reducing the effective condensation heat transfer coefficient by 50% to 65% with as little as 1% NCG concentration."
+      },
+      {
+        "q": "When is an external subcooler preferred over subcooling inside the main condenser?",
+        "a": "If required condensate subcooling exceeds 15°F (8°C), an external plate heat exchanger or separate shell-and-tube cooler should be installed. Flooding 20% to 30% of main condenser tubes to subcool liquid risks thermal fatigue, steam bubble collapse shock (water hammer), and inefficient surface utilization."
+      }
+    ]
+  }));
+
+
+
+  // ==========================================
+  // CALCULATOR 75: Pipe Flange Bolt Preload & Make-Up Torque Calculator (ASME PCC-1 & Section VIII)
+  // ==========================================
+  const flangeTorqueBody = `
+<div class="calc-clean-wrap">
+  <header class="calc-clean-hero">
+    <div class="calc-badge-row">
+      <span class="calc-clean-badge">ASME PCC-1 Appendix O</span>
+      <span class="calc-clean-badge">ASME Section VIII Div 1 App 2</span>
+      <span class="calc-clean-badge">Bolted Joint Integrity & Gasket Seating</span>
+    </div>
+    <h1 class="calc-clean-title">Pipe Flange Bolt Preload & Make-Up Torque Calculator</h1>
+    <p class="calc-clean-desc">
+      Calculate target bolt tensile preload, make-up assembly torque, bolt stretch elongation, and gasket compressive stress across ASME B16.5 pipe flanges per ASME PCC-1 Appendix O and ASME Section VIII Division 1 Appendix 2.
+    </p>
+  </header>
+
+  <!-- Interactive Controls Card -->
+  <div class="calc-clean-card">
+    <div class="calc-clean-grid">
+      <!-- Standard Flange Preset -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_preset">Standard Flange Preset</label>
+        <select id="flange_preset" class="calc-clean-select">
+          <option value="custom">Custom Flange Specification</option>
+          <option value="6_150">6" Class 150 (8 × 3/4" studs)</option>
+          <option value="6_300" selected>6" Class 300 (12 × 3/4" studs)</option>
+          <option value="6_600">6" Class 600 (12 × 1" studs)</option>
+          <option value="8_150">8" Class 150 (8 × 3/4" studs)</option>
+          <option value="8_300">8" Class 300 (12 × 7/8" studs)</option>
+          <option value="8_600">8" Class 600 (12 × 1-1/8" studs)</option>
+          <option value="12_150">12" Class 150 (12 × 7/8" studs)</option>
+          <option value="12_300">12" Class 300 (16 × 1-1/8" studs)</option>
+          <option value="12_600">12" Class 600 (20 × 1-1/4" studs)</option>
+        </select>
+        <small class="calc-clean-help">Preloads bolt diameter, count, grip length, and gasket dimensions</small>
+      </div>
+
+      <!-- Bolt Nominal Diameter (D) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_boltDia">Bolt Nominal Diameter (D)</label>
+        <select id="flange_boltDia" class="calc-clean-select">
+          <option value="0.5">1/2 in (13 UNC)</option>
+          <option value="0.625">5/8 in (11 UNC)</option>
+          <option value="0.75" selected>3/4 in (10 UNC)</option>
+          <option value="0.875">7/8 in (9 UNC)</option>
+          <option value="1.0">1.0 in (8 UN)</option>
+          <option value="1.125">1-1/8 in (8 UN)</option>
+          <option value="1.25">1-1/4 in (8 UN)</option>
+          <option value="1.375">1-3/8 in (8 UN)</option>
+          <option value="1.5">1-1/2 in (8 UN)</option>
+          <option value="1.75">1-3/4 in (8 UN)</option>
+          <option value="2.0">2.0 in (8 UN)</option>
+        </select>
+        <small class="calc-clean-help">Stud or heavy hex bolt nominal shank thread size</small>
+      </div>
+
+      <!-- Number of Bolts (n) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_numBolts">Total Bolt Count (n)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="flange_numBolts" class="calc-clean-input" value="12" min="4" max="64" step="4">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">studs</span>
+        </div>
+        <small class="calc-clean-help">Number of bolts distributed around bolt circle</small>
+      </div>
+
+      <!-- Bolt Material & Yield Strength -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_boltMat">Bolt Material Grade</label>
+        <select id="flange_boltMat" class="calc-clean-select">
+          <option value="b7" selected>ASTM A193 B7 (Sy = 105,000 psi, Cr-Mo Alloy)</option>
+          <option value="b8_cl2">ASTM A193 B8 Cl 2 (Sy = 65,000 psi, 304 Stainless)</option>
+          <option value="b16">ASTM A193 B16 (Sy = 105,000 psi, High-Temp Cr-Mo-V)</option>
+          <option value="l7">ASTM A320 L7 (Sy = 105,000 psi, Low-Temp Service)</option>
+          <option value="grade8">SAE J429 Grade 8 (Sy = 130,000 psi, High Strength)</option>
+        </select>
+        <small class="calc-clean-help">Material specification establishing yield strength (Sy)</small>
+      </div>
+
+      <!-- Target Bolt Stress (% of Yield) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_targetStress">Target Bolt Stress (% of Yield)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="flange_targetStress" class="calc-clean-input" value="50" min="25" max="80" step="5">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">% Sy</span>
+        </div>
+        <small class="calc-clean-help">ASME PCC-1 App O recommends 40% to 70% (50% standard optimum)</small>
+      </div>
+
+      <!-- Nut Factor (K) Friction -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_nutFactor">Nut Factor (K Friction)</label>
+        <select id="flange_nutFactor" class="calc-clean-select">
+          <option value="0.13" selected>K = 0.13 (Nickel/Copper Anti-Seize Paste)</option>
+          <option value="0.15">K = 0.15 (Molybdenum Disulfide Paste / Heavy Oil)</option>
+          <option value="0.18">K = 0.18 (Light Machine Oil / Zinc Phosphate)</option>
+          <option value="0.20">K = 0.20 (Dry / As-Received Steel Threads)</option>
+        </select>
+        <small class="calc-clean-help">Lubrication factor for thread flanks and nut bearing face</small>
+      </div>
+
+      <!-- Gasket Style & Factors -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_gasketType">Gasket Material & Style</label>
+        <select id="flange_gasketType" class="calc-clean-select">
+          <option value="spiral_wound" selected>Spiral Wound with Inner Ring (m=3.0, y=10,000 psi)</option>
+          <option value="kammprofile">Kammprofile Grooved Metal (m=4.0, y=4,000 psi)</option>
+          <option value="compressed_fiber">Compressed Fiber / PTFE (m=2.0, y=2,000 psi)</option>
+          <option value="rtj_iron">RTJ Octagonal Soft Iron Ring (m=5.5, y=18,000 psi)</option>
+          <option value="sheet_rubber">Sheet Elastomer / Neoprene (m=1.0, y=200 psi)</option>
+        </select>
+        <small class="calc-clean-help">ASME Section VIII Div 1 Appendix 2 gasket design factors</small>
+      </div>
+
+      <!-- Internal Design Pressure (P) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_pressure">Internal Design Pressure (P)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="flange_pressure" class="calc-clean-input" value="450" min="0" max="10000" step="25">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">psig</span>
+        </div>
+        <small class="calc-clean-help">Maximum line operating or hydrotest pressure</small>
+      </div>
+
+      <!-- Gasket Outer Diameter -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_gasketOD">Gasket Sealing Outer Dia (OD)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="flange_gasketOD" class="calc-clean-input" value="8.50" min="1.0" max="60.0" step="0.125">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">in</span>
+        </div>
+        <small class="calc-clean-help">Raised face gasket sealing contact outside diameter</small>
+      </div>
+
+      <!-- Gasket Inner Diameter -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_gasketID">Gasket Sealing Inner Dia (ID)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="flange_gasketID" class="calc-clean-input" value="6.62" min="0.5" max="58.0" step="0.125">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">in</span>
+        </div>
+        <small class="calc-clean-help">Raised face gasket sealing contact inside diameter</small>
+      </div>
+
+      <!-- Effective Grip Length (Le) -->
+      <div class="calc-clean-field">
+        <label class="calc-clean-label" for="flange_gripLen">Effective Grip Length (Le)</label>
+        <div class="calc-clean-input-group">
+          <input type="number" id="flange_gripLen" class="calc-clean-input" value="3.75" min="1.0" max="36.0" step="0.25">
+          <span style="display:flex; align-items:center; padding:0 0.75rem; background:rgba(255,255,255,0.05); border:1px solid #334155; border-radius:0 6px 6px 0; color:#94a3b8; font-weight:600;">in</span>
+        </div>
+        <small class="calc-clean-help">2 × Flange thickness + gasket thickness + nut face allowance</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-Time Output Metrics -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Bolt Preload, Make-Up Torque & Gasket Integrity Performance</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+      <!-- Target Torque -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Target Make-Up Torque</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="flange_res_torque">143 ft-lb</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="flange_res_torquenm">194 N·m (Single Bolt)</div>
+      </div>
+
+      <!-- Bolt Preload -->
+      <div style="background: rgba(14, 165, 233, 0.1); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Bolt Preload Force (Fb)</div>
+        <div style="color: #38bdf8; font-size: 1.8rem; font-weight: 700; margin: 0.3rem 0;" id="flange_res_preload">17,561 lb/bolt</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="flange_res_totalpreload">Total Clamp: 210,735 lb (105.4 tons)</div>
+      </div>
+
+      <!-- Bolt Stretch Elongation -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Bolt Stretch Elongation (ΔL)</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="flange_res_stretch">6.67 mils</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="flange_res_stretchmm">0.169 mm (0.0067 in)</div>
+      </div>
+
+      <!-- Gasket Seating Stress -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Gasket Compressive Stress</div>
+        <div style="color: #f8fafc; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="flange_res_gasketstress">9,445 psi</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="flange_res_gasketmargin">ASME Seating y = 10,000 psi</div>
+      </div>
+
+      <!-- ASME VIII Margin Ratio -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">ASME Section VIII Margin</div>
+        <div style="color: #10b981; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="flange_res_asmemargin">2.14x Required</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="flange_res_wm">W_min: 98,400 lb</div>
+      </div>
+
+      <!-- Gasket Crush Status -->
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #334155; border-radius: 8px; padding: 1rem; text-align: center;">
+        <div style="color: #94a3b8; font-size: 0.85rem; text-transform: uppercase; font-weight: 600;">Gasket Crush Verification</div>
+        <div style="color: #10b981; font-size: 1.6rem; font-weight: 700; margin: 0.3rem 0;" id="flange_res_crushstatus">SAFE COMPRESSION</div>
+        <div style="color: #94a3b8; font-size: 0.8rem;" id="flange_res_crushlimit">38% of 25,000 psi Max Limit</div>
+      </div>
+    </div>
+
+    <!-- Flange Bolt Pattern & Star Sequence SVG -->
+    <div style="background: rgba(0,0,0,0.2); border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <h3 style="margin: 0; font-size: 1.1rem; color: #f8fafc;">ASME PCC-1 Star / Cross-Pattern Bolting Layout</h3>
+        <span style="font-size: 0.85rem; color: #94a3b8;" id="flange_svg_subtitle">12-Bolt Circular Geometry</span>
+      </div>
+      <div id="flange_svg_wrap" style="width: 100%; overflow-x: auto; text-align: center;">
+        <!-- Dynamic SVG populated here -->
+      </div>
+
+      <!-- 4-Pass Sequence Table -->
+      <div style="overflow-x: auto; margin-top: 1.25rem;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+          <thead>
+            <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+              <th style="padding: 8px;">Tightening Pass</th>
+              <th style="padding: 8px;">% Target Torque</th>
+              <th style="padding: 8px;">Target Torque</th>
+              <th style="padding: 8px;">Bolt Pattern</th>
+              <th style="padding: 8px;">Purpose & Verification</th>
+            </tr>
+          </thead>
+          <tbody id="flange_pass_table">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Actionable Copy Button -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+      <button type="button" id="copyFlangeAuditBtn" class="calc-clean-btn" style="background: #0284c7; color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 6px; border: none; cursor: pointer;">
+        Copy Flange Bolting Audit
+      </button>
+      <span style="color: #94a3b8; font-size: 0.85rem;">Formatted per ASME PCC-1 Table O-1 & ASME B16.5 / Section VIII</span>
+    </div>
+
+    <!-- Diagnostic Audit Summary -->
+    <div style="margin-top: 1.25rem;">
+      <label class="calc-clean-label" for="flangeAuditBox">Joint Integrity & Torque Verification Log</label>
+      <textarea id="flangeAuditBox" class="calc-clean-textarea" readonly style="width: 100%; height: 160px; font-family: monospace; font-size: 0.85rem; background: #0f172a; color: #e2e8f0; border: 1px solid #334155; border-radius: 6px; padding: 0.75rem; box-sizing: border-box;"></textarea>
+    </div>
+  </div>
+
+  <!-- Educational Deep-Dive & Physics Derivation -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Engineering Physics of Bolted Flange Joints (ASME PCC-1 & Section VIII)</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      A pressure-containing flanged joint is a multi-element spring system comprising four elastic members: the studs in tension, the flange rings in angular bending, the pipe shell in shear, and the gasket in non-linear elastomeric compression. The fundamental requirement of make-up bolting is to impart sufficient compressive stress on the gasket contact area to achieve initial seating and prevent fluid migration during thermal cycling, pressure surges, and external pipe bending moments.
+    </p>
+
+    <!-- Spec Table -->
+    <div style="overflow-x: auto; margin: 1.5rem 0;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem; color: #cbd5e1;">
+        <thead>
+          <tr style="background: rgba(2, 132, 199, 0.2); border-bottom: 2px solid #0284c7; color: #f8fafc;">
+            <th style="padding: 10px;">Gasket Technology</th>
+            <th style="padding: 10px;">ASME Maintenance Factor (m)</th>
+            <th style="padding: 10px;">ASME Seating Stress (y)</th>
+            <th style="padding: 10px;">Max Allowable Stress (Sg,max)</th>
+            <th style="padding: 10px;">Typical Application Service</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Spiral Wound (Inner Ring)</td>
+            <td style="padding: 10px;">3.00</td>
+            <td style="padding: 10px;">10,000 psi (69 MPa)</td>
+            <td style="padding: 10px; color: #10b981;">25,000 – 30,000 psi</td>
+            <td style="padding: 10px;">Refinery, steam, ASME B16.5 Class 150–600</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Kammprofile Grooved Metal</td>
+            <td style="padding: 10px;">4.00</td>
+            <td style="padding: 10px;">4,000 psi (28 MPa)</td>
+            <td style="padding: 10px; color: #10b981;">35,000 – 50,000 psi</td>
+            <td style="padding: 10px;">Heat exchanger channels, severe thermal cycling</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155;">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">Compressed Fiber / PTFE</td>
+            <td style="padding: 10px;">2.00</td>
+            <td style="padding: 10px;">2,000 psi (14 MPa)</td>
+            <td style="padding: 10px; color: #f59e0b;">15,000 psi</td>
+            <td style="padding: 10px;">Chemical processing, utility water, low pressure</td>
+          </tr>
+          <tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">
+            <td style="padding: 10px; font-weight: 600; color: #38bdf8;">RTJ Octagonal Ring (Soft Iron)</td>
+            <td style="padding: 10px;">5.50</td>
+            <td style="padding: 10px;">18,000 psi (124 MPa)</td>
+            <td style="padding: 10px; color: #10b981;">45,000 – 60,000 psi</td>
+            <td style="padding: 10px;">High pressure upstream oil & gas (Class 900–2500)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Target Bolt Preload & Make-Up Torque Formulas</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Per ASME PCC-1 guidelines, the target assembly bolt stress \(\sigma_b\) is established as a fraction of the stud material's ambient yield strength \(S_y\) (typically 50%):
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      F_b = \sigma_b \cdot A_b = (\%S_y \cdot S_y) \cdot A_b \\\\
+      A_b = \frac{\pi}{4} \left( D - \frac{0.9743}{n_{tpi}} \right)^2
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Where \(A_b\) is the thread tensile stress area per ASME B1.1 (8-UN thread series for bolts \(\ge 1.0\) inch, UNC for smaller sizes). The required make-up torque \(T\) is governed by the short-form torque relation:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      T = \frac{K \cdot D \cdot F_b}{12} \quad \text{[ft-lb]} \qquad \text{(or } T = K \cdot D \cdot F_b \text{ in [N\cdot m] with SI dimensions)}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Where \(K\) is the empirical nut factor combining thread pitch helix angle, thread flank friction, and nut face collar friction. Approximately <strong>90% of applied torque is consumed by friction</strong>, with only 10% converted into axial clamp force.
+    </p>
+
+    <h3 style="color: #f8fafc; font-size: 1.15rem; margin-top: 1.5rem;">Direct Bolt Elongation Verification (Hooke's Law)</h3>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Because torque measurement suffers from significant friction scatter (\(\pm 25\%\) to \(\pm 35\%\)), critical high-pressure joints utilize direct axial stretch measurement using ultrasonic tension gauges or depth micrometers:
+    </p>
+    <div style="background: #0f172a; border-left: 4px solid #0284c7; padding: 1rem; border-radius: 0 6px 6px 0; margin: 1rem 0; font-family: monospace; color: #e2e8f0;">
+      \Delta L = \frac{F_b \cdot L_e}{A_b \cdot E}
+    </div>
+    <p style="color: #cbd5e1; line-height: 1.6;">
+      Where \(L_e\) is effective grip length and \(E = 29.5 \times 10^6\) psi for carbon/alloy steels (\(28.0 \times 10^6\) psi for 300-series stainless steel).
+    </p>
+  </div>
+
+  <!-- Worked Step-by-Step Example -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">Worked Engineering Example: Torquing an 8" Class 300 Flange</h2>
+    <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 1rem;">
+      <strong>Design Objective:</strong> Determine target bolt preload, make-up torque, bolt stretch, and verify gasket seating for an 8" Class 300 raised face flange with 12 × 7/8" ASTM A193 B7 studs, spiral-wound gasket (8.62" ID × 10.62" OD), design pressure 450 psig, target stress 50% of yield, lubricated with nickel anti-seize (\(K = 0.13\)), and grip length \(L_e = 4.25\) inches.
+    </p>
+    <ol style="color: #cbd5e1; line-height: 1.8; margin-left: 1.5rem;">
+      <li>
+        <strong>Calculate Bolt Tensile Area & Target Preload:</strong><br>
+        For 7/8"-9 UNC stud: \(A_b = \frac{\pi}{4}(0.875 - \frac{0.9743}{9})^2 = 0.462\) sq in.<br>
+        For ASTM A193 B7: \(S_y = 105,000\) psi.<br>
+        Target bolt stress: \(\sigma_b = 0.50 \times 105,000 = 52,500\) psi.<br>
+        Preload per bolt: \(F_b = 52,500 \times 0.462 = \mathbf{24,255\text{ lb/bolt}}\).<br>
+        Total flange clamping force: \(F_{total} = 12 \times 24,255 = \mathbf{291,060\text{ lb}}\).
+      </li>
+      <li>
+        <strong>Determine Make-Up Assembly Torque:</strong><br>
+        \(T = \frac{0.13 \times 0.875 \times 24,255}{12} = \mathbf{230\text{ ft-lb}}\).<br>
+        SI Metric Equivalent: \(230 \times 1.3558 = \mathbf{312\text{ N\cdot m}}\).
+      </li>
+      <li>
+        <strong>Calculate Bolt Stretch Elongation:</strong><br>
+        \(\Delta L = \frac{24,255 \times 4.25}{0.462 \times 29.5 \times 10^6} = 0.00756\text{ in} = \mathbf{7.56\text{ mils}}\ (0.192\text{ mm}).
+      </li>
+      <li>
+        <strong>ASME Section VIII Div 1 Appendix 2 Gasket Seating Verification:</strong><br>
+        Gasket width: \(w = (10.62 - 8.62)/2 = 1.00\) in; \(b_0 = 0.50\) in.<br>
+        Effective width: \(b = 0.5\sqrt{0.50} = 0.354\) in.<br>
+        Mean gasket diameter: \(G = 10.62 - 2(0.354) = 9.912\) in.<br>
+        Gasket seating load: \(W_{m2} = \pi \times 0.354 \times 9.912 \times 10,000 = \mathbf{110,250\text{ lb}}\).<br>
+        Operating load: \(H = \frac{\pi}{4}(9.912)^2(450) = 34,720\) lb; \(H_p = 2(0.354)\pi(9.912)(3.0)(450) = 29,760\) lb.<br>
+        \(W_{m1} = 34,720 + 29,760 = 64,480\) lb.<br>
+        Required load: \(W_{min} = \max(64,480, 110,250) = 110,250\) lb.<br>
+        Total bolt preload (291,060 lb) provides a <strong>2.64× margin</strong> over ASME statutory minimum.
+      </li>
+      <li>
+        <strong>Gasket Crush Check:</strong><br>
+        Gasket contact area: \(A_g = \frac{\pi}{4}(10.62^2 - 8.62^2) = 30.22\) sq in.<br>
+        Gasket compressive stress: \(S_g = \frac{291,060}{30.22} = \mathbf{9,631\text{ psi}}\).<br>
+        Well below the 25,000 psi crush limit for spiral-wound gaskets (38.5% capacity).
+      </li>
+    </ol>
+  </div>
+
+  <!-- 5 Fatal Traps & Failure Modes -->
+  <div class="calc-clean-card">
+    <h2 class="calc-clean-subtitle">5 Fatal Traps in Flange Bolting & Make-Up Torque</h2>
+    
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #ef4444; margin-top: 0;">1. The Nut Factor Friction Trap (Dry vs Lubricated)</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Nut factor \(K\) ranges from 0.12 (well-lubricated with nickel anti-seize) to 0.22+ (dry, rusty, or cadmium plated). Applying a torque calculated for \(K=0.13\) onto dry bolts (\(K=0.20\)) results in <strong>35% to 50% under-tensioning</strong>, causing guaranteed joint leakage under hydrotest. Conversely, applying a dry-torque value to well-greased studs will over-stress the bolts past their ultimate tensile strength, shearing the studs or crushing the flange face.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #f59e0b; margin-top: 0;">2. Elastic Interaction & Cross-Talk Relaxation</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        When a bolt is torqued, it compresses the flange and gasket locally. Tightening adjacent bolts bends the flange further and unloads the previously tightened bolt by <strong>15% to 35%</strong>. A joint tightened in a single circular pass will have bolts near the starting point loose enough to turn by hand. A strict 4-pass cross-pattern (30% → 70% → 100% star, followed by 100% rotational) is mandatory to equalize residual clamp force.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #10b981; margin-top: 0;">3. Gasket Crushing & Inward Buckling</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Spiral-wound gaskets without an internal metallic retaining ring can buckle inward toward the pipe bore when bolt stress exceeds 25,000 to 30,000 psi on the gasket contact area. Buckling destroys the graphite seal and sheds metal strips directly into downstream pumps and valves. Always verify that calculated gasket compressive stress does not exceed \(S_{g,max}\).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #3b82f6; margin-top: 0;">4. High-Temperature Creep Relaxation</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        ASTM A193 B7 bolts experience thermal relaxation and microstructural creep at sustained operating temperatures exceeding 750°F (400°C), losing up to 40% of their initial preload within weeks. For operating temperatures between 750°F and 1,000°F (538°C), engineers must specify ASTM A193 Grade B16 (vanadium-stabilized chrome-moly) or Inconel 718 studs and install live-load disc springs (Belleville washers).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px;">
+      <h3 style="color: #8b5cf6; margin-top: 0;">5. Flange Misalignment & Uneven Gap Pinching</h3>
+      <p style="color: #cbd5e1; line-height: 1.6; margin-bottom: 0;">
+        Attempting to pull misaligned or cocked pipe flanges into parallel alignment using bolting torque concentrates the entire clamping load onto two or three bolts. This crushes one side of the gasket to metal-to-metal contact while leaving the diametrically opposed quadrant uncompressed, guaranteeing an uncontrollable leak upon pressurization.
+      </p>
+    </div>
+  </div>
+
+  <!-- Real-Time Dynamic Scripts -->
+  <script>
+  (function() {
+    const PRESETS = {
+      '6_150': { dia: 0.75, n: 8, god: 8.50, gid: 6.62, grip: 3.25, pr: 150 },
+      '6_300': { dia: 0.75, n: 12, god: 8.50, gid: 6.62, grip: 3.75, pr: 450 },
+      '6_600': { dia: 1.00, n: 12, god: 8.50, gid: 6.62, grip: 5.00, pr: 900 },
+      '8_150': { dia: 0.75, n: 8, god: 10.62, gid: 8.62, grip: 3.50, pr: 150 },
+      '8_300': { dia: 0.875, n: 12, god: 10.62, gid: 8.62, grip: 4.25, pr: 450 },
+      '8_600': { dia: 1.125, n: 12, god: 10.62, gid: 8.62, grip: 6.00, pr: 900 },
+      '12_150': { dia: 0.875, n: 12, god: 15.00, gid: 12.75, grip: 4.00, pr: 150 },
+      '12_300': { dia: 1.125, n: 16, god: 15.00, gid: 12.75, grip: 5.50, pr: 450 },
+      '12_600': { dia: 1.250, n: 20, god: 15.00, gid: 12.75, grip: 7.25, pr: 900 }
+    };
+
+    const BOLTS = {
+      0.500: { tpi: 13, ab: 0.1419 },
+      0.625: { tpi: 11, ab: 0.2260 },
+      0.750: { tpi: 10, ab: 0.3345 },
+      0.875: { tpi: 9,  ab: 0.4620 },
+      1.000: { tpi: 8,  ab: 0.6057 },
+      1.125: { tpi: 8,  ab: 0.7900 },
+      1.250: { tpi: 8,  ab: 0.9990 },
+      1.375: { tpi: 8,  ab: 1.2330 },
+      1.500: { tpi: 8,  ab: 1.4920 },
+      1.750: { tpi: 8,  ab: 2.0800 },
+      2.000: { tpi: 8,  ab: 2.7700 }
+    };
+
+    const MATERIALS = {
+      b7: { sy: 105000, name: 'ASTM A193 B7' },
+      b8_cl2: { sy: 65000, name: 'ASTM A193 B8 Cl 2' },
+      b16: { sy: 105000, name: 'ASTM A193 B16' },
+      l7: { sy: 105000, name: 'ASTM A320 L7' },
+      grade8: { sy: 130000, name: 'SAE J429 Grade 8' }
+    };
+
+    const GASKETS = {
+      spiral_wound: { m: 3.0, y: 10000, smax: 25000, name: 'Spiral Wound with Ring' },
+      kammprofile: { m: 4.0, y: 4000, smax: 35000, name: 'Kammprofile' },
+      compressed_fiber: { m: 2.0, y: 2000, smax: 15000, name: 'Compressed Fiber/PTFE' },
+      rtj_iron: { m: 5.5, y: 18000, smax: 45000, name: 'RTJ Octagonal Ring' },
+      sheet_rubber: { m: 1.0, y: 200, smax: 3000, name: 'Sheet Rubber' }
+    };
+
+    const presetSelect = document.getElementById('flange_preset');
+    const boltDiaSelect = document.getElementById('flange_boltDia');
+    const numBoltsInput = document.getElementById('flange_numBolts');
+    const boltMatSelect = document.getElementById('flange_boltMat');
+    const targetStressInput = document.getElementById('flange_targetStress');
+    const nutFactorSelect = document.getElementById('flange_nutFactor');
+    const gasketTypeSelect = document.getElementById('flange_gasketType');
+    const pressureInput = document.getElementById('flange_pressure');
+    const gasketODInput = document.getElementById('flange_gasketOD');
+    const gasketIDInput = document.getElementById('flange_gasketID');
+    const gripLenInput = document.getElementById('flange_gripLen');
+
+    const resTorque = document.getElementById('flange_res_torque');
+    const resTorqueNm = document.getElementById('flange_res_torquenm');
+    const resPreload = document.getElementById('flange_res_preload');
+    const resTotalPreload = document.getElementById('flange_res_totalpreload');
+    const resStretch = document.getElementById('flange_res_stretch');
+    const resStretchMm = document.getElementById('flange_res_stretchmm');
+    const resGasketStress = document.getElementById('flange_res_gasketstress');
+    const resGasketMargin = document.getElementById('flange_res_gasketmargin');
+    const resAsmeMargin = document.getElementById('flange_res_asmemargin');
+    const resWm = document.getElementById('flange_res_wm');
+    const resCrushStatus = document.getElementById('flange_res_crushstatus');
+    const resCrushLimit = document.getElementById('flange_res_crushlimit');
+    const passTable = document.getElementById('flange_pass_table');
+    const auditBox = document.getElementById('flangeAuditBox');
+    const svgWrap = document.getElementById('flange_svg_wrap');
+    const svgSubtitle = document.getElementById('flange_svg_subtitle');
+
+    function applyPreset() {
+      const pKey = presetSelect.value;
+      if (pKey !== 'custom' && PRESETS[pKey]) {
+        const p = PRESETS[pKey];
+        boltDiaSelect.value = p.dia.toFixed(3).replace(/\.?0+$/, '') || p.dia;
+        numBoltsInput.value = p.n;
+        gasketODInput.value = p.god.toFixed(2);
+        gasketIDInput.value = p.gid.toFixed(2);
+        gripLenInput.value = p.grip.toFixed(2);
+        pressureInput.value = p.pr;
+      }
+      calculate();
+    }
+
+    function calculate() {
+      const D = parseFloat(boltDiaSelect.value) || 0.75;
+      const n = parseInt(numBoltsInput.value, 10) || 12;
+      const matKey = boltMatSelect.value;
+      const pctYield = parseFloat(targetStressInput.value) || 50;
+      const K = parseFloat(nutFactorSelect.value) || 0.13;
+      const gaskKey = gasketTypeSelect.value;
+      const P = parseFloat(pressureInput.value) || 0;
+      const god = parseFloat(gasketODInput.value) || 8.5;
+      const gid = parseFloat(gasketIDInput.value) || 6.62;
+      const Le = parseFloat(gripLenInput.value) || 3.75;
+
+      const mat = MATERIALS[matKey] || MATERIALS.b7;
+      const gask = GASKETS[gaskKey] || GASKETS.spiral_wound;
+
+      let Ab = 0;
+      if (BOLTS[D]) {
+        Ab = BOLTS[D].ab;
+      } else {
+        const tpi = D <= 1.0 ? (D === 0.75 ? 10 : (D === 0.875 ? 9 : 8)) : 8;
+        Ab = (Math.PI / 4) * Math.pow(D - 0.9743 / tpi, 2);
+      }
+
+      const Sy = mat.sy;
+      const targetStress = (pctYield / 100) * Sy;
+      const Fb = targetStress * Ab;
+      const Ftotal = n * Fb;
+
+      const torqueFtLb = (K * D * Fb) / 12;
+      const torqueNm = torqueFtLb * 1.355818;
+
+      const E = (matKey === 'b8_cl2') ? 28.0e6 : 29.5e6;
+      const deltaL = (Fb * Le) / (Ab * E);
+      const deltaLMils = deltaL * 1000;
+      const deltaLMm = deltaL * 25.4;
+
+      const w = (god - gid) / 2;
+      const b0 = w / 2;
+      const b = b0 <= 0.25 ? b0 : 0.5 * Math.sqrt(b0);
+      const G = god - 2 * b;
+
+      const Wm2 = Math.PI * b * G * gask.y;
+      const H = (Math.PI / 4) * Math.pow(G, 2) * P;
+      const Hp = 2 * b * Math.PI * G * gask.m * P;
+      const Wm1 = H + Hp;
+      const Wmin = Math.max(Wm1, Wm2);
+
+      const asmeMargin = Wmin > 0 ? (Ftotal / Wmin) : 1.0;
+
+      const Agask = (Math.PI / 4) * (Math.pow(god, 2) - Math.pow(gid, 2));
+      const gasketStress = Agask > 0 ? (Ftotal / Agask) : 0;
+      const crushExceeded = gasketStress > gask.smax;
+
+      // Update UI
+      resTorque.textContent = Math.round(torqueFtLb).toLocaleString() + ' ft-lb';
+      resTorqueNm.textContent = Math.round(torqueNm).toLocaleString() + ' N·m (' + Math.round(targetStress).toLocaleString() + ' psi stress)';
+
+      resPreload.textContent = Math.round(Fb).toLocaleString() + ' lb/bolt';
+      resTotalPreload.textContent = 'Total Clamp: ' + Math.round(Ftotal).toLocaleString() + ' lb (' + (Ftotal / 2000).toFixed(1) + ' tons)';
+
+      resStretch.textContent = deltaLMils.toFixed(2) + ' mils';
+      resStretchMm.textContent = deltaLMm.toFixed(3) + ' mm (' + deltaL.toFixed(4) + ' in) | Le=' + Le + ' in.';
+
+      resGasketStress.textContent = Math.round(gasketStress).toLocaleString() + ' psi';
+      resGasketMargin.textContent = 'ASME Seating y = ' + gask.y.toLocaleString() + ' psi';
+
+      resAsmeMargin.textContent = asmeMargin.toFixed(2) + 'x Required';
+      resAsmeMargin.style.color = asmeMargin >= 1.0 ? '#10b981' : '#ef4444';
+      resWm.textContent = 'W_min: ' + Math.round(Wmin).toLocaleString() + ' lb';
+
+      resCrushStatus.textContent = crushExceeded ? 'CRUSH HAZARD' : 'SAFE COMPRESSION';
+      resCrushStatus.style.color = crushExceeded ? '#ef4444' : '#10b981';
+      resCrushLimit.textContent = (gask.smax > 0 ? ((gasketStress / gask.smax) * 100).toFixed(0) : 0) + '% of ' + gask.smax.toLocaleString() + ' psi Max Limit';
+
+      // Update Pass Table
+      const p1 = Math.round(torqueFtLb * 0.30);
+      const p2 = Math.round(torqueFtLb * 0.70);
+      const p3 = Math.round(torqueFtLb * 1.00);
+      const p4 = p3;
+
+      passTable.innerHTML = 
+        '<tr style="border-bottom: 1px solid #334155;">' +
+          '<td style="padding: 8px; font-weight: 600;">Pass 1</td>' +
+          '<td style="padding: 8px;">30%</td>' +
+          '<td style="padding: 8px; color: #38bdf8; font-weight: bold;">' + p1 + ' ft-lb (' + Math.round(p1 * 1.3558) + ' N·m)</td>' +
+          '<td style="padding: 8px;">Star / Cross Pattern</td>' +
+          '<td style="padding: 8px;">Initial gasket seating & alignment</td>' +
+        '</tr>' +
+        '<tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">' +
+          '<td style="padding: 8px; font-weight: 600;">Pass 2</td>' +
+          '<td style="padding: 8px;">70%</td>' +
+          '<td style="padding: 8px; color: #38bdf8; font-weight: bold;">' + p2 + ' ft-lb (' + Math.round(p2 * 1.3558) + ' N·m)</td>' +
+          '<td style="padding: 8px;">Star / Cross Pattern</td>' +
+          '<td style="padding: 8px;">Intermediate uniform compression</td>' +
+        '</tr>' +
+        '<tr style="border-bottom: 1px solid #334155;">' +
+          '<td style="padding: 8px; font-weight: 600;">Pass 3</td>' +
+          '<td style="padding: 8px;">100%</td>' +
+          '<td style="padding: 8px; color: #38bdf8; font-weight: bold;">' + p3 + ' ft-lb (' + Math.round(p3 * 1.3558) + ' N·m)</td>' +
+          '<td style="padding: 8px;">Star / Cross Pattern</td>' +
+          '<td style="padding: 8px;">Full target design clamp preload</td>' +
+        '</tr>' +
+        '<tr style="border-bottom: 1px solid #334155; background: rgba(255,255,255,0.01);">' +
+          '<td style="padding: 8px; font-weight: 600;">Pass 4</td>' +
+          '<td style="padding: 8px;">100%</td>' +
+          '<td style="padding: 8px; color: #10b981; font-weight: bold;">' + p4 + ' ft-lb (' + Math.round(p4 * 1.3558) + ' N·m)</td>' +
+          '<td style="padding: 8px;">Clockwise Rotational Circular</td>' +
+          '<td style="padding: 8px;">Equalize relaxation until zero nut movement</td>' +
+        '</tr>';
+
+      // Update Audit Box
+      const auditText = 
+        '=======================================================\n' +
+        '   PIPE FLANGE BOLT PRELOAD & TORQUE AUDIT            \n' +
+        '=======================================================\n' +
+        'Flange Configuration:      ' + n + ' × ' + D + '\" Studs (' + mat.name + ', Sy = ' + Sy.toLocaleString() + ' psi)\n' +
+        'Gasket Type & Size:        ' + gask.name + ' (' + gid + '\" ID × ' + god + '\" OD)\n' +
+        'Internal Design Pressure:  ' + P + ' psig\n' +
+        'Nut Factor Lubrication:    K = ' + K.toFixed(2) + ' (' + nutFactorSelect.options[nutFactorSelect.selectedIndex].text.split('(')[0].trim() + ')\n' +
+        'Target Bolt Stress:        ' + pctYield + '% of Sy (' + Math.round(targetStress).toLocaleString() + ' psi)\n' +
+        '-------------------------------------------------------\n' +
+        'TARGET MAKE-UP TORQUE:     ' + Math.round(torqueFtLb).toLocaleString() + ' ft-lb (' + Math.round(torqueNm).toLocaleString() + ' N·m)\n' +
+        '  - Pass 1 (30% Star):     ' + p1 + ' ft-lb\n' +
+        '  - Pass 2 (70% Star):     ' + p2 + ' ft-lb\n' +
+        '  - Pass 3 (100% Star):    ' + p3 + ' ft-lb\n' +
+        '  - Pass 4 (100% Circular):' + p4 + ' ft-lb (Rotational until nuts stop moving)\n' +
+        '-------------------------------------------------------\n' +
+        'Bolt Preload (per bolt):   ' + Math.round(Fb).toLocaleString() + ' lb (' + (Fb / 1000).toFixed(2) + ' kips)\n' +
+        'Total Flange Clamping:     ' + Math.round(Ftotal).toLocaleString() + ' lb (' + (Ftotal / 2000).toFixed(1) + ' tons force)\n' +
+        'Bolt Stretch Elongation:   ' + deltaLMils.toFixed(2) + ' mils (' + deltaLMm.toFixed(3) + ' mm at Le = ' + Le + '\")\n' +
+        'Gasket Compressive Stress: ' + Math.round(gasketStress).toLocaleString() + ' psi (ASME VIII seating y = ' + gask.y.toLocaleString() + ' psi)\n' +
+        'ASME Section VIII Margin:  ' + asmeMargin.toFixed(2) + 'x Required Bolt Load (Wmin = ' + Math.round(Wmin).toLocaleString() + ' lb)\n' +
+        'Gasket Crush Integrity:    ' + (crushExceeded ? 'CRUSH EXCEEDED (> ' + gask.smax + ' psi)' : 'SAFE COMPRESSION (' + ((gasketStress/gask.smax)*100).toFixed(0) + '% of limit)') + '\n' +
+        'Standards Compliance:      ASME PCC-1 Appendix O & ASME Section VIII Div 1 App 2\n' +
+        '=======================================================';
+      auditBox.textContent = auditText;
+
+      svgSubtitle.textContent = n + '-Bolt Circular Pattern (' + D + '\" Studs)';
+      renderSvg(n);
+    }
+
+    function renderSvg(n) {
+      const size = 300;
+      const cx = size / 2;
+      const cy = size / 2;
+      const rOuter = 135;
+      const rBC = 100;
+      const rGasket = 70;
+      const rInner = 45;
+
+      let svg = '<svg viewBox="0 0 ' + size + ' ' + size + '" width="280" height="280" style="overflow:visible; font-family:sans-serif;">';
+      
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rOuter + '" fill="#1e293b" stroke="#475569" stroke-width="4" />';
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rBC + '" fill="none" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" />';
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rGasket + '" fill="#0f766e" fill-opacity="0.3" stroke="#14b8a6" stroke-width="2" />';
+      svg += '<circle cx="' + cx + '" cy="' + cy + '" r="' + rInner + '" fill="#0f172a" stroke="#334155" stroke-width="3" />';
+      svg += '<text x="' + cx + '" y="' + (cy + 4) + '" fill="#94a3b8" font-size="11" text-anchor="middle">PIPE BORE</text>';
+
+      const bolts = [];
+      for (let i = 0; i < n; i++) {
+        const theta = (2 * Math.PI * i) / n - Math.PI / 2;
+        const bx = cx + rBC * Math.cos(theta);
+        const by = cy + rBC * Math.sin(theta);
+        bolts.push({ x: bx, y: by, idx: i + 1 });
+      }
+
+      if (n >= 4) {
+        for (let i = 0; i < Math.min(n / 2, 4); i++) {
+          const b1 = bolts[i];
+          const b2 = bolts[(i + Math.floor(n / 2)) % n];
+          svg += '<line x1="' + b1.x + '" y1="' + b1.y + '" x2="' + b2.x + '" y2="' + b2.y + '" stroke="#0ea5e9" stroke-width="1" stroke-dasharray="3,3" opacity="0.6" />';
+        }
+      }
+
+      const boltR = Math.max(7, Math.min(13, 140 / n));
+      for (let i = 0; i < n; i++) {
+        const b = bolts[i];
+        svg += '<circle cx="' + b.x + '" cy="' + b.y + '" r="' + boltR + '" fill="#0284c7" stroke="#38bdf8" stroke-width="2" />';
+        svg += '<text x="' + b.x + '" y="' + (b.y + 3.5) + '" fill="#ffffff" font-size="' + (boltR > 9 ? 10 : 8) + '" font-weight="bold" text-anchor="middle">' + (i + 1) + '</text>';
+      }
+
+      svg += '</svg>';
+      svgWrap.innerHTML = svg;
+    }
+
+    document.getElementById('copyFlangeAuditBtn').addEventListener('click', function() {
+      const text = auditBox.textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copyFlangeAuditBtn');
+        const origHtml = btn.innerHTML;
+        btn.innerHTML = '<span>✓ Copied Flange Bolting Audit!</span>';
+        btn.style.background = '#16a34a';
+        setTimeout(function() {
+          btn.innerHTML = origHtml;
+          btn.style.background = '';
+        }, 2000);
+      });
+    });
+
+    presetSelect.addEventListener('change', applyPreset);
+    [boltDiaSelect, numBoltsInput, boltMatSelect, targetStressInput, nutFactorSelect, gasketTypeSelect, pressureInput, gasketODInput, gasketIDInput, gripLenInput].forEach(el => {
+      el.addEventListener('input', calculate);
+      el.addEventListener('change', calculate);
+    });
+
+    calculate();
+  })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'pipe-flange-bolt-torque-preload-calculator.html'), renderTradePage({
+    title: "Pipe Flange Bolt Preload & Make-Up Torque Calculator | ASME PCC-1 & Section VIII",
+    metaDesc: "Calculate target bolt preload, assembly make-up torque, bolt stretch elongation, and gasket seating stress for industrial pipe flanges per ASME PCC-1 Appendix O and ASME Section VIII.",
+    canonical: `${DOMAIN}/calc/pipe-flange-bolt-torque-preload-calculator`,
+    bodyContent: flangeTorqueBody,
+    currentPath: '/calc/pipe-flange-bolt-torque-preload-calculator',
+    faq: [
+      {
+        "q": "What is the physical difference between bolt preload and make-up torque?",
+        "a": "Bolt preload is the axial tensile clamping force (in pounds or kilo-Newtons) developed inside the bolt shank that holds the flange faces together. Make-up torque is the rotational moment applied to the nut (in ft-lb or N·m) to overcome friction and stretch the stud. Torque is merely an indirect, friction-dependent mechanism to achieve the desired clamp force."
+      },
+      {
+        "q": "Why does ASME PCC-1 recommend targeting 40% to 70% of bolt yield strength?",
+        "a": "Targeting below 40% of yield provides inadequate clamp load to withstand pressure surges, thermal cycling, and joint relaxation, leading to leaks. Targeting above 70% risks yielding or shearing the bolt during manual torque overshoot or combined thermal expansion differential stresses. 50% represents the proven industry optimum."
+      },
+      {
+        "q": "How does lubrication affect the nut factor K?",
+        "a": "Nut factor K depends strictly on thread and nut collar lubrication. High-performance nickel or copper anti-seize paste yields K = 0.12 to 0.14 (0.13 standard). Heavy machine oil or moly paste yields K = 0.15 to 0.16. Unlubricated or rusty bolts have K = 0.20 to 0.25, which can reduce actual bolt preload by up to 50% for the same applied torque."
+      },
+      {
+        "q": "Why is a circular rotational pass required after star-pattern passes?",
+        "a": "Cross-pattern (star) passes inevitably leave subtle elastic interaction cross-talk and slight flange tilt. The final clockwise rotational pass at 100% torque touches every bolt sequentially, equalizing minor torque deficits until no nut rotates further, ensuring a flat, uniform gasket seal."
+      },
+      {
+        "q": "When should ultrasonic bolt stretch measurement be used instead of torque wrenches?",
+        "a": "Ultrasonic elongation measurement is recommended for critical high-consequence flanged joints, including hydrogen lines, lethal toxic chemical services (ASME B31.3 Category M), high-pressure heat exchanger girth flanges, and subsea tie-ins where 30% torque friction scatter cannot be tolerated."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (75 calculators in /calc/)');
 }
 
