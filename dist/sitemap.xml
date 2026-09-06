@@ -866,6 +866,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/crystallizer-cooling-evaporative-msmpr-yield-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/crystallizer-dtb-draft-tube-baffle-sizing-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -975,6 +981,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/days-to-years</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/deaerator-boiler-feedwater-tray-spray-steam-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1359,6 +1371,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/gas-orifice-meter-aga3-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/gas-permeation-membrane-separation-binary-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -2895,6 +2913,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/screw-conveyor-cema-capacity-power-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/screw-conveyor-flight-capacity-power-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
