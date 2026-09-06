@@ -144122,6 +144122,2436 @@ window.addEventListener('DOMContentLoaded', function() {
   })();
 
 
-  console.log('  ✓ Built Trade & Construction Suite (215 calculators in /calc/)');
+    // ─── TOOL BQ1: INDUSTRIAL CRYSTALLIZER SIZING & MSMPR CSD CALCULATOR ───
+  (() => {
+    const slug = 'industrial-crystallizer-msmpr-sizing-calculator';
+    const title = 'Industrial Crystallizer Sizing & Crystal Size Distribution Calculator (MSMPR)';
+    const metaDescription = 'Industrial continuous crystallizer design calculator using Randolph-Larson MSMPR population balance and Mersmann kinetics. Computes nucleation rate, crystal growth rate, mean residence time, dominant crystal size (L_D), magma suspension density, and vessel volume.';
+
+    const faq = [
+      {
+        q: 'What is the Mixed Suspension Mixed Product Removal (MSMPR) crystallizer model?',
+        a: 'The MSMPR model, developed by Randolph and Larson, is the fundamental population balance framework for continuous industrial crystallization. Under ideal steady-state conditions with unseeded feed and size-independent growth, the crystal population density n(L) decays exponentially with crystal size: n(L) = n_0 × exp(-L / (G × τ)), where n_0 is the zero-size nuclei population density, G is linear crystal growth rate (m/s), and τ is mean residence time (V / Q).'
+      },
+      {
+        q: 'What is dominant crystal size (L_D) and how is it related to growth rate and residence time?',
+        a: 'The dominant crystal size L_D represents the peak modal size on the mass or weight crystal size distribution (CSD) curve. In an MSMPR crystallizer, the dominant size is precisely three times the product of linear growth rate and residence time: L_D = 3 × G × τ. The median size L_50 is approximately 3.67 × G × τ. To produce coarser crystals, engineers must increase residence time (larger vessel) or suppress secondary nucleation.'
+      },
+      {
+        q: 'What is the difference between primary and secondary nucleation?',
+        a: 'Primary homogeneous nucleation occurs spontaneously in clear solution only at very high supersaturation beyond the metastable limit, creating an uncontrollable burst of microscopic fines. In contrast, industrial crystallizers operate safely within the metastable zone where secondary contact nucleation dominates, caused by collisions between existing crystals and high-speed impeller blades or vessel walls.'
+      },
+      {
+        q: 'What is magma suspension density and why is it controlled?',
+        a: 'Magma density (M_T) is the mass of suspended crystals per unit volume of slurry (typically 150 to 350 kg/m³ or 15% to 30% by volume). Adequate magma density provides sufficient crystal surface area to desupersaturate the solution through growth rather than unwanted spontaneous nucleation. Operating with magma density too low leads to supersaturation spikes and fine showers, while excessively high density causes slurry clogging and pump seizure.'
+      },
+      {
+        q: 'How does a Draft-Tube Baffle (DTB) crystallizer differ from an MSMPR unit?',
+        a: 'While an MSMPR removes slurry representative of the bulk mix, a Draft-Tube Baffle (DTB) crystallizer incorporates an internal settling baffle zone that allows fine crystals (< 50 microns) to be selectively withdrawn and dissolved in an external heat exchanger (fines destruction), and an elutriation leg that selectively discharges only coarse product crystals, producing significantly larger and more uniform crystals.'
+      }
+    ];
+
+    const content = `
+<div class="calc-card" style="margin-bottom: 2rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+    <div>
+      <h2 style="margin: 0; font-size: 1.35rem; color: #f8fafc;">Industrial Crystallizer Sizing & MSMPR Population Balancer</h2>
+      <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #94a3b8;">Randolph-Larson Population Balance & Mersmann Kinetic Design Engine</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <button type="button" class="btn" onclick="crySetPreset('nacl_evap')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Sodium Chloride (FC Evap)</button>
+      <button type="button" class="btn" onclick="crySetPreset('kcl_cooling')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Potassium Chloride (DTB)</button>
+      <button type="button" class="btn" onclick="crySetPreset('amsulf_cogen')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Ammonium Sulfate (OSLO)</button>
+      <button type="button" class="btn" onclick="crySetPreset('pharma_api')" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; background: #334155;">Pharma API (Fine Cooling)</button>
+    </div>
+  </div>
+
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+    <!-- Column 1: Production Target & Feed Chemistry -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🧪</span> Production Capacity & Solute Properties
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_prod_rate" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Dry Crystal Production Target (t/h)</label>
+        <input type="number" id="cry_prod_rate" value="15.0" min="0.1" max="500.0" step="0.5" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Solids throughput: 0.1 to 200 t/h (1 t/h = 1000 kg/h)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_crystal_density" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Crystal Solid Density ρ_c (kg/m³)</label>
+        <input type="number" id="cry_crystal_density" value="2165" min="800" max="4000" step="25" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">NaCl: 2165; KCl: 1984; (NH4)2SO4: 1770 kg/m³</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_shape_factor" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Volumetric Shape Factor k_v (0.1 to 1.0)</label>
+        <input type="number" id="cry_shape_factor" value="0.5236" min="0.05" max="1.00" step="0.01" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Sphere: π/6 ≈ 0.524; Cube: 1.00; Needle/Plate: 0.1 - 0.3</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="cry_solute_system" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Crystallization System Type</label>
+        <select id="cry_solute_system" onchange="cryOnSystemChange()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="nacl" selected>Sodium Chloride (Evaporative Crystallization)</option>
+          <option value="kcl">Potassium Chloride (Cooling Crystallization)</option>
+          <option value="amsulf">Ammonium Sulfate (Reaction/Evaporative)</option>
+          <option value="api_org">Organic Small Molecule API (Anti-solvent/Cooling)</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Sets default growth rate kinetics</div>
+      </div>
+    </div>
+
+    <!-- Column 2: Growth Kinetics & Target Crystal Size -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📏</span> Crystal Growth & Particle Size Targets
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_target_ld" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Target Dominant Size L_D (microns - µm)</label>
+        <input type="number" id="cry_target_ld" value="450" min="50" max="2500" step="25" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Peak of mass distribution: L_D = 3 × G × τ (µm)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_growth_rate" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Linear Crystal Growth Rate G (m/s × 10⁻⁸)</label>
+        <input type="number" id="cry_growth_rate" value="4.50" min="0.20" max="30.0" step="0.1" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Typical inorganic salts: 2.0 to 8.0 × 10⁻⁸ m/s (0.07 to 0.3 mm/h)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_magma_density" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Design Magma Density M_T (kg/m³ slurry)</label>
+        <input type="number" id="cry_magma_density" value="220" min="30" max="550" step="10" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Typical industrial slurries: 180 to 300 kg/m³ (~10-25% vol)</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="cry_supersat_ratio" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Relative Supersaturation σ = (C - C*)/C* (%)</label>
+        <input type="number" id="cry_supersat_ratio" value="1.8" min="0.2" max="8.0" step="0.1" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Metastable zone width limit: typically 1.0% to 3.0%</div>
+      </div>
+    </div>
+
+    <!-- Column 3: Vessel Sizing & Circulation Hydraulics -->
+    <div style="background: rgba(15, 23, 42, 0.6); padding: 1rem; border-radius: 8px; border: 1px solid #334155;">
+      <h3 style="font-size: 0.95rem; color: #38bdf8; margin-top: 0; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🏗️</span> Crystallizer Vessel Architecture
+      </h3>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_vessel_type" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Crystallizer Geometry</label>
+        <select id="cry_vessel_type" onchange="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+          <option value="fc_evap" selected>Forced Circulation (FC) with External Calandria</option>
+          <option value="dtb">Draft-Tube Baffle (DTB) with Fines Destruction</option>
+          <option value="oslo">OSLO Fluidized Bed Growth Crystallizer</option>
+          <option value="msmpr_simple">Standard Simple MSMPR Stirred Tank</option>
+        </select>
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">DTB/OSLO allow 1.5x to 2.5x larger crystal size</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_circ_ratio" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Internal Recirculation Ratio (Circ / Feed)</label>
+        <input type="number" id="cry_circ_ratio" value="80" min="20" max="300" step="10" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">High circulation limits temperature rise & flash delta-T</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.75rem;">
+        <label for="cry_heat_crys" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Heat of Crystallization ΔH_c (kJ/kg)</label>
+        <input type="number" id="cry_heat_crys" value="260" min="50" max="800" step="10" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Exothermic heat released upon crystallization</div>
+      </div>
+      <div class="calc-field" style="margin-bottom: 0.5rem;">
+        <label for="cry_aspect_ratio" style="display: block; font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.25rem;">Vessel Aspect Ratio (Height / Diameter)</label>
+        <input type="number" id="cry_aspect_ratio" value="2.2" min="1.0" max="4.5" step="0.1" oninput="cryCalc()" style="width: 100%; padding: 0.4rem; background: #1e293b; border: 1px solid #475569; border-radius: 4px; color: #fff;">
+        <div style="font-size: 0.7rem; color: #64748b; margin-top: 0.2rem;">Typical industrial crystallizer H/D: 1.8 to 2.8</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Real-time Diagnostic Output Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #38bdf8; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Active Slurry Volume</div>
+      <div id="cry_out_vol" style="font-size: 1.45rem; font-weight: 700; color: #f8fafc; margin-top: 0.25rem;">63.2 m³</div>
+      <div id="cry_out_vol_gal" style="font-size: 0.75rem; color: #64748b;">16,695 US Gallons</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #34d399; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Mean Residence Time (τ)</div>
+      <div id="cry_out_tau" style="font-size: 1.45rem; font-weight: 700; color: #34d399; margin-top: 0.25rem;">55.6 min</div>
+      <div id="cry_out_tau_hr" style="font-size: 0.75rem; color: #64748b;">0.93 hours (3,333 s)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #f59e0b; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Nucleation Rate (B₀)</div>
+      <div id="cry_out_b0" style="font-size: 1.45rem; font-weight: 700; color: #f59e0b; margin-top: 0.25rem;">2.18 × 10⁸</div>
+      <div id="cry_out_b0_unit" style="font-size: 0.75rem; color: #64748b;">nuclei / (m³·s)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #a855f7; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Median Crystal Size L₅₀</div>
+      <div id="cry_out_l50" style="font-size: 1.45rem; font-weight: 700; color: #a855f7; margin-top: 0.25rem;">550 µm</div>
+      <div id="cry_out_mesh" style="font-size: 0.75rem; color: #64748b;">~32 Mesh (US Standard)</div>
+    </div>
+    <div style="background: #1e293b; padding: 1rem; border-radius: 8px; border-left: 4px solid #ec4899; text-align: center;">
+      <div style="font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; font-weight: 600;">Crystallization Heat Duty</div>
+      <div id="cry_out_heat" style="font-size: 1.45rem; font-weight: 700; color: #ec4899; margin-top: 0.25rem;">1.08 MW</div>
+      <div id="cry_out_heat_kcal" style="font-size: 0.75rem; color: #64748b;">3.90 GJ/h (Exothermic)</div>
+    </div>
+  </div>
+
+  <!-- Interactive HTML5 Canvas Simulator -->
+  <div style="background: #0f172a; border-radius: 8px; padding: 1rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+      <div style="font-size: 0.9rem; font-weight: 600; color: #f8fafc; display: flex; align-items: center; gap: 0.5rem;">
+        <span>📊</span> Continuous Crystallizer Cutaway & Crystal Size Distribution Curve
+      </div>
+      <div style="font-size: 0.75rem; color: #94a3b8;">
+        Dominant Size L_D: <span id="cry_canvas_ld" style="color: #38bdf8; font-weight: 700;">450 µm</span> (CV = 50%)
+      </div>
+    </div>
+    <canvas id="cry_canvas" width="800" height="340" style="width: 100%; height: auto; display: block; border-radius: 4px; background: #0b1120; border: 1px solid #1e293b;"></canvas>
+    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; margin-top: 0.5rem; flex-wrap: wrap;">
+      <div>Left: Vessel cutaway with axial draft-tube circulation and crystal growth</div>
+      <div>Right: Randolph-Larson MSMPR Mass Population Density Curve w(L)</div>
+      <div>Cyan marker: Dominant peak size L_D (3 G τ)</div>
+    </div>
+  </div>
+
+  <!-- Engineering Diagnostics Summary -->
+  <div style="background: rgba(30, 41, 59, 0.7); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1rem; color: #38bdf8;">Comprehensive Crystallization Kinetics & Vessel Sizing Summary</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; font-size: 0.85rem; color: #cbd5e1;">
+      <div>
+        <strong style="color: #94a3b8;">Slurry Discharge Flow (Q_out):</strong> <span id="cry_diag_qout" style="color: #fff; font-weight: 600;">68.2 m³/h</span> (300.2 GPM)<br>
+        <strong style="color: #94a3b8;">Vessel Internal Diameter:</strong> <span id="cry_diag_diam" style="color: #fff; font-weight: 600;">3.32 m</span> (10.9 ft)<br>
+        <strong style="color: #94a3b8;">Cylindrical Shell Height:</strong> <span id="cry_diag_height" style="color: #fff; font-weight: 600;">7.30 m</span> (24.0 ft)<br>
+        <strong style="color: #94a3b8;">Gross Volume (+35% Vapor):</strong> <span id="cry_diag_vgross" style="color: #fff; font-weight: 600;">85.3 m³</span>
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Nuclei Population Density (n₀):</strong> <span id="cry_diag_n0" style="color: #fff; font-weight: 600;">1.45 × 10¹⁴</span> #/(m³·m)<br>
+        <strong style="color: #94a3b8;">Total Slurry Crystal Surface:</strong> <span id="cry_diag_tot_area" style="color: #fff; font-weight: 600;">14,500 m²</span><br>
+        <strong style="color: #94a3b8;">Specific Crystal Area (a_c):</strong> <span id="cry_diag_spec_area" style="color: #fff; font-weight: 600;">229 m²/m³</span><br>
+        <strong style="color: #94a3b8;">Coefficient of Variation (CV):</strong> <span id="cry_diag_cv" style="color: #fff; font-weight: 600;">50.0%</span> (Standard MSMPR)
+      </div>
+      <div>
+        <strong style="color: #94a3b8;">Internal Slurry Recirculation:</strong> <span id="cry_diag_circ_flow" style="color: #fff; font-weight: 600;">5,450 m³/h</span> (Axial Propeller)<br>
+        <strong style="color: #94a3b8;">Axial Flow Impeller Power:</strong> <span id="cry_diag_imp_power" style="color: #fff; font-weight: 600;">78.5 kW</span> (105.2 HP)<br>
+        <strong style="color: #94a3b8;">Circulation Velocity in Draft:</strong> <span id="cry_diag_draft_v" style="color: #fff; font-weight: 600;">1.65 m/s</span><br>
+        <strong style="color: #94a3b8;">Vapor Disengagement Area:</strong> <span id="cry_diag_vapor_area" style="color: #fff; font-weight: 600;">8.65 m²</span> (Evaporative Neck)
+      </div>
+    </div>
+
+    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+      <div id="cry_status_badge" style="display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; background: rgba(52, 211, 153, 0.15); color: #34d399; border: 1px solid #059669;">
+        ✓ Kinetics & Hydrodynamics Balanced: Magma Density In Safe Metastable Envelope
+      </div>
+      <button type="button" class="btn" onclick="cryCopyDiagnostic()" id="cry_copy_btn" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; background: #0284c7; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        📋 Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical & Architectural Formulations -->
+  <div style="background: rgba(15, 23, 42, 0.4); border-radius: 8px; padding: 1.25rem; border: 1px solid #334155; margin-bottom: 1.5rem;">
+    <h3 style="margin-top: 0; font-size: 1.1rem; color: #f8fafc;">MSMPR Population Balance & Crystallization Formulations</h3>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.6;">
+      <p style="margin-bottom: 0.75rem;">
+        The continuous crystallizer follows the <strong>Randolph-Larson Population Balance Model</strong> and <strong>Mersmann Crystal Growth Theory</strong>:
+      </p>
+      <div style="background: #0f172a; padding: 0.75rem; border-radius: 6px; font-family: monospace; color: #38bdf8; margin-bottom: 0.75rem; overflow-x: auto;">
+        L_D = 3 × G × τ<br>
+        τ = L_D / (3 × G) [seconds]<br>
+        Q_slurry = P_crystals / M_T [m³/s]<br>
+        V_active = Q_slurry × τ [m³]<br>
+        n(L) = n_0 × exp(-L / (G × τ)) [#/m⁴]<br>
+        M_T = 6 × k_v × ρ_c × n_0 × (G × τ)⁴ [kg/m³]<br>
+        B_0 = n_0 × G = M_T / (6 × k_v × ρ_c × G³ × τ⁴) [#/m³·s]<br>
+        w(L) = (1/6) × (L / (G × τ))⁴ × exp(-L / (G × τ)) [Mass Distribution Function]
+      </div>
+      <p style="margin-bottom: 0;">
+        where <code>L_D</code> is the dominant modal crystal size, <code>G</code> is the linear growth rate ((m/s)), <code>τ</code> is mean residence time ((s)), <code>B_0</code> is the secondary nucleation rate, <code>M_T</code> is the suspension magma density ((kg/m^3)), and <code>k_v</code> is the volumetric crystal shape factor.
+      </p>
+    </div>
+  </div>
+
+  <!-- Exactly 5 Fatal Traps & Engineering Pitfalls -->
+  <div style="margin-bottom: 1.5rem;">
+    <h3 style="font-size: 1.1rem; color: #f8fafc; margin-bottom: 1rem;">5 Fatal Traps & Industrial Engineering Pitfalls</h3>
+
+    <div class="trap-card" style="background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fca5a5; font-size: 0.9rem; margin-bottom: 0.25rem;">1. Metastable Limit Overshoot & Catastrophic Fine Shower Blinding</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Every chemical solution has a strict metastable limit beyond which supersaturation spontaneously collapses via primary homogeneous nucleation. If local cooling or flash evaporation causes relative supersaturation (σ) to exceed 2.5% to 3.5%, billions of microscopic sub-10-micron crystal nuclei form instantaneously. This "fine shower" exhausts all available supersaturation, freezes growth on existing product crystals, and turns the crystallizer into an un-filterable milky mud that completely blinds centrifuges and rotary vacuum filters.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #fcd34d; font-size: 0.9rem; margin-bottom: 0.25rem;">2. Impeller Tip Speed Collision Attrition Shattering Seeds</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        In Draft-Tube Baffle (DTB) and Forced Circulation (FC) crystallizers, large axial flow propellers circulate thousands of m³/h of slurry. If the impeller tip speed exceeds 5.5 to 6.5 m/s, high-energy mechanical collisions between rotating blades and suspended crystals generate massive contact nucleation and shear breakage. Instead of growing to the target 500 µm specification, crystals are pulverised into 80–120 µm fragments, shifting the entire CSD down-market. Low-speed, high-solidity hydrofoil impellers are mandatory.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #6ee7b7; font-size: 0.9rem; margin-bottom: 0.25rem;">3. Heat Exchanger Encrustation Scaling from Excessive Wall ΔT</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        In external calandrias or internal cooling jackets, operating with a temperature difference between tube wall and bulk slurry (ΔT_wall) greater than 2.0°C to 3.0°C creates extreme localized supersaturation at the cold boundary layer. Solute crystallizes directly onto the metal tube surfaces rather than on suspended crystals. A dense, crystalline crust builds up, collapsing heat transfer coefficient U by 80% within 48 hours and forcing an emergency shutdown for steam boilout.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #93c5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">4. Fines Dissolution System Over-Kill Causing Cyclic CSD Cycling</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        DTB crystallizers use an external fines destruction loop where clarified liquor with fines is heated to dissolve crystals before returning to the vessel. If the fines withdrawal rate is oversized or the dissolution heat is excessive, virtually all crystal nuclei are eliminated. The system enters violent limit-cycle oscillations: supersaturation climbs uncontrollably until an explosive nucleation burst occurs, followed by hours of fine product, repeating in an endless 12-hour surge cycle.
+      </div>
+    </div>
+
+    <div class="trap-card" style="background: rgba(139, 92, 246, 0.1); border-left: 4px solid #8b5cf6; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem;">
+      <div style="font-weight: 700; color: #c4b5fd; font-size: 0.9rem; margin-bottom: 0.25rem;">5. Slurry Discharge Pump Crystal Degradation & Grinding</div>
+      <div style="font-size: 0.82rem; color: #cbd5e1; line-height: 1.5;">
+        Pumping crystal slurry from the crystallizer cone to centrifuges using standard high-speed closed-impeller centrifugal pumps acts like a wet ball mill. The tight clearances between casing wear rings and impeller shrouds shear, grind, and crush coarse crystals into fines. Slurry discharge systems must utilize low-RPM recessed-impeller vortex pumps, rubber-lined progressive cavity pumps, or peristaltic pumps to preserve crystalline morphology and prevent de-watering blinding.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Live Interactive Script for Industrial Crystallizer Sizing
+var cryLastCalc = null;
+var cryAnimTime = 0;
+
+function crySetPreset(type) {
+  if (type === 'nacl_evap') {
+    document.getElementById('cry_prod_rate').value = '25.0';
+    document.getElementById('cry_crystal_density').value = '2165';
+    document.getElementById('cry_shape_factor').value = '1.0'; // cubic
+    document.getElementById('cry_solute_system').value = 'nacl';
+    document.getElementById('cry_target_ld').value = '450';
+    document.getElementById('cry_growth_rate').value = '4.50';
+    document.getElementById('cry_magma_density').value = '250';
+    document.getElementById('cry_supersat_ratio').value = '1.8';
+    document.getElementById('cry_vessel_type').value = 'fc_evap';
+    document.getElementById('cry_circ_ratio').value = '90';
+    document.getElementById('cry_heat_crys').value = '260';
+    document.getElementById('cry_aspect_ratio').value = '2.2';
+  } else if (type === 'kcl_cooling') {
+    document.getElementById('cry_prod_rate').value = '35.0';
+    document.getElementById('cry_crystal_density').value = '1984';
+    document.getElementById('cry_shape_factor').value = '0.7';
+    document.getElementById('cry_solute_system').value = 'kcl';
+    document.getElementById('cry_target_ld').value = '650';
+    document.getElementById('cry_growth_rate').value = '3.80';
+    document.getElementById('cry_magma_density').value = '280';
+    document.getElementById('cry_supersat_ratio').value = '2.2';
+    document.getElementById('cry_vessel_type').value = 'dtb';
+    document.getElementById('cry_circ_ratio').value = '110';
+    document.getElementById('cry_heat_crys').value = '230';
+    document.getElementById('cry_aspect_ratio').value = '2.4';
+  } else if (type === 'amsulf_cogen') {
+    document.getElementById('cry_prod_rate').value = '20.0';
+    document.getElementById('cry_crystal_density').value = '1770';
+    document.getElementById('cry_shape_factor').value = '0.6';
+    document.getElementById('cry_solute_system').value = 'amsulf';
+    document.getElementById('cry_target_ld').value = '800';
+    document.getElementById('cry_growth_rate').value = '5.20';
+    document.getElementById('cry_magma_density').value = '300';
+    document.getElementById('cry_supersat_ratio').value = '1.5';
+    document.getElementById('cry_vessel_type').value = 'oslo';
+    document.getElementById('cry_circ_ratio').value = '120';
+    document.getElementById('cry_heat_crys').value = '280';
+    document.getElementById('cry_aspect_ratio').value = '2.8';
+  } else if (type === 'pharma_api') {
+    document.getElementById('cry_prod_rate').value = '0.8';
+    document.getElementById('cry_crystal_density').value = '1350';
+    document.getElementById('cry_shape_factor').value = '0.4';
+    document.getElementById('cry_solute_system').value = 'api_org';
+    document.getElementById('cry_target_ld').value = '120';
+    document.getElementById('cry_growth_rate').value = '1.20';
+    document.getElementById('cry_magma_density').value = '120';
+    document.getElementById('cry_supersat_ratio').value = '2.5';
+    document.getElementById('cry_vessel_type').value = 'msmpr_simple';
+    document.getElementById('cry_circ_ratio').value = '40';
+    document.getElementById('cry_heat_crys').value = '150';
+    document.getElementById('cry_aspect_ratio').value = '1.8';
+  }
+  cryCalc();
+}
+
+function cryOnSystemChange() {
+  var s = document.getElementById('cry_solute_system').value;
+  if (s === 'nacl') {
+    document.getElementById('cry_crystal_density').value = '2165';
+    document.getElementById('cry_shape_factor').value = '1.0';
+    document.getElementById('cry_growth_rate').value = '4.50';
+  } else if (s === 'kcl') {
+    document.getElementById('cry_crystal_density').value = '1984';
+    document.getElementById('cry_shape_factor').value = '0.7';
+    document.getElementById('cry_growth_rate').value = '3.80';
+  } else if (s === 'amsulf') {
+    document.getElementById('cry_crystal_density').value = '1770';
+    document.getElementById('cry_shape_factor').value = '0.6';
+    document.getElementById('cry_growth_rate').value = '5.20';
+  } else if (s === 'api_org') {
+    document.getElementById('cry_crystal_density').value = '1350';
+    document.getElementById('cry_shape_factor').value = '0.4';
+    document.getElementById('cry_growth_rate').value = '1.20';
+  }
+  cryCalc();
+}
+
+function cryCalc() {
+  var P_th = parseFloat(document.getElementById('cry_prod_rate').value) || 15.0; // t/h
+  var rho_c = parseFloat(document.getElementById('cry_crystal_density').value) || 2165; // kg/m³
+  var k_v = parseFloat(document.getElementById('cry_shape_factor').value) || 0.5236;
+  var L_D_um = parseFloat(document.getElementById('cry_target_ld').value) || 450; // µm
+  var G_1e8 = parseFloat(document.getElementById('cry_growth_rate').value) || 4.50; // × 10^-8 m/s
+  var M_T = parseFloat(document.getElementById('cry_magma_density').value) || 220; // kg/m³
+  var sigma_pct = parseFloat(document.getElementById('cry_supersat_ratio').value) || 1.8;
+  var circRatio = parseFloat(document.getElementById('cry_circ_ratio').value) || 80;
+  var dH_c = parseFloat(document.getElementById('cry_heat_crys').value) || 260; // kJ/kg
+  var AR = parseFloat(document.getElementById('cry_aspect_ratio').value) || 2.2;
+
+  // Conversions
+  var P_kgs = (P_th * 1000.0) / 3600.0; // kg/s
+  var L_D_m = L_D_um * 1e-6; // m
+  var G_ms = G_1e8 * 1e-8; // m/s
+
+  // MSMPR fundamental relation: L_D = 3 * G * tau
+  // Therefore tau = L_D / (3 * G)
+  var tau_s = L_D_m / (3.0 * G_ms);
+  var tau_min = tau_s / 60.0;
+  var tau_hr = tau_s / 3600.0;
+
+  // Slurry volumetric discharge rate: Q = P / M_T (m³/s)
+  var Q_slurry_m3s = P_kgs / M_T;
+  var Q_slurry_m3h = Q_slurry_m3s * 3600.0;
+  var Q_slurry_gpm = Q_slurry_m3h * 4.40287;
+
+  // Active slurry vessel volume: V = Q * tau
+  var V_active_m3 = Q_slurry_m3s * tau_s;
+  var V_active_gal = V_active_m3 * 264.172;
+
+  // Gross vessel volume (+35% for vapor space & de-entrainment)
+  var V_gross_m3 = V_active_m3 * 1.35;
+
+  // Vessel Geometry: V_active ~ (pi/4) * D² * (AR * D) = (pi * AR / 4) * D³
+  var D_vessel_m = Math.pow((4.0 * V_active_m3) / (Math.PI * AR), 1.0 / 3.0);
+  var H_vessel_m = D_vessel_m * AR;
+  var A_vapor_neck_m2 = (Math.PI / 4.0) * D_vessel_m * D_vessel_m;
+
+  // Nucleation Rate & Zero-Size Population Density n0:
+  // M_T = 6 * k_v * rho_c * n_0 * (G * tau)^4
+  // G * tau = L_D / 3
+  var G_tau = G_ms * tau_s;
+  var n0 = M_T / (6.0 * k_v * rho_c * Math.pow(G_tau, 4));
+  var B0 = n0 * G_ms; // nuclei / (m³·s)
+
+  // Median crystal size L_50 (mass basis): L_50 = 3.67 * G * tau = 1.223 * L_D
+  var L_50_um = 1.223 * L_D_um;
+
+  // Approximate Mesh size estimate
+  var meshStr = '> 100 Mesh';
+  if (L_50_um > 1400) meshStr = '~14 Mesh';
+  else if (L_50_um > 1000) meshStr = '~18 Mesh';
+  else if (L_50_um > 700) meshStr = '~25 Mesh';
+  else if (L_50_um > 500) meshStr = '~35 Mesh';
+  else if (L_50_um > 350) meshStr = '~45 Mesh';
+  else if (L_50_um > 250) meshStr = '~60 Mesh';
+  else if (L_50_um > 150) meshStr = '~100 Mesh';
+
+  // Heat Duty from crystallization (exothermic release)
+  var Q_crys_kw = P_kgs * dH_c;
+  var Q_crys_mw = Q_crys_kw / 1000.0;
+  var Q_crys_gcal = Q_crys_mw * 0.859845;
+
+  // Internal slurry circulation
+  var Q_circ_m3h = Q_slurry_m3h * circRatio;
+  var draft_diam_m = D_vessel_m * 0.45;
+  var draft_area_m2 = (Math.PI / 4.0) * draft_diam_m * draft_diam_m;
+  var v_draft_ms = (Q_circ_m3h / 3600.0) / draft_area_m2;
+
+  // Pumping power for circulation (slurry density ~ 1250 kg/m³, head ~ 1.5 m, 70% eff)
+  var rho_slurry = 1250;
+  var head_m = 1.5;
+  var P_imp_kw = ((Q_circ_m3h / 3600.0) * rho_slurry * 9.81 * head_m) / (0.70 * 1000.0);
+  var P_imp_hp = P_imp_kw * 1.34102;
+
+  // Specific crystal area in slurry: a_c = 3 * M_T / (rho_c * (L_D/3)) = 9 * M_T / (rho_c * L_D)
+  var a_c_m2_m3 = (9.0 * M_T) / (rho_c * L_D_m);
+  var A_total_crystal_m2 = a_c_m2_m3 * V_active_m3;
+
+  cryLastCalc = {
+    P_th: P_th,
+    P_kgs: P_kgs,
+    V_active_m3: V_active_m3,
+    V_active_gal: V_active_gal,
+    tau_min: tau_min,
+    tau_hr: tau_hr,
+    tau_s: tau_s,
+    L_D_um: L_D_um,
+    L_50_um: L_50_um,
+    B0: B0,
+    n0: n0,
+    M_T: M_T,
+    Q_slurry_m3h: Q_slurry_m3h,
+    Q_slurry_gpm: Q_slurry_gpm,
+    D_vessel_m: D_vessel_m,
+    H_vessel_m: H_vessel_m,
+    V_gross_m3: V_gross_m3,
+    Q_crys_mw: Q_crys_mw,
+    Q_crys_gcal: Q_crys_gcal,
+    Q_circ_m3h: Q_circ_m3h,
+    v_draft_ms: v_draft_ms,
+    P_imp_kw: P_imp_kw,
+    P_imp_hp: P_imp_hp,
+    a_c_m2_m3: a_c_m2_m3,
+    A_total_crystal_m2: A_total_crystal_m2,
+    meshStr: meshStr,
+    G_ms: G_ms,
+    sigma_pct: sigma_pct
+  };
+
+  // Update DOM Outputs
+  document.getElementById('cry_out_vol').textContent = V_active_m3.toFixed(1) + ' m³';
+  document.getElementById('cry_out_vol_gal').textContent = Math.round(V_active_gal).toLocaleString() + ' US Gallons';
+
+  document.getElementById('cry_out_tau').textContent = tau_min.toFixed(1) + ' min';
+  document.getElementById('cry_out_tau_hr').textContent = tau_hr.toFixed(2) + ' hours (' + Math.round(tau_s).toLocaleString() + ' s)';
+
+  document.getElementById('cry_out_b0').textContent = B0.toExponential(2);
+  document.getElementById('cry_out_b0_unit').textContent = 'nuclei / (m³·s)';
+
+  document.getElementById('cry_out_l50').textContent = Math.round(L_50_um) + ' µm';
+  document.getElementById('cry_out_mesh').textContent = meshStr + ' (L_D = ' + Math.round(L_D_um) + ' µm)';
+
+  document.getElementById('cry_out_heat').textContent = Q_crys_mw.toFixed(2) + ' MW';
+  document.getElementById('cry_out_heat_kcal').textContent = (Q_crys_mw * 3.6).toFixed(2) + ' GJ/h (Exothermic)';
+
+  // Detailed Diagnostics
+  document.getElementById('cry_diag_qout').textContent = Q_slurry_m3h.toFixed(1) + ' m³/h (' + Math.round(Q_slurry_gpm).toLocaleString() + ' GPM)';
+  document.getElementById('cry_diag_diam').textContent = D_vessel_m.toFixed(2) + ' m (' + (D_vessel_m * 3.28084).toFixed(1) + ' ft)';
+  document.getElementById('cry_diag_height').textContent = H_vessel_m.toFixed(2) + ' m (' + (H_vessel_m * 3.28084).toFixed(1) + ' ft)';
+  document.getElementById('cry_diag_vgross').textContent = V_gross_m3.toFixed(1) + ' m³';
+
+  document.getElementById('cry_diag_n0').textContent = n0.toExponential(2) + ' #/(m³·m)';
+  document.getElementById('cry_diag_tot_area').textContent = Math.round(A_total_crystal_m2).toLocaleString() + ' m²';
+  document.getElementById('cry_diag_spec_area').textContent = Math.round(a_c_m2_m3).toLocaleString() + ' m²/m³';
+  document.getElementById('cry_diag_cv').textContent = '50.0% (Ideal MSMPR)';
+
+  document.getElementById('cry_diag_circ_flow').textContent = Math.round(Q_circ_m3h).toLocaleString() + ' m³/h';
+  document.getElementById('cry_diag_imp_power').textContent = P_imp_kw.toFixed(1) + ' kW (' + P_imp_hp.toFixed(1) + ' HP)';
+  document.getElementById('cry_diag_draft_v').textContent = v_draft_ms.toFixed(2) + ' m/s';
+  document.getElementById('cry_diag_vapor_area').textContent = A_vapor_neck_m2.toFixed(2) + ' m²';
+
+  document.getElementById('cry_canvas_ld').textContent = Math.round(L_D_um) + ' µm';
+
+  // Badge Status
+  var badge = document.getElementById('cry_status_badge');
+  if (M_T > 380) {
+    badge.textContent = '⚠ Warning: Magma density > 380 kg/m³! High risk of line plugging & slurry pump overload';
+    badge.style.background = 'rgba(245, 158, 11, 0.15)';
+    badge.style.color = '#fcd34d';
+    badge.style.borderColor = '#d97706';
+  } else if (sigma_pct > 3.0) {
+    badge.textContent = '⚠ DANGER: Supersaturation σ > 3.0% exceeds metastable limit! Massive fine shower risk';
+    badge.style.background = 'rgba(239, 68, 68, 0.15)';
+    badge.style.color = '#fca5a5';
+    badge.style.borderColor = '#dc2626';
+  } else {
+    badge.textContent = '✓ Kinetics & Hydrodynamics Balanced: Magma Density In Safe Metastable Envelope';
+    badge.style.background = 'rgba(52, 211, 153, 0.15)';
+    badge.style.color = '#34d399';
+    badge.style.borderColor = '#059669';
+  }
+}
+
+function cryCopyDiagnostic() {
+  if (!cryLastCalc) return;
+  var c = cryLastCalc;
+  var txt = '=== INDUSTRIAL CRYSTALLIZER MSMPR SIZING REPORT ===\n' +
+    'Production Rate: ' + c.P_th.toFixed(1) + ' t/h (' + c.P_kgs.toFixed(2) + ' kg/s dry crystals)\n' +
+    'Dominant Crystal Size (L_D): ' + Math.round(c.L_D_um) + ' um (Median L_50 = ' + Math.round(c.L_50_um) + ' um / ' + c.meshStr + ')\n' +
+    'Mean Residence Time (tau): ' + c.tau_min.toFixed(1) + ' min (' + c.tau_hr.toFixed(2) + ' hours)\n' +
+    'Active Slurry Volume: ' + c.V_active_m3.toFixed(1) + ' m3 (' + Math.round(c.V_active_gal).toLocaleString() + ' US Gal)\n' +
+    'Gross Vessel Sizing: ' + c.D_vessel_m.toFixed(2) + ' m Diameter x ' + c.H_vessel_m.toFixed(2) + ' m Height (' + c.V_gross_m3.toFixed(1) + ' m3 Gross)\n' +
+    'Magma Density (M_T): ' + c.M_T.toFixed(0) + ' kg/m3 (Specific surface: ' + Math.round(c.a_c_m2_m3) + ' m2/m3)\n' +
+    'Nucleation Rate (B_0): ' + c.B0.toExponential(2) + ' nuclei/(m3-s)\n' +
+    'Linear Growth Rate (G): ' + (c.G_ms * 1e8).toFixed(2) + ' x 10^-8 m/s\n' +
+    'Relative Supersaturation: ' + c.sigma_pct.toFixed(1) + '%\n' +
+    'Internal Recirculation: ' + Math.round(c.Q_circ_m3h).toLocaleString() + ' m3/h (Impeller Power: ' + c.P_imp_kw.toFixed(1) + ' kW)\n' +
+    'Exothermic Heat Duty: ' + c.Q_crys_mw.toFixed(2) + ' MW\n' +
+    'Population Balance Standard: Randolph-Larson MSMPR / Mersmann Kinetics\n' +
+    'Generated by DigitalToolsShed.com (Industrial Crystallizer Engine)';
+
+  navigator.clipboard.writeText(txt).then(function() {
+    var btn = document.getElementById('cry_copy_btn');
+    var orig = btn.textContent;
+    btn.textContent = '✓ Diagnostic Summary Copied!';
+    btn.style.background = '#10b981';
+    setTimeout(function() {
+      btn.textContent = orig;
+      btn.style.background = '#0284c7';
+    }, 2500);
+  });
+}
+
+function cryDraw() {
+  var canvas = document.getElementById('cry_canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.width;
+  var h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.save();
+
+  // Left Half: Crystallizer Vessel Cutaway
+  var vX = 40;
+  var vY = 30;
+  var vW = 280;
+  var vH = 260;
+
+  // Main vessel body
+  ctx.fillStyle = '#1e293b';
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  // Cylindrical body with conical bottom and dished top
+  ctx.moveTo(vX + 30, vY);
+  ctx.lineTo(vX + vW - 30, vY);
+  ctx.lineTo(vX + vW, vY + 25);
+  ctx.lineTo(vX + vW, vY + vH - 60);
+  ctx.lineTo(vX + vW / 2 + 15, vY + vH);
+  ctx.lineTo(vX + vW / 2 - 15, vY + vH);
+  ctx.lineTo(vX, vY + vH - 60);
+  ctx.lineTo(vX, vY + 25);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Vapor neck on top
+  ctx.fillStyle = '#334155';
+  ctx.beginPath();
+  ctx.rect(vX + vW / 2 - 25, 10, 50, 20);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 9px system-ui';
+  ctx.fillText('TO VAPOR CONDENSER ^', vX + vW / 2 - 60, 8);
+
+  // Slurry liquid level (80% height)
+  var slY = vY + 45;
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+  ctx.beginPath();
+  ctx.moveTo(vX + 2, slY);
+  ctx.lineTo(vX + vW - 2, slY);
+  ctx.lineTo(vX + vW - 2, vY + vH - 60);
+  ctx.lineTo(vX + vW / 2 + 15, vY + vH);
+  ctx.lineTo(vX + vW / 2 - 15, vY + vH);
+  ctx.lineTo(vX + 2, vY + vH - 60);
+  ctx.closePath();
+  ctx.fill();
+
+  // Draft Tube in center
+  var dtW = 80;
+  var dtX = vX + vW / 2 - dtW / 2;
+  var dtY = slY + 20;
+  var dtH = 130;
+  ctx.fillStyle = '#0f172a';
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.rect(dtX, dtY, dtW, dtH);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '9px system-ui';
+  ctx.fillText('DRAFT TUBE', dtX + 12, dtY + dtH / 2);
+
+  // Axial flow propeller in bottom of draft tube
+  var propY = dtY + dtH - 20;
+  ctx.strokeStyle = '#f59e0b';
+  ctx.lineWidth = 2.5;
+  for (var pr = 0; pr < 3; pr++) {
+    var prAng = cryAnimTime * 5 + pr * (Math.PI * 2 / 3);
+    ctx.beginPath();
+    ctx.moveTo(dtX + dtW / 2, propY);
+    ctx.lineTo(dtX + dtW / 2 + 25 * Math.cos(prAng), propY + 8 * Math.sin(prAng));
+    ctx.stroke();
+  }
+
+  // Floating growing crystals
+  ctx.fillStyle = '#e2e8f0';
+  for (var c = 0; c < 30; c++) {
+    var cSeed = c * 37.5;
+    var cCycle = (cSeed + cryAnimTime * 40) % 240;
+    var cx = 0;
+    var cy = 0;
+
+    // Up the draft tube, down the annular space
+    if (cCycle < 110) {
+      cx = dtX + 10 + ((c * 17) % (dtW - 20));
+      cy = dtY + dtH - cCycle;
+    } else {
+      var downProg = cCycle - 110;
+      var side = (c % 2 === 0) ? -1 : 1;
+      cx = vX + vW / 2 + side * (dtW / 2 + 20 + ((c * 11) % 40));
+      cy = dtY + downProg * 0.9;
+    }
+
+    var cSize = 1.5 + (c % 5) * 1.0;
+    ctx.fillRect(cx - cSize / 2, cy - cSize / 2, cSize, cSize);
+  }
+
+  // Right Half: Randolph-Larson CSD Mass Distribution Plot w(L)
+  var pX = 400;
+  var pY = 40;
+  var pW = 360;
+  var pH = 240;
+
+  // Plot background
+  ctx.fillStyle = '#0f172a';
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.rect(pX, pY, pW, pH);
+  ctx.fill();
+  ctx.stroke();
+
+  // Title
+  ctx.fillStyle = '#f8fafc';
+  ctx.font = 'bold 11px system-ui';
+  ctx.fillText('MSMPR Crystal Mass Distribution w(L)', pX + 10, pY + 20);
+
+  // Axes labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '9px system-ui';
+  ctx.fillText('Crystal Size L (µm)', pX + pW / 2 - 35, pY + pH + 24);
+  ctx.fillText('0', pX + 5, pY + pH + 15);
+  ctx.fillText('500', pX + pW * 0.35, pY + pH + 15);
+  ctx.fillText('1000', pX + pW * 0.70, pY + pH + 15);
+  ctx.fillText('1500', pX + pW - 25, pY + pH + 15);
+
+  // Plot the w(L) curve: w(L) = (1/6) * (L/(G tau))^4 * exp(-L / (G tau))
+  // Peak occurs at L = 4 G tau = (4/3) L_D
+  if (cryLastCalc) {
+    var L_D = cryLastCalc.L_D_um;
+    var G_tau_um = L_D / 3.0;
+
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+
+    var maxWVal = (1.0 / 6.0) * Math.pow(4.0, 4) * Math.exp(-4.0); // at x=4
+    var scaleX = pW / 1500.0;
+    var scaleY = (pH - 50) / maxWVal;
+
+    for (var l = 0; l <= 1500; l += 15) {
+      var xNorm = l / G_tau_um;
+      var wVal = (1.0 / 6.0) * Math.pow(xNorm, 4) * Math.exp(-xNorm);
+      var plotPx = pX + l * scaleX;
+      var plotPy = pY + pH - 15 - wVal * scaleY;
+
+      if (l === 0) ctx.moveTo(plotPx, plotPy);
+      else ctx.lineTo(plotPx, plotPy);
+    }
+    ctx.stroke();
+
+    // Mark Dominant Size L_D (3 G tau)
+    var ldPx = pX + L_D * scaleX;
+    var ldNorm = 3.0;
+    var ldW = (1.0 / 6.0) * Math.pow(ldNorm, 4) * Math.exp(-ldNorm);
+    var ldPy = pY + pH - 15 - ldW * scaleY;
+
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(ldPx, pY + pH - 15);
+    ctx.lineTo(ldPx, ldPy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.beginPath();
+    ctx.arc(ldPx, ldPy, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = '#fcd34d';
+    ctx.font = 'bold 10px system-ui';
+    ctx.fillText('L_D = ' + Math.round(L_D) + ' µm', ldPx + 6, ldPy - 6);
+  }
+
+  ctx.restore();
+  cryAnimTime += 0.03;
+  requestAnimationFrame(cryDraw);
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  cryCalc();
+  cryDraw();
+});
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BQ2: GAS-SOLID FLUIDIZED BED VELOCITY & REGIME CALCULATOR ───
+  (() => {
+    const slug = 'gas-solid-fluidized-bed-velocity-calculator';
+    const title = 'Gas-Solid Fluidized Bed Minimum Fluidization & Terminal Velocity Calculator';
+    const metaDescription = 'Calculate minimum fluidization velocity (Umf), terminal velocity (Ut), bed expansion, pressure drop, and Geldart classification (A/B/C/D) using Ergun, Wen & Yu, and Haider-Levenspiel models.';
+    const faq = [
+      {
+        q: 'What is the minimum fluidization velocity (Umf) and how is it derived?',
+        a: 'The minimum fluidization velocity ($u_{mf}$) is the superficial gas velocity at which the upward drag force exerted by the fluidizing gas balances the apparent submerged weight of the particle bed. At this transition, the pressure drop across the bed equals the gravitational force per unit cross-sectional area: $\\Delta P = (1 - \\epsilon_0)(\\rho_p - \\rho_g)g L_0$. By equating this hydrostatic weight to the Ergun pressure drop equation, Wen & Yu established the widely validated dimensionless correlation: $Re_{mf} = \\sqrt{33.7^2 + 0.0408 Ar} - 33.7$, from which $u_{mf} = \\frac{Re_{mf} \\mu_g}{d_p \\rho_g}$.'
+      },
+      {
+        q: 'How does Geldart classification determine fluidization behavior?',
+        a: 'Developed by Derek Geldart in 1973, particles are classified into four distinct hydrodynamic groups based on mean particle diameter ($d_p$) and the solid-gas density difference ($\\Delta \\rho = \\rho_p - \\rho_g$): Group C (Cohesive, $d_p < 30\\,\\mu m$, prone to channeling and rat-holing due to van der Waals forces); Group A (Aeratable, $30\\,\\mu m < d_p < 100\\,\\mu m$, expands significantly before bubbling begins at $u_{mb} > u_{mf}$); Group B (Sand-like, $40\\,\\mu m < d_p < 500\\,\\mu m$, bubbles form immediately at $u_{mf}$ where $u_{mb} \\approx u_{mf}$); and Group D (Spoutable, $d_p > 1000\\,\\mu m$, forming deep spout cavities and severe slugs).'
+      },
+      {
+        q: 'Why is distributor pressure drop critical in preventing gas channeling?',
+        a: 'For stable, uniform gas distribution across the bed cross-section, industrial guidelines (such as Kunii & Levenspiel and Perry) dictate that the distributor pressure drop ($\\Delta P_{dist}$) must be at least 20% to 40% of the total bed pressure drop ($\\Delta P_{bed}$), with an absolute minimum of 3.5 kPa (0.5 psi). If the distributor resistance is too low, gas naturally seeks the path of least resistance through localized low-voidage fissures, causing severe maldistribution, dead solids defluidization zones, and riser overheating.'
+      },
+      {
+        q: 'How is terminal settling velocity (Ut) calculated for non-spherical particles?',
+        a: 'Terminal velocity represents the upper operational boundary of bubbling/turbulent beds before pneumatic transport and elutriation occur. The Haider & Levenspiel (1989) correlation accounts for particle sphericity ($\\phi_s$) by relating dimensionless particle diameter $d_* = d_p \\left[ \\frac{\\rho_g (\\rho_p - \\rho_g) g}{\\mu_g^2} \\right]^{1/3}$ to dimensionless terminal velocity $u_*$: $u_* = \\left[ \\frac{18}{(d_*)^2} + \\frac{2.335 - 1.744\\phi_s}{(d_*)^{0.5}} \\right]^{-1}$. The dimensional terminal velocity is then $u_t = u_* \\left[ \\frac{\\mu_g (\\rho_p - \\rho_g) g}{\\rho_g^2} \\right]^{1/3}$.'
+      },
+      {
+        q: 'What is the Transport Disengaging Height (TDH)?',
+        a: 'TDH is the vertical distance above the expanded bubbling bed surface where solid carryover entrainment decays to an asymptotic, constant value. Above the TDH, only fines whose terminal velocities are less than the superficial gas velocity remain suspended. Designing column freeboard below the TDH dramatically increases cyclone solids loading, leading to accelerated dipleg blockages, cyclone wear, and catalyst loss.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #3b82f6; background: #ffffff; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #2563eb; color: #ffffff; }' +
+      '.btn-primary:hover { background: #1d4ed8; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-regime { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #2563eb; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Gas-Solid Fluidized Bed Minimum Fluidization & Terminal Velocity Calculator</h1>' +
+      '    <p>Perform industrial-grade hydrodynamic modeling of gas-solid fluidized bed reactors. Compute minimum fluidization velocity (Umf), terminal settling velocity (Ut), bed expansion, pressure drop, distributor resistance, and Geldart A/B/C/D classification using Ergun, Wen & Yu, and Haider-Levenspiel correlations.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Operating & Solids Parameters</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-preset">Industry Benchmark Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="fb-preset">' +
+      '            <option value="fcc" selected>FCC Catalyst (Geldart A - Petroleum Refining)</option>' +
+      '            <option value="sand">Silica Sand (Geldart B - Fluidized Combustor / Boiler)</option>' +
+      '            <option value="polyethylene">HDPE Resin Beads (Geldart B - Polymerization Loop)</option>' +
+      '            <option value="coal">Crushed Coal (Geldart D - Gasifier / Spouted Bed)</option>' +
+      '            <option value="fines">Micronized Zinc Oxide (Geldart C - Fine Pigment)</option>' +
+      '            <option value="custom">Custom Fluidization Parameters</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-dp">Mean Particle Diameter ($d_p$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="fb-dp" value="75" min="1" max="10000" step="1">' +
+      '          <select id="fb-dp-unit" style="max-width: 100px;">' +
+      '            <option value="um" selected>µm</option>' +
+      '            <option value="mm">mm</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Surface-volume Sauter mean diameter $d_{32}$</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-rhop">Solid Particle Density ($\\rho_p$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="fb-rhop" value="1450" min="200" max="15000" step="10">' +
+      '          <select id="fb-rhop-unit" style="max-width: 100px;">' +
+      '            <option value="kgm3" selected>kg/m³</option>' +
+      '            <option value="gcc">g/cm³</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Apparent porous particle skeletal/envelope density</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-sphericity">Particle Sphericity ($\\phi_s$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="fb-sphericity" value="0.88" min="0.3" max="1.0" step="0.01">' +
+      '        </div>' +
+      '        <div class="hint">Spherical beads = 1.0; catalyst = 0.85-0.92; crushed sand = 0.65-0.75</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-void0">Static Fixed Bed Voidage ($\\epsilon_0$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="fb-void0" value="0.42" min="0.30" max="0.70" step="0.01">' +
+      '        </div>' +
+      '        <div class="hint">Fraction of empty bed volume (loose packing typically 0.40 - 0.46)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-l0">Static Bed Height ($L_0$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="fb-l0" value="1.8" min="0.05" max="30" step="0.1">' +
+      '          <select id="fb-l0-unit" style="max-width: 100px;">' +
+      '            <option value="m" selected>m</option>' +
+      '            <option value="ft">ft</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-dia">Column / Vessel Diameter ($D_c$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="fb-dia" value="1.2" min="0.02" max="20" step="0.05">' +
+      '          <select id="fb-dia-unit" style="max-width: 100px;">' +
+      '            <option value="m" selected>m</option>' +
+      '            <option value="mm">mm</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-gas">Fluidizing Gas & Operating Conditions</label>' +
+      '        <div class="input-row" style="margin-bottom: 8px;">' +
+      '          <select id="fb-gas">' +
+      '            <option value="air" selected>Air (Mw = 28.97)</option>' +
+      '            <option value="n2">Nitrogen N2 (Mw = 28.01)</option>' +
+      '            <option value="flue">Flue Gas (Mw = 30.2)</option>' +
+      '            <option value="h2">Hydrogen H2 (Mw = 2.016)</option>' +
+      '            <option value="steam">Superheated Steam (Mw = 18.02)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="fb-temp" value="260" placeholder="Temp" title="Temperature (°C)" step="5">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">°C</span>' +
+      '          <input type="number" id="fb-press" value="2.0" placeholder="Press" title="Absolute Pressure (bar a)" step="0.1">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">bar(a)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="fb-ug">Superficial Gas Operating Velocity ($u_g$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="fb-ug" value="0.38" min="0.001" max="25" step="0.01">' +
+      '          <select id="fb-ug-unit" style="max-width: 100px;">' +
+      '            <option value="ms" selected>m/s</option>' +
+      '            <option value="fts">ft/s</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Volumetric flow divided by bed cross-sectional area: $Q / A$</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-fb">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-fb">Reset Standard Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="fb-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Hydrodynamic Performance & Regimes</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Min. Fluidization Velocity ($u_{mf}$)</div>' +
+      '          <div class="res-val"><span id="out-umf">0.0042</span><span class="res-unit">m/s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Terminal Velocity ($u_t$)</div>' +
+      '          <div class="res-val"><span id="out-ut">0.485</span><span class="res-unit">m/s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Archimedes Number ($Ar$)</div>' +
+      '          <div class="res-val"><span id="out-ar">8.45</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Geldart Group</div>' +
+      '          <div class="res-val"><span id="out-geldart" style="color:#2563eb;">Group A</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Fluidization State / Regime</div>' +
+      '          <div id="out-regime-badge" class="badge-regime" style="background:#dbeafe;color:#1e40af;">Bubbling Fluidization</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Operating Velocity Ratio</div>' +
+      '          <div class="res-val"><span id="out-uratio">90.5</span><span class="res-unit">× Umf</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Bed Pressure Drop ($\\Delta P_{bed}$)</div>' +
+      '          <div class="res-val"><span id="out-dp-bed">14.82</span><span class="res-unit">kPa</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Rec. Distributor Drop ($\\Delta P_{dist}$)</div>' +
+      '          <div class="res-val"><span id="out-dp-dist">4.45</span><span class="res-unit">kPa</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Expanded Bed Height ($L_f$)</div>' +
+      '          <div class="res-val"><span id="out-lf">2.42</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Gas Flow Rate ($Q_{actual}$)</div>' +
+      '          <div class="res-val"><span id="out-qgas">1548</span><span class="res-unit">Am³/h</span></div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="fb-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Fluidized Bed Hydrodynamics</h2>' +
+      '    <p>In chemical and energy engineering, gas-solid fluidization transforms a static bed of particulate solids into a suspended, expanded state exhibiting fluid-like properties. Hydrodynamic characterization relies on force balances matching kinetic fluid drag to gravitational buoyancy.</p>' +
+      '    <h3>1. Hydrostatic Bed Weight & Equilibrium Pressure Drop</h3>' +
+      '    <p>At minimum fluidization, the pressure drop across the bed balances the buoyant weight of the solid inventory. Per unit cross-sectional area $A$:</p>' +
+      '    <div class="formula-box">' +
+      '      \\Delta P_{bed} = (1 - \\epsilon_0) (\\rho_p - \\rho_g) g L_0 = \\frac{M_{bed} g}{A}' +
+      '    </div>' +
+      '    <p>Where $M_{bed}$ is total solids inventory mass (kg), $\\epsilon_0$ is packed bed voidage, $\\rho_p$ is solid envelope density, and $L_0$ is static bed height.</p>' +
+      '    <h3>2. Wen & Yu Minimum Fluidization Correlation</h3>' +
+      '    <p>Equating the Ergun equation to the bed buoyant weight yields a quadratic equation in Reynolds number. Wen & Yu simplified the voidage and sphericity terms into empirical constants across thousands of industrial tests:</p>' +
+      '    <div class="formula-box">' +
+      '      Ar = \\frac{d_p^3 \\rho_g (\\rho_p - \\rho_g) g}{\\mu_g^2}\\quad (Archimedes\\ Number)\\n' +
+      '      Re_{mf} = \\sqrt{33.7^2 + 0.0408 \\cdot Ar} - 33.7\\n' +
+      '      u_{mf} = \\frac{Re_{mf} \\cdot \\mu_g}{d_p \\cdot \\rho_g}' +
+      '    </div>' +
+      '    <h3>3. Haider-Levenspiel Terminal Settling Velocity ($u_t$)</h3>' +
+      '    <p>Particle entrainment occurs when gas superficial velocity exceeds single-particle terminal free-fall velocity. For non-spherical industrial solids, Haider & Levenspiel established the universal correlation:</p>' +
+      '    <div class="formula-box">' +
+      '      d_* = d_p \\left[ \\frac{\\rho_g (\\rho_p - \\rho_g) g}{\\mu_g^2} \\right]^{1/3} = Ar^{1/3}\\n' +
+      '      u_* = \\left[ \\frac{18}{d_*^2} + \\frac{2.335 - 1.744\\phi_s}{d_*^{0.5}} \\right]^{-1}\\n' +
+      '      u_t = u_* \\left[ \\frac{\\mu_g (\\rho_p - \\rho_g) g}{\\rho_g^2} \\right]^{1/3}' +
+      '    </div>' +
+      '    <h3>4. Bed Expansion & Richardson-Zaki Equation</h3>' +
+      '    <p>The operating voidage $\\epsilon_f$ expands as superficial gas velocity increases according to the modified Richardson-Zaki equation:</p>' +
+      '    <div class="formula-box">' +
+      '      \\frac{u_g}{u_t} = \\epsilon_f^n \\implies \\epsilon_f = \\left( \\frac{u_g}{u_t} \\right)^{1/n}\\n' +
+      '      L_f = L_0 \\cdot \\frac{1 - \\epsilon_0}{1 - \\epsilon_f}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Fluidized Bed Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Distributor Plate Under-Resistance Malapportionment</h4>' +
+      '      <p>Designing a grid plate or bubble-cap distributor with pressure drop below 20% to 30% of the bed pressure drop ($0.3 \\Delta P_{bed}$) causes severe maldistribution. Gas bypasses dense zones through preferential jet chimneys, turning large bed fractions into defluidized dead zones that trigger hot spots, agglomeration, and clinkering in exothermic reactors.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. High-Temperature Viscosity Shift & $u_{mf}$ Inversion</h4>' +
+      '      <p>Gas dynamic viscosity increases with temperature ($T^{0.7}$). Raising reactor temperature from 20°C to 800°C doubles gas viscosity while cutting gas density. Engineers who size blowers based on ambient air tests discover that actual high-temperature $u_{mf}$ drops significantly while terminal velocity $u_t$ shifts, leading to unexpected entrainment and cyclone overloads.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Geldart Group C Inter-Particle Cohesion & Channeling</h4>' +
+      '      <p>Fine powders ($d_p < 30\\,\\mu m$) possess inter-particle cohesive van der Waals and electrostatic forces far exceeding gravitational and drag forces. Standard Ergun and Wen-Yu equations fail completely for Group C powders, resulting in vertical blow-holes and rat-holing unless external mechanical vibration, acoustic agitation, or flow conditioners are employed.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Deep Slugging in Tall, Narrow Aspect Ratio Columns ($L/D > 2$)</h4>' +
+      '      <p>In deep beds with small diameters, coalescing bubbles grow until their diameter reaches $\\approx 0.6 D_c$. Above this limit, bubbles transition into axial slugs spanning the entire column width, lifting solids like a pneumatic piston. The severe cyclical pressure fluctuations generate immense structural fatigue on expansion joints, cyclone dipleg flappers, and internal heat exchanger tubes.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Freeboard Height Below Transport Disengaging Height (TDH)</h4>' +
+      '      <p>Truncating the freeboard vessel section below the TDH results in heavy bubble-burst particulate throw entering the primary cyclone directly. This increases solids loading on the cyclones by a factor of 10 to 50, causing severe abrasive erosion on cyclone barrels and overfilling diplegs back into the bed.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Fluidized Bed Sizing & Fluid Dynamics</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const gasProps = {' +
+      '    air: { mw: 28.97, mu0: 1.81e-5, t0: 293.15, s: 120 },' +
+      '    n2: { mw: 28.01, mu0: 1.76e-5, t0: 293.15, s: 111 },' +
+      '    flue: { mw: 30.20, mu0: 1.83e-5, t0: 293.15, s: 125 },' +
+      '    h2: { mw: 2.016, mu0: 0.88e-5, t0: 293.15, s: 72 },' +
+      '    steam: { mw: 18.02, mu0: 1.26e-5, t0: 373.15, s: 650 }' +
+      '  };' +
+      '  const presets = {' +
+      '    fcc: { dp: 75, dpu: "um", rhop: 1450, rhopu: "kgm3", phi: 0.88, void0: 0.42, l0: 1.8, l0u: "m", dc: 1.2, dcu: "m", gas: "air", temp: 260, press: 2.0, ug: 0.38, ugu: "ms" },' +
+      '    sand: { dp: 320, dpu: "um", rhop: 2650, rhopu: "kgm3", phi: 0.72, void0: 0.44, l0: 1.2, l0u: "m", dc: 1.5, dcu: "m", gas: "flue", temp: 850, press: 1.2, ug: 1.25, ugu: "ms" },' +
+      '    polyethylene: { dp: 650, dpu: "um", rhop: 920, rhopu: "kgm3", phi: 0.95, void0: 0.40, l0: 3.5, l0u: "m", dc: 2.4, dcu: "m", gas: "n2", temp: 85, press: 25.0, ug: 0.65, ugu: "ms" },' +
+      '    coal: { dp: 2200, dpu: "um", rhop: 1350, rhopu: "kgm3", phi: 0.65, void0: 0.48, l0: 1.0, l0u: "m", dc: 0.9, dcu: "m", gas: "air", temp: 950, press: 1.1, ug: 2.80, ugu: "ms" },' +
+      '    fines: { dp: 12, dpu: "um", rhop: 5600, rhopu: "kgm3", phi: 0.78, void0: 0.55, l0: 0.6, l0u: "m", dc: 0.5, dcu: "m", gas: "n2", temp: 150, press: 1.5, ug: 0.05, ugu: "ms" }' +
+      '  };' +
+      '  function getGasDensityViscosity(gasType, tempC, pressBar) {' +
+      '    const p = gasProps[gasType] || gasProps.air;' +
+      '    const T_k = tempC + 273.15;' +
+      '    const P_pa = pressBar * 1e5;' +
+      '    const R = 8314.46;' +
+      '    const rho = (P_pa * p.mw) / (R * T_k);' +
+      '    const mu = p.mu0 * Math.pow(T_k / p.t0, 1.5) * ((p.t0 + p.s) / (T_k + p.s));' +
+      '    return { rho, mu };' +
+      '  }' +
+      '  function calc() {' +
+      '    let dp = parseFloat(el("fb-dp").value) || 75;' +
+      '    if (el("fb-dp-unit").value === "mm") dp *= 1000;' +
+      '    const dp_m = dp * 1e-6;' +
+      '    let rhop = parseFloat(el("fb-rhop").value) || 1450;' +
+      '    if (el("fb-rhop-unit").value === "gcc") rhop *= 1000;' +
+      '    const phi = Math.min(1, Math.max(0.3, parseFloat(el("fb-sphericity").value) || 0.88));' +
+      '    const void0 = Math.min(0.8, Math.max(0.25, parseFloat(el("fb-void0").value) || 0.42));' +
+      '    let l0 = parseFloat(el("fb-l0").value) || 1.8;' +
+      '    if (el("fb-l0-unit").value === "ft") l0 *= 0.3048;' +
+      '    let dc = parseFloat(el("fb-dia").value) || 1.2;' +
+      '    if (el("fb-dia-unit").value === "mm") dc /= 1000;' +
+      '    const gasType = el("fb-gas").value;' +
+      '    const tempC = parseFloat(el("fb-temp").value) || 260;' +
+      '    const pressBar = parseFloat(el("fb-press").value) || 2.0;' +
+      '    let ug = parseFloat(el("fb-ug").value) || 0.38;' +
+      '    if (el("fb-ug-unit").value === "fts") ug *= 0.3048;' +
+      '    const g = 9.80665;' +
+      '    const { rho: rhog, mu: mug } = getGasDensityViscosity(gasType, tempC, pressBar);' +
+      '    const deltaRho = Math.max(10, rhop - rhog);' +
+      '    const Ar = (Math.pow(dp_m, 3) * rhog * deltaRho * g) / (mug * mug);' +
+      '    const Re_mf = Math.sqrt(33.7 * 33.7 + 0.0408 * Ar) - 33.7;' +
+      '    const umf = (Re_mf * mug) / (dp_m * rhog);' +
+      '    const d_star = Math.pow(Ar, 1/3);' +
+      '    const u_star = 1 / ((18 / (d_star * d_star)) + ((2.335 - 1.744 * phi) / Math.sqrt(d_star)));' +
+      '    const ut = u_star * Math.pow((mug * deltaRho * g) / (rhog * rhog), 1/3);' +
+      '    const dp_bed_pa = (1 - void0) * deltaRho * g * l0;' +
+      '    const dp_bed_kpa = dp_bed_pa / 1000;' +
+      '    const dp_dist_kpa = Math.max(3.5, 0.30 * dp_bed_kpa);' +
+      '    let geldart = "Group B";' +
+      '    let geldartColor = "#2563eb";' +
+      '    if (dp < 30 || (dp < 45 && deltaRho < 1200)) {' +
+      '      geldart = "Group C (Cohesive)";' +
+      '      geldartColor = "#dc2626";' +
+      '    } else if (dp > 1000 || Ar > 21700) {' +
+      '      geldart = "Group D (Spoutable)";' +
+      '      geldartColor = "#7c3aed";' +
+      '    } else if (deltaRho < 1500 && dp < 120) {' +
+      '      geldart = "Group A (Aeratable)";' +
+      '      geldartColor = "#16a34a";' +
+      '    } else {' +
+      '      geldart = "Group B (Bubbling Sand-like)";' +
+      '      geldartColor = "#2563eb";' +
+      '    }' +
+      '    let regime = "Bubbling Fluidization";' +
+      '    let regimeBg = "#dbeafe";' +
+      '    let regimeColor = "#1e40af";' +
+      '    if (ug < umf) {' +
+      '      regime = "Fixed Packed Bed (Unfluidized)";' +
+      '      regimeBg = "#fee2e2";' +
+      '      regimeColor = "#991b1b";' +
+      '    } else if (ug < 1.3 * umf && geldart.includes("Group A")) {' +
+      '      regime = "Particulate / Smooth Expansion";' +
+      '      regimeBg = "#dcfce7";' +
+      '      regimeColor = "#166534";' +
+      '    } else if (ug >= ut) {' +
+      '      regime = "Pneumatic Transport / Heavy Elutriation";' +
+      '      regimeBg = "#ffedd5";' +
+      '      regimeColor = "#9a3412";' +
+      '    } else if (ug > 0.6 * ut) {' +
+      '      regime = "Turbulent / Fast Fluidization";' +
+      '      regimeBg = "#f3e8ff";' +
+      '      regimeColor = "#6b21a8";' +
+      '    }' +
+      '    let n_rz = 4.65;' +
+      '    const Re_t = (dp_m * ut * rhog) / mug;' +
+      '    if (Re_t > 0.2 && Re_t <= 1) n_rz = 4.35 * Math.pow(Re_t, -0.03);' +
+      '    else if (Re_t > 1 && Re_t <= 500) n_rz = 4.45 * Math.pow(Re_t, -0.1);' +
+      '    else if (Re_t > 500) n_rz = 2.39;' +
+      '    let void_f = void0;' +
+      '    if (ug > umf && ut > 0) {' +
+      '      const ratio = Math.min(0.98, Math.max(0.01, ug / ut));' +
+      '      void_f = Math.max(void0, Math.pow(ratio, 1 / n_rz));' +
+      '    }' +
+      '    const lf = Math.max(l0, l0 * ((1 - void0) / Math.max(0.02, 1 - void_f)));' +
+      '    const area = Math.PI * 0.25 * dc * dc;' +
+      '    const q_m3s = ug * area;' +
+      '    const q_m3h = q_m3s * 3600;' +
+      '    el("out-umf").innerText = umf < 0.01 ? umf.toFixed(4) : umf.toFixed(3);' +
+      '    el("out-ut").innerText = ut < 1 ? ut.toFixed(3) : ut.toFixed(2);' +
+      '    el("out-ar").innerText = Ar > 1000 ? Math.round(Ar) : Ar.toFixed(2);' +
+      '    el("out-geldart").innerText = geldart;' +
+      '    el("out-geldart").style.color = geldartColor;' +
+      '    const rBadge = el("out-regime-badge");' +
+      '    rBadge.innerText = regime;' +
+      '    rBadge.style.background = regimeBg;' +
+      '    rBadge.style.color = regimeColor;' +
+      '    el("out-uratio").innerText = (ug / Math.max(1e-6, umf)).toFixed(1);' +
+      '    el("out-dp-bed").innerText = dp_bed_kpa.toFixed(2);' +
+      '    el("out-dp-dist").innerText = dp_dist_kpa.toFixed(2);' +
+      '    el("out-lf").innerText = lf.toFixed(2);' +
+      '    el("out-qgas").innerText = Math.round(q_m3h);' +
+      '    drawSim(ug, umf, ut, l0, lf, dc);' +
+      '  }' +
+      '  let animTimer = null;' +
+      '  let particleSeeds = [];' +
+      '  function initParticles() {' +
+      '    particleSeeds = [];' +
+      '    for (let i = 0; i < 180; i++) {' +
+      '      particleSeeds.push({' +
+      '        x: Math.random(),' +
+      '        y: Math.random(),' +
+      '        vy: 0.5 + Math.random() * 0.5,' +
+      '        vx: (Math.random() - 0.5) * 0.3,' +
+      '        size: 2 + Math.random() * 2' +
+      '      });' +
+      '    }' +
+      '  }' +
+      '  initParticles();' +
+      '  function drawSim(ug, umf, ut, l0, lf, dc) {' +
+      '    const canvas = el("fb-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const colX = 140, colW = 200, colY = 20, colH = 220;' +
+      '    ctx.strokeStyle = "#475569";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.strokeRect(colX, colY, colW, colH);' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.setLineDash([4, 4]);' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX, colY + colH);' +
+      '    ctx.lineTo(colX + colW, colY + colH);' +
+      '    ctx.stroke();' +
+      '    ctx.setLineDash([]);' +
+      '    const maxH_disp = colH * 0.9;' +
+      '    const scale = maxH_disp / Math.max(4, l0 * 2.5);' +
+      '    const staticBedPix = Math.min(colH - 10, l0 * scale);' +
+      '    const expBedPix = Math.min(colH - 5, lf * scale);' +
+      '    const bedBottom = colY + colH;' +
+      '    const bedTop = bedBottom - expBedPix;' +
+      '    const isFluid = ug >= umf;' +
+      '    const grad = ctx.createLinearGradient(0, bedTop, 0, bedBottom);' +
+      '    if (isFluid) {' +
+      '      grad.addColorStop(0, "rgba(234, 179, 8, 0.45)");' +
+      '      grad.addColorStop(1, "rgba(202, 138, 4, 0.75)");' +
+      '    } else {' +
+      '      grad.addColorStop(0, "rgba(148, 163, 184, 0.6)");' +
+      '      grad.addColorStop(1, "rgba(100, 116, 139, 0.85)");' +
+      '    }' +
+      '    ctx.fillStyle = grad;' +
+      '    ctx.fillRect(colX + 2, bedTop, colW - 4, expBedPix);' +
+      '    ctx.fillStyle = "#fef08a";' +
+      '    for (const p of particleSeeds) {' +
+      '      const px = colX + 4 + p.x * (colW - 8);' +
+      '      let py = 0;' +
+      '      if (isFluid) {' +
+      '        py = bedTop + p.y * expBedPix;' +
+      '        if (ug >= ut && Math.random() < 0.25) py = colY + Math.random() * (bedTop - colY);' +
+      '      } else {' +
+      '        py = bedBottom - p.y * staticBedPix;' +
+      '      }' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(px, py, p.size, 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    if (isFluid && ug > 1.2 * umf) {' +
+      '      ctx.fillStyle = "rgba(255, 255, 255, 0.4)";' +
+      '      ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";' +
+      '      ctx.lineWidth = 1.5;' +
+      '      const bubbleCount = Math.min(8, Math.floor(ug / umf * 0.5) + 2);' +
+      '      for (let b = 0; b < bubbleCount; b++) {' +
+      '        const bx = colX + 25 + ((b * 47) % (colW - 50));' +
+      '        const by = bedTop + 15 + ((b * 31) % Math.max(20, expBedPix - 30));' +
+      '        const br = 8 + (b % 4) * 4;' +
+      '        ctx.beginPath();' +
+      '        ctx.arc(bx, by, br, 0, Math.PI * 2);' +
+      '        ctx.fill();' +
+      '        ctx.stroke();' +
+      '      }' +
+      '    }' +
+      '    ctx.strokeStyle = "#ef4444";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.setLineDash([3, 3]);' +
+      '    const staticTopY = bedBottom - staticBedPix;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX - 15, staticTopY);' +
+      '    ctx.lineTo(colX, staticTopY);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillText("L0 (static): " + l0.toFixed(2) + "m", 10, staticTopY + 4);' +
+      '    ctx.strokeStyle = "#22c55e";' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(colX + colW, bedTop);' +
+      '    ctx.lineTo(colX + colW + 15, bedTop);' +
+      '    ctx.stroke();' +
+      '    ctx.fillStyle = "#22c55e";' +
+      '    ctx.fillText("Lf (expanded): " + lf.toFixed(2) + "m", colX + colW + 20, bedTop + 4);' +
+      '    ctx.setLineDash([]);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "12px sans-serif";' +
+      '    ctx.fillText("↑ Gas Velocity: " + ug.toFixed(2) + " m/s", colX + 35, h - 8);' +
+      '    ctx.fillText("Grid Distributor (ΔP ≥ 0.3 ΔPbed)", colX - 25, colY + colH + 18);' +
+      '  }' +
+      '  el("fb-preset").addEventListener("change", e => {' +
+      '    const key = e.target.value;' +
+      '    if (presets[key]) {' +
+      '      const p = presets[key];' +
+      '      el("fb-dp").value = p.dp;' +
+      '      el("fb-dp-unit").value = p.dpu;' +
+      '      el("fb-rhop").value = p.rhop;' +
+      '      el("fb-rhop-unit").value = p.rhopu;' +
+      '      el("fb-sphericity").value = p.phi;' +
+      '      el("fb-void0").value = p.void0;' +
+      '      el("fb-l0").value = p.l0;' +
+      '      el("fb-l0-unit").value = p.l0u;' +
+      '      el("fb-dia").value = p.dc;' +
+      '      el("fb-dia-unit").value = p.dcu;' +
+      '      el("fb-gas").value = p.gas;' +
+      '      el("fb-temp").value = p.temp;' +
+      '      el("fb-press").value = p.press;' +
+      '      el("fb-ug").value = p.ug;' +
+      '      el("fb-ug-unit").value = p.ugu;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["fb-dp","fb-dp-unit","fb-rhop","fb-rhop-unit","fb-sphericity","fb-void0","fb-l0","fb-l0-unit","fb-dia","fb-dia-unit","fb-gas","fb-temp","fb-press","fb-ug","fb-ug-unit"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-fb").addEventListener("click", () => {' +
+      '    el("fb-preset").value = "fcc";' +
+      '    el("fb-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-fb").addEventListener("click", () => {' +
+      '    const text = ["=== GAS-SOLID FLUIDIZED BED HYDRODYNAMIC DIAGNOSTIC ===",' +
+      '      "Geldart Classification: " + el("out-geldart").innerText,' +
+      '      "Fluidization Regime: " + el("out-regime-badge").innerText,' +
+      '      "Minimum Fluidization Velocity (Umf): " + el("out-umf").innerText + " m/s",' +
+      '      "Terminal Settling Velocity (Ut): " + el("out-ut").innerText + " m/s",' +
+      '      "Superficial Gas Operating Velocity (Ug): " + el("fb-ug").value + " " + el("fb-ug-unit").value,' +
+      '      "Velocity Ratio (Ug / Umf): " + el("out-uratio").innerText + "x",' +
+      '      "Archimedes Number (Ar): " + el("out-ar").innerText,' +
+      '      "Bed Pressure Drop: " + el("out-dp-bed").innerText + " kPa",' +
+      '      "Recommended Distributor ΔP: " + el("out-dp-dist").innerText + " kPa",' +
+      '      "Expanded Bed Height (Lf): " + el("out-lf").innerText + " m (Static L0: " + el("fb-l0").value + " m)",' +
+      '      "Actual Volumetric Gas Flow: " + el("out-qgas").innerText + " Am³/h",' +
+      '      "Operating Conditions: " + el("fb-temp").value + " °C, " + el("fb-press").value + " bar(a), Gas: " + el("fb-gas").value,' +
+      '      "Particle: dp = " + el("fb-dp").value + " " + el("fb-dp-unit").value + ", rho = " + el("fb-rhop").value + " " + el("fb-rhop-unit").value + ", phi = " + el("fb-sphericity").value,' +
+      '      "Standard Validation: Ergun / Wen & Yu / Haider-Levenspiel / Geldart Models"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("fb-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BQ3: AGITATED BIOREACTOR & FERMENTER kLa MASS TRANSFER CALCULATOR ───
+  (() => {
+    const slug = 'agitated-bioreactor-kla-power-calculator';
+    const title = 'Agitated Bioreactor & Gas-Liquid Fermenter kLa Mass Transfer & Power Calculator';
+    const metaDescription = 'Calculate volumetric mass transfer coefficient (kLa), gassed power draw (Pg), oxygen transfer rate (OTR), tip speed, and mixing time in stirred fermenters using van \'t Riet and Michel & Miller models.';
+    const faq = [
+      {
+        q: 'What is kLa and why is it the universal scale-up criterion for aerobic bioreactors?',
+        a: 'The volumetric mass transfer coefficient ($k_L a$) quantifies the rate at which sparingly soluble oxygen transfers from sparged gas bubbles through the liquid boundary layer into bulk liquid media. In aerobic cultures (bacteria, yeast, fungi, mammalian cells), oxygen solubility in aqueous broths is extremely low ($\\approx 7\\text{--}8\\,\\text{mg/L}$ at 30°C). Because cellular metabolic respiration continuously consumes oxygen, the biological growth rate becomes strictly transfer-limited unless the Oxygen Transfer Rate ($OTR = k_L a (C^* - C_L)$) equals or exceeds the Oxygen Uptake Rate ($OUR = q_{O2} \\cdot X$).'
+      },
+      {
+        q: 'How does gas sparging reduce agitator power draw (Pg vs P0)?',
+        a: 'When gas is sparged beneath a rotating impeller, ventilated gas cavities form behind the trailing edges of the impeller blades. These gas pockets lower the apparent fluid density around the blades and alter the drag streamlines, significantly reducing hydrodynamic torque. Michel & Miller (1962) and Hughmark correlated this gassed power draw as $P_g = 0.812 \\left( \\frac{P_0^2 N D^3}{Q_g^{0.56}} \\right)^{0.45}$, where gassed power $P_g$ is typically 40% to 75% of ungassed power $P_0$.'
+      },
+      {
+        q: 'What is the difference between coalescing and non-coalescing media in van \'t Riet correlations?',
+        a: 'In pure deionized water, air bubbles rapidly coalesce into large, buoyant bubbles that quickly escape the broth, yielding a lower interfacial area $a$: $k_L a = 0.026 (P_g / V_L)^{0.4} v_s^{0.5}$. In industrial fermentation broths containing dissolved salts, electrolytes, alcohols, and antifoams, ionic strength suppresses bubble coalescence. Smaller bubble sizes are maintained, boosting interfacial area and changing the scaling exponents to van \'t Riet\'s non-coalescing formulation: $k_L a = 0.002 (P_g / V_L)^{0.7} v_s^{0.2}$.'
+      },
+      {
+        q: 'What is impeller flooding and how do you prevent it?',
+        a: 'Impeller flooding occurs when the upward volumetric gas flow overwhelms the radial or axial pumping capacity of the impeller. Instead of dispersing bubbles radially outward into microbubbles, the gas streams upward as a thick axial chimney surrounding the agitator shaft. At the flooding point, power draw collapses and $k_L a$ drops precipitously. The transition is predicted by the Gas Flow Number $Fl_g = Q_g / (N D^3)$ and Froude Number $Fr = N^2 D / g$. To avoid flooding, maintain $Fl_g < 30 Fr (D / T)^{3.5}$.'
+      },
+      {
+        q: 'How are impeller tip speed limits chosen for shear-sensitive organisms?',
+        a: 'Impeller tip speed ($v_{tip} = \\pi D N$) dictates maximum local shear stress at blade tips. For fragile, wall-less mammalian cells (e.g. CHO cells), tip speed is typically constrained to $< 1.5\\text{--}1.8\\,\\text{m/s}$ using low-shear hydrofoil impellers (such as Lightnin A310 or HE-3). Filamentous fungi and streptomycetes tolerate $2.5\\text{--}3.5\\,\\text{m/s}$ before hyphal fragmentation occurs, whereas robust single-celled bacteria (E. coli) and yeast (S. cerevisiae) routinely operate at $5.0\\text{--}6.5\\,\\text{m/s}$ with high-shear Rushton turbines.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #2563eb; background: #ffffff; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #2563eb; color: #ffffff; }' +
+      '.btn-primary:hover { background: #1d4ed8; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-otr { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #2563eb; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Agitated Bioreactor & Gas-Liquid Fermenter kLa Mass Transfer & Power Calculator</h1>' +
+      '    <p>Perform industrial-grade biochemical engineering sizing for stirred tank bioreactors. Calculate volumetric oxygen mass transfer coefficient (kLa), gassed power draw (Pg), oxygen transfer rate (OTR), tip speed shear, and macromixing time using van \'t Riet, Michel & Miller, and Rushton correlations.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Bioreactor Geometry & Operating Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-preset">Bioprocess Application Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="bio-preset">' +
+      '            <option value="bacterial" selected>E. coli / Bacterial High-Density Fermentation (High OTR)</option>' +
+      '            <option value="yeast">S. cerevisiae / Baker\'s Yeast Production (Moderate OTR)</option>' +
+      '            <option value="fungal">A. niger / Filamentous Fungal Fermentation (High Viscosity)</option>' +
+      '            <option value="cho">CHO Mammalian Cell Culture (Low Shear / Microcarrier)</option>' +
+      '            <option value="custom">Custom Bioreactor Configuration</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-vol">Working Broth Volume ($V_L$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bio-vol" value="10" min="0.001" max="500" step="0.5">' +
+      '          <select id="bio-vol-unit" style="max-width: 100px;">' +
+      '            <option value="m3" selected>m³</option>' +
+      '            <option value="L">L</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Liquid operating volume (typically 70% - 75% of total vessel volume)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-tank-dia">Tank Inside Diameter ($T$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bio-tank-dia" value="1.8" min="0.05" max="10" step="0.05">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">m</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-impeller">Impeller Type & Power Number ($N_p$)</label>' +
+      '        <div class="input-row">' +
+      '          <select id="bio-impeller">' +
+      '            <option value="rushton" selected>Rushton 6-Flat-Blade Disk Turbine (Np = 5.0 - Radial High Shear)</option>' +
+      '            <option value="pbt">Pitched Blade Turbine 4-Blade 45° (Np = 1.3 - Axial/Radial)</option>' +
+      '            <option value="hydrofoil">High-Efficiency Hydrofoil / Marine A310 (Np = 0.35 - Low Shear Axial)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-n-imp">Number of Impellers & Diameter ($D$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bio-n-imp" value="2" min="1" max="5" step="1" title="Number of impellers">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">stages</span>' +
+      '          <input type="number" id="bio-dia" value="0.65" min="0.02" max="5" step="0.02" title="Impeller Diameter D">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">m dia</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard ratio: $D/T \\approx 0.33\\text{--}0.40$ for Rushton; $0.40\\text{--}0.50$ for axial</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-rpm">Agitation Speed ($N$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bio-rpm" value="160" min="10" max="2000" step="5">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">RPM</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-vvm">Aeration Rate & Gas Enrichment</label>' +
+      '        <div class="input-row" style="margin-bottom: 8px;">' +
+      '          <input type="number" id="bio-vvm" value="1.0" min="0.05" max="3.0" step="0.1" title="Aeration Rate (vvm)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">vvm</span>' +
+      '          <select id="bio-gas-o2" style="max-width: 140px;">' +
+      '            <option value="20.95" selected>Air (21% O2)</option>' +
+      '            <option value="35">Enriched (35% O2)</option>' +
+      '            <option value="50">Enriched (50% O2)</option>' +
+      '            <option value="95">Pure O2 (95%)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">vvm = Volume Gas / Volume Liquid / Minute</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-media-type">Broth Rheology & Media Coalescence</label>' +
+      '        <div class="input-row">' +
+      '          <select id="bio-media-type">' +
+      '            <option value="noncoalescing" selected>Non-Coalescing Electrolyte/Salts (Standard Broth)</option>' +
+      '            <option value="coalescing">Coalescing Aqueous Media (Deionized / Pure Water)</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-temp">Temperature & Headspace Overpressure</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bio-temp" value="37" min="15" max="65" step="1" title="Temperature (°C)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">°C</span>' +
+      '          <input type="number" id="bio-phead" value="0.5" min="0" max="3" step="0.1" title="Headspace Overpressure (bar g)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">bar(g)</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="bio-biomass">Cell Density ($X$) & Target DO Setpoint</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="bio-biomass" value="30" min="0.5" max="150" step="1" title="Dry Cell Weight X (g/L)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">g/L (X)</span>' +
+      '          <input type="number" id="bio-do-set" value="30" min="5" max="80" step="5" title="DO Setpoint (% air sat)">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">% DO</span>' +
+      '        </div>' +
+      '        <div class="hint">Bacterial $q_{O2} \\approx 5\\text{--}8\\,\\text{mmol/g}\\cdot\\text{h}$; mammalian $\\approx 0.2\\text{--}0.5$</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-bio">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-bio">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="bio-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Mass Transfer & Power Performance</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Mass Transfer Coeff ($k_L a$)</div>' +
+      '          <div class="res-val"><span id="out-kla">245</span><span class="res-unit">h⁻¹</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Oxygen Transfer Rate (OTR)</div>' +
+      '          <div class="res-val"><span id="out-otr">165.4</span><span class="res-unit">mmol/L·h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Oxygen Uptake Rate (OUR)</div>' +
+      '          <div class="res-val"><span id="out-our">150.0</span><span class="res-unit">mmol/L·h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">OTR / OUR Balance Ratio</div>' +
+      '          <div id="out-otr-badge" class="badge-otr" style="background:#dcfce7;color:#166534;">1.10x (Sufficient)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Ungassed Power ($P_0$)</div>' +
+      '          <div class="res-val"><span id="out-p0">14.2</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Gassed Power Draw ($P_g$)</div>' +
+      '          <div class="res-val"><span id="out-pg">8.6</span><span class="res-unit">kW</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Specific Power ($P_g / V_L$)</div>' +
+      '          <div class="res-val"><span id="out-pgv">0.86</span><span class="res-unit">kW/m³</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Impeller Tip Speed ($v_{tip}$)</div>' +
+      '          <div class="res-val"><span id="out-vtip">5.45</span><span class="res-unit">m/s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Superficial Gas Velocity ($v_s$)</div>' +
+      '          <div class="res-val"><span id="out-vs">0.065</span><span class="res-unit">m/s</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Macromixing Time ($t_m$)</div>' +
+      '          <div class="res-val"><span id="out-tmix">14.2</span><span class="res-unit">s</span></div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="bio-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Bioreactor Oxygen Transfer</h2>' +
+      '    <p>Aerobic bioprocess engineering balances physical mass transfer against biological respiration kinetics. The governing two-film theory models oxygen flux across the gas-liquid interphase into bulk liquid media.</p>' +
+      '    <h3>1. Dynamic Dissolved Oxygen Mass Balance</h3>' +
+      '    <div class="formula-box">' +
+      '      \\frac{dC_L}{dt} = OTR - OUR = k_L a (C^* - C_L) - q_{O2} \\cdot X' +
+      '    </div>' +
+      '    <p>At steady-state pseudo-equilibrium ($dC_L/dt \\approx 0$), the oxygen transfer rate ($OTR$) must match cellular oxygen uptake rate ($OUR$). If $OUR > OTR$, the dissolved oxygen rapidly drops to zero, throwing the culture into anaerobic fermentation or severe hypoxia.</p>' +
+      '    <h3>2. van \'t Riet Volumetric Mass Transfer Correlations</h3>' +
+      '    <p>The volumetric mass transfer coefficient $k_L a$ combines liquid film mass transfer coefficient $k_L$ (m/s) and specific bubble interfacial area $a$ ($m^2/m^3$). van \'t Riet correlated $k_L a$ ($s^{-1}$) against specific gassed power input ($P_g / V_L$, $W/m^3$) and superficial gas velocity ($v_s = Q_g / A_{tank}$, m/s):</p>' +
+      '    <div class="formula-box">' +
+      '      \\text{Water / Coalescing Media:}\\quad k_L a = 0.026 \\left(\\frac{P_g}{V_L}\\right)^{0.4} v_s^{0.5}\\n' +
+      '      \\text{Electrolyte / Non-Coalescing Broth:}\\quad k_L a = 0.002 \\left(\\frac{P_g}{V_L}\\right)^{0.7} v_s^{0.2}' +
+      '    </div>' +
+      '    <h3>3. Michel & Miller Gassed Agitation Power Draw</h3>' +
+      '    <p>Ungassed power draw in the turbulent regime ($Re > 10,000$) is computed from impeller Power Number $N_p$:</p>' +
+      '    <div class="formula-box">' +
+      '      P_0 = n_i \\cdot N_p \\cdot \\rho_L \\cdot N^3 \\cdot D^5\\quad [W]' +
+      '    </div>' +
+      '    <p>Gas cavity formation reduces the effective drag on impeller blades. Michel & Miller established the classic correlation for gassed power draw:</p>' +
+      '    <div class="formula-box">' +
+      '      P_g = 0.812 \\left( \\frac{P_0^2 \\cdot N \\cdot D^3}{Q_g^{0.56}} \\right)^{0.45}\\quad [W]' +
+      '    </div>' +
+      '    <h3>4. Equilibrium Oxygen Solubility ($C^*$) via Henry\'s Law</h3>' +
+      '    <p>Equilibrium oxygen concentration at the bubble interface accounts for temperature, hydrostatic head, and gas phase mole fraction $y_{O2}$:</p>' +
+      '    <div class="formula-box">' +
+      '      P_{total} = P_{head} + \\frac{1}{2} \\rho_L g H_L\\quad (Arithmetic\\ Mean\\ Tank\\ Pressure)\\n' +
+      '      C^* = \\frac{y_{O2} \\cdot (P_{total} - P_{H2O}(T))}{H_{O2}(T)} \\cdot (1 - \\text{Salinity\\ Correction})' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Stirred Bioreactor Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Impeller Flooding Transition Under Heavy Aeration</h4>' +
+      '      <p>Pumping excessive gas into a fermenter without increasing impeller speed induces flooding. The gas stream envelopes the impeller, collapsing liquid recirculation loops and cutting $P_g$ by up to 70%. Despite high gas flow, mass transfer $k_L a$ drops by 50% to 80% due to bubble channeling directly up the drive shaft.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Shear Damage and Cell Lysis from Excessive Tip Speed</h4>' +
+      '      <p>Attempting to satisfy high oxygen demand in mammalian CHO cell or microcarrier cultures by cranking up agitator RPM causes catastrophic shear damage. Tip speeds exceeding $1.8\\,\\text{m/s}$ rupture cell membranes, shedding intracellular proteins and nucleic acids that cause massive foam formation and harvest filter fouling.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Using Deionized Water Correlations for Complex Media</h4>' +
+      '      <p>Sizing pilot and production fermenters based on clean-water re-aeration data leads to major scale-up failures. Salts, amino acids, and antifoams alter bubble surface tension and coalescence. Applying coalescing correlations to an electrolyte-rich medium overestimates bubble diameter and underestimates the required agitation power by 40%.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Ungassed Drive Motor Overloading on Air Cutoff</h4>' +
+      '      <p>During batch sterilization, feed harvesting, or sudden compressor trips, aeration gas ceases while agitator drives remain spinning. Gassed power draw $P_g$ immediately rebounds to full ungassed power $P_0$ (which is $1.4\\text{--}2.2\\times$ higher). Motors sized strictly for gassed operating conditions will trip on thermal overload or burn out.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. The Scale-Up Heat Removal Bottleneck</h4>' +
+      '      <p>Metabolizing organisms release $\\approx 460\\,\\text{kJ}$ of heat per mole of $O_2$ consumed, plus mechanical energy dissipation from the agitator ($P_g$). While reactor volume scales as $T^3$, vessel jacket cooling surface area scales only as $T^2$. High $k_L a$ fermentations that perform brilliantly at 10 L pilot scale frequently overheat at 50,000 L because the vessel cannot reject metabolic heat.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Bioreactor Mass Transfer & Mixing</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    bacterial: { vol: 10, volu: "m3", tankDia: 1.8, imp: "rushton", nImp: 2, dia: 0.65, rpm: 180, vvm: 1.2, o2: 20.95, media: "noncoalescing", temp: 37, phead: 0.6, biomass: 35, doset: 30, qO2: 6.0 },' +
+      '    yeast: { vol: 25, volu: "m3", tankDia: 2.5, imp: "rushton", nImp: 3, dia: 0.85, rpm: 130, vvm: 0.9, o2: 20.95, media: "noncoalescing", temp: 30, phead: 0.5, biomass: 45, doset: 25, qO2: 3.5 },' +
+      '    fungal: { vol: 15, volu: "m3", tankDia: 2.1, imp: "pbt", nImp: 2, dia: 0.85, rpm: 110, vvm: 0.7, o2: 20.95, media: "noncoalescing", temp: 28, phead: 0.4, biomass: 25, doset: 20, qO2: 2.5 },' +
+      '    cho: { vol: 2, volu: "m3", tankDia: 1.2, imp: "hydrofoil", nImp: 1, dia: 0.55, rpm: 50, vvm: 0.1, o2: 50, media: "coalescing", temp: 37, phead: 0.1, biomass: 4, doset: 40, qO2: 0.25 }' +
+      '  };' +
+      '  let currentQO2 = 6.0;' +
+      '  function getO2Solubility(tempC, pHeadBar, liquidHeightM, o2Pct) {' +
+      '    const pMeanBar = 1.013 + pHeadBar + (0.5 * 1020 * 9.80665 * liquidHeightM) / 1e5;' +
+      '    const pVapBar = Math.exp(11.8571 - (3840.7 / (tempC + 273.15 - 45))) / 1000;' +
+      '    const pDryBar = Math.max(0.1, pMeanBar - pVapBar);' +
+      '    const pO2Bar = pDryBar * (o2Pct / 100);' +
+      '    const h_mgL_bar = 43.8 * Math.exp(-0.019 * (tempC - 25));' +
+      '    const cStar_mgL = pO2Bar * h_mgL_bar * 0.92;' +
+      '    const cStar_mmolL = cStar_mgL / 32.0;' +
+      '    return { cStar_mgL, cStar_mmolL };' +
+      '  }' +
+      '  function calc() {' +
+      '    let vol_m3 = parseFloat(el("bio-vol").value) || 10;' +
+      '    if (el("bio-vol-unit").value === "L") vol_m3 /= 1000;' +
+      '    const T_tank = parseFloat(el("bio-tank-dia").value) || 1.8;' +
+      '    const impType = el("bio-impeller").value;' +
+      '    const nImp = parseInt(el("bio-n-imp").value) || 2;' +
+      '    const D_imp = parseFloat(el("bio-dia").value) || 0.65;' +
+      '    const rpm = parseFloat(el("bio-rpm").value) || 160;' +
+      '    const N_rev_s = rpm / 60;' +
+      '    const vvm = parseFloat(el("bio-vvm").value) || 1.0;' +
+      '    const o2Pct = parseFloat(el("bio-gas-o2").value) || 20.95;' +
+      '    const media = el("bio-media-type").value;' +
+      '    const tempC = parseFloat(el("bio-temp").value) || 37;' +
+      '    const pHead = parseFloat(el("bio-phead").value) || 0.5;' +
+      '    const biomass = parseFloat(el("bio-biomass").value) || 30;' +
+      '    const doSet = parseFloat(el("bio-do-set").value) || 30;' +
+      '    let Np = 5.0;' +
+      '    if (impType === "pbt") Np = 1.3;' +
+      '    else if (impType === "hydrofoil") Np = 0.35;' +
+      '    const tankArea = Math.PI * 0.25 * T_tank * T_tank;' +
+      '    const liquidHeight = vol_m3 / tankArea;' +
+      '    const rho_L = 1020;' +
+      '    const mu_L = 0.005;' +
+      '    const P0_watts = nImp * Np * rho_L * Math.pow(N_rev_s, 3) * Math.pow(D_imp, 5);' +
+      '    const P0_kw = P0_watts / 1000;' +
+      '    const q_m3_min = vvm * vol_m3;' +
+      '    const q_m3_s = q_m3_min / 60;' +
+      '    const vs = q_m3_s / tankArea;' +
+      '    const vtip = Math.PI * D_imp * N_rev_s;' +
+      '    let Pg_watts = P0_watts;' +
+      '    if (q_m3_s > 0) {' +
+      '      const inside = (Math.pow(P0_watts, 2) * N_rev_s * Math.pow(D_imp, 3)) / Math.pow(q_m3_s, 0.56);' +
+      '      Pg_watts = Math.min(P0_watts, 0.812 * Math.pow(inside, 0.45));' +
+      '    }' +
+      '    const Pg_kw = Pg_watts / 1000;' +
+      '    const PgV_w_m3 = Pg_watts / vol_m3;' +
+      '    const PgV_kw_m3 = Pg_kw / vol_m3;' +
+      '    let kla_s = 0;' +
+      '    if (media === "coalescing") {' +
+      '      kla_s = 0.026 * Math.pow(PgV_w_m3, 0.4) * Math.pow(vs, 0.5);' +
+      '    } else {' +
+      '      kla_s = 0.002 * Math.pow(PgV_w_m3, 0.7) * Math.pow(vs, 0.2);' +
+      '    }' +
+      '    const kla_h = kla_s * 3600;' +
+      '    const { cStar_mmolL } = getO2Solubility(tempC, pHead, liquidHeight, o2Pct);' +
+      '    const cL_mmolL = (doSet / 100) * cStar_mmolL;' +
+      '    const deltaC_mmolL = Math.max(0.001, cStar_mmolL - cL_mmolL);' +
+      '    const OTR_mmolLh = kla_h * deltaC_mmolL;' +
+      '    const OUR_mmolLh = currentQO2 * biomass;' +
+      '    const otr_ratio = OTR_mmolLh / Math.max(0.1, OUR_mmolLh);' +
+      '    const tm_s = (5.9 * Math.pow(T_tank, 2/3) * Math.pow(Math.max(1, liquidHeight / T_tank), 1/3)) / (N_rev_s * Math.pow(D_imp, 2/3));' +
+      '    el("out-kla").innerText = kla_h > 10 ? Math.round(kla_h) : kla_h.toFixed(1);' +
+      '    el("out-otr").innerText = OTR_mmolLh > 10 ? OTR_mmolLh.toFixed(1) : OTR_mmolLh.toFixed(2);' +
+      '    el("out-our").innerText = OUR_mmolLh.toFixed(1);' +
+      '    el("out-p0").innerText = P0_kw > 10 ? P0_kw.toFixed(1) : P0_kw.toFixed(2);' +
+      '    el("out-pg").innerText = Pg_kw > 10 ? Pg_kw.toFixed(1) : Pg_kw.toFixed(2);' +
+      '    el("out-pgv").innerText = PgV_kw_m3.toFixed(2);' +
+      '    el("out-vtip").innerText = vtip.toFixed(2);' +
+      '    el("out-vs").innerText = vs.toFixed(3);' +
+      '    el("out-tmix").innerText = tm_s.toFixed(1);' +
+      '    const badge = el("out-otr-badge");' +
+      '    if (otr_ratio >= 1.25) {' +
+      '      badge.innerText = otr_ratio.toFixed(2) + "x (Optimal OTR Surplus)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (otr_ratio >= 1.0) {' +
+      '      badge.innerText = otr_ratio.toFixed(2) + "x (Borderline OTR)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = otr_ratio.toFixed(2) + "x (HYPOXIA DEFICIT)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawBioreactor(T_tank, liquidHeight, D_imp, nImp, rpm, vtip, vvm, otr_ratio);' +
+      '  }' +
+      '  function drawBioreactor(T, H, D, nImp, rpm, vtip, vvm, otr_ratio) {' +
+      '    const canvas = el("bio-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const vX = 140, vW = 200, vY = 25, vH = 220;' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 3;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(vX, vY);' +
+      '    ctx.lineTo(vX, vY + vH - 20);' +
+      '    ctx.arcTo(vX, vY + vH, vX + 30, vY + vH, 25);' +
+      '    ctx.lineTo(vX + vW - 30, vY + vH);' +
+      '    ctx.arcTo(vX + vW, vY + vH, vX + vW, vY + vH - 20, 25);' +
+      '    ctx.lineTo(vX + vW, vY);' +
+      '    ctx.stroke();' +
+      '    const liqH_px = Math.min(vH - 30, (vH - 40) * 0.85);' +
+      '    const liqTop = vY + vH - liqH_px;' +
+      '    const brothGrad = ctx.createLinearGradient(0, liqTop, 0, vY + vH);' +
+      '    brothGrad.addColorStop(0, otr_ratio >= 1.0 ? "rgba(34, 197, 94, 0.35)" : "rgba(239, 68, 68, 0.45)");' +
+      '    brothGrad.addColorStop(1, "rgba(30, 58, 138, 0.65)");' +
+      '    ctx.fillStyle = brothGrad;' +
+      '    ctx.fillRect(vX + 4, liqTop, vW - 8, liqH_px - 8);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    const shaftX = vX + vW / 2;' +
+      '    ctx.fillRect(shaftX - 3, vY - 10, 6, vH - 25);' +
+      '    ctx.fillStyle = "#f8fafc";' +
+      '    const impW = Math.min(vW - 20, (D / Math.max(0.1, T)) * vW);' +
+      '    for (let i = 1; i <= nImp; i++) {' +
+      '      const impY = liqTop + (i / (nImp + 1)) * liqH_px;' +
+      '      ctx.fillRect(shaftX - impW / 2, impY - 4, impW, 8);' +
+      '      ctx.fillStyle = "#38bdf8";' +
+      '      ctx.fillRect(shaftX - impW / 2, impY - 12, 6, 24);' +
+      '      ctx.fillRect(shaftX + impW / 2 - 6, impY - 12, 6, 24);' +
+      '      ctx.fillStyle = "#f8fafc";' +
+      '    }' +
+      '    ctx.strokeStyle = "#38bdf8";' +
+      '    ctx.lineWidth = 2;' +
+      '    const spargerY = vY + vH - 25;' +
+      '    ctx.strokeRect(shaftX - impW * 0.35, spargerY, impW * 0.7, 4);' +
+      '    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";' +
+      '    const nBub = Math.min(25, Math.floor(vvm * 15) + 5);' +
+      '    for (let b = 0; b < nBub; b++) {' +
+      '      const bx = shaftX - impW * 0.4 + Math.random() * (impW * 0.8);' +
+      '      const by = spargerY - Math.random() * (liqH_px - 35);' +
+      '      const br = 1.5 + Math.random() * 2;' +
+      '      ctx.beginPath();' +
+      '      ctx.arc(bx, by, br, 0, Math.PI * 2);' +
+      '      ctx.fill();' +
+      '    }' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "12px sans-serif";' +
+      '    ctx.fillText("V_L = " + el("bio-vol").value + " " + el("bio-vol-unit").value, 15, liqTop + 20);' +
+      '    ctx.fillText("Tip Speed: " + vtip.toFixed(1) + " m/s", 15, liqTop + 40);' +
+      '    ctx.fillText("Sparger: " + vvm.toFixed(1) + " vvm", colX_sparger = vX + vW + 15, spargerY);' +
+      '    ctx.fillText("Agitation: " + rpm + " RPM", vX + vW + 15, liqTop + 20);' +
+      '  }' +
+      '  el("bio-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("bio-vol").value = p.vol;' +
+      '      el("bio-vol-unit").value = p.volu;' +
+      '      el("bio-tank-dia").value = p.tankDia;' +
+      '      el("bio-impeller").value = p.imp;' +
+      '      el("bio-n-imp").value = p.nImp;' +
+      '      el("bio-dia").value = p.dia;' +
+      '      el("bio-rpm").value = p.rpm;' +
+      '      el("bio-vvm").value = p.vvm;' +
+      '      el("bio-gas-o2").value = p.o2;' +
+      '      el("bio-media-type").value = p.media;' +
+      '      el("bio-temp").value = p.temp;' +
+      '      el("bio-phead").value = p.phead;' +
+      '      el("bio-biomass").value = p.biomass;' +
+      '      el("bio-do-set").value = p.doset;' +
+      '      currentQO2 = p.qO2;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["bio-vol","bio-vol-unit","bio-tank-dia","bio-impeller","bio-n-imp","bio-dia","bio-rpm","bio-vvm","bio-gas-o2","bio-media-type","bio-temp","bio-phead","bio-biomass","bio-do-set"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-bio").addEventListener("click", () => {' +
+      '    el("bio-preset").value = "bacterial";' +
+      '    el("bio-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-bio").addEventListener("click", () => {' +
+      '    const text = ["=== AGITATED BIOREACTOR kLa & MASS TRANSFER DIAGNOSTIC ===",' +
+      '      "Volumetric Mass Transfer (kLa): " + el("out-kla").innerText + " h⁻¹",' +
+      '      "Oxygen Transfer Rate (OTR): " + el("out-otr").innerText + " mmol/L·h",' +
+      '      "Oxygen Uptake Rate (OUR): " + el("out-our").innerText + " mmol/L·h",' +
+      '      "OTR/OUR Status: " + el("out-otr-badge").innerText,' +
+      '      "Ungassed Power (P0): " + el("out-p0").innerText + " kW",' +
+      '      "Gassed Power Draw (Pg): " + el("out-pg").innerText + " kW",' +
+      '      "Specific Power Input (Pg/V): " + el("out-pgv").innerText + " kW/m³",' +
+      '      "Impeller Tip Speed: " + el("out-vtip").innerText + " m/s",' +
+      '      "Superficial Gas Velocity: " + el("out-vs").innerText + " m/s",' +
+      '      "Macromixing Time: " + el("out-tmix").innerText + " s",' +
+      '      "Operating Conditions: " + el("bio-vol").value + " " + el("bio-vol-unit").value + ", " + el("bio-rpm").value + " RPM, " + el("bio-vvm").value + " vvm, Temp: " + el("bio-temp").value + " °C, Press: " + el("bio-phead").value + " bar(g)",' +
+      '      "Biomass: X = " + el("bio-biomass").value + " g/L, DO Setpoint = " + el("bio-do-set").value + "%",' +
+      '      "Standards & Models: van \'t Riet / Michel & Miller / Rushton Correlations"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("bio-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // ─── TOOL BQ4: FIXED-BED ADSORPTION COLUMN BREAKTHROUGH & BDST CALCULATOR ───
+  (() => {
+    const slug = 'fixed-bed-adsorption-breakthrough-calculator';
+    const title = 'Fixed-Bed Adsorption Column Breakthrough Curve & BDST Calculator';
+    const metaDescription = 'Model fixed-bed adsorption column breakthrough curves, bed depth service time (BDST), mass transfer zone (MTZ), and critical bed depth (Z0) using Bohart-Adams, Thomas, and Yoon-Nelson models.';
+    const faq = [
+      {
+        q: 'What is an adsorption breakthrough curve and why does it follow an S-shape?',
+        a: 'A breakthrough curve plots the normalized effluent solute concentration ($C / C_0$) against elapsed service time or bed volumes treated. When clean adsorbent receives contaminated fluid, the initial mass transfer zone (MTZ) captures virtually 100% of the solute, maintaining $C/C_0 \\approx 0$. As the top layers of adsorbent saturate, the active MTZ migrates downstream through the bed. When the leading edge of the MTZ reaches the column outlet, effluent concentration begins to rise rapidly (the breakthrough point $t_b$, typically defined at $C/C_0 = 0.05$). Once the trailing edge passes the outlet, the bed is exhausted ($t_e$, $C/C_0 = 0.95$). The characteristic sigmoidal S-shape is governed by non-linear axial dispersion and intra-particle diffusion resistances.'
+      },
+      {
+        q: 'What is the Critical Bed Depth (Z0) in the BDST model?',
+        a: 'The Critical Bed Depth ($Z_0$) is the absolute theoretical minimum depth of adsorbent required to prevent instantaneous breakthrough at time zero ($t = 0$). Derived from the Bohart-Adams equation by setting $t = 0$: $Z_0 = \\frac{u}{k_{BA} N_0} \\ln\\left( \\frac{C_0}{C_b} - 1 \\right)$. If an engineer designs a column with $Z \\le Z_0$, the effluent concentration will exceed the allowable discharge limit $C_b$ immediately upon startup, yielding zero hours of compliant service life.'
+      },
+      {
+        q: 'What is the Length of the Mass Transfer Zone (L_MTZ)?',
+        a: 'The Mass Transfer Zone ($L_{MTZ}$) is the active axial segment of the bed in which the concentration drops from 95% to 5% of influent value. In a symmetric, constant-pattern breakthrough front, $L_{MTZ} = Z \\cdot \\left( 1 - \\frac{t_b}{t_e} \\right)$. A shorter $L_{MTZ}$ indicates faster adsorption kinetics, lower intra-particle diffusion resistance, and higher overall bed utilization efficiency.'
+      },
+      {
+        q: 'What causes chromatographic "roll-over" in multi-solute adsorption?',
+        a: 'Chromatographic roll-over (or displacement overshoot) occurs when feed streams contain multiple competing adsorbates with different adsorption affinities (e.g. benzene vs. toluene, or short-chain vs. long-chain PFAS). The weakly adsorbed species initially binds to clean carbon sites near the inlet. As the mass transfer front of the more strongly adsorbed species arrives, it thermodynamically displaces the weaker species back into the liquid phase, driving the effluent concentration of the weaker species well above 100% of its influent concentration ($C / C_0 > 1.0$).'
+      },
+      {
+        q: 'How does Empty Bed Contact Time (EBCT) relate to breakthrough performance?',
+        a: 'EBCT is the nominal hydraulic residence time in the empty volume occupied by the adsorbent: $EBCT = V_{bed} / Q_F = Z / u$. In water treatment applications (such as GAC for taste/odor or PFAS removal), target EBCT typically ranges from 10 to 20 minutes. Operating below minimum recommended EBCT prevents solute molecules from diffusing through the external liquid film and into internal micro-pores, causing premature breakthrough.'
+      }
+    ];
+
+    const content = '<style>' +
+      '.tool-wrap { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; color: #1e293b; }' +
+      '.tool-header { margin-bottom: 24px; text-align: center; }' +
+      '.tool-header h1 { font-size: 2.2rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.25; }' +
+      '.tool-header p { font-size: 1.1rem; color: #475569; max-width: 850px; margin: 0 auto; }' +
+      '.calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }' +
+      '@media (max-width: 900px) { .calc-grid { grid-template-columns: 1fr; } }' +
+      '.card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }' +
+      '.card-title { font-size: 1.3rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }' +
+      '.input-group { margin-bottom: 16px; }' +
+      '.input-group label { display: block; font-size: 0.88rem; font-weight: 600; color: #334155; margin-bottom: 4px; }' +
+      '.input-group .hint { font-size: 0.78rem; color: #64748b; margin-top: 2px; }' +
+      '.input-row { display: flex; gap: 10px; }' +
+      '.input-row input, .input-row select { flex: 1; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.95rem; font-weight: 500; color: #0f172a; background: #f8fafc; transition: all 0.2s; }' +
+      '.input-row input:focus, .input-row select:focus { outline: none; border-color: #059669; background: #ffffff; box-shadow: 0 0 0 3px rgba(5,150,105,0.15); }' +
+      '.btn-row { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }' +
+      '.btn { flex: 1; min-width: 130px; padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; text-align: center; }' +
+      '.btn-primary { background: #059669; color: #ffffff; }' +
+      '.btn-primary:hover { background: #047857; }' +
+      '.btn-secondary { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }' +
+      '.btn-secondary:hover { background: #e2e8f0; color: #1e293b; }' +
+      '.results-block { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }' +
+      '@media (max-width: 500px) { .results-block { grid-template-columns: 1fr; } }' +
+      '.res-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }' +
+      '.res-label { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #64748b; margin-bottom: 4px; }' +
+      '.res-val { font-size: 1.35rem; font-weight: 800; color: #0f172a; }' +
+      '.res-unit { font-size: 0.85rem; font-weight: 500; color: #64748b; margin-left: 4px; }' +
+      '.badge-bdst { display: inline-block; padding: 4px 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; margin-top: 4px; }' +
+      '.canvas-wrap { text-align: center; margin-top: 16px; background: #0f172a; border-radius: 8px; padding: 12px; }' +
+      'canvas { max-width: 100%; height: auto; display: block; margin: 0 auto; }' +
+      '.sec-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.04); }' +
+      '.sec-card h2 { font-size: 1.45rem; font-weight: 700; color: #0f172a; margin-top: 0; margin-bottom: 16px; }' +
+      '.sec-card h3 { font-size: 1.15rem; font-weight: 600; color: #1e293b; margin-top: 18px; margin-bottom: 8px; }' +
+      '.sec-card p { font-size: 0.98rem; line-height: 1.65; color: #334155; margin-bottom: 12px; }' +
+      '.sec-card ul, .sec-card ol { padding-left: 24px; margin-bottom: 16px; }' +
+      '.sec-card li { font-size: 0.95rem; line-height: 1.6; color: #334155; margin-bottom: 6px; }' +
+      '.formula-box { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 4px solid #059669; border-radius: 6px; padding: 14px 18px; font-family: Consolas, monospace; font-size: 0.92rem; color: #0f172a; margin: 14px 0; overflow-x: auto; }' +
+      '.trap-card { border-radius: 8px; padding: 16px 20px; margin-bottom: 14px; background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }' +
+      '.trap-card h4 { margin: 0 0 6px 0; font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }' +
+      '.trap-card p { margin: 0; font-size: 0.92rem; line-height: 1.55; color: #334155; }' +
+      '.faq-item { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }' +
+      '.faq-q { padding: 14px 18px; font-weight: 600; font-size: 1rem; color: #0f172a; background: #f8fafc; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; }' +
+      '.faq-a { padding: 16px 18px; font-size: 0.95rem; line-height: 1.6; color: #334155; border-top: 1px solid #e2e8f0; display: none; background: #ffffff; }' +
+      '.faq-item.active .faq-a { display: block; }' +
+      '.copy-toast { display: inline-block; font-size: 0.85rem; font-weight: 600; color: #16a34a; margin-left: 10px; opacity: 0; transition: opacity 0.3s; }' +
+      '</style>' +
+      '<div class="tool-wrap">' +
+      '  <div class="tool-header">' +
+      '    <h1>Fixed-Bed Adsorption Column Breakthrough Curve & BDST Calculator</h1>' +
+      '    <p>Perform industrial-grade modeling of continuous fixed-bed adsorption columns. Calculate breakthrough time, bed depth service time (BDST), critical bed depth (Z0), mass transfer zone (MTZ) length, and dynamic solid capacity using Bohart-Adams, Thomas, and Yoon-Nelson models.</p>' +
+      '  </div>' +
+      '  <div class="calc-grid">' +
+      '    <!-- INPUT CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">1. Column & Sorbent Operating Inputs</h2>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-preset">Industrial Adsorption Presets</label>' +
+      '        <div class="input-row">' +
+      '          <select id="ads-preset">' +
+      '            <option value="gac-voc" selected>GAC - VOC / Benzene Groundwater Remediation</option>' +
+      '            <option value="gac-pfas">GAC - PFAS (PFOA/PFOS) Drinking Water Filtration</option>' +
+      '            <option value="zeolite-co2">Zeolite 13X - Biogas CO2 / Moisture Separation</option>' +
+      '            <option value="ix-metal">Chelating Resin - Copper / Nickel Heavy Metal Capture</option>' +
+      '            <option value="custom">Custom Column & Adsorbate System</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-col-dia">Column Inside Diameter ($D_c$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ads-col-dia" value="1.2" min="0.05" max="10" step="0.05">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">m</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-bed-depth">Adsorbent Bed Depth / Height ($Z$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ads-bed-depth" value="2.0" min="0.1" max="20" step="0.1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">m</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-flow">Feed Volumetric Flow Rate ($Q_F$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ads-flow" value="15" min="0.01" max="2000" step="1">' +
+      '          <select id="ads-flow-unit" style="max-width: 100px;">' +
+      '            <option value="m3h" selected>m³/h</option>' +
+      '            <option value="gpm">gpm</option>' +
+      '            <option value="lmin">L/min</option>' +
+      '          </select>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-c0">Influent Solute Concentration ($C_0$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ads-c0" value="40" min="0.001" max="10000" step="1">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">mg/L</span>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-cb-pct">Breakthrough & Exhaustion Limits ($C/C_0$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ads-cb-pct" value="5" min="0.5" max="40" step="0.5" title="Breakthrough limit %">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">% Cb</span>' +
+      '          <input type="number" id="ads-ce-pct" value="95" min="60" max="99.5" step="0.5" title="Exhaustion limit %">' +
+      '          <span style="display:flex;align-items:center;padding:0 6px;font-size:0.85rem;color:#64748b;">% Ce</span>' +
+      '        </div>' +
+      '        <div class="hint">Standard: Breakthrough at 5% of influent; Exhaustion at 95%</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-rhob">Sorbent Bulk Density ($\\rho_b$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ads-rhob" value="480" min="200" max="2000" step="10">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.9rem;color:#64748b;">kg/m³</span>' +
+      '        </div>' +
+      '        <div class="hint">GAC = 420-520 kg/m³; Zeolite = 650-750 kg/m³; Resin = 700-850 kg/m³</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-n0">Dynamic Adsorptive Capacity ($N_0$ or $q_0$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ads-n0" value="35" min="0.5" max="500" step="1">' +
+      '          <select id="ads-n0-unit" style="max-width: 100px;">' +
+      '            <option value="kgm3" selected>kg/m³</option>' +
+      '            <option value="mgg">mg/g</option>' +
+      '          </select>' +
+      '        </div>' +
+      '        <div class="hint">Dynamic volumetric saturation capacity ($N_0 = q_0 \\cdot \\rho_b$)</div>' +
+      '      </div>' +
+      '      <div class="input-group">' +
+      '        <label for="ads-kba">Bohart-Adams / Thomas Kinetic Rate ($k_{BA}$)</label>' +
+      '        <div class="input-row">' +
+      '          <input type="number" id="ads-kba" value="0.0018" min="0.00001" max="1" step="0.0001">' +
+      '          <span style="display:flex;align-items:center;padding:0 8px;font-size:0.85rem;color:#64748b;">L/(mg·h)</span>' +
+      '        </div>' +
+      '        <div class="hint">Higher kinetic rate indicates faster mass transfer and narrower MTZ</div>' +
+      '      </div>' +
+      '      <div class="btn-row">' +
+      '        <button class="btn btn-primary" id="btn-copy-ads">Copy Diagnostic Summary</button>' +
+      '        <button class="btn btn-secondary" id="btn-reset-ads">Reset Baseline</button>' +
+      '      </div>' +
+      '      <span class="copy-toast" id="ads-toast">✓ Diagnostic Summary Copied!</span>' +
+      '    </div>' +
+      '    <!-- RESULTS & VISUALIZER CARD -->' +
+      '    <div class="card">' +
+      '      <h2 class="card-title">2. Breakthrough & Service Life Results</h2>' +
+      '      <div class="results-block">' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Breakthrough Time ($t_b$)</div>' +
+      '          <div class="res-val"><span id="out-tb-days">38.4</span><span class="res-unit">days</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Exhaustion Time ($t_e$)</div>' +
+      '          <div class="res-val"><span id="out-te-days">52.8</span><span class="res-unit">days</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Critical Bed Depth ($Z_0$)</div>' +
+      '          <div class="res-val"><span id="out-z0">0.62</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Depth Safety Status</div>' +
+      '          <div id="out-bdst-badge" class="badge-bdst" style="background:#dcfce7;color:#166534;">Compliant (Z > Z0)</div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Mass Transfer Zone ($L_{MTZ}$)</div>' +
+      '          <div class="res-val"><span id="out-lmtz">0.55</span><span class="res-unit">m</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Empty Bed Contact Time (EBCT)</div>' +
+      '          <div class="res-val"><span id="out-ebct">9.05</span><span class="res-unit">min</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Linear Superficial Velocity ($u$)</div>' +
+      '          <div class="res-val"><span id="out-u-mh">13.26</span><span class="res-unit">m/h</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Volume Treated to Breakthrough</div>' +
+      '          <div class="res-val"><span id="out-vol-treated">13,824</span><span class="res-unit">m³</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Total Bed Volumes (BV)</div>' +
+      '          <div class="res-val"><span id="out-bv-treated">6,110</span><span class="res-unit">BV</span></div>' +
+      '        </div>' +
+      '        <div class="res-item">' +
+      '          <div class="res-label">Sorbent Mass Required</div>' +
+      '          <div class="res-val"><span id="out-mass-sorbent">1,086</span><span class="res-unit">kg</span></div>' +
+      '        </div>' +
+      '      </div>' +
+      '      <div class="canvas-wrap">' +
+      '        <canvas id="ads-canvas" width="480" height="280"></canvas>' +
+      '      </div>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- ENGINEERING DERIVATIONS & THEORY -->' +
+      '  <div class="sec-card">' +
+      '    <h2>First-Principles Mathematical Derivation of Fixed-Bed Adsorption Dynamics</h2>' +
+      '    <p>Continuous fixed-bed adsorption transfers dissolved or vaporized solute molecules onto the high internal surface area of porous micro-particulates. Dynamic modeling couples plug flow advection with solid-liquid mass transfer rate kinetics.</p>' +
+      '    <h3>1. The Bohart-Adams & Thomas Governing Model</h3>' +
+      '    <p>Assuming rectangular or irreversible adsorption isotherms and surface reaction-controlled kinetics, Bohart & Adams developed the quasi-steady state breakthrough expression for depth $Z$ and time $t$:</p>' +
+      '    <div class="formula-box">' +
+      '      \\ln\\left(\\frac{C_0}{C} - 1\\right) = \\frac{k_{BA} \\cdot N_0 \\cdot Z}{u} - k_{BA} \\cdot C_0 \\cdot t' +
+      '    </div>' +
+      '    <p>Where $u$ is superficial linear velocity ($m/h$), $N_0$ is volumetric dynamic saturation capacity ($kg/m^3$), $C_0$ is influent concentration ($mg/L = g/m^3$), and $k_{BA}$ is the kinetic rate constant ($m^3 / kg \\cdot h$).</p>' +
+      '    <h3>2. Bed Depth Service Time (BDST) Approach</h3>' +
+      '    <p>Rearranging the Bohart-Adams equation for time at a specified breakthrough limit ($C_b$) gives the linear BDST equation ($t_b = a Z - b$):</p>' +
+      '    <div class="formula-box">' +
+      '      t_b = \\left[ \\frac{N_0}{C_0 \\cdot u} \\right] Z - \\frac{1}{k_{BA} \\cdot C_0} \\ln\\left( \\frac{C_0}{C_b} - 1 \\right)' +
+      '    </div>' +
+      '    <h3>3. Critical Bed Depth ($Z_0$)</h3>' +
+      '    <p>Setting service time to zero ($t_b = 0$) solves for the minimum physical bed depth required to achieve effluent compliance upon initial fluid contact:</p>' +
+      '    <div class="formula-box">' +
+      '      Z_0 = \\frac{u}{k_{BA} \\cdot N_0} \\ln\\left( \\frac{C_0}{C_b} - 1 \\right)' +
+      '    </div>' +
+      '    <p>Operating with bed depth $Z \\le Z_0$ results in instant breakthrough ($C > C_b$ at $t=0$).</p>' +
+      '    <h3>4. Mass Transfer Zone ($L_{MTZ}$) and Bed Utilization</h3>' +
+      '    <p>For symmetric breakthrough fronts between breakthrough time $t_b$ and exhaustion time $t_e$:</p>' +
+      '    <div class="formula-box">' +
+      '      L_{MTZ} = Z \\cdot \\left( 1 - \\frac{t_b}{t_e} \\right)\\quad\\text{and}\\quad \\eta_{util} = \\frac{t_b + 0.5(t_e - t_b)}{t_e}' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FATAL ENGINEERING TRAPS -->' +
+      '  <div class="sec-card">' +
+      '    <h2>5 Fatal Traps & Engineering Pitfalls in Adsorption Column Design</h2>' +
+      '    <div class="trap-card" style="border-left: 4px solid #ef4444;">' +
+      '      <h4 style="color: #b91c1c;">1. Sub-Critical Bed Depth Operation ($Z < Z_0$)</h4>' +
+      '      <p>Designing an adsorption vessel shallower than the critical bed depth $Z_0$ means the mass transfer front cannot fully develop inside the media before fluid exits. Effluent solute concentration exceeds the compliance limit $C_b$ immediately on startup, causing zero hours of compliant operation.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #f59e0b;">' +
+      '      <h4 style="color: #b45309;">2. Sizing Columns from Static Shaker Equilibrium Isotherms</h4>' +
+      '      <p>Laboratory bottle-point equilibrium tests (Langmuir/Freundlich $q_e$) measure infinite-residence-time capacity. In continuous dynamic columns, intra-particle diffusion and external film resistance restrict sorbent utilization to only 40% to 70% of static equilibrium values. Using static $q_e$ directly causes premature breakthrough in the field.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #10b981;">' +
+      '      <h4 style="color: #047857;">3. Multi-Solute Chromatographic Roll-Over Displacement</h4>' +
+      '      <p>In multi-component waste streams, adsorbates compete for pore volume. Strongly binding molecules (e.g. toluene or long-chain perfluorooctane sulfonate) will displace previously captured weakly binding molecules (e.g. benzene or short-chain perfluorobutanoic acid). Effluent concentration of the weak solute can spike to 150% to 250% of influent concentration, causing severe regulatory violations.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #3b82f6;">' +
+      '      <h4 style="color: #1d4ed8;">4. Wall Channeling in Narrow Aspect Ratio Columns ($D_c / d_p < 30$)</h4>' +
+      '      <p>Near the column wall, packing voidage is substantially higher than in the bed core. In pilot or narrow columns where $D_c / d_p < 30$, fluid preferential channeling along the perimeter shortcuts the media, creating an early tailing breakthrough and distorting scale-up calculations.</p>' +
+      '    </div>' +
+      '    <div class="trap-card" style="border-left: 4px solid #8b5cf6;">' +
+      '      <h4 style="color: #6d28d9;">5. Media Crushing vs Bed Fluidization Operating Limits</h4>' +
+      '      <p>In downflow columns, excessive linear loading velocities ($u > 25\\,\\text{m/h}$) generate high differential pressure that compacts and pulverizes fragile activated carbon or polymer beads. Conversely, in upflow configurations, operating above the minimum fluidization velocity $u_{mf}$ expands the bed and mixes solids, destroying the sharp moving front and causing premature breakthrough.</p>' +
+      '    </div>' +
+      '  </div>' +
+      '  <!-- FAQ ACCORDION -->' +
+      '  <div class="sec-card">' +
+      '    <h2>Frequently Asked Questions: Fixed-Bed Adsorption & BDST</h2>' +
+      faq.map(f =>
+        '    <div class="faq-item">' +
+        '      <div class="faq-q">' + f.q + ' <span>+</span></div>' +
+        '      <div class="faq-a">' + f.a + '</div>' +
+        '    </div>'
+      ).join('') +
+      '  </div>' +
+      '</div>' +
+      '<script>' +
+      '(() => {' +
+      '  const el = id => document.getElementById(id);' +
+      '  const presets = {' +
+      '    "gac-voc": { dia: 1.2, depth: 2.0, flow: 15, flowu: "m3h", c0: 40, cbpct: 5, cepct: 95, rhob: 480, n0: 35, n0u: "kgm3", kba: 0.0018 },' +
+      '    "gac-pfas": { dia: 2.0, depth: 3.5, flow: 45, flowu: "m3h", c0: 0.05, cbpct: 2, cepct: 90, rhob: 450, n0: 1.2, n0u: "kgm3", kba: 0.045 },' +
+      '    "zeolite-co2": { dia: 0.8, depth: 1.6, flow: 25, flowu: "m3h", c0: 120, cbpct: 5, cepct: 95, rhob: 720, n0: 65, n0u: "kgm3", kba: 0.0022 },' +
+      '    "ix-metal": { dia: 1.0, depth: 1.8, flow: 10, flowu: "m3h", c0: 85, cbpct: 5, cepct: 95, rhob: 780, n0: 55, n0u: "kgm3", kba: 0.0025 }' +
+      '  };' +
+      '  function calc() {' +
+      '    const Dc = parseFloat(el("ads-col-dia").value) || 1.2;' +
+      '    const Z = parseFloat(el("ads-bed-depth").value) || 2.0;' +
+      '    let Q = parseFloat(el("ads-flow").value) || 15;' +
+      '    const flowUnit = el("ads-flow-unit").value;' +
+      '    if (flowUnit === "gpm") Q *= 0.227125;' +
+      '    else if (flowUnit === "lmin") Q *= 0.06;' +
+      '    const C0 = parseFloat(el("ads-c0").value) || 40;' +
+      '    const cbPct = Math.min(49, Math.max(0.1, parseFloat(el("ads-cb-pct").value) || 5));' +
+      '    const cePct = Math.min(99.9, Math.max(51, parseFloat(el("ads-ce-pct").value) || 95));' +
+      '    const rhob = parseFloat(el("ads-rhob").value) || 480;' +
+      '    let N0 = parseFloat(el("ads-n0").value) || 35;' +
+      '    if (el("ads-n0-unit").value === "mgg") N0 = (N0 / 1000) * rhob;' +
+      '    const kBA = parseFloat(el("ads-kba").value) || 0.0018;' +
+      '    const Cb_ratio = cbPct / 100;' +
+      '    const Ce_ratio = cePct / 100;' +
+      '    const area = Math.PI * 0.25 * Dc * Dc;' +
+      '    const u_mh = Q / area;' +
+      '    const bedVol_m3 = area * Z;' +
+      '    const ebct_min = (bedVol_m3 / Q) * 60;' +
+      '    const sorbentMass_kg = bedVol_m3 * rhob;' +
+      '    const N0_gm3 = N0 * 1000;' +
+      '    const C0_gm3 = C0;' +
+      '    const kBA_m3_gh = kBA / 1000;' +
+      '    const lnTermB = Math.log((1 / Cb_ratio) - 1);' +
+      '    const lnTermE = Math.log((1 / Ce_ratio) - 1);' +
+      '    const Z0_m = (u_mh / (kBA_m3_gh * N0_gm3)) * lnTermB;' +
+      '    const slope_a = N0_gm3 / (C0_gm3 * u_mh);' +
+      '    const intercept_b = (1 / (kBA_m3_gh * C0_gm3)) * lnTermB;' +
+      '    const intercept_e = (1 / (kBA_m3_gh * C0_gm3)) * lnTermE;' +
+      '    const tb_hours = Math.max(0, slope_a * Z - intercept_b);' +
+      '    const te_hours = Math.max(tb_hours + 1, slope_a * Z - intercept_e);' +
+      '    const tb_days = tb_hours / 24;' +
+      '    const te_days = te_hours / 24;' +
+      '    let Lmtz_m = 0;' +
+      '    if (te_hours > 0) Lmtz_m = Math.min(Z, Z * (1 - (tb_hours / te_hours)));' +
+      '    const volTreated_m3 = Q * tb_hours;' +
+      '    const bvTreated = volTreated_m3 / Math.max(0.01, bedVol_m3);' +
+      '    el("out-tb-days").innerText = tb_days > 10 ? tb_days.toFixed(1) : tb_days.toFixed(2);' +
+      '    el("out-te-days").innerText = te_days > 10 ? te_days.toFixed(1) : te_days.toFixed(2);' +
+      '    el("out-z0").innerText = Z0_m.toFixed(2);' +
+      '    el("out-lmtz").innerText = Lmtz_m.toFixed(2);' +
+      '    el("out-ebct").innerText = ebct_min.toFixed(2);' +
+      '    el("out-u-mh").innerText = u_mh.toFixed(2);' +
+      '    el("out-vol-treated").innerText = Math.round(volTreated_m3).toLocaleString();' +
+      '    el("out-bv-treated").innerText = Math.round(bvTreated).toLocaleString();' +
+      '    el("out-mass-sorbent").innerText = Math.round(sorbentMass_kg).toLocaleString();' +
+      '    const badge = el("out-bdst-badge");' +
+      '    if (Z > Z0_m * 1.5) {' +
+      '      badge.innerText = "Optimal Depth (Z > 1.5 Z0)";' +
+      '      badge.style.background = "#dcfce7";' +
+      '      badge.style.color = "#166534";' +
+      '    } else if (Z > Z0_m) {' +
+      '      badge.innerText = "Borderline Depth (Z > Z0)";' +
+      '      badge.style.background = "#fef9c3";' +
+      '      badge.style.color = "#854d0e";' +
+      '    } else {' +
+      '      badge.innerText = "CRITICAL UNDER-DEPTH (Z ≤ Z0)";' +
+      '      badge.style.background = "#fee2e2";' +
+      '      badge.style.color = "#991b1b";' +
+      '    }' +
+      '    drawBreakthrough(tb_hours, te_hours, Z, Z0_m, Lmtz_m, cbPct, cePct);' +
+      '  }' +
+      '  function drawBreakthrough(tb, te, Z, Z0, Lmtz, cbPct, cePct) {' +
+      '    const canvas = el("ads-canvas");' +
+      '    if (!canvas) return;' +
+      '    const ctx = canvas.getContext("2d");' +
+      '    const w = canvas.width, h = canvas.height;' +
+      '    ctx.clearRect(0, 0, w, h);' +
+      '    ctx.fillStyle = "#0f172a";' +
+      '    ctx.fillRect(0, 0, w, h);' +
+      '    const pX = 50, pY = 25, pW = 250, pH = 190;' +
+      '    ctx.strokeStyle = "#475569";' +
+      '    ctx.lineWidth = 1.5;' +
+      '    ctx.beginPath();' +
+      '    ctx.moveTo(pX, pY);' +
+      '    ctx.lineTo(pX, pY + pH);' +
+      '    ctx.lineTo(pX + pW, pY + pH);' +
+      '    ctx.stroke();' +
+      '    ctx.strokeStyle = "#334155";' +
+      '    ctx.lineWidth = 1;' +
+      '    ctx.setLineDash([2, 3]);' +
+      '    for (let yPct = 0.25; yPct <= 1.0; yPct += 0.25) {' +
+      '      const y = pY + pH - yPct * pH;' +
+      '      ctx.beginPath();' +
+      '      ctx.moveTo(pX, y);' +
+      '      ctx.lineTo(pX + pW, y);' +
+      '      ctx.stroke();' +
+      '    }' +
+      '    ctx.setLineDash([]);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("1.0", pX - 24, pY + 8);' +
+      '    ctx.fillText("0.5", pX - 24, pY + pH / 2 + 4);' +
+      '    ctx.fillText("0.0", pX - 24, pY + pH + 2);' +
+      '    ctx.fillText("C / C0", pX - 35, pY - 8);' +
+      '    const tMax = Math.max(te * 1.3, tb * 1.5);' +
+      '    ctx.strokeStyle = "#10b981";' +
+      '    ctx.lineWidth = 2.5;' +
+      '    ctx.beginPath();' +
+      '    const tMid = (tb + te) / 2;' +
+      '    const kSig = 4.5 / Math.max(1, (te - tb));' +
+      '    for (let i = 0; i <= 60; i++) {' +
+      '      const t = (i / 60) * tMax;' +
+      '      const ratio = 1 / (1 + Math.exp(-kSig * (t - tMid)));' +
+      '      const x = pX + (t / tMax) * pW;' +
+      '      const y = pY + pH - ratio * pH;' +
+      '      if (i === 0) ctx.moveTo(x, y);' +
+      '      else ctx.lineTo(x, y);' +
+      '    }' +
+      '    ctx.stroke();' +
+      '    const x_tb = pX + (tb / tMax) * pW;' +
+      '    const y_tb = pY + pH - (cbPct / 100) * pH;' +
+      '    ctx.fillStyle = "#ef4444";' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(x_tb, y_tb, 4, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.fillText("tb (" + cbPct + "%)", x_tb - 15, y_tb - 8);' +
+      '    const x_te = pX + (te / tMax) * pW;' +
+      '    const y_te = pY + pH - (cePct / 100) * pH;' +
+      '    ctx.fillStyle = "#f59e0b";' +
+      '    ctx.beginPath();' +
+      '    ctx.arc(x_te, y_te, 4, 0, Math.PI * 2);' +
+      '    ctx.fill();' +
+      '    ctx.fillText("te (" + cePct + "%)", x_te - 15, y_te - 8);' +
+      '    ctx.fillStyle = "#94a3b8";' +
+      '    ctx.fillText("Service Time (h)", pX + pW / 2 - 30, pY + pH + 20);' +
+      '    const cX = 350, cY = 30, cW = 80, cH = 180;' +
+      '    ctx.strokeStyle = "#64748b";' +
+      '    ctx.lineWidth = 2;' +
+      '    ctx.strokeRect(cX, cY, cW, cH);' +
+      '    const satH = Math.min(cH - 20, (tb / Math.max(1, te)) * (cH - 30));' +
+      '    ctx.fillStyle = "rgba(180, 83, 9, 0.7)";' +
+      '    ctx.fillRect(cX + 2, cY + 2, cW - 4, satH);' +
+      '    const mtzH = Math.min(cH - satH - 4, 35);' +
+      '    const mtzGrad = ctx.createLinearGradient(0, cY + 2 + satH, 0, cY + 2 + satH + mtzH);' +
+      '    mtzGrad.addColorStop(0, "rgba(180, 83, 9, 0.7)");' +
+      '    mtzGrad.addColorStop(1, "rgba(16, 185, 129, 0.6)");' +
+      '    ctx.fillStyle = mtzGrad;' +
+      '    ctx.fillRect(cX + 2, cY + 2 + satH, cW - 4, mtzH);' +
+      '    const freshH = cH - 4 - satH - mtzH;' +
+      '    if (freshH > 0) {' +
+      '      ctx.fillStyle = "rgba(59, 130, 246, 0.5)";' +
+      '      ctx.fillRect(cX + 2, cY + 2 + satH + mtzH, cW - 4, freshH);' +
+      '    }' +
+      '    ctx.fillStyle = "#f8fafc";' +
+      '    ctx.font = "10px sans-serif";' +
+      '    ctx.fillText("Saturated Bed", cX + 8, cY + Math.max(14, satH / 2));' +
+      '    ctx.fillStyle = "#fef08a";' +
+      '    ctx.fillText("Active MTZ", cX + 12, cY + satH + mtzH / 2 + 4);' +
+      '    ctx.fillStyle = "#93c5fd";' +
+      '    if (freshH > 15) ctx.fillText("Fresh Clean Bed", cX + 5, cY + satH + mtzH + freshH / 2 + 4);' +
+      '    ctx.fillStyle = "#cbd5e1";' +
+      '    ctx.font = "11px sans-serif";' +
+      '    ctx.fillText("Flow ↓", cX + 24, cY - 8);' +
+      '  }' +
+      '  el("ads-preset").addEventListener("change", e => {' +
+      '    const p = presets[e.target.value];' +
+      '    if (p) {' +
+      '      el("ads-col-dia").value = p.dia;' +
+      '      el("ads-bed-depth").value = p.depth;' +
+      '      el("ads-flow").value = p.flow;' +
+      '      el("ads-flow-unit").value = p.flowu;' +
+      '      el("ads-c0").value = p.c0;' +
+      '      el("ads-cb-pct").value = p.cbpct;' +
+      '      el("ads-ce-pct").value = p.cepct;' +
+      '      el("ads-rhob").value = p.rhob;' +
+      '      el("ads-n0").value = p.n0;' +
+      '      el("ads-n0-unit").value = p.n0u;' +
+      '      el("ads-kba").value = p.kba;' +
+      '      calc();' +
+      '    }' +
+      '  });' +
+      '  const inputs = ["ads-col-dia","ads-bed-depth","ads-flow","ads-flow-unit","ads-c0","ads-cb-pct","ads-ce-pct","ads-rhob","ads-n0","ads-n0-unit","ads-kba"];' +
+      '  inputs.forEach(id => {' +
+      '    const elem = el(id);' +
+      '    if (elem) {' +
+      '      elem.addEventListener("input", calc);' +
+      '      elem.addEventListener("change", calc);' +
+      '    }' +
+      '  });' +
+      '  el("btn-reset-ads").addEventListener("click", () => {' +
+      '    el("ads-preset").value = "gac-voc";' +
+      '    el("ads-preset").dispatchEvent(new Event("change"));' +
+      '  });' +
+      '  el("btn-copy-ads").addEventListener("click", () => {' +
+      '    const text = ["=== FIXED-BED ADSORPTION COLUMN BREAKTHROUGH DIAGNOSTIC ===",' +
+      '      "Breakthrough Time (tb): " + el("out-tb-days").innerText + " days",' +
+      '      "Exhaustion Time (te): " + el("out-te-days").innerText + " days",' +
+      '      "Critical Bed Depth (Z0): " + el("out-z0").innerText + " m",' +
+      '      "Bed Depth Status: " + el("out-bdst-badge").innerText,' +
+      '      "Mass Transfer Zone (L_MTZ): " + el("out-lmtz").innerText + " m",' +
+      '      "Empty Bed Contact Time (EBCT): " + el("out-ebct").innerText + " min",' +
+      '      "Superficial Linear Velocity: " + el("out-u-mh").innerText + " m/h",' +
+      '      "Volume Treated to Breakthrough: " + el("out-vol-treated").innerText + " m³ (" + el("out-bv-treated").innerText + " Bed Volumes)",' +
+      '      "Total Sorbent Inventory: " + el("out-mass-sorbent").innerText + " kg",' +
+      '      "Operating Conditions: Z = " + el("ads-bed-depth").value + " m, Dc = " + el("ads-col-dia").value + " m, Q = " + el("ads-flow").value + " " + el("ads-flow-unit").value + ", C0 = " + el("ads-c0").value + " mg/L",' +
+      '      "Sorbent Properties: rho_b = " + el("ads-rhob").value + " kg/m³, N0 = " + el("ads-n0").value + " " + el("ads-n0-unit").value + ", kBA = " + el("ads-kba").value + " L/(mg·h)",' +
+      '      "Validation Standards: Bohart-Adams / Thomas / BDST Mathematical Model"' +
+      '    ].join("\\n");' +
+      '    navigator.clipboard.writeText(text).then(() => {' +
+      '      const t = el("ads-toast");' +
+      '      t.style.opacity = "1";' +
+      '      setTimeout(() => { t.style.opacity = "0"; }, 2500);' +
+      '    });' +
+      '  });' +
+      '  document.querySelectorAll(".faq-q").forEach(q => {' +
+      '    q.addEventListener("click", () => {' +
+      '      q.parentElement.classList.toggle("active");' +
+      '    });' +
+      '  });' +
+      '  calc();' +
+      '})();' +
+      '</script>';
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  console.log('  ✓ Built Trade & Construction Suite (219 calculators in /calc/)');
 }
 
