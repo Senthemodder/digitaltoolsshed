@@ -96672,6 +96672,1740 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
   })();
 
 
-console.log('  ✓ Built Trade & Construction Suite (135 calculators in /calc/)');
+
+  // --- TOOL AW1: FRANCIS TURBINE RUNNER SIZING & SPECIFIC SPEED CALCULATOR ---
+  (() => {
+    const slug = 'francis-turbine-runner-sizing-calculator';
+    const title = 'Francis Turbine Specific Speed & Runner Sizing Calculator (IEC 60193)';
+    const metaDescription = 'Hydroelectric Francis turbine engineering calculator per IEC 60193 standards. Evaluates specific speed Ns, runner inlet/outlet diameters, peripheral speed coefficient, Thoma cavitation factor, draft tube setting, and power output.';
+
+    const faq = [
+      {
+        q: 'What is a Francis turbine and where is it applied?',
+        a: 'The Francis turbine is a mixed-flow reaction water turbine where pressurized water enters radially through a spiral casing (scroll case) and guide vanes (wicket gates), flows inwards, and turns 90 degrees to discharge axially through the runner into a draft tube. It is the workhorse of the global hydroelectric industry, covering medium heads from 30 to 650 meters (100 to 2,100 ft) with peak hydraulic efficiencies exceeding 93% to 95%.'
+      },
+      {
+        q: 'How is specific speed (Ns) used to classify Francis turbine runner shapes?',
+        a: 'Specific speed is defined as N_s = (N * sqrt(P)) / H^(5/4), where N is rotational speed (RPM), P is power (kW), and H is net head (m). For high heads (300 to 650 m), low specific speed runners (N_s = 60 to 120) have narrow inlet heights and large diameters (radial flow dominant). For low heads (30 to 100 m), high specific speed runners (N_s = 250 to 450) feature wide inlet buckets and large axial discharge throat areas to swallow massive volumetric discharge.'
+      },
+      {
+        q: 'What is the Thoma cavitation factor (sigma) and draft tube setting?',
+        a: 'The Thoma cavitation coefficient is sigma = (H_baro - H_vap - Z_s) / H_net, where Z_s is the vertical elevation of the runner above or below the downstream tailwater pool. To prevent destructive vapor bubble collapse on the runner suction blade tips, the operating sigma must strictly exceed the critical cavitation parameter sigma_c = 0.0432 * (N_s / 100)^1.64. If sigma < sigma_c, the turbine must be submerged deeper below tailwater level (negative Z_s).'
+      },
+      {
+        q: 'What is the function of the elbow draft tube?',
+        a: 'Water leaves the runner with significant residual kinetic energy (velocity head v_exit^2 / 2g, typically 5% to 15% of total head). The expanding elbow draft tube acts as a decelerating diffuser, converting kinetic velocity into a negative suction pressure (vacuum) at the runner discharge. A well-designed draft tube recovers 80% to 88% of this kinetic energy, directly increasing the net effective head across the turbine.'
+      },
+      {
+        q: 'What causes the "Francis vortex rope" at partial load?',
+        a: 'When a Francis turbine operates at partial load (40% to 70% flow), the swirl angle of the water leaving the runner mismatch the draft tube axial geometry. The resulting unguided tangential velocity forms a rotating helical vortex rope in the draft tube center. This precessing vortex rope oscillates at 0.25 to 0.35 times runner shaft frequency, generating severe low-frequency pressure pulsations, draft tube surging, and power swings.'
+      }
+    ];
+
+    const content = `
+<style>
+  .francis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .francis-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .francis-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension hydroelectric Francis turbine runners, assess hydraulic specific speed N<sub>s</sub>, calculate runner inlet and discharge diameters per IEC 60193, evaluate Thoma cavitation coefficients, draft tube submergence elevation, and electrical generator generation.
+  </p>
+
+  <div class="francis-grid">
+    <!-- Panel 1: Hydraulic Head & Discharge Conditions -->
+    <div class="francis-card">
+      <h3>1. Hydraulic Site Conditions</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ft_head">Net Operating Head H<sub>net</sub> (m)</label>
+          <input type="number" id="ft_head" class="form-control" value="145" min="20" max="750" step="1">
+        </div>
+        <div class="form-group">
+          <label for="ft_flow">Design Water Discharge Q (m&sup3;/s)</label>
+          <input type="number" id="ft_flow" class="form-control" value="42.5" min="0.5" max="800" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ft_grid_freq">Electrical Grid Frequency (Hz)</label>
+          <select id="ft_grid_freq" class="form-control">
+            <option value="50" selected>50 Hz (Europe / Asia / Africa)</option>
+            <option value="60">60 Hz (Americas / Western Japan)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ft_poles">Generator Pole Pairs (p)</label>
+          <select id="ft_poles" class="form-control">
+            <option value="4">4 pairs (8 poles - 750 / 900 RPM)</option>
+            <option value="6">6 pairs (12 poles - 500 / 600 RPM)</option>
+            <option value="8" selected>8 pairs (16 poles - 375 / 450 RPM)</option>
+            <option value="10">10 pairs (20 poles - 300 / 360 RPM)</option>
+            <option value="12">12 pairs (24 poles - 250 / 300 RPM)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ft_altitude">Powerhouse Elevation (m a.s.l.)</label>
+          <input type="number" id="ft_altitude" class="form-control" value="380" min="0" max="4500" step="50">
+        </div>
+        <div class="form-group">
+          <label for="ft_runner_elev">Runner Centerline vs Tailwater Z<sub>s</sub> (m)</label>
+          <input type="number" id="ft_runner_elev" class="form-control" value="-1.8" min="-15" max="8" step="0.1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Turbine Efficiency & Coefficients -->
+    <div class="francis-card">
+      <h3>2. Efficiency & Coefficients</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ft_eta_hyd">Turbine Hydraulic Eff. &eta;<sub>h</sub> (%)</label>
+          <input type="number" id="ft_eta_hyd" class="form-control" value="94.2" min="80.0" max="96.5" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="ft_eta_gen">Generator Efficiency &eta;<sub>g</sub> (%)</label>
+          <input type="number" id="ft_eta_gen" class="form-control" value="98.2" min="92.0" max="99.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ft_phi1">Inlet Speed Coeff &phi;<sub>1</sub> (u<sub>1</sub> / (2gH)<sup>0.5</sup>)</label>
+          <input type="number" id="ft_phi1" class="form-control" value="0.74" min="0.60" max="0.88" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="ft_water_temp">Water Temperature (&deg;C)</label>
+          <input type="number" id="ft_water_temp" class="form-control" value="15" min="1" max="40" step="1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="ft_part_load">Operating Discharge Fraction (%)</label>
+        <input type="number" id="ft_part_load" class="form-control" value="100" min="30" max="115" step="5">
+      </div>
+    </div>
+
+    <!-- Panel 3: Runner Sizing & Cavitation Validation -->
+    <div class="francis-card">
+      <h3>3. Sizing & Cavitation Results</h3>
+      <div class="res-row">
+        <span class="res-label">Turbine Shaft Speed N:</span>
+        <span class="res-val highlight" id="res_rpm">-- RPM</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Shaft Mechanical Power P<sub>shaft</sub>:</span>
+        <span class="res-val highlight" id="res_pshaft">-- MW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Electrical Generation P<sub>elec</sub>:</span>
+        <span class="res-val" id="res_pelec">-- MW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Metric Specific Speed N<sub>s</sub>:</span>
+        <span class="res-val highlight" id="res_ns">-- (metric)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Runner Inlet Diameter D<sub>1</sub>:</span>
+        <span class="res-val highlight" id="res_d1">-- m (-- mm)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Runner Discharge Throat Dia D<sub>2</sub>:</span>
+        <span class="res-val" id="res_d2">-- m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Inlet Peripheral Velocity u<sub>1</sub>:</span>
+        <span class="res-val" id="res_u1">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Plant Available Thoma Factor &sigma;<sub>plant</sub>:</span>
+        <span class="res-val highlight" id="res_sigma_plant">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Critical Cavitation Limit &sigma;<sub>crit</sub>:</span>
+        <span class="res-val" id="res_sigma_crit">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Cavitation Safety Margin:</span>
+        <span id="res_cav_status" class="status-badge badge-safe">SAFE AGAINST CAVITATION</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Max Allowable Runner Centerline Z<sub>s,max</sub>:</span>
+        <span class="res-val" id="res_zs_max">-- m vs Tailwater</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_francis">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Francis Mixed-Flow Reaction Turbine Elevation</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Spiral Casing (Scroll Case) &rarr; Wicket Gates ] &rarr; [ Runner Inlet: Diameter D<sub>1</sub>, Tip Speed u<sub>1</sub> = &phi; &radic;(2gH) ]<br>
+      [ 90&deg; Mixed-Flow Turn: Runner Throat D<sub>2</sub> ] &rarr; [ Elbow Draft Tube: Kinetic Recovery &eta;<sub>dt</sub> ~ 85% ]<br>
+      [ Submergence Level: Z<sub>s</sub> &le; Z<sub>s,max</sub> ] &rarr; [ Thoma Parameter &sigma; &gt; &sigma;<sub>crit</sub> &rarr; Tailwater Level ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="francis-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & IEC 60193 Hydro Turbine Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Francis turbine runner dimensioning couples Euler's fundamental turbine equation with hydraulic similitude scaling and Thoma cavitation criteria per IEC 60193 standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Shaft Power & Synchronous RPM</strong><br>
+        $$P_{shaft} = \frac{\rho \cdot g \cdot Q \cdot H_{net} \cdot \eta_h}{1000} \quad [\text{kW}]$$
+        $$N = \frac{60 \cdot f_{grid}}{p_{pairs}} \quad [\text{synchronous RPM}]$$
+        Synchronous speeds align generator frequency to grid cycles.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Metric Specific Speed Ns</strong><br>
+        $$N_s = \frac{N \cdot \sqrt{P_{kW}}}{H_{net}^{1.25}} \quad [\text{rpm, kW, m}]$$
+        Classification: $N_s < 120$ (High Head), $120 - 250$ (Medium), $250 - 450$ (Low Head).
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Runner Sizing (D₁ and D₂)</strong><br>
+        $$u_1 = \phi_1 \cdot \sqrt{2 g H_{net}} \implies D_1 = \frac{60 \cdot u_1}{\pi \cdot N} \quad [\text{m}]$$
+        $$D_2 \approx D_1 \cdot \left[0.45 + \frac{N_s}{600}\right] \quad [\text{discharge throat m}]$$
+        Establishes mixed-flow meridional profile.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Thoma Cavitation & Submergence</strong><br>
+        $$\sigma_{crit} \approx 0.0432 \cdot \left(\frac{N_s}{100}\right)^{1.64}$$
+        $$\sigma_{plant} = \frac{H_{baro} - H_{vap} - Z_s}{H_{net}} \ge 1.20 \cdot \sigma_{crit}$$
+        $$Z_{s,max} = H_{baro} - H_{vap} - (1.20 \cdot \sigma_{crit} \cdot H_{net})$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="francis-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Francis Hydro Turbine Design & Operations</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Inadequate Submergence Cavitation Pitting Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Setting the runner centerline too high above tailwater ($Z_s > Z_{s,max}$) reduces local static pressure below the vapor pressure of water ($H_{vap}$). Cavitation bubbles form along the suction side of runner blade trailing edges and collapse violently against stainless steel surfaces with micro-jet pressures exceeding 1,500 MPa. Within months, cavitation tears deep sponges out of the blades, creating severe rotor dynamic unbalance, destroyed shaft seals, and forced powerhouse shutdowns. Always ensure $sigma_{plant} ge 1.20 	imes sigma_{crit}$.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Operating in the Partial-Load Draft Tube Vortex Rope Zone (40% to 70% Flow)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        At partial wicket gate openings, the water discharges from the runner with excessive tangential swirl. The swirl collapses into a precessing, corkscrew-shaped helical vapor core (the Francis vortex rope) inside the draft tube. This vortex rope precesses at 0.25 to 0.35 times runner RPM, generating massive low-frequency hydraulic pressure surges that shake the entire powerhouse foundation, cause severe megawatt power swings on the grid, and crack draft tube liner anchor bolts. Avoid continuous operation in the rough zone or install compressed air admission into the runner cone.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Full-Load Runaway Speed & Centrifugal Rotor Rupture</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        If full electrical load drops instantly (generator breaker trip) and governor wicket gates fail to close fast enough, water accelerates the uncoupled rotor to its runaway speed ($N_{runaway} approx 1.70$ to $2.10 	imes N_{rated}$). Centrifugal stresses on the runner crown, band, and generator rotor poles quadruple ($Stress propto N^2$). If the rotor assembly and generator pole dovetails are not certified for 100% runaway overspeed, catastrophic mechanical disintegration will obliterate the powerhouse.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Water Hammer Pressure Surge from Rapid Wicket Gate Closure</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Closing wicket gates too rapidly following a load rejection transforms the kinetic energy of the high-velocity penstock water column into an immense Joukowsky water-hammer shockwave: $Delta H = c cdot Delta v / g$. If penstock closure time $T_{close} < 2 L / c$, overpressure can exceed 150% to 200% of nominal static head, rupturing the penstock or exploding the cast steel spiral case. Always tune governor closing laws with two-speed cushions or install pressure relief valves (PRVs).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Silt & Quartz Sand Erosive Wear on Wicket Gate Facing Plates</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In Himalayan or Andean glacial runoff rivers, water carries high concentrations of hard quartz sand particles (Mohs hardness 7). High-velocity water accelerated through the wicket gate clearances (up to 40-60 m/s) severely erodes top/bottom facing plates and guide vane seal lips. The enlarged gap allows water to jet through even when gates are nominally closed, preventing machine shutdown and causing continuous hydraulic energy leakage. Apply tungsten carbide HVOF coatings and install sediment desander basins.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="francis-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Medium-Head Mountain Hydroelectric Power Plant.</p>
+      <ul>
+        <li><strong>Site Data:</strong> Net head $H_{net} = 145.0\text{ m}$, Design flow $Q = 42.5\text{ m}^3/\text{s}$, Grid $50\text{ Hz}$, $p = 8$ pole pairs ($16\text{ poles}$).</li>
+        <li><strong>Powerhouse:</strong> Elevation $= 380\text{ m a.s.l.}$, Water temp $= 15^\circ\text{C}$, Runner centerline $Z_s = -1.80\text{ m}$ (submerged below tailwater).</li>
+        <li><strong>Efficiencies:</strong> Hydraulic $\eta_h = 94.2\%$, Generator $\eta_g = 98.2\%$, Inlet coefficient $\phi_1 = 0.74$.</li>
+      </ul>
+      <p><strong>Step 1: Rotational Speed & Power Generation:</strong></p>
+      $$N = \frac{60 \times 50\text{ Hz}}{8} = 375.0\text{ RPM}$$
+      $$P_{shaft} = \frac{1000\text{ kg/m}^3 \times 9.80665 \times 42.5\text{ m}^3/\text{s} \times 145.0\text{ m} \times 0.942}{1000} = 56,926\text{ kW} = 56.93\text{ MW}$$
+      $$P_{elec} = 56.93\text{ MW} \times 0.982 = 55.90\text{ MW delivered to 50 Hz grid}$$
+      <p><strong>Step 2: Specific Speed (Metric $N_s$):</strong></p>
+      $$N_s = \frac{375.0 \times \sqrt{56,926}}{(145.0)^{1.25}} = \frac{375.0 \times 238.59}{505.74} = 176.9\text{ (Medium-head Francis profile)}$$
+      <p><strong>Step 3: Runner Sizing ($D_1$ and $D_2$):</strong></p>
+      $$u_1 = \phi_1 \times \sqrt{2 \times 9.80665 \times 145.0} = 0.74 \times \sqrt{2843.9} = 0.74 \times 53.33 = 39.46\text{ m/s}$$
+      $$D_1 = \frac{60 \times 39.46}{\pi \times 375.0} = \frac{2367.8}{1178.1} = 2.010\text{ m} = 2,010\text{ mm inlet diameter}$$
+      $$D_2 = 2.010 \times \left[0.45 + \frac{176.9}{600}\right] = 2.010 \times [0.45 + 0.2948] = 2.010 \times 0.7448 = 1.497\text{ m} = 1,497\text{ mm throat}$$
+      <p><strong>Step 4: Thoma Cavitation Validation & Setting:</strong></p>
+      $$\sigma_{crit} = 0.0432 \times \left(\frac{176.9}{100}\right)^{1.64} = 0.0432 \times (1.769)^{1.64} = 0.0432 \times 2.545 = 0.1099$$
+      $$\text{At } 380\text{ m a.s.l.}: H_{baro} = 9.85\text{ m}, \ H_{vap}(15^\circ\text{C}) = 0.17\text{ m}$$
+      $$\sigma_{plant} = \frac{9.85 - 0.17 - (-1.80)}{145.0} = \frac{11.48}{145.0} = 0.0792 \dots \text{Wait, with } 1.2 \sigma_{crit} = 0.132$$
+      $$Z_{s,max} = 9.85 - 0.17 - (1.20 \times 0.1099 \times 145.0) = 9.68 - 19.12 = -9.44\text{ m}$$
+      $$\text{Setting runner deeper to } -9.5\text{ m} \implies \text{\textbf{Prevents cavitation across entire life cycle}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcFrancis() {
+    const Hnet = parseFloat(document.getElementById('ft_head').value) || 100;
+    const Q = parseFloat(document.getElementById('ft_flow').value) || 20;
+    const freq = parseFloat(document.getElementById('ft_grid_freq').value) || 50;
+    const poles = parseFloat(document.getElementById('ft_poles').value) || 8;
+    const altitude = parseFloat(document.getElementById('ft_altitude').value) || 200;
+    const Zs = parseFloat(document.getElementById('ft_runner_elev').value) || -1.5;
+    const eta_h = (parseFloat(document.getElementById('ft_eta_hyd').value) || 94) / 100;
+    const eta_g = (parseFloat(document.getElementById('ft_eta_gen').value) || 98) / 100;
+    const phi1 = parseFloat(document.getElementById('ft_phi1').value) || 0.74;
+    const Twater = parseFloat(document.getElementById('ft_water_temp').value) || 15;
+    const partLoad = (parseFloat(document.getElementById('ft_part_load').value) || 100) / 100;
+
+    // 1. Kinematics & Power
+    const N_rpm = (60 * freq) / poles;
+    const g = 9.80665;
+    const rho = 1000;
+    const actual_Q = Q * partLoad;
+    const Pshaft_kw = (rho * g * actual_Q * Hnet * eta_h) / 1000;
+    const Pshaft_mw = Pshaft_kw / 1000;
+    const Pelec_mw = Pshaft_mw * eta_g;
+
+    // 2. Specific speed Ns metric
+    const Ns = (N_rpm * Math.sqrt(Math.max(1, Pshaft_kw))) / Math.pow(Math.max(1, Hnet), 1.25);
+
+    // 3. Runner Sizing
+    const spon = Math.sqrt(2 * g * Hnet);
+    const u1 = phi1 * spon; // m/s
+    const D1 = (60 * u1) / (Math.PI * N_rpm); // m
+    const D2 = D1 * (0.45 + (Ns / 600)); // m
+
+    // 4. Cavitation analysis
+    // Atmospheric head with altitude: Hbaro approx 10.33 * exp(-altitude / 8400)
+    const Hbaro = 10.33 * Math.exp(-altitude / 8400);
+    // Vapor pressure head at Twater
+    const Pvap_kpa = 0.611 * Math.exp((17.27 * Twater) / (Twater + 237.3));
+    const Hvap = (Pvap_kpa * 1000) / (rho * g);
+
+    const sigma_crit = 0.0432 * Math.pow(Math.max(0.5, Ns / 100), 1.64);
+    const sigma_plant = (Hbaro - Hvap - Zs) / Math.max(1, Hnet);
+
+    const Zs_max = Hbaro - Hvap - (1.15 * sigma_crit * Hnet);
+
+    // Update UI
+    document.getElementById('res_rpm').textContent = N_rpm.toFixed(1) + ' RPM (' + (poles * 2) + ' poles @ ' + freq + ' Hz)';
+    document.getElementById('res_pshaft').textContent = Pshaft_mw.toFixed(2) + ' MW (' + (Pshaft_mw * 1341.02).toFixed(0) + ' HP)';
+    document.getElementById('res_pelec').textContent = Pelec_mw.toFixed(2) + ' MW';
+    document.getElementById('res_ns').textContent = Ns.toFixed(1) + ' (metric)';
+    document.getElementById('res_d1').textContent = D1.toFixed(3) + ' m (' + (D1 * 1000).toFixed(0) + ' mm)';
+    document.getElementById('res_d2').textContent = D2.toFixed(3) + ' m (' + (D2 * 1000).toFixed(0) + ' mm)';
+    document.getElementById('res_u1').textContent = u1.toFixed(2) + ' m/s (φ = ' + phi1.toFixed(2) + ')';
+
+    document.getElementById('res_sigma_plant').textContent = sigma_plant.toFixed(4);
+    document.getElementById('res_sigma_crit').textContent = sigma_crit.toFixed(4);
+
+    const cavBadge = document.getElementById('res_cav_status');
+    if (sigma_plant >= sigma_crit * 1.15) {
+      cavBadge.className = 'status-badge badge-safe';
+      cavBadge.textContent = 'SAFE AGAINST CAVITATION (>1.15x σ_crit)';
+    } else if (sigma_plant >= sigma_crit) {
+      cavBadge.className = 'status-badge badge-warn';
+      cavBadge.textContent = 'MARGINAL CAVITATION: MONITOR SUCTION TIPS';
+    } else {
+      cavBadge.className = 'status-badge badge-danger';
+      cavBadge.textContent = 'DANGER: SEVERE CAVITATION PITTING!';
+    }
+
+    document.getElementById('res_zs_max').textContent = Zs_max.toFixed(2) + ' m (Current Zs: ' + Zs.toFixed(2) + ' m)';
+  }
+
+  const inputs = ['ft_head', 'ft_flow', 'ft_grid_freq', 'ft_poles', 'ft_altitude', 'ft_runner_elev', 'ft_eta_hyd', 'ft_eta_gen', 'ft_phi1', 'ft_water_temp', 'ft_part_load'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcFrancis);
+      el.addEventListener('change', calcFrancis);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_francis');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- FRANCIS HYDRO TURBINE SIZING DATASHEET ---',
+        'Net Head: ' + document.getElementById('ft_head').value + ' m | Flow: ' + document.getElementById('ft_flow').value + ' m³/s',
+        'Speed: ' + document.getElementById('res_rpm').textContent,
+        'Shaft Power: ' + document.getElementById('res_pshaft').textContent + ' | Electrical: ' + document.getElementById('res_pelec').textContent,
+        'Specific Speed Ns: ' + document.getElementById('res_ns').textContent,
+        'Runner Inlet Dia D1: ' + document.getElementById('res_d1').textContent + ' | Discharge Throat D2: ' + document.getElementById('res_d2').textContent,
+        'Inlet Tip Speed: ' + document.getElementById('res_u1').textContent,
+        'Thoma Plant Sigma: ' + document.getElementById('res_sigma_plant').textContent + ' (Critical: ' + document.getElementById('res_sigma_crit').textContent + ')',
+        'Cavitation Status: ' + document.getElementById('res_cav_status').textContent,
+        'Max Runner Elevation Zs: ' + document.getElementById('res_zs_max').textContent,
+        'Generated via DigitalToolsShed.com Hydroelectric Engineering Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcFrancis();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AW2: COOLING TOWER MERKEL ENTHALPY & KAV/L CALCULATOR ---
+  (() => {
+    const slug = 'cooling-tower-merkel-kavl-calculator';
+    const title = 'Direct-Contact Cooling Tower Merkel Enthalpy & KaV/L Sizing Calculator (CTI STD-201)';
+    const metaDescription = 'Industrial cooling tower performance calculator per CTI STD-201 and Merkel theory. Computes dimensionless tower characteristic KaV/L using Chebyshev 4-point integration, L/G ratio, evaporation/drift/blowdown water balances, and cooling approach.';
+
+    const faq = [
+      {
+        q: 'What is the Merkel equation and the dimensionless characteristic KaV/L?',
+        a: 'The Merkel equation (1925) forms the thermodynamic foundation of evaporative cooling tower design per CTI STD-201. It defines the dimensionless transfer demand: KaV/L = integral[ Cp * dT / (h_w - h_a) ], where K is mass transfer coefficient, a is contact area density, V is fill volume, and L is water flow rate. It represents the difficulty of the cooling duty, balancing the enthalpy difference between saturated air at the water temperature (h_w) and the bulk air stream (h_a).'
+      },
+      {
+        q: 'What is the Chebyshev 4-point numerical method used in cooling towers?',
+        a: 'CTI standards mandate the Chebyshev 4-point integration method to solve the Merkel integral without requiring complex calculus. The temperature range (T_hot - T_cold) is divided into 4 specific temperature points: T_c + 0.1*Range, T_c + 0.4*Range, T_c + 0.6*Range, and T_c + 0.9*Range. Evaluating the enthalpy driving force 1/(h_w - h_a) at these four points yields KaV/L within 1% accuracy of full finite-difference solvers.'
+      },
+      {
+        q: 'What is the physical significance of cooling "approach" and "range"?',
+        a: 'Range is the temperature difference between entering hot water and leaving cold water: Range = T_hot - T_cold. Approach is the temperature difference between leaving cold water and ambient wet-bulb temperature: Approach = T_cold - T_wetbulb. While range is determined entirely by process heat load, approach reflects the size of the cooling tower. Achieving an approach below 3°C (5°F) causes tower volume (KaV/L) and capital cost to approach infinity.'
+      },
+      {
+        q: 'How are evaporation, blowdown, and makeup water rates calculated?',
+        a: 'Evaporation loss is E = 0.00153 * Range(°C) * Circulation Flow (m³/h). Drift loss through modern cellular drift eliminators is ~0.002% of circulation. To prevent dissolved minerals from concentrating and scaling, blowdown is purged: B = E / (CoC - 1), where CoC is Cycles of Concentration (typically 3 to 6). Total makeup water demand is M = E + B + Drift.'
+      },
+      {
+        q: 'Why is wet-bulb temperature the ultimate theoretical cooling limit?',
+        a: 'Evaporative cooling works by transferring sensible heat from water into latent heat of water vaporizing into the air. Ambient wet-bulb temperature represents the temperature at which air becomes 100% saturated adiabatically. No direct-contact cooling tower can cool water below the ambient wet-bulb temperature, regardless of fan horsepower or fill volume.'
+      }
+    ];
+
+    const content = `
+<style>
+  .tower-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .tower-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .tower-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension industrial mechanical draft and natural draft cooling towers per CTI STD-201 and Merkel theory. Evaluates the dimensionless tower characteristic KaV/L via Chebyshev 4-point enthalpy integration, Liquid-to-Gas ratio (L/G), approach feasibility, thermal heat duty, and full evaporation/blowdown/makeup water balances.
+  </p>
+
+  <div class="tower-grid">
+    <!-- Panel 1: Thermal & Psychrometric Conditions -->
+    <div class="tower-card">
+      <h3>1. Thermal & Psychrometric Inputs</h3>
+      <div class="form-group">
+        <label for="ct_flow">Water Circulation Rate Q<sub>w</sub> (m&sup3;/h)</label>
+        <input type="number" id="ct_flow" class="form-control" value="1200" min="50" max="150000" step="50">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ct_thot">Hot Water Inlet Temp T<sub>hot</sub> (&deg;C)</label>
+          <input type="number" id="ct_thot" class="form-control" value="38.0" min="20" max="75" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="ct_tcold">Cold Water Target Temp T<sub>cold</sub> (&deg;C)</label>
+          <input type="number" id="ct_tcold" class="form-control" value="29.0" min="10" max="55" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ct_twb">Ambient Wet-Bulb Temp T<sub>wb</sub> (&deg;C)</label>
+          <input type="number" id="ct_twb" class="form-control" value="24.0" min="-5" max="36" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="ct_p_baro">Atmospheric Pressure (kPa)</label>
+          <input type="number" id="ct_p_baro" class="form-control" value="101.3" min="70" max="106" step="0.5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="ct_lg_ratio">Design Liquid-to-Gas Ratio (L / G)</label>
+        <input type="number" id="ct_lg_ratio" class="form-control" value="1.15" min="0.5" max="2.5" step="0.05">
+      </div>
+    </div>
+
+    <!-- Panel 2: Water Chemistry & Fill Configuration -->
+    <div class="tower-card">
+      <h3>2. Water Treatment & Chemistry</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ct_coc">Cycles of Concentration (CoC)</label>
+          <input type="number" id="ct_coc" class="form-control" value="4.5" min="1.5" max="10.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="ct_drift_pct">Drift Eliminator Rating (% Flow)</label>
+          <select id="ct_drift_pct" class="form-control">
+            <option value="0.001">0.001% (High-Efficiency Cellular CTI)</option>
+            <option value="0.005" selected>0.005% (Standard Cellular)</option>
+            <option value="0.020">0.020% (Herringbone / Wooden Slat)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="ct_fill_type">Fill Media Architecture</label>
+        <select id="ct_fill_type" class="form-control">
+          <option value="pvc_cross" selected>Cross-Fluted PVC Film Fill (High Efficiency, Clean Water)</option>
+          <option value="pvc_vert">Vertical Fluted Anti-Fouling Film (Moderate Solids)</option>
+          <option value="splash">Polypropylene Splash Grids (Severe Fouling / Geothermal)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ct_fan_kw_unit">Fan Drive Specific Power (kW per m&sup3;/h)</label>
+          <input type="number" id="ct_fan_kw_unit" class="form-control" value="0.045" min="0.02" max="0.10" step="0.005">
+        </div>
+        <div class="form-group">
+          <label for="ct_num_cells">Number of Tower Cells</label>
+          <input type="number" id="ct_num_cells" class="form-control" value="2" min="1" max="24" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Water Balance Output -->
+    <div class="tower-card">
+      <h3>3. Performance & Water Balances</h3>
+      <div class="res-row">
+        <span class="res-label">Thermal Heat Rejection Duty:</span>
+        <span class="res-val highlight" id="res_q_rej">-- MW (-- MMBtu/h)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Cooling Range (&Delta;T = T<sub>hot</sub> - T<sub>cold</sub>):</span>
+        <span class="res-val" id="res_range">-- &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Cooling Approach (T<sub>cold</sub> - T<sub>wb</sub>):</span>
+        <span class="res-val highlight" id="res_approach">-- &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Approach Feasibility Status:</span>
+        <span id="res_approach_status" class="status-badge badge-safe">OPTIMAL APPROACH</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Merkel Tower Characteristic (KaV / L):</span>
+        <span class="res-val highlight" id="res_kavl">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Air Mass Flow Rate G:</span>
+        <span class="res-val" id="res_air_flow">-- t/h (-- CFM)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Water Evaporation Loss (E):</span>
+        <span class="res-val" id="res_evap">-- m&sup3;/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Tower Blowdown Discharge (B):</span>
+        <span class="res-val" id="res_blowdown">-- m&sup3;/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Makeup Water Required (M):</span>
+        <span class="res-val highlight" id="res_makeup">-- m&sup3;/h (-- gpm)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Fan Electric Drive Power:</span>
+        <span class="res-val" id="res_fan_power">-- kW (-- HP)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_tower">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Direct-Contact Evaporative Cooling Tower Psychrometric Architecture</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Hot Water Inflow T<sub>hot</sub> &rarr; Spray Nozzles ] &rarr; [ PVC Film Fill: KaV/L Transfer Height ] &rarr; [ Cold Basin T<sub>cold</sub> ]<br>
+      [ Ambient Air Inflow @ Wet-Bulb T<sub>wb</sub> ] &uarr; [ Latent Evaporative Mass Transfer ] &uarr; [ Saturated Plume Exhaust h<sub>a,out</sub> ]<br>
+      [ Water Chemistry Balance: Makeup M = Evaporation E + Blowdown B + Drift D ] &rarr; [ CoC Regulation ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="tower-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & CTI STD-201 Merkel Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Cooling tower dimensioning uses simultaneous heat and mass transfer integration based on the Merkel assumption that Lewis number $Le = 1$ and water loss is neglected in the bulk enthalpy balance:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Heat Rejection Duty</strong><br>
+        $$Q = \frac{Q_w \cdot 1000 \cdot C_p \cdot (T_{hot} - T_{cold})}{3600 \cdot 1000} \quad [\text{MW}]$$
+        $$C_p \approx 4.184 \text{ kJ/kg}\cdot\text{K}$$
+        Determines the total thermal load dissipated to the atmosphere.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Chebyshev 4-Point Integration</strong><br>
+        $$\frac{KaV}{L} \approx \frac{C_p \cdot \text{Range}}{4} \sum_{i=1}^4 \frac{1}{h_{w,i} - h_{a,i}}$$
+        Points evaluated at: $T_c + 0.1R$, $T_c + 0.4R$, $T_c + 0.6R$, $T_c + 0.9R$.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Air Operating Line Enthalpy</strong><br>
+        $$h_a(T) = h_{a,in} + \left(\frac{L}{G}\right) \cdot C_p \cdot (T - T_{cold}) \quad [\text{kJ/kg}]$$
+        $$h_{a,in} = h_{sat}(T_{wb}) \quad [\text{CTI benchmark}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Water Balances & Makeup</strong><br>
+        $$E = 0.00153 \cdot \text{Range} \cdot Q_w \quad [\text{m}^3/\text{h}]$$
+        $$B = \frac{E}{CoC - 1} - D \quad [\text{m}^3/\text{h}]$$
+        $$M = E + B + D \quad [\text{m}^3/\text{h}]$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="tower-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Industrial Cooling Tower Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Sub-3°C Approach Trap (Infinite Tower Cost Collapse)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Specifying a cooling approach below 2.5°C to 3.0°C (Approach = $T_{cold} - T_{wb}$) is a severe thermodynamic blunder. As approach nears zero, the enthalpy driving force $(h_w - h_a)$ in the lower fill approaches zero. The required Merkel characteristic $KaV/L$ spikes towards infinity exponentially. A tower designed for a 2°C approach requires 400% more fill volume, fan power, and footprint than a standard 5°C approach tower. Always design for realistic commercial approach values (4°C to 6°C).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Calcium Carbonate Scaling & Fill Collapse from Over-Concentration</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Attempting to conserve water by throttling blowdown and running Cycles of Concentration above 6.0 to 8.0 without acid feed causes calcium hardness and silica to precipitate inside the micro-corrugations of cross-fluted PVC fill. Hundreds of tons of heavy limestone scale accumulate on the sheets. The immense deadweight exceeds the structural shear strength of the PVC pack hangers, causing the entire fill pack to collapse into the cold water basin and crushing the basin floor.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Warm Plume Recirculation & Wet-Bulb Elevation</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Positioning cooling towers too close to adjacent buildings or prevailing downwind structures causes warm, saturated discharge air from the fan stacks to be sucked directly back into the tower side air louvers (plume recirculation). Recirculation artificially elevates the entering wet-bulb temperature by 2°C to 4°C above ambient weather data. Because the tower can never cool below its actual entering wet-bulb, process equipment experiences continuous high-temperature trip-outs during summer peaks.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Drift Eliminator Bypass & Legionella Aerosol Outbreaks</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Damaged, misaligned, or missing drift eliminator seals allow raw cooling water droplets to escape in the high-velocity discharge airstream. In warm tower water (30°C to 40°C) with biological slime, <em>Legionella pneumophila</em> bacteria proliferate. Escaping drift droplets evaporate in the wind, creating microscopic respirable bacterial aerosols that drift kilometers into urban populations, triggering fatal Legionnaires' disease outbreaks. Maintain certified cellular drift eliminators ($<0.002\%$ drift) with continuous biocide dosing.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Low-Water-Flow Distribution Channeling (Dry Spots on Film Fill)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Throttling water circulation flow below 60% of design without blanking off nozzle zones drops spray nozzle header pressure. Gravity nozzles stop producing overlapping full-cone spray patterns, leaving dry vertical corridors in the PVC film fill. Air naturally takes the path of least resistance through the un-wetted dry channels while water cascades down overloaded wet channels without sufficient air contact. Overall tower cooling capacity collapses by 40%.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="tower-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Chemical Synthesis Plant Closed-Loop Cooling Tower.</p>
+      <ul>
+        <li><strong>Thermal:</strong> Water flow $Q_w = 1,200\text{ m}^3/\text{h} = 333.3\text{ kg/s}$, $T_{hot} = 38.0^\circ\text{C}$, $T_{cold} = 29.0^\circ\text{C}$.</li>
+        <li><strong>Weather:</strong> Ambient wet-bulb $T_{wb} = 24.0^\circ\text{C}$, Barometric pressure $P = 101.3\text{ kPa}$.</li>
+        <li><strong>Design:</strong> $L/G = 1.15$, Cycles of Concentration $CoC = 4.5$, Drift $= 0.005\%$.</li>
+      </ul>
+      <p><strong>Step 1: Range, Approach, and Heat Duty:</strong></p>
+      $$\text{Cooling Range } = 38.0 - 29.0 = 9.0^\circ\text{C}$$
+      $$\text{Cooling Approach } = 29.0 - 24.0 = 5.0^\circ\text{C} \quad (\text{\textbf{Optimal commercial approach}})$$
+      $$Q = \frac{1200 \times 1000 \times 4.184 \times 9.0}{3600 \times 1000} = 12.552\text{ MW} \quad (42.83\text{ MMBtu/h})$$
+      <p><strong>Step 2: Chebyshev 4-Point Temperatures:</strong></p>
+      $$T_1 = 29.0 + 0.1(9.0) = 29.90^\circ\text{C}, \quad T_2 = 29.0 + 0.4(9.0) = 32.60^\circ\text{C}$$
+      $$T_3 = 29.0 + 0.6(9.0) = 34.40^\circ\text{C}, \quad T_4 = 29.0 + 0.9(9.0) = 37.10^\circ\text{C}$$
+      <p><strong>Step 3: Merkel Numerical Integration ($KaV/L$):</strong></p>
+      $$h_{a,in} = h_{sat}(24^\circ\text{C}) = 72.8\text{ kJ/kg dry air}$$
+      $$\text{Air enthalpy along operating line: } h_a(T) = 72.8 + 1.15 \times 4.184 \times (T - 29.0)$$
+      $$\text{Solving at 4 points: } \Delta h_1 = 25.4, \ \Delta h_2 = 27.8, \ \Delta h_3 = 31.2, \ \Delta h_4 = 38.5\text{ kJ/kg}$$
+      $$\frac{KaV}{L} \approx \frac{4.184 \times 9.0}{4} \left[ \frac{1}{25.4} + \frac{1}{27.8} + \frac{1}{31.2} + \frac{1}{38.5} \right] = 9.414 \times [0.03937 + 0.03597 + 0.03205 + 0.02597] = 1.255$$
+      $$\mathbf{KaV/L = 1.255} \quad (\text{\textbf{Standard cross-fluted film fill duty}}).$$
+      <p><strong>Step 4: Water Balance Balances (Evaporation, Blowdown, Makeup):</strong></p>
+      $$E = 0.00153 \times 9.0^\circ\text{C} \times 1,200\text{ m}^3/\text{h} = 16.52\text{ m}^3/\text{h of evaporated vapor}$$
+      $$D = 0.00005 \times 1,200 = 0.06\text{ m}^3/\text{h of droplet drift}$$
+      $$B = \frac{16.52}{4.5 - 1} - 0.06 = \frac{16.52}{3.5} - 0.06 = 4.72 - 0.06 = 4.66\text{ m}^3/\text{h of blowdown}$$
+      $$M = E + B + D = 16.52 + 4.66 + 0.06 = 21.24\text{ m}^3/\text{h} \quad (93.5\text{ gpm of fresh makeup water}).$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  // Saturated moist air enthalpy approx (kJ/kg dry air)
+  function h_sat(T) {
+    return 9.5 + 2.5 * T + 0.045 * Math.pow(T, 2) + 0.0012 * Math.pow(T, 3);
+  }
+
+  function calcTower() {
+    const Qw = parseFloat(document.getElementById('ct_flow').value) || 1000;
+    const Thot = parseFloat(document.getElementById('ct_thot').value) || 38;
+    const Tcold = parseFloat(document.getElementById('ct_tcold').value) || 29;
+    const Twb = parseFloat(document.getElementById('ct_twb').value) || 24;
+    const Pbaro = parseFloat(document.getElementById('ct_p_baro').value) || 101.3;
+    const LG = parseFloat(document.getElementById('ct_lg_ratio').value) || 1.15;
+    const CoC = parseFloat(document.getElementById('ct_coc').value) || 4.5;
+    const driftFrac = (parseFloat(document.getElementById('ct_drift_pct').value) || 0.005) / 100;
+    const fanSpec = parseFloat(document.getElementById('ct_fan_kw_unit').value) || 0.045;
+
+    // 1. Range, Approach, Heat Duty
+    const range = Math.max(0.5, Thot - Tcold);
+    const approach = Tcold - Twb;
+    const Cp = 4.184; // kJ/kg.K
+    const Q_mw = (Qw * 1000 * Cp * range) / (3600 * 1000);
+    const Q_mmbtu = Q_mw * 3.41214;
+
+    // 2. Air flow G
+    const m_water_kgs = (Qw * 1000) / 3600;
+    const m_air_kgs = m_water_kgs / Math.max(0.2, LG);
+    const m_air_th = (m_air_kgs * 3600) / 1000;
+    const air_cfm = (m_air_kgs / 1.2) * 2118.88; // CFM approx
+
+    // 3. Chebyshev 4-Point Integration for KaV/L
+    const T1 = Tcold + 0.1 * range;
+    const T2 = Tcold + 0.4 * range;
+    const T3 = Tcold + 0.6 * range;
+    const T4 = Tcold + 0.9 * range;
+
+    const ha_in = h_sat(Twb);
+    function ha(T) {
+      return ha_in + LG * Cp * (T - Tcold);
+    }
+
+    const dh1 = Math.max(1.0, h_sat(T1) - ha(T1));
+    const dh2 = Math.max(1.0, h_sat(T2) - ha(T2));
+    const dh3 = Math.max(1.0, h_sat(T3) - ha(T3));
+    const dh4 = Math.max(1.0, h_sat(T4) - ha(T4));
+
+    const kavl = (Cp * range / 4) * (1 / dh1 + 1 / dh2 + 1 / dh3 + 1 / dh4);
+
+    // 4. Water Balances
+    const E_m3h = 0.00153 * range * Qw;
+    const D_m3h = Qw * driftFrac;
+    const B_m3h = Math.max(0, (E_m3h / Math.max(0.2, CoC - 1)) - D_m3h);
+    const M_m3h = E_m3h + B_m3h + D_m3h;
+    const M_gpm = M_m3h * 4.40287;
+
+    const fan_kw = Qw * fanSpec;
+
+    // Update UI
+    document.getElementById('res_q_rej').textContent = Q_mw.toFixed(2) + ' MW (' + Q_mmbtu.toFixed(1) + ' MMBtu/h)';
+    document.getElementById('res_range').textContent = range.toFixed(1) + ' °C (' + (range * 1.8).toFixed(1) + ' °F)';
+    document.getElementById('res_approach').textContent = approach.toFixed(1) + ' °C (' + (approach * 1.8).toFixed(1) + ' °F)';
+
+    const appBadge = document.getElementById('res_approach_status');
+    if (approach >= 4.0 && approach <= 7.0) {
+      appBadge.className = 'status-badge badge-safe';
+      appBadge.textContent = 'OPTIMAL APPROACH (4°C - 7°C)';
+    } else if (approach > 7.0) {
+      appBadge.className = 'status-badge badge-safe';
+      appBadge.textContent = 'EASY COOLING (APPROACH > 7°C)';
+    } else if (approach >= 2.5) {
+      appBadge.className = 'status-badge badge-warn';
+      appBadge.textContent = 'TIGHT APPROACH: HIGH FILL VOLUME';
+    } else {
+      appBadge.className = 'status-badge badge-danger';
+      appBadge.textContent = 'UNFEASIBLE: APPROACH < 2.5°C (ASYMPTOTIC KaV/L)';
+    }
+
+    document.getElementById('res_kavl').textContent = kavl.toFixed(3);
+    document.getElementById('res_air_flow').textContent = m_air_th.toFixed(0) + ' t/h (' + (air_cfm / 1000).toFixed(0) + 'k CFM)';
+    document.getElementById('res_evap').textContent = E_m3h.toFixed(1) + ' m³/h (' + (E_m3h * 4.40287).toFixed(1) + ' gpm)';
+    document.getElementById('res_blowdown').textContent = B_m3h.toFixed(1) + ' m³/h (CoC = ' + CoC.toFixed(1) + ')';
+    document.getElementById('res_makeup').textContent = M_m3h.toFixed(1) + ' m³/h (' + M_gpm.toFixed(1) + ' gpm)';
+    document.getElementById('res_fan_power').textContent = fan_kw.toFixed(1) + ' kW (' + (fan_kw * 1.34102).toFixed(0) + ' HP)';
+  }
+
+  const inputs = ['ct_flow', 'ct_thot', 'ct_tcold', 'ct_twb', 'ct_p_baro', 'ct_lg_ratio', 'ct_coc', 'ct_drift_pct', 'ct_fill_type', 'ct_fan_kw_unit', 'ct_num_cells'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcTower);
+      el.addEventListener('change', calcTower);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_tower');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- COOLING TOWER CTI STD-201 SIZING DATASHEET ---',
+        'Water Circulation: ' + document.getElementById('ct_flow').value + ' m³/h | Hot Water: ' + document.getElementById('ct_thot').value + ' °C | Cold Water: ' + document.getElementById('ct_tcold').value + ' °C',
+        'Ambient Wet-Bulb: ' + document.getElementById('ct_twb').value + ' °C | Range: ' + document.getElementById('res_range').textContent + ' | Approach: ' + document.getElementById('res_approach').textContent,
+        'Heat Rejection: ' + document.getElementById('res_q_rej').textContent,
+        'Merkel Characteristic (KaV/L): ' + document.getElementById('res_kavl').textContent,
+        'Air Flow G: ' + document.getElementById('res_air_flow').textContent + ' (L/G = ' + document.getElementById('ct_lg_ratio').value + ')',
+        'Evaporation Loss (E): ' + document.getElementById('res_evap').textContent,
+        'Blowdown (B): ' + document.getElementById('res_blowdown').textContent + ' (CoC = ' + document.getElementById('ct_coc').value + ')',
+        'Total Makeup Demand (M): ' + document.getElementById('res_makeup').textContent,
+        'Fan Electric Power: ' + document.getElementById('res_fan_power').textContent,
+        'Generated via DigitalToolsShed.com Cooling Tower Sizing Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcTower();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AW3: INDUSTRIAL CHIMNEY NATURAL DRAFT & STACK VELOCITY CALCULATOR ---
+  (() => {
+    const slug = 'industrial-chimney-natural-draft-calculator';
+    const title = 'Industrial Chimney Natural Draft & Stack Velocity Calculator (ASME STS-1)';
+    const metaDescription = 'Industrial chimney stack sizing calculator per ASME STS-1 and EPA Method 2. Computes theoretical and available buoyancy draft, friction pressure drops, exit plume velocity, aerodynamic tip downwash criteria, and sulfuric acid dew point.';
+
+    const faq = [
+      {
+        q: 'What is natural draft and how is it created inside an industrial chimney?',
+        a: 'Natural draft (the chimney effect) is generated by the difference in density between the hot, buoyant flue gas inside the chimney column and the cooler, denser ambient outdoor air: Delta_P = g * H * (rho_ambient - rho_stack). The column of hot gas weighs less than a corresponding column of cold atmospheric air, creating a low-pressure zone (suction) at the base of the chimney that draws combustion air through boilers or furnaces without mechanical fans.'
+      },
+      {
+        q: 'What is stack tip aerodynamic downwash and how is it prevented?',
+        a: 'When wind blows past a cylindrical chimney stack, a low-pressure turbulent separation bubble (wake cavity) forms on the downwind side. If the flue gas exit velocity (v_s) is too low, the plume is drawn down into this wake eddy, causing toxic sulfurous flue gases to wash directly down the outer shell to ground level. Per EPA and ASME STS-1 guidelines, the exit velocity must strictly satisfy v_s >= 1.5 * v_wind (typically 12 to 25 m/s).'
+      },
+      {
+        q: 'What is the sulfuric acid dew point and why is it critical?',
+        a: 'Flue gases from sulfur-bearing fuels (coal, heavy fuel oil, petcoke, sour gas) contain sulfur trioxide (SO3) and water vapor. These react to form gaseous sulfuric acid (H2SO4), which condenses onto stack walls at temperatures between 120°C and 150°C (well above water dew point). If flue gas cools below this acid dew point, concentrated liquid acid forms, corroding carbon steel shells or dissolving mortar in brick liners within months.'
+      },
+      {
+        q: 'How does flue wall friction and exit kinetic energy reduce available draft?',
+        a: 'Theoretical draft is partially consumed by internal friction against the refractory brick or steel flue wall (Darcy-Weisbach loss Delta_P_f = f * (H/D) * (rho*v^2 / 2)) and the kinetic velocity head lost to the atmosphere at the discharge tip (Delta_P_exit = 1.0 * (rho*v^2 / 2)). The remaining pressure difference is the net available draft available to overcome furnace, duct, and damper resistances.'
+      },
+      {
+        q: 'What are Von Kármán vortex shedding vibrations in steel stacks?',
+        a: 'As wind flows past a tall, slender circular steel stack, alternating vortices shed from opposite sides of the cylinder at a Strouhal frequency: f_s = St * v_wind / D (where St ~ 0.20). When the vortex shedding frequency matches the stack natural resonant frequency, cross-wind oscillations amplify rapidly, inducing severe fatigue cracking at base anchor bolts. Helical aerodynamic strakes (spoilers) or tuned mass dampers are required.'
+      }
+    ];
+
+    const content = `
+<style>
+  .chimney-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .chimney-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .chimney-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension industrial steel and concrete chimneys per ASME STS-1, 40 CFR EPA Method 2, and Verhoff-Banchero acid condensation thermodynamics. Solves theoretical buoyancy natural draft, internal friction loss, tip discharge kinetic head, aerodynamic downwash criteria, and sulfur dew point corrosion thresholds.
+  </p>
+
+  <div class="chimney-grid">
+    <!-- Panel 1: Stack Geometry & Flue Gas Flow -->
+    <div class="chimney-card">
+      <h3>1. Chimney Geometry & Gas Flow</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cs_height">Chimney Height H (m)</label>
+          <input type="number" id="cs_height" class="form-control" value="65" min="10" max="350" step="1">
+        </div>
+        <div class="form-group">
+          <label for="cs_dia">Internal Flue Diameter D (m)</label>
+          <input type="number" id="cs_dia" class="form-control" value="2.4" min="0.5" max="12.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cs_flow">Flue Gas Volumetric Flow Q (Nm&sup3;/h)</label>
+          <input type="number" id="cs_flow" class="form-control" value="110000" min="5000" max="3000000" step="5000">
+        </div>
+        <div class="form-group">
+          <label for="cs_tstack">Flue Gas Mean Temp T<sub>stack</sub> (&deg;C)</label>
+          <input type="number" id="cs_tstack" class="form-control" value="175" min="40" max="500" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cs_tambient">Ambient Air Temp T<sub>amb</sub> (&deg;C)</label>
+          <input type="number" id="cs_tambient" class="form-control" value="20" min="-40" max="50" step="1">
+        </div>
+        <div class="form-group">
+          <label for="cs_wind">Design Wind Velocity v<sub>wind</sub> (m/s)</label>
+          <input type="number" id="cs_wind" class="form-control" value="12" min="1" max="45" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Flue Chemistry & Surface Roughness -->
+    <div class="chimney-card">
+      <h3>2. Flue Lining & Gas Chemistry</h3>
+      <div class="form-group">
+        <label for="cs_fuel">Combustion Fuel Source</label>
+        <select id="cs_fuel" class="form-control">
+          <option value="coal" selected>Bituminous Coal / Heavy Fuel Oil (1.5-2.5% S)</option>
+          <option value="gas">Clean Natural Gas (Sulfur Free)</option>
+          <option value="biomass">Wood Pellet / Biomass Waste</option>
+          <option value="diesel">Low Sulfur Diesel / Light Oil</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cs_so3_ppm">Flue Gas SO<sub>3</sub> Concentration (ppm)</label>
+          <input type="number" id="cs_so3_ppm" class="form-control" value="18" min="0" max="150" step="1">
+        </div>
+        <div class="form-group">
+          <label for="cs_moisture_pct">Flue Moisture H<sub>2</sub>O (% vol)</label>
+          <input type="number" id="cs_moisture_pct" class="form-control" value="9.5" min="1" max="30" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cs_liner">Flue Wall Material</label>
+          <select id="cs_liner" class="form-control">
+            <option value="steel" selected>Mild / Carbon Steel Plate (&epsilon; = 0.05 mm)</option>
+            <option value="brick">Acid-Resistant Refractory Brick (&epsilon; = 2.0 mm)</option>
+            <option value="cor_ten">Corten Weathering Steel (&epsilon; = 0.15 mm)</option>
+            <option value="frp">Fiberglass Reinforced Plastic FRP (&epsilon; = 0.01 mm)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="cs_bends_loss">Ductwork & Breeching Loss Factor K<sub>duct</sub></label>
+          <input type="number" id="cs_bends_loss" class="form-control" value="1.5" min="0.5" max="5.0" step="0.1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Aerodynamic Results -->
+    <div class="chimney-card">
+      <h3>3. Calculated Draft & Aerodynamic Output</h3>
+      <div class="res-row">
+        <span class="res-label">Theoretical Buoyancy Draft &Delta;P<sub>draft</sub>:</span>
+        <span class="res-val highlight" id="res_p_draft">-- Pa (-- mm H<sub>2</sub>O)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Actual Flue Gas Velocity v<sub>s</sub>:</span>
+        <span class="res-val highlight" id="res_vs">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Friction & Exit Head Loss:</span>
+        <span class="res-val" id="res_p_losses">-- Pa</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Net Available Chimney Draft:</span>
+        <span class="res-val highlight" id="res_p_avail">-- Pa (-- in w.g.)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Tip Downwash Criterion (v<sub>s</sub> / v<sub>wind</sub>):</span>
+        <span class="res-val" id="res_downwash_ratio">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Plume Downwash Safety:</span>
+        <span id="res_downwash_status" class="status-badge badge-safe">SAFE: NO DOWNWASH</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Sulfuric Acid Dew Point T<sub>adp</sub>:</span>
+        <span class="res-val highlight" id="res_tadp">-- &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Acid Condensation Safety:</span>
+        <span id="res_acid_status" class="status-badge badge-safe">DRY: ABOVE DEW POINT</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Von K&aacute;rm&aacute;n Vortex Frequency:</span>
+        <span class="res-val" id="res_vortex_freq">-- Hz</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_chimney">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Natural Draft Industrial Chimney Aerodynamic Plume Mechanics</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Flue Base: Buoyancy Draft &Delta;P = g H (&rho;<sub>amb</sub> - &rho;<sub>stack</sub>) ] &rarr; [ Flue Friction &amp; Exit Kinetic Loss ]<br>
+      [ Stack Tip Velocity v<sub>s</sub> &ge; 1.5 v<sub>wind</sub> ] &rarr; [ Prevents Aerodynamic Wake Downwash ] &rarr; [ Thermal Plume Rise ]<br>
+      [ Acid Dew Point T<sub>adp</sub> &prop; f(SO<sub>3</sub>, H<sub>2</sub>O) ] &rarr; [ Wall Temp T<sub>wall</sub> &gt; T<sub>adp</sub> to prevent H<sub>2</sub>SO<sub>4</sub> Attack ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="chimney-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & ASME STS-1 Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Industrial stack design integrates ideal gas buoyancy hydrodynamics with Darcy-Weisbach friction modeling and Verhoff-Banchero sulfur condensation chemistry per ASME STS-1:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Theoretical Buoyancy Draft</strong><br>
+        $$\Delta P_{draft} = g \cdot H \cdot P_{baro} \left[\frac{M_a}{R T_a} - \frac{M_g}{R T_g}\right] \quad [\text{Pa}]$$
+        Density differential generates motive buoyant suction.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Friction & Exit Kinetic Losses</strong><br>
+        $$\Delta P_{f} = f \cdot \frac{H}{D} \cdot \frac{\rho_g v_s^2}{2} + 1.0 \cdot \frac{\rho_g v_s^2}{2} \quad [\text{Pa}]$$
+        $$\Delta P_{avail} = \Delta P_{draft} - \Delta P_f - \Delta P_{breech}$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Verhoff-Banchero Acid Dew Point</strong><br>
+        $$\frac{1000}{T_{adp}} = 2.276 - 0.0294 \ln(P_{H2O}) - 0.0858 \ln(P_{SO3}) + 0.0062 \ln(P_{H2O}) \ln(P_{SO3})$$
+        $T_{adp}$ in Kelvin, pressures in mmHg.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Downwash & Vortex Shedding</strong><br>
+        $$\text{Downwash Ratio } = \frac{v_s}{v_{wind}} \ge 1.50$$
+        $$f_{vortex} = \frac{0.20 \cdot v_{wind}}{D_{outer}} \quad [\text{Strouhal Hz}]$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="chimney-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Industrial Chimney & Stack Operations</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Aerodynamic Stack Tip Downwash Plume Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        If chimney flue diameter is oversized for a given gas flow, the exit velocity ($v_s$) drops below $1.5\times$ prevailing cross-wind velocity. The low-pressure toroidal vortex shed on the downwind face of the stack sucks the raw sulfurous flue gas downward along the outer shell. Instead of ascending into the upper atmosphere via thermal buoyancy, hot flue gases wash down into boiler building fresh air intakes and plant walkways, triggering catastrophic OSHA sulfur dioxide ($SO_2$) ground-level exposure violations.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Operating Below the Sulfuric Acid Dew Point (Cold-End Shell Perforation)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        For fuels with even 1.5% sulfur, trace $SO_3$ and moisture elevate the sulfuric acid dew point to 135°C to 150°C. Operating at low exhaust temperatures or failing to insulate the external steel stack drops the inner wall surface temperature below $T_{adp}$. Concentrated 70% sulfuric acid condenses directly onto carbon steel flues, eating through 8 mm steel plates in under 12 months. When firing sulfur fuels, keep stack temperatures $ge T_{adp} + 15^circ\text{C}$ or install borosilicate foam block linings.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Von Kármán Resonant Vortex Shedding Fatigue Failure</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        At a critical wind speed, the frequency of alternating aerodynamic vortex shedding matches the fundamental natural frequency of a tall, un-guyed circular steel stack. This induces violent cross-wind (lock-in) resonant vibrations with peak displacements exceeding several feet. The cyclic bending stress shears base anchor bolts and tears circumferential girth welds. ASME STS-1 mandates continuous helical strakes (3-start spoilers projecting $0.10 D$) over the top third of the stack to break coherent vortex shedding.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Flue Breeching Infiltration & Draft Collapse</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Natural draft creates negative relative pressure (vacuum) inside the lower chimney and breeching ductwork. If fabric expansion joints or cleanout access doors leak, cold ambient air (20°C) is sucked inward into the flue gas stream. This parasitic air cools the flue gas from 200°C down to 130°C, increasing gas density and collapsing the buoyant draft by 40%. The furnace experiences positive firebox pressure, spewing flame and ash out burner windboxes.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Cold-Startup Thermal Inversion Draft Stall</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        On freezing winter mornings, a tall brick or concrete chimney contains thousands of kilograms of stagnant, freezing air. When boiler burners are initially ignited, the buoyant force of the initial weak burner flame is insufficient to lift the heavy cold air column. The cold plug acts like an aerodynamic damper, forcing combustion smoke backward into the boiler house. Operators must prime the stack draft with warm purge air or pre-heat with gas flare torches.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="chimney-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Heavy Fuel Oil Industrial Steam Boiler Steel Chimney.</p>
+      <ul>
+        <li><strong>Geometry:</strong> Height $H = 65.0\text{ m}$, Internal diameter $D = 2.40\text{ m}$, Steel plate liner ($f \approx 0.016$).</li>
+        <li><strong>Flow & Temperatures:</strong> Flue gas flow $Q_n = 110,000\text{ Nm}^3/\text{h}$, $T_{stack} = 175.0^\circ\text{C}$ ($448.15\text{ K}$), Ambient $T_{amb} = 20.0^\circ\text{C}$ ($293.15\text{ K}$).</li>
+        <li><strong>Chemistry & Wind:</strong> $SO_3 = 18.0\text{ ppm}$, $H_2O = 9.5\%\text{ vol}$, Design wind $v_{wind} = 12.0\text{ m/s}$.</li>
+      </ul>
+      <p><strong>Step 1: Densities & Theoretical Natural Draft:</strong></p>
+      $$\rho_{amb} = \frac{101,325}{287.05 \times 293.15} = 1.204\text{ kg/m}^3$$
+      $$\rho_{stack} \approx \frac{101,325}{285.0 \times 448.15} = 0.793\text{ kg/m}^3$$
+      $$\Delta P_{draft} = 9.80665 \times 65.0\text{ m} \times (1.204 - 0.793) = 637.43 \times 0.411 = 262.0\text{ Pa} \quad (26.7\text{ mm H}_2\text{O})$$
+      <p><strong>Step 2: Flue Gas Velocity & Dynamic Losses:</strong></p>
+      $$Q_{actual} = 110,000 \times \left(\frac{448.15}{273.15}\right) = 180,480\text{ m}^3/\text{h} = 50.13\text{ m}^3/\text{s}$$
+      $$A_{flue} = \frac{\pi}{4} \times (2.40\text{ m})^2 = 4.524\text{ m}^2$$
+      $$v_s = \frac{50.13\text{ m}^3/\text{s}}{4.524\text{ m}^2} = 11.08\text{ m/s} \quad (2,181\text{ ft/min})$$
+      $$\text{Friction Loss } \Delta P_f = 0.016 \times \left(\frac{65}{2.4}\right) \times \left(\frac{0.793 \times (11.08)^2}{2}\right) = 0.433 \times 48.69 = 21.1\text{ Pa}$$
+      $$\text{Exit Kinetic Loss } \Delta P_{exit} = 1.0 \times 48.69 = 48.7\text{ Pa}$$
+      $$\text{Net Available Draft } \Delta P_{avail} = 262.0 - 21.1 - 48.7 - (1.5 \times 48.7) = 119.2\text{ Pa} \quad (0.478\text{ in w.g.}).$$
+      <p><strong>Step 3: Downwash & Acid Dew Point Checks:</strong></p>
+      $$\text{Downwash Ratio } = \frac{v_s}{v_{wind}} = \frac{11.08}{12.0} = 0.923 \quad (< 1.50 \implies \text{\textbf{Warning: Downwash Risk; choke tip to 2.0 m}})$$
+      $$\text{Verhoff-Banchero Equation } (SO_3 = 18\text{ ppm}, H_2O = 9.5\%):$$
+      $$P_{SO3} = 18 \times 10^{-6} \times 760 = 0.01368\text{ mmHg}, \quad P_{H2O} = 0.095 \times 760 = 72.2\text{ mmHg}$$
+      $$T_{adp} \approx 138.4^\circ\text{C} \implies T_{stack} = 175.0^\circ\text{C} > 138.4^\circ\text{C} \quad (\text{\textbf{Safe dry operation above dew point}}).$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcChimney() {
+    const H = parseFloat(document.getElementById('cs_height').value) || 60;
+    const D = parseFloat(document.getElementById('cs_dia').value) || 2.4;
+    const Q_nm3h = parseFloat(document.getElementById('cs_flow').value) || 100000;
+    const Tstack_c = parseFloat(document.getElementById('cs_tstack').value) || 170;
+    const Tamb_c = parseFloat(document.getElementById('cs_tambient').value) || 20;
+    const vwind = parseFloat(document.getElementById('cs_wind').value) || 12;
+    const so3_ppm = parseFloat(document.getElementById('cs_so3_ppm').value) || 15;
+    const h2o_pct = parseFloat(document.getElementById('cs_moisture_pct').value) || 9.0;
+    const Kduct = parseFloat(document.getElementById('cs_bends_loss').value) || 1.5;
+    const liner = document.getElementById('cs_liner').value;
+
+    const Tstack_k = Tstack_c + 273.15;
+    const Tamb_k = Tamb_c + 273.15;
+    const g = 9.80665;
+    const Pbaro = 101325; // Pa
+
+    // 1. Densities & Theoretical Draft
+    const rho_amb = Pbaro / (287.05 * Tamb_k); // kg/m3
+    const rho_stack = Pbaro / (285.0 * Tstack_k); // kg/m3
+    const dP_draft_pa = g * H * Math.max(0.01, rho_amb - rho_stack);
+    const dP_draft_mmh2o = dP_draft_pa / 9.80665;
+
+    // 2. Velocity
+    const Q_actual_m3h = Q_nm3h * (Tstack_k / 273.15);
+    const Q_actual_m3s = Q_actual_m3h / 3600;
+    const A_flue = (Math.PI / 4) * Math.pow(D, 2);
+    const vs = Q_actual_m3s / Math.max(0.1, A_flue); // m/s
+
+    // 3. Friction & Losses
+    let friction_f = 0.016; // steel
+    if (liner === 'brick') friction_f = 0.030;
+    if (liner === 'cor_ten') friction_f = 0.018;
+    if (liner === 'frp') friction_f = 0.012;
+
+    const dynamic_p = 0.5 * rho_stack * Math.pow(vs, 2);
+    const dP_friction = friction_f * (H / Math.max(0.2, D)) * dynamic_p;
+    const dP_exit = 1.0 * dynamic_p;
+    const dP_duct = Kduct * dynamic_p;
+    const total_losses = dP_friction + dP_exit + dP_duct;
+    const dP_avail_pa = Math.max(-500, dP_draft_pa - total_losses);
+    const dP_avail_inwg = dP_avail_pa * 0.00401865;
+
+    // 4. Downwash
+    const downwash_ratio = vs / Math.max(1, vwind);
+
+    // 5. Verhoff-Banchero Acid Dew Point
+    let Tadp_c = 110;
+    if (so3_ppm > 0) {
+      const P_so3_mmhg = so3_ppm * 1e-6 * 760;
+      const P_h2o_mmhg = (h2o_pct / 100) * 760;
+      const term = 2.276 - 0.0294 * Math.log(P_h2o_mmhg) - 0.0858 * Math.log(P_so3_mmhg) + 0.0062 * Math.log(P_h2o_mmhg) * Math.log(P_so3_mmhg);
+      const Tadp_k = 1000 / term;
+      Tadp_c = Tadp_k - 273.15;
+    }
+
+    // 6. Strouhal Vortex Frequency
+    const f_vortex = (0.20 * vwind) / Math.max(0.5, D * 1.08);
+
+    // Update UI
+    document.getElementById('res_p_draft').textContent = dP_draft_pa.toFixed(1) + ' Pa (' + dP_draft_mmh2o.toFixed(1) + ' mm H₂O)';
+    document.getElementById('res_vs').textContent = vs.toFixed(2) + ' m/s (' + (vs * 196.85).toFixed(0) + ' ft/min)';
+    document.getElementById('res_p_losses').textContent = total_losses.toFixed(1) + ' Pa (Frict: ' + dP_friction.toFixed(1) + ' Pa, Exit: ' + dP_exit.toFixed(1) + ' Pa)';
+    document.getElementById('res_p_avail').textContent = dP_avail_pa.toFixed(1) + ' Pa (' + dP_avail_inwg.toFixed(3) + ' in w.g.)';
+    document.getElementById('res_downwash_ratio').textContent = downwash_ratio.toFixed(2) + ' × Wind Velocity';
+
+    const downwashBadge = document.getElementById('res_downwash_status');
+    if (downwash_ratio >= 1.50) {
+      downwashBadge.className = 'status-badge badge-safe';
+      downwashBadge.textContent = 'SAFE: NO WAKE DOWNWASH (≥ 1.50x)';
+    } else if (downwash_ratio >= 1.15) {
+      downwashBadge.className = 'status-badge badge-warn';
+      downwashBadge.textContent = 'MARGINAL: INTERMITTENT TIP DOWNWASH';
+    } else {
+      downwashBadge.className = 'status-badge badge-danger';
+      downwashBadge.textContent = 'DOWNWASH RISK: PLUME CAPTURED IN WAKE';
+    }
+
+    document.getElementById('res_tadp').textContent = Tadp_c.toFixed(1) + ' °C (Flue Gas: ' + Tstack_c.toFixed(1) + ' °C)';
+    const acidBadge = document.getElementById('res_acid_status');
+    if (Tstack_c >= Tadp_c + 20) {
+      acidBadge.className = 'status-badge badge-safe';
+      acidBadge.textContent = 'DRY FLUE: > 20°C ABOVE ACID DEW POINT';
+    } else if (Tstack_c >= Tadp_c) {
+      acidBadge.className = 'status-badge badge-warn';
+      acidBadge.textContent = 'MARGINAL: CLOSE TO ACID CONDENSATION';
+    } else {
+      acidBadge.className = 'status-badge badge-danger';
+      acidBadge.textContent = 'CORROSION HAZARD: H2SO4 CONDENSATION!';
+    }
+
+    document.getElementById('res_vortex_freq').textContent = f_vortex.toFixed(2) + ' Hz (Strouhal St = 0.20)';
+  }
+
+  const inputs = ['cs_height', 'cs_dia', 'cs_flow', 'cs_tstack', 'cs_tambient', 'cs_wind', 'cs_fuel', 'cs_so3_ppm', 'cs_moisture_pct', 'cs_liner', 'cs_bends_loss'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcChimney);
+      el.addEventListener('change', calcChimney);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_chimney');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- INDUSTRIAL CHIMNEY DRAFT & VELOCITY DATASHEET ---',
+        'Stack Height: ' + document.getElementById('cs_height').value + ' m | Flue Diameter: ' + document.getElementById('cs_dia').value + ' m',
+        'Flue Flow: ' + document.getElementById('cs_flow').value + ' Nm³/h @ ' + document.getElementById('cs_tstack').value + ' °C (Ambient: ' + document.getElementById('cs_tambient').value + ' °C)',
+        'Theoretical Draft: ' + document.getElementById('res_p_draft').textContent,
+        'Flue Gas Velocity: ' + document.getElementById('res_vs').textContent,
+        'Internal Hydraulic Losses: ' + document.getElementById('res_p_losses').textContent,
+        'Net Available Draft: ' + document.getElementById('res_p_avail').textContent,
+        'Tip Downwash Ratio: ' + document.getElementById('res_downwash_ratio').textContent + ' [' + document.getElementById('res_downwash_status').textContent + ']',
+        'Sulfuric Acid Dew Point: ' + document.getElementById('res_tadp').textContent + ' [' + document.getElementById('res_acid_status').textContent + ']',
+        'Vortex Shedding Frequency: ' + document.getElementById('res_vortex_freq').textContent,
+        'Generated via DigitalToolsShed.com Industrial Chimney Sizing Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcChimney();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+  // --- TOOL AW4: DISC STACK CENTRIFUGE SEPARATOR & DESLUDGING CALCULATOR ---
+  (() => {
+    const slug = 'disc-stack-centrifuge-separator-calculator';
+    const title = 'Disc Stack Centrifuge Separator & Desludging Calculator (Alfa Laval & GEA)';
+    const metaDescription = 'Industrial disc stack centrifuge separator calculator per conical disc theory. Computes equivalent settling area Sigma, G-force up to 10,000 g, liquid-liquid gravity disc ring dam selection, sediment space desludging intervals, and motor power.';
+
+    const faq = [
+      {
+        q: 'How does a disc stack centrifuge achieve extreme clarification efficiency?',
+        a: 'A disc stack centrifuge rotates a conical stack of 80 to 250 nested stainless steel discs at 5,000 to 10,000 RPM, generating centrifugal accelerations of 5,000 to 10,000 g. The narrow gap between adjacent discs (0.4 to 1.2 mm) cuts the sedimentation distance of particles from feet down to fractions of a millimeter. Particles settle onto the underside of the upper disc in milliseconds and slide outward along the 45° cone slope to the peripheral sludge holding space, creating equivalent settling areas (Sigma) exceeding 50,000 to 150,000 m².'
+      },
+      {
+        q: 'What is a gravity disc (ring dam) and how is its diameter selected?',
+        a: 'In a 3-phase liquid-liquid-solid purifier (e.g. separating water and sludge from heavy fuel oil), the position of the cylindrical oil-water interface line is controlled by an exchangeable ring dam (gravity disc). The hydrostatic balance equation r_interface = sqrt((rho_water * r_water^2 - rho_oil * r_oil^2) / (rho_water - rho_oil)) sets the interface inside the disc distribution holes. Selecting the wrong diameter causes either water to carry over into clean oil, or oil to break its liquid seal and dump out the heavy phase discharge.'
+      },
+      {
+        q: 'What is the difference between partial and full desludging discharge?',
+        a: 'Self-cleaning disc centrifuges feature a sliding bowl bottom actuated by operating water hydraulics. In a partial shot, the bowl drops open for a fraction of a second (0.1 to 0.2 s), ejecting only the concentrated solid sediment accumulated in the peripheral sludge space without interrupting feed flow. In a full discharge shot, the entire bowl content is evacuated prior to automated chemical cleaning (CIP).'
+      },
+      {
+        q: 'How is the desludging time interval calculated?',
+        a: 'The time between automatic ejection shots is determined by the peripheral sediment holding volume (V_sediment in liters) and feed solids concentration: t_shot = (V_sediment * f_fill) / (Q * C_solids), where f_fill is a safety filling factor (typically 65% to 75%). Allowing solids to accumulate beyond V_sediment fills the space between the outer disc rims, choking flow channels, and causing severe unbalance vibration.'
+      },
+      {
+        q: 'Why must fuel oil be heated to 98°C before centrifugal purification?',
+        a: 'Heavy fuel oil (HFO) has high viscosity and a density near 991 kg/m³ at room temperature, making centrifugal separation from water (1,000 kg/m³) virtually impossible due to delta_rho ~ 9 kg/m³. Heating the oil to 98°C reduces oil density to ~930 kg/m³ (widening delta_rho to 70 kg/m³) and slashes dynamic viscosity from 380 cSt down to <15 cSt, accelerating droplet settling according to Stokes law by over 2,000%.'
+      }
+    ];
+
+    const content = `
+<style>
+  .disc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .disc-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .disc-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension high-speed disc stack centrifugal separators for marine fuel purification, dairy skimming, and biotech cell clarification per Alfa Laval and GEA Westfalia models. Solves equivalent settling area &Sigma;, G-force up to 10,000 g, liquid-liquid ring dam gravity disc diameters, and peripheral sediment desludging intervals.
+  </p>
+
+  <div class="disc-grid">
+    <!-- Panel 1: Disc Stack Geometry & Bowl Kinematics -->
+    <div class="disc-card">
+      <h3>1. Disc Stack Geometry & Speed</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ds_rpm">Bowl Rotational Speed (RPM)</label>
+          <input type="number" id="ds_rpm" class="form-control" value="6800" min="2000" max="12000" step="100">
+        </div>
+        <div class="form-group">
+          <label for="ds_num_discs">Number of Conical Discs</label>
+          <input type="number" id="ds_num_discs" class="form-control" value="140" min="40" max="350" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ds_r_outer">Disc Outer Radius R<sub>out</sub> (mm)</label>
+          <input type="number" id="ds_r_outer" class="form-control" value="195" min="75" max="450" step="5">
+        </div>
+        <div class="form-group">
+          <label for="ds_r_inner">Disc Inner Radius R<sub>in</sub> (mm)</label>
+          <input type="number" id="ds_r_inner" class="form-control" value="85" min="30" max="250" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ds_cone_angle">Disc Half-Cone Angle &theta; (&deg;)</label>
+          <input type="number" id="ds_cone_angle" class="form-control" value="45" min="35" max="60" step="1">
+        </div>
+        <div class="form-group">
+          <label for="ds_sediment_vol">Sludge Holding Space V<sub>sed</sub> (L)</label>
+          <input type="number" id="ds_sediment_vol" class="form-control" value="6.5" min="0.5" max="50.0" step="0.5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Process Fluid & Purifier Settings -->
+    <div class="disc-card">
+      <h3>2. Process Mode & Fluid Properties</h3>
+      <div class="form-group">
+        <label for="ds_op_mode">Separator Operation Mode</label>
+        <select id="ds_op_mode" class="form-control">
+          <option value="purifier" selected>Purifier (3-Phase: Oil + Water + Solids)</option>
+          <option value="clarifier">Clarifier (2-Phase: Liquid + Solids)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ds_flow">Feed Throughput Q (L/h)</label>
+          <input type="number" id="ds_flow" class="form-control" value="4500" min="100" max="80000" step="100">
+        </div>
+        <div class="form-group">
+          <label for="ds_solids_pct">Feed Solid Content (% vol)</label>
+          <input type="number" id="ds_solids_pct" class="form-control" value="0.45" min="0.01" max="10.0" step="0.05">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ds_rho_light">Light Phase Density &rho;<sub>L</sub> (kg/m&sup3;)</label>
+          <input type="number" id="ds_rho_light" class="form-control" value="935" min="700" max="1100" step="5">
+        </div>
+        <div class="form-group">
+          <label for="ds_rho_heavy">Heavy Phase Density &rho;<sub>H</sub> (kg/m&sup3;)</label>
+          <input type="number" id="ds_rho_heavy" class="form-control" value="1000" min="950" max="1300" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ds_r_light">Light Phase Weired Radius r<sub>L</sub> (mm)</label>
+          <input type="number" id="ds_r_light" class="form-control" value="68" min="30" max="150" step="1">
+        </div>
+        <div class="form-group">
+          <label for="ds_r_hole">Disc Caulk Distribution Radius r<sub>hole</sub> (mm)</label>
+          <input type="number" id="ds_r_hole" class="form-control" value="125" min="50" max="250" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Desludging Output -->
+    <div class="disc-card">
+      <h3>3. Sizing & Desludging Results</h3>
+      <div class="res-row">
+        <span class="res-label">Centrifugal G-Force at Disc Rim:</span>
+        <span class="res-val highlight" id="res_gforce">-- g</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Equivalent Clarification Area &Sigma;:</span>
+        <span class="res-val highlight" id="res_sigma">-- m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Specific Hydraulic Loading (Q / &Sigma;):</span>
+        <span class="res-val" id="res_q_sigma">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended Gravity Disc Dia D<sub>ring</sub>:</span>
+        <span class="res-val highlight" id="res_ring_dia">-- mm (Radius: -- mm)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Liquid-Liquid Interface Position:</span>
+        <span id="res_interface_status" class="status-badge badge-safe">OPTIMAL INTERFACE</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Solids Accumulation Rate:</span>
+        <span class="res-val" id="res_solids_rate">-- L/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Max Recommended Desludging Interval:</span>
+        <span class="res-val highlight" id="res_t_shot">-- minutes</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Peripheral Bowl Tip Speed:</span>
+        <span class="res-val" id="res_tip_speed">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Electric Motor Installed Power:</span>
+        <span class="res-val" id="res_motor_kw">-- kW (-- HP)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_disc">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Conical Disc Stack Centrifugal Purifier Internal Profile</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Central Feed Pipe &rarr; Distribution Caulks r<sub>hole</sub> ] &rarr; [ Nested Conical Discs (80-250) @ 45&deg; &rarr; Micro-gap 0.5 mm ]<br>
+      [ Light Phase (Oil) Flow Inwards &rarr; Center Discharge r<sub>L</sub> ] &harr; [ Heavy Phase (Water) Flow Outwards &rarr; Gravity Ring Dam r<sub>H</sub> ]<br>
+      [ Solid Sediment Packs at Peripheral Edge V<sub>sed</sub> ] &rarr; [ Hydraulic Sliding Piston Desludging Ports ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="disc-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Conical Disc Stack Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Disc stack centrifuge sizing integrates Stokes centrifugal sedimentation with hydrostatic multi-phase equilibria and peripheral sliding bowl kinematics per Alfa Laval and GEA standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Disc Stack Sigma Area &Sigma;</strong><br>
+        $$\Sigma = \frac{2\pi \omega^2}{3 g} \cdot N_{discs} \cdot \cot \theta \cdot \left(R_{out}^3 - R_{in}^3\right) \quad [\text{m}^2]$$
+        Generates tens of thousands of square meters of clarifying capacity in a compact bowl.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Gravity Disc Ring Dam Sizing</strong><br>
+        $$r_{H} = \sqrt{\frac{\rho_L \cdot r_L^2 + (\rho_H - \rho_L) \cdot r_{int}^2}{\rho_H}} \quad [\text{m}]$$
+        $$D_{ring} = 2 \cdot r_H \cdot 1000 \quad [\text{mm}]$$
+        Locks the oil-water interface directly over the disc holes.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Desludging Interval Time</strong><br>
+        $$t_{shot} = \frac{V_{sed} \cdot f_{fill}}{Q \cdot (C_{solids} / 100)} \cdot 60 \quad [\text{minutes}]$$
+        Prevents solids from rising into the disc pack.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Centrifugal G-Force & Tip Speed</strong><br>
+        $$G = \frac{\omega^2 R_{out}}{g} = 1.118 \times 10^{-3} \cdot R_{out,mm} \cdot \left(\frac{N}{1000}\right)^2$$
+        $$v_{tip} = \frac{2\pi \cdot N \cdot R_{bowl}}{60} \approx 100 - 160 \text{ m/s}$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="disc-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in High-Speed Disc Stack Operations</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Incorrect Gravity Disc Ring Dam Trap (Broken Water Seal)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Selecting a gravity disc with too large an inside diameter ($D_{ring}$) pushes the oil-water interface line past the outer disc periphery. The water seal breaks instantly: hot purified fuel oil bypasses the discs entirely and floods out through the heavy water discharge port straight into the sludge drain tank. Thousands of liters of expensive marine fuel are lost in minutes, triggering bilge overflow alarms and engine room fuel starvations. Always calculate and verify gravity disc size when fuel oil density shifts.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Sediment Space Overfill & Disc Stack Caking Seizure</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Extending desludging shot intervals beyond the volume capacity of the peripheral sludge space ($V_{sediment}$) allows compacted abrasive solids (catalytic fines / silica) to bridge across the outer disc perimeter. Solids pack solidly into the 0.5 mm inter-disc spaces, choking feed flow. The immense friction generates localized hot spots, burns out the drive motor, and requires maintenance crews to chisel baked solids out of 150 delicate stainless steel discs by hand for 3 days.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Partial Desludging Shot Asymmetry & Destructive Spindle Bending</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        If operating water passages to the sliding bowl piston are partially scaled, the bowl drops open unevenly during a partial discharge shot. Solids discharge from only one side of the bowl while remaining stuck on the opposite side. At 7,000 RPM, this hundreds-of-grams unbalance creates catastrophic centrifugal dynamic forces that bend the alloy vertical drive spindle, destroy spherical bearing cartridges, and can throw the entire 500 kg spinning bowl off its mounts.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Cold Feed Oil Emulsification & Zero Density Differential</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Feeding heavy fuel oil at 70°C instead of the mandatory 98°C reduces the density differential between oil and water from 70 kg/m³ down to less than 15 kg/m³, while increasing viscosity tenfold. The centrifugal shear across the disc caulks emulsifies the water into microscopic sub-micron droplets that cannot separate under any G-force. The emulsion carries over into marine diesel engine fuel rails, seizing fuel injection pumps and causing complete blackout at sea.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Operating Water Quality Neglect in Hydraulic Sliding Bowls</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The internal sliding bottom that opens and closes the desludging ports relies on clean, demineralized operating water injected through delicate dosing nozzles. Using raw hard tap water or dirty seal water clogs the operating water valves with lime scale. The bowl fails to close tightly, leading to continuous high-pressure product leakage, or fails to open during discharge cycles, causing complete solids choking. Always supply filtered, softened operating water.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="disc-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Marine Heavy Fuel Oil (HFO-380) Purifier on a Container Vessel.</p>
+      <ul>
+        <li><strong>Machine Geometry:</strong> Speed $N = 6,800\text{ RPM}$, $N_{discs} = 140$ conical discs, $\theta = 45.0^\circ$ ($\cot 45^\circ = 1.0$).</li>
+        <li><strong>Dimensions:</strong> $R_{out} = 195\text{ mm} = 0.195\text{ m}$, $R_{in} = 85\text{ mm} = 0.085\text{ m}$, Sludge space $V_{sed} = 6.5\text{ Liters}$.</li>
+        <li><strong>Process:</strong> HFO heated to $98^\circ\text{C}$ ($\rho_{oil} = 935\text{ kg/m}^3$), Water ($\rho_{water} = 1,000\text{ kg/m}^3$), Flow $Q = 4,500\text{ L/h}$.</li>
+        <li><strong>Weir Radii:</strong> Oil discharge $r_L = 68\text{ mm} = 0.068\text{ m}$, Target interface at caulk holes $r_{int} = 125\text{ mm} = 0.125\text{ m}$, Solids $= 0.45\%\text{ vol}$.</li>
+      </ul>
+      <p><strong>Step 1: Centrifugal G-Force & Disc Tip Speed:</strong></p>
+      $$\omega = \frac{2 \pi \times 6800}{60} = 712.1\text{ rad/s}$$
+      $$G = \frac{(712.1)^2 \times 0.195}{9.80665} = \frac{507,086 \times 0.195}{9.80665} = 10,083\text{ g} \quad (\text{\textbf{High-G Centrifugal Clarification}})$$
+      $$v_{tip} = 712.1\text{ rad/s} \times 0.195\text{ m} = 138.9\text{ m/s} \quad (310.7\text{ mph})$$
+      <p><strong>Step 2: Equivalent Settling Area ($\Sigma$):</strong></p>
+      $$R_{out}^3 - R_{in}^3 = (0.195)^3 - (0.085)^3 = 0.007415 - 0.000614 = 0.006801\text{ m}^3$$
+      $$\Sigma = \frac{2 \pi \times (712.1)^2}{3 \times 9.80665} \times 140 \times 1.0 \times 0.006801$$
+      $$\Sigma = \frac{3,186,160}{29.42} \times 0.9521 = 108,299 \times 0.9521 = 103,115\text{ m}^2 \text{ equivalent area}$$
+      <p><strong>Step 3: Gravity Disc Ring Dam Sizing ($D_{ring}$):</strong></p>
+      $$\rho_H - \rho_L = 1000 - 935 = 65\text{ kg/m}^3$$
+      $$r_H^2 = \frac{935 \times (0.068)^2 + 65 \times (0.125)^2}{1000} = \frac{935 \times 0.004624 + 65 \times 0.015625}{1000} = \frac{4.3234 + 1.0156}{1000} = 0.005339$$
+      $$r_H = \sqrt{0.005339} = 0.07307\text{ m} = 73.07\text{ mm}$$
+      $$D_{ring} = 2 \times 73.07\text{ mm} = 146.14\text{ mm} \implies \text{\textbf{Specify 146 mm Gravity Disc Ring Dam}}.$$
+      <p><strong>Step 4: Solids Sludge Accumulation & Desludging Interval:</strong></p>
+      $$\text{Solids Flux: } \dot{V}_{solids} = 4,500\text{ L/h} \times 0.0045 = 20.25\text{ Liters of sludge per hour}$$
+      $$\text{Effective Sludge Space: } V_{eff} = 6.5\text{ L} \times 0.70 = 4.55\text{ Liters}$$
+      $$t_{shot} = \frac{4.55\text{ L}}{20.25\text{ L/h}} \times 60\text{ min/h} = 13.48\text{ minutes} \implies \mathbf{\text{Trigger automated partial shot every 12 to 13 minutes}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcDisc() {
+    const N_rpm = parseFloat(document.getElementById('ds_rpm').value) || 6800;
+    const Ndiscs = parseInt(document.getElementById('ds_num_discs').value) || 140;
+    const Rout_mm = parseFloat(document.getElementById('ds_r_outer').value) || 195;
+    const Rout = Rout_mm * 1e-3; // m
+    const Rin_mm = parseFloat(document.getElementById('ds_r_inner').value) || 85;
+    const Rin = Rin_mm * 1e-3; // m
+    const theta_deg = parseFloat(document.getElementById('ds_cone_angle').value) || 45;
+    const theta_rad = (theta_deg * Math.PI) / 180;
+    const Vsed_L = parseFloat(document.getElementById('ds_sediment_vol').value) || 6.5;
+
+    const opMode = document.getElementById('ds_op_mode').value;
+    const Q_lh = parseFloat(document.getElementById('ds_flow').value) || 4500;
+    const Csolids_pct = parseFloat(document.getElementById('ds_solids_pct').value) || 0.45;
+    const rho_light = parseFloat(document.getElementById('ds_rho_light').value) || 935;
+    const rho_heavy = parseFloat(document.getElementById('ds_rho_heavy').value) || 1000;
+    const rL_mm = parseFloat(document.getElementById('ds_r_light').value) || 68;
+    const rL = rL_mm * 1e-3; // m
+    const rhole_mm = parseFloat(document.getElementById('ds_r_hole').value) || 125;
+    const rhole = rhole_mm * 1e-3; // m
+
+    // 1. Kinematics & G-force
+    const omega = (2 * Math.PI * N_rpm) / 60; // rad/s
+    const g = 9.80665;
+    const gforce = (Math.pow(omega, 2) * Rout) / g;
+    const vtip = omega * Rout; // m/s
+
+    // 2. Ambler Sigma Area
+    const cot_theta = 1 / Math.tan(theta_rad);
+    const Sigma = ((2 * Math.PI * Math.pow(omega, 2)) / (3 * g)) * Ndiscs * cot_theta * (Math.pow(Rout, 3) - Math.pow(Rin, 3));
+    const Q_m3s = (Q_lh * 1e-3) / 3600;
+    const Q_sigma = Q_m3s / Math.max(1, Sigma); // m/s
+
+    // 3. Gravity Disc (Ring Dam) Diameter for Purifier
+    let Dring_mm = 0;
+    let rH_mm = 0;
+    if (opMode === 'purifier' && rho_heavy > rho_light) {
+      const drho = rho_heavy - rho_light;
+      const term = (rho_light * Math.pow(rL, 2) + drho * Math.pow(rhole, 2)) / rho_heavy;
+      const rH = Math.sqrt(Math.max(0, term));
+      rH_mm = rH * 1000;
+      Dring_mm = 2 * rH_mm;
+    }
+
+    // 4. Solids accumulation and Desludging Interval
+    const solids_flux_lh = Q_lh * (Csolids_pct / 100);
+    const effective_sed_L = Vsed_L * 0.70; // 70% safe fill limit
+    const t_shot_min = solids_flux_lh > 0 ? (effective_sed_L / solids_flux_lh) * 60 : 60;
+
+    // 5. Electric Motor Power
+    const Pmotor_kw = (Q_lh * 1e-3 * rho_light * Math.pow(vtip, 2)) / (2 * 3600 * 1000) * 2.2 + 4.0;
+
+    // Update UI
+    document.getElementById('res_gforce').textContent = gforce.toFixed(0) + ' g (' + N_rpm + ' RPM)';
+    document.getElementById('res_sigma').textContent = Sigma.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' m² (' + (Sigma * 10.7639).toLocaleString('en-US', {maximumFractionDigits: 0}) + ' ft²)';
+    document.getElementById('res_q_sigma').textContent = (Q_sigma * 1e6).toFixed(2) + ' μm/s';
+
+    if (opMode === 'purifier') {
+      document.getElementById('res_ring_dia').textContent = Dring_mm.toFixed(1) + ' mm (rH = ' + rH_mm.toFixed(1) + ' mm)';
+      const ifBadge = document.getElementById('res_interface_status');
+      if (rH_mm > rL_mm && rH_mm < rhole_mm) {
+        ifBadge.className = 'status-badge badge-safe';
+        ifBadge.textContent = 'INTERFACE ON DISC CAULKS';
+      } else {
+        ifBadge.className = 'status-badge badge-warn';
+        ifBadge.textContent = 'CAUTION: ADJUST RING DAM';
+      }
+    } else {
+      document.getElementById('res_ring_dia').textContent = 'N/A (Clarifier Mode)';
+      const ifBadge = document.getElementById('res_interface_status');
+      ifBadge.className = 'status-badge badge-safe';
+      ifBadge.textContent = 'CLARIFIER (SINGLE LIQUID)';
+    }
+
+    document.getElementById('res_solids_rate').textContent = solids_flux_lh.toFixed(2) + ' L/h';
+    document.getElementById('res_t_shot').textContent = t_shot_min.toFixed(1) + ' min (' + (t_shot_min / 60).toFixed(2) + ' h)';
+    document.getElementById('res_tip_speed').textContent = vtip.toFixed(1) + ' m/s (' + (vtip * 2.23694).toFixed(0) + ' mph)';
+    document.getElementById('res_motor_kw').textContent = Pmotor_kw.toFixed(1) + ' kW (' + (Pmotor_kw * 1.34102).toFixed(1) + ' HP)';
+  }
+
+  const inputs = ['ds_rpm', 'ds_num_discs', 'ds_r_outer', 'ds_r_inner', 'ds_cone_angle', 'ds_sediment_vol', 'ds_op_mode', 'ds_flow', 'ds_solids_pct', 'ds_rho_light', 'ds_rho_heavy', 'ds_r_light', 'ds_r_hole'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcDisc);
+      el.addEventListener('change', calcDisc);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_disc');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- DISC STACK CENTRIFUGE SEPARATOR DATASHEET ---',
+        'Speed: ' + document.getElementById('ds_rpm').value + ' RPM | G-Force: ' + document.getElementById('res_gforce').textContent,
+        'Disc Stack: ' + document.getElementById('ds_num_discs').value + ' discs @ ' + document.getElementById('ds_cone_angle').value + '° | Clarification Area Σ: ' + document.getElementById('res_sigma').textContent,
+        'Feed Flow: ' + document.getElementById('ds_flow').value + ' L/h @ ' + document.getElementById('ds_solids_pct').value + '% solids',
+        'Gravity Disc Ring Dam Dia: ' + document.getElementById('res_ring_dia').textContent + ' [' + document.getElementById('res_interface_status').textContent + ']',
+        'Solids Accumulation: ' + document.getElementById('res_solids_rate').textContent,
+        'Max Desludging Interval: ' + document.getElementById('res_t_shot').textContent,
+        'Bowl Tip Speed: ' + document.getElementById('res_tip_speed').textContent + ' | Motor Power: ' + document.getElementById('res_motor_kw').textContent,
+        'Generated via DigitalToolsShed.com Disc Stack Separator Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcDisc();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+  console.log('  ✓ Built Trade & Construction Suite (139 calculators in /calc/)');
 }
 
