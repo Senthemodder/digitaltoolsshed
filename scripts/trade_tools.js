@@ -22431,6 +22431,2601 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // REBAR SPACING, ACI 318 CLEAR COVER, LAP SPLICE & REBAR TONNAGE CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const rebarSpacingBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Rebar Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Rebar Spacing, Grid & Lap Splice Calculator (ACI 318)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate rebar grid layout, bar counts in both directions, total linear footage, steel tonnage, ACI 318 concrete clear cover standoffs, Class B tension lap splice lengths, and shrinkage/temperature reinforcement ratios.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h18M3 16h18"/></svg>
+        Concrete Member & Rebar Spec
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbLength">Slab / Wall Length (Ft)</label>
+          <input type="number" id="rbLength" value="40" min="2" max="1000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Longitudinal span</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbWidth">Slab / Wall Width (Ft)</label>
+          <input type="number" id="rbWidth" value="24" min="2" max="500" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Transverse width</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbThickness">Slab Thickness (Inches)</label>
+          <input type="number" id="rbThickness" value="6.0" min="3.0" max="48.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Total structural concrete depth</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbBarSize">ASTM Rebar Size</label>
+          <select id="rbBarSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="3">#3 (3/8" / 0.376 lbs/ft)</option>
+            <option value="4" selected>#4 (1/2" / 0.668 lbs/ft)</option>
+            <option value="5">#5 (5/8" / 1.043 lbs/ft)</option>
+            <option value="6">#6 (3/4" / 1.502 lbs/ft)</option>
+            <option value="7">#7 (7/8" / 2.044 lbs/ft)</option>
+            <option value="8">#8 (1" / 2.670 lbs/ft)</option>
+            <option value="9">#9 (1-1/8" / 3.400 lbs/ft)</option>
+            <option value="10">#10 (1-1/4" / 4.303 lbs/ft)</option>
+            <option value="11">#11 (1-3/8" / 5.313 lbs/ft)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbSpacing">On-Center Grid Spacing</label>
+          <select id="rbSpacing" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="6">6" O.C. (Heavy Industrial / Mat)</option>
+            <option value="8">8" O.C. (High Load Slab)</option>
+            <option value="10">10" O.C.</option>
+            <option value="12" selected>12" O.C. (Standard Commercial)</option>
+            <option value="16">16" O.C. (Residential Driveway)</option>
+            <option value="18">18" O.C. (ACI Max Spacing Limit)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbCover">ACI 318 Concrete Clear Cover</label>
+          <select id="rbCover" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="0.75">3/4" (Interior Slabs / Dry Conditions)</option>
+            <option value="1.5">1-1/2" (Formed Walls / Beams Exposed)</option>
+            <option value="2.0" selected>2.0" (Unformed Earth-Cast Slab Edge)</option>
+            <option value="3.0">3.0" (Cast Against Native Earth / Footing)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbLayers">Mat Layers</label>
+          <select id="rbLayers" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+            <option value="1" selected>Single Mat (Center of Slab)</option>
+            <option value="2">Double Mat (Top & Bottom Reinforcement)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbStockLen">Standard Stock Bar Length</label>
+          <select id="rbStockLen" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+            <option value="20" selected>20 Foot Stock Bars</option>
+            <option value="40">40 Foot Mill Bars (Commercial)</option>
+            <option value="60">60 Foot Mill Bars (Heavy Civil)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rbSteelPrice">Delivered Rebar Price ($/Ton)</label>
+        <input type="number" id="rbSteelPrice" value="1250" min="600" max="3000" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Rebar Takeoff & Material Summary
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Total Rebar Weight</div>
+            <span id="outRebarBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#3b82f620;color:#3b82f6;">GRADE 60 STEEL</span>
+          </div>
+          <div id="outRebarWeight" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">1,348 lbs</div>
+          <div id="outRebarTonsSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">0.67 Tons (Includes lap splices + 8% waste)</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Total Linear Feet</div>
+            <div id="outLinearFeet" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">2,018 Ft</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Longitudinal + Transverse</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Stock 20' Bars Needed</div>
+            <div id="outStockPieces" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">101 Pieces</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Standard delivery order count</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Tension Lap Splice Length</div>
+            <div id="outLapLength" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">24.0 Inches</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Class B Splice (48 &times; d_b)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Reinforcement Ratio (&rho;)</div>
+            <div id="outRhoRatio" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">0.0028</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">&ge; 0.0018 ACI Min Shrinkage</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Rebar Material Cost</div>
+              <div id="outMaterialCost" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">$842.50</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Rebar Chairs & Ties</div>
+              <div id="outAccessoriesSub" style="font-size:0.8rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">~160 Chairs / 2 Tie Rolls</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyRbBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Rebar Takeoff Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: REBAR GRID LAYOUT & CONCRETE CLEAR COVER -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Interactive Rebar Grid Mat Layout & ACI 318 Clear Cover Standoff
+    </h3>
+    <div id="rbSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & CONCRETE REBAR PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Rebar Reinforcement Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Walking on Rebar Without Chairs ("Mud-Resting" Steel)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Laying rebar on the ground and planning to "hook it up with a claw hammer during the pour" is a fatal construction shortcut. As concrete pump hoses drag and finishers walk across the steel mat, the rebar is forced down to the very bottom of the slab. When concrete hardens, the steel rests in direct contact with damp subbase earth with zero concrete clear cover. Groundwater corrodes the raw steel; expanding rust creates bursting forces that spall the bottom of the concrete, destroying structural tensile strength within 5 years. Always support rebar on concrete dobies or plastic chairs spaced every 4 to 6 feet!
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Short Lap Splices (Tensile Pull-Out Delamination)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When continuous rebar runs exceed stock mill lengths (e.g. crossing a 40-foot slab with 20-foot bars), overlapping them by only 12 inches is a structural violation. Concrete relies on mechanical friction between rebar deformations and the cement paste to transfer tensile stress across the joint. Under <strong>ACI 318 Section 25.5</strong>, standard Class B tension lap splices require an overlap of at least <strong>48 to 50 times the bar diameter ($l_d \\approx 50 d_b$)</strong>. For #4 (1/2") rebar, this requires a minimum 24-inch overlap; for #6 (3/4") rebar, a 36-inch overlap is required. Short splices pull apart during soil settlement.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Spacing Rebar Tighter than 1.33x Aggregate Size (Honeycombing)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          In heavily reinforced grade beams and footings, placing rebar too closely together creates aggregate bridging. Per <strong>ACI 318 Section 25.2</strong>, the clear distance between parallel bars must not be less than the bar diameter ($d_b$), 1.0 inch, or <strong>$1.33 \\times$ the nominal maximum size of coarse aggregate</strong> (e.g. 1.33" for standard 1" crushed stone concrete). If rebar is packed tighter than 1.33 inches, rock aggregates lodge between the bars, preventing cement paste from flowing beneath the steel mat, creating massive internal structural voids and honeycombing.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>💧 Trap 4: Exceeding the ACI 18-Inch Maximum Spacing Rule</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Some builders space rebar at 24 inches on center to save money. ACI 318 Section 7.7.2.3 strictly mandates that flexural and shrinkage reinforcement spacing in structural slabs must not exceed <strong>3 times the slab thickness ($3h$) or 18 inches</strong>, whichever is less! In a 5-inch residential slab, maximum allowable spacing is strictly 15 inches. Spacing bars at 24 inches allows wide shrinkage cracks to form between bars, defeating the crack-control purpose of temperature steel.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>❄️ Trap 5: Tying Epoxy-Coated Bars with Bare Wire (Galvanic Pitting)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          In bridge decks, coastal foundations, or parking garages using green epoxy-coated rebar (ASTM A775) to resist deicing salts, using standard black carbon tie wire or dragging raw steel bars across the grid scratches the protective polymer coating. Bare metal exposed at the scratch creates a concentrated anodic galvanic cell where corrosion concentrates intensely, corroding through the bar faster than if it were uncoated black steel. Always use vinyl-coated tie wire and plastic-tipped rebar chairs.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles ACI 318 Rebar Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Rebar Count & Grid Linear Footage</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Accounting for edge concrete clear cover ($C_{\\text{cover}}$) on all sides:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      L_{\\text{effective}} = L_{\\text{slab}} - 2 \\times \\left(\\frac{C_{\\text{cover}}}{12}\\right) \\quad \\quad
+      W_{\\text{effective}} = W_{\\text{slab}} - 2 \\times \\left(\\frac{C_{\\text{cover}}}{12}\\right)
+    </div>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Number of longitudinal and transverse bar runs:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      N_{\\text{long}} = \\left\\lfloor \\frac{W_{\\text{effective}} \\times 12}{S_{\\text{spacing}}} \\right\\rfloor + 1 \\quad \\quad
+      N_{\\text{trans}} = \\left\\lfloor \\frac{L_{\\text{effective}} \\times 12}{S_{\\text{spacing}}} \\right\\rfloor + 1
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Lap Splice Length (Class B Tension)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      For Grade 60 rebar in normal-weight concrete ($f'_c = 4000\\text{ PSI}$), ACI 318 Section 25.5 tension splices approximate:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      l_d \\approx 48 \\times d_b \\quad (\\text{min 12 inches})
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. ACI 318 Shrinkage Reinforcement Ratio (\\rho)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      $\\rho = \\frac{A_s}{b \\times d} = \\frac{A_{\\text{bar}} \\times (12 / S_{\\text{spacing}})}{12 \\times t_{\\text{slab}}}$. Grade 60 deformed rebar requires $\\rho \\ge 0.0018$.
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What rebar size and spacing is standard for a 4-inch or 6-inch concrete slab?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        For a residential 4-inch patio or walkway, <strong>#3 (3/8") or #4 (1/2") rebar at 16" to 18" on-center</strong> is standard. For a 6-inch residential driveway or garage slab supporting vehicles, <strong>#4 (1/2") rebar at 12" on-center in a grid mat</strong> supported on 2-inch chairs provides excellent crack prevention and load distribution.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is concrete clear cover per ACI 318?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Clear cover is the minimum thickness of unreinforced concrete encasing the outer edge of rebar to protect steel against moisture, chlorides, and fire: <strong>3.0 inches</strong> for concrete cast directly against unformed soil (footings); <strong>2.0 inches</strong> for unformed slab edges exposed to weather; <strong>1.5 inches</strong> for formed exterior beams/walls; and <strong>0.75 inches</strong> for interior dry slabs.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How much lap splice overlap is required when joining rebar?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Under ACI 318, standard Class B tension lap splices require an overlap of approximately <strong>48 to 50 bar diameters ($50 d_b$)</strong>: for #4 (1/2") bar = 24 inches; for #5 (5/8") bar = 30 inches; for #6 (3/4") bar = 36 inches. Rebar must be tied tightly with wire at the ends and center of the lap.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How many rebar chairs do I need?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Rebar chairs or concrete dobies should be spaced on a <strong>3-foot to 4-foot grid in both directions</strong> (roughly 1 chair every 9 to 12 square feet of slab area). For a 24' &times; 40' slab (960 sq ft), plan for approximately 80 to 100 chairs to prevent the rebar from sagging under concrete worker foot traffic.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between Grade 40 and Grade 60 rebar?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        The grade designates yield strength in thousands of PSI: <strong>Grade 40 has 40,000 PSI yield strength</strong> (mostly obsolete), while <strong>Grade 60 has 60,000 PSI yield strength</strong>. Grade 60 is the universal structural standard across commercial and residential concrete work in North America today.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      // ASTM Rebar Weights & Diameters
+      var barProps = {
+        3: { d: 0.375, wt: 0.376, area: 0.11 },
+        4: { d: 0.500, wt: 0.668, area: 0.20 },
+        5: { d: 0.625, wt: 1.043, area: 0.31 },
+        6: { d: 0.750, wt: 1.502, area: 0.44 },
+        7: { d: 0.875, wt: 2.044, area: 0.60 },
+        8: { d: 1.000, wt: 2.670, area: 0.79 },
+        9: { d: 1.128, wt: 3.400, area: 1.00 },
+        10: { d: 1.270, wt: 4.303, area: 1.27 },
+        11: { d: 1.410, wt: 5.313, area: 1.56 }
+      };
+
+      function calcRebar() {
+        var length = parseFloat(document.getElementById('rbLength').value) || 40;
+        var width = parseFloat(document.getElementById('rbWidth').value) || 24;
+        var thickIn = parseFloat(document.getElementById('rbThickness').value) || 6.0;
+        var barSize = parseInt(document.getElementById('rbBarSize').value) || 4;
+        var spacingIn = parseFloat(document.getElementById('rbSpacing').value) || 12;
+        var coverIn = parseFloat(document.getElementById('rbCover').value) || 2.0;
+        var layers = parseInt(document.getElementById('rbLayers').value) || 1;
+        var stockLen = parseFloat(document.getElementById('rbStockLen').value) || 20;
+        var pricePerTon = parseFloat(document.getElementById('rbSteelPrice').value) || 1250;
+
+        var prop = barProps[barSize] || barProps[4];
+
+        // Effective grid dimensions considering clear cover
+        var effLen = Math.max(1, length - (2 * coverIn / 12));
+        var effWid = Math.max(1, width - (2 * coverIn / 12));
+
+        // Number of continuous runs
+        var numLongRuns = Math.floor((effWid * 12) / spacingIn) + 1;
+        var numTransRuns = Math.floor((effLen * 12) / spacingIn) + 1;
+
+        // Class B Lap Splice Length = 48 * d_b (in inches)
+        var lapLengthIn = Math.max(12, Math.round(48 * prop.d));
+        var lapLengthFt = lapLengthIn / 12;
+
+        // Calculate total linear footage with splices
+        // For longitudinal runs of length effLen:
+        var splicesPerLong = Math.max(0, Math.ceil(effLen / stockLen) - 1);
+        var singleLongTotalFt = effLen + (splicesPerLong * lapLengthFt);
+        var totalLongFt = numLongRuns * singleLongTotalFt;
+
+        // For transverse runs of length effWid:
+        var splicesPerTrans = Math.max(0, Math.ceil(effWid / stockLen) - 1);
+        var singleTransTotalFt = effWid + (splicesPerTrans * lapLengthFt);
+        var totalTransFt = numTransRuns * singleTransTotalFt;
+
+        var totalBaseLinearFt = (totalLongFt + totalTransFt) * layers;
+        // 8% fabrication & trim waste margin
+        var totalLinearFtWithWaste = totalBaseLinearFt * 1.08;
+
+        // Total Weight
+        var totalLbs = totalLinearFtWithWaste * prop.wt;
+        var totalTons = totalLbs / 2000;
+
+        // Stock Pieces
+        var totalStockPieces = Math.ceil(totalLinearFtWithWaste / stockLen);
+
+        // Reinforcement Ratio: rho = As / (b * d)
+        // Area of steel per foot = prop.area * (12 / spacingIn)
+        var asPerFoot = prop.area * (12 / spacingIn) * layers;
+        var rho = asPerFoot / (12 * thickIn);
+
+        // Accessories
+        var slabAreaSqFt = length * width;
+        var chairsCount = Math.ceil(slabAreaSqFt / 8) * layers;
+        var tieRolls = Math.max(1, Math.ceil((numLongRuns * numTransRuns * layers) / 800));
+
+        // Cost
+        var materialCost = totalTons * pricePerTon;
+
+        // Update UI
+        document.getElementById('outRebarWeight').textContent = Math.round(totalLbs).toLocaleString() + ' lbs';
+        document.getElementById('outRebarTonsSub').textContent = totalTons.toFixed(2) + ' Tons (Includes lap splices + 8% waste)';
+
+        document.getElementById('outLinearFeet').textContent = Math.round(totalLinearFtWithWaste).toLocaleString() + ' Ft';
+        document.getElementById('outStockPieces').textContent = totalStockPieces + ' Pieces (' + stockLen + '\' Bars)';
+
+        document.getElementById('outLapLength').textContent = lapLengthIn.toFixed(1) + ' Inches';
+
+        var rhoEl = document.getElementById('outRhoRatio');
+        rhoEl.textContent = rho.toFixed(4);
+        rhoEl.style.color = (rho >= 0.0018) ? '#10b981' : '#ef4444';
+
+        document.getElementById('outMaterialCost').textContent = '$' + materialCost.toFixed(2);
+        document.getElementById('outAccessoriesSub').textContent = '~' + chairsCount + ' Chairs / ' + tieRolls + ' Tie Wire Roll' + (tieRolls > 1 ? 's' : '');
+
+        renderRbSvg(length, width, spacingIn, coverIn, barSize, prop.d);
+      }
+
+      function renderRbSvg(length, width, spacingIn, coverIn, barSize, barDia) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+
+        // Concrete Slab Boundary
+        var sX = 80;
+        var sY = 40;
+        var sW = 660;
+        var sH = 170;
+
+        svg += '<rect x="' + sX + '" y="' + sY + '" width="' + sW + '" height="' + sH + '" rx="6" fill="var(--surface)" stroke="#64748b" stroke-width="2.5"/>';
+        svg += '<text x="' + (sX + sW / 2) + '" y="' + (sY - 12) + '" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">' + length + '\' SLAB LENGTH</text>';
+        svg += '<text x="' + (sX - 14) + '" y="' + (sY + sH / 2 + 4) + '" text-anchor="end" font-size="11" font-weight="700" fill="var(--fg)">' + width + '\'</text>';
+
+        // Clear Cover offset
+        var cOffset = 18;
+        var mX = sX + cOffset;
+        var mY = sY + cOffset;
+        var mW = sW - (2 * cOffset);
+        var mH = sH - (2 * cOffset);
+
+        // Rebar Grid lines
+        // Horizontal runs
+        for (var y = mY; y <= (mY + mH); y += 22) {
+          svg += '<line x1="' + mX + '" y1="' + y + '" x2="' + (mX + mW) + '" y2="' + y + '" stroke="#2563eb" stroke-width="2.5"/>';
+        }
+        // Vertical runs
+        for (var x = mX; x <= (mX + mW); x += 32) {
+          svg += '<line x1="' + x + '" y1="' + mY + '" x2="' + x + '" y2="' + (mY + mH) + '" stroke="#3b82f6" stroke-width="2"/>';
+          // Intersect dots / wire ties
+          for (var y2 = mY; y2 <= (mY + mH); y2 += 22) {
+            svg += '<circle cx="' + x + '" cy="' + y2 + '" r="2.5" fill="#f59e0b"/>';
+          }
+        }
+
+        // Concrete Clear cover callout
+        svg += '<line x1="' + sX + '" y1="' + (sY + 12) + '" x2="' + mX + '" y2="' + (sY + 12) + '" stroke="#ef4444" stroke-width="2"/>';
+        svg += '<text x="' + (sX + 8) + '" y="' + (sY + 28) + '" font-size="10" font-weight="700" fill="#ef4444">' + coverIn.toFixed(1) + '" COVER</text>';
+
+        // Rebar Size callout
+        svg += '<rect x="520" y="55" width="200" height="40" rx="4" fill="#2563eb20" stroke="#2563eb" stroke-width="1"/>';
+        svg += '<text x="620" y="75" text-anchor="middle" font-size="11" font-weight="800" fill="#2563eb">#' + barSize + ' REBAR @ ' + spacingIn + '" O.C.</text>';
+        svg += '<text x="620" y="90" text-anchor="middle" font-size="9" fill="var(--text-muted)">ACI 318 Standard Two-Way Mat</text>';
+
+        svg += '<text x="410" y="245" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">Top-Down Rebar Mat Plan | Orange Dots = Wire-Tied Rebar Chair Intersections</text>';
+
+        svg += '</svg>';
+        document.getElementById('rbSvgWrapper').innerHTML = svg;
+      }
+
+      function copyRbSpec() {
+        var size = document.getElementById('rbBarSize').selectedOptions[0].text;
+        var spacing = document.getElementById('rbSpacing').value + '" O.C.';
+        var len = document.getElementById('rbLength').value + '\'';
+        var wid = document.getElementById('rbWidth').value + '\'';
+        var thick = document.getElementById('rbThickness').value + '"';
+        var weight = document.getElementById('outRebarWeight').textContent;
+        var linear = document.getElementById('outLinearFeet').textContent;
+        var pieces = document.getElementById('outStockPieces').textContent;
+        var lap = document.getElementById('outLapLength').textContent;
+        var cover = document.getElementById('rbCover').selectedOptions[0].text;
+        var cost = document.getElementById('outMaterialCost').textContent;
+
+        var text = 'ACI 318 CONCRETE REBAR TAKEOFF SPECIFICATION\\n';
+        text += '---------------------------------------------------\\n';
+        text += 'Slab Dimensions: ' + len + ' x ' + wid + ' x ' + thick + ' Thick\\n';
+        text += 'Rebar Selection: ' + size + ' @ ' + spacing + '\\n';
+        text += 'Clear Cover Standoff: ' + cover + '\\n';
+        text += 'Total Steel Weight: ' + weight + '\\n';
+        text += 'Total Linear Footage: ' + linear + '\\n';
+        text += 'Stock Bars Required: ' + pieces + '\\n';
+        text += 'Tension Lap Splice Length: ' + lap + '\\n';
+        text += 'Estimated Steel Material Cost: ' + cost + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyRbBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Rebar Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['rbLength', 'rbWidth', 'rbThickness', 'rbBarSize', 'rbSpacing', 'rbCover', 'rbLayers', 'rbStockLen', 'rbSteelPrice'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcRebar);
+          el.addEventListener('change', calcRebar);
+        }
+      });
+
+      document.getElementById('copyRbBtn').addEventListener('click', copyRbSpec);
+
+      calcRebar();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'rebar-spacing-calculator.html'), renderTradePage({
+    title: "Rebar Spacing & Grid Takeoff Calculator: ACI 318, Lap Splice & Weight | Digital Tools Shed",
+    metaDesc: "Calculate concrete rebar grid counts, linear feet, steel tonnage, ACI 318 concrete clear cover standoffs, Class B lap splice length, and shrinkage ratio.",
+    canonical: `${DOMAIN}/calc/rebar-spacing-calculator`,
+    bodyContent: rebarSpacingBody,
+    currentPath: '/calc/rebar-spacing-calculator',
+    faq: [
+      {
+        "q": "What rebar size and spacing is standard for a 4-inch or 6-inch concrete slab?",
+        "a": "For a residential 4-inch patio or walkway, <strong>#3 (3/8\") or #4 (1/2\") rebar at 16\" to 18\" on-center</strong> is standard. For a 6-inch residential driveway or garage slab supporting vehicles, <strong>#4 (1/2\") rebar at 12\" on-center in a grid mat</strong> supported on 2-inch chairs provides excellent crack prevention and load distribution."
+      },
+      {
+        "q": "What is concrete clear cover per ACI 318?",
+        "a": "Clear cover is the minimum thickness of unreinforced concrete encasing the outer edge of rebar to protect steel against moisture, chlorides, and fire: <strong>3.0 inches</strong> for concrete cast directly against unformed soil (footings); <strong>2.0 inches</strong> for unformed slab edges exposed to weather; <strong>1.5 inches</strong> for formed exterior beams/walls; and <strong>0.75 inches</strong> for interior dry slabs."
+      },
+      {
+        "q": "How much lap splice overlap is required when joining rebar?",
+        "a": "Under ACI 318, standard Class B tension lap splices require an overlap of approximately <strong>48 to 50 bar diameters ($50 d_b$)</strong>: for #4 (1/2\") bar = 24 inches; for #5 (5/8\") bar = 30 inches; for #6 (3/4\") bar = 36 inches. Rebar must be tied tightly with wire at the ends and center of the lap."
+      },
+      {
+        "q": "How many rebar chairs do I need?",
+        "a": "Rebar chairs or concrete dobies should be spaced on a <strong>3-foot to 4-foot grid in both directions</strong> (roughly 1 chair every 9 to 12 square feet of slab area). For a 24' &times; 40' slab (960 sq ft), plan for approximately 80 to 100 chairs to prevent the rebar from sagging under concrete worker foot traffic."
+      },
+      {
+        "q": "What is the difference between Grade 40 and Grade 60 rebar?",
+        "a": "The grade designates yield strength in thousands of PSI: <strong>Grade 40 has 40,000 PSI yield strength</strong> (mostly obsolete), while <strong>Grade 60 has 60,000 PSI yield strength</strong>. Grade 60 is the universal structural standard across commercial and residential concrete work in North America today."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // STEAM TABLE & THERMODYNAMIC PROPERTY CALCULATOR (IAPWS-IF97 & ASME)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const steamTableBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Steam Table Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Steam Table & Thermodynamic Sizing Calculator (ASME / IAPWS-IF97)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Instant thermodynamic steam properties across saturated and superheated regimes: saturation temperature ($T_{sat}$), sensible enthalpy ($h_f$), latent heat ($h_{fg}$), total enthalpy ($h_g$), specific volume ($v_g$), entropy ($s_g$), steam quality ($x$), pipe flow velocity (FPM), and boiler duty (BHP).
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Steam System Conditions
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stMode">Thermodynamic State / Input Mode</label>
+        <select id="stMode" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="sat_psig" selected>Saturated Steam — Gauge Pressure (PSIG)</option>
+          <option value="sat_psia">Saturated Steam — Absolute Pressure (PSIA)</option>
+          <option value="sat_temp">Saturated Steam — Saturation Temp (°F)</option>
+          <option value="superheat">Superheated Steam — Pressure (PSIG) &amp; Total Temp (°F)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div id="stPressBox">
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stPressure" id="stPressLabel">Operating Pressure (PSIG)</label>
+          <input type="number" id="stPressure" value="100" min="0" max="1000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;" id="stPressHint">Standard industrial steam header</span>
+        </div>
+        <div id="stTempBox">
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stTemp" id="stTempLabel">Steam Temperature (°F)</label>
+          <input type="number" id="stTemp" value="450" min="100" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;" disabled>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;" id="stTempHint">Auto-calculated from saturation</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stFlowRate">Steam Flow Rate (lbs/hr)</label>
+          <input type="number" id="stFlowRate" value="5000" min="10" max="500000" step="100" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Mass flow rate (PPH)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stQuality">Dryness Fraction / Quality (x)</label>
+          <input type="number" id="stQuality" value="1.00" min="0.0" max="1.0" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">1.0 = 100% dry vapor; 0.95 = 5% moisture</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.5rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="stPipeSize">Distribution Pipe Size (Schedule 40 Carbon Steel)</label>
+        <select id="stPipeSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="1.049">1" Sch 40 (ID: 1.049 in / Area: 0.864 sq in)</option>
+          <option value="1.380">1-1/4" Sch 40 (ID: 1.380 in / Area: 1.496 sq in)</option>
+          <option value="1.610">1-1/2" Sch 40 (ID: 1.610 in / Area: 2.036 sq in)</option>
+          <option value="2.067">2" Sch 40 (ID: 2.067 in / Area: 3.356 sq in)</option>
+          <option value="2.469">2-1/2" Sch 40 (ID: 2.469 in / Area: 4.788 sq in)</option>
+          <option value="3.068">3" Sch 40 (ID: 3.068 in / Area: 7.393 sq in)</option>
+          <option value="4.026" selected>4" Sch 40 (ID: 4.026 in / Area: 12.730 sq in)</option>
+          <option value="6.065">6" Sch 40 (ID: 6.065 in / Area: 28.890 sq in)</option>
+          <option value="7.981">8" Sch 40 (ID: 7.981 in / Area: 50.027 sq in)</option>
+          <option value="10.020">10" Sch 40 (ID: 10.020 in / Area: 78.854 sq in)</option>
+          <option value="11.938">12" Sch 40 (ID: 11.938 in / Area: 111.93 sq in)</option>
+        </select>
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Used to verify erosion velocity limits (Spirax Sarco standards)</span>
+      </div>
+
+      <button id="copyStBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Complete Steam Analysis</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & PRIMARY METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Core Thermodynamic State Properties
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Saturation Temp ($T_{sat}$)</div>
+            <div id="outSatTemp" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">337.9 °F</div>
+            <div id="outSatTempC" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">169.9 °C</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Total Enthalpy ($h$)</div>
+            <div id="outTotalEnthalpy" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">1,189.6 BTU/lb</div>
+            <div id="outEnthalpySI" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">2,767.0 kJ/kg</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Sensible Heat ($h_f$)</div>
+            <div id="outHf" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">309.0</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">BTU/lb (Liquid)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Latent Heat ($h_{fg}$)</div>
+            <div id="outHfg" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">880.6</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">BTU/lb (Evap)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Specific Volume ($v_g$)</div>
+            <div id="outVg" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">3.89</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">cu ft/lb</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Entropy ($s_g$)</div>
+            <div id="outEntropy" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">1.593</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">BTU / (lb·°R)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Absolute Pressure ($P_{abs}$)</div>
+            <div id="outPsia" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">114.70</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">PSIA (7.91 bar)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HYDRAULIC & BOILER LOAD METRICS -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Pipe Velocity & Boiler Duty
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Steam Flow Velocity</div>
+            <div id="outVelocity" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--primary);">3,668 FPM</div>
+            <div id="outVelStatus" style="font-size:0.8rem;font-weight:600;color:#10b981;margin-top:0.25rem;">✓ Ideal Range (4,000-6,000 FPM)</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Boiler Duty / Capacity</div>
+            <div id="outBhp" style="font-family:var(--mono);font-size:1.5rem;font-weight:700;">144.9 BHP</div>
+            <div id="outHeatDuty" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">4,403,000 BTU/hr</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--bg);border-radius:8px;border:1px solid var(--border);font-size:0.85rem;">
+          <span>Flash Condensate Yield (at 0 PSIG vent):</span>
+          <span id="outFlashPct" style="font-family:var(--mono);font-weight:700;color:var(--fg);">13.3% (665 lbs/hr)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SATURATION DOME & MOLLIER DIAGRAM (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Thermodynamic Temperature-Entropy (T-s) Saturation Dome
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Operating Point Plotted
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="steamDomeSvg" viewBox="0 0 800 360" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+    <div style="display:flex;justify-content:center;gap:1.5rem;margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);flex-wrap:wrap;">
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:12px;height:3px;background:#38bdf8;display:inline-block;"></span> Saturated Liquid Line ($h_f$)</span>
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:12px;height:3px;background:#f59e0b;display:inline-block;"></span> Saturated Vapor Line ($h_g$)</span>
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:12px;height:3px;background:#10b981;display:inline-block;"></span> Isobar (Constant Pressure Line)</span>
+      <span style="display:flex;align-items:center;gap:0.35rem;"><span style="width:10px;height:10px;background:#ef4444;border-radius:50%;display:inline-block;"></span> Current State Coordinate</span>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: SATURATED STEAM PROPERTIES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Saturated Steam Properties at Standard Industrial Pressures</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Pressure (PSIG)</th>
+            <th style="padding:0.6rem 0.75rem;">Abs Press (PSIA)</th>
+            <th style="padding:0.6rem 0.75rem;">Temp (°F)</th>
+            <th style="padding:0.6rem 0.75rem;">$h_f$ (BTU/lb)</th>
+            <th style="padding:0.6rem 0.75rem;">$h_{fg}$ (BTU/lb)</th>
+            <th style="padding:0.6rem 0.75rem;">$h_g$ (BTU/lb)</th>
+            <th style="padding:0.6rem 0.75rem;">$v_g$ ($\text{ft}^3/\text{lb}$)</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);"><td>0.0 (Atm)</td><td>14.70</td><td>212.0</td><td>180.2</td><td>970.4</td><td>1,150.5</td><td>26.80</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>15.0 (Low-Press)</td><td>29.70</td><td>249.8</td><td>218.4</td><td>945.7</td><td>1,164.1</td><td>13.88</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>50.0</td><td>64.70</td><td>297.7</td><td>267.3</td><td>911.8</td><td>1,179.1</td><td>6.67</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;"><td>100.0 (Header)</td><td>114.70</td><td>337.9</td><td>309.0</td><td>880.6</td><td>1,189.6</td><td>3.89</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>150.0</td><td>164.70</td><td>366.0</td><td>338.4</td><td>856.8</td><td>1,195.2</td><td>2.75</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>200.0</td><td>214.70</td><td>387.9</td><td>361.9</td><td>837.2</td><td>1,199.1</td><td>2.13</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>300.0</td><td>314.70</td><td>421.8</td><td>398.9</td><td>804.5</td><td>1,203.4</td><td>1.47</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>450.0 (Power)</td><td>464.70</td><td>459.7</td><td>441.1</td><td>763.9</td><td>1,205.0</td><td>1.00</td></tr>
+          <tr><td>600.0 (High-P)</td><td>614.70</td><td>489.1</td><td>475.2</td><td>727.6</td><td>1,202.8</td><td>0.75</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Thermodynamic Equations & Step-by-Step Derivations</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Saturation Temperature & Pressure Relation (IAPWS-IF97 Region 4):</strong><br>
+        For water-steam phase equilibrium between 0.000611 MPa and 22.064 MPa, the saturation temperature is governed by the Clausius-Clapeyron integration:
+        $$\ln\left(\frac{P}{P_0}\right) = -\frac{\Delta h_{vap}}{R} \left(\frac{1}{T} - \frac{1}{T_0}\right)$$
+        At operating pressure <span id="mathPabs" style="font-family:var(--mono);font-weight:600;">114.70 PSIA</span>, the equilibrium boiling temperature is <span id="mathTsat" style="font-family:var(--mono);font-weight:600;">337.9 °F (169.9 °C)</span>.
+      </p>
+
+      <p>
+        <strong>2. Wet Steam Mixture Enthalpy:</strong><br>
+        When steam contains moisture (dryness fraction $x &lt; 1.0$), the total sensible and latent heat content is calculated via:
+        $$h_x = h_f + x \cdot h_{fg}$$
+        $$h_x = <span id="mathHf">309.0</span> + (<span id="mathQuality">1.00</span> \times <span id="mathHfg">880.6</span>) = <span id="mathTotalH" style="font-family:var(--mono);font-weight:600;">1,189.6 BTU/lb</span>$$
+      </p>
+
+      <p>
+        <strong>3. Steam Pipe Velocity & Mass Continuity:</strong><br>
+        Flow velocity inside distribution piping is determined by volumetric displacement divided by internal pipe cross-sectional area:
+        $$V = \frac{\dot{m} \cdot v_g}{25 \cdot D_i^2} \quad \text{(in Feet Per Minute - FPM)}$$
+        $$V = \frac{<span id="mathFlow">5,000</span> \times <span id="mathVg">3.89</span>}{25 \times (<span id="mathDi">4.026</span>)^2} = <span id="mathVel" style="font-family:var(--mono);font-weight:600;">3,668 FPM</span>$$
+        ASHRAE and Spirax Sarco recommend <strong>4,000 to 6,000 FPM</strong> for saturated steam distribution to prevent water droplet impingement erosion while minimizing pipe diameter capital cost.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Steam Engineering Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: Water Hammer Shockwaves from Subcooled Condensate Accumulation</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          When steam enters a pipe containing unremoved condensate, high-speed steam flow (up to 90 MPH) drags condensate into a fast-moving slug. As the slug slams into an elbow, valve, or blind flange, the sudden deceleration converts kinetic energy into shock pressures exceeding 1,500 PSI, rupturing cast iron valves, cracking pipe supports, and posing fatal shrapnel hazards to plant personnel. Always install drip legs with steam traps every 150 to 200 feet on straight runs and ahead of every riser.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Two-Phase Wet Steam Erosion & Wire-Drawing in Control Valves</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Operating steam distribution systems with a quality factor $x &lt; 0.95$ accelerates severe droplet impingement erosion on valve seats and orifices. As wet steam accelerates through throttled control valve trim, high-velocity water droplets carve razor-sharp micro-grooves into hardened stainless steel seats (a phenomenon known as "wire-drawing"). This destroys shut-off tightness, leading to continuous steam leakage and uncontrollable boiler feedwater consumption.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Steam Trap Priming Loss & Thermal Air-Binding Failure</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Inverted bucket traps rely on a water seal (prime) inside the bucket to float the mechanism. If sudden pressure drops or superheated steam causes the prime to flash evaporate, the bucket sinks to the bottom, causing the trap to blow live steam 100% open at enormous thermal cost. Conversely, if thermostatic traps lack automatic air vents, non-condensable gases (air and $CO_2$) blanket the heat exchanger surface, dropping the overall heat transfer coefficient $U$ by over 50%.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Boiler Water Carryover & Foaming from High TDS</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Failing to perform scheduled boiler bottom and surface blowdowns allows Total Dissolved Solids (TDS) in boiler water to exceed 2,500–3,500 PPM. High TDS stabilizes surface bubbles, creating a dense foam blanket across the steam disengagement surface. High steam velocities drag this chemical foam directly into the main steam header, coating downstream heat exchanger tubes with insulating mineral scale and destroying turbine blades.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: Misapplying Superheated Steam for Process Heat Exchangers</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Superheated steam behaves as a dry gas rather than a condensing vapor. Dry superheated steam has a gas-phase film heat transfer coefficient ($h \approx 10\text{ to }50\text{ BTU}/(\text{hr}\cdot\text{ft}^2\cdot^\circ\text{F})$), compared to condensing saturated steam ($h \approx 1,000\text{ to }2,000\text{ BTU}/(\text{hr}\cdot\text{ft}^2\cdot^\circ\text{F})$). Feeding superheated steam into a shell-and-tube reboiler or jacketed kettle drastically reduces heat transfer until the desuperheating phase completes, starving process temperature control loops.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Steam Engineering Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the difference between sensible heat ($h_f$) and latent heat ($h_{fg}$)?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Sensible heat ($h_f$) is the thermal energy required to raise the temperature of liquid water from 32°F to its boiling point at a given pressure without phase change. Latent heat of vaporization ($h_{fg}$) is the energy required to convert boiling water into steam at constant temperature and pressure. As steam pressure increases, sensible heat increases while latent heat decreases (reaching 0 at the critical point of 3,200.1 PSIA / 705.1°F).
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is a Boiler Horsepower (BHP) in modern steam generation?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        One Boiler Horsepower (BHP) is defined as the evaporation of <strong>34.5 pounds of water per hour from and at 212°F</strong>. In thermal terms, 1 BHP equals exactly <strong>33,475 BTU/hr (9.81 kW)</strong>. A 100 BHP industrial boiler can generate approximately 3,450 lbs/hr of steam at atmospheric pressure, or slightly less mass at elevated header pressures due to higher feedwater sensible heat requirements.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why is high steam velocity dangerous in piping systems?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Velocities exceeding 8,000 FPM generate severe acoustic resonance (>95 dBA), excessive pressure drop across pipe runs, and rapid erosion of elbows, control valves, and orifice plates. For saturated steam lines, velocities should be engineered between <strong>4,000 and 6,000 FPM</strong>. Superheated steam can safely operate at <strong>8,000 to 12,000 FPM</strong> because moisture droplets are absent.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How much flash steam is produced when high-pressure condensate discharges?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Flash steam percentage is determined by the difference in sensible heat between the high-pressure and low-pressure states divided by the low-pressure latent heat:
+        $$\% \text{ Flash} = \frac{h_{f1} - h_{f2}}{h_{fg2}} \times 100\%$$
+        For 100 PSIG condensate ($h_f = 309.0\text{ BTU/lb}$) flashing to atmospheric 0 PSIG ($h_f = 180.2, h_{fg} = 970.4$), the flash steam yield is $(309.0 - 180.2)/970.4 = \mathbf{13.3\%}$.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is steam quality and why does it matter?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Steam quality ($x$) is the mass proportion of dry vapor in a two-phase steam-water mixture. A quality of 0.95 means 95% dry vapor and 5% entrained liquid water droplets. Wet steam reduces usable latent heat, increases insulation jacket heat loss, fouls process instrumentation, and induces premature pitting and erosive failure in steam turbines and heat exchanger tube bundles.
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      // ASME/IAPWS-IF97 High-Precision Saturation Dataset (P_psia, Tsat_F, hf, hfg, hg, vf, vg, sf, sg)
+      var STEAM_DATA = [
+        { p: 1.0,   t: 101.7, hf: 69.7,  hfg: 1036.0, hg: 1105.7, vf: 0.01614, vg: 333.6,  sf: 0.1326, sg: 1.9779 },
+        { p: 5.0,   t: 162.2, hf: 130.2, hfg: 1001.0, hg: 1131.2, vf: 0.01641, vg: 73.53,  sf: 0.2349, sg: 1.8441 },
+        { p: 10.0,  t: 193.2, hf: 161.2, hfg: 982.1,  hg: 1143.3, vf: 0.01659, vg: 38.42,  sf: 0.2835, sg: 1.7877 },
+        { p: 14.696,t: 212.0, hf: 180.2, hfg: 970.4,  hg: 1150.5, vf: 0.01672, vg: 26.80,  sf: 0.3122, sg: 1.7568 },
+        { p: 20.0,  t: 228.0, hf: 196.3, hfg: 960.1,  hg: 1156.4, vf: 0.01683, vg: 20.09,  sf: 0.3358, sg: 1.7320 },
+        { p: 30.0,  t: 250.3, hf: 218.9, hfg: 945.4,  hg: 1164.1, vf: 0.01700, vg: 13.75,  sf: 0.3682, sg: 1.6996 },
+        { p: 50.0,  t: 281.0, hf: 250.2, hfg: 924.1,  hg: 1174.2, vf: 0.01727, vg: 8.516,  sf: 0.4113, sg: 1.6589 },
+        { p: 75.0,  t: 307.6, hf: 277.5, hfg: 904.5,  hg: 1182.0, vf: 0.01753, vg: 5.816,  sf: 0.4475, sg: 1.6264 },
+        { p: 100.0, t: 327.8, hf: 298.5, hfg: 888.8,  hg: 1187.3, vf: 0.01774, vg: 4.432,  sf: 0.4744, sg: 1.6027 },
+        { p: 114.7, t: 337.9, hf: 309.0, hfg: 880.6,  hg: 1189.6, vf: 0.01785, vg: 3.886,  sf: 0.4881, sg: 1.5925 },
+        { p: 150.0, t: 358.4, hf: 330.6, hfg: 863.3,  hg: 1194.0, vf: 0.01809, vg: 3.015,  sf: 0.5142, sg: 1.5707 },
+        { p: 200.0, t: 381.8, hf: 355.5, hfg: 843.0,  hg: 1198.5, vf: 0.01839, vg: 2.288,  sf: 0.5437, sg: 1.5456 },
+        { p: 250.0, t: 401.0, hf: 376.1, hfg: 825.2,  hg: 1201.3, vf: 0.01865, vg: 1.844,  sf: 0.5676, sg: 1.5255 },
+        { p: 300.0, t: 417.4, hf: 394.0, hfg: 809.0,  hg: 1203.0, vf: 0.01890, vg: 1.543,  sf: 0.5880, sg: 1.5085 },
+        { p: 400.0, t: 444.7, hf: 424.2, hfg: 780.5,  hg: 1204.7, vf: 0.01934, vg: 1.161,  sf: 0.6217, sg: 1.4812 },
+        { p: 500.0, t: 467.1, hf: 449.5, hfg: 755.0,  hg: 1204.5, vf: 0.01974, vg: 0.928,  sf: 0.6490, sg: 1.4589 },
+        { p: 600.0, t: 486.3, hf: 471.7, hfg: 731.6,  hg: 1203.3, vf: 0.02013, vg: 0.770,  sf: 0.6723, sg: 1.4395 },
+        { p: 800.0, t: 518.3, hf: 510.1, hfg: 688.0,  hg: 1198.1, vf: 0.02087, vg: 0.569,  sf: 0.7114, sg: 1.4059 },
+        { p: 1000.0,t: 544.7, hf: 542.4, hfg: 649.5,  hg: 1191.9, vf: 0.02159, vg: 0.446,  sf: 0.7432, sg: 1.3779 }
+      ];
+
+      function interpSteam(p_psia) {
+        if (p_psia <= STEAM_DATA[0].p) return STEAM_DATA[0];
+        if (p_psia >= STEAM_DATA[STEAM_DATA.length - 1].p) return STEAM_DATA[STEAM_DATA.length - 1];
+        for (var i = 0; i < STEAM_DATA.length - 1; i++) {
+          var p1 = STEAM_DATA[i].p;
+          var p2 = STEAM_DATA[i+1].p;
+          if (p_psia >= p1 && p_psia <= p2) {
+            var frac = (p_psia - p1) / (p2 - p1);
+            var d1 = STEAM_DATA[i];
+            var d2 = STEAM_DATA[i+1];
+            return {
+              p: p_psia,
+              t: d1.t + frac * (d2.t - d1.t),
+              hf: d1.hf + frac * (d2.hf - d1.hf),
+              hfg: d1.hfg + frac * (d2.hfg - d1.hfg),
+              hg: d1.hg + frac * (d2.hg - d1.hg),
+              vf: d1.vf + frac * (d2.vf - d1.vf),
+              vg: d1.vg + frac * (d2.vg - d1.vg),
+              sf: d1.sf + frac * (d2.sf - d1.sf),
+              sg: d1.sg + frac * (d2.sg - d1.sg)
+            };
+          }
+        }
+        return STEAM_DATA[0];
+      }
+
+      function findPFromTemp(t_f) {
+        if (t_f <= STEAM_DATA[0].t) return STEAM_DATA[0].p;
+        if (t_f >= STEAM_DATA[STEAM_DATA.length - 1].t) return STEAM_DATA[STEAM_DATA.length - 1].p;
+        for (var i = 0; i < STEAM_DATA.length - 1; i++) {
+          var t1 = STEAM_DATA[i].t;
+          var t2 = STEAM_DATA[i+1].t;
+          if (t_f >= t1 && t_f <= t2) {
+            var frac = (t_f - t1) / (t2 - t1);
+            return STEAM_DATA[i].p + frac * (STEAM_DATA[i+1].p - STEAM_DATA[i].p);
+          }
+        }
+        return 14.696;
+      }
+
+      function updateModeUI() {
+        var mode = document.getElementById('stMode').value;
+        var pBox = document.getElementById('stPressBox');
+        var tBox = document.getElementById('stTempBox');
+        var pInput = document.getElementById('stPressure');
+        var tInput = document.getElementById('stTemp');
+        var pLabel = document.getElementById('stPressLabel');
+        var tLabel = document.getElementById('stTempLabel');
+        var pHint = document.getElementById('stPressHint');
+        var tHint = document.getElementById('stTempHint');
+
+        if (mode === 'sat_psig') {
+          pInput.disabled = false;
+          tInput.disabled = true;
+          pLabel.textContent = 'Operating Pressure (PSIG)';
+          pHint.textContent = 'Gauge pressure (0 = atmospheric)';
+          tLabel.textContent = 'Saturation Temp (°F)';
+          tHint.textContent = 'Auto-calculated from pressure';
+        } else if (mode === 'sat_psia') {
+          pInput.disabled = false;
+          tInput.disabled = true;
+          pLabel.textContent = 'Absolute Pressure (PSIA)';
+          pHint.textContent = 'Absolute pressure (PSIG + 14.7)';
+          tLabel.textContent = 'Saturation Temp (°F)';
+          tHint.textContent = 'Auto-calculated from pressure';
+        } else if (mode === 'sat_temp') {
+          pInput.disabled = true;
+          tInput.disabled = false;
+          pLabel.textContent = 'Saturation Pressure (PSIA)';
+          pHint.textContent = 'Auto-calculated from temperature';
+          tLabel.textContent = 'Saturation Temp (°F)';
+          tHint.textContent = 'Target boiling temperature';
+        } else if (mode === 'superheat') {
+          pInput.disabled = false;
+          tInput.disabled = false;
+          pLabel.textContent = 'Operating Pressure (PSIG)';
+          pHint.textContent = 'Header gauge pressure';
+          tLabel.textContent = 'Total Steam Temp (°F)';
+          tHint.textContent = 'Must be greater than Saturation Temp';
+        }
+      }
+
+      function calcSteam() {
+        var mode = document.getElementById('stMode').value;
+        var pInputVal = parseFloat(document.getElementById('stPressure').value) || 0;
+        var tInputVal = parseFloat(document.getElementById('stTemp').value) || 212;
+        var flowRate = parseFloat(document.getElementById('stFlowRate').value) || 1000;
+        var quality = parseFloat(document.getElementById('stQuality').value);
+        if (isNaN(quality)) quality = 1.0;
+        quality = Math.max(0.0, Math.min(1.0, quality));
+        var pipeId = parseFloat(document.getElementById('stPipeSize').value) || 4.026;
+
+        var p_psia = 14.696;
+        var isSuperheat = false;
+        var superheatTemp = tInputVal;
+
+        if (mode === 'sat_psig') {
+          p_psia = Math.max(0.1, pInputVal + 14.696);
+        } else if (mode === 'sat_psia') {
+          p_psia = Math.max(0.1, pInputVal);
+        } else if (mode === 'sat_temp') {
+          p_psia = findPFromTemp(tInputVal);
+          document.getElementById('stPressure').value = p_psia.toFixed(1);
+        } else if (mode === 'superheat') {
+          p_psia = Math.max(0.1, pInputVal + 14.696);
+          isSuperheat = true;
+        }
+
+        var prop = interpSteam(p_psia);
+        var satTemp = prop.t;
+
+        if (mode !== 'sat_temp' && !isSuperheat) {
+          document.getElementById('stTemp').value = satTemp.toFixed(1);
+        }
+
+        var effTemp = satTemp;
+        var h_total = prop.hf + quality * prop.hfg;
+        var v_actual = prop.vf + quality * (prop.vg - prop.vf);
+        var s_actual = prop.sf + quality * (prop.sg - prop.sf);
+
+        if (isSuperheat) {
+          effTemp = Math.max(satTemp + 0.1, superheatTemp);
+          var degSh = effTemp - satTemp;
+          // Superheated vapor approximations:
+          // Cp of superheated steam approx 0.50 BTU/(lb-F)
+          var deltaHsh = degSh * (0.48 + 0.00015 * p_psia);
+          h_total = prop.hg + deltaHsh;
+          // Superheated specific volume expansion via ideal gas ratio:
+          v_actual = prop.vg * ((effTemp + 459.67) / (satTemp + 459.67));
+          var deltaSsh = (0.50) * Math.log((effTemp + 459.67) / (satTemp + 459.67));
+          s_actual = prop.sg + deltaSsh;
+        }
+
+        // Enthalpy in SI (kJ/kg)
+        var h_si = h_total * 2.326;
+        var tempC = (effTemp - 32) * 5 / 9;
+
+        // Pipe flow velocity: V (FPM) = (flow_lbs_hr * v_actual) / (25 * Di^2)
+        // Exact area: A_sqft = (PI/4) * (Di / 12)^2
+        // V (ft/min) = (flow_lbs_hr * v_actual) / (60 * A_sqft)
+        var areaSqFt = (Math.PI / 4) * Math.pow(pipeId / 12, 2);
+        var velFpm = (flowRate * v_actual) / (60 * areaSqFt);
+
+        // Boiler Horsepower and Heat Duty
+        // 1 BHP = 33,475 BTU/hr
+        var heatDutyBtu = flowRate * prop.hfg;
+        var bhp = heatDutyBtu / 33475;
+
+        // Flash steam yield when flashed to 0 PSIG (14.7 psia):
+        var atmProp = interpSteam(14.696);
+        var flashPct = Math.max(0, ((prop.hf - atmProp.hf) / atmProp.hfg) * 100);
+        var flashLbs = (flowRate * (flashPct / 100));
+
+        // Update DOM Elements
+        document.getElementById('outSatTemp').textContent = effTemp.toFixed(1) + ' °F';
+        document.getElementById('outSatTempC').textContent = tempC.toFixed(1) + ' °C' + (isSuperheat ? ' (Superheated)' : '');
+        document.getElementById('outTotalEnthalpy').textContent = h_total.toFixed(1) + ' BTU/lb';
+        document.getElementById('outEnthalpySI').textContent = h_si.toFixed(1) + ' kJ/kg';
+        document.getElementById('outHf').textContent = prop.hf.toFixed(1);
+        document.getElementById('outHfg').textContent = prop.hfg.toFixed(1);
+        document.getElementById('outVg').textContent = v_actual.toFixed(2);
+        document.getElementById('outEntropy').textContent = s_actual.toFixed(3);
+        document.getElementById('outPsia').textContent = p_psia.toFixed(2) + ' PSIA';
+
+        document.getElementById('outVelocity').textContent = Math.round(velFpm).toLocaleString() + ' FPM';
+        var velStatus = document.getElementById('outVelStatus');
+        if (velFpm < 3000) {
+          velStatus.textContent = 'ℹ Low Velocity (<3,000 FPM) — Pipe Over-sized';
+          velStatus.style.color = '#3b82f6';
+        } else if (velFpm <= 6500) {
+          velStatus.textContent = '✓ Ideal Velocity (4,000-6,000 FPM) — Low Noise & Erosion';
+          velStatus.style.color = '#10b981';
+        } else if (velFpm <= 9000) {
+          velStatus.textContent = '⚠️ Elevated Velocity (6,500-9,000 FPM) — High Pressure Drop';
+          velStatus.style.color = '#f59e0b';
+        } else {
+          velStatus.textContent = '⛔ Severe Erosion Hazard (>9,000 FPM) — Upsize Pipe';
+          velStatus.style.color = '#ef4444';
+        }
+
+        document.getElementById('outBhp').textContent = bhp.toFixed(1) + ' BHP';
+        document.getElementById('outHeatDuty').textContent = Math.round(heatDutyBtu).toLocaleString() + ' BTU/hr';
+        document.getElementById('outFlashPct').textContent = flashPct.toFixed(1) + '% (' + Math.round(flashLbs).toLocaleString() + ' lbs/hr)';
+
+        // Update Step-by-Step Math
+        document.getElementById('mathPabs').textContent = p_psia.toFixed(2) + ' PSIA';
+        document.getElementById('mathTsat').textContent = satTemp.toFixed(1) + ' °F (' + ((satTemp-32)*5/9).toFixed(1) + ' °C)';
+        document.getElementById('mathHf').textContent = prop.hf.toFixed(1);
+        document.getElementById('mathHfg').textContent = prop.hfg.toFixed(1);
+        document.getElementById('mathQuality').textContent = quality.toFixed(2);
+        document.getElementById('mathTotalH').textContent = h_total.toFixed(1) + ' BTU/lb';
+        document.getElementById('mathFlow').textContent = Math.round(flowRate).toLocaleString();
+        document.getElementById('mathVg').textContent = v_actual.toFixed(2);
+        document.getElementById('mathDi').textContent = pipeId.toFixed(3);
+        document.getElementById('mathVel').textContent = Math.round(velFpm).toLocaleString() + ' FPM';
+
+        drawSteamSvg(p_psia, satTemp, effTemp, s_actual, isSuperheat);
+      }
+
+      function drawSteamSvg(p_psia, satTemp, effTemp, s_val, isSuperheat) {
+        var svg = document.getElementById('steamDomeSvg');
+        // Range: Entropy s from 0.0 to 2.2 BTU/(lb-R)
+        // Range: Temp T from 32 to 750 °F
+        var W = 800, H = 360;
+        var padL = 70, padR = 40, padT = 30, padB = 50;
+        var plotW = W - padL - padR;
+        var plotH = H - padT - padB;
+
+        function sToX(s) {
+          return padL + (s / 2.2) * plotW;
+        }
+        function tToY(t) {
+          return padT + plotH - ((t - 32) / (750 - 32)) * plotH;
+        }
+
+        var svgContent = '';
+        // Background Grid
+        svgContent += '<rect width="800" height="360" fill="#0f172a"/>';
+        for (var tStep = 100; tStep <= 700; tStep += 100) {
+          var y = tToY(tStep);
+          svgContent += '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="#334155" stroke-dasharray="3,3" stroke-width="1"/>';
+          svgContent += '<text x="' + (padL - 10) + '" y="' + (y + 4) + '" fill="#94a3b8" font-size="11" text-anchor="end" font-family="monospace">' + tStep + '°F</text>';
+        }
+        for (var sStep = 0.5; sStep <= 2.0; sStep += 0.5) {
+          var x = sToX(sStep);
+          svgContent += '<line x1="' + x + '" y1="' + padT + '" x2="' + x + '" y2="' + (H - padB) + '" stroke="#334155" stroke-dasharray="3,3" stroke-width="1"/>';
+          svgContent += '<text x="' + x + '" y="' + (H - padB + 20) + '" fill="#94a3b8" font-size="11" text-anchor="middle" font-family="monospace">' + sStep.toFixed(1) + '</text>';
+        }
+        svgContent += '<text x="' + (padL + plotW / 2) + '" y="' + (H - 12) + '" fill="#cbd5e1" font-size="12" text-anchor="middle" font-weight="600">Specific Entropy s [BTU / (lb·°R)]</text>';
+        svgContent += '<text x="20" y="' + (padT + plotH / 2) + '" fill="#cbd5e1" font-size="12" text-anchor="middle" font-weight="600" transform="rotate(-90 20 ' + (padT + plotH / 2) + ')">Temperature T [°F]</text>';
+
+        // Saturation Liquid Line (hf / sf)
+        var liqPoints = '';
+        for (var i = 0; i < STEAM_DATA.length; i++) {
+          var lx = sToX(STEAM_DATA[i].sf);
+          var ly = tToY(STEAM_DATA[i].t);
+          liqPoints += (i === 0 ? 'M ' : 'L ') + lx.toFixed(1) + ' ' + ly.toFixed(1) + ' ';
+        }
+        // Critical point apex (s=1.058, t=705.1)
+        var critX = sToX(1.058);
+        var critY = tToY(705.1);
+        liqPoints += 'L ' + critX.toFixed(1) + ' ' + critY.toFixed(1);
+        svgContent += '<path d="' + liqPoints + '" fill="none" stroke="#38bdf8" stroke-width="3"/>';
+
+        // Saturation Vapor Line (hg / sg)
+        var vapPoints = 'M ' + critX.toFixed(1) + ' ' + critY.toFixed(1) + ' ';
+        for (var j = STEAM_DATA.length - 1; j >= 0; j--) {
+          var vx = sToX(STEAM_DATA[j].sg);
+          var vy = tToY(STEAM_DATA[j].t);
+          vapPoints += 'L ' + vx.toFixed(1) + ' ' + vy.toFixed(1) + ' ';
+        }
+        svgContent += '<path d="' + vapPoints + '" fill="none" stroke="#f59e0b" stroke-width="3"/>';
+
+        // Critical Point Dot
+        svgContent += '<circle cx="' + critX + '" cy="' + critY + '" r="4" fill="#ec4899"/>';
+        svgContent += '<text x="' + (critX) + '" y="' + (critY - 8) + '" fill="#ec4899" font-size="10" text-anchor="middle" font-weight="700">Critical Point (705.1°F)</text>';
+
+        // Active Constant Pressure Line (Isobar)
+        var curProp = interpSteam(p_psia);
+        var isoY = tToY(curProp.t);
+        var isoStartLiqX = sToX(curProp.sf);
+        var isoEndVapX = sToX(curProp.sg);
+
+        // Isobar inside dome: horizontal line
+        svgContent += '<line x1="' + isoStartLiqX.toFixed(1) + '" y1="' + isoY.toFixed(1) + '" x2="' + isoEndVapX.toFixed(1) + '" y2="' + isoY.toFixed(1) + '" stroke="#10b981" stroke-width="2.5" stroke-dasharray="4,2"/>';
+        // Isobar superheated tail (curving up and right)
+        var supCurve = 'M ' + isoEndVapX.toFixed(1) + ' ' + isoY.toFixed(1) + ' ';
+        for (var del = 20; del <= 250; del += 20) {
+          var tSh = curProp.t + del;
+          if (tSh > 750) break;
+          var sSh = curProp.sg + 0.50 * Math.log((tSh + 459.67) / (curProp.t + 459.67));
+          supCurve += 'L ' + sToX(sSh).toFixed(1) + ' ' + tToY(tSh).toFixed(1) + ' ';
+        }
+        svgContent += '<path d="' + supCurve + '" fill="none" stroke="#10b981" stroke-width="2"/>';
+        svgContent += '<text x="' + (isoStartLiqX + 8) + '" y="' + (isoY - 6) + '" fill="#10b981" font-size="10" font-family="monospace" font-weight="700">' + p_psia.toFixed(1) + ' PSIA Isobar</text>';
+
+        // Current Operating Coordinate Dot
+        var curX = sToX(s_val);
+        var curY = tToY(effTemp);
+        svgContent += '<circle cx="' + curX.toFixed(1) + '" cy="' + curY.toFixed(1) + '" r="7" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>';
+        svgContent += '<text x="' + (curX + 10) + '" y="' + (curY - 10) + '" fill="#ffffff" font-size="11" font-weight="700" font-family="monospace">State: ' + effTemp.toFixed(1) + '°F / ' + s_val.toFixed(2) + ' BTU/(lb·°R)</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyStSpec() {
+        var mode = document.getElementById('stMode').value;
+        var p = document.getElementById('stPressure').value;
+        var t = document.getElementById('stTemp').value;
+        var flow = document.getElementById('stFlowRate').value;
+        var satT = document.getElementById('outSatTemp').textContent;
+        var hTotal = document.getElementById('outTotalEnthalpy').textContent;
+        var hf = document.getElementById('outHf').textContent;
+        var hfg = document.getElementById('outHfg').textContent;
+        var vg = document.getElementById('outVg').textContent;
+        var vel = document.getElementById('outVelocity').textContent;
+        var bhp = document.getElementById('outBhp').textContent;
+        var duty = document.getElementById('outHeatDuty').textContent;
+        var flash = document.getElementById('outFlashPct').textContent;
+
+        var text = "=== STEAM SYSTEM THERMODYNAMIC REPORT ===\n" +
+          "Mode: " + mode + "\n" +
+          "Pressure: " + p + " PSIG (" + document.getElementById('outPsia').textContent + ")\n" +
+          "Temperature: " + satT + "\n" +
+          "Flow Rate: " + flow + " lbs/hr\n" +
+          "Sensible Enthalpy (hf): " + hf + " BTU/lb\n" +
+          "Latent Enthalpy (hfg): " + hfg + " BTU/lb\n" +
+          "Total Enthalpy (h): " + hTotal + "\n" +
+          "Specific Volume (vg): " + vg + " cu ft/lb\n" +
+          "Steam Pipe Velocity: " + vel + "\n" +
+          "Boiler Load: " + bhp + " (" + duty + ")\n" +
+          "Flash Steam Yield (0 PSIG vent): " + flash + "\n" +
+          "Standard: ASME / IAPWS-IF97 Steam Formulations\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/steam-table-calculator)";
+
+        var btn = document.getElementById('copyStBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Steam Report Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['stMode', 'stPressure', 'stTemp', 'stFlowRate', 'stQuality', 'stPipeSize'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcSteam);
+          el.addEventListener('change', function() {
+            if (id === 'stMode') updateModeUI();
+            calcSteam();
+          });
+        }
+      });
+
+      document.getElementById('copyStBtn').addEventListener('click', copyStSpec);
+
+      updateModeUI();
+      calcSteam();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'steam-table-calculator.html'), renderTradePage({
+    title: "Steam Table Calculator: IAPWS-IF97 Properties, Enthalpy & Sizing | Digital Tools Shed",
+    metaDesc: "Instant thermodynamic steam properties across saturated and superheated states: saturation temperature, enthalpy, specific volume, pipe velocity (FPM), and boiler BHP.",
+    canonical: `${DOMAIN}/calc/steam-table-calculator`,
+    bodyContent: steamTableBody,
+    currentPath: '/calc/steam-table-calculator',
+    faq: [
+      {
+        "q": "What is the difference between sensible heat (hf) and latent heat (hfg)?",
+        "a": "Sensible heat (hf) is the thermal energy needed to heat water from 32°F to its boiling point without a phase change. Latent heat (hfg) is the thermal energy absorbed during boiling to convert saturated water into vapor at constant temperature and pressure."
+      },
+      {
+        "q": "What is one Boiler Horsepower (BHP)?",
+        "a": "One Boiler Horsepower (BHP) is defined as evaporating 34.5 lbs of water per hour from and at 212°F, equivalent to exactly 33,475 BTU/hr (9.81 kW)."
+      },
+      {
+        "q": "What is the recommended steam velocity in supply piping?",
+        "a": "For saturated steam headers and branch lines, ASHRAE and Spirax Sarco recommend velocities between 4,000 and 6,000 Feet Per Minute (FPM). Velocities above 8,000 FPM cause droplet erosion and high acoustic noise."
+      },
+      {
+        "q": "How is flash steam quantity calculated?",
+        "a": "Flash steam occurs when high-pressure condensate discharges to a lower pressure vessel. The flash percentage is calculated as % Flash = (hf1 - hf2) / hfg2 * 100%. For 100 PSIG condensate discharging to atmospheric pressure (0 PSIG), approximately 13.3% of the liquid flashes into steam."
+      },
+      {
+        "q": "Why should superheated steam be avoided for process heating?",
+        "a": "Superheated steam acts as a dry gas with a poor surface film heat transfer coefficient (10 to 50 BTU/(hr-ft²-°F)) compared to condensing saturated steam (1,000 to 2,000 BTU/(hr-ft²-°F)). It dramatically reduces heat exchanger efficiency until desuperheated."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // GENERATOR FUEL CONSUMPTION, TANK RUNTIME & OPERATING COST CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const generatorFuelBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Generator Fuel Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Generator Fuel Consumption &amp; Tank Autonomy Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate hourly fuel consumption (GPH or SCFH), tank runtime hours, generation cost per kWh, electrical efficiency, and wet stacking carbonization risk across Diesel, Natural Gas, Propane, and Gasoline generator sets.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        Generator &amp; Fuel Specifications
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gnFuelType">Fuel Source &amp; Engine Type</label>
+        <select id="gnFuelType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="diesel" selected>#2 Diesel (137,000 BTU/gal — Industrial Prime/Standby)</option>
+          <option value="ng">Natural Gas (1,020 BTU/cu ft — Utility Pipeline / SCFH)</option>
+          <option value="lp">Liquid Propane LP (91,500 BTU/gal — Bulk Tank)</option>
+          <option value="gasoline">Unleaded Gasoline (125,000 BTU/gal — Portable Standby)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gnKw">Generator Rating (kW)</label>
+          <input type="number" id="gnKw" value="100" min="5" max="3000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Continuous prime/standby kW</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gnLoad">Operating Load Level</label>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <input type="range" id="gnLoadRange" min="10" max="100" value="75" step="5" style="flex:1;">
+            <span id="gnLoadVal" style="font-family:var(--mono);font-weight:700;font-size:1rem;min-width:45px;">75%</span>
+          </div>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Actual electrical demand</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gnTankCap" id="gnTankLabel">Usable Tank Capacity (Gal)</label>
+          <input type="number" id="gnTankCap" value="250" min="1" max="50000" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;" id="gnTankHint">Day tank or sub-base tank</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gnFuelPrice" id="gnPriceLabel">Fuel Cost ($/Gallon)</label>
+          <input type="number" id="gnFuelPrice" value="3.85" min="0.01" max="50.0" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;" id="gnPriceHint">Current delivered fuel price</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gnAltitude">Site Elevation (Feet ASL)</label>
+          <input type="number" id="gnAltitude" value="500" min="0" max="15000" step="250" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Derate: 3.5% per 1,000 ft &gt; 1,000 ft</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="gnPf">Generator Power Factor</label>
+          <select id="gnPf" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0.8" selected>0.80 PF (Standard 3-Phase Commercial)</option>
+            <option value="1.0">1.00 PF (Standard Single-Phase / Resistive)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">kVA = kW / Power Factor</span>
+        </div>
+      </div>
+
+      <button id="copyGnBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Fuel Analysis &amp; Sizing Specs</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Consumption Rate &amp; Tank Autonomy
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Fuel Burn Rate</div>
+            <div id="outBurnRate" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">5.49 GPH</div>
+            <div id="outBurnRateAlt" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">20.8 Liters/hr</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Continuous Runtime</div>
+            <div id="outRuntime" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">45.5 Hours</div>
+            <div id="outRuntimeDays" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">1.9 Days of Autonomy</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Operating Cost</div>
+            <div id="outHourlyCost" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">$21.14/hr</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">At current fuel price</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Cost per kWh</div>
+            <div id="outCostPerKwh" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">$0.282</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Per delivered kWh</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Thermal Efficiency</div>
+            <div id="outEfficiency" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">34.0%</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Fuel to electricity</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Actual Output / Apparent Power</div>
+            <div id="outKva" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">75 kW / 93.8 kVA</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);" id="outDerateNote">0.0% Altitude Derate</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">CO2 Carbon Emissions</div>
+            <div id="outCarbon" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">122.9 lbs/hr</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Direct combustion exhaust</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WET STACKING / ENGINE HEALTH WARNING BADGE -->
+      <div id="wetStackBox" style="background:#fef2f2;border:1px solid #f87171;border-radius:12px;padding:1rem 1.25rem;display:none;">
+        <div style="display:flex;align-items:flex-start;gap:0.75rem;">
+          <span style="font-size:1.5rem;line-height:1;">⚠️</span>
+          <div>
+            <div style="font-weight:700;color:#991b1b;font-size:0.95rem;">CRITICAL: Wet Stacking Carbonization Risk Detected (&lt;30% Load)</div>
+            <div style="font-size:0.85rem;color:#7f1d1d;line-height:1.4;margin-top:0.25rem;">
+              Operating a diesel generator below 30% load prevents cylinders from reaching peak combustion temperature (typically 500°F+ exhaust). Unburned fuel condenses in the exhaust manifold and turbocharger, creating black sludge ("wet stacking"), carbonizing valves, and voiding engine warranties. Connect an automatic supplemental resistive load bank.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE GENERATOR GENSET & TANK GAUGE (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Interactive Genset Architecture &amp; Sub-Base Fuel Day Tank
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Autonomy Visualization
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="genSetSvg" viewBox="0 0 800 280" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+  </div>
+
+  <!-- MULTI-LOAD BENCHMARK TABLE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Multi-Load Consumption Matrix for Active Generator (<span id="tblGenTitle">100 kW Diesel</span>)</h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Load Level</th>
+            <th style="padding:0.6rem 0.75rem;">Electrical Output</th>
+            <th style="padding:0.6rem 0.75rem;">Burn Rate</th>
+            <th style="padding:0.6rem 0.75rem;">Runtime (<span id="tblTankHdr">250 Gal</span> Tank)</th>
+            <th style="padding:0.6rem 0.75rem;">Operating Cost ($/hr)</th>
+            <th style="padding:0.6rem 0.75rem;">Cost / kWh</th>
+            <th style="padding:0.6rem 0.75rem;">Status / Health</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);" id="rowLoad25">
+            <td>25% (Quarter)</td><td id="tKw25">25 kW</td><td id="tBurn25">2.42 GPH</td><td id="tRun25">103.3 hrs</td><td id="tCost25">$9.32/hr</td><td id="tKwh25">$0.373</td><td style="color:#ef4444;font-weight:700;">⚠️ Wet Stacking Risk</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);" id="rowLoad50">
+            <td>50% (Half)</td><td id="tKw50">50 kW</td><td id="tBurn50">3.92 GPH</td><td id="tRun50">63.8 hrs</td><td id="tCost50">$15.09/hr</td><td id="tKwh50">$0.302</td><td style="color:#10b981;font-weight:600;">✓ Good Operation</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;" id="rowLoad75">
+            <td>75% (Three-Quarter)</td><td id="tKw75">75 kW</td><td id="tBurn75">5.49 GPH</td><td id="tRun75">45.5 hrs</td><td id="tCost75">$21.14/hr</td><td id="tKwh75">$0.282</td><td style="color:#10b981;font-weight:700;">★ Sweet Spot Efficiency</td>
+          </tr>
+          <tr id="rowLoad100">
+            <td>100% (Full Rated)</td><td id="tKw100">100 kW</td><td id="tBurn100">7.10 GPH</td><td id="tRun100">35.2 hrs</td><td id="tCost100">$27.34/hr</td><td id="tKwh100">$0.273</td><td style="color:#3b82f6;font-weight:600;">Full Continuous Peak</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Brake Specific Fuel Consumption (BSFC) &amp; Derivations</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Non-Linear Engine Load Fuel Burn Curve:</strong><br>
+        Internal combustion engines require approximately 12% to 18% of full-load fuel just to overcome rotational friction, alternator cooling fan drag, and oil viscous pumping losses at zero electrical output:
+        $$\dot{m}_{fuel} = kW_{rated} \times R_{full} \times \left[ f_{idle} + (1 - f_{idle}) \times \left(\frac{\% \text{ Load}}{100}\right)^{1.08} \right]$$
+        $$\dot{m}_{fuel} = <span id="mGenKw">100</span> \times <span id="mFullRate">0.071</span> \times \left[ 0.15 + 0.85 \times (<span id="mLoadFrac">0.75</span>)^{1.08} \right] = \mathbf{<span id="mFinalBurn">5.49</span> \text{ GPH}}$$
+      </p>
+
+      <p>
+        <strong>2. Thermal-to-Electrical Conversion Efficiency:</strong><br>
+        Electrical efficiency accounts for engine thermal brake efficiency, alternator stator copper losses, and harmonic distortion:
+        $$\eta_{elec} = \frac{kW_{actual} \times 3,412.14 \text{ BTU/kWh}}{\dot{m}_{fuel} \times \text{LHV}_{fuel}} \times 100\%$$
+        $$\eta_{elec} = \frac{<span id="mEffKw">75.0</span> \times 3,412.14}{<span id="mEffBurn">5.49</span> \times <span id="mEffLhv">137,000</span>} \times 100\% = \mathbf{<span id="mEffResult">34.0</span>\%}$$
+      </p>
+
+      <p>
+        <strong>3. Continuous Runtime to Tank Depletion:</strong><br>
+        $$T_{runtime} = \frac{V_{tank}}{\dot{m}_{fuel}} = \frac{<span id="mTankCap">250</span>}{<span id="mBurnDenom">5.49</span>} = \mathbf{<span id="mRunHours">45.5</span> \text{ Hours}} \quad (<span id="mRunDays">1.9</span> \text{ Days})$$
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & GENERATOR ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; Standby Generator Sizing Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: Diesel Wet Stacking & Unburned Hydrocarbon Glazing</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Operating a diesel standby generator below 30% of its nameplate capacity during routine weekly testing prevents the combustion chamber from reaching the thermal threshold required to cleanly vaporize diesel fuel. Unburned fuel and heavy soot condense into an acidic black slime that coats exhaust manifolds, fouls turbocharger turbine wheels, and forms hard carbon glaze on cylinder walls (causing loss of piston ring seal and continuous crankcase oil contamination). Always exercise generators under at least 50% load or install an automated supplemental load bank.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Neglecting Ambient Altitude & High-Temperature Derates</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Internal combustion engines suffer severe volumetric oxygen starvation at high altitudes and hot ambient temperatures. Naturally aspirated engines lose approximately <strong>3.5% of continuous power per 1,000 feet above sea level</strong> beyond 1,000 feet, and <strong>1% per 10°F above 77°F</strong>. A 100 kW standby generator installed in Denver, Colorado (5,280 ft) on a 95°F summer afternoon can only deliver approximately 82 kW before tripping on thermal overload or stalling.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Inrush Motor Starting kVA vs Continuous Running kW</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Induction motors (such as well pumps, HVAC compressors, and elevators) draw <strong>600% to 700% of their full-load running current during across-the-line startup</strong> (NEMA Code G Locked Rotor Amps). Sizing a generator strictly based on continuous running watts will cause instantaneous voltage collapse and under-frequency tripping the millisecond an air conditioner compressor engages. A 10 HP motor (requiring ~8 kW running) demands over 35 to 40 starting kVA to avoid exceeding the alternator's maximum 35% instantaneous voltage dip.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Natural Gas Pipeline Pressure Drop & Meter Starvation</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Natural gas generators require massive instantaneous volumetric gas flow at precise fuel pressures (typically 7 to 11 inches of water column). A 150 kW generator burns nearly 2,000 SCFH at full load. If fed through an undersized 1-1/4" gas service line or an un-upgraded residential 250 CFH gas utility meter, dynamic friction causes fuel pressure to plummet below 3" w.g. during sudden electrical load steps, causing the electronic governor to surge violently and shut down on under-speed faults.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: Diesel Fuel Aging, Microbial Algae & Asphaltene Clogging</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Modern Ultra-Low Sulfur Diesel (ULSD) has a shelf life of only 6 to 12 months without chemical stabilization. Condensed atmospheric water pooling in the bottom of sub-base tanks fosters microbial colonies (*Cladosporium resinae* or "fuel algae") that feed on hydrocarbons, excreting sulfuric acid and thick gelatinous sludge. When an emergency power outage strikes and the generator ramps to 100% load, the fuel transfer pump sucks this biological sludge into primary 10-micron fuel filters, starving the engine within 15 minutes of startup. Install an automatic periodic fuel polishing loop.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked Generator Fuel Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How many gallons of diesel does a 100 kW generator burn per hour?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        A standard 100 kW industrial diesel generator consumes approximately <strong>2.4 GPH at 25% load</strong>, <strong>3.9 GPH at 50% load</strong>, <strong>5.5 GPH at 75% load</strong>, and <strong>7.1 to 7.4 GPH at 100% full rated load</strong>. Diesel fuel consumption typically averages 0.070 to 0.074 gallons per hour per kW at maximum capacity.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why is wet stacking so dangerous for diesel standby engines?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Wet stacking occurs when an engine operates below 30% load, preventing cylinder temperatures from rising sufficiently to burn all fuel. Unburned fuel enters the exhaust system as a corrosive tar-like residue. This damages turbochargers, gums up exhaust valves, washes cylinder wall lubricating oil (scuffing pistons), and creates severe fire hazards inside the exhaust silencer.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How much natural gas (CFH) is required for a commercial standby generator?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Natural gas consumption averages approximately <strong>12 to 14 Standard Cubic Feet per Hour (SCFH) per kW of electrical output</strong>. A 100 kW generator requires approximately 1,320 CFH at full load, demanding a high-volume utility service gas meter and minimum dynamic inlet pressure of 7" to 11" water column.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How do you calculate fuel tank autonomy for hurricane or storm backup?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Autonomy (hours) is calculated as usable tank capacity divided by the average hourly burn rate: $T = V_{tank} / \text{GPH}$. For emergency facilities requiring 72 hours of continuous runtime at 75% load on a 100 kW generator (5.5 GPH), the minimum usable fuel tank capacity must be $72 \times 5.5 = \mathbf{396\text{ Gallons}}$ (plus a 10% safety reserve buffer, or a 450-gallon sub-base tank).
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the difference between Prime Power and Standby Power ratings?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        <strong>Standby Rating</strong> is the maximum power available for the duration of an emergency outage (limited to ~200 hours/year with average load not exceeding 70%). <strong>Prime Power Rating</strong> is designed for unlimited continuous operating hours with variable load (typically rated 10% to 15% lower than the standby rating of the exact same engine frame).
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      var FUEL_CONFIG = {
+        diesel: { name: '#2 Diesel', ratePerKw: 0.071, unit: 'GPH', btu: 137000, co2PerUnit: 22.38, isGas: false },
+        ng: { name: 'Natural Gas', ratePerKw: 13.2, unit: 'SCFH', btu: 1020, co2PerUnit: 0.12, isGas: true },
+        lp: { name: 'Propane LP', ratePerKw: 0.142, unit: 'GPH', btu: 91500, co2PerUnit: 12.68, isGas: false },
+        gasoline: { name: 'Gasoline', ratePerKw: 0.105, unit: 'GPH', btu: 125000, co2PerUnit: 19.64, isGas: false }
+      };
+
+      function updateFuelLabels() {
+        var fuelKey = document.getElementById('gnFuelType').value;
+        var cfg = FUEL_CONFIG[fuelKey];
+        var tankLabel = document.getElementById('gnTankLabel');
+        var tankHint = document.getElementById('gnTankHint');
+        var priceLabel = document.getElementById('gnPriceLabel');
+        var priceHint = document.getElementById('gnPriceHint');
+
+        if (cfg.isGas) {
+          tankLabel.textContent = 'Storage / Buffer Capacity (Cu Ft)';
+          tankHint.textContent = 'Gas volume buffer or pipeline rating';
+          priceLabel.textContent = 'Fuel Cost ($/CCF or 100 Cu Ft)';
+          priceHint.textContent = 'Standard utility billing rate (~$1.20/CCF)';
+          if (parseFloat(document.getElementById('gnFuelPrice').value) > 10) {
+            document.getElementById('gnFuelPrice').value = '1.35';
+          }
+          if (parseFloat(document.getElementById('gnTankCap').value) < 1000) {
+            document.getElementById('gnTankCap').value = '5000';
+          }
+        } else {
+          tankLabel.textContent = 'Usable Tank Capacity (Gallons)';
+          tankHint.textContent = 'Day tank or sub-base tank volume';
+          priceLabel.textContent = 'Fuel Cost ($/Gallon)';
+          priceHint.textContent = 'Current delivered fuel price';
+        }
+      }
+
+      function calcGen() {
+        var fuelKey = document.getElementById('gnFuelType').value;
+        var cfg = FUEL_CONFIG[fuelKey];
+        var ratedKw = parseFloat(document.getElementById('gnKw').value) || 100;
+        var loadPct = parseFloat(document.getElementById('gnLoadRange').value) || 75;
+        document.getElementById('gnLoadVal').textContent = Math.round(loadPct) + '%';
+
+        var tankCap = parseFloat(document.getElementById('gnTankCap').value) || 250;
+        var fuelPrice = parseFloat(document.getElementById('gnFuelPrice').value) || 3.85;
+        var altFt = parseFloat(document.getElementById('gnAltitude').value) || 0;
+        var pf = parseFloat(document.getElementById('gnPf').value) || 0.8;
+
+        // Altitude derate: 3.5% per 1000 ft above 1000 ft
+        var deratePct = 0;
+        if (altFt > 1000) {
+          deratePct = ((altFt - 1000) / 1000) * 3.5;
+        }
+        deratePct = Math.min(40, Math.max(0, deratePct));
+        var derateFactor = 1 - (deratePct / 100);
+
+        var actualKw = ratedKw * (loadPct / 100) * derateFactor;
+        var kva = actualKw / pf;
+
+        // Non-linear engine fuel curve
+        // Idle takes 15% of full load fuel even at near zero load
+        var idleFrac = 0.15;
+        var fullLoadRate = ratedKw * cfg.ratePerKw;
+        var loadFrac = loadPct / 100;
+        var currentBurn = fullLoadRate * (idleFrac + (1 - idleFrac) * Math.pow(loadFrac, 1.08));
+
+        // Runtime hours
+        var runtimeHours = tankCap / Math.max(0.01, currentBurn);
+        var runtimeDays = runtimeHours / 24;
+
+        // Operating cost
+        var unitPrice = fuelPrice;
+        if (cfg.isGas) {
+          unitPrice = fuelPrice / 100; // price per CCF -> per cu ft
+        }
+        var hourlyCost = currentBurn * unitPrice;
+        var costPerKwh = hourlyCost / Math.max(0.1, actualKw);
+
+        // Electrical Efficiency: (actualKw * 3412.14) / (currentBurn * BTU)
+        var totalBtuPerHour = currentBurn * cfg.btu;
+        var effPct = ((actualKw * 3412.14) / Math.max(1, totalBtuPerHour)) * 100;
+
+        // Carbon emissions
+        var carbonLbs = currentBurn * cfg.co2PerUnit;
+
+        // Wet Stacking Warning
+        var wetBox = document.getElementById('wetStackBox');
+        if (fuelKey === 'diesel' && loadPct < 30) {
+          wetBox.style.display = 'block';
+        } else {
+          wetBox.style.display = 'none';
+        }
+
+        // Update DOM
+        document.getElementById('outBurnRate').textContent = currentBurn.toFixed(2) + ' ' + cfg.unit;
+        if (cfg.isGas) {
+          document.getElementById('outBurnRateAlt').textContent = (currentBurn * 0.028317).toFixed(1) + ' m³/hr';
+        } else {
+          document.getElementById('outBurnRateAlt').textContent = (currentBurn * 3.78541).toFixed(1) + ' Liters/hr';
+        }
+
+        document.getElementById('outRuntime').textContent = runtimeHours.toFixed(1) + ' Hours';
+        document.getElementById('outRuntimeDays').textContent = runtimeDays.toFixed(1) + ' Days of Autonomy';
+
+        document.getElementById('outHourlyCost').textContent = '$' + hourlyCost.toFixed(2) + '/hr';
+        document.getElementById('outCostPerKwh').textContent = '$' + costPerKwh.toFixed(3);
+        document.getElementById('outEfficiency').textContent = effPct.toFixed(1) + '%';
+        document.getElementById('outKva').textContent = actualKw.toFixed(1) + ' kW / ' + kva.toFixed(1) + ' kVA';
+        document.getElementById('outDerateNote').textContent = deratePct.toFixed(1) + '% Altitude Derate';
+        document.getElementById('outCarbon').textContent = carbonLbs.toFixed(1) + ' lbs/hr';
+
+        // Update Multi-Load Table
+        document.getElementById('tblGenTitle').textContent = ratedKw + ' kW ' + cfg.name;
+        document.getElementById('tblTankHdr').textContent = tankCap.toLocaleString() + (cfg.isGas ? ' Cu Ft' : ' Gal');
+
+        var loads = [25, 50, 75, 100];
+        loads.forEach(function(l) {
+          var lFrac = l / 100;
+          var lKw = ratedKw * lFrac * derateFactor;
+          var lBurn = fullLoadRate * (idleFrac + (1 - idleFrac) * Math.pow(lFrac, 1.08));
+          var lRun = tankCap / Math.max(0.01, lBurn);
+          var lCost = lBurn * unitPrice;
+          var lKwh = lCost / Math.max(0.1, lKw);
+
+          document.getElementById('tKw' + l).textContent = lKw.toFixed(1) + ' kW';
+          document.getElementById('tBurn' + l).textContent = lBurn.toFixed(2) + ' ' + cfg.unit;
+          document.getElementById('tRun' + l).textContent = lRun.toFixed(1) + ' hrs';
+          document.getElementById('tCost' + l).textContent = '$' + lCost.toFixed(2) + '/hr';
+          document.getElementById('tKwh' + l).textContent = '$' + lKwh.toFixed(3);
+        });
+
+        // Update Math Derivations
+        document.getElementById('mGenKw').textContent = ratedKw;
+        document.getElementById('mFullRate').textContent = cfg.ratePerKw;
+        document.getElementById('mLoadFrac').textContent = (loadPct / 100).toFixed(2);
+        document.getElementById('mFinalBurn').textContent = currentBurn.toFixed(2) + ' ' + cfg.unit;
+        document.getElementById('mEffKw').textContent = actualKw.toFixed(1);
+        document.getElementById('mEffBurn').textContent = currentBurn.toFixed(2);
+        document.getElementById('mEffLhv').textContent = cfg.btu.toLocaleString();
+        document.getElementById('mEffResult').textContent = effPct.toFixed(1);
+        document.getElementById('mTankCap').textContent = tankCap.toLocaleString();
+        document.getElementById('mBurnDenom').textContent = currentBurn.toFixed(2);
+        document.getElementById('mRunHours').textContent = runtimeHours.toFixed(1);
+        document.getElementById('mRunDays').textContent = runtimeDays.toFixed(1);
+
+        drawGenSvg(ratedKw, loadPct, runtimeHours, currentBurn, cfg.unit);
+      }
+
+      function drawGenSvg(kw, loadPct, runtimeHours, burnRate, unit) {
+        var svg = document.getElementById('genSetSvg');
+        var svgContent = '';
+
+        // Background
+        svgContent += '<rect width="800" height="280" fill="#0f172a"/>';
+
+        // Base Skid Frame
+        svgContent += '<rect x="60" y="210" width="680" height="25" fill="#334155" rx="4" stroke="#475569" stroke-width="2"/>';
+        svgContent += '<circle cx="100" cy="222" r="6" fill="#1e293b"/>';
+        svgContent += '<circle cx="700" cy="222" r="6" fill="#1e293b"/>';
+
+        // Sub-Base Fuel Day Tank (inside / beneath skid)
+        svgContent += '<rect x="80" y="235" width="640" height="30" fill="#1e293b" stroke="#3b82f6" stroke-width="2" rx="3"/>';
+        svgContent += '<text x="90" y="255" fill="#93c5fd" font-size="12" font-family="monospace" font-weight="700">SUB-BASE FUEL TANK (' + document.getElementById('gnTankCap').value + ' GAL / ' + runtimeHours.toFixed(1) + ' HRS RUNTIME)</text>';
+        // Liquid Level inside tank (green/cyan)
+        var tankFrac = Math.min(1, Math.max(0.1, runtimeHours / 72));
+        var fillW = 636 * 0.75; // show 75% full for representation
+        svgContent += '<rect x="82" y="248" width="' + fillW + '" height="15" fill="#0284c7" opacity="0.6" rx="2"/>';
+
+        // Engine Block
+        svgContent += '<rect x="100" y="80" width="240" height="130" fill="#1e293b" stroke="#64748b" stroke-width="2" rx="4"/>';
+        svgContent += '<text x="120" y="110" fill="#f8fafc" font-size="14" font-weight="700">DIESEL/GAS ENGINE</text>';
+        svgContent += '<text x="120" y="130" fill="#94a3b8" font-size="11" font-family="monospace">Rating: ' + kw + ' kW</text>';
+        svgContent += '<text x="120" y="148" fill="#94a3b8" font-size="11" font-family="monospace">Burn: ' + burnRate.toFixed(2) + ' ' + unit + '</text>';
+
+        // Cylinder Head & Valve Cover
+        svgContent += '<rect x="110" y="55" width="220" height="25" fill="#334155" stroke="#475569" stroke-width="1.5" rx="3"/>';
+
+        // Turbocharger & Exhaust Stack
+        svgContent += '<rect x="310" y="65" width="35" height="35" fill="#dc2626" rx="4"/>';
+        svgContent += '<path d="M325 65 L325 25 L345 15 L365 25 L365 65" fill="#475569" stroke="#64748b" stroke-width="1.5"/>';
+        svgContent += '<text x="345" y="45" fill="#fca5a5" font-size="9" text-anchor="middle" font-family="monospace">EXHAUST</text>';
+        // Animated Exhaust Particles / Heat Lines
+        svgContent += '<path d="M335 15 Q330 5 335 0" stroke="#f87171" stroke-width="2" fill="none" opacity="0.8"/>';
+        svgContent += '<path d="M345 15 Q350 5 345 0" stroke="#f87171" stroke-width="2" fill="none" opacity="0.8"/>';
+        svgContent += '<path d="M355 15 Q360 5 355 0" stroke="#f87171" stroke-width="2" fill="none" opacity="0.8"/>';
+
+        // Alternator (Generator Head)
+        svgContent += '<rect x="370" y="90" width="200" height="120" fill="#1e293b" stroke="#3b82f6" stroke-width="2" rx="4"/>';
+        svgContent += '<text x="390" y="120" fill="#60a5fa" font-size="14" font-weight="700">SYNCHRONOUS ALTERNATOR</text>';
+        svgContent += '<text x="390" y="140" fill="#94a3b8" font-size="11" font-family="monospace">Load: ' + Math.round(loadPct) + '%</text>';
+        svgContent += '<text x="390" y="158" fill="#94a3b8" font-size="11" font-family="monospace">Output: ' + document.getElementById('outKva').textContent + '</text>';
+
+        // Radiator & Cooling Core
+        svgContent += '<rect x="600" y="60" width="110" height="150" fill="#1e293b" stroke="#10b981" stroke-width="2" rx="4"/>';
+        svgContent += '<text x="655" y="85" fill="#34d399" font-size="12" font-weight="700" text-anchor="middle">RADIATOR</text>';
+        for (var rY = 100; rY <= 190; rY += 12) {
+          svgContent += '<line x1="610" y1="' + rY + '" x2="700" y2="' + rY + '" stroke="#334155" stroke-width="2"/>';
+        }
+
+        // Control Panel / Deep Sea Controller Box
+        svgContent += '<rect x="380" y="30" width="90" height="50" fill="#0f172a" stroke="#e2e8f0" stroke-width="2" rx="4"/>';
+        svgContent += '<rect x="390" y="38" width="70" height="22" fill="#10b981" rx="2" opacity="0.8"/>';
+        svgContent += '<text x="425" y="53" fill="#022c22" font-size="10" font-family="monospace" font-weight="700" text-anchor="middle">RUNNING: OK</text>';
+        svgContent += '<circle cx="395" cy="70" r="3" fill="#ef4444"/>';
+        svgContent += '<circle cx="410" cy="70" r="3" fill="#f59e0b"/>';
+        svgContent += '<circle cx="425" cy="70" r="3" fill="#10b981"/>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyGnSpec() {
+        var fuelKey = document.getElementById('gnFuelType').value;
+        var cfg = FUEL_CONFIG[fuelKey];
+        var kw = document.getElementById('gnKw').value;
+        var load = document.getElementById('gnLoadVal').textContent;
+        var burn = document.getElementById('outBurnRate').textContent;
+        var runtime = document.getElementById('outRuntime').textContent;
+        var days = document.getElementById('outRuntimeDays').textContent;
+        var cost = document.getElementById('outHourlyCost').textContent;
+        var kwh = document.getElementById('outCostPerKwh').textContent;
+        var eff = document.getElementById('outEfficiency').textContent;
+        var outPwr = document.getElementById('outKva').textContent;
+        var carbon = document.getElementById('outCarbon').textContent;
+
+        var text = "=== GENERATOR FUEL & SIZING REPORT ===\n" +
+          "Generator Rating: " + kw + " kW (" + cfg.name + ")\n" +
+          "Operating Load: " + load + " (" + outPwr + ")\n" +
+          "Fuel Burn Rate: " + burn + "\n" +
+          "Continuous Runtime: " + runtime + " (" + days + ")\n" +
+          "Operating Cost: " + cost + " (Cost/kWh: " + kwh + ")\n" +
+          "Thermal Efficiency: " + eff + "\n" +
+          "Carbon Emissions: " + carbon + "\n" +
+          "Standard: ISO 8528 Genset Fuel Consumption Model\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/generator-fuel-consumption-calculator)";
+
+        var btn = document.getElementById('copyGnBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Generator Specs Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['gnFuelType', 'gnKw', 'gnLoadRange', 'gnTankCap', 'gnFuelPrice', 'gnAltitude', 'gnPf'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcGen);
+          el.addEventListener('change', function() {
+            if (id === 'gnFuelType') updateFuelLabels();
+            calcGen();
+          });
+        }
+      });
+
+      document.getElementById('copyGnBtn').addEventListener('click', copyGnSpec);
+
+      updateFuelLabels();
+      calcGen();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'generator-fuel-consumption-calculator.html'), renderTradePage({
+    title: "Generator Fuel Consumption Calculator: GPH, Tank Runtime & Cost | Digital Tools Shed",
+    metaDesc: "Calculate hourly generator fuel consumption (GPH/SCFH), tank runtime hours, operating cost per kWh, efficiency, and wet stacking risk across Diesel, NG & LP.",
+    canonical: `${DOMAIN}/calc/generator-fuel-consumption-calculator`,
+    bodyContent: generatorFuelBody,
+    currentPath: '/calc/generator-fuel-consumption-calculator',
+    faq: [
+      {
+        "q": "How many gallons of diesel does a 100 kW generator burn per hour?",
+        "a": "A standard 100 kW diesel generator consumes approximately 2.4 GPH at 25% load, 3.9 GPH at 50% load, 5.5 GPH at 75% load, and 7.1 to 7.4 GPH at 100% full load."
+      },
+      {
+        "q": "Why is diesel wet stacking dangerous?",
+        "a": "Wet stacking occurs when an engine operates under 30% load, preventing cylinders from reaching optimal combustion temperatures. Unburned fuel forms an acidic sludge coating manifolds and valves, reducing engine life and risking exhaust fires."
+      },
+      {
+        "q": "How much natural gas does a commercial generator need?",
+        "a": "Natural gas engines require approximately 12 to 14 Standard Cubic Feet per Hour (SCFH) per kW of electrical load. A 100 kW generator burns around 1,320 CFH at full load."
+      },
+      {
+        "q": "How do you calculate fuel tank runtime during an outage?",
+        "a": "Runtime equals usable tank volume divided by hourly consumption rate: Runtime (Hours) = Tank Capacity (Gallons) / Burn Rate (GPH). For 72 hours of autonomy on a 100 kW generator at 75% load (5.5 GPH), minimum capacity is 396 gallons."
+      },
+      {
+        "q": "What is the difference between Standby and Prime Power ratings?",
+        "a": "Standby ratings are for emergency outage duty (up to ~200 hours/year with variable load). Prime power ratings are for continuous unlimited operating hours (rated 10% to 15% lower than standby for the same engine)."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // HVAC DUCT FRICTION LOSS, STATIC PRESSURE & VELOCITY CALCULATOR (SMACNA/ASHRAE)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const ductFrictionBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Duct Friction Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">HVAC Duct Friction Loss &amp; Static Pressure Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate friction rate (in. w.g. / 100 ft), airflow velocity (FPM), dynamic velocity pressure ($VP$), equivalent round diameter ($D_e$), and total external static pressure drop across sheet metal, flex duct, and SMACNA fittings.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Airflow &amp; Duct Geometry
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dfCfm">Airflow Volume (CFM)</label>
+          <input type="number" id="dfCfm" value="1200" min="50" max="60000" step="50" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Total volumetric flow (CFM)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dfShape">Duct Profile / Shape</label>
+          <select id="dfShape" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="round" selected>Round Duct</option>
+            <option value="rect">Rectangular Duct</option>
+            <option value="oval">Flat Oval Duct</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Cross-sectional geometry</span>
+        </div>
+      </div>
+
+      <!-- DYNAMIC DIMENSION FIELDS -->
+      <div id="dfRoundBox" style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dfDiameter">Duct Diameter (Inches)</label>
+        <input type="number" id="dfDiameter" value="14" min="3" max="60" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Standard round spiral or rigid duct size</span>
+      </div>
+
+      <div id="dfRectBox" style="display:none;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dfWidth">Duct Width (Inches)</label>
+          <input type="number" id="dfWidth" value="16" min="4" max="120" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Horizontal dimension (a)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dfHeight">Duct Height (Inches)</label>
+          <input type="number" id="dfHeight" value="10" min="4" max="120" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Vertical dimension (b)</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dfMaterial">Duct Material &amp; Absolute Roughness (&epsilon;)</label>
+        <select id="dfMaterial" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="0.0003" selected>Galvanized Sheet Metal (&epsilon; = 0.0003 ft — Smooth)</option>
+          <option value="0.0004">Spiral Lockseam Round Duct (&epsilon; = 0.0004 ft)</option>
+          <option value="0.0009">Fibrous Glass Duct Board (&epsilon; = 0.0009 ft)</option>
+          <option value="0.0030">Flexible Metallic Duct (&epsilon; = 0.0030 ft — 10x Friction!)</option>
+          <option value="0.0050">Concrete / Masonry Chase (&epsilon; = 0.0050 ft)</option>
+        </select>
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Surface roughness dictates Darcy friction factor (f)</span>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="dfLength">Straight Duct Run Length (Feet)</label>
+        <input type="number" id="dfLength" value="80" min="1" max="2000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Total linear run of straight duct</span>
+      </div>
+
+      <!-- SMACNA FITTING LOSS COUNTS -->
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
+        <div style="font-weight:600;font-size:0.85rem;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.35rem;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          SMACNA Fittings in Run (Dynamic Loss Coefficients)
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="fitRadElb">90° Radius Elbows (R/W=1.5)</label>
+            <input type="number" id="fitRadElb" value="2" min="0" max="50" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="fitVaneElb">90° Square w/ Turning Vanes</label>
+            <input type="number" id="fitVaneElb" value="1" min="0" max="50" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="fitHardElb">90° Hard Square (No Vanes!)</label>
+            <input type="number" id="fitHardElb" value="0" min="0" max="50" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="fitElb45">45° Radius Elbows</label>
+            <input type="number" id="fitElb45" value="1" min="0" max="50" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="fitTakeoff">Supply Boot / Takeoffs</label>
+            <input type="number" id="fitTakeoff" value="4" min="0" max="50" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+          </div>
+          <div>
+            <label style="display:block;font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;" for="fitDamper">Fire / Balancing Dampers</label>
+            <input type="number" id="fitDamper" value="1" min="0" max="50" step="1" style="width:100%;padding:0.4rem 0.6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+          </div>
+        </div>
+      </div>
+
+      <button id="copyDfBtn" style="width:100%;padding:0.75rem;background:var(--primary);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <span>Copy Duct Sizing &amp; Static Loss Report</span>
+      </button>
+    </div>
+
+    <!-- OUTPUT COLUMN & PRIMARY METRICS -->
+    <div style="display:flex;flex-direction:column;gap:1.25rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;color:var(--primary);display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Velocity &amp; Static Pressure Summary
+        </h3>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Airflow Velocity</div>
+            <div id="outVelocity" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">1,123 FPM</div>
+            <div id="outVelClass" style="font-size:0.8rem;font-weight:600;color:#10b981;margin-top:0.25rem;">✓ Standard Commercial Trunk</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:1rem;border-radius:8px;">
+            <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:0.25rem;">Total Static Pressure Loss</div>
+            <div id="outTotalLoss" style="font-family:var(--mono);font-size:1.7rem;font-weight:700;color:var(--primary);">0.245 in. w.g.</div>
+            <div id="outLossPa" style="font-size:0.85rem;color:var(--text-muted);margin-top:0.2rem;">61.0 Pascals</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.75rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Friction Rate / 100'</div>
+            <div id="outFricRate" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">0.114</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">in. w.g. / 100 ft</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Velocity Pressure ($VP$)</div>
+            <div id="outVp" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">0.079</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">in. w.g. dynamic</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Equiv Diameter ($D_e$)</div>
+            <div id="outDe" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">14.0"</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);">Round hydraulic equiv</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Straight Run Loss</div>
+            <div id="outStraightLoss" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">0.091 in. w.g.</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);" id="outRunFtNote">80 ft duct length</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);padding:0.75rem;border-radius:8px;">
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.2rem;">Fittings Dynamic Loss</div>
+            <div id="outFittingsLoss" style="font-family:var(--mono);font-size:1.15rem;font-weight:700;">0.154 in. w.g.</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);" id="outFittingsEqFt">Total &Sigma;C = 1.95</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAN BUDGET / BLOWER EVALUATION CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+        <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+          AHU Blower Static Pressure Budget
+        </h3>
+
+        <div style="margin-bottom:0.75rem;">
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.35rem;">
+            <span>Duct Static Consumption of 0.50" w.g. Fan Budget:</span>
+            <span id="fanBudgetPct" style="font-family:var(--mono);font-weight:700;">49.0%</span>
+          </div>
+          <div style="width:100%;height:10px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--border);">
+            <div id="fanBudgetBar" style="width:49%;height:100%;background:#10b981;transition:width 0.3s ease;"></div>
+          </div>
+        </div>
+
+        <div id="fanBudgetNote" style="font-size:0.85rem;line-height:1.5;color:var(--text-muted);">
+          Leaves ample external static head for supply diffuser terminal drops, MERV 13 air filtration (0.15-0.25"), and wet cooling coils.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE DUCT AIRFLOW & MANOMETER (SVG) -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+      <h3 style="font-size:1.15rem;margin:0;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+        Velocity Profile &amp; U-Tube Differential Manometer Simulation
+      </h3>
+      <span style="font-size:0.8rem;background:var(--bg);border:1px solid var(--border);padding:0.25rem 0.6rem;border-radius:6px;font-family:var(--mono);">
+        Live Fluid Displacement
+      </span>
+    </div>
+
+    <div style="width:100%;overflow-x:auto;">
+      <svg id="ductSvg" viewBox="0 0 800 300" style="width:100%;max-width:800px;height:auto;display:block;margin:0 auto;background:#0f172a;border-radius:8px;">
+        <!-- Generated Dynamically -->
+      </svg>
+    </div>
+  </div>
+
+  <!-- REFERENCE TABLE: ROUND DUCT SIZING MATRIX -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Round Duct Friction &amp; Velocity Matrix at <span id="tblCfmHdr">1,200 CFM</span></h3>
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:0.85rem;text-align:left;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border);background:var(--bg);">
+            <th style="padding:0.6rem 0.75rem;">Diameter</th>
+            <th style="padding:0.6rem 0.75rem;">Area (sq in)</th>
+            <th style="padding:0.6rem 0.75rem;">Velocity (FPM)</th>
+            <th style="padding:0.6rem 0.75rem;">Velocity Press ($VP$)</th>
+            <th style="padding:0.6rem 0.75rem;">Sheet Metal Loss / 100'</th>
+            <th style="padding:0.6rem 0.75rem;">Flex Duct Loss / 100'</th>
+            <th style="padding:0.6rem 0.75rem;">Application / Acoustic Status</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:var(--mono);">
+          <tr style="border-bottom:1px solid var(--border);"><td>8" Round</td><td>50.3</td><td>3,438 FPM</td><td>0.737" w.g.</td><td>1.95" w.g.</td><td>2.92" w.g.</td><td style="color:#ef4444;font-weight:700;">⛔ Severe Noise / Choked</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>10" Round</td><td>78.5</td><td>2,200 FPM</td><td>0.302" w.g.</td><td>0.61" w.g.</td><td>0.92" w.g.</td><td style="color:#ef4444;font-weight:600;">⚠️ High Velocity / Riser Only</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>12" Round</td><td>113.1</td><td>1,528 FPM</td><td>0.146" w.g.</td><td>0.24" w.g.</td><td>0.36" w.g.</td><td style="color:#f59e0b;font-weight:600;">Main Trunk Limit (NC-35)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);background:rgba(59,130,246,0.05);font-weight:700;"><td>14" Round</td><td>153.9</td><td>1,123 FPM</td><td>0.079" w.g.</td><td>0.11" w.g.</td><td>0.17" w.g.</td><td style="color:#10b981;font-weight:700;">★ Sweet Spot (0.10" Design)</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>16" Round</td><td>201.1</td><td>859 FPM</td><td>0.046" w.g.</td><td>0.06" w.g.</td><td>0.09" w.g.</td><td style="color:#10b981;font-weight:600;">✓ Quiet Residential / Office</td></tr>
+          <tr style="border-bottom:1px solid var(--border);"><td>18" Round</td><td>254.5</td><td>679 FPM</td><td>0.029" w.g.</td><td>0.03" w.g.</td><td>0.05" w.g.</td><td style="color:#3b82f6;font-weight:600;">Ultra-Quiet Studio / Hospital</td></tr>
+          <tr><td>20" Round</td><td>314.2</td><td>550 FPM</td><td>0.019" w.g.</td><td>0.02" w.g.</td><td>0.03" w.g.</td><td style="color:#3b82f6;">Low Velocity / Oversized</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL DERIVATION WITH LIVE VALUES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h3 style="font-size:1.15rem;margin-top:0;margin-bottom:1rem;">Fluid Mechanics &amp; Darcy-Weisbach Formulation</h3>
+    <div style="font-size:0.95rem;line-height:1.7;color:var(--fg);">
+      <p>
+        <strong>1. Air Velocity & Dynamic Velocity Pressure:</strong><br>
+        Air velocity represents volumetric airflow divided by cross-sectional area. The dynamic velocity pressure is the kinetic energy of moving air expressed in inches of water column:
+        $$V = \frac{Q_{\text{CFM}}}{A_{\text{sq ft}}} = \frac{<span id="mCfm">1,200</span>}{<span id="mArea">1.069</span>} = \mathbf{<span id="mVel">1,123</span> \text{ FPM}}$$
+        $$VP = \left(\frac{V}{4,005}\right)^2 = \left(\frac{<span id="mVpVel">1,123</span>}{4,005}\right)^2 = \mathbf{<span id="mVpResult">0.079</span> \text{ in. w.g.}}$$
+      </p>
+
+      <p>
+        <strong>2. Colebrook-White / Swamee-Jain Friction Factor ($f$):</strong><br>
+        For turbulent airflow ($Re &gt; 4,000$), the Darcy friction factor is computed from relative roughness and Reynolds number:
+        $$f = \frac{0.25}{\left[ \log_{10}\left( \frac{\epsilon / D_h}{3.7} + \frac{5.74}{Re^{0.9}} \right) \right]^2} = \mathbf{<span id="mFrictionFactor">0.0188</span>}$$
+      </p>
+
+      <p>
+        <strong>3. Total Static Pressure Loss ($\Delta P_{total}$):</strong><br>
+        Friction loss along straight pipe combines with dynamic local head loss through elbows, dampers, and takeoffs:
+        $$\Delta P_{\text{straight}} = 12 \times f \times \frac{L}{D_h} \times VP = 12 \times <span id="mF">0.0188</span> \times \frac{<span id="mL">80</span>}{<span id="mDh">14.0</span>} \times <span id="mVP2">0.079</span> = \mathbf{<span id="mPstr">0.091</span> \text{ in. w.g.}}$$
+        $$\Delta P_{\text{fittings}} = \left(\sum C_o\right) \times VP = <span id="mSumC">1.95</span> \times <span id="mVP3">0.079</span> = \mathbf{<span id="mPfit">0.154</span> \text{ in. w.g.}}$$
+        $$\Delta P_{\text{total}} = \Delta P_{\text{straight}} + \Delta P_{\text{fittings}} = \mathbf{<span id="mPtot">0.245</span> \text{ in. w.g.}} \quad (<span id="mPa">61.0</span> \text{ Pa})$$
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & HVAC ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1.25rem;">5 Fatal Traps &amp; HVAC Duct Design Pitfalls</h3>
+    
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 1: The Flexible Duct Sag & Longitudinal Compression Disaster</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Flexible duct is only rated for its nominal friction factor when stretched 100% taut between supports. In actual residential installations, contractors leave excessive slack, resulting in 15% to 30% longitudinal compression and drooping sags between joist hangers. ASHRAE Research Project RP-1333 demonstrated that <strong>a 15% longitudinal compression in flexible duct increases static pressure friction loss by over 400%</strong> compared to straight galvanized metal of the same diameter, completely choking airflow to distant bedrooms and freezing evaporator coils.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Hard 90° Square Mitered Elbows Without Turning Vanes</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          A hard 90° mitered square elbow without internal turning vanes creates a massive vena contracta and chaotic turbulent vortex on the inside heel of the turn. Its loss coefficient is a staggering $C_o \approx 1.20$, equivalent to adding <strong>55 to 65 linear feet of straight duct</strong> for a single fitting! In contrast, installing SMACNA double-thickness aerodynamic turning vanes drops the loss coefficient to $C_o \approx 0.25$ (an 80% reduction in fitting pressure drop).
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 3: Extreme Rectangular Aspect Ratio Distortion (&gt;4:1)</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Squeezing rectangular ductwork into shallow ceiling plenums by using high aspect ratios (e.g. 30" &times; 6" instead of 16" &times; 11") dramatically increases wetted perimeter surface area relative to cross-sectional area. A 4:1 aspect ratio requires <strong>35% more sheet metal and induces 25% higher friction loss</strong> for the exact same CFM. Aspect ratios exceeding 4:1 should never be used on main distribution trunks without explicit fan static engineering compensation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 4: Fan Discharge "System Effect" from Abrupt Transitions</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Centrifugal blowers discharge air in an asymmetric, high-velocity swirl that requires at least 2.5 to 3 equivalent duct diameters of straight, uniform ductwork (the "blast area recovery length") to develop a fully stabilized velocity profile. Placing an abrupt 90° elbow or immediate bullhead tee directly on the fan discharge flange induces a severe "System Effect Factor" (SEF), robbing the blower of up to 0.30" w.g. of catalog rated static pressure before air ever reaches the main trunk.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);border-radius:0 8px 8px 0;padding:1rem 1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.03);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 5: High-Velocity Regenerated Aerodynamic Noise</span>
+        </h4>
+        <p style="margin:0;font-size:0.9rem;line-height:1.5;color:var(--fg);">
+          Duct sizing is not governed solely by static pressure drop, but by acoustic noise criteria (NC). In residential living rooms and bedrooms, duct velocities exceeding 700 to 900 FPM generate audible low-frequency rumble and hiss as air passes over damper blades and diffuser louvers. In commercial office spaces, velocities above 1,200 FPM exceed NC-35 acoustic limits. Always verify terminal branch velocities against room noise criteria.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQ ACCORDIONS -->
+  <div style="margin-bottom:2.5rem;">
+    <h3 style="font-size:1.3rem;margin-bottom:1rem;">Frequently Asked HVAC Duct Friction Questions</h3>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the standard duct friction rate for residential and commercial HVAC design?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Under the standard "Equal Friction" design method, residential supply and return duct systems are typically engineered at <strong>0.08 to 0.10 inches of water gauge per 100 feet of duct run (in. w.g. / 100 ft)</strong>. Commercial systems with larger blowers may use 0.10 to 0.15 in. w.g. / 100 ft on main trunks, provided air velocities remain below acoustic threshold limits.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>How is rectangular duct converted to equivalent round diameter?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Rectangular dimensions ($a \times b$) are converted to equal friction round diameter using the Huebscher formula:
+        $$D_e = 1.30 \times \frac{(a \cdot b)^{0.625}}{(a + b)^{0.250}}$$
+        A 16" &times; 10" rectangular duct has a cross-sectional area of 160 sq in, but its equivalent round diameter is <strong>13.7 inches</strong> (cross-sectional area of 147 sq in) due to the higher boundary-layer friction along the rectangular perimeter.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What is the difference between Static Pressure and Velocity Pressure?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        <strong>Static Pressure (SP)</strong> is the outward bursting or collapsing pressure exerted perpendicularly against duct walls, responsible for overcoming friction resistance. <strong>Velocity Pressure (VP)</strong> is the forward directional kinetic pressure of moving air, calculated as $VP = (V / 4005)^2$. The sum of Static Pressure and Velocity Pressure equals <strong>Total Pressure (TP)</strong>.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-bottom:0.75rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>Why does flexible duct have so much more friction than sheet metal?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Flexible duct consists of an internal helical steel wire core wrapped in plastic film. The corrugations create an absolute roughness of $\epsilon = 0.0030\text{ ft}$ (10 times rougher than galvanized sheet metal). In addition, when not installed under 100% full longitudinal tension, the internal ripples expand into the airflow stream, tripping laminar boundary flow into severe turbulence and doubling pressure loss.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <summary style="font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;">
+        <span>What total external static pressure (TESP) can a typical furnace handle?</span>
+        <span style="color:var(--primary);font-size:1.2rem;">+</span>
+      </summary>
+      <div style="margin-top:0.75rem;font-size:0.9rem;line-height:1.6;color:var(--fg);">
+        Standard residential furnaces and air handlers are rated for a maximum Total External Static Pressure (TESP) of <strong>0.50 inches of water column (in. w.g.)</strong> across the entire system. This 0.50" budget must cover the evaporator coil (0.20-0.25"), air filter (0.10-0.20"), supply ductwork (0.10"), and return ductwork (0.05-0.10"). Exceeding 0.70" causes PSC motors to overheat and ECM variable-speed blowers to ramp to maximum RPM, generating loud wind roar.
+      </div>
+    </details>
+  </div>
+
+  <!-- CLIENT SCRIPT -->
+  <script>
+    (function() {
+      function updateShapeUI() {
+        var shape = document.getElementById('dfShape').value;
+        var rBox = document.getElementById('dfRoundBox');
+        var rectBox = document.getElementById('dfRectBox');
+        if (shape === 'round') {
+          rBox.style.display = 'block';
+          rectBox.style.display = 'none';
+        } else {
+          rBox.style.display = 'none';
+          rectBox.style.display = 'grid';
+        }
+      }
+
+      function calcDuct() {
+        var cfm = parseFloat(document.getElementById('dfCfm').value) || 1200;
+        var shape = document.getElementById('dfShape').value;
+        var d_in = parseFloat(document.getElementById('dfDiameter').value) || 14;
+        var w_in = parseFloat(document.getElementById('dfWidth').value) || 16;
+        var h_in = parseFloat(document.getElementById('dfHeight').value) || 10;
+        var roughness = parseFloat(document.getElementById('dfMaterial').value) || 0.0003;
+        var length_ft = parseFloat(document.getElementById('dfLength').value) || 80;
+
+        var a_sqft = 0;
+        var dh_in = 0;
+        var de_in = 0;
+
+        if (shape === 'round') {
+          a_sqft = (Math.PI / 4) * Math.pow(d_in / 12, 2);
+          dh_in = d_in;
+          de_in = d_in;
+        } else if (shape === 'rect') {
+          a_sqft = (w_in * h_in) / 144;
+          dh_in = (2 * w_in * h_in) / (w_in + h_in);
+          de_in = 1.30 * Math.pow(w_in * h_in, 0.625) / Math.pow(w_in + h_in, 0.250);
+        } else if (shape === 'oval') {
+          // Flat oval approximation: Major axis a, Minor axis b
+          // Area approx: (PI/4)*b^2 + b*(a-b)
+          var maj = Math.max(w_in, h_in);
+          var min = Math.min(w_in, h_in);
+          var areaSqIn = (Math.PI / 4) * Math.pow(min, 2) + min * (maj - min);
+          a_sqft = areaSqIn / 144;
+          var perim = Math.PI * min + 2 * (maj - min);
+          dh_in = (4 * areaSqIn) / Math.max(1, perim);
+          de_in = 1.55 * Math.pow(areaSqIn, 0.625) / Math.pow(perim, 0.250);
+        }
+
+        var velFpm = cfm / Math.max(0.01, a_sqft);
+        var vp = Math.pow(velFpm / 4005, 2);
+
+        // Reynolds Number (air kinematic viscosity = 1.63e-4 sq ft / s)
+        var velFps = velFpm / 60;
+        var dh_ft = dh_in / 12;
+        var re = (velFps * dh_ft) / 1.63e-4;
+
+        // Swamee-Jain Friction Factor
+        var term = (roughness / (3.7 * dh_ft)) + (5.74 / Math.pow(Math.max(100, re), 0.9));
+        var f = 0.25 / Math.pow(Math.log10(term), 2);
+
+        // Friction loss per 100 ft (in. w.g. / 100 ft)
+        var lossPer100 = 12 * f * (100 / dh_in) * vp;
+        var lossStraight = (length_ft / 100) * lossPer100;
+
+        // Fittings Dynamic Loss: sum(C * VP)
+        var nRadElb = parseFloat(document.getElementById('fitRadElb').value) || 0;
+        var nVaneElb = parseFloat(document.getElementById('fitVaneElb').value) || 0;
+        var nHardElb = parseFloat(document.getElementById('fitHardElb').value) || 0;
+        var nElb45 = parseFloat(document.getElementById('fitElb45').value) || 0;
+        var nTakeoff = parseFloat(document.getElementById('fitTakeoff').value) || 0;
+        var nDamper = parseFloat(document.getElementById('fitDamper').value) || 0;
+
+        var sumC = (nRadElb * 0.15) + (nVaneElb * 0.25) + (nHardElb * 1.20) + 
+                   (nElb45 * 0.08) + (nTakeoff * 0.40) + (nDamper * 0.35);
+
+        var lossFittings = sumC * vp;
+        var totalLoss = lossStraight + lossFittings;
+        var totalLossPa = totalLoss * 249.0889; // 1 in. w.g. = 249.0889 Pa
+
+        // Update DOM
+        document.getElementById('outVelocity').textContent = Math.round(velFpm).toLocaleString() + ' FPM';
+        var velClass = document.getElementById('outVelClass');
+        if (velFpm < 700) {
+          velClass.textContent = '✓ Ultra-Quiet Residential (<700 FPM)';
+          velClass.style.color = '#3b82f6';
+        } else if (velFpm <= 1200) {
+          velClass.textContent = '✓ Standard Commercial Trunk (700-1,200 FPM)';
+          velClass.style.color = '#10b981';
+        } else if (velFpm <= 1600) {
+          velClass.textContent = '⚠️ Elevated Commercial Velocity (1,200-1,600 FPM)';
+          velClass.style.color = '#f59e0b';
+        } else {
+          velClass.textContent = '⛔ High Velocity / Severe Noise Hazard (>1,600 FPM)';
+          velClass.style.color = '#ef4444';
+        }
+
+        document.getElementById('outTotalLoss').textContent = totalLoss.toFixed(3) + ' in. w.g.';
+        document.getElementById('outLossPa').textContent = totalLossPa.toFixed(1) + ' Pascals';
+        document.getElementById('outFricRate').textContent = lossPer100.toFixed(3);
+        document.getElementById('outVp').textContent = vp.toFixed(3);
+        document.getElementById('outDe').textContent = de_in.toFixed(1) + '"';
+        document.getElementById('outStraightLoss').textContent = lossStraight.toFixed(3) + ' in. w.g.';
+        document.getElementById('outRunFtNote').textContent = length_ft + ' ft straight run';
+        document.getElementById('outFittingsLoss').textContent = lossFittings.toFixed(3) + ' in. w.g.';
+        document.getElementById('outFittingsEqFt').textContent = 'Total \u03a3C = ' + sumC.toFixed(2);
+
+        // Fan Budget
+        var fanBudgetFrac = (totalLoss / 0.50) * 100;
+        var budgetPctClamped = Math.min(100, Math.max(0, fanBudgetFrac));
+        document.getElementById('fanBudgetPct').textContent = fanBudgetFrac.toFixed(1) + '%';
+        var bBar = document.getElementById('fanBudgetBar');
+        bBar.style.width = budgetPctClamped + '%';
+        var bNote = document.getElementById('fanBudgetNote');
+
+        if (fanBudgetFrac <= 50) {
+          bBar.style.background = '#10b981';
+          bNote.textContent = 'Excellent: Leaves ample static head for supply registers, MERV 13 filtration (0.15-0.25"), and wet cooling coils.';
+        } else if (fanBudgetFrac <= 80) {
+          bBar.style.background = '#f59e0b';
+          bNote.textContent = 'Caution: Duct consumes majority of external static budget. Ensure high-efficiency pleated air filters do not overload blower.';
+        } else {
+          bBar.style.background = '#ef4444';
+          bNote.textContent = 'OVERLOAD: Duct friction exceeds allowable blower static budget. Upsize duct diameter or remove restrictive 90° square elbows!';
+        }
+
+        // Table Header
+        document.getElementById('tblCfmHdr').textContent = Math.round(cfm).toLocaleString() + ' CFM';
+
+        // Update Step-by-Step Math
+        document.getElementById('mCfm').textContent = Math.round(cfm).toLocaleString();
+        document.getElementById('mArea').textContent = a_sqft.toFixed(3);
+        document.getElementById('mVel').textContent = Math.round(velFpm).toLocaleString();
+        document.getElementById('mVpVel').textContent = Math.round(velFpm).toLocaleString();
+        document.getElementById('mVpResult').textContent = vp.toFixed(3);
+        document.getElementById('mFrictionFactor').textContent = f.toFixed(4);
+        document.getElementById('mF').textContent = f.toFixed(4);
+        document.getElementById('mL').textContent = length_ft;
+        document.getElementById('mDh').textContent = dh_in.toFixed(1);
+        document.getElementById('mVP2').textContent = vp.toFixed(3);
+        document.getElementById('mPstr').textContent = lossStraight.toFixed(3);
+        document.getElementById('mSumC').textContent = sumC.toFixed(2);
+        document.getElementById('mVP3').textContent = vp.toFixed(3);
+        document.getElementById('mPfit').textContent = lossFittings.toFixed(3);
+        document.getElementById('mPtot').textContent = totalLoss.toFixed(3);
+        document.getElementById('mPa').textContent = totalLossPa.toFixed(1);
+
+        drawDuctSvg(velFpm, totalLoss, vp);
+      }
+
+      function drawDuctSvg(velFpm, totalLoss, vp) {
+        var svg = document.getElementById('ductSvg');
+        var svgContent = '';
+
+        // Background
+        svgContent += '<rect width="800" height="300" fill="#0f172a"/>';
+
+        // Duct Walls
+        svgContent += '<rect x="60" y="50" width="680" height="80" fill="#1e293b" stroke="#64748b" stroke-width="2"/>';
+        svgContent += '<line x1="60" y1="50" x2="740" y2="50" stroke="#94a3b8" stroke-width="4"/>';
+        svgContent += '<line x1="60" y1="130" x2="740" y2="130" stroke="#94a3b8" stroke-width="4"/>';
+
+        // Airflow Velocity Vector Profile (Parabolic laminar/turbulent curve)
+        svgContent += '<path d="M120 50 Q220 90 120 130" fill="none" stroke="#38bdf8" stroke-width="3" stroke-dasharray="4,2"/>';
+        for (var y = 60; y <= 120; y += 15) {
+          var distCenter = Math.abs(y - 90);
+          var arrLen = 140 - Math.pow(distCenter / 30, 2) * 50;
+          svgContent += '<line x1="80" y1="' + y + '" x2="' + (80 + arrLen) + '" y2="' + y + '" stroke="#0284c7" stroke-width="2"/>';
+          svgContent += '<polygon points="' + (80 + arrLen) + ',' + y + ' ' + (72 + arrLen) + ',' + (y - 3) + ' ' + (72 + arrLen) + ',' + (y + 3) + '" fill="#0284c7"/>';
+        }
+        svgContent += '<text x="100" y="42" fill="#38bdf8" font-size="11" font-family="monospace" font-weight="700">AIRFLOW: ' + Math.round(velFpm) + ' FPM</text>';
+
+        // Static Pressure Tap (Wall tap at point 1)
+        svgContent += '<circle cx="280" cy="50" r="4" fill="#f59e0b"/>';
+        svgContent += '<line x1="280" y1="50" x2="280" y2="180" stroke="#f59e0b" stroke-width="2.5"/>';
+        svgContent += '<text x="280" y="38" fill="#fbbf24" font-size="10" font-family="monospace" text-anchor="middle">STATIC TAP (P1)</text>';
+
+        // Static Pressure Tap (Wall tap at point 2 down the run)
+        svgContent += '<circle cx="520" cy="50" r="4" fill="#f59e0b"/>';
+        svgContent += '<line x1="520" y1="50" x2="520" y2="180" stroke="#f59e0b" stroke-width="2.5"/>';
+        svgContent += '<text x="520" y="38" fill="#fbbf24" font-size="10" font-family="monospace" text-anchor="middle">STATIC TAP (P2)</text>';
+
+        // Differential U-Tube Manometer
+        // U-tube connecting P1 and P2
+        svgContent += '<path d="M280 180 L280 250 A30 30 0 0 0 340 250 L340 200 L460 200 L460 250 A30 30 0 0 0 520 250 L520 180" fill="none" stroke="#64748b" stroke-width="6"/>';
+        svgContent += '<path d="M280 180 L280 250 A30 30 0 0 0 340 250 L340 200 L460 200 L460 250 A30 30 0 0 0 520 250 L520 180" fill="none" stroke="#0f172a" stroke-width="3"/>';
+
+        // Fluid Level Displacement (Water column deflection)
+        // High pressure P1 pushes left leg down, low pressure P2 allows right leg to rise
+        var defl = Math.min(35, Math.max(4, totalLoss * 50));
+        svgContent += '<rect x="277" y="' + (220 + defl) + '" width="6" height="' + (35 - defl) + '" fill="#38bdf8"/>';
+        svgContent += '<path d="M277 250 A33 33 0 0 0 343 250" fill="none" stroke="#38bdf8" stroke-width="6"/>';
+        svgContent += '<rect x="337" y="200" width="126" height="6" fill="#38bdf8"/>';
+        svgContent += '<path d="M457 250 A33 33 0 0 0 523 250" fill="none" stroke="#38bdf8" stroke-width="6"/>';
+        svgContent += '<rect x="517" y="' + (220 - defl) + '" width="6" height="' + (35 + defl) + '" fill="#38bdf8"/>';
+
+        // Manometer Reading Callout
+        svgContent += '<line x1="535" y1="' + (220 - defl) + '" x2="570" y2="' + (220 - defl) + '" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2,2"/>';
+        svgContent += '<line x1="535" y1="' + (220 + defl) + '" x2="570" y2="' + (220 + defl) + '" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2,2"/>';
+        svgContent += '<line x1="565" y1="' + (220 - defl) + '" x2="565" y2="' + (220 + defl) + '" stroke="#ef4444" stroke-width="2"/>';
+        svgContent += '<text x="580" y="224" fill="#f87171" font-size="12" font-family="monospace" font-weight="700">&Delta;h = ' + totalLoss.toFixed(3) + '" w.g.</text>';
+
+        // Pitot Tube Callout inside duct
+        svgContent += '<path d="M640 180 L640 90 L610 90" fill="none" stroke="#10b981" stroke-width="3"/>';
+        svgContent += '<polygon points="610,90 616,87 616,93" fill="#10b981"/>';
+        svgContent += '<text x="640" y="205" fill="#34d399" font-size="11" font-family="monospace" text-anchor="middle">TOTAL PRESSURE PITOT TUBE (VP = ' + vp.toFixed(3) + '" w.g.)</text>';
+
+        svg.innerHTML = svgContent;
+      }
+
+      function copyDfSpec() {
+        var cfm = document.getElementById('dfCfm').value;
+        var shape = document.getElementById('dfShape').value;
+        var vel = document.getElementById('outVelocity').textContent;
+        var totalLoss = document.getElementById('outTotalLoss').textContent;
+        var fricRate = document.getElementById('outFricRate').textContent;
+        var vp = document.getElementById('outVp').textContent;
+        var de = document.getElementById('outDe').textContent;
+        var strLoss = document.getElementById('outStraightLoss').textContent;
+        var fitLoss = document.getElementById('outFittingsLoss').textContent;
+        var fanPct = document.getElementById('fanBudgetPct').textContent;
+
+        var text = "=== HVAC DUCT FRICTION & STATIC PRESSURE REPORT ===\n" +
+          "Airflow Volume: " + cfm + " CFM\n" +
+          "Duct Shape: " + shape.toUpperCase() + " (Equiv Dia De: " + de + ")\n" +
+          "Air Velocity: " + vel + " (Velocity Pressure VP: " + vp + " in. w.g.)\n" +
+          "Friction Rate: " + fricRate + " in. w.g. / 100 ft\n" +
+          "Straight Run Loss: " + strLoss + "\n" +
+          "Fittings Loss: " + fitLoss + "\n" +
+          "TOTAL STATIC PRESSURE DROP: " + totalLoss + " (" + document.getElementById('outLossPa').textContent + ")\n" +
+          "Blower Static Budget (0.50\" w.g.): " + fanPct + "\n" +
+          "Design Standard: SMACNA HVAC Duct Construction / ASHRAE Fundamentals\n" +
+          "Generated via Digital Tools Shed (https://digitaltoolsshed.com/calc/duct-friction-loss-calculator)";
+
+        var btn = document.getElementById('copyDfBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span style="color:#ffffff;">✓ Duct Specs Copied!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2500);
+        });
+      }
+
+      var inputs = ['dfCfm', 'dfShape', 'dfDiameter', 'dfWidth', 'dfHeight', 'dfMaterial', 'dfLength',
+                    'fitRadElb', 'fitVaneElb', 'fitHardElb', 'fitElb45', 'fitTakeoff', 'fitDamper'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcDuct);
+          el.addEventListener('change', function() {
+            if (id === 'dfShape') updateShapeUI();
+            calcDuct();
+          });
+        }
+      });
+
+      document.getElementById('copyDfBtn').addEventListener('click', copyDfSpec);
+
+      updateShapeUI();
+      calcDuct();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'duct-friction-loss-calculator.html'), renderTradePage({
+    title: "Duct Friction Loss Calculator: Static Pressure, CFM & Velocity | Digital Tools Shed",
+    metaDesc: "Calculate HVAC duct friction loss (in. w.g./100 ft), airflow velocity (FPM), velocity pressure (VP), and total static pressure drop per SMACNA and ASHRAE.",
+    canonical: `${DOMAIN}/calc/duct-friction-loss-calculator`,
+    bodyContent: ductFrictionBody,
+    currentPath: '/calc/duct-friction-loss-calculator',
+    faq: [
+      {
+        "q": "What is the recommended duct friction rate for residential and commercial design?",
+        "a": "Under the standard Equal Friction sizing method, residential systems are designed at 0.08 to 0.10 in. w.g. / 100 ft. Commercial systems typically use 0.10 to 0.15 in. w.g. / 100 ft on main trunks while keeping velocity below acoustic limits."
+      },
+      {
+        "q": "How is a rectangular duct converted to equivalent round diameter?",
+        "a": "Rectangular ducts are converted using the Huebscher formula: De = 1.30 * (a * b)^0.625 / (a + b)^0.250. For example, a 16\" x 10\" rectangular duct has an equivalent round diameter of 13.7 inches."
+      },
+      {
+        "q": "What is the difference between static pressure and velocity pressure?",
+        "a": "Static pressure (SP) is the outward hydrostatic pressure exerted against duct walls that overcomes friction. Velocity pressure (VP) is the forward kinetic energy of moving air: VP = (V / 4005)^2. The sum of SP and VP equals Total Pressure (TP)."
+      },
+      {
+        "q": "Why does flexible duct cause more static pressure loss than rigid sheet metal?",
+        "a": "Flexible duct has an internal wire helix with a roughness value of 0.0030 ft (10x rougher than sheet metal). When installed with even 15% longitudinal slack or compression, friction spikes over 400%, choking airflow."
+      },
+      {
+        "q": "What is the maximum external static pressure for standard residential air handlers?",
+        "a": "Standard residential furnaces and fan coils are engineered for a maximum Total External Static Pressure (TESP) of 0.50 in. w.g. across the entire system, including evaporator coil, air filter, and duct distribution runs."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (19 calculators in /calc/)');
 }
 
