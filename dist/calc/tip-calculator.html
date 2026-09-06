@@ -1163,7 +1163,7 @@
             <span>⚠️</span> <span>5 Critical Dining &amp; Gratuity Pitfalls</span>
           </h3>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #ef4444; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>🧾</span> <strong>Tipping on Sales Tax vs Pre-Tax Subtotal</strong>
             </h4>
@@ -1172,7 +1172,7 @@
             </p>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #f59e0b; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>👥</span> <strong>The Large-Party Auto-Gratuity Double Dip</strong>
             </h4>
@@ -1181,7 +1181,7 @@
             </p>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #10b981; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>📱</span> <strong>Counter Service &amp; Takeout Screen Inflation</strong>
             </h4>
@@ -1190,7 +1190,7 @@
             </p>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #3b82f6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>🍷</span> <strong>Alcohol &amp; Premium Cellar Bottle Asymmetry</strong>
             </h4>
@@ -1199,7 +1199,7 @@
             </p>
           </div>
 
-          <div style="background: var(--surface); border: 1px solid var(--border); border-left: 3px solid #8b5cf6; padding: 1.1rem 1.25rem; border-radius: 6px; margin-bottom: 0.85rem;">
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
             <h4 style="margin: 0 0 0.35rem 0; font-size: 0.95rem; color: var(--fg); font-family: var(--serif); display: flex; align-items: center; gap: 0.5rem;">
               <span>🍳</span> <strong>&quot;Kitchen Appreciation&quot; &amp; Wellness Fees vs Direct Server Tips</strong>
             </h4>
@@ -1311,6 +1311,80 @@
       calcTip();
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the standard tip percentage at a sit-down restaurant in the US?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The standard tipping range for sit-down table dining in the United States is 15% to 20% of the pre-tax bill. 15% is customary for adequate service, 18% for good attentive service, and 20% or higher for exceptional hospitality and dining care.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Should you calculate the tip on the pre-tax or post-tax bill amount?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Etiquette authorities and financial advisors universally recommend calculating tips on the pre-tax food and beverage subtotal. Sales taxes go directly to state and municipal governments; tipping on the post-tax total unnecessarily inflates your gratuity by 8% to 11% in high-tax jurisdictions.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How much should you tip for takeout pickup vs food delivery?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                For takeout carryout where you pick up the food from the counter, tipping is optional; 0% to 10% or rounding up to the nearest dollar is standard. For delivery drivers, tip 15% to 20% with a minimum threshold of $3 to $5, increasing to $5 to $10 during inclement weather or peak rush hours.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the legal difference between a service charge and a gratuity?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Under federal IRS guidelines, a voluntary tip is freely determined and distributed to tipped employees. A mandatory service charge (such as an automatic 18% fee for large parties or a 4% wellness fee) is the legal property of the employer, who may choose how much, if any, is shared with the waitstaff.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the fairest way to split a dining bill when diners order unequally?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                For casual dining with minor bill differences, splitting the total check evenly across all diners is customary. However, if some guests ordered expensive alcoholic beverages or premium cuts while others had appetizers or water, etiquette dictates itemizing drinks and entrees individually and prorating tax and tip proportionally.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong, .trap-card h4 {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

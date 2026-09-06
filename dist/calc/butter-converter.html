@@ -1139,35 +1139,35 @@
         </p>
 
         <div style="display: grid; gap: 1rem;">
-          <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
             <strong style="color: var(--fg); font-size: 0.95rem;">1. European (82%–84%) vs. American (80%) Butterfat &amp; Water Disparity</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               American butter is legally required to contain only 80% milkfat, leaving 16% to 18% water. European-style butter (Kerrygold, Plugr&aacute;, President) contains 82% to 84% milkfat and only 14% to 16% water. Substituting American butter into French pastry recipes injects excess water, which activates flour gluten and ruins the delicate lamination of croissants and puff pastry.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
             <strong style="color: var(--fg); font-size: 0.95rem;">2. The Salted vs. Unsalted Sodium Trap</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Commercial salted butter contains between 1.5% and 2.0% salt by weight—equal to approximately <strong>1/3 to 1/2 teaspoon of salt per stick (1.8g to 2.2g)</strong>. If a recipe calls for unsalted butter plus added salt, using salted butter doubles the sodium content, creating an unpleasantly salty profile in sweet frostings and cookies.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
             <strong style="color: var(--fg); font-size: 0.95rem;">3. East Coast (Elgin) vs. West Coast (Western Pack) Stick Geometry</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Both packages weigh exactly 113.4 grams (1/2 cup), but their shapes differ completely. East Coast "Elgin" sticks are long and slender (4.75" &times; 1.25"), while West Coast "Western" sticks are short and stubby (3.1" &times; 1.5"). Measuring butter visually by cutting an inch off the stick will cause a <strong>35% measurement error</strong> if you use the wrong regional pack.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
             <strong style="color: var(--fg); font-size: 0.95rem;">4. Melted Liquid Expansion vs. Cold Solid Emulsion Mass</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Cold stick butter has a physical bulk density of approximately 0.96 g/mL. When melted, butter expands thermally and separates into clear butterfat (0.89 g/mL) and dense water/milk solids. 1 cup of melted butter poured into a measuring cup yields less total mass than 2 solid sticks packed firmly into the same cup.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
             <strong style="color: var(--fg); font-size: 0.95rem;">5. The Avoirdupois Dry Ounce vs. Fluid Ounce Confusion</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               1 American stick of butter is labeled "4 oz" (weight, 113.4 grams), and is simultaneously equal to 1/2 cup (which holds 4 fluid ounces of volume). Because butter's density is very close to water (0.96 vs 1.00), many bakers mistakenly assume dry ounces and fluid ounces are interchangeable across all ingredients, leading to disasters when measuring flour or honey.
@@ -1359,6 +1359,80 @@
       updateFromSticks();
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many tablespoons are in 1 stick of butter?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                1 US stick of butter equals exactly 8 tablespoons (which is also 1/2 cup, 4 ounces, or 113.4 grams).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many grams is 1 stick of butter?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                1 American stick of butter weighs exactly 113.398 grams (rounded to 113.4g on digital kitchen scales).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many sticks of butter make 1 cup?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                2 sticks of butter make 1 full cup (16 tablespoons or 226.8 grams).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Why do European recipes require less butter than American recipes?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                European butter has higher butterfat (82%–84%) and less water (14%–16%) than American butter (80% fat, 16%–18% water). When making flaky croissants or pie dough, European butter yields crisper layers because less steam toughens the gluten.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How much salt is in salted butter?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Commercial salted butter contains roughly 1.5% to 2.0% salt by weight, which is equal to approximately 1/3 to 1/2 teaspoon of salt per stick (1.8g to 2.2g).
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

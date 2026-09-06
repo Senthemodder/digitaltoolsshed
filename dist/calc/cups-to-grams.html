@@ -1214,35 +1214,35 @@
         </p>
 
         <div style="display: grid; gap: 1rem;">
-          <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
             <strong style="color: var(--fg); font-size: 0.95rem;">1. The Scoop vs Spoon-and-Sweep Flour Compaction Shock</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Dipping a measuring cup directly into a bag of flour compacts the grain. A cup dipped and leveled weighs <strong>140g to 155g</strong>, whereas properly aerated flour (spooned into the cup and leveled) weighs <strong>120g</strong>. That extra 25g to 35g of flour per cup absorbs excessive liquid, turning tender cakes rubbery and artisan breads dense and dry.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
             <strong style="color: var(--fg); font-size: 0.95rem;">2. The Diamond Crystal vs Morton Kosher Salt Discrepancy</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Diamond Crystal kosher salt has hollow flaky crystals weighing only <strong>144g per cup</strong> (2.8g per tsp), whereas Morton kosher salt is dense rolled crystals weighing <strong>240g per cup</strong> (4.8g per tsp). Substituting Morton 1:1 by volume for Diamond Crystal makes your food nearly <strong>70% saltier</strong> than intended.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
             <strong style="color: var(--fg); font-size: 0.95rem;">3. The International Cup Volume Chasm (US vs Metric vs Imperial)</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               A US Customary cup holds <strong>236.6 mL</strong> (8 fluid ounces), a US Legal nutrition cup holds <strong>240.0 mL</strong>, an Australian / New Zealand / UK Metric cup holds <strong>250.0 mL</strong>, and an archaic Imperial British cup holds <strong>284.1 mL</strong>. Baking a British or Australian recipe using an American cup creates a 5.7% to 20% shortage of flour and sugar.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
             <strong style="color: var(--fg); font-size: 0.95rem;">4. The Brown Sugar Entrapped Air Trap (Packed vs Loose)</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Brown sugar contains sticky molasses that traps massive air pockets when scooped loosely, yielding only ~145g per cup. Standard baking recipes universally assume <strong>firmly packed brown sugar</strong> (pressed into the cup until it holds its shape like a sandcastle), which weighs <strong>220g per cup</strong>. Scooping loosely causes a disastrous 34% sugar deficit.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
             <strong style="color: var(--fg); font-size: 0.95rem;">5. Fluid Ounces (Volume) vs Avoirdupois Ounces (Weight) Confusion</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               A "fluid ounce" is a unit of volume ($29.57\text{ mL}$), while an ounce is a unit of mass ($28.35\text{ g}$). Water is the only culinary substance where $1\text{ fl oz} \approx 1\text{ oz}$ mass. For dense honey, an 8 fl oz cup weighs over <strong>11.5 dry ounces (340 grams)</strong>. Weighing honey to "8 ounces" on a scale results in a 30% shortage.
@@ -1440,6 +1440,80 @@
       calcCupsToGrams();
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many grams is 1 cup of all-purpose flour?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                1 level cup of spooned and leveled all-purpose flour equals 120 grams (4.23 ounces). If dipped and swept directly from the bag, it compacts and can weigh up to 140-155 grams.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many grams is 1/2 cup of granulated sugar?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                1/2 cup of granulated white sugar equals exactly 100 grams (3.53 ounces).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many grams is 1 cup of butter (or 1 stick of butter)?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                1 cup of butter (which equals 2 American sticks or 16 tablespoons) weighs 227 grams (8.0 ounces). A single stick of butter (1/2 cup or 8 tablespoons) weighs 113.4 grams (4.0 ounces).
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How many grams is 3/4 cup of brown sugar?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                3/4 cup of firmly packed brown sugar weighs 165 grams (5.82 ounces). If measured loose and unpacked, it weighs only approximately 109 grams.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do I convert a recipe from cups to grams if my ingredient is not listed?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                You can determine the grams by multiplying the ingredient's bulk density in g/mL by the volume of your measuring cup in milliliters (e.g., 236.6 mL for a US Customary cup). For example, pure water has a density of 1.00 g/mL, yielding 236.6 grams per cup.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">

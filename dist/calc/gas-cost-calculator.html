@@ -1297,35 +1297,35 @@
         </p>
 
         <div style="display: grid; gap: 1rem;">
-          <div style="border-left: 3px solid #ef4444; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
             <strong style="color: var(--fg); font-size: 0.95rem;">1. The Aerodynamic Drag Velocity Squared ((v^2)) Trap</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Aerodynamic drag does not increase linearly with speed; it increases with the <strong>square of velocity</strong> ((F_d = \frac{1}{2} \rho v^2 C_d A)). Increasing highway cruising speed from 60 mph to 75 mph increases aerodynamic resistance by <strong>56%</strong>, slashing fuel economy by 20% to 25%. Driving 80+ mph turns a 30 MPG vehicle into an 18-22 MPG fuel burner.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #f59e0b; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
             <strong style="color: var(--fg); font-size: 0.95rem;">2. Roof Racks and Cargo Carrier Parasitic Drag</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Even an empty factory crossbar roof rack degrades vehicle aerodynamics, causing a 5% to 10% penalty at 70 mph. A loaded rooftop hard-shell cargo box or bicycle rack creates severe turbulence, penalizing fuel economy by <strong>18% to 25%</strong>. On a 1,000-mile road trip, a roof box burns an extra $35 to $50 in wasted gasoline.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #10b981; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
             <strong style="color: var(--fg); font-size: 0.95rem;">3. Cold Tire Underinflation Rolling Resistance Trap</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Tires lose approximately 1 PSI of pressure for every 10&deg;F drop in ambient temperature. For every 3 PSI below the manufacturer's door-jamb specification, rolling resistance increases by 6% and fuel economy drops by 1%. Driving on underinflated tires increases highway tire temperatures, accelerating tread wear and risking catastrophic blowout.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #3b82f6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
             <strong style="color: var(--fg); font-size: 0.95rem;">4. The True Cost of Ownership (TCO) Blindspot</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               Gasoline represents only <strong>30% to 40%</strong> of the true cost of driving. Every road trip mile inflicts tire tread wear, motor oil breakdown, brake pad friction, transmission shear, and vehicle depreciation. The IRS standard business mileage deduction rate is <strong>$0.67 per mile</strong>. A 1,000-mile road trip actually costs $670 in combined capital and operating wear.
             </p>
           </div>
 
-          <div style="border-left: 3px solid #8b5cf6; padding: 0.75rem 1rem; background: var(--surface-alt); border-radius: 0 4px 4px 0;">
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
             <strong style="color: var(--fg); font-size: 0.95rem;">5. AC Compressor vs Highway Open Window Vortex Drag</strong>
             <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
               At city speeds below 45 mph (70 km/h), rolling down windows is more efficient than running the air conditioning compressor. Above 50 mph on the highway, open windows disrupt the vehicle's aerodynamic slipstream, creating a turbulent low-pressure vortex that causes more engine load and burns more fuel than modern variable-displacement AC compressors.
@@ -1606,6 +1606,80 @@
       calcGas();
     </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How do you calculate gas cost for a trip?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Divide total trip miles by your vehicle MPG to determine gallons needed, then multiply by the price of gas per gallon: (Miles / MPG) × Price Per Gallon. For metric: (Distance in km / 100) × L/100km × Price Per Liter.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How much does it cost to drive 500 miles?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                For a typical crossover getting 27 MPG with gas at $3.50 per gallon, driving 500 miles requires ~18.5 gallons of fuel, costing approximately $64.80 for gas alone.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does cruising speed affect highway gas mileage?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Because aerodynamic drag increases with the square of speed, driving at 75 to 80 mph increases fuel consumption by 15% to 25% compared to driving at 60 to 65 mph.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Is it cheaper to run the air conditioner or roll down windows?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Below 45 mph (70 km/h), rolling down windows is more fuel-efficient. Above 45 mph on highways, aerodynamic drag caused by open windows consumes more fuel than running modern vehicle air conditioning.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does cargo weight, roof racks, and towing impact trip fuel cost?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Vehicle aerodynamic drag and weight heavily degrade fuel economy. An empty roof rack increases aerodynamic drag by 5% to 10%, while a loaded roof cargo box or rooftop bicycles reduce highway fuel economy by 20% to 25%. Carrying 500 lbs of passenger or cargo payload adds another 5% to 8% penalty, and towing a travel trailer can cut MPG by 40% to 50%.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong, .trap-card h4 {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
