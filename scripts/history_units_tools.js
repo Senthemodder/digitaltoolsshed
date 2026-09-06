@@ -4677,7 +4677,14 @@ export function renderUnitConverterBody(tool) {
               }, 2500);
             }
           }).catch(function() {
-            alert('Failed to copy report to clipboard. Please copy manually.');
+            if (btn) {
+              btn.innerHTML = '⚠️ Copy Failed — Copy Manually';
+              btn.style.color = '#ef4444';
+              setTimeout(function() {
+                btn.innerHTML = old;
+                btn.style.color = 'var(--fg)';
+              }, 2500);
+            }
           });
         };
 

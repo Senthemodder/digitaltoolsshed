@@ -29062,7 +29062,7 @@ export function buildCuriousTools({ DIST, DOMAIN, renderPage, writeFileSync, joi
           '</div>' +
         '</div>' +
         '<div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">' +
-          '<button type="button" class="btn-primary" onclick="copyCuriousResult()" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Scientific Result</button>' +
+          '<button type="button" class="btn-primary" onclick="copyCuriousResult(this)" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Scientific Result</button>' +
           '<button type="button" class="btn-sec" onclick="randomizeCurious()" style="padding:0.5rem 1rem;font-size:0.85rem;">🎲 Random Experiment</button>' +
         '</div>' +
       '</div>' +
@@ -29094,11 +29094,16 @@ export function buildCuriousTools({ DIST, DOMAIN, renderPage, writeFileSync, joi
           'sumBox.textContent = "Under an allometric input value of " + c1 + " and primary metric of " + c3 + " with friction level " + c4 + ", the calculated physical output evaluates to " + parseFloat(calc).toLocaleString() + " standard physical units. The curve satisfies scaling conservation laws under standard temperature and pressure.";' +
         '}' +
       '}' +
-      'function copyCuriousResult() {' +
+      'function copyCuriousResult(btn) {' +
         'var disp = document.getElementById("curious-primary-val");' +
         'var text = "Scientific Output: " + (disp ? disp.textContent : "") + " | " + archetypeBase + " | Digital Tools Shed (digitaltoolsshed.com)";' +
-        'navigator.clipboard.writeText(text);' +
-        'alert("Scientific output copied to clipboard!");' +
+        'navigator.clipboard.writeText(text).then(function() {' +
+          'if (btn) {' +
+            'var old = btn.innerHTML;' +
+            'btn.innerHTML = "✓ Copied!";' +
+            'setTimeout(function() { btn.innerHTML = old; }, 2000);' +
+          '}' +
+        '});' +
       '}' +
       'function randomizeCurious() {' +
         'sliderIds.forEach(function(id) {' +

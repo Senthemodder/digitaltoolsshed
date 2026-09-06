@@ -1054,7 +1054,7 @@ form.addEventListener('submit', (e) => {
   e.preventDefault(); // Stop reload
   
   if (!emailInput.value.includes('@')) {
-    alert("Please enter a valid email.");
+    document.querySelector('#error').textContent = "Please enter a valid email.";
     return;
   }
   

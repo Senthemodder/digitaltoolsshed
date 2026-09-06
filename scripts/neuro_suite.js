@@ -378,7 +378,8 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
                 adhdTimerId = null;
                 btn.textContent = 'Start 120s Timer';
                 playChime();
-                alert('120s micro-window finished! Did you cross the threshold?');
+                var curStep = document.getElementById('adhd-current-step-txt');
+                if (curStep) curStep.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ 120s micro-window finished! Did you cross the threshold? Click &quot;Next Micro-Step&quot; to proceed!</span>';
               }
             }, 1000);
           }
@@ -1604,6 +1605,7 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
               When a compulsive craving hits, sit with the physical sensation for 15 minutes. Cravings peak and dissipate naturally like an ocean wave.
             </p>
             <button id="btn-urge" class="btn-primary" onclick="toggleUrgeTimer()">Surf Current Craving</button>
+            <div id="urge-feedback" style="margin-top:0.75rem; font-family:var(--mono); font-size:0.85rem;"></div>
           </div>
 
           <!-- SCHEDULE PREVIEW -->
@@ -1639,7 +1641,10 @@ export function buildNeuroSuite({ DIST, DOMAIN, writeFileSync, join, ensureDir }
               } else {
                 clearInterval(urgeTimerId);
                 urgeTimerId = null;
-                alert('Wave completed! Your prefrontal cortex has successfully outlasted the craving peak.');
+                var fb = document.getElementById('urge-feedback');
+                if (fb) {
+                  fb.innerHTML = '<span style="color:#10b981; font-weight:bold;">🌊 Wave completed! Your prefrontal cortex has successfully outlasted the craving peak.</span>';
+                }
                 urgeSecs = 900;
                 document.getElementById('urge-time').textContent = '15:00';
                 btn.textContent = 'Surf Another Craving';

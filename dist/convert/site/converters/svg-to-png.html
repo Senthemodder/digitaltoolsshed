@@ -151,10 +151,12 @@
 
         function handleFile(file) {
             if (!file || (!file.type.includes('svg') && !file.name.endsWith('.svg'))) {
-                alert('Please select a valid SVG file.');
+                fileInfo.textContent = '⚠️ Please select a valid SVG file.';
+                fileInfo.style.color = '#ef4444';
                 return;
             }
             currentFile = file;
+            fileInfo.style.color = '';
             fileInfo.textContent = `SELECTED FILE: ${file.name} (${formatBytes(file.size)})`;
 
             if (objectUrl) URL.revokeObjectURL(objectUrl);
@@ -209,7 +211,8 @@
 
             canvas.toBlob((blob) => {
                 if (!blob) {
-                    alert('Failed to convert SVG to PNG.');
+                    fileInfo.textContent = '⚠️ Failed to convert SVG to PNG.';
+                    fileInfo.style.color = '#ef4444';
                     return;
                 }
                 convertedBlob = blob;

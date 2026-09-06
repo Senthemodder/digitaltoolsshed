@@ -148,11 +148,13 @@
 
         function handleFile(file) {
             if (!file.type.includes('png') && !file.name.toLowerCase().endsWith('.png')) {
-                alert('Please select a valid PNG image file.');
+                fileInfo.textContent = '⚠️ Please select a valid PNG image file.';
+                fileInfo.style.color = '#ef4444';
                 return;
             }
             currentFile = file;
             originalSize = file.size;
+            fileInfo.style.color = '';
             fileInfo.textContent = `Selected: ${file.name} (${formatBytes(file.size)})`;
             settingsPanel.style.display = 'block';
             resultPanel.style.display = 'none';

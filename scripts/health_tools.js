@@ -6128,8 +6128,13 @@ window.copyIdealWeightSummary = function() {
 
           function startLockinTimer() {
             var act = document.getElementById('lockinAction').value.trim();
-            if (!act) { alert('Please enter your 10-minute action commitment first!'); return; }
             var disp = document.getElementById('lockinTimerDisplay');
+            if (!act) {
+              disp.style.display = 'inline-block';
+              disp.style.color = '#ef4444';
+              disp.textContent = '⚠️ Please enter your 10-minute action commitment first!';
+              return;
+            }
             disp.style.display = 'inline-block';
             lockinSeconds = 600;
 
@@ -6138,9 +6143,8 @@ window.copyIdealWeightSummary = function() {
               lockinSeconds--;
               if (lockinSeconds <= 0) {
                 clearInterval(lockinInterval);
-                disp.textContent = 'TIME IS UP — ACTION COMPLETE!';
+                disp.textContent = '✓ 10 MINUTES EXPIRED — ACTION COMPLETE! Congratulations on standing on your own feet.';
                 disp.style.color = '#10b981';
-                alert('10 MINUTES EXPIRED! If you took action, congratulations on standing on your own feet.');
               } else {
                 var m = Math.floor(lockinSeconds / 60);
                 var s = lockinSeconds % 60;

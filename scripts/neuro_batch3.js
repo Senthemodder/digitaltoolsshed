@@ -307,8 +307,10 @@ export const batch3Tools = [
           <div style="margin-bottom:0.75rem;">
             <input type="text" id="log-topic" class="text-input" placeholder="Interaction topic / Incident label (e.g. Conversation regarding rent)" style="margin-bottom:0.5rem;" />
             <textarea id="log-facts" class="text-input" rows="3" placeholder="Objective facts: What was said verbatim, timestamps, concrete physical actions (avoid subjective interpretations)..."></textarea>
+          <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+            <button class="btn-primary" onclick="saveSanityLog()">Add Fact to Sanity Anchor</button>
+            <span id="sanity-msg" style="font-size:0.85rem; font-family:var(--mono);"></span>
           </div>
-          <button class="btn-primary" onclick="saveSanityLog()">Add Fact to Sanity Anchor</button>
 
           <div id="sanity-log-list" style="margin-top:1.5rem;"></div>
         </div>
@@ -389,12 +391,24 @@ export const batch3Tools = [
         function saveSanityLog() {
           var top = document.getElementById('log-topic').value.trim();
           var facts = document.getElementById('log-facts').value.trim();
-          if (!top || !facts) { alert('Please enter both an incident label and objective facts.'); return; }
+          var msg = document.getElementById('sanity-msg');
+          if (!top || !facts) {
+            if (msg) {
+              msg.style.color = '#ef4444';
+              msg.textContent = '⚠️ Please enter both an incident label and objective facts.';
+            }
+            return;
+          }
           var logs = JSON.parse(localStorage.getItem('dts_sanity_logs') || '[]');
           logs.unshift({ topic: top, facts: facts, time: new Date().toLocaleString() });
           localStorage.setItem('dts_sanity_logs', JSON.stringify(logs.slice(0, 50)));
           document.getElementById('log-topic').value = '';
           document.getElementById('log-facts').value = '';
+          if (msg) {
+            msg.style.color = '#10b981';
+            msg.textContent = '✓ Entry saved to local Sanity Anchor.';
+            setTimeout(function() { msg.textContent = ''; }, 3000);
+          }
           renderSanityLogs();
         }
         renderSanityLogs();
@@ -1131,7 +1145,10 @@ export const batch3Tools = [
               document.getElementById('erp-timer-display').style.color = '#22c55e';
               document.getElementById('erp-start-btn').disabled = false;
               document.getElementById('erp-start-btn').innerText = 'Session Complete! You Survived the Spike';
-              alert('Congratulations! You just withheld a compulsion for 90 seconds. You rewired your brain to tolerate uncertainty.');
+              var aff = document.getElementById('erp-affirmation');
+              if (aff) {
+                aff.innerHTML = '<div style="padding:1rem; background:rgba(34,197,94,0.15); border:1px solid #22c55e; border-radius:6px; color:#22c55e; font-weight:bold; text-align:center;">✓ Congratulations! You just withheld a compulsion for 90 seconds. You rewired your brain to tolerate uncertainty.</div>';
+              }
             }
           }, 1000);
         }

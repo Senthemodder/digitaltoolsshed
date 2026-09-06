@@ -141,10 +141,12 @@
 
         function handleFile(file) {
             if (!file.type.match(/^image\/(jpeg|jpg)$/i) && !file.name.match(/\.(jpg|jpeg)$/i)) {
-                alert('Please select a JPG or JPEG image file.');
+                fileInfo.textContent = '⚠️ Please select a JPG or JPEG image file.';
+                fileInfo.style.color = '#ef4444';
                 return;
             }
             currentFile = file;
+            fileInfo.style.color = '';
             fileInfo.textContent = `Selected: ${file.name} (${formatBytes(file.size)})`;
             settingsPanel.style.display = 'block';
             resultPanel.style.display = 'none';

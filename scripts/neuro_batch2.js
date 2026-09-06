@@ -173,7 +173,10 @@ export const batch2Tools = [
               stepPacer();
             } else {
               stopNsdr();
-              alert('NSDR Session Complete! Gently open your eyes and take 3 deep breaths before standing up.');
+              var gText = document.getElementById('nsdr-guide-text');
+              if (gText) gText.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ NSDR Session Complete! Gently open your eyes and take 3 deep breaths before standing up.</span>';
+              var tDisp = document.getElementById('nsdr-timer-display');
+              if (tDisp) tDisp.textContent = '00:00 — Session Complete';
             }
           }, 1000);
         }
@@ -1357,7 +1360,7 @@ export const batch2Tools = [
           <div id="nvc-full-script" style="font-family:var(--serif); font-size:1.15rem; color:#fff; line-height:1.6; margin:0.5rem 0;">
             "When I see the dishes in the sink and we haven't talked today, I feel exhausted and disconnected, because I value partnership and order. Would you be willing to sit down for 10 minutes tonight to divide tasks?"
           </div>
-          <button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('nvc-full-script').textContent); alert('NVC dialogue copied to clipboard!');">📋 Copy Script to Clipboard</button>
+          <button class="btn-primary" onclick="var btn=this; navigator.clipboard.writeText(document.getElementById('nvc-full-script').textContent.trim()).then(function(){ var orig=btn.innerHTML; btn.innerHTML='✓ Copied to Clipboard!'; setTimeout(function(){ btn.innerHTML=orig; }, 2000); });">📋 Copy Script to Clipboard</button>
         </div>
       </div>
 

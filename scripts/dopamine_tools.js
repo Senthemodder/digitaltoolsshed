@@ -29062,7 +29062,7 @@ export function buildDopamineTools({ DIST, DOMAIN, renderPage, writeFileSync, jo
           '</div>' +
         '</div>' +
         '<div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">' +
-          '<button type="button" class="btn-primary" onclick="copyDopamineResult()" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Diagnostic Result</button>' +
+          '<button type="button" class="btn-primary" onclick="copyDopamineResult(this)" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Diagnostic Result</button>' +
           '<button type="button" class="btn-sec" onclick="randomizeDopamine()" style="padding:0.5rem 1rem;font-size:0.85rem;">🎲 Random Scenario</button>' +
         '</div>' +
       '</div>' +
@@ -29094,11 +29094,16 @@ export function buildDopamineTools({ DIST, DOMAIN, renderPage, writeFileSync, jo
           'sumBox.textContent = "Your inputs indicate an acute saturation metric of " + score + "%. Under high context-switching and mental fatigue (rated " + d4 + "/10), baseline dopamine receptors enter a compensatory downregulation state. A 48-hour low-stimulation protocol will recover approximately 65% of executive focus capacity.";' +
         '}' +
       '}' +
-      'function copyDopamineResult() {' +
+      'function copyDopamineResult(btn) {' +
         'var disp = document.getElementById("dopamine-primary-val");' +
         'var text = "Reality Metric: " + (disp ? disp.textContent : "") + " | " + archetypeBase + " | Digital Tools Shed (digitaltoolsshed.com)";' +
-        'navigator.clipboard.writeText(text);' +
-        'alert("Diagnostic summary copied to clipboard!");' +
+        'navigator.clipboard.writeText(text).then(function() {' +
+          'if (btn) {' +
+            'var old = btn.innerHTML;' +
+            'btn.innerHTML = "✓ Copied!";' +
+            'setTimeout(function() { btn.innerHTML = old; }, 2000);' +
+          '}' +
+        '});' +
       '}' +
       'function randomizeDopamine() {' +
         'sliderIds.forEach(function(id) {' +

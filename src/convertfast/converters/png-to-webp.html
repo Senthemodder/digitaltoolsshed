@@ -162,11 +162,13 @@
         function handleFile(file) {
             if (!file) return;
             if (!file.type.startsWith('image/')) {
-                alert('Please select a PNG image file.');
+                fileInfo.textContent = '⚠️ Please select a PNG image file.';
+                fileInfo.style.color = '#ef4444';
                 return;
             }
             currentFile = file;
             originalSize = file.size;
+            fileInfo.style.color = '';
             fileInfo.textContent = `Selected: ${file.name} (${formatBytes(file.size)})`;
 
             if (previewImg.src) {
@@ -201,7 +203,8 @@
                 canvas.toBlob((blob) => {
                     URL.revokeObjectURL(url);
                     if (!blob) {
-                        alert('Conversion failed.');
+                        fileInfo.textContent = '⚠️ Conversion failed.';
+                        fileInfo.style.color = '#ef4444';
                         return;
                     }
                     convertedBlob = blob;
@@ -233,7 +236,8 @@
 
             img.onerror = () => {
                 URL.revokeObjectURL(url);
-                alert('Failed to load image.');
+                fileInfo.textContent = '⚠️ Failed to load image.';
+                fileInfo.style.color = '#ef4444';
             };
 
             img.src = url;

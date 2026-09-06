@@ -29062,7 +29062,7 @@ export function buildWealthTools({ DIST, DOMAIN, renderPage, writeFileSync, join
           '</div>' +
         '</div>' +
         '<div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">' +
-          '<button type="button" class="btn-primary" onclick="copyWealthResult()" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Financial Summary</button>' +
+          '<button type="button" class="btn-primary" onclick="copyWealthResult(this)" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Financial Summary</button>' +
           '<button type="button" class="btn-sec" onclick="printSummary()" style="padding:0.5rem 1rem;font-size:0.85rem;">🖨️ Print / Save PDF</button>' +
         '</div>' +
       '</div>' +
@@ -29095,11 +29095,16 @@ export function buildWealthTools({ DIST, DOMAIN, renderPage, writeFileSync, join
           'sumBox.textContent = "Based on an age/index of " + v1 + " and primary input of $" + v2.toLocaleString() + " with " + v4 + "% inflation adjustment, your estimated lifetime financial outcome is $" + projected.toLocaleString() + ". Projections assume statutory IRS standard life expectancy and current marginal brackets.";' +
           '}' +
         '}' +
-      'function copyWealthResult() {' +
+      'function copyWealthResult(btn) {' +
         'var disp = document.getElementById("wealth-primary-val");' +
         'var text = "Financial Estimate: " + (disp ? disp.textContent : "") + " | " + archetypeBase + " | Digital Tools Shed (digitaltoolsshed.com)";' +
-        'navigator.clipboard.writeText(text);' +
-        'alert("Financial summary copied to clipboard!");' +
+        'navigator.clipboard.writeText(text).then(function() {' +
+          'if (btn) {' +
+            'var old = btn.innerHTML;' +
+            'btn.innerHTML = "✓ Copied!";' +
+            'setTimeout(function() { btn.innerHTML = old; }, 2000);' +
+          '}' +
+        '});' +
       '}' +
       'function printSummary() {' +
         'window.print();' +

@@ -153,13 +153,31 @@ export function buildHardwareBoard({ DIST, DOMAIN, renderPage, writeFileSync, jo
     <script>
       var pinnedLaptops = [];
 
+      function showBoardToast(msg) {
+        var t = document.getElementById("board-toast");
+        if (!t) {
+          t = document.createElement("div");
+          t.id = "board-toast";
+          t.style.cssText = "position:fixed;top:1.5rem;left:50%;transform:translateX(-50%);background:#1e293b;color:#f8fafc;border:1px solid #ef4444;padding:0.75rem 1.25rem;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,0.3);z-index:10000;font-family:var(--mono);font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:0.5rem;transition:all 0.3s ease;";
+          document.body.appendChild(t);
+        }
+        t.innerHTML = '<span>⚠️</span> <span>' + msg + '</span>';
+        t.style.opacity = '1';
+        t.style.pointerEvents = 'auto';
+        clearTimeout(window._boardToastTimer);
+        window._boardToastTimer = setTimeout(function() {
+          t.style.opacity = '0';
+          t.style.pointerEvents = 'none';
+        }, 3500);
+      }
+
       function togglePin(slug, model, brand, cpu, gpu) {
         var idx = pinnedLaptops.findIndex(function(p) { return p.slug === slug; });
         if (idx >= 0) {
           pinnedLaptops.splice(idx, 1);
         } else {
           if (pinnedLaptops.length >= 4) {
-            alert("You can compare a maximum of 4 laptops simultaneously. Remove one to add another.");
+            showBoardToast("You can compare a maximum of 4 laptops simultaneously. Remove one to add another.");
             var chk = document.querySelector('.pin-check[data-slug="' + slug + '"]');
             if (chk) chk.checked = false;
             return;
@@ -186,7 +204,7 @@ export function buildHardwareBoard({ DIST, DOMAIN, renderPage, writeFileSync, jo
         items.innerHTML = pinnedLaptops.map(function(p) {
           return '<div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.6rem;font-size:0.75rem;white-space:nowrap;display:flex;align-items:center;gap:0.35rem;">' +
             '<strong>' + p.brand + '</strong> ' + p.model.slice(0, 18) + '...' +
-            '<span onclick="togglePin(\\'' + p.slug + '\\')" style="cursor:pointer;color:#ef4444;font-weight:bold;margin-left:0.25rem;">&times;</span>' +
+            '<span onclick="togglePin(\'' + p.slug + '\')" style="cursor:pointer;color:#ef4444;font-weight:bold;margin-left:0.25rem;">&times;</span>' +
           '</div>';
         }).join('');
       }
@@ -200,7 +218,7 @@ export function buildHardwareBoard({ DIST, DOMAIN, renderPage, writeFileSync, jo
 
       function goToComparison() {
         if (pinnedLaptops.length < 2) {
-          alert("Please pin at least 2 laptops to generate a head-to-head comparison.");
+          showBoardToast("Please pin at least 2 laptops to generate a head-to-head comparison.");
           return;
         }
         if (pinnedLaptops.length === 2) {

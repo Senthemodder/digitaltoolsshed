@@ -1260,7 +1260,10 @@
               stepPacer();
             } else {
               stopNsdr();
-              alert('NSDR Session Complete! Gently open your eyes and take 3 deep breaths before standing up.');
+              var gText = document.getElementById('nsdr-guide-text');
+              if (gText) gText.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ NSDR Session Complete! Gently open your eyes and take 3 deep breaths before standing up.</span>';
+              var tDisp = document.getElementById('nsdr-timer-display');
+              if (tDisp) tDisp.textContent = '00:00 — Session Complete';
             }
           }, 1000);
         }

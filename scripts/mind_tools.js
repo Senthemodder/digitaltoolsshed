@@ -27062,7 +27062,7 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
           '</div>' +
         '</div>' +
         '<div style="display:flex;gap:0.75rem;margin-top:1.25rem;flex-wrap:wrap;">' +
-          '<button type="button" class="btn-primary" onclick="copyMindResult()" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Diagnostic Summary</button>' +
+          '<button type="button" class="btn-primary" onclick="copyMindResult(this)" style="padding:0.5rem 1rem;font-size:0.85rem;">📋 Copy Diagnostic Summary</button>' +
           '<button type="button" class="btn-sec" onclick="randomizeSliders()" style="padding:0.5rem 1rem;font-size:0.85rem;">🎲 Random Sample Profile</button>' +
         '</div>' +
       '</div>' +
@@ -27102,11 +27102,16 @@ export function buildMindTools({ DIST, DOMAIN, renderPage, writeFileSync, join, 
           '}' +
         '}' +
       '}' +
-      'function copyMindResult() {' +
+      'function copyMindResult(btn) {' +
         'var pDisp = document.getElementById("score-percentile");' +
         'var text = "Diagnostic Result: " + (pDisp ? pDisp.textContent : "") + " | Archetype: " + archetypeBase + " | Digital Tools Shed (digitaltoolsshed.com)";' +
-        'navigator.clipboard.writeText(text);' +
-        'alert("Diagnostic summary copied to clipboard!");' +
+        'navigator.clipboard.writeText(text).then(function() {' +
+          'if (btn) {' +
+            'var old = btn.innerHTML;' +
+            'btn.innerHTML = "✓ Copied!";' +
+            'setTimeout(function() { btn.innerHTML = old; }, 2000);' +
+          '}' +
+        '});' +
       '}' +
       'function randomizeSliders() {' +
         'sliderIds.forEach(function(id) {' +

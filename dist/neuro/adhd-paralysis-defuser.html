@@ -1237,7 +1237,8 @@
                 adhdTimerId = null;
                 btn.textContent = 'Start 120s Timer';
                 playChime();
-                alert('120s micro-window finished! Did you cross the threshold?');
+                var curStep = document.getElementById('adhd-current-step-txt');
+                if (curStep) curStep.innerHTML = '<span style="color:#10b981; font-weight:bold;">✓ 120s micro-window finished! Did you cross the threshold? Click &quot;Next Micro-Step&quot; to proceed!</span>';
               }
             }, 1000);
           }
