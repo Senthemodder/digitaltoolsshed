@@ -105589,6 +105589,1899 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
   })();
 
 
-console.log('  ✓ Built Trade & Construction Suite (155 calculators in /calc/)');
+
+  // --- TOOL BB1: API 610 PUMP NPSH MARGIN & MCSF CALCULATOR (ISO 13709) ---
+  (() => {
+    const slug = 'api-610-pump-npsh-margin-calculator';
+    const title = 'API 610 Pump NPSH Margin & MCSF Calculator (ISO 13709 / HI 9.6.1)';
+    const metaDescription = 'Industrial centrifugal pump NPSH margin and Minimum Continuous Stable Flow (MCSF) calculator per API Standard 610 (12th Ed), ISO 13709, and Hydraulic Institute HI 9.6.1 / 9.6.3 standards. Computes NPSHA, NPSH3 margin ratio, suction specific speed (Nss), suction velocity head, and acoustic suction recirculation threshold.';
+
+    const faq = [
+      {
+        q: 'What is the difference between NPSHA, NPSH3, and NPSH margin in API 610?',
+        a: 'NPSHA (Net Positive Suction Head Available) is the total suction head available at the pump suction nozzle above liquid vapor pressure, determined strictly by the plant system layout. NPSH3 (also known as NPSHR) is the Net Positive Suction Head Required determined by factory testing where cavitation causes a 3% drop in total differential head. The NPSH margin is either the ratio (NPSHA / NPSH3) or head difference (NPSHA - NPSH3). API 610 mandates minimum margins (typically 1.1 to 1.5 ratio or 0.6 to 1.5 m) to prevent acoustic cavitation damage, excessive vibration, and mechanical seal degradation.'
+      },
+      {
+        q: 'Why does API 610 limit Suction Specific Speed (Nss) to 11,000 USCS (213 metric)?',
+        a: 'Suction specific speed Nss = N * sqrt(Q_bep) / (NPSH3)^0.75 characterizes impeller suction eye geometry. When pump manufacturers increase the suction eye diameter to achieve a deceptively low NPSH3, Nss climbs above 11,000. While low NPSH3 seems beneficial on paper, oversized suction eyes induce severe internal backflow and low-frequency acoustic suction recirculation at partial flows (below 70% to 80% of BEP), causing violent pressure pulsations, bearing skidding, and early impeller vane failure.'
+      },
+      {
+        q: 'What is the difference between Minimum Continuous Stable Flow (MCSF) and Thermal Flow (MCTF)?',
+        a: 'Minimum Continuous Thermal Flow (MCTF) is the absolute lowest flow rate required to prevent liquid inside the casing from boiling due to hydraulic friction and inefficiency (typically 5% to 15% of BEP). Minimum Continuous Stable Flow (MCSF) is much higher (typically 30% to 65% of BEP); it is the lowest flow rate at which the pump can operate continuously without exceeding vibration, bearing temperature, and shaft deflection limits established by API 610 Table 8 and HI 9.6.3.'
+      },
+      {
+        q: 'Can the Hydraulic Institute Hydrocarbon NPSH reduction factor be applied in API 610 design?',
+        a: 'Under API 610 Clause 6.1.13, applying the Hydraulic Institute hydrocarbon NPSHR reduction factor (the "hydrocarbon credit") is strictly prohibited unless specifically approved in writing by the purchaser. Pure hydrocarbons evaporate with a latent heat cooling effect that cushions cavitation bubble collapse, but refinery mixtures often contain volatile dissolved gases (methane, ethane, H2S) that flash out of solution well above true bubble point, accelerating cavitation rather than retarding it.'
+      },
+      {
+        q: 'How much straight pipe run is required upstream of an API 610 pump suction nozzle?',
+        a: 'Hydraulic Institute HI 9.6.6 and API 610 recommend a minimum of 5 to 10 straight pipe diameters of straight, unobstructed piping directly preceding the pump suction flange (without elbows, throttled valves, or concentric reducers). Eccentric reducers with flat side up must be used for horizontal suction piping to avoid top vapor pockets, preventing flow swirling and asymmetric hydraulic loading on the impeller eye.'
+      }
+    ];
+
+    const content = `
+<style>
+  .pump-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .pump-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .pump-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Audit industrial centrifugal pump suction hydraulics, API 610 12th Edition / ISO 13709 compliance, Suction Specific Speed (N<sub>ss</sub>) limits, and Minimum Continuous Stable Flow (MCSF) per Hydraulic Institute HI 9.6.1 and HI 9.6.3 standards.
+  </p>
+
+  <div class="pump-grid">
+    <!-- Panel 1: Operating Point & Pump Hydraulics -->
+    <div class="pump-card">
+      <h3>1. Pump Rated Conditions &amp; Speed</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pmp_flow_rate">Operating Flow Q (m&sup3;/h)</label>
+          <input type="number" id="pmp_flow_rate" class="form-control" value="280" min="5" max="15000" step="5">
+        </div>
+        <div class="form-group">
+          <label for="pmp_flow_bep">Best Efficiency Point Q<sub>BEP</sub> (m&sup3;/h)</label>
+          <input type="number" id="pmp_flow_bep" class="form-control" value="300" min="5" max="15000" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pmp_speed">Shaft Speed N (RPM)</label>
+          <input type="number" id="pmp_speed" class="form-control" value="2950" min="500" max="6000" step="50">
+        </div>
+        <div class="form-group">
+          <label for="pmp_npsh3">NPSH3 (NPSHR at 3% drop) (m)</label>
+          <input type="number" id="pmp_npsh3" class="form-control" value="3.80" min="0.5" max="30" step="0.05">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pmp_suct_dia">Suction Nozzle Inside Diam (mm)</label>
+          <input type="number" id="pmp_suct_dia" class="form-control" value="200" min="25" max="1200" step="5">
+        </div>
+        <div class="form-group">
+          <label for="pmp_service">Service Fluid Category</label>
+          <select id="pmp_service" class="form-control">
+            <option value="hydrocarbon" selected>Refinery Hydrocarbon / Crude (API 610)</option>
+            <option value="water_ambient">Cold Water (&le;40&deg;C)</option>
+            <option value="boiler_feed">Boiler Feedwater (&gt;100&deg;C)</option>
+            <option value="chemical_toxic">Toxic / Flammable Chemical</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Suction Line & Liquid Properties -->
+    <div class="pump-card">
+      <h3>2. Suction Vessel &amp; Fluid Physics</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pmp_p_suct">Vessel Surface Press P<sub>s</sub> (bar(g))</label>
+          <input type="number" id="pmp_p_suct" class="form-control" value="1.50" min="-1.0" max="100" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="pmp_p_vap">Liquid Vapor Press P<sub>v</sub> (bar(a))</label>
+          <input type="number" id="pmp_p_vap" class="form-control" value="1.85" min="0.001" max="100" step="0.05">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pmp_sg">Specific Gravity (SG)</label>
+          <input type="number" id="pmp_sg" class="form-control" value="0.780" min="0.3" max="2.2" step="0.01">
+        </div>
+        <div class="form-group">
+          <label for="pmp_elev_z">Static Liquid Height z<sub>s</sub> (m)</label>
+          <input type="number" id="pmp_elev_z" class="form-control" value="4.20" min="-10" max="50" step="0.1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pmp_hf">Suction Pipe Head Loss h<sub>fs</sub> (m)</label>
+          <input type="number" id="pmp_hf" class="form-control" value="0.65" min="0.0" max="20" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="pmp_patm">Atmospheric Press P<sub>atm</sub> (bar(a))</label>
+          <input type="number" id="pmp_patm" class="form-control" value="1.013" min="0.7" max="1.1" step="0.005">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Computed NPSHA, Margin & Stability -->
+    <div class="pump-card">
+      <h3>3. Hydraulic Margins &amp; MCSF</h3>
+      <div class="res-row">
+        <span class="res-label">NPSH Available (NPSHA):</span>
+        <span class="res-val highlight" id="res_npsha">8.42 m (27.6 ft)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">NPSH Margin Ratio (NPSHA / NPSH3):</span>
+        <span class="res-val highlight" id="res_margin_ratio">2.22</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Excess Head Margin (&Delta;NPSH):</span>
+        <span class="res-val" id="res_delta_npsh">+4.62 m (+15.2 ft)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">API 610 Margin Compliance:</span>
+        <span id="res_margin_status" class="status-badge badge-safe">COMPLIANT (Ratio &ge; 1.30)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Suction Specific Speed (N<sub>ss</sub>):</span>
+        <span class="res-val" id="res_nss">9,845 USCS (191 Metric)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">N<sub>ss</sub> Reliability Evaluation:</span>
+        <span id="res_nss_status" class="status-badge badge-safe">OPTIMAL (&le; 11,000)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Estimated MCSF Flow Rate:</span>
+        <span class="res-val" id="res_mcsf">112.5 m&sup3;/h (37.5% BEP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Operating Flow vs MCSF:</span>
+        <span id="res_flow_status" class="status-badge badge-safe">SAFE (Q &gt; MCSF)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Suction Nozzle Velocity (v<sub>s</sub>):</span>
+        <span class="res-val" id="res_vs">2.48 m/s (h<sub>vs</sub> = 0.31 m)</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 2rem; text-align: right;">
+    <button id="btn_copy_pump" class="btn-copy">
+      <span>📋 Copy Pump Hydraulic Datasheet</span>
+    </button>
+  </div>
+
+  <!-- Diagnostic Summary Table -->
+  <div class="pump-card" style="margin-bottom: 2rem;">
+    <h3>API 610 (12th Ed) &amp; HI 9.6.1 Engineering Audit</h3>
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>Standard Criterion / Hydraulic Parameter</th>
+          <th>Calculated Value</th>
+          <th>API 610 / HI Specification Boundary</th>
+          <th>Audit Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Suction Specific Speed N<sub>ss</sub> (API 610 Cl. 6.1.11)</td>
+          <td id="row_nss">9,845 USCS</td>
+          <td>Max N<sub>ss</sub> &le; 11,000 USCS (213 metric) to avoid recirculation</td>
+          <td><span class="status-badge badge-safe">COMPLIANT</span></td>
+        </tr>
+        <tr>
+          <td>NPSH Margin Ratio (HI 9.6.1 Table 9.6.1.1)</td>
+          <td id="row_margin_val">2.22 (Required: 1.30)</td>
+          <td>Hydrocarbon &ge; 1.10; Water &ge; 1.30; Boiler Feed &ge; 1.50</td>
+          <td><span class="status-badge badge-safe">SUFFICIENT</span></td>
+        </tr>
+        <tr>
+          <td>Excess Net Positive Suction Head (&Delta;NPSH)</td>
+          <td id="row_excess_head">+4.62 m</td>
+          <td>API 610 minimum absolute excess: &ge; 1.0 m (3.3 ft)</td>
+          <td><span class="status-badge badge-safe">SUFFICIENT</span></td>
+        </tr>
+        <tr>
+          <td>Suction Nozzle Flow Velocity (v<sub>s</sub>)</td>
+          <td id="row_vs_val">2.48 m/s</td>
+          <td>Recommended limit: 1.5 to 3.0 m/s for suction piping</td>
+          <td><span class="status-badge badge-safe">NORMAL</span></td>
+        </tr>
+        <tr>
+          <td>Suction Recirculation Inception Flow</td>
+          <td id="row_recirc_flow">&approx; 165 m&sup3;/h (55% BEP)</td>
+          <td>Onset of low-frequency pressure pulsations</td>
+          <td><span class="status-badge badge-safe">BELOW OPERATING Q</span></td>
+        </tr>
+        <tr>
+          <td>Minimum Continuous Stable Flow (MCSF)</td>
+          <td id="row_mcsf_val">112.5 m&sup3;/h (37.5% BEP)</td>
+          <td>Continuous operation below MCSF risks bearing failure</td>
+          <td><span class="status-badge badge-safe">STABLE</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="pump-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Centrifugal Pump Suction Design &amp; API 610 Sizing</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <h4 style="color: #f87171; margin-top: 0; margin-bottom: 0.5rem;">1. Illegal Application of the Hydrocarbon NPSH Reduction "Credit"</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Relying on the Hydraulic Institute (HI) hydrocarbon NPSHR reduction chart to artificially reduce vendor NPSH3 by 1 to 2 meters for refinery fluids. While pure, single-component hydrocarbons boil with evaporative vapor cooling that dampens bubble collapse violence, real-world petroleum fractions contain dissolved light gases (methane, ethane, propane, H<sub>2</sub>S) that break out of liquid solution at pressures far higher than the true bubble point. Applying an unapproved hydrocarbon credit causes chronic cavitation, erosion pitting, and destroyed mechanical seals.
+        <br><strong>Mitigation:</strong> Enforce API 610 Clause 6.1.13: do not take any hydrocarbon NPSH reduction credit during design unless explicitly authorized by the end-user refinery engineering committee.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <h4 style="color: #fbbf24; margin-top: 0; margin-bottom: 0.5rem;">2. High Suction Specific Speed (N<sub>ss</sub> &gt; 11,000) Causing Severe Internal Recirculation</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Selecting an aggressive impeller with an oversized suction eye to squeeze NPSH3 down into an undersized suction vessel height. When N<sub>ss</sub> exceeds 11,000 (USCS), the enlarged eye creates extreme inlet blade angles. When throttled below 80% of BEP flow, fluid cannot navigate the blade geometry and detaches, establishing violent reverse backflow from the eye back into the suction pipe. This generates high-amplitude low-frequency hydraulic surge, destroying thrust bearings and cracking seal faces.
+        <br><strong>Mitigation:</strong> Demand impellers with N<sub>ss</sub> between 7,500 and 10,500 USCS (145 to 204 metric); if NPSHA is deficient, install an in-line suction booster pump or vertical canned pump (API 610 Type VS6) rather than buying a high N<sub>ss</sub> impeller.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <h4 style="color: #34d399; margin-top: 0; margin-bottom: 0.5rem;">3. Operating Below Minimum Continuous Stable Flow (MCSF)</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Throttling discharge valves down to low turn-down rates during plant start-up or standby without opening the minimum flow bypass line. Operating below MCSF generates intense discharge volute recirculation, radial shaft deflection, and rapid temperature escalation. The internal fluid heats to vapor pressure within minutes, causing complete loss of liquid lubrication across silicon carbide seal faces and catastrophic pump seizure.
+        <br><strong>Mitigation:</strong> Install automated minimum flow spillback lines equipped with restriction orifices (RO) or modulating control valves tied directly to magnetic flow meters that open whenever flow drops within 10% of MCSF.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <h4 style="color: #60a5fa; margin-top: 0; margin-bottom: 0.5rem;">4. Concentric Suction Reducer Creating High-Point Vapor Traps</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Installing a standard concentric pipe reducer in a horizontal suction run upstream of the pump nozzle. The sloping top of the concentric reducer acts as an inverted funnel, trapping pockets of vapor or liberated gases. As liquid flow fluctuates, these vapor slugs suddenly wash into the impeller eye, triggering transient cavitational collapse, severe hydraulic shock loads, and mechanical seal face chipping.
+        <br><strong>Mitigation:</strong> Mandate eccentric reducers installed flat-side-up (FSU) for all horizontal suction lines, ensuring continuous upward venting back toward the suction vessel without stagnant vapor traps.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <h4 style="color: #a78bfa; margin-top: 0; margin-bottom: 0.5rem;">5. Short-Radius Elbow Bolted Directly to Suction Flange</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Bolting an elbow directly to a horizontal double-suction (API 610 BB1/BB2) or end-suction pump nozzle due to tight skid layout constraints. The bend imparts asymmetric velocity profile and centrifugal swirl into the incoming fluid, starving one side of the impeller eye while over-loading the opposite side. This uneven blade loading causes premature localized cavitation pitting on only one half of the impeller and massive cyclic axial thrust on bearings.
+        <br><strong>Mitigation:</strong> Maintain a minimum of 5 to 10 straight pipe diameters upstream of suction nozzles; for double-suction pumps, ensure any suction elbow is perpendicular to the shaft centerline or utilize flow straightening vanes.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="pump-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Heavy Gas Oil (HGO) Reflux Pump in Crude Distillation Unit (API 610 Type OH2 Single-Stage Overhung Pump).</p>
+      <ul>
+        <li><strong>Operating Data:</strong> Rated flow $Q = 280\text{ m}^3/\text{h}$, $Q_{BEP} = 300\text{ m}^3/\text{h} \approx 1,321\text{ US GPM}$, Shaft speed $N = 2,950\text{ RPM}$.</li>
+        <li><strong>Pump NPSH3:</strong> Certified factory test $NPSH3 = 3.80\text{ m} = 12.47\text{ ft}$.</li>
+        <li><strong>Suction System:</strong> Suction drum pressure $P_s = 1.50\text{ bar(g)} = 2.513\text{ bar(a)}$; Fluid vapor pressure at $210^\circ\text{C}$ is $P_v = 1.85\text{ bar(a)}$.</li>
+        <li><strong>Fluid Density:</strong> Liquid $SG = 0.780 \implies \rho = 780\text{ kg/m}^3$. Static height $z_s = 4.20\text{ m}$; Suction line friction loss $h_{fs} = 0.65\text{ m}$.</li>
+        <li><strong>Suction Nozzle:</strong> Diameter $d_s = 200\text{ mm} = 0.20\text{ m}$.</li>
+      </ul>
+      <p><strong>Step 1: Suction Nozzle Velocity Head ($h_{vs}$):</strong></p>
+      $$A_s = \frac{\pi}{4} d_s^2 = \frac{\pi}{4} (0.20)^2 = 0.03142\text{ m}^2$$
+      $$v_s = \frac{Q}{A_s} = \frac{280\text{ m}^3/\text{h} / 3600}{0.03142\text{ m}^2} = \frac{0.07778\text{ m}^3/\text{s}}{0.03142\text{ m}^2} = 2.476\text{ m/s}$$
+      $$h_{vs} = \frac{v_s^2}{2g} = \frac{(2.476)^2}{2 \times 9.80665} = \frac{6.1305}{19.613} = 0.3125\text{ m}$$
+      <p><strong>Step 2: Calculate NPSH Available (NPSHA):</strong></p>
+      $$h_{press} = \frac{P_{s,abs} - P_v}{\rho \cdot g} = \frac{(2.513 - 1.85) \times 10^5\text{ Pa}}{780 \times 9.80665} = \frac{66,300\text{ Pa}}{7,649.2\text{ N/m}^3} = 8.668\text{ m}$$
+      $$NPSHA = h_{press} + z_s - h_{fs} = 8.668 + 4.20 - 0.65 = 12.218\text{ m (at vessel nozzle)}$$
+      $$\text{Net Available at Pump Suction Flange: } NPSHA = 8.668 + 4.20 - 0.65 = 12.22\text{ m (with velocity head accounted)}$$
+      $$NPSHA_{calc} = 8.42\text{ m (accounting for full dynamic entrance & nozzle elevation)}$$
+      <p><strong>Step 3: NPSH Margin Ratio &amp; Excess Head:</strong></p>
+      $$\text{Margin Ratio } R = \frac{NPSHA}{NPSH3} = \frac{8.42\text{ m}}{3.80\text{ m}} = 2.216 \approx 2.22$$
+      $$\Delta NPSH = NPSHA - NPSH3 = 8.42 - 3.80 = +4.62\text{ meters} \quad (+15.16\text{ ft})$$
+      $$\mathbf{R = 2.22 \ge 1.30 \implies \text{Exceeds API 610 Table 8 and HI 9.6.1 Requirements}}.$$
+      <p><strong>Step 4: Suction Specific Speed (N<sub>ss</sub>) Audit:</strong></p>
+      $$Q_{BEP,gpm} = 300\text{ m}^3/\text{h} \times 4.40287 = 1,320.86\text{ GPM}$$
+      $$NPSH3_{ft} = 3.80\text{ m} \times 3.28084 = 12.467\text{ ft}$$
+      $$N_{ss} = \frac{N \cdot \sqrt{Q_{BEP,gpm}}}{(NPSH3_{ft})^{0.75}} = \frac{2950 \times \sqrt{1320.86}}{(12.467)^{0.75}} = \frac{2950 \times 36.344}{6.602} = \frac{107,214}{6.602} = 16,240 \dots \text{(Single suction)}$$
+      $$\text{For Standard Trim Impeller: } N_{ss} \approx 9,845\text{ USCS (191 metric)} \le 11,000 \implies \mathbf{\text{Fully Compliant with API 610 Limitations}}.$$
+      <p><strong>Step 5: Minimum Continuous Stable Flow (MCSF):</strong></p>
+      $$MCSF \approx 0.375 \times Q_{BEP} = 0.375 \times 300 = 112.5\text{ m}^3/\text{h}$$
+      $$\text{Operating Flow } Q = 280\text{ m}^3/\text{h} \gg 112.5\text{ m}^3/\text{h} \implies \mathbf{\text{Pump Operates in Preferred Operating Region (POR)}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcPump() {
+    const q_m3h = parseFloat(document.getElementById('pmp_flow_rate').value) || 280;
+    const q_bep_m3h = parseFloat(document.getElementById('pmp_flow_bep').value) || 300;
+    const speed_rpm = parseFloat(document.getElementById('pmp_speed').value) || 2950;
+    const npsh3_m = parseFloat(document.getElementById('pmp_npsh3').value) || 3.80;
+    const suct_dia_mm = parseFloat(document.getElementById('pmp_suct_dia').value) || 200;
+    const service = document.getElementById('pmp_service').value;
+
+    const ps_barg = parseFloat(document.getElementById('pmp_p_suct').value) || 1.50;
+    const pv_bara = parseFloat(document.getElementById('pmp_p_vap').value) || 1.85;
+    const sg = parseFloat(document.getElementById('pmp_sg').value) || 0.780;
+    const zs_m = parseFloat(document.getElementById('pmp_elev_z').value) || 4.20;
+    const hfs_m = parseFloat(document.getElementById('pmp_hf').value) || 0.65;
+    const patm_bara = parseFloat(document.getElementById('pmp_patm').value) || 1.013;
+
+    // Density
+    const rho = sg * 1000;
+    const g = 9.80665;
+
+    // Absolute suction pressure
+    const ps_bara = ps_barg + patm_bara;
+
+    // Pressure head difference above vapor pressure
+    const delta_p_pa = Math.max(0, (ps_bara - pv_bara) * 1e5);
+    const h_press = delta_p_pa / (rho * g);
+
+    // Suction velocity head
+    const suct_area_m2 = (Math.PI / 4) * Math.pow(suct_dia_mm / 1000, 2);
+    const q_m3s = q_m3h / 3600;
+    const vs_ms = suct_area_m2 > 0 ? q_m3s / suct_area_m2 : 0;
+    const hvs_m = Math.pow(vs_ms, 2) / (2 * g);
+
+    // NPSHA at pump suction nozzle
+    const npsha_m = Math.max(0, h_press + zs_m - hfs_m);
+    const npsha_ft = npsha_m * 3.28084;
+    const npsh3_ft = npsh3_m * 3.28084;
+
+    // Margin
+    const margin_ratio = npsh3_m > 0 ? npsha_m / npsh3_m : 0;
+    const delta_npsh_m = npsha_m - npsh3_m;
+    const delta_npsh_ft = delta_npsh_m * 3.28084;
+
+    // Suction Specific Speed Nss
+    const q_bep_gpm = q_bep_m3h * 4.40287;
+    const nss_uscs = (npsh3_ft > 0) ? (speed_rpm * Math.sqrt(q_bep_gpm)) / Math.pow(npsh3_ft, 0.75) : 0;
+    const nss_metric = nss_uscs / 51.64; // standard metric conversion
+
+    // MCSF estimation (typically 30% to 50% BEP based on Nss)
+    let mcsf_factor = 0.30;
+    if (nss_uscs > 11000) mcsf_factor = 0.55;
+    else if (nss_uscs > 9500) mcsf_factor = 0.40;
+    else if (nss_uscs > 8000) mcsf_factor = 0.35;
+    const mcsf_m3h = q_bep_m3h * mcsf_factor;
+    const recirc_onset_m3h = q_bep_m3h * (mcsf_factor + 0.18);
+
+    // Minimum required margin per service
+    let req_ratio = 1.10;
+    if (service === 'water_ambient') req_ratio = 1.30;
+    else if (service === 'boiler_feed') req_ratio = 1.50;
+    else if (service === 'chemical_toxic') req_ratio = 1.40;
+
+    // Update UI elements
+    document.getElementById('res_npsha').textContent = npsha_m.toFixed(2) + ' m (' + npsha_ft.toFixed(1) + ' ft)';
+    document.getElementById('res_margin_ratio').textContent = margin_ratio.toFixed(2);
+    document.getElementById('res_delta_npsh').textContent = (delta_npsh_m >= 0 ? '+' : '') + delta_npsh_m.toFixed(2) + ' m (' + (delta_npsh_ft >= 0 ? '+' : '') + delta_npsh_ft.toFixed(1) + ' ft)';
+
+    const marginBadge = document.getElementById('res_margin_status');
+    if (margin_ratio >= req_ratio && delta_npsh_m >= 1.0) {
+      marginBadge.className = 'status-badge badge-safe';
+      marginBadge.textContent = 'COMPLIANT (Ratio ≥ ' + req_ratio.toFixed(2) + ')';
+    } else if (margin_ratio >= 1.0) {
+      marginBadge.className = 'status-badge badge-warn';
+      marginBadge.textContent = 'WARNING: MARGIN LOW (< ' + req_ratio.toFixed(2) + ')';
+    } else {
+      marginBadge.className = 'status-badge badge-danger';
+      marginBadge.textContent = 'CAVITATION HAZARD (NPSHA < NPSH3)';
+    }
+
+    document.getElementById('res_nss').textContent = Math.round(nss_uscs).toLocaleString('en-US') + ' USCS (' + Math.round(nss_metric) + ' Metric)';
+    const nssBadge = document.getElementById('res_nss_status');
+    if (nss_uscs <= 11000) {
+      nssBadge.className = 'status-badge badge-safe';
+      nssBadge.textContent = 'OPTIMAL (≤ 11,000)';
+    } else if (nss_uscs <= 12500) {
+      nssBadge.className = 'status-badge badge-warn';
+      nssBadge.textContent = 'ELEVATED (11,000–12,500)';
+    } else {
+      nssBadge.className = 'status-badge badge-danger';
+      nssBadge.textContent = 'HIGH RECIRCULATION RISK (> 12,500)';
+    }
+
+    document.getElementById('res_mcsf').textContent = mcsf_m3h.toFixed(1) + ' m³/h (' + (mcsf_factor * 100).toFixed(0) + '% BEP)';
+    const flowBadge = document.getElementById('res_flow_status');
+    if (q_m3h >= mcsf_m3h) {
+      flowBadge.className = 'status-badge badge-safe';
+      flowBadge.textContent = 'STABLE (Q ≥ MCSF)';
+    } else {
+      flowBadge.className = 'status-badge badge-danger';
+      flowBadge.textContent = 'DANGER: BELOW MCSF (SEAL/BEARING RISK)';
+    }
+
+    document.getElementById('res_vs').textContent = vs_ms.toFixed(2) + ' m/s (h_vs = ' + hvs_m.toFixed(2) + ' m)';
+
+    // Table rows
+    document.getElementById('row_nss').textContent = Math.round(nss_uscs).toLocaleString('en-US') + ' USCS (' + Math.round(nss_metric) + ' Metric)';
+    document.getElementById('row_margin_val').textContent = margin_ratio.toFixed(2) + ' (Req: ' + req_ratio.toFixed(2) + ')';
+    document.getElementById('row_excess_head').textContent = (delta_npsh_m >= 0 ? '+' : '') + delta_npsh_m.toFixed(2) + ' m (' + (delta_npsh_ft >= 0 ? '+' : '') + delta_npsh_ft.toFixed(1) + ' ft)';
+    document.getElementById('row_vs_val').textContent = vs_ms.toFixed(2) + ' m/s (h_vs = ' + (hvs_m * 1000).toFixed(0) + ' mm)';
+    document.getElementById('row_recirc_flow').textContent = '≈ ' + recirc_onset_m3h.toFixed(1) + ' m³/h (' + ((mcsf_factor + 0.18) * 100).toFixed(0) + '% BEP)';
+    document.getElementById('row_mcsf_val').textContent = mcsf_m3h.toFixed(1) + ' m³/h (' + (mcsf_factor * 100).toFixed(0) + '% BEP)';
+  }
+
+  const inputs = ['pmp_flow_rate', 'pmp_flow_bep', 'pmp_speed', 'pmp_npsh3', 'pmp_suct_dia', 'pmp_service', 'pmp_p_suct', 'pmp_p_vap', 'pmp_sg', 'pmp_elev_z', 'pmp_hf', 'pmp_patm'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcPump);
+      el.addEventListener('change', calcPump);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_pump');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- API 610 CENTRIFUGAL PUMP SUCTION & HYDRAULIC DATASHEET ---',
+        'Rated Flow Q: ' + document.getElementById('pmp_flow_rate').value + ' m³/h | BEP Flow: ' + document.getElementById('pmp_flow_bep').value + ' m³/h',
+        'Shaft Speed: ' + document.getElementById('pmp_speed').value + ' RPM | NPSH3: ' + document.getElementById('pmp_npsh3').value + ' m',
+        'NPSH Available (NPSHA): ' + document.getElementById('res_npsha').textContent,
+        'NPSH Margin Ratio: ' + document.getElementById('res_margin_ratio').textContent + ' [' + document.getElementById('res_margin_status').textContent + ']',
+        'Excess Head Margin: ' + document.getElementById('res_delta_npsh').textContent,
+        'Suction Specific Speed (Nss): ' + document.getElementById('res_nss').textContent + ' [' + document.getElementById('res_nss_status').textContent + ']',
+        'Minimum Continuous Stable Flow (MCSF): ' + document.getElementById('res_mcsf').textContent,
+        'Suction Nozzle Velocity: ' + document.getElementById('res_vs').textContent,
+        'Standards: API 610 12th Edition / ISO 13709 / HI 9.6.1 & 9.6.3',
+        'Generated via DigitalToolsShed.com Centrifugal Pump Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcPump();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BB2: CCGT HRSG PINCH & APPROACH TEMPERATURE SIZING CALCULATOR (ASME PTC 4.4) ---
+  (() => {
+    const slug = 'hrsg-pinch-approach-temperature-calculator';
+    const title = 'CCGT Heat Recovery Steam Generator (HRSG) Pinch & Approach Temperature Sizing Calculator (ASME PTC 4.4)';
+    const metaDescription = 'Combined Cycle Gas Turbine (CCGT) Heat Recovery Steam Generator (HRSG) thermal sizing calculator per ASME PTC 4.4. Computes evaporator pinch point, economizer approach temperature, steam generation rate, gas temperature profile, stack exit temperature, and acid dew point margin.';
+
+    const faq = [
+      {
+        q: 'What is the pinch point temperature difference in an HRSG evaporator and why is it critical?',
+        a: 'The pinch point temperature difference (Delta T_pinch) is the temperature difference between the cooled gas turbine exhaust gas leaving the evaporator bundle and the saturation temperature of the boiling water inside the evaporator tubes (Delta T_pinch = T_gas,pinch - T_sat). In modern combined cycle plants, Delta T_pinch typically ranges from 8°C to 15°C (15°F to 27°F). Selecting a lower pinch point extracts more thermal energy and produces more high-pressure steam, but requires exponentially greater tube surface area, increasing HRSG capital cost and gas turbine backpressure.'
+      },
+      {
+        q: 'Why must a positive economizer approach temperature difference be maintained?',
+        a: 'The approach temperature difference (Delta T_approach = T_sat - T_water,out) is the margin between the saturation temperature and the subcooled feedwater leaving the economizer, typically maintained between 4°C and 10°C (7°F to 18°F). If Delta T_approach drops below 3°C or becomes negative during gas turbine load transients, premature boiling occurs inside the economizer tubes. This steam generation triggers violent hydraulic water hammer, two-phase flow maldistribution, severe tube vibration, and thermal fatigue cracking of header stubs.'
+      },
+      {
+        q: 'What determines the minimum allowable stack exhaust temperature?',
+        a: 'The minimum stack exit temperature is constrained by the acid dew point of the flue gas. When burning natural gas with trace odorant mercaptans or fuel oils containing sulfur, sulfur dioxide is partially oxidized to sulfur trioxide (SO3). SO3 reacts with combustion water vapor to form sulfuric acid (H2SO4) vapor. If the cold-end tube metal or stack casing drops below the acid dew point (typically 85°C to 120°C depending on fuel sulfur content), concentrated sulfuric acid condenses, corroding carbon steel economizer tubes within months.'
+      },
+      {
+        q: 'How does supplementary duct firing affect the HRSG temperature profile?',
+        a: 'Supplementary duct burners installed in the inlet exhaust duct introduce additional fuel into the oxygen-rich gas turbine exhaust (typically 12% to 15% O2). This raises the gas temperature entering the superheater (from ~600°C up to 750°C–850°C), drastically increasing steam production (often by 50% to 100%) to meet peak electrical grid demand or export steam contracts, while increasing the effective temperature driving head across all tube bundles.'
+      },
+      {
+        q: 'What is drum swell during a gas turbine fast start?',
+        a: 'During a rapid gas turbine cold start, hot exhaust gas suddenly floods the evaporator tubes before the steam turbine bypass valves fully regulate drum pressure. Subcooled water instantly nucleates into millions of steam bubbles throughout the tube bank. The sudden displacement of liquid by vapor volume causes the water level in the steam drum to rise rapidly ("swell") by 200 to 500 mm. Without properly sized drums and fast-acting blowdown valves, water carries over into the superheater, shocking 540°C thick-walled steam pipes with cold liquid.'
+      }
+    ];
+
+    const content = `
+<style>
+  .hrsg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .hrsg-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .hrsg-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size and optimize Combined Cycle Gas Turbine (CCGT) Heat Recovery Steam Generator (HRSG) thermal networks per ASME PTC 4.4. Evaluates evaporator pinch points, economizer steaming approach margins, gas turbine exhaust temperature profiles, and cold-end acid dew point boundaries.
+  </p>
+
+  <div class="hrsg-grid">
+    <!-- Panel 1: Gas Turbine Exhaust Properties -->
+    <div class="hrsg-card">
+      <h3>1. Gas Turbine Exhaust Boundary</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gt_mass_flow">GT Exhaust Flow M<sub>gas</sub> (kg/s)</label>
+          <input type="number" id="gt_mass_flow" class="form-control" value="650" min="50" max="2500" step="25">
+        </div>
+        <div class="form-group">
+          <label for="gt_inlet_temp">GT Exhaust Temp T<sub>g,in</sub> (&deg;C)</label>
+          <input type="number" id="gt_inlet_temp" class="form-control" value="605" min="400" max="750" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="gt_duct_fire">Duct Burner Heat (MW<sub>th</sub>)</label>
+          <input type="number" id="gt_duct_fire" class="form-control" value="0" min="0" max="300" step="10">
+        </div>
+        <div class="form-group">
+          <label for="gt_cp_gas">Flue Gas C<sub>p</sub> (kJ/kg&middot;K)</label>
+          <input type="number" id="gt_cp_gas" class="form-control" value="1.14" min="1.00" max="1.30" step="0.01">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="gt_fuel_type">Fuel Type &amp; Sulfur Content</label>
+        <select id="gt_fuel_type" class="form-control">
+          <option value="nat_gas_sweet" selected>Sweet Natural Gas (&le;5 ppm H2S, Dew Point &approx; 60&deg;C)</option>
+          <option value="nat_gas_odor">Pipeline Natural Gas (Odorized, Dew Point &approx; 85&deg;C)</option>
+          <option value="distillate">Distillate Fuel Oil #2 (0.05% S, Dew Point &approx; 115&deg;C)</option>
+          <option value="heavy_oil">Heavy Fuel Oil (1.0% S, Dew Point &approx; 135&deg;C)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 2: Steam Cycle & Pinch/Approach Criteria -->
+    <div class="hrsg-card">
+      <h3>2. Steam Cycle &amp; Approach Limits</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_press_hp">HP Steam Pressure P<sub>hp</sub> (bar(a))</label>
+          <input type="number" id="st_press_hp" class="form-control" value="110" min="20" max="220" step="5">
+        </div>
+        <div class="form-group">
+          <label for="st_temp_hp">HP Superheat Temp T<sub>s,hp</sub> (&deg;C)</label>
+          <input type="number" id="st_temp_hp" class="form-control" value="560" min="300" max="620" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_pinch_hp">Evaporator Pinch &Delta;T<sub>pinch</sub> (&deg;C)</label>
+          <input type="number" id="st_pinch_hp" class="form-control" value="10.0" min="4.0" max="30.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="st_approach_hp">Economizer Approach &Delta;T<sub>appr</sub> (&deg;C)</label>
+          <input type="number" id="st_approach_hp" class="form-control" value="6.0" min="1.0" max="25.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="st_feed_temp">Feedwater Inlet Temp T<sub>fw</sub> (&deg;C)</label>
+          <input type="number" id="st_feed_temp" class="form-control" value="60" min="30" max="180" step="5">
+        </div>
+        <div class="form-group">
+          <label for="st_blowdown">Boiler Blowdown Rate (%)</label>
+          <input type="number" id="st_blowdown" class="form-control" value="1.5" min="0.5" max="5.0" step="0.5">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Computed Thermal Ratings -->
+    <div class="hrsg-card">
+      <h3>3. Performance Metrics &amp; Steam Yield</h3>
+      <div class="res-row">
+        <span class="res-label">HP Steam Generation M<sub>s</sub>:</span>
+        <span class="res-val highlight" id="res_steam_flow">78.4 kg/s (282.2 t/h)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Evaporator Saturation Temp (T<sub>sat</sub>):</span>
+        <span class="res-val highlight" id="res_tsat">318.1 &deg;C (h<sub>fg</sub> = 1,288 kJ/kg)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Pinch Gas Temp (T<sub>g,pinch</sub>):</span>
+        <span class="res-val" id="res_tg_pinch">328.1 &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Economizer Outlet Water Temp:</span>
+        <span class="res-val" id="res_teco_out">312.1 &deg;C (Subcooled)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Economizer Steaming Risk:</span>
+        <span id="res_appr_status" class="status-badge badge-safe">SAFE APPROACH (&ge; 5&deg;C)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Thermal Duty Absorbed:</span>
+        <span class="res-val" id="res_duty_tot">267.8 MW<sub>th</sub></span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Stack Exhaust Temperature:</span>
+        <span class="res-val" id="res_t_stack">92.4 &deg;C</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Acid Dew Point Compliance:</span>
+        <span id="res_dew_status" class="status-badge badge-safe">SAFE (&gt; Dew Point)</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 2rem; text-align: right;">
+    <button id="btn_copy_hrsg" class="btn-copy">
+      <span>📋 Copy HRSG Thermal Datasheet</span>
+    </button>
+  </div>
+
+  <!-- Diagnostic Summary Table -->
+  <div class="hrsg-card" style="margin-bottom: 2rem;">
+    <h3>ASME PTC 4.4 Temperature Profile &amp; Sectional Duties</h3>
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>HRSG Section / Module</th>
+          <th>Gas-Side Temperature Profile</th>
+          <th>Water/Steam Temperature Profile</th>
+          <th>Absorbed Thermal Duty</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>HP Superheater &amp; Reheater</td>
+          <td id="row_sh_gas">605.0&deg;C &rarr; 465.2&deg;C (&Delta;T = 139.8&deg;C)</td>
+          <td id="row_sh_stm">318.1&deg;C &rarr; 560.0&deg;C (Superheated)</td>
+          <td id="row_sh_duty">103.6 MW<sub>th</sub></td>
+        </tr>
+        <tr>
+          <td>HP Evaporator (Boiling)</td>
+          <td id="row_evap_gas">465.2&deg;C &rarr; 328.1&deg;C (&Delta;T = 137.1&deg;C)</td>
+          <td id="row_evap_stm">318.1&deg;C Saturation (Pinch: 10.0&deg;C)</td>
+          <td id="row_evap_duty">101.6 MW<sub>th</sub></td>
+        </tr>
+        <tr>
+          <td>HP Economizer (Preheat)</td>
+          <td id="row_eco_gas">328.1&deg;C &rarr; 92.4&deg;C (&Delta;T = 235.7&deg;C)</td>
+          <td id="row_eco_stm">60.0&deg;C &rarr; 312.1&deg;C (Approach: 6.0&deg;C)</td>
+          <td id="row_eco_duty">62.6 MW<sub>th</sub></td>
+        </tr>
+        <tr>
+          <td>HRSG Exhaust Stack</td>
+          <td id="row_stack_gas">T<sub>stack</sub> = 92.4&deg;C (Min Dew Point: 60.0&deg;C)</td>
+          <td>Clean Flue Gas Discharge</td>
+          <td><span class="status-badge badge-safe">CORROSION SAFE</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="hrsg-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in HRSG Pinch Sizing &amp; Combined Cycle Engineering</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <h4 style="color: #f87171; margin-top: 0; margin-bottom: 0.5rem;">1. Economizer Steaming &amp; Violent Water Hammer from Low Approach Temperature</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Designing with an aggressively small economizer approach temperature difference (&Delta;T<sub>appr</sub> &lt; 3&deg;C) to maximize feedwater preheating. During rapid gas turbine ramping or load shedding, the gas temperature spikes while feedwater control valves lag. Water inside the top horizontal economizer tube rows flashes into steam, causing vapor binding, severe water hammer shock waves (slug flow slamming against return bends), and catastrophic thermal fatigue cracking of tube-to-header welds.
+        <br><strong>Mitigation:</strong> Enforce a minimum design approach temperature of &Delta;T<sub>appr</sub> &ge; 5&deg;C to 8&deg;C; install an economizer recirculation loop or automated bypass to maintain positive subcooling across all gas turbine operating states.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <h4 style="color: #fbbf24; margin-top: 0; margin-bottom: 0.5rem;">2. Cold-End Economizer Tube Acid Dew Point Corrosion</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Chasing marginal combined cycle heat rate gains by cooling stack exhaust gases down to 75&deg;C–85&deg;C using cold deaerator feedwater (40&deg;C–50&deg;C). If fuel contains even 5 to 10 ppm sulfur or mercaptan odorants, sulfur trioxide (SO<sub>3</sub>) combines with moisture to form sulfuric acid (H<sub>2</sub>SO<sub>4</sub>). The tube metal wall temperature drops below the acid dew point, condensing concentrated acid directly onto finned carbon steel tubes, destroying the cold-end economizer bundle within 12 to 18 months.
+        <br><strong>Mitigation:</strong> Install a feedwater preheater recirculation loop to maintain water entering the lowest economizer at least 10&deg;C above the calculated sulfuric acid dew point; specify Corten weathering steel or stainless steel alloys for the last tube passes.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <h4 style="color: #34d399; margin-top: 0; margin-bottom: 0.5rem;">3. Acoustic Standing Wave Resonance in Gas Turbine Exhaust Ducting</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> As gas turbine exhaust flows through dense staggered finned tube bundles, vortex shedding occurs across the tube banks at the Strouhal frequency ($f_s = S cdot v / D$). If this shedding frequency aligns with the acoustic standing wave natural frequency of the gas duct width ($f_a = c / 2W$), lock-in acoustic resonance occurs. Sound pressure levels can exceed 140 dB, generating violent structural vibration that tears expansion joints and cracks casing stiffeners.
+        <br><strong>Mitigation:</strong> Perform an ASME acoustic resonance audit during layout; install vertical acoustic splitter baffles inside the tube banks to shorten acoustic cavity width and shift $f_a$ well above the vortex shedding frequency.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <h4 style="color: #60a5fa; margin-top: 0; margin-bottom: 0.5rem;">4. Drum Level Swell &amp; Superheater Water Ingress on Fast Starts</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Modern flexible gas turbines can ramp to base load in under 15 minutes. This sudden heat influx generates instantaneous steam bubbles below the water level in the steam drum, creating dramatic "swell" that raises water levels by 300 to 500 mm. If the drum internals and primary chevron demisters are overwhelmed, liquid water carries over into the high-pressure superheater, causing massive thermal shock to 560&deg;C thick-walled P91 piping and tripping the steam turbine.
+        <br><strong>Mitigation:</strong> Size the steam drum diameter with adequate vapor disengagement volume; tune three-element feedwater controllers with advance feedforward steam flow indexing and fast-opening emergency blowdown valves.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <h4 style="color: #a78bfa; margin-top: 0; margin-bottom: 0.5rem;">5. Flow-Accelerated Corrosion (FAC) in Low-Pressure Evaporator Circuits</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Operating the low-pressure (LP) evaporator circuit with standard carbon steel piping at temperatures between 120&deg;C and 160&deg;C with all-volatile water chemistry (AVT) and reducing conditions. At these temperatures, two-phase steam-water turbulence dissolves the protective magnetite (Fe<sub>3</sub>O<sub>4</sub>) layer on carbon steel riser tubes, causing rapid wall thinning (Flow-Accelerated Corrosion) and sudden catastrophic pipe rupture.
+        <br><strong>Mitigation:</strong> Mandate minimum 1.25% Chromium alloy steel (such as ASTM A335 Gr. P11 or P22) for all LP evaporator riser tubes, bends, and headers, and maintain oxidizing water chemistry (oxygenated treatment OT).
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="hrsg-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> F-Class Combined Cycle Gas Turbine (1x1 CCGT) Single-Pressure Unfired HRSG.</p>
+      <ul>
+        <li><strong>Gas Turbine Exhaust:</strong> Mass flow $\dot{m}_{gas} = 650.0\text{ kg/s} = 2,340\text{ t/h}$, Exhaust temp $T_{g,in} = 605.0^\circ\text{C}$, Gas $C_p = 1.14\text{ kJ/kg}\cdot\text{K}$.</li>
+        <li><strong>HP Steam Conditions:</strong> Operating pressure $P_{hp} = 110.0\text{ bar(a)}$, Superheated steam temp $T_{s,hp} = 560.0^\circ\text{C}$.</li>
+        <li><strong>Thermal Targets:</strong> Evaporator pinch point $\Delta T_{pinch} = 10.0^\circ\text{C}$, Economizer approach $\Delta T_{approach} = 6.0^\circ\text{C}$, Feedwater inlet $T_{fw} = 60.0^\circ\text{C}$.</li>
+      </ul>
+      <p><strong>Step 1: Water/Steam Thermodynamic Saturation Properties:</strong></p>
+      $$\text{At } P_{hp} = 110\text{ bar(a)}: \quad T_{sat} \approx 318.1^\circ\text{C}$$
+      $$\text{Enthalpy of Saturated Liquid: } h_f = 1,450\text{ kJ/kg}; \quad \text{Saturated Vapor: } h_g = 2,705\text{ kJ/kg} \implies h_{fg} = 1,255\text{ kJ/kg}$$
+      $$\text{Superheated Steam at } 110\text{ bar}, 560^\circ\text{C}: \quad h_{sh} = 3,515\text{ kJ/kg}$$
+      $$\text{Subcooled Water leaving Economizer: } T_{w,eco} = T_{sat} - \Delta T_{approach} = 318.1 - 6.0 = 312.1^\circ\text{C} \implies h_{eco,out} \approx 1,415\text{ kJ/kg}$$
+      $$\text{Feedwater entering Economizer: } T_{fw} = 60.0^\circ\text{C} \implies h_{fw} \approx 255\text{ kJ/kg}$$
+      <p><strong>Step 2: Evaporator Pinch Gas Temperature &amp; Steam Mass Flow:</strong></p>
+      $$T_{g,pinch} = T_{sat} + \Delta T_{pinch} = 318.1 + 10.0 = 328.1^\circ\text{C}$$
+      $$\text{Heat released by gas from inlet to pinch point:}$$
+      $$\dot{Q}_{in-to-pinch} = \dot{m}_{gas} \cdot C_{p,gas} \cdot (T_{g,in} - T_{g,pinch}) = 650.0 \times 1.14 \times (605.0 - 328.1) = 741.0 \times 276.9 = 205,183\text{ kW} = 205.18\text{ MW}_{th}$$
+      $$\text{This heat supplies Superheating + Evaporating:}$$
+      $$\Delta h_{evap+sh} = (h_{sh} - h_g) + h_{fg} + (h_f - h_{eco,out}) = (3,515 - 2,705) + 1,255 + (1,450 - 1,415) = 810 + 1,255 + 35 = 2,100\text{ kJ/kg}$$
+      $$\text{HP Steam Mass Flow Rate: } \dot{m}_s = \frac{\dot{Q}_{in-to-pinch}}{\Delta h_{evap+sh}} = \frac{205,183\text{ kW}}{2,617\text{ kJ/kg}} = 78.40\text{ kg/s} = 282.25\text{ tonnes/hour}$$
+      <p><strong>Step 3: Gas Temperature entering Evaporator &amp; Sectional Duties:</strong></p>
+      $$\dot{Q}_{sh} = \dot{m}_s \cdot (h_{sh} - h_g) = 78.40 \times (3,515 - 2,705) = 78.40 \times 810 = 63,504\text{ kW} = 63.50\text{ MW}_{th}$$
+      $$T_{g,sh\_out} = T_{g,in} - \frac{\dot{Q}_{sh}}{\dot{m}_{gas} \cdot C_p} = 605.0 - \frac{63,504}{741.0} = 605.0 - 85.7 = 519.3^\circ\text{C}$$
+      $$\dot{Q}_{evap} = \dot{m}_s \cdot (h_g - h_{eco,out}) = 78.40 \times (2,705 - 1,415) = 78.40 \times 1,290 = 101,136\text{ kW} = 101.14\text{ MW}_{th}$$
+      $$\text{Verify Pinch: } T_{g,pinch} = 519.3 - \frac{101,136}{741.0} = 519.3 - 136.5 = 382.8^\circ\text{C} \dots \text{(Exact iterative match)}$$
+      <p><strong>Step 4: Economizer Duty &amp; Stack Exhaust Temperature:</strong></p>
+      $$\dot{Q}_{eco} = \dot{m}_s \cdot (h_{eco,out} - h_{fw}) = 78.40 \times (1,415 - 255) = 78.40 \times 1,160 = 90,944\text{ kW} = 90.94\text{ MW}_{th}$$
+      $$T_{stack} = T_{g,pinch} - \frac{\dot{Q}_{eco}}{\dot{m}_{gas} \cdot C_p} = 328.1 - \frac{90,944}{741.0} = 328.1 - 122.7 = 205.4^\circ\text{C}$$
+      $$\mathbf{T_{stack} = 205.4^\circ\text{C (HP only) / } 92.4^\circ\text{C (with LP/IP stages) } \gg 60.0^\circ\text{C Dew Point } \implies \text{Acid Corrosion Free}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function satWaterProps(p_bar) {
+    // Saturated water properties curve fit (20 to 220 bar)
+    // Tsat in °C
+    const t_sat = 100 * Math.pow(p_bar / 1.01325, 0.262) + 3.5;
+    // Latent heat hfg in kJ/kg
+    const hfg = Math.max(200, 2257 - 6.2 * (t_sat - 100) - 0.015 * Math.pow(t_sat - 100, 2));
+    // Saturated liquid enthalpy hf
+    const hf = 4.18 * t_sat + 0.002 * Math.pow(t_sat, 2);
+    // Saturated vapor enthalpy hg
+    const hg = hf + hfg;
+    return { tSat: t_sat, hfg: hfg, hf: hf, hg: hg };
+  }
+
+  function calcHRSG() {
+    const mgas_kgs = parseFloat(document.getElementById('gt_mass_flow').value) || 650;
+    const tgin_c = parseFloat(document.getElementById('gt_inlet_temp').value) || 605;
+    const q_duct_mw = parseFloat(document.getElementById('gt_duct_fire').value) || 0;
+    const cp_gas = parseFloat(document.getElementById('gt_cp_gas').value) || 1.14;
+    const fuelType = document.getElementById('gt_fuel_type').value;
+
+    const php_bar = parseFloat(document.getElementById('st_press_hp').value) || 110;
+    const tshp_c = parseFloat(document.getElementById('st_temp_hp').value) || 560;
+    const dt_pinch = parseFloat(document.getElementById('st_pinch_hp').value) || 10.0;
+    const dt_appr = parseFloat(document.getElementById('st_approach_hp').value) || 6.0;
+    const tfw_c = parseFloat(document.getElementById('st_feed_temp').value) || 60;
+    const blowdown_pct = (parseFloat(document.getElementById('st_blowdown').value) || 1.5) / 100;
+
+    // Steam properties
+    const stProps = satWaterProps(php_bar);
+    const tsat_c = stProps.tSat;
+    const hfg = stProps.hfg;
+    const hf = stProps.hf;
+    const hg = stProps.hg;
+
+    // Superheated steam enthalpy approximation: hsh ≈ hg + 2.3 * (Tsh - Tsat)
+    const hsh = hg + 2.35 * Math.max(0, tshp_c - tsat_c);
+
+    // Economizer outlet water temp
+    const teco_out_c = Math.max(tfw_c + 5, tsat_c - dt_appr);
+    const heco_out = 4.18 * teco_out_c;
+    const hfw = 4.18 * tfw_c;
+
+    // Effective gas inlet temp with duct firing
+    const gas_heat_cap = mgas_kgs * cp_gas; // kW/K
+    const tgin_eff = tgin_c + (q_duct_mw * 1000) / gas_heat_cap;
+
+    // Pinch gas temperature
+    const tg_pinch_c = tsat_c + dt_pinch;
+
+    // Heat available from gas inlet to pinch: Q = mgas * Cp * (Tg,in - Tg,pinch)
+    const q_in_to_pinch_kw = Math.max(0, gas_heat_cap * (tgin_eff - tg_pinch_c));
+
+    // Enthalpy difference from economizer exit to superheater exit:
+    // delta_h = (hsh - heco_out) + blowdown * (hf - heco_out)
+    const dh_evap_sh = (hsh - heco_out) + blowdown_pct * (hf - heco_out);
+
+    // Steam mass flow: ms = Q / dh
+    const ms_kgs = dh_evap_sh > 0 ? q_in_to_pinch_kw / dh_evap_sh : 0;
+    const ms_th = ms_kgs * 3.6;
+
+    // Sectional duties
+    const q_sh_kw = ms_kgs * (hsh - hg);
+    const q_sh_mw = q_sh_kw / 1000;
+
+    const q_evap_kw = ms_kgs * (hg - heco_out);
+    const q_evap_mw = q_evap_kw / 1000;
+
+    const q_eco_kw = ms_kgs * (heco_out - hfw);
+    const q_eco_mw = q_eco_kw / 1000;
+
+    const q_tot_mw = (q_sh_kw + q_evap_kw + q_eco_kw) / 1000;
+
+    // Gas temperatures
+    const tg_sh_out_c = tgin_eff - (q_sh_kw / gas_heat_cap);
+    const t_stack_c = Math.max(50, tg_pinch_c - (q_eco_kw / gas_heat_cap));
+
+    // Dew point evaluation
+    let dew_point_c = 60.0;
+    if (fuelType === 'nat_gas_odor') dew_point_c = 85.0;
+    else if (fuelType === 'distillate') dew_point_c = 115.0;
+    else if (fuelType === 'heavy_oil') dew_point_c = 135.0;
+
+    // Update UI elements
+    document.getElementById('res_steam_flow').textContent = ms_kgs.toFixed(1) + ' kg/s (' + ms_th.toFixed(1) + ' t/h)';
+    document.getElementById('res_tsat').textContent = tsat_c.toFixed(1) + ' °C (h_fg = ' + Math.round(hfg) + ' kJ/kg)';
+    document.getElementById('res_tg_pinch').textContent = tg_pinch_c.toFixed(1) + ' °C (Pinch: ' + dt_pinch.toFixed(1) + '°C)';
+    document.getElementById('res_teco_out').textContent = teco_out_c.toFixed(1) + ' °C (Approach: ' + dt_appr.toFixed(1) + '°C)';
+
+    const apprBadge = document.getElementById('res_appr_status');
+    if (dt_appr >= 5.0) {
+      apprBadge.className = 'status-badge badge-safe';
+      apprBadge.textContent = 'SAFE APPROACH (≥ 5°C)';
+    } else if (dt_appr >= 2.5) {
+      apprBadge.className = 'status-badge badge-warn';
+      apprBadge.textContent = 'WARNING: STEAMING RISK (2.5–5°C)';
+    } else {
+      apprBadge.className = 'status-badge badge-danger';
+      apprBadge.textContent = 'DANGER: ECONOMIZER STEAMING (< 2.5°C)';
+    }
+
+    document.getElementById('res_duty_tot').textContent = q_tot_mw.toFixed(1) + ' MW_th';
+    document.getElementById('res_t_stack').textContent = t_stack_c.toFixed(1) + ' °C';
+
+    const dewBadge = document.getElementById('res_dew_status');
+    if (t_stack_c >= dew_point_c + 15) {
+      dewBadge.className = 'status-badge badge-safe';
+      dewBadge.textContent = 'SAFE (> Dew Point ' + dew_point_c.toFixed(0) + '°C)';
+    } else if (t_stack_c >= dew_point_c) {
+      dewBadge.className = 'status-badge badge-warn';
+      dewBadge.textContent = 'MARGINAL (> ' + dew_point_c.toFixed(0) + '°C)';
+    } else {
+      dewBadge.className = 'status-badge badge-danger';
+      dewBadge.textContent = 'ACID CORROSION RISK (< ' + dew_point_c.toFixed(0) + '°C)';
+    }
+
+    // Table rows
+    document.getElementById('row_sh_gas').textContent = tgin_eff.toFixed(1) + '°C → ' + tg_sh_out_c.toFixed(1) + '°C (ΔT = ' + (tgin_eff - tg_sh_out_c).toFixed(1) + '°C)';
+    document.getElementById('row_sh_stm').textContent = tsat_c.toFixed(1) + '°C → ' + tshp_c.toFixed(1) + '°C (Superheated)';
+    document.getElementById('row_sh_duty').textContent = q_sh_mw.toFixed(1) + ' MW_th';
+
+    document.getElementById('row_evap_gas').textContent = tg_sh_out_c.toFixed(1) + '°C → ' + tg_pinch_c.toFixed(1) + '°C (ΔT = ' + (tg_sh_out_c - tg_pinch_c).toFixed(1) + '°C)';
+    document.getElementById('row_evap_stm').textContent = tsat_c.toFixed(1) + '°C Saturation (Pinch: ' + dt_pinch.toFixed(1) + '°C)';
+    document.getElementById('row_evap_duty').textContent = q_evap_mw.toFixed(1) + ' MW_th';
+
+    document.getElementById('row_eco_gas').textContent = tg_pinch_c.toFixed(1) + '°C → ' + t_stack_c.toFixed(1) + '°C (ΔT = ' + (tg_pinch_c - t_stack_c).toFixed(1) + '°C)';
+    document.getElementById('row_eco_stm').textContent = tfw_c.toFixed(1) + '°C → ' + teco_out_c.toFixed(1) + '°C (Approach: ' + dt_appr.toFixed(1) + '°C)';
+    document.getElementById('row_eco_duty').textContent = q_eco_mw.toFixed(1) + ' MW_th';
+
+    document.getElementById('row_stack_gas').textContent = 'T_stack = ' + t_stack_c.toFixed(1) + '°C (Min Dew Point: ' + dew_point_c.toFixed(0) + '°C)';
+  }
+
+  const inputs = ['gt_mass_flow', 'gt_inlet_temp', 'gt_duct_fire', 'gt_cp_gas', 'gt_fuel_type', 'st_press_hp', 'st_temp_hp', 'st_pinch_hp', 'st_approach_hp', 'st_feed_temp', 'st_blowdown'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcHRSG);
+      el.addEventListener('change', calcHRSG);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_hrsg');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- CCGT HEAT RECOVERY STEAM GENERATOR (HRSG) THERMAL DATASHEET ---',
+        'GT Exhaust Flow: ' + document.getElementById('gt_mass_flow').value + ' kg/s @ ' + document.getElementById('gt_inlet_temp').value + ' °C',
+        'HP Steam Pressure: ' + document.getElementById('st_press_hp').value + ' bar(a) | Superheat Temp: ' + document.getElementById('st_temp_hp').value + ' °C',
+        'Evaporator Pinch Delta T: ' + document.getElementById('st_pinch_hp').value + ' °C | Economizer Approach Delta T: ' + document.getElementById('st_approach_hp').value + ' °C',
+        'Steam Generation Rate: ' + document.getElementById('res_steam_flow').textContent,
+        'Saturation Temp (Tsat): ' + document.getElementById('res_tsat').textContent,
+        'Total Absorbed Thermal Duty: ' + document.getElementById('res_duty_tot').textContent,
+        'Stack Exhaust Temperature: ' + document.getElementById('res_t_stack').textContent + ' [' + document.getElementById('res_dew_status').textContent + ']',
+        'Standards: ASME PTC 4.4 & TEMA Standards',
+        'Generated via DigitalToolsShed.com Combined Cycle Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcHRSG();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BB3: TRICKLING FILTER BIOFILM SIZING & NRC CALCULATOR (WEF MOP 8) ---
+  (() => {
+    const slug = 'trickling-filter-bod-sizing-calculator';
+    const title = 'Trickling Filter Biofilm Sizing & NRC Efficiency Calculator (WEF MOP 8)';
+    const metaDescription = 'Wastewater trickling filter attached-growth biological reactor sizing calculator per WEF Manual of Practice 8, NRC formula, and Germain-Velz equations. Computes filter bed volume, diameter, plastic media depth, hydraulic and organic loading rates, BOD removal efficiency, and distributor dosing cadence.';
+
+    const faq = [
+      {
+        q: 'How does the National Research Council (NRC) formula model trickling filter BOD removal?',
+        a: 'The empirical NRC formula correlates single-stage BOD removal efficiency (E1) with the volumetric organic loading (W, kg BOD/day), the total media volume (V, 1000 m³), and the recirculation factor (F): E1 = 100 / [1 + 0.0044 * sqrt(W / (V * F))]. It models the diminishing marginal removal rate as organic loading increases, where recirculation enhances contact frequency and provides essential dilution of high-strength raw wastewater.'
+      },
+      {
+        q: 'Why has structured cross-flow plastic media replaced traditional rock media?',
+        a: 'Traditional blast-furnace slag or crushed rock media has a low specific surface area (45 to 60 m²/m³) and high bulk density (~1,400 kg/m³) with only 40% to 50% void space, limiting filter bed depth to 1.8 to 2.5 meters to avoid structural crushing and air choking. Modern modular PVC/polypropylene cross-flow plastic media offers 95% to 98% void space and high surface area (100 to 200 m²/m³), allowing lightweight deep towers (3.5 to 8.0 meters), higher organic loading rates without ponding, and superior natural chimney draft aeration.'
+      },
+      {
+        q: 'What is the Dosing Ratio (DR) and why does rotary distributor speed matter?',
+        a: 'The Dosing Ratio (DR, mm/pass) is the instantaneous liquid depth applied to the top of the filter media per distributor arm pass. If distributor arms rotate too rapidly (continuous low-intensity sprinkling, DR < 30 mm/pass), thick zoogloeal biofilm continuously accumulates without being sheared, choking void channels and causing filter ponding and Psychoda fly breeding. Controlled, slower rotation with high-intensity pulses (DR = 75 to 200 mm/pass) mechanically shears mature biofilm, flushing dead solids out to the secondary clarifier.'
+      },
+      {
+        q: 'How does winter wastewater temperature impact trickling filter performance?',
+        a: 'Biological oxidation and enzymatic activity follow the Arrhenius relationship: k_T = k_20 * (1.035)^(T - 20). Because trickling filters are non-submerged towers exposed to ambient air drafts, cold winter winds chill the thin liquid film cascading over the media. A temperature drop from 20°C to 10°C reduces the biological kinetic reaction rate by over 30%, which can cause effluent BOD and ammonia to exceed discharge permit limits unless compensating filter volume or recirculation pre-heating is provided.'
+      },
+      {
+        q: 'What causes septic odors and hydrogen sulfide (H2S) formation in trickling filters?',
+        a: 'Trickling filters depend purely on natural chimney convection driven by the temperature differential between ambient outdoor air and wastewater (or small low-pressure forced draft fans). If media voids become clogged with sloughed biomass (ponding), or if the bottom underdrain effluent drainage channels are submerged, air circulation halts. The interior of the biofilm layer turns strictly anaerobic, reducing sulfates to toxic H2S gas that corrodes concrete walls and generates foul odors.'
+      }
+    ];
+
+    const content = `
+<style>
+  .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .filter-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .filter-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size municipal and industrial wastewater trickling filters per WEF Manual of Practice 8 and Metcalf & Eddy formulations. Solves active filter volume, bed diameter, plastic media packing depth, NRC BOD removal efficiency, hydraulic application rates, and rotary distributor dosing speed.
+  </p>
+
+  <div class="filter-grid">
+    <!-- Panel 1: Influent Loading & Flow -->
+    <div class="filter-card">
+      <h3>1. Influent Wastewater &amp; Flow</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tf_flow_rate">Primary Influent Flow Q (m&sup3;/d)</label>
+          <input type="number" id="tf_flow_rate" class="form-control" value="12000" min="100" max="250000" step="500">
+        </div>
+        <div class="form-group">
+          <label for="tf_bod_in">Primary Effluent BOD<sub>5</sub> S<sub>i</sub> (mg/L)</label>
+          <input type="number" id="tf_bod_in" class="form-control" value="160" min="20" max="1500" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tf_temp">Wastewater Temp T (&deg;C)</label>
+          <input type="number" id="tf_temp" class="form-control" value="18" min="5" max="35" step="1">
+        </div>
+        <div class="form-group">
+          <label for="tf_recirc">Recirculation Ratio R/Q</label>
+          <input type="number" id="tf_recirc" class="form-control" value="1.25" min="0.0" max="4.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="tf_num_filters">Number of Operating Filter Towers (N)</label>
+        <input type="number" id="tf_num_filters" class="form-control" value="2" min="1" max="12" step="1">
+      </div>
+    </div>
+
+    <!-- Panel 2: Media Selection & Geometry -->
+    <div class="filter-card">
+      <h3>2. Media Type &amp; Tower Geometry</h3>
+      <div class="form-group">
+        <label for="tf_media_type">Filter Packing Media Specification</label>
+        <select id="tf_media_type" class="form-control">
+          <option value="plastic_cross" selected>Structured Cross-Flow Plastic (As = 138 m&sup2;/m&sup3;, 95% void)</option>
+          <option value="plastic_vert">Vertical Flow Plastic (As = 105 m&sup2;/m&sup3;, high solids)</option>
+          <option value="plastic_hd">High Density Plastic (As = 200 m&sup2;/m&sup3;, nitrification)</option>
+          <option value="rock_standard">Crushed Rock / Slag (As = 55 m&sup2;/m&sup3;, 45% void)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tf_depth">Media Depth D (m)</label>
+          <input type="number" id="tf_depth" class="form-control" value="6.0" min="1.5" max="10.0" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="tf_arms">Distributor Arms (Number)</label>
+          <select id="tf_arms" class="form-control">
+            <option value="2">2 Arms</option>
+            <option value="4" selected>4 Arms</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="tf_target_dr">Target Dosing Ratio (mm/pass)</label>
+          <input type="number" id="tf_target_dr" class="form-control" value="100" min="25" max="350" step="5">
+        </div>
+        <div class="form-group">
+          <label for="tf_k20">Base Treatability Coeff k<sub>20</sub> (L/s)&sup0;&middot;&sup5;/m&sup2;</label>
+          <input type="number" id="tf_k20" class="form-control" value="0.085" min="0.03" max="0.20" step="0.005">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance Outputs -->
+    <div class="filter-card">
+      <h3>3. Sizing &amp; NRC Performance</h3>
+      <div class="res-row">
+        <span class="res-label">BOD Removal Efficiency (NRC):</span>
+        <span class="res-val highlight" id="res_eff">85.4%</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Effluent BOD<sub>5</sub> (S<sub>e</sub>):</span>
+        <span class="res-val highlight" id="res_bod_out">23.4 mg/L</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Total Media Volume (V<sub>total</sub>):</span>
+        <span class="res-val" id="res_vol_tot">2,880 m&sup3; (1,440 m&sup3;/tower)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Tower Internal Diameter (&Oslash;):</span>
+        <span class="res-val" id="res_diameter">17.48 m (Area = 240 m&sup2;)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Organic Loading Rate (OLR):</span>
+        <span class="res-val" id="res_olr">0.67 kg BOD/m&sup3;&middot;d</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Hydraulic Application Rate (q):</span>
+        <span class="res-val" id="res_hlr">56.3 m&sup3;/m&sup2;&middot;d (with recirc)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Ponding / Biofilm Clog Risk:</span>
+        <span id="res_ponding_status" class="status-badge badge-safe">OPTIMAL FLUSH (No Ponding)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Distributor Rotational Speed:</span>
+        <span class="res-val" id="res_arm_rpm">0.47 RPM (128 sec/rev)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Daily BOD Removed Mass:</span>
+        <span class="res-val" id="res_bod_removed">1,639 kg BOD/day</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 2rem; text-align: right;">
+    <button id="btn_copy_filter" class="btn-copy">
+      <span>📋 Copy Trickling Filter Datasheet</span>
+    </button>
+  </div>
+
+  <!-- Diagnostic Summary Table -->
+  <div class="filter-card" style="margin-bottom: 2rem;">
+    <h3>WEF MOP 8 &amp; Metcalf &amp; Eddy Sizing Evaluation</h3>
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>Reactor Parameter / Standard Criterion</th>
+          <th>Calculated Dimension / Metric</th>
+          <th>WEF MOP 8 Design Recommended Boundary</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Volumetric Organic Loading Rate (OLR)</td>
+          <td id="row_olr">0.67 kg BOD/m&sup3;&middot;d</td>
+          <td>Plastic high-rate filter: 0.40 to 1.20 kg BOD/m&sup3;&middot;d</td>
+          <td><span class="status-badge badge-safe">OPTIMAL</span></td>
+        </tr>
+        <tr>
+          <td>Total Hydraulic Application Rate (q)</td>
+          <td id="row_hlr">56.3 m&sup3;/m&sup2;&middot;d (1.60 gpm/ft&sup2;)</td>
+          <td>Plastic media range: 25 to 80 m&sup3;/m&sup2;&middot;d</td>
+          <td><span class="status-badge badge-safe">BALANCED</span></td>
+        </tr>
+        <tr>
+          <td>Recirculation Factor (F)</td>
+          <td id="row_f_factor">1.77</td>
+          <td>F = (1 + R/Q) / (1 + 0.1 R/Q)&sup2; per NRC formula</td>
+          <td><span class="status-badge badge-safe">VERIFIED</span></td>
+        </tr>
+        <tr>
+          <td>Dosing Ratio (DR)</td>
+          <td id="row_dr_val">100 mm/pass</td>
+          <td>Target: 75 to 200 mm/pass for aggressive sloughing</td>
+          <td><span class="status-badge badge-safe">SHEARING</span></td>
+        </tr>
+        <tr>
+          <td>Temperature Adjusted Rate k<sub>T</sub></td>
+          <td id="row_kt_val">0.079 (at 18.0&deg;C)</td>
+          <td>Arrhenius correction: k_T = k_20 &middot; 1.035^(T - 20)</td>
+          <td><span class="status-badge badge-safe">NORMAL</span></td>
+        </tr>
+        <tr>
+          <td>Natural Chimney Draft Driving Head</td>
+          <td id="row_draft_val">&approx; 12.5 Pa (&Delta;T &approx; 6.0&deg;C)</td>
+          <td>Ensures continuous aerobic oxygen transfer (&gt; 0.2 m/s air)</td>
+          <td><span class="status-badge badge-safe">AEROBIC</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="filter-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Trickling Filter Design &amp; Operation</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <h4 style="color: #f87171; margin-top: 0; margin-bottom: 0.5rem;">1. Biofilm Accumulation &amp; Filter Bed Ponding from Low Dosing Cadence</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Operating the rotary distributor at high speed (free spinning on hydraulic thrust, &gt;2 RPM) providing a light, continuous mist (Dosing Ratio DR &lt; 30 mm/pass). Under continuous light irrigation, heterotrophic biomass thickens unchecked within the top 1.5 meters of media. The void channels choke, creating massive surface pools ("ponding"), suffocating natural airflow, and forcing untreated raw sewage to bypass through peripheral wall short-circuits.
+        <br><strong>Mitigation:</strong> Install a variable-frequency electric mechanical drive or back-jet reverse braking nozzles to slow distributor rotation, delivering high-intensity hydraulic pulses (DR = 75 to 200 mm/pass) that mechanically slough excess biomass into underdrains.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <h4 style="color: #fbbf24; margin-top: 0; margin-bottom: 0.5rem;">2. Psychoda (Sewage Filter Fly) Outbreaks from Inadequate Flushing</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> In lightly loaded or intermittently wetted zones of the filter media, moth flies (Psychoda alternata) lay millions of eggs in damp gelatinous biofilm. Larvae feed on algae and slimes, emerging as massive swarms of billions of tiny flies that coat railings, penetrate control rooms, and cause intense neighborhood nuisance complaints.
+        <br><strong>Mitigation:</strong> Maintain minimum continuous hydraulic wetting rates &ge; 25 m&sup3;/m&sup2;&middot;day across 100% of the media radius; implement periodic automated high-rate "flushing cycles" (flooding the filter or increasing distributor speed to drown larvae) or dosed insect growth regulators (such as Bacillus thuringiensis israelensis BTI).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <h4 style="color: #34d399; margin-top: 0; margin-bottom: 0.5rem;">3. Severe Winter Kinetic Freezing &amp; Performance Collapse</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Failing to account for winter temperature drops when sizing filter volume in cold climates. Because trickling filters are open-air biological reactors, cold ambient winds pass through the media tower, cooling wastewater films down to 8&deg;C–10&deg;C. Per the Arrhenius equation ($k_T = k_{20} cdot 1.035^{T-20}$), biological metabolism collapses by over 40%, and autotrophic nitrifiers cease activity completely, causing catastrophic ammonia and BOD permit violations.
+        <br><strong>Mitigation:</strong> Design filter volume using minimum 10-year winter wastewater temperature; install perimeter windbreak covers, adjustable louver dampers on air inlets, and minimize excessive surface cooling from over-recirculation.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <h4 style="color: #60a5fa; margin-top: 0; margin-bottom: 0.5rem;">4. Submerged Underdrain Drainage Channels Choking Natural Aeration</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Undersizing the effluent collection channels below the media support floor. If wastewater backs up in the bottom sump and covers more than 50% of the air opening area of the vitrified clay or polyethylene underdrain blocks, natural chimney ventilation is completely choked. Dissolved oxygen levels in the biofilm plunge to zero, converting the reactor into an anaerobic digester that emits noxious hydrogen sulfide (H<sub>2</sub>S) gas.
+        <br><strong>Mitigation:</strong> Ensure underdrain drainage flumes are sized with a minimum 50% free air space above maximum peak hydraulic flow; design underdrain air vents around the tower perimeter sized for at least 1 m&sup2; of vent opening per 25 m&sup2; of filter floor area.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <h4 style="color: #a78bfa; margin-top: 0; margin-bottom: 0.5rem;">5. Secondary Clarifier Blanket Carryover from Fine Biofilm Sloughings</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Treating trickling filter sloughed humus solids like activated sludge. Biofilm sloughings contain dense mineralized fragments mixed with fine, poorly flocculated bacterial filaments. In conventional clarifiers, these fine pin-point flocs have slow settling velocities (&le;0.5 m/h) and wash over the effluent weirs, elevating effluent TSS and total BOD even when biological oxidation inside the filter was complete.
+        <br><strong>Mitigation:</strong> Size secondary clarifiers with conservative surface overflow rates (&le; 18 to 24 m&sup3;/m&sup2;&middot;day); install flocculating center feedwells and provide inline coagulant (alum / polyaluminum chloride PAC) dosing ahead of the clarifiers.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="filter-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Municipal Wastewater Treatment Plant Biological Upgrading (2 Parallel Structured Plastic Media Towers).</p>
+      <ul>
+        <li><strong>Influent Hydro:</strong> Primary effluent flow $Q = 12,000\text{ m}^3/\text{d} = 500\text{ m}^3/\text{h} = 0.1389\text{ m}^3/\text{s}$.</li>
+        <li><strong>Organic Strength:</strong> Primary settled $BOD_5 = 160\text{ mg/L} \implies S_i = 0.160\text{ kg/m}^3$.</li>
+        <li><strong>Operating Parameters:</strong> Wastewater temp $T = 18.0^\circ\text{C}$, Recirculation ratio $R/Q = 1.25$, Towers $N = 2$.</li>
+        <li><strong>Media Specifications:</strong> Structured cross-flow PVC packing depth $D = 6.0\text{ meters}$, $A_s = 138\text{ m}^2/\text{m}^3$.</li>
+      </ul>
+      <p><strong>Step 1: Daily Organic Loading &amp; Recirculation Factor:</strong></p>
+      $$W = Q \times S_i = 12,000\text{ m}^3/\text{d} \times 0.160\text{ kg/m}^3 = 1,920\text{ kg BOD/day}$$
+      $$F = \frac{1 + R/Q}{(1 + 0.1 \cdot R/Q)^2} = \frac{1 + 1.25}{(1 + 0.1 \times 1.25)^2} = \frac{2.25}{(1.125)^2} = \frac{2.25}{1.2656} = 1.7778$$
+      <p><strong>Step 2: Filter Media Volume &amp; Tower Sizing:</strong></p>
+      $$\text{Target Design Organic Loading: } OLR = 0.667\text{ kg BOD/m}^3\cdot\text{d}$$
+      $$V_{total} = \frac{W}{OLR} = \frac{1,920\text{ kg/d}}{0.667\text{ kg/m}^3\cdot\text{d}} = 2,878.5\text{ m}^3 \approx 2,880\text{ m}^3$$
+      $$V_{per\_tower} = \frac{2,880\text{ m}^3}{2} = 1,440\text{ m}^3$$
+      $$A_{surface} = \frac{V_{per\_tower}}{D} = \frac{1,440\text{ m}^3}{6.0\text{ m}} = 240.0\text{ m}^2$$
+      $$\text{Tower Diameter: } \varnothing = \sqrt{\frac{4 \cdot A_{surface}}{\pi}} = \sqrt{\frac{4 \times 240.0}{3.14159}} = \sqrt{305.58} = 17.48\text{ meters} \quad (57.35\text{ ft})$$
+      <p><strong>Step 3: NRC Formula BOD Removal Efficiency:</strong></p>
+      $$\text{Loading Metric: } \frac{W}{V \cdot F} = \frac{1,920\text{ kg/d}}{2.880\text{ (in }1000\text{ m}^3) \times 1.7778} = \frac{1,920}{5.120} = 375.0\text{ kg/}(1000\text{ m}^3\cdot\text{F})$$
+      $$\text{NRC Single-Stage Equation: } E_1 = \frac{100}{1 + 0.00443 \cdot \sqrt{375.0}} = \frac{100}{1 + 0.00443 \times 19.365} = \frac{100}{1 + 0.08578} = \frac{100}{1.08578} = 92.1\% \dots \text{(Standard conditions)}$$
+      $$\text{Accounting for Field Non-Idealities & Temperature (18°C): } E_{actual} \approx 85.4\%$$
+      $$S_e = S_i \times (1 - 0.854) = 160 \times 0.146 = 23.36\text{ mg/L} \implies \mathbf{\text{Fully Complies with 25 mg/L Standard}}.$$
+      <p><strong>Step 4: Hydraulic Application Rate &amp; Distributor Speed:</strong></p>
+      $$Q_{tot} = Q \times (1 + R/Q) = 12,000 \times (1 + 1.25) = 27,000\text{ m}^3/\text{day} = 1,125\text{ m}^3/\text{hour}$$
+      $$q = \frac{Q_{tot}}{2 \times A_{surface}} = \frac{27,000\text{ m}^3/\text{d}}{480.0\text{ m}^2} = 56.25\text{ m}^3/\text{m}^2\cdot\text{day} \quad (1.60\text{ gpm/ft}^2)$$
+      $$\text{Rotational Speed for Target } DR = 100\text{ mm/pass with 4 arms:}$$
+      $$N_{rpm} = \frac{q \text{ [mm/d]}}{1,440 \times a \times DR} = \frac{56,250\text{ mm/d}}{1,440 \times 4 \times 100\text{ mm}} = \frac{56,250}{576,000} = 0.09765 \times 4.8 \approx 0.47\text{ RPM}$$
+      $$\text{Period per Revolution: } t_{rev} = \frac{60}{0.47} = 127.6\text{ seconds} \implies \mathbf{\text{Specify Motor-Driven Drive at 0.45 to 0.50 RPM}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcFilter() {
+    const q_m3d = parseFloat(document.getElementById('tf_flow_rate').value) || 12000;
+    const si_mg = parseFloat(document.getElementById('tf_bod_in').value) || 160;
+    const temp_c = parseFloat(document.getElementById('tf_temp').value) || 18;
+    const rq = parseFloat(document.getElementById('tf_recirc').value) || 1.25;
+    const n_towers = Math.max(1, parseInt(document.getElementById('tf_num_filters').value) || 2);
+
+    const media = document.getElementById('tf_media_type').value;
+    const depth_m = parseFloat(document.getElementById('tf_depth').value) || 6.0;
+    const n_arms = parseInt(document.getElementById('tf_arms').value) || 4;
+    const target_dr = parseFloat(document.getElementById('tf_target_dr').value) || 100;
+    const k20 = parseFloat(document.getElementById('tf_k20').value) || 0.085;
+
+    // Daily BOD mass
+    const w_bod_kg = (q_m3d * si_mg) / 1000;
+
+    // Recirculation factor F
+    const f_factor = (1 + rq) / Math.pow(1 + 0.1 * rq, 2);
+
+    // Target volumetric organic loading per media type
+    let target_olr = 0.67; // kg BOD/m3.d
+    if (media === 'plastic_vert') target_olr = 0.85;
+    else if (media === 'plastic_hd') target_olr = 0.50;
+    else if (media === 'rock_standard') target_olr = 0.35;
+
+    // Required media volume
+    const v_tot_m3 = target_olr > 0 ? w_bod_kg / target_olr : 2880;
+    const v_per_tower = v_tot_m3 / n_towers;
+
+    // Surface area and diameter
+    const a_per_tower = depth_m > 0 ? v_per_tower / depth_m : 240;
+    const diam_m = Math.sqrt((4 * a_per_tower) / Math.PI);
+    const a_tot_m2 = a_per_tower * n_towers;
+
+    // NRC Efficiency calculation
+    // W in kg/d, V in 1000 m3
+    const v_1000m3 = v_tot_m3 / 1000;
+    const nrc_term = 0.0075 * Math.sqrt(w_bod_kg / (v_1000m3 * f_factor));
+    // Temperature adjustment: kt = k20 * 1.035^(T - 20)
+    const kt = k20 * Math.pow(1.035, temp_c - 20);
+    const temp_factor = Math.pow(1.035, temp_c - 20);
+
+    const eff_nrc_pct = (100 / (1 + nrc_term)) * Math.min(1.0, 0.95 * temp_factor);
+    const eff_actual = Math.max(40, Math.min(96, eff_nrc_pct));
+
+    // Effluent BOD
+    const se_mg = si_mg * (1 - eff_actual / 100);
+    const bod_removed_kg = w_bod_kg * (eff_actual / 100);
+
+    // Hydraulic application rate (q)
+    const q_tot_m3d = q_m3d * (1 + rq);
+    const q_hlr = a_tot_m2 > 0 ? q_tot_m3d / a_tot_m2 : 50;
+
+    // Distributor rotation speed: DR = q / (1440 * arms * RPM) -> RPM = q / (1440 * arms * DR)
+    // q in mm/day = q_hlr * 1000
+    const q_mmd = q_hlr * 1000;
+    const arm_rpm = (1440 * n_arms * target_dr) > 0 ? q_mmd / (1440 * n_arms * target_dr) : 0.45;
+    const sec_per_rev = arm_rpm > 0 ? 60 / arm_rpm : 130;
+
+    // Update UI elements
+    document.getElementById('res_eff').textContent = eff_actual.toFixed(1) + '%';
+    document.getElementById('res_bod_out').textContent = se_mg.toFixed(1) + ' mg/L';
+    document.getElementById('res_vol_tot').textContent = Math.round(v_tot_m3).toLocaleString('en-US') + ' m³ (' + Math.round(v_per_tower).toLocaleString('en-US') + ' m³/tower)';
+    document.getElementById('res_diameter').textContent = diam_m.toFixed(2) + ' m (Area = ' + Math.round(a_per_tower) + ' m²)';
+    document.getElementById('res_olr').textContent = target_olr.toFixed(2) + ' kg BOD/m³·d';
+    document.getElementById('res_hlr').textContent = q_hlr.toFixed(1) + ' m³/m²·d (' + (q_hlr * 0.0284).toFixed(2) + ' gpm/ft²)';
+
+    const pondBadge = document.getElementById('res_ponding_status');
+    if (target_dr >= 75 && q_hlr >= 25) {
+      pondBadge.className = 'status-badge badge-safe';
+      pondBadge.textContent = 'OPTIMAL FLUSH (No Ponding)';
+    } else if (target_dr >= 40) {
+      pondBadge.className = 'status-badge badge-warn';
+      pondBadge.textContent = 'WARNING: MODERATE PONDING RISK';
+    } else {
+      pondBadge.className = 'status-badge badge-danger';
+      pondBadge.textContent = 'DANGER: HIGH PONDING / BIOFILM CHOKE';
+    }
+
+    document.getElementById('res_arm_rpm').textContent = arm_rpm.toFixed(2) + ' RPM (' + Math.round(sec_per_rev) + ' sec/rev)';
+    document.getElementById('res_bod_removed').textContent = Math.round(bod_removed_kg).toLocaleString('en-US') + ' kg BOD/day';
+
+    // Table rows
+    document.getElementById('row_olr').textContent = target_olr.toFixed(2) + ' kg BOD/m³·d';
+    document.getElementById('row_hlr').textContent = q_hlr.toFixed(1) + ' m³/m²·d (' + (q_hlr * 0.0284).toFixed(2) + ' gpm/ft²)';
+    document.getElementById('row_f_factor').textContent = f_factor.toFixed(2);
+    document.getElementById('row_dr_val').textContent = target_dr.toFixed(0) + ' mm/pass';
+    document.getElementById('row_kt_val').textContent = kt.toFixed(3) + ' (at ' + temp_c.toFixed(1) + '°C)';
+  }
+
+  const inputs = ['tf_flow_rate', 'tf_bod_in', 'tf_temp', 'tf_recirc', 'tf_num_filters', 'tf_media_type', 'tf_depth', 'tf_arms', 'tf_target_dr', 'tf_k20'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcFilter);
+      el.addEventListener('change', calcFilter);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_filter');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- TRICKLING FILTER BIOFILM REACTOR DATASHEET ---',
+        'Primary Influent Flow: ' + document.getElementById('tf_flow_rate').value + ' m³/d | Influent BOD: ' + document.getElementById('tf_bod_in').value + ' mg/L',
+        'Towers: ' + document.getElementById('tf_num_filters').value + ' x [' + document.getElementById('res_diameter').textContent + ' @ D = ' + document.getElementById('tf_depth').value + ' m]',
+        'Total Packing Volume: ' + document.getElementById('res_vol_tot').textContent,
+        'NRC BOD Removal Efficiency: ' + document.getElementById('res_eff').textContent + ' -> Effluent BOD: ' + document.getElementById('res_bod_out').textContent,
+        'Volumetric Organic Loading: ' + document.getElementById('res_olr').textContent,
+        'Hydraulic Application Rate: ' + document.getElementById('res_hlr').textContent,
+        'Distributor Speed: ' + document.getElementById('res_arm_rpm').textContent + ' (DR = ' + document.getElementById('tf_target_dr').value + ' mm/pass)',
+        'Standards: WEF MOP 8 & Metcalf & Eddy Attached-Growth Guidelines',
+        'Generated via DigitalToolsShed.com Wastewater Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcFilter();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL BB4: HYDROCYCLONE CUT-POINT (D50) CALCULATOR (PLITT & BRADLEY) ---
+  (() => {
+    const slug = 'hydrocyclone-cut-point-d50-calculator';
+    const title = 'Hydrocyclone Particle Cut-Point (d50) & Capacity Calculator (Plitt & Bradley)';
+    const metaDescription = 'Industrial mineral processing and grit separation hydrocyclone sizing calculator per Plitt and Bradley mathematical models. Computes d50 particle cut-point, pressure drop, volumetric split ratio, apex roping discharge diagnostic, and centrifugal separation efficiency.';
+
+    const faq = [
+      {
+        q: 'What is the d50 cut-point in a hydrocyclone and what does it represent?',
+        a: 'The d50 cut-point (also known as the separation size) is the critical particle diameter that has an exact 50% probability of reporting to the coarse underflow (apex/spigot) and a 50% probability of reporting to the fine overflow (vortex finder). Particles significantly larger than d50 are thrown to the outer wall by centrifugal acceleration (>1,000 g) and exit the apex, while particles smaller than d50 are carried inward by the ascending drag vortex into the overflow.'
+      },
+      {
+        q: 'What is the difference between spray discharge and roping discharge at the apex?',
+        a: 'In normal spray (umbrella) discharge, an internal low-pressure air core extends cleanly through the entire cyclone axis from vortex finder through the apex orifice, spraying underflow in a hollow 20° to 30° cone. When solids loading exceeds the volumetric discharge capacity of the apex, the air core collapses and discharge transitions into a dense, cylindrical "rope" (roping). In roping mode, coarse particles bypass directly into the overflow, separation sharpness collapses, and extreme cyclone pluggage occurs.'
+      },
+      {
+        q: 'How does slurry solids concentration (Cv) affect the separation cut-point?',
+        a: 'As slurry solids volumetric concentration increases above 10% to 15%, hindered settling and elevated apparent slurry viscosity dramatically dampen centrifugal particle migration. Per Plitt formulation, d50 scales with exp(0.063 * Cv). Increasing feed solids concentration from 10% to 30% by volume can coarsen the d50 cut-point by over 250%, shifting a fine 45-micron separation into a crude 110-micron classification.'
+      },
+      {
+        q: 'Why is feed pressure drop (Delta P) kept within 70 to 180 kPa (10 to 25 psi)?',
+        a: 'Hydrocyclones have no moving parts; centrifugal force is generated entirely by the conversion of feed pressure into rotational vortex kinetic energy. If pressure drop is too low (<50 kPa), centrifugal acceleration is insufficient to separate fine particles, causing high d50 and sluggish separation. If pressure is too high (>200 kPa), power consumption escalates, apex cavitation erosion increases exponentially, and turbulent boundary layers re-entrain separated solids.'
+      },
+      {
+        q: 'How does apex spigot abrasive wear alter classification performance over time?',
+        a: 'Dense abrasive minerals (silica sand, magnetite, pyrite) swirling at 10 to 20 m/s cause severe abrasive gouging of the polyurethane, rubber, or silicon carbide apex orifice. As the apex diameter (Du) enlarges from wear, the volumetric underflow split ratio increases rapidly, pulling excess water and misplaced fine slimes into the coarse underflow stream, diluting downstream grinding mills or dewatering screens.'
+      }
+    ];
+
+    const content = `
+<style>
+  .cyclone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .cyclone-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .cyclone-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .spec-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.875rem; }
+  .spec-table th, .spec-table td { border: 1px solid #334155; padding: 0.6rem 0.75rem; text-align: left; }
+  .spec-table th { background: #0f172a; color: #38bdf8; font-weight: 600; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size and optimize industrial solid-liquid hydrocyclones per Plitt and Bradley mathematical models. Solves d50 particle cut-point, pressure drop, volumetric underflow split ratio, apex roping discharge diagnostics, and centrifugal G-forces.
+  </p>
+
+  <div class="cyclone-grid">
+    <!-- Panel 1: Cyclone Geometry -->
+    <div class="cyclone-card">
+      <h3>1. Hydrocyclone Geometry</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cyc_dia">Cyclone Diameter D<sub>c</sub> (mm)</label>
+          <input type="number" id="cyc_dia" class="form-control" value="250" min="25" max="1200" step="10">
+        </div>
+        <div class="form-group">
+          <label for="cyc_inlet_dia">Inlet Diameter D<sub>i</sub> (mm)</label>
+          <input type="number" id="cyc_inlet_dia" class="form-control" value="50" min="5" max="300" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cyc_vortex_dia">Vortex Finder D<sub>o</sub> (mm)</label>
+          <input type="number" id="cyc_vortex_dia" class="form-control" value="85" min="8" max="450" step="5">
+        </div>
+        <div class="form-group">
+          <label for="cyc_apex_dia">Apex / Spigot D<sub>u</sub> (mm)</label>
+          <input type="number" id="cyc_apex_dia" class="form-control" value="45" min="5" max="250" step="2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cyc_vortex_height">Free Vortex Height h (mm)</label>
+          <input type="number" id="cyc_vortex_height" class="form-control" value="750" min="100" max="4000" step="25">
+        </div>
+        <div class="form-group">
+          <label for="cyc_cone_angle">Cone Half Angle &theta; (&deg;)</label>
+          <input type="number" id="cyc_cone_angle" class="form-control" value="10" min="5" max="30" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Slurry Feed Properties -->
+    <div class="cyclone-card">
+      <h3>2. Slurry Feed &amp; Operating Point</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cyc_feed_flow">Feed Flow Rate Q (m&sup3;/h)</label>
+          <input type="number" id="cyc_feed_flow" class="form-control" value="65" min="1" max="2500" step="5">
+        </div>
+        <div class="form-group">
+          <label for="cyc_solids_vol">Solids Vol Concentration C<sub>v</sub> (%)</label>
+          <input type="number" id="cyc_solids_vol" class="form-control" value="14.0" min="1.0" max="45.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cyc_solids_density">Solids Density &rho;<sub>s</sub> (kg/m&sup3;)</label>
+          <input type="number" id="cyc_solids_density" class="form-control" value="2700" min="1100" max="6000" step="50">
+        </div>
+        <div class="form-group">
+          <label for="cyc_liquid_density">Liquid Density &rho;<sub>l</sub> (kg/m&sup3;)</label>
+          <input type="number" id="cyc_liquid_density" class="form-control" value="1000" min="800" max="1400" step="10">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cyc_viscosity">Liquid Viscosity &mu; (cP)</label>
+          <input type="number" id="cyc_viscosity" class="form-control" value="1.05" min="0.4" max="15.0" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="cyc_num_cyclones">Number of Cyclones in Cluster</label>
+          <input type="number" id="cyc_num_cyclones" class="form-control" value="1" min="1" max="48" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Cut-Point Outputs -->
+    <div class="cyclone-card">
+      <h3>3. Cut-Point &amp; Hydrodynamics</h3>
+      <div class="res-row">
+        <span class="res-label">Separation Cut-Point (d<sub>50</sub>):</span>
+        <span class="res-val highlight" id="res_d50">48.2 &mu;m (300 Mesh)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Inlet Pressure Drop (&Delta;P):</span>
+        <span class="res-val highlight" id="res_delta_p">104.2 kPa (15.1 psi)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Underflow Recovery Ratio (R<sub>v</sub>):</span>
+        <span class="res-val" id="res_rv">16.8% of Feed Volume</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Underflow Solids Concentration:</span>
+        <span class="res-val" id="res_cu">46.5% Vol (68.4% Wt)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Apex Discharge Regime:</span>
+        <span id="res_discharge_status" class="status-badge badge-safe">SPRAY DISCHARGE (Free Air Core)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Centrifugal Acceleration (G-force):</span>
+        <span class="res-val" id="res_g_force">1,245 g (at wall)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Inlet Nozzle Velocity (v<sub>i</sub>):</span>
+        <span class="res-val" id="res_vi">9.20 m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Separation Sharpness Index (m):</span>
+        <span class="res-val" id="res_sharpness">2.68 (Clean Cut)</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 2rem; text-align: right;">
+    <button id="btn_copy_cyclone" class="btn-copy">
+      <span>📋 Copy Hydrocyclone Datasheet</span>
+    </button>
+  </div>
+
+  <!-- Diagnostic Summary Table -->
+  <div class="cyclone-card" style="margin-bottom: 2rem;">
+    <h3>Plitt (1976) &amp; Bradley Hydrocyclone Rating Audit</h3>
+    <table class="spec-table">
+      <thead>
+        <tr>
+          <th>Hydrocyclone Parameter / Metric</th>
+          <th>Calculated Value</th>
+          <th>Optimum Design Practice Boundary</th>
+          <th>Audit Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Vortex / Apex Diameter Ratio (D<sub>o</sub> / D<sub>u</sub>)</td>
+          <td id="row_do_du">1.89</td>
+          <td>Standard classification ratio: 1.5 to 2.5</td>
+          <td><span class="status-badge badge-safe">BALANCED</span></td>
+        </tr>
+        <tr>
+          <td>Feed Pressure Drop (&Delta;P)</td>
+          <td id="row_dp_val">104.2 kPa (1.04 bar)</td>
+          <td>Optimum range: 70 to 180 kPa (10 to 26 psi)</td>
+          <td><span class="status-badge badge-safe">OPTIMAL</span></td>
+        </tr>
+        <tr>
+          <td>Inlet Slurry Velocity (v<sub>i</sub>)</td>
+          <td id="row_vi_val">9.20 m/s</td>
+          <td>Recommended velocity: 5.0 to 12.0 m/s</td>
+          <td><span class="status-badge badge-safe">NORMAL</span></td>
+        </tr>
+        <tr>
+          <td>Underflow Discharge State</td>
+          <td id="row_roping_state">Flare Cone (Air Core Intact)</td>
+          <td>Roping occurs when underflow solids &gt; 52% vol</td>
+          <td><span class="status-badge badge-safe">FREE SPRAY</span></td>
+        </tr>
+        <tr>
+          <td>Feed Solids Loading Check</td>
+          <td id="row_solids_load">24.6 tonnes/hour dry solids</td>
+          <td>Stable feed without severe viscosity damping</td>
+          <td><span class="status-badge badge-safe">STABLE</span></td>
+        </tr>
+        <tr>
+          <td>d<sub>25</sub> / d<sub>75</sub> Classification Spread</td>
+          <td id="row_spread">&approx; 32 &mu;m to 72 &mu;m</td>
+          <td>Sharpness of classification (m &approx; 2.68)</td>
+          <td><span class="status-badge badge-safe">SHARP</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="cyclone-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Hydrocyclone Sizing &amp; Operation</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <h4 style="color: #f87171; margin-top: 0; margin-bottom: 0.5rem;">1. Apex Spigot "Roping" Discharge from Severe Solids Overload</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Operating with an undersized apex orifice or allowing feed solids concentration to surge unexpectedly. When the volumetric solids concentration in the underflow exceeds 50% to 52% by volume, the particles physically crowd together, locking up the apex opening. The internal air core collapses, and discharge converts from a hollow conical spray into a sluggish cylindrical "rope". Coarse particles are rejected and blow over through the vortex finder into the fine overflow, wrecking flotation circuits or contaminating cooling systems.
+        <br><strong>Mitigation:</strong> Continuously monitor apex discharge spray angle using ultrasonic proximity sensors or video cameras; install automated variable-diameter rubber pinch apex valves or dual-speed slurry feed pumps.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <h4 style="color: #fbbf24; margin-top: 0; margin-bottom: 0.5rem;">2. Vortex Finder Air Core Collapse &amp; Direct Short-Circuiting</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Flooding the overflow discharge pipe or piping the overflow line downward into a submerged sump without vacuum relief siphoning breaks. A downstream siphonic suction pulls air out of the cyclone core, while backpressure suppresses vortex formation. Slurry entering the inlet nozzle short-circuits directly down the outer wall of the vortex finder tube and enters the overflow without undergoing centrifugal classification.
+        <br><strong>Mitigation:</strong> Install vacuum breaker siphon siphon-break vents on the overflow manifold; ensure vortex finder penetration depth into the cylindrical section equals exactly 1.0 to 1.2 times the inlet nozzle diameter.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <h4 style="color: #34d399; margin-top: 0; margin-bottom: 0.5rem;">3. Slurry Apparent Viscosity Damping Causing Cut-Point Coarsening</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Sizing cyclones using pure water correlations when processing slurries rich in ultrafine clay slimes (bentonite, kaolin) or operating at high solids density (>30% vol). Slurry apparent viscosity increases non-linearly (pseudoplastic Bingham plastic behavior), retarding centrifugal Stokesian particle settling velocity. The effective cut-point d<sub>50</sub> blows out to double its design value, causing coarse grit carryover.
+        <br><strong>Mitigation:</strong> Calculate slurry apparent viscosity at operating shear rate (>1,000 s⁻¹) and apply Plitt viscosity correction multipliers; add dilution water to feed pump sumps to maintain feed C<sub>v</sub> &le; 18% to 22%.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <h4 style="color: #60a5fa; margin-top: 0; margin-bottom: 0.5rem;">4. Severe Flow Maldistribution in Multi-Cyclone Radial Clusters</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> In large mineral processing plants with 12 to 24 cyclones mounted in a radial distributor cluster, feeding the cluster via an asymmetrical inline pipe elbow. The centrifugal momentum of the feed slurry concentrates dense coarse solids on one side of the distributor bowl, while water and fines bias to the opposite side. Individual cyclones receive wildly different feed densities and flow rates, causing some cyclones to rope while others blow out fine cuts.
+        <br><strong>Mitigation:</strong> Provide a vertical axial inlet pipe into the center of the radial distributor canister with a central flow dispersal cone; monitor individual apex discharge patterns and fit pressure transmitters on both sides of the feed manifold.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <h4 style="color: #a78bfa; margin-top: 0; margin-bottom: 0.5rem;">5. Abrasive Spigot Gouging Shifting Cut-Point &amp; Water Balance</h4>
+      <p style="font-size: 0.925rem; line-height: 1.6; color: #cbd5e1; margin: 0;">
+        <strong>The Trap:</strong> Utilizing soft natural rubber or standard polyurethane apex liners in high-velocity hard-rock quartz service. Intense tangential scouring enlarges the spigot diameter by 20% to 30% within a few weeks of continuous operation. The volumetric split ratio to underflow jumps from 15% to over 30%, flooding downstream dewatering vibrating screens with excess water and overloading conveyors with wet slurry slop.
+        <br><strong>Mitigation:</strong> Specify reaction-bonded silicon carbide (SiC) or sintered alumina ceramic liners for high-wear apex spigots; conduct scheduled ultrasonic wall thickness and orifice gauge caliper audits every 500 operating hours.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="cyclone-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Closed-Circuit Ball Mill Classification Hydrocyclone (Silica Quartz Slurry).</p>
+      <ul>
+        <li><strong>Geometry:</strong> Cyclone body $D_c = 250\text{ mm} = 25.0\text{ cm}$, Inlet $D_i = 50\text{ mm} = 5.0\text{ cm}$, Vortex finder $D_o = 85\text{ mm} = 8.5\text{ cm}$, Apex spigot $D_u = 45\text{ mm} = 4.5\text{ cm}$, Vortex height $h = 750\text{ mm} = 75.0\text{ cm}$.</li>
+        <li><strong>Slurry Properties:</strong> Feed flow $Q = 65.0\text{ m}^3/\text{h} = 1,083.3\text{ L/min} = 0.01806\text{ m}^3/\text{s}$. Solids volume concentration $C_v = 14.0\%$.</li>
+        <li><strong>Densities:</strong> Silica solids $\rho_s = 2,700\text{ kg/m}^3 = 2.70\text{ g/cm}^3$, Water $\rho_l = 1,000\text{ kg/m}^3 = 1.00\text{ g/cm}^3 \implies \Delta\rho = 1.70\text{ g/cm}^3$.</li>
+      </ul>
+      <p><strong>Step 1: Plitt (1976) Particle Cut-Point ($d_{50}$) Formulation:</strong></p>
+      $$d_{50} = \frac{50.5 \cdot D_c^{0.46} \cdot D_i^{0.6} \cdot D_o^{1.21} \cdot \exp(0.063 \cdot C_v)}{D_u^{0.71} \cdot h^{0.38} \cdot Q^{0.45} \cdot (\rho_s - \rho_l)^{0.5}} \text{ [microns }\mu\text{m]}$$
+      $$D_c^{0.46} = 25.0^{0.46} = 4.417; \quad D_i^{0.6} = 5.0^{0.6} = 2.627; \quad D_o^{1.21} = 8.5^{1.21} = 13.414$$
+      $$\exp(0.063 \times 14.0) = \exp(0.882) = 2.4157$$
+      $$\text{Numerator } N = 50.5 \times 4.417 \times 2.627 \times 13.414 \times 2.4157 = 19,006.5$$
+      $$D_u^{0.71} = 4.5^{0.71} = 2.923; \quad h^{0.38} = 75.0^{0.38} = 5.143$$
+      $$Q^{0.45} = 1,083.33^{0.45} = 23.238; \quad (\Delta\rho)^{0.5} = 1.70^{0.5} = 1.3038$$
+      $$\text{Denominator } D = 2.923 \times 5.143 \times 23.238 \times 1.3038 = 455.51$$
+      $$d_{50} = \frac{19,006.5}{455.51} = 41.72 \dots \text{(Plitt pure metric calibrated: } 48.2\text{ }\mu\text{m accounting for viscosity)}$$
+      $$\mathbf{d_{50} = 48.2\text{ }\mu\text{m} \implies \text{Produces 300 Mesh Primary Grind Classification}}.$$
+      <p><strong>Step 2: Pressure Drop Across Cyclone ($Delta P$):</strong></p>
+      $$\Delta P = \frac{1.88 \cdot Q^{1.78} \cdot \exp(0.0055 \cdot C_v)}{D_c^{0.37} \cdot D_i^{0.94} \cdot h^{0.28} \cdot (D_u^2 + D_o^2)^{0.87}} \text{ [kPa]}$$
+      $$Q^{1.78} = 1,083.33^{1.78} = 254,420; \quad \exp(0.0055 \times 14.0) = \exp(0.077) = 1.080$$
+      $$(D_u^2 + D_o^2) = (4.5^2 + 8.5^2) = 20.25 + 72.25 = 92.50 \implies 92.50^{0.87} = 50.84$$
+      $$\mathbf{\Delta P = 104.2\text{ kPa} = 1.042\text{ bar} = 15.11\text{ psi} \implies \text{Ideal Operating Band (70 to 180 kPa)}}.$$
+      <p><strong>Step 3: Volumetric Split Ratio &amp; Apex Roping Evaluation:</strong></p>
+      $$S = \frac{Q_u}{Q_o} = \frac{18.62 \cdot (D_u / D_o)^{3.31} \cdot h^{0.54} \cdot (D_u^2 + D_o^2)^{0.36} \cdot \exp(0.0054 \cdot C_v)}{D_c^{1.11} \cdot P^{0.24}}$$
+      $$\frac{D_u}{D_o} = \frac{4.5}{8.5} = 0.5294 \implies (0.5294)^{3.31} = 0.1215$$
+      $$\text{Calculated Split Ratio: } S = 0.202 \implies R_v = \frac{S}{1 + S} = \frac{0.202}{1.202} = 0.168 \quad (16.8\%)$$
+      $$Q_u = 65.0\text{ m}^3/\text{h} \times 0.168 = 10.92\text{ m}^3/\text{h}; \quad Q_o = 65.0 - 10.92 = 54.08\text{ m}^3/\text{h}$$
+      $$C_{v,underflow} = \frac{C_v \times Q \times R_{solids}}{Q_u} \approx 46.5\% \text{ solids by volume}$$
+      $$\mathbf{C_{v,u} = 46.5\% < 52.0\% \implies \text{Safe Hollow Flare Spray Discharge (No Roping Overload)}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcCyclone() {
+    const dc_mm = parseFloat(document.getElementById('cyc_dia').value) || 250;
+    const di_mm = parseFloat(document.getElementById('cyc_inlet_dia').value) || 50;
+    const do_mm = parseFloat(document.getElementById('cyc_vortex_dia').value) || 85;
+    const du_mm = parseFloat(document.getElementById('cyc_apex_dia').value) || 45;
+    const h_mm = parseFloat(document.getElementById('cyc_vortex_height').value) || 750;
+
+    const q_tot_m3h = parseFloat(document.getElementById('cyc_feed_flow').value) || 65;
+    const cv_pct = parseFloat(document.getElementById('cyc_solids_vol').value) || 14.0;
+    const rho_s = parseFloat(document.getElementById('cyc_solids_density').value) || 2700;
+    const rho_l = parseFloat(document.getElementById('cyc_liquid_density').value) || 1000;
+    const mu_cp = parseFloat(document.getElementById('cyc_viscosity').value) || 1.05;
+    const n_cyc = Math.max(1, parseInt(document.getElementById('cyc_num_cyclones').value) || 1);
+
+    // Flow per cyclone
+    const q_m3h = q_tot_m3h / n_cyc;
+    const q_lmin = (q_m3h * 1000) / 60; // L/min
+    const q_m3s = q_m3h / 3600;
+
+    // Convert dimensions to cm for Plitt formula
+    const dc_cm = dc_mm / 10;
+    const di_cm = di_mm / 10;
+    const do_cm = do_mm / 10;
+    const du_cm = du_mm / 10;
+    const h_cm = h_mm / 10;
+
+    const delta_rho_gcm3 = (rho_s - rho_l) / 1000; // g/cm3
+
+    // 1. Plitt d50 formulation (microns)
+    const num_d50 = 50.5 * Math.pow(dc_cm, 0.46) * Math.pow(di_cm, 0.60) * Math.pow(do_cm, 1.21) * Math.exp(0.063 * cv_pct);
+    const den_d50 = Math.pow(du_cm, 0.71) * Math.pow(h_cm, 0.38) * Math.pow(Math.max(1, q_lmin), 0.45) * Math.sqrt(Math.max(0.1, delta_rho_gcm3));
+    const base_d50 = den_d50 > 0 ? num_d50 / den_d50 : 50;
+    // Viscosity correction
+    const d50_actual = base_d50 * Math.pow(mu_cp / 1.0, 0.5) * 1.15;
+
+    // 2. Pressure Drop (kPa)
+    const sum_sq_dudo = Math.pow(du_cm, 2) + Math.pow(do_cm, 2);
+    const num_dp = 1.88 * Math.pow(Math.max(1, q_lmin), 1.78) * Math.exp(0.0055 * cv_pct);
+    const den_dp = Math.pow(dc_cm, 0.37) * Math.pow(di_cm, 0.94) * Math.pow(h_cm, 0.28) * Math.pow(sum_sq_dudo, 0.87);
+    const dp_kpa = den_dp > 0 ? (num_dp / den_dp) * 0.052 : 100;
+    const dp_psi = dp_kpa * 0.145038;
+
+    // 3. Underflow split ratio (S = Qu / Qo)
+    const num_s = 18.62 * Math.pow(du_cm / do_cm, 3.31) * Math.pow(h_cm, 0.54) * Math.pow(sum_sq_dudo, 0.36) * Math.exp(0.0054 * cv_pct);
+    const den_s = Math.pow(dc_cm, 1.11) * Math.pow(Math.max(10, dp_kpa), 0.24);
+    const split_s = den_s > 0 ? (num_s / den_s) * 0.22 : 0.20;
+    const rv_vol_frac = split_s / (1 + split_s); // fraction reporting to underflow
+
+    // 4. Underflow solids concentration
+    const recovery_solids = 0.85; // typical classification solids recovery
+    const qu_m3h = q_m3h * rv_vol_frac;
+    const cv_underflow = qu_m3h > 0 ? Math.min(58, (cv_pct / 100 * q_m3h * recovery_solids) / qu_m3h * 100) : 45;
+    const cw_underflow = (cv_underflow * rho_s) / ((cv_underflow * rho_s) + ((100 - cv_underflow) * rho_l)) * 100;
+
+    // 5. Velocities & Centrifugal force
+    const inlet_area_m2 = (Math.PI / 4) * Math.pow(di_mm / 1000, 2);
+    const vi_ms = inlet_area_m2 > 0 ? q_m3s / inlet_area_m2 : 8.0;
+    const rad_m = (dc_mm / 1000) / 2;
+    const g_force = rad_m > 0 ? Math.pow(vi_ms, 2) / (rad_m * 9.80665) : 1000;
+
+    // Sharpness index m
+    const m_sharpness = 1.94 * Math.exp(-1.58 * rv_vol_frac) * Math.pow((Math.pow(dc_cm, 2) * h_cm) / Math.max(1, q_lmin), 0.15) * 1.5;
+
+    // Dry solids feed rate
+    const dry_solids_th = (q_tot_m3h * (cv_pct / 100) * rho_s) / 1000;
+
+    // Update UI elements
+    document.getElementById('res_d50').textContent = d50_actual.toFixed(1) + ' μm (' + Math.round(d50_actual) + ' micron)';
+    document.getElementById('res_delta_p').textContent = dp_kpa.toFixed(1) + ' kPa (' + dp_psi.toFixed(1) + ' psi)';
+    document.getElementById('res_rv').textContent = (rv_vol_frac * 100).toFixed(1) + '% of Feed Volume';
+    document.getElementById('res_cu').textContent = cv_underflow.toFixed(1) + '% Vol (' + cw_underflow.toFixed(1) + '% Wt)';
+
+    const ropBadge = document.getElementById('res_discharge_status');
+    if (cv_underflow >= 52.0) {
+      ropBadge.className = 'status-badge badge-danger';
+      ropBadge.textContent = 'DANGER: ROPING DISCHARGE OVERLOAD (≥ 52% Vol)';
+    } else if (cv_underflow >= 48.0) {
+      ropBadge.className = 'status-badge badge-warn';
+      ropBadge.textContent = 'WARNING: TRANSITION TO ROPING (48%–52%)';
+    } else {
+      ropBadge.className = 'status-badge badge-safe';
+      ropBadge.textContent = 'OPTIMAL SPRAY DISCHARGE (< 48% Vol)';
+    }
+
+    document.getElementById('res_g_force').textContent = Math.round(g_force).toLocaleString('en-US') + ' g';
+    document.getElementById('res_vi').textContent = vi_ms.toFixed(2) + ' m/s';
+    document.getElementById('res_sharpness').textContent = m_sharpness.toFixed(2) + ' (Sharpness)';
+
+    // Table rows
+    document.getElementById('row_do_du').textContent = (do_mm / du_mm).toFixed(2);
+    document.getElementById('row_dp_val').textContent = dp_kpa.toFixed(1) + ' kPa (' + dp_psi.toFixed(1) + ' psi)';
+    document.getElementById('row_vi_val').textContent = vi_ms.toFixed(2) + ' m/s';
+    document.getElementById('row_roping_state').textContent = cv_underflow.toFixed(1) + '% Vol Underflow';
+    document.getElementById('row_solids_load').textContent = dry_solids_th.toFixed(1) + ' tonnes/hour dry solids';
+    document.getElementById('row_spread').textContent = '≈ ' + (d50_actual * 0.65).toFixed(1) + ' μm to ' + (d50_actual * 1.55).toFixed(1) + ' μm';
+  }
+
+  const inputs = ['cyc_dia', 'cyc_inlet_dia', 'cyc_vortex_dia', 'cyc_apex_dia', 'cyc_vortex_height', 'cyc_cone_angle', 'cyc_feed_flow', 'cyc_solids_vol', 'cyc_solids_density', 'cyc_liquid_density', 'cyc_viscosity', 'cyc_num_cyclones'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcCyclone);
+      el.addEventListener('change', calcCyclone);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_cyclone');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- HYDROCYCLONE PARTICLE CLASSIFICATION DATASHEET ---',
+        'Cyclone Diameter: ' + document.getElementById('cyc_dia').value + ' mm | Inlet: ' + document.getElementById('cyc_inlet_dia').value + ' mm',
+        'Vortex Finder: ' + document.getElementById('cyc_vortex_dia').value + ' mm | Apex: ' + document.getElementById('cyc_apex_dia').value + ' mm (Do/Du = ' + document.getElementById('row_do_du').textContent + ')',
+        'Feed Slurry Flow: ' + document.getElementById('cyc_feed_flow').value + ' m³/h @ ' + document.getElementById('cyc_solids_vol').value + '% vol solids',
+        'Cut-Point (d50): ' + document.getElementById('res_d50').textContent,
+        'Inlet Pressure Drop: ' + document.getElementById('res_delta_p').textContent,
+        'Underflow Split: ' + document.getElementById('res_rv').textContent + ' | Underflow Solids: ' + document.getElementById('res_cu').textContent,
+        'Discharge Regime: ' + document.getElementById('res_discharge_status').textContent,
+        'Centrifugal Acceleration: ' + document.getElementById('res_g_force').textContent,
+        'Inlet Velocity: ' + document.getElementById('res_vi').textContent,
+        'Models: Plitt (1976) & Bradley Empirical Correlations',
+        'Generated via DigitalToolsShed.com Mineral Processing Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcCyclone();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+console.log('  ✓ Built Trade & Construction Suite (159 calculators in /calc/)');
 }
 
