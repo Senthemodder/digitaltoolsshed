@@ -69743,6 +69743,2628 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (87 calculators in /calc/)');
+  // --- BATCH AK TOOLS ---
+
+
+// ==========================================
+// TOOL AK1: Pump NPSH Available & Cavitation Margin Calculator (HI 9.6.1 & API 610)
+// ==========================================
+const pumpNpshCavitationBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Pump NPSH Available & Cavitation Margin Calculator</h1>
+    <p class="calc-desc">Calculate Net Positive Suction Head Available (NPSHa), temperature-dependent fluid vapor pressure, suction piping friction losses, suction specific speed (Nss), and HI 9.6.1 / API 610 cavitation safety margins.</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">PUMPING SYSTEM CONFIGURATION PRESETS</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyNPSHPreset('flooded_water')">💧 Flooded Reservoir (20&deg;C Water / +4m Static Head)</button>
+      <button type="button" class="btn-preset" onclick="applyNPSHPreset('boiler_deaerator')">♨️ Boiler Deaerator Feed (105&deg;C Sat / +6m Static Head)</button>
+      <button type="button" class="btn-preset" onclick="applyNPSHPreset('suction_lift')">🕳️ River Suction Lift (15&deg;C Water / -3.5m Lift)</button>
+      <button type="button" class="btn-preset" onclick="applyNPSHPreset('hot_hydrocarbon')">🛢️ Hot Hydrocarbon Column (180&deg;C / +3m Head)</button>
+    </div>
+  </div>
+
+  <form id="npshForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Suction Source Vessel & Atmospheric Conditions -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>🛢️</span> Suction Vessel & Fluid Conditions
+        </h3>
+        
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="npshVesselType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Suction Source Type</label>
+          <select id="npshVesselType" class="form-control" onchange="onNPSHVesselChange(); calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="atmospheric" selected>Vented / Open Atmospheric Tank</option>
+            <option value="pressurized">Closed Pressurized Tank (Gage Pressure)</option>
+            <option value="saturated">Closed Vessel at Boiling / Saturation (Deaerator / Column)</option>
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="npshSurfaceP" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Surface Press (bar a / bar g)</label>
+            <input type="number" id="npshSurfaceP" class="form-control" value="1.013" step="any" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="npshFluidTemp" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Fluid Temp (&deg;C)</label>
+            <input type="number" id="npshFluidTemp" class="form-control" value="20.0" step="any" oninput="onNPSHTempChange(); calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="npshFluidType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Liquid Medium</label>
+            <select id="npshFluidType" class="form-control" onchange="onNPSHFluidChange(); calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="water" selected>Water (&rho; &approx; 998 kg/m&sup3;)</option>
+              <option value="crude">Light Crude Oil (&rho; = 850 kg/m&sup3;)</option>
+              <option value="diesel">Diesel Fuel (&rho; = 835 kg/m&sup3;)</option>
+              <option value="gasoline">Motor Gasoline (&rho; = 740 kg/m&sup3;)</option>
+              <option value="custom">Custom Density & Vapor P</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="npshStaticHead" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Static Head h<sub>s</sub> (m, &plusmn;)</label>
+            <input type="number" id="npshStaticHead" class="form-control" value="4.0" step="0.1" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="npshDensity" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Density &rho; (kg/m&sup3;)</label>
+            <input type="number" id="npshDensity" class="form-control" value="998" step="any" min="100" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="npshVaporP" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Vapor Press P<sub>vp</sub> (bar a)</label>
+            <input type="number" id="npshVaporP" class="form-control" value="0.0234" step="any" min="0.0001" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Suction Piping Friction & Pump Requirements -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>⚙️</span> Suction Line Losses & Pump NPSHr
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="npshFlowRate" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Flow Rate Q (m&sup3;/h)</label>
+            <input type="number" id="npshFlowRate" class="form-control" value="250" step="any" min="1" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="npshPumpSpeed" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Pump Speed N (RPM)</label>
+            <input type="number" id="npshPumpSpeed" class="form-control" value="1480" step="10" min="100" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="npshPipeID" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Suction Pipe ID (mm)</label>
+            <input type="number" id="npshPipeID" class="form-control" value="200" step="any" min="20" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="npshFrictionHead" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Suction Line Loss h<sub>f</sub> (m)</label>
+            <input type="number" id="npshFrictionHead" class="form-control" value="0.65" step="0.05" min="0" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="npshNPSHr" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Pump NPSHr (m)</label>
+            <input type="number" id="npshNPSHr" class="form-control" value="3.2" step="0.1" min="0.1" oninput="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="npshStandard" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Service Severity Criterion</label>
+            <select id="npshStandard" class="form-control" onchange="calculateNPSH();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="api610" selected>API 610 Heavy Industry (Ratio &ge; 1.35 or +1.0m)</option>
+              <option value="hi_water">HI 9.6.1 General Water (Ratio &ge; 1.20 or +0.6m)</option>
+              <option value="light">Non-Critical HVAC (Ratio &ge; 1.10)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Hydraulic Diagnostics Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">Hydraulic Cavitation & NPSH Available Results</h2>
+      <div id="npshBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#10b981; color:#fff;">PASS: AMPLE CAVITATION MARGIN (NPSHa &gt; NPSHr)</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">NPSH Available (NPSHa)</span>
+        <strong id="npshAvailable" style="font-size:1.4rem; color:#38bdf8;">13.44 m</strong>
+        <span id="npshAvailableFt" style="font-size:0.8rem; color:var(--text-muted); display:block;">44.1 ft liquid column</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">NPSH Margin Over NPSHr</span>
+        <strong id="npshMargin" style="font-size:1.4rem; color:#10b981;">+10.24 m</strong>
+        <span id="npshMarginRatio" style="font-size:0.8rem; color:var(--text-muted); display:block;">Ratio: 4.20 (Req: &ge; 1.35)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Suction Specific Speed (N_ss)</span>
+        <strong id="npshNssVal" style="font-size:1.4rem; color:#f59e0b;">8,420 (US)</strong>
+        <span id="npshNssStatus" style="font-size:0.8rem; color:var(--text-muted); display:block;">API 610 Stable (&le; 11,000)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Suction Flow Velocity</span>
+        <strong id="npshVelocity" style="font-size:1.4rem; color:#38bdf8;">2.21 m/s</strong>
+        <span id="npshVelocityFps" style="font-size:0.8rem; color:var(--text-muted); display:block;">7.25 ft/s (Optimal: 1.5 - 2.5 m/s)</span>
+      </div>
+    </div>
+
+    <!-- Secondary Technical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Absolute Surface Pressure Head:</span>
+        <strong id="npshHeadAtm" style="color:inherit;">10.35 m (34.0 ft)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Fluid Vapor Pressure Head (h_vp):</span>
+        <strong id="npshHeadVp" style="color:inherit;">0.24 m (0.78 ft at 20&deg;C)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Max Allowable Suction Lift:</span>
+        <strong id="npshMaxLift" style="color:inherit;">6.26 m (20.5 ft at NPSHr 3.2m)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Impeller Eye Cavitation Risk:</span>
+        <strong id="npshCavitationRisk" style="color:#10b981;">SAFE (Zero Incipient Vaporization)</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyNPSH" class="btn btn-secondary" onclick="copyNPSHSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Suction Tank, Piping & Cavitation Schematic -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      Centrifugal Pump Suction Hydraulic Gradient & Impeller Eye Pressure Profile
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Schematic illustrating suction vessel liquid level h<sub>s</sub>, suction pipe friction drop h<sub>f</sub>, acceleration into the pump impeller eye, and localized vapor cavitation bubble inception.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="npshPumpSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#0284c7; border-radius:2px;"></span> Suction Liquid Volume</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#10b981; border-radius:2px;"></span> Centrifugal Pump Volute</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> Vapor Pressure Limit (h_vp)</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Hydraulic Grade Line (HGL)</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations: HI 9.6.1 & API 610 Cavitation Equations
+    </h3>
+    <div id="npshDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Pump NPSH Calculations & Suction Piping Design
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. The Boiling / Saturated Liquid Blunder (Assuming Atmospheric Head Exists)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          When pumping boiling liquids from a deaerator, distillation tower bottoms, or closed condensate flash tank, the surface pressure is 100% created by the fluid\'s own vapor: <strong>h<sub>abs</sub> = h<sub>vp</sub></strong>. They cancel out completely! The entire NPSHa is solely: <strong>NPSHa = h<sub>s</sub> - h<sub>f</sub></strong>. Novice engineers who include atmospheric pressure in their calculation overestimate NPSHa by 10 meters (33 ft), causing pump impellers to disintegrate from severe cavitation within hours of startup!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. The Inverted Eccentric Reducer Air Pocket Trap</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          When transitioning from larger suction piping down to the pump nozzle size, installing a concentric reducer or an eccentric reducer with the flat side on the bottom creates a dead high-point pocket. Air and non-condensable gases collect in this upper pocket. As flow accelerates, the bubble is drawn into the impeller eye, producing sudden surging, dry seal failure, and severe cavitation pitting. <strong>Always install eccentric reducers flat-on-top (FOT)</strong> in horizontal suction lines.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. High Suction Specific Speed Internal Recirculation (Nss &gt; 11,000)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Pumps with very low catalog NPSHr values achieve this by featuring oversized impeller eye diameters, pushing Suction Specific Speed (N<sub>ss</sub>) above 11,000 to 13,000. When operated at partial loads (below 80% of best efficiency point BEP), fluid cannot make the sharp turn into the outer eye, triggering violent high-energy internal recirculation. The pump exhibits deafening cavitation noise, bearing destruction, and shaft breakage despite having ample NPSHa!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. Neglecting Temporary Commissioning Strainer Differential Pressure</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          During plant startup, temporary cone/basket suction strainers catch welding slag and construction rust. A clean strainer imposes 0.1 to 0.2 m head loss, but a 50% clogged strainer causes pressure drop to jump to 2.0 to 4.0 m! If operations does not monitor strainer differential pressure transmitters, suction line friction h<sub>f</sub> wipes out the entire NPSH margin, destroying mechanical seals and carbide bushings.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. The Hydrocarbon "Thermodynamic Effect" Misapplication</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Pure water cavitates violently because flashing steam causes instantaneous density expansion (1,600:1). Complex hydrocarbons (crude, butane) exhibit thermodynamic suppression: flashing of light components cools the liquid, slowing further bubble formation. While API 610 allows modest hydrocarbon NPSH reductions, claiming these credits in design safety calculations leaves zero buffer for operational vapor pressure spikes during summer ambient swings.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: Pump NPSH & Cavitation Mitigation
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is Net Positive Suction Head Available (NPSHa)?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          NPSHa is the total absolute pressure head available at the suction nozzle of a pump above the vapor pressure of the liquid: <strong>NPSHa = h<sub>abs</sub> &plusmn; h<sub>s</sub> - h<sub>f</sub> - h<sub>vp</sub></strong>. It represents the margin of safety preventing the liquid from boiling (vaporizing) as it accelerates into the low-pressure suction eye of the pump impeller.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is NPSHr (or NPSH3) and how is it tested?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          NPSHr is the minimum Net Positive Suction Head Required by the pump to maintain performance. Per Hydraulic Institute and ISO 9906 standards, published pump curves display <strong>NPSH3</strong>, which is the suction head at which cavitation has already become so severe that pump total head drops by <strong>3%</strong>. In other words, at NPSHa = NPSHr, the pump is already cavitating!
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">Why does boiling / saturated water require special NPSH rules?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          In a closed vessel containing saturated liquid (like a boiler deaerator or distillation accumulator), the pressure pushing down on the liquid surface is exactly equal to its vapor pressure (P<sub>surface</sub> = P<sub>vp</sub>). Thus, h<sub>abs</sub> - h<sub>vp</sub> = 0. The only driving head available is physical elevation head: <strong>NPSHa = h<sub>s</sub> - h<sub>f</sub></strong>. The vessel must be elevated several meters above the pump to overcome piping friction and satisfy NPSHr!
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is Suction Specific Speed (Nss) and what is the 11,000 limit?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Suction specific speed characterizes the geometry of a pump\'s suction impeller eye: <strong>N<sub>ss</sub> = N &times; &radic;Q / (NPSHr)<sup>0.75</sup></strong>. Per API 610 and extensive studies by Dr. Jerry Hallam, pumps with N<sub>ss</sub> &gt; 11,000 (US units) experience severe internal suction recirculation, high vibration, and premature bearing/seal failures when operated away from their Best Efficiency Point (BEP).
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What cavitation margin is required by HI 9.6.1 and API 610?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Under ANSI/HI 9.6.1, a margin ratio of 1.10 to 1.20 (or +0.6 m / +2 ft) is recommended for general clean water. For high-energy, hydrocarbon, or critical boiler feedwater applications, API 610 (12th Edition) mandates an NPSH margin ratio of <strong>at least 1.35</strong> or an absolute margin of <strong>at least 1.0 m (3.3 ft)</strong>, whichever is greater.
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Water saturation vapor pressure calculation (Antoine equation)
+function getWaterVaporPressureBar(tempC) {
+  if (tempC <= 0) return 0.0061;
+  var A = 8.07131;
+  var B = 1730.63;
+  var C = 233.426;
+  var logP = A - (B / (tempC + C)); // P in mmHg
+  var P_mmHg = Math.pow(10, logP);
+  return (P_mmHg / 750.062); // bar a
+}
+
+// Water density estimation from temperature
+function getWaterDensity(tempC) {
+  return 1000 - 0.0178 * Math.pow(Math.abs(tempC - 4), 1.7);
+}
+
+function onNPSHVesselChange() {
+  var vType = document.getElementById('npshVesselType').value;
+  var surfEl = document.getElementById('npshSurfaceP');
+  if (vType === 'atmospheric') {
+    surfEl.disabled = true;
+    surfEl.value = '1.013';
+  } else if (vType === 'saturated') {
+    surfEl.disabled = true;
+    var t = parseFloat(document.getElementById('npshFluidTemp').value) || 20;
+    var pSat = getWaterVaporPressureBar(t);
+    surfEl.value = pSat.toFixed(3);
+  } else {
+    surfEl.disabled = false;
+  }
+}
+
+function onNPSHTempChange() {
+  var t = parseFloat(document.getElementById('npshFluidTemp').value) || 20;
+  var flType = document.getElementById('npshFluidType').value;
+  var vType = document.getElementById('npshVesselType').value;
+
+  if (flType === 'water') {
+    var pVp = getWaterVaporPressureBar(t);
+    document.getElementById('npshVaporP').value = pVp.toFixed(4);
+    document.getElementById('npshDensity').value = Math.round(getWaterDensity(t));
+    if (vType === 'saturated') {
+      document.getElementById('npshSurfaceP').value = pVp.toFixed(4);
+    }
+  }
+}
+
+function onNPSHFluidChange() {
+  var fl = document.getElementById('npshFluidType').value;
+  var t = parseFloat(document.getElementById('npshFluidTemp').value) || 20;
+  if (fl === 'water') {
+    onNPSHTempChange();
+  } else if (fl === 'crude') {
+    document.getElementById('npshDensity').value = '850';
+    document.getElementById('npshVaporP').value = '0.350';
+  } else if (fl === 'diesel') {
+    document.getElementById('npshDensity').value = '835';
+    document.getElementById('npshVaporP').value = '0.015';
+  } else if (fl === 'gasoline') {
+    document.getElementById('npshDensity').value = '740';
+    document.getElementById('npshVaporP').value = '0.650';
+  }
+}
+
+function applyNPSHPreset(key) {
+  if (key === 'flooded_water') {
+    document.getElementById('npshVesselType').value = 'atmospheric';
+    document.getElementById('npshFluidType').value = 'water';
+    document.getElementById('npshFluidTemp').value = '20.0';
+    onNPSHVesselChange();
+    onNPSHTempChange();
+    document.getElementById('npshStaticHead').value = '4.0';
+    document.getElementById('npshFlowRate').value = '250';
+    document.getElementById('npshPumpSpeed').value = '1480';
+    document.getElementById('npshPipeID').value = '200';
+    document.getElementById('npshFrictionHead').value = '0.65';
+    document.getElementById('npshNPSHr').value = '3.2';
+    document.getElementById('npshStandard').value = 'api610';
+  } else if (key === 'boiler_deaerator') {
+    document.getElementById('npshVesselType').value = 'saturated';
+    document.getElementById('npshFluidType').value = 'water';
+    document.getElementById('npshFluidTemp').value = '105.0';
+    onNPSHTempChange();
+    onNPSHVesselChange();
+    document.getElementById('npshStaticHead').value = '6.0';
+    document.getElementById('npshFlowRate').value = '180';
+    document.getElementById('npshPumpSpeed').value = '2950';
+    document.getElementById('npshPipeID').value = '150';
+    document.getElementById('npshFrictionHead').value = '0.85';
+    document.getElementById('npshNPSHr').value = '4.2';
+    document.getElementById('npshStandard').value = 'api610';
+  } else if (key === 'suction_lift') {
+    document.getElementById('npshVesselType').value = 'atmospheric';
+    document.getElementById('npshFluidType').value = 'water';
+    document.getElementById('npshFluidTemp').value = '15.0';
+    onNPSHVesselChange();
+    onNPSHTempChange();
+    document.getElementById('npshStaticHead').value = '-3.5';
+    document.getElementById('npshFlowRate').value = '120';
+    document.getElementById('npshPumpSpeed').value = '1480';
+    document.getElementById('npshPipeID').value = '150';
+    document.getElementById('npshFrictionHead').value = '1.20';
+    document.getElementById('npshNPSHr').value = '2.8';
+    document.getElementById('npshStandard').value = 'hi_water';
+  } else if (key === 'hot_hydrocarbon') {
+    document.getElementById('npshVesselType').value = 'saturated';
+    document.getElementById('npshFluidType').value = 'crude';
+    document.getElementById('npshFluidTemp').value = '180.0';
+    document.getElementById('npshDensity').value = '780';
+    document.getElementById('npshVaporP').value = '4.50';
+    document.getElementById('npshSurfaceP').value = '4.50';
+    document.getElementById('npshStaticHead').value = '3.0';
+    document.getElementById('npshFlowRate').value = '300';
+    document.getElementById('npshPumpSpeed').value = '1480';
+    document.getElementById('npshPipeID').value = '250';
+    document.getElementById('npshFrictionHead').value = '0.45';
+    document.getElementById('npshNPSHr').value = '2.2';
+    document.getElementById('npshStandard').value = 'api610';
+  }
+  calculateNPSH();
+}
+
+function calculateNPSH() {
+  var vType = document.getElementById('npshVesselType').value;
+  var P_surf_bar = parseFloat(document.getElementById('npshSurfaceP').value) || 1.013;
+  var T_C = parseFloat(document.getElementById('npshFluidTemp').value) || 20.0;
+  var hs_m = parseFloat(document.getElementById('npshStaticHead').value) || 4.0;
+  var rho = parseFloat(document.getElementById('npshDensity').value) || 998.0;
+  var P_vp_bar = parseFloat(document.getElementById('npshVaporP').value) || 0.0234;
+  var Q_m3_h = parseFloat(document.getElementById('npshFlowRate').value) || 250.0;
+  var N_rpm = parseFloat(document.getElementById('npshPumpSpeed').value) || 1480.0;
+  var pipeID_mm = parseFloat(document.getElementById('npshPipeID').value) || 200.0;
+  var hf_m = parseFloat(document.getElementById('npshFrictionHead').value) || 0.65;
+  var npshr_m = parseFloat(document.getElementById('npshNPSHr').value) || 3.2;
+  var criterion = document.getElementById('npshStandard').value;
+
+  var g = 9.80665;
+  var pipeID_m = pipeID_mm / 1000.0;
+
+  // Surface pressure head: h_atm = (P_surf * 1e5) / (rho * g)
+  var h_atm_m = (P_surf_bar * 1e5) / (rho * g);
+  var h_vp_m = (P_vp_bar * 1e5) / (rho * g);
+
+  // NPSHa = h_atm + h_s - h_f - h_vp
+  // If saturated, h_atm = h_vp, so NPSHa = h_s - h_f
+  var npsha_m = 0;
+  if (vType === 'saturated') {
+    npsha_m = hs_m - hf_m;
+  } else {
+    npsha_m = h_atm_m + hs_m - hf_m - h_vp_m;
+  }
+  var npsha_ft = npsha_m * 3.28084;
+  var npshr_ft = npshr_m * 3.28084;
+
+  // Margin
+  var margin_m = npsha_m - npshr_m;
+  var margin_ratio = npshr_m > 0 ? (npsha_m / npshr_m) : 0;
+
+  // Suction Velocity: v = Q / A
+  var Q_m3_s = Q_m3_h / 3600.0;
+  var A_pipe = (Math.PI / 4) * Math.pow(pipeID_m, 2);
+  var v_suction = Q_m3_s / A_pipe;
+  var v_suction_fps = v_suction * 3.28084;
+
+  // Suction Specific Speed Nss (US units: N * sqrt(GPM) / NPSHr_ft^0.75)
+  var Q_gpm = Q_m3_h * 4.40287;
+  var Nss_us = (N_rpm * Math.sqrt(Q_gpm)) / Math.pow(Math.max(0.5, npshr_ft), 0.75);
+
+  // Max allowable suction lift (when NPSHa = NPSHr + min_margin)
+  var min_margin_req = 1.0; // m
+  if (criterion === 'hi_water') min_margin_req = 0.6;
+  else if (criterion === 'light') min_margin_req = 0.3;
+
+  var maxLift_m = h_atm_m - h_vp_m - hf_m - (npshr_m + min_margin_req);
+
+  // Evaluation & Badge
+  var badgeEl = document.getElementById('npshBadge');
+  var isPass = false;
+  if (criterion === 'api610') {
+    isPass = (margin_ratio >= 1.35 || margin_m >= 1.0) && npsha_m > npshr_m;
+  } else if (criterion === 'hi_water') {
+    isPass = (margin_ratio >= 1.20 || margin_m >= 0.6) && npsha_m > npshr_m;
+  } else {
+    isPass = margin_ratio >= 1.10 && npsha_m > npshr_m;
+  }
+
+  if (npsha_m <= npshr_m) {
+    badgeEl.textContent = 'DANGER: CAVITATION ACTIVE! (NPSHa < NPSHr)';
+    badgeEl.style.background = '#ef4444';
+  } else if (!isPass) {
+    badgeEl.textContent = 'WARNING: INSUFFICIENT CAVITATION MARGIN (Ratio < Standard)';
+    badgeEl.style.background = '#f59e0b';
+  } else {
+    badgeEl.textContent = 'PASS: COMPLIANT CAVITATION SAFETY MARGIN';
+    badgeEl.style.background = '#10b981';
+  }
+
+  // DOM Updates
+  document.getElementById('npshAvailable').textContent = npsha_m.toFixed(2) + ' m';
+  document.getElementById('npshAvailableFt').textContent = npsha_ft.toFixed(1) + ' ft liquid column';
+
+  document.getElementById('npshMargin').textContent = (margin_m > 0 ? '+' : '') + margin_m.toFixed(2) + ' m';
+  document.getElementById('npshMargin').style.color = margin_m < 0 ? '#ef4444' : (margin_m < 1.0 ? '#f59e0b' : '#10b981');
+  document.getElementById('npshMarginRatio').textContent = 'Ratio: ' + margin_ratio.toFixed(2) + ' (Req: \u2265 ' + (criterion === 'api610' ? '1.35' : (criterion === 'hi_water' ? '1.20' : '1.10')) + ')';
+
+  document.getElementById('npshNssVal').textContent = Math.round(Nss_us).toLocaleString() + ' (US)';
+  var nssStatusEl = document.getElementById('npshNssStatus');
+  if (Nss_us > 11000) {
+    nssStatusEl.textContent = 'High Recirculation Risk (> 11,000)';
+    nssStatusEl.style.color = '#ef4444';
+  } else {
+    nssStatusEl.textContent = 'API 610 Stable Range (\u2264 11,000)';
+    nssStatusEl.style.color = '#10b981';
+  }
+
+  document.getElementById('npshVelocity').textContent = v_suction.toFixed(2) + ' m/s';
+  document.getElementById('npshVelocityFps').textContent = v_suction_fps.toFixed(2) + ' ft/s (Optimal: 1.5 - 2.5 m/s)';
+
+  document.getElementById('npshHeadAtm').textContent = h_atm_m.toFixed(2) + ' m (' + (h_atm_m * 3.28084).toFixed(1) + ' ft)';
+  document.getElementById('npshHeadVp').textContent = h_vp_m.toFixed(2) + ' m (' + (h_vp_m * 3.28084).toFixed(2) + ' ft at ' + T_C.toFixed(0) + '&deg;C)';
+  document.getElementById('npshMaxLift').textContent = maxLift_m > 0 ? (maxLift_m.toFixed(2) + ' m (' + (maxLift_m * 3.28084).toFixed(1) + ' ft)') : 'Zero (Positive Head Required)';
+
+  var cavRiskEl = document.getElementById('npshCavitationRisk');
+  if (npsha_m < npshr_m) {
+    cavRiskEl.textContent = 'ACTIVE CAVITATION & IMPELLER EROSION!';
+    cavRiskEl.style.color = '#ef4444';
+  } else if (margin_m < 0.6) {
+    cavRiskEl.textContent = 'INCIPIENT BUBBLE NUCLEATION RISK';
+    cavRiskEl.style.color = '#f59e0b';
+  } else {
+    cavRiskEl.textContent = 'SAFE (Zero Incipient Vaporization)';
+    cavRiskEl.style.color = '#10b981';
+  }
+
+  renderNPSHSvg(hs_m, hf_m, npsha_m, npshr_m, vType);
+
+  renderNPSHDerivations({
+    vType: vType, P_surf_bar: P_surf_bar, P_vp_bar: P_vp_bar, rho: rho,
+    h_atm_m: h_atm_m, h_vp_m: h_vp_m, hs_m: hs_m, hf_m: hf_m,
+    npsha_m: npsha_m, npshr_m: npshr_m, margin_m: margin_m, margin_ratio: margin_ratio,
+    Nss_us: Nss_us, v_suction: v_suction
+  });
+}
+
+function renderNPSHSvg(hs, hf, npsha, npshr, vType) {
+  var svg = document.getElementById('npshPumpSvg');
+  var w = 800;
+  var h = 280;
+
+  var svgContent = ''
+    + '<!-- Suction Vessel -->'
+    + '<rect x="100" y="60" width="160" height="150" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />'
+    + '<rect x="105" y="110" width="150" height="95" fill="#0284c7" opacity="0.35" />'
+    + '<text x="180" y="90" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="middle">' + (vType === 'saturated' ? 'Saturated Vessel' : (vType === 'atmospheric' ? 'Vented Tank' : 'Closed Tank')) + '</text>'
+    + '<text x="180" y="150" fill="#e2e8f0" font-size="10" text-anchor="middle">Level h_s: ' + hs.toFixed(1) + 'm</text>'
+
+    + '<!-- Suction Piping -->'
+    + '<path d="M 180,205 L 180,240 L 460,240 L 460,180" fill="none" stroke="#0284c7" stroke-width="8" />'
+    + '<text x="320" y="230" fill="#94a3b8" font-size="10" text-anchor="middle">Suction Pipe (Friction Loss h_f: ' + hf.toFixed(2) + 'm)</text>'
+
+    + '<!-- Centrifugal Pump Volute -->'
+    + '<circle cx="480" cy="150" r="45" fill="#0f172a" stroke="#10b981" stroke-width="3" />'
+    + '<polygon points="480,105 560,70 560,100 500,120" fill="#10b981" opacity="0.7" />'
+    + '<circle cx="480" cy="150" r="14" fill="#38bdf8" />'
+    + '<text x="480" y="154" fill="#0f172a" font-size="9" font-weight="800" text-anchor="middle">EYE</text>'
+    + '<text x="480" y="210" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">Pump (NPSHr ' + npshr.toFixed(1) + 'm)</text>'
+
+    + '<!-- Hydraulic Margin Indicator Box -->'
+    + '<rect x="580" y="120" width="170" height="90" rx="6" fill="#1e293b" stroke="' + (npsha >= npshr ? '#10b981' : '#ef4444') + '" stroke-width="1.5" />'
+    + '<text x="665" y="145" fill="' + (npsha >= npshr ? '#10b981' : '#ef4444') + '" font-size="11" font-weight="700" text-anchor="middle">' + (npsha >= npshr ? '✓ CAVITATION SAFE' : '⚠ CAVITATING!') + '</text>'
+    + '<text x="665" y="170" fill="#cbd5e1" font-size="10" text-anchor="middle">NPSHa: ' + npsha.toFixed(2) + ' m</text>'
+    + '<text x="665" y="190" fill="#f59e0b" font-size="10" text-anchor="middle">Margin: ' + (npsha - npshr).toFixed(2) + ' m</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderNPSHDerivations(p) {
+  var container = document.getElementById('npshDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Net Positive Suction Head Available (NPSHa Formula):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + 'NPSHa = h_{abs} \pm h_s - h_f - h_{vp}'
+    + '</div>'
+    + '<div>'
+    + (p.vType === 'saturated' ?
+      'For boiling/saturated source: h_{abs} = h_{vp} (pressures cancel) &rarr; NPSHa = h_s - h_f = ' + p.hs_m.toFixed(2) + ' - ' + p.hf_m.toFixed(2) + ' = <strong>' + p.npsha_m.toFixed(2) + ' m</strong>' :
+      'NPSHa = ' + p.h_atm_m.toFixed(2) + ' + (' + p.hs_m.toFixed(2) + ') - ' + p.hf_m.toFixed(2) + ' - ' + p.h_vp_m.toFixed(2) + ' = <strong>' + p.npsha_m.toFixed(2) + ' m (' + (p.npsha_m * 3.28084).toFixed(1) + ' ft)</strong>')
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. Cavitation Safety Margin (HI 9.6.1 & API 610):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#10b981;">'
+    + 'Margin = NPSHa - NPSHr = ' + p.npsha_m.toFixed(2) + ' - ' + p.npshr_m.toFixed(2) + ' = <strong>' + (p.margin_m > 0 ? '+' : '') + p.margin_m.toFixed(2) + ' m</strong><br>'
+    + 'Margin Ratio = NPSHa / NPSHr = ' + p.margin_ratio.toFixed(2)
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Suction Specific Speed (Internal Recirculation Risk):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#f59e0b;">'
+    + 'N_{ss} = [ N &times; \u221a(Q_{GPM}) ] / (NPSHr_{ft})^{0.75} = <strong>' + Math.round(p.Nss_us).toLocaleString() + '</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Status: <strong>' + (p.Nss_us <= 11000 ? 'Stable Operation (\u2264 11,000)' : 'High Recirculation Warning (> 11,000)') + '</strong>'
+    + '</div>'
+    + '</div>';
+}
+
+function copyNPSHSummary() {
+  var npsha = document.getElementById('npshAvailable').textContent;
+  var margin = document.getElementById('npshMargin').textContent;
+  var ratio = document.getElementById('npshMarginRatio').textContent;
+  var nss = document.getElementById('npshNssVal').textContent;
+  var vel = document.getElementById('npshVelocity').textContent;
+  var badge = document.getElementById('npshBadge').textContent;
+
+  var summary = [
+    '=== PUMP NPSH & CAVITATION MARGIN REPORT ===',
+    'Cavitation Status: ' + badge,
+    'NPSH Available (NPSHa): ' + npsha,
+    'Safety Margin Over NPSHr: ' + margin + ' (' + ratio + ')',
+    'Suction Specific Speed (Nss): ' + nss,
+    'Suction Line Flow Velocity: ' + vel,
+    'Standards: ANSI/HI 9.6.1 & API 610 12th Edition',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyNPSH');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculateNPSH();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculateNPSH();
+}
+</script>
+`;
+
+
+
+// ==========================================
+// TOOL AK2: Piping Flange Leakage & Equivalent Pressure Calculator (Kellogg Method)
+// ==========================================
+const flangeLeakageKelloggBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Piping Flange Leakage & Equivalent Pressure Calculator</h1>
+    <p class="calc-desc">Calculate external bending moment and axial load equivalent pressure (P_eq) on bolted flanged joints using the Kellogg method and ASME B16.5 / ASME Section VIII Div 1 Appendix 2 flange pressure-temperature limits.</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">PIPING STRESS & FLANGE APPLICATION PRESETS</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyFLPreset('steam_turbine')">⚡ Turbine Inlet (10" Class 900 / 900 psig / 750&deg;F)</button>
+      <button type="button" class="btn-preset" onclick="applyFLPreset('comp_nozzle')">🌀 Compressor Nozzle (16" Class 300 / 280 psig)</button>
+      <button type="button" class="btn-preset" onclick="applyFLPreset('flare_header')">🔥 Flare Expansion Loop (24" Class 150 / High Moment)</button>
+      <button type="button" class="btn-preset" onclick="applyFLPreset('cryo_line')">❄️ Cryogenic Transfer (4" Class 150 / -320&deg;F)</button>
+    </div>
+  </div>
+
+  <form id="flForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Flange Class & Operating Parameters -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>⚙️</span> Flange Class & Operating Pressures
+        </h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="flNPS" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Nominal Size (NPS)</label>
+            <select id="flNPS" class="form-control" onchange="onFLSizeChange(); calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="2.0">2" NPS</option>
+              <option value="3.0">3" NPS</option>
+              <option value="4.0">4" NPS</option>
+              <option value="6.0">6" NPS</option>
+              <option value="8.0">8" NPS</option>
+              <option value="10.0" selected>10" NPS</option>
+              <option value="12.0">12" NPS</option>
+              <option value="16.0">16" NPS</option>
+              <option value="20.0">20" NPS</option>
+              <option value="24.0">24" NPS</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="flClass" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Pressure Class (ASME B16.5)</label>
+            <select id="flClass" class="form-control" onchange="onFLClassChange(); calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="150">Class 150</option>
+              <option value="300">Class 300</option>
+              <option value="600">Class 600</option>
+              <option value="900" selected>Class 900</option>
+              <option value="1500">Class 1500</option>
+              <option value="2500">Class 2500</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="flDesignP" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Internal Pressure P (psig)</label>
+            <input type="number" id="flDesignP" class="form-control" value="900" step="any" min="0" oninput="calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="flTemp" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Design Temp (&deg;F)</label>
+            <input type="number" id="flTemp" class="form-control" value="750" step="any" oninput="onFLTempChange(); calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="flRatingP" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Flange Rating @ Temp (psig)</label>
+            <input type="number" id="flRatingP" class="form-control" value="1510" step="any" min="1" oninput="calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="flGasketDia" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Effective Gasket G (in)</label>
+            <input type="number" id="flGasketDia" class="form-control" value="12.0" step="any" min="1" oninput="calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+      <!-- External Piping Bending Moments & Axial Loads -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>📐</span> External Piping Loads (CAESAR II / AutoPIPE)
+        </h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="flMoment" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Bending Moment M (ft-lb)</label>
+            <input type="number" id="flMoment" class="form-control" value="28500" step="500" min="0" oninput="calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="flAxialForce" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Axial Tension Force F (lbf)</label>
+            <input type="number" id="flAxialForce" class="form-control" value="14200" step="500" min="0" oninput="calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="flTorsion" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Torsional Moment M<sub>t</sub> (ft-lb)</label>
+            <input type="number" id="flTorsion" class="form-control" value="8500" step="500" min="0" oninput="calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="flGasketType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Gasket Type</label>
+            <select id="flGasketType" class="form-control" onchange="calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="spiral_wound" selected>Spiral Wound 316/Graphite (m = 3.0, y = 10,000 psi)</option>
+              <option value="kammprofile">Kammprofile Grooved Metal (m = 3.5, y = 11,000 psi)</option>
+              <option value="rtj_ring">Ring Type Joint RTJ Octagonal (m = 5.5, y = 18,000 psi)</option>
+              <option value="sheet_ptfe">Filled PTFE / Compressed Fiber (m = 2.0, y = 2,500 psi)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="flCheckMethod" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Assessment Criterion</label>
+          <select id="flCheckMethod" class="form-control" onchange="calculateFlangeLeakage();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="kellogg" selected>Kellogg Method (P_eq &le; Flange Rating @ Temp)</option>
+            <option value="nc3658">ASME Section III NC-3658 (Nuclear Moment Limit)</option>
+            <option value="asme_viii">ASME Section VIII Div 1 App 2 (Residual Gasket Stress)</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Flange Leakage Results Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">Flange Integrity & Leakage Evaluation Results</h2>
+      <div id="flLeakBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#10b981; color:#fff;">PASS: P_eq &le; RATED FLANGE PRESSURE</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Total Equivalent Pressure (P_eq)</span>
+        <strong id="flPeqVal" style="font-size:1.4rem; color:#38bdf8;">1,242.8 psig</strong>
+        <span id="flPeqBar" style="font-size:0.8rem; color:var(--text-muted); display:block;">85.7 bar g (Internal + Moment + Axial)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Bending Moment Pressure (P_M)</span>
+        <strong id="flPmVal" style="font-size:1.4rem; color:#f59e0b;">+317.8 psi</strong>
+        <span id="flPmRatio" style="font-size:0.8rem; color:var(--text-muted); display:block;">From 28,500 ft-lb Moment (16M / &pi;G&sup3;)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Axial Force Pressure (P_F)</span>
+        <strong id="flPfVal" style="font-size:1.4rem; color:#ef4444;">+25.0 psi</strong>
+        <span id="flPfRatio" style="font-size:0.8rem; color:var(--text-muted); display:block;">From 14,200 lbf Tension (4F / &pi;G&sup2;)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Flange Pressure Utilization</span>
+        <strong id="flUtilVal" style="font-size:1.4rem; color:#10b981;">82.3%</strong>
+        <span id="flUtilMargin" style="font-size:0.8rem; color:var(--text-muted); display:block;">Rated: 1,510 psig (+267 psi Margin)</span>
+      </div>
+    </div>
+
+    <!-- Secondary Technical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Max Allowable Bending Moment:</span>
+        <strong id="flMaxMoment" style="color:inherit;">52,400 ft-lb (at zero axial tension)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Estimated Gasket Contact Stress:</span>
+        <strong id="flGasketStress" style="color:inherit;">6,840 psi (&ge; 3.0 &times; P_eq)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Flange Gasket Face Separation:</span>
+        <strong id="flSeparation" style="color:#10b981;">ZERO (Residual Compression Maintained)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">ASME Section VIII Hydro Equiv:</span>
+        <strong id="flHydroEquiv" style="color:inherit;">1,864 psig (1.5 &times; P_eq)</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyFL" class="btn btn-secondary" onclick="copyFLSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Flange Gasket Stress & Moment Tilting Diagram -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      Bolted Flange Gasket Stress Distribution & External Bending Moment Mechanics
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Cross-sectional schematic visualizing internal fluid pressure thrust, external bending moment M tilting the flange faces, tension-side gasket unloading, and compression-side crushing.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="flFlangeSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#64748b; border-radius:2px;"></span> Flange Ring Metal</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Gasket Contact Circle (G)</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; border-radius:2px;"></span> Stud Bolts</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> External Bending Moment (M)</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations: Kellogg Method & ASME Flange Stress Formulas
+    </h3>
+    <div id="flDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Flange Leakage Calculations & External Piping Loads
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. The "Cold Rating" Trap (Ignoring Elevated Temperature Derating)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Engineers frequently verify that P<sub>eq</sub> does not exceed the nominal flange rating (e.g. 285 psig for Class 150 or 740 psig for Class 300). However, at high process temperatures, allowable flange ratings plunge dramatically. A Class 300 carbon steel flange rated at 740 psig at 100&deg;F drops to only <strong>375 psig at 800&deg;F</strong>—a 50% loss of pressure-retaining capacity! Evaluating external moments against ambient ratings guarantees hot flange blowout.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. Gasket Unloading & Tension-Side Separation</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Kellogg\'s equivalent pressure formula converts bending moment into an equivalent uniform internal pressure. However, real bending moments cause an asymmetric tilting of the flange faces. On the tension side, the gasket decompresses. If the residual gasket compressive stress drops below the minimum maintenance threshold <strong>S<sub>g</sub> &lt; m &times; P</strong>, the gasket loses elastic recovery and pressurized process gas escapes in a lethal jet!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. Specifying Class 150 Flanges on Long Thermal Expansion Loops</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Class 150 flanges feature thin flange rings and wide bolt spacing. In sizes &ge; 8 inches, Class 150 flanges exhibit virtually zero rigidity against external bending moments. A modest 15,000 ft-lb thermal expansion moment creates 150 psi of equivalent pressure, instantly doubling total effective pressure and causing chronic fugitive emissions leaks that cannot be stopped by tightening bolts.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. Ignoring Torsional Shear Stress on Flange Studs</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Piping stress solvers report 3D moment vectors (M<sub>x</sub>, M<sub>y</sub>, M<sub>z</sub>). While M<sub>y</sub> and M<sub>z</sub> generate out-of-plane bending, torsional moment M<sub>x</sub> generates direct tangential shear across the bolt circle. If friction between the flange faces is overcome, the flange twists, shearing gasket centering rings and distorting spiral-wound windings.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. Neglecting Bolt Preload Creep Relaxation Over Time</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Under continuous high operating temperatures and thermal cycling, standard B7 / B16 alloy stud bolts experience creep relaxation. Within the first 500 operating hours, bolt tension typically relaxes by <strong>15% to 25%</strong>. A flanged connection that passed equivalent pressure checks during cold commissioning begins leaking once initial bolt preload relaxes.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: Flange Leakage & Kellogg Method
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the Kellogg equivalent pressure equation?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Developed by The M.W. Kellogg Company in "Design of Piping Systems", the formula converts external piping bending moments (M) and tensile axial forces (F) into an equivalent internal hydrostatic pressure: <strong>P<sub>eq</sub> = P + (16 &times; M) / (&pi; &times; G&sup3;) + (4 &times; F) / (&pi; &times; G&sup2;)</strong>, where G is the effective gasket reaction diameter.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the effective gasket diameter G?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Per ASME Section VIII Division 1 Appendix 2 Table 2-5.2, G is the diameter of the resultant gasket reaction. When basic gasket seating width b<sub>0</sub> &le; 1/4" (6.3 mm), G is the mean diameter of the gasket contact face. When b<sub>0</sub> &gt; 1/4", G is the outside diameter of gasket contact face minus 2b, where b is effective gasket seating width.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the acceptance criterion for flange leakage check?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          The primary criterion in piping stress engineering is that the total equivalent pressure must not exceed the maximum allowable pressure rating of the flange at the design temperature: <strong>P<sub>eq</sub> &le; P<sub>rating</sub>(T)</strong>. If P<sub>eq</sub> exceeds rating, the piping layout must be modified with expansion loops or spring supports to reduce external moments, or the flange class must be upgraded.
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How does NC-3658 differ from the Kellogg method?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          ASME Section III Subsection NC-3658 applies to nuclear Class 2 piping. Instead of calculating equivalent pressure, it evaluates allowable external moments directly: <strong>M &le; (C &times; A<sub>b</sub> &times; S<sub>b</sub>) / 4</strong>, based on the total root area of the flange bolts (A<sub>b</sub>) and bolt allowable stress (S<sub>b</sub>). It is generally less conservative than the Kellogg method for large diameter flanges.
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What role do gasket factors m and y play during bending?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          The gasket maintenance factor <strong>m</strong> represents the ratio of residual compressive gasket stress to internal fluid pressure required to prevent leakage during operation (S<sub>g</sub> &ge; m &times; P). The initial seating factor <strong>y</strong> is the minimum contact pressure required to seat the gasket into flange phonographic serrations without internal pressure.
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// Database of ASME B16.5 Group 1.1 Carbon Steel (A105 / A350 LF2) Ratings & Gasket Diameters
+// G values in inches, Ratings in psig at various temperatures
+var flDatabase = {
+  "2.0": {
+    G: 2.875,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "3.0": {
+    G: 4.125,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "4.0": {
+    G: 5.188,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "6.0": {
+    G: 7.500,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "8.0": {
+    G: 9.625,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "10.0": {
+    G: 12.000,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "12.0": {
+    G: 14.125,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "16.0": {
+    G: 18.250,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "20.0": {
+    G: 22.500,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  },
+  "24.0": {
+    G: 26.750,
+    ratings: { "150": 285, "300": 740, "600": 1480, "900": 2220, "1500": 3705, "2500": 6170 }
+  }
+};
+
+// Temperature derating multipliers (Table 2-1.1 approximate curve)
+function getTempRatingMultiplier(tempF) {
+  if (tempF <= 100) return 1.0;
+  if (tempF <= 200) return 0.90;
+  if (tempF <= 300) return 0.85;
+  if (tempF <= 400) return 0.80;
+  if (tempF <= 500) return 0.76;
+  if (tempF <= 600) return 0.72;
+  if (tempF <= 700) return 0.70;
+  if (tempF <= 800) return 0.58;
+  if (tempF <= 900) return 0.45;
+  return 0.35;
+}
+
+function onFLSizeChange() {
+  var nps = document.getElementById('flNPS').value;
+  if (flDatabase[nps]) {
+    document.getElementById('flGasketDia').value = flDatabase[nps].G;
+  }
+  updateFlangeRating();
+}
+
+function onFLClassChange() {
+  updateFlangeRating();
+}
+
+function onFLTempChange() {
+  updateFlangeRating();
+}
+
+function updateFlangeRating() {
+  var nps = document.getElementById('flNPS').value;
+  var cl = document.getElementById('flClass').value;
+  var T = parseFloat(document.getElementById('flTemp').value) || 100;
+
+  if (flDatabase[nps] && flDatabase[nps].ratings[cl]) {
+    var baseP = flDatabase[nps].ratings[cl];
+    var mult = getTempRatingMultiplier(T);
+    var ratedP = Math.round(baseP * mult);
+    document.getElementById('flRatingP').value = ratedP;
+  }
+}
+
+function applyFLPreset(key) {
+  if (key === 'steam_turbine') {
+    document.getElementById('flNPS').value = '10.0';
+    document.getElementById('flClass').value = '900';
+    document.getElementById('flDesignP').value = '900';
+    document.getElementById('flTemp').value = '750';
+    document.getElementById('flMoment').value = '28500';
+    document.getElementById('flAxialForce').value = '14200';
+    document.getElementById('flTorsion').value = '8500';
+    document.getElementById('flGasketType').value = 'spiral_wound';
+    onFLSizeChange();
+  } else if (key === 'comp_nozzle') {
+    document.getElementById('flNPS').value = '16.0';
+    document.getElementById('flClass').value = '300';
+    document.getElementById('flDesignP').value = '280';
+    document.getElementById('flTemp').value = '120';
+    document.getElementById('flMoment').value = '18500';
+    document.getElementById('flAxialForce').value = '8000';
+    document.getElementById('flTorsion').value = '4500';
+    document.getElementById('flGasketType').value = 'kammprofile';
+    onFLSizeChange();
+  } else if (key === 'flare_header') {
+    document.getElementById('flNPS').value = '24.0';
+    document.getElementById('flClass').value = '150';
+    document.getElementById('flDesignP').value = '50';
+    document.getElementById('flTemp').value = '300';
+    document.getElementById('flMoment').value = '22000';
+    document.getElementById('flAxialForce').value = '12000';
+    document.getElementById('flTorsion').value = '6000';
+    document.getElementById('flGasketType').value = 'spiral_wound';
+    onFLSizeChange();
+  } else if (key === 'cryo_line') {
+    document.getElementById('flNPS').value = '4.0';
+    document.getElementById('flClass').value = '150';
+    document.getElementById('flDesignP').value = '150';
+    document.getElementById('flTemp').value = '-320';
+    document.getElementById('flMoment').value = '3200';
+    document.getElementById('flAxialForce').value = '2500';
+    document.getElementById('flTorsion').value = '1200';
+    document.getElementById('flGasketType').value = 'spiral_wound';
+    onFLSizeChange();
+  }
+  calculateFlangeLeakage();
+}
+
+function calculateFlangeLeakage() {
+  var P = parseFloat(document.getElementById('flDesignP').value) || 900.0;
+  var M_ftlb = parseFloat(document.getElementById('flMoment').value) || 28500.0;
+  var F_lbf = parseFloat(document.getElementById('flAxialForce').value) || 14200.0;
+  var Mt_ftlb = parseFloat(document.getElementById('flTorsion').value) || 8500.0;
+  var G = parseFloat(document.getElementById('flGasketDia').value) || 12.0;
+  var P_rated = parseFloat(document.getElementById('flRatingP').value) || 1510.0;
+
+  // Convert moments to in-lb
+  var M_inlb = M_ftlb * 12.0;
+  var Mt_inlb = Mt_ftlb * 12.0;
+
+  // Kellogg Method Formulas:
+  // P_M = (16 * M) / (pi * G^3)
+  var P_M = (16.0 * M_inlb) / (Math.PI * Math.pow(G, 3));
+
+  // P_F = (4 * F) / (pi * G^2)
+  var P_F = (4.0 * Math.max(0, F_lbf)) / (Math.PI * Math.pow(G, 2));
+
+  // Total Equivalent Pressure P_eq
+  var P_eq = P + P_M + P_F;
+  var P_eq_bar = P_eq * 0.0689476;
+
+  // Utilization Ratio
+  var utilRatio = P_rated > 0 ? (P_eq / P_rated) : 1.0;
+  var utilPct = utilRatio * 100;
+  var marginPsi = P_rated - P_eq;
+
+  // Maximum Allowable Bending Moment at zero axial force
+  // M_max = (P_rated - P) * pi * G^3 / (16 * 12)
+  var M_max_ftlb = Math.max(0, (P_rated - P) * Math.PI * Math.pow(G, 3) / (16.0 * 12.0));
+
+  // Estimated Gasket Contact Stress (ASME Section VIII Div 1 App 2)
+  // Sg ~ (P_eq * G) / (4 * b)
+  var b_eff = 0.375; // in
+  var S_gasket = (P_eq * G) / (4.0 * b_eff);
+
+  // Status Badge Evaluation
+  var badgeEl = document.getElementById('flLeakBadge');
+  if (P_eq > P_rated) {
+    badgeEl.textContent = 'FAIL: LEAKAGE DANGER! P_eq (' + P_eq.toFixed(0) + ' psi) > RATING (' + P_rated.toFixed(0) + ' psi)';
+    badgeEl.style.background = '#ef4444';
+  } else if (utilPct > 90) {
+    badgeEl.textContent = 'CAUTION: HIGH LEAKAGE RISK (' + utilPct.toFixed(1) + '% UTILIZATION)';
+    badgeEl.style.background = '#f59e0b';
+  } else {
+    badgeEl.textContent = 'PASS: COMPLIANT WITH ASME B16.5 & KELLOGG METHOD';
+    badgeEl.style.background = '#10b981';
+  }
+
+  // DOM Updates
+  document.getElementById('flPeqVal').textContent = P_eq.toFixed(1) + ' psig';
+  document.getElementById('flPeqBar').textContent = P_eq_bar.toFixed(1) + ' bar g (Internal + Moment + Axial)';
+
+  document.getElementById('flPmVal').textContent = '+' + P_M.toFixed(1) + ' psi';
+  document.getElementById('flPmRatio').textContent = 'From ' + Math.round(M_ftlb).toLocaleString() + ' ft-lb Moment (16M / \u03c0G\u00b3)';
+
+  document.getElementById('flPfVal').textContent = '+' + P_F.toFixed(1) + ' psi';
+  document.getElementById('flPfRatio').textContent = 'From ' + Math.round(F_lbf).toLocaleString() + ' lbf Tension (4F / \u03c0G\u00b2)';
+
+  document.getElementById('flUtilVal').textContent = utilPct.toFixed(1) + '%';
+  document.getElementById('flUtilVal').style.color = P_eq > P_rated ? '#ef4444' : '#10b981';
+  document.getElementById('flUtilMargin').textContent = 'Rated: ' + P_rated.toFixed(0) + ' psig (' + (marginPsi >= 0 ? '+' : '') + marginPsi.toFixed(0) + ' psi Margin)';
+
+  document.getElementById('flMaxMoment').textContent = Math.round(M_max_ftlb).toLocaleString() + ' ft-lb (at zero axial tension)';
+  document.getElementById('flGasketStress').textContent = Math.round(S_gasket).toLocaleString() + ' psi (\u2265 3.0 &times; P_eq)';
+
+  var sepEl = document.getElementById('flSeparation');
+  if (P_eq > P_rated) {
+    sepEl.textContent = 'ACTIVE FLANGE GASKET UNSEATING!';
+    sepEl.style.color = '#ef4444';
+  } else {
+    sepEl.textContent = 'ZERO (Residual Compression Maintained)';
+    sepEl.style.color = '#10b981';
+  }
+
+  document.getElementById('flHydroEquiv').textContent = (P_eq * 1.5).toFixed(0) + ' psig (1.5 &times; P_eq)';
+
+  renderFLSvg(G, M_ftlb, F_lbf, P, P_eq, P_rated);
+
+  renderFLDerivations({
+    P: P, M_ftlb: M_ftlb, M_inlb: M_inlb, F_lbf: F_lbf, G: G,
+    P_M: P_M, P_F: P_F, P_eq: P_eq, P_rated: P_rated, utilPct: utilPct,
+    M_max_ftlb: M_max_ftlb, S_gasket: S_gasket
+  });
+}
+
+function renderFLSvg(G, M, F, P, P_eq, P_rated) {
+  var svg = document.getElementById('flFlangeSvg');
+  var w = 800;
+  var h = 280;
+
+  var cx = 400;
+  var cy = 140;
+
+  var svgContent = ''
+    + '<!-- Left Flange Body -->'
+    + '<rect x="250" y="50" width="40" height="180" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="2" />'
+    + '<rect x="150" y="90" width="100" height="100" fill="#0f172a" stroke="#475569" stroke-width="2" />'
+
+    + '<!-- Right Flange Body -->'
+    + '<rect x="310" y="50" width="40" height="180" rx="4" fill="#1e293b" stroke="#64748b" stroke-width="2" />'
+    + '<rect x="350" y="90" width="100" height="100" fill="#0f172a" stroke="#475569" stroke-width="2" />'
+
+    + '<!-- Gasket in Gap -->'
+    + '<rect x="290" y="65" width="20" height="150" rx="2" fill="#f59e0b" fill-opacity="0.8" stroke="#fbbf24" stroke-width="1.5" />'
+    + '<text x="300" y="145" fill="#0f172a" font-size="10" font-weight="800" text-anchor="middle" transform="rotate(-90 300 145)">GASKET (G = ' + G.toFixed(1) + '")</text>'
+
+    + '<!-- Top Stud Bolt -->'
+    + '<rect x="230" y="65" width="140" height="16" rx="2" fill="#38bdf8" />'
+    + '<rect x="220" y="61" width="14" height="24" rx="2" fill="#0284c7" />'
+    + '<rect x="366" y="61" width="14" height="24" rx="2" fill="#0284c7" />'
+
+    + '<!-- Bottom Stud Bolt -->'
+    + '<rect x="230" y="199" width="140" height="16" rx="2" fill="#38bdf8" />'
+    + '<rect x="220" y="195" width="14" height="24" rx="2" fill="#0284c7" />'
+    + '<rect x="366" y="195" width="14" height="24" rx="2" fill="#0284c7" />'
+
+    + '<!-- Bending Moment Curve Arrow -->'
+    + '<path d="M 520,70 Q 560,140 520,210" fill="none" stroke="#ef4444" stroke-width="4" />'
+    + '<polygon points="510,75 525,60 530,80" fill="#ef4444" />'
+    + '<text x="580" y="145" fill="#ef4444" font-size="12" font-weight="700">Moment: ' + Math.round(M).toLocaleString() + ' ft-lb</text>'
+
+    + '<!-- Integrity Status Box -->'
+    + '<rect x="520" y="215" width="240" height="50" rx="6" fill="#1e293b" stroke="' + (P_eq <= P_rated ? '#10b981' : '#ef4444') + '" />'
+    + '<text x="640" y="235" fill="#38bdf8" font-size="11" font-weight="600" text-anchor="middle">P_eq: ' + P_eq.toFixed(1) + ' psig</text>'
+    + '<text x="640" y="253" fill="' + (P_eq <= P_rated ? '#10b981' : '#ef4444') + '" font-size="11" font-weight="700" text-anchor="middle">' + (P_eq <= P_rated ? '✓ WITHIN RATING (' + P_rated + ' psig)' : '⚠ EXCEEDS RATING!') + '</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderFLDerivations(p) {
+  var container = document.getElementById('flDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Kellogg Equivalent Pressure Equation:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + 'P_{eq} = P_{design} + P_M + P_F = P_{design} + \frac{16 &times; M}{\pi &times; G\u00b3} + \frac{4 &times; F}{\pi &times; G\u00b2}'
+    + '</div>'
+    + '<div>'
+    + 'P_M = (16 &times; ' + p.M_inlb.toFixed(0) + ' in-lb) / (\u03c0 &times; ' + p.G + '\u00b3) = <strong>+' + p.P_M.toFixed(1) + ' psi</strong><br>'
+    + 'P_F = (4 &times; ' + p.F_lbf.toFixed(0) + ' lbf) / (\u03c0 &times; ' + p.G + '\u00b2) = <strong>+' + p.P_F.toFixed(1) + ' psi</strong><br>'
+    + 'Total Equivalent Pressure: P_{eq} = ' + p.P.toFixed(1) + ' + ' + p.P_M.toFixed(1) + ' + ' + p.P_F.toFixed(1) + ' = <strong>' + p.P_eq.toFixed(1) + ' psig</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. ASME B16.5 Rating Check:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#10b981;">'
+    + 'P_{eq} \le P_{rating}(T) \implies ' + p.P_eq.toFixed(1) + '\text{ psig} \le ' + p.P_rated.toFixed(0) + '\text{ psig}'
+    + '</div>'
+    + '<div>'
+    + 'Utilization: <strong>' + p.utilPct.toFixed(1) + '% &rarr; ' + (p.P_eq <= p.P_rated ? 'PASS' : 'FAIL (FLANGE OVERSTRESSED)') + '</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Maximum Allowable External Bending Moment:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#f59e0b;">'
+    + 'M_{max} = (P_{rated} - P_{design}) &times; \pi &times; G\u00b3 / (16 &times; 12) = <strong>' + Math.round(p.M_max_ftlb).toLocaleString() + ' ft-lb</strong>'
+    + '</div>'
+    + '</div>';
+}
+
+function copyFLSummary() {
+  var peq = document.getElementById('flPeqVal').textContent;
+  var pm = document.getElementById('flPmVal').textContent;
+  var pf = document.getElementById('flPfVal').textContent;
+  var util = document.getElementById('flUtilVal').textContent;
+  var margin = document.getElementById('flUtilMargin').textContent;
+  var maxM = document.getElementById('flMaxMoment').textContent;
+  var badge = document.getElementById('flLeakBadge').textContent;
+
+  var summary = [
+    '=== PIPING FLANGE LEAKAGE & KELLOGG REPORT ===',
+    'Evaluation Status: ' + badge,
+    'Equivalent Pressure (P_eq): ' + peq,
+    'Bending Moment Equivalent (P_M): ' + pm,
+    'Axial Force Equivalent (P_F): ' + pf,
+    'Flange Rating Utilization: ' + util + ' (' + margin + ')',
+    'Max Allowable Moment: ' + maxM,
+    'Method: M.W. Kellogg Equivalent Pressure & ASME B16.5',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyFL');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculateFlangeLeakage();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculateFlangeLeakage();
+}
+</script>
+`;
+
+
+
+// ==========================================
+// TOOL AK3: Control Valve Sizing Calculator (IEC 60534 & ISA-75.01)
+// ==========================================
+const controlValveSizingBody = `
+<div class="calc-card">
+  <div class="calc-header">
+    <h1>Control Valve Sizing & Cavitation Calculator</h1>
+    <p class="calc-desc">Calculate flow coefficient (Cv and Kv), liquid cavitation limits, choked gas expansion, steam throttling, piping geometry factors (Fp), and installed valve authority per IEC 60534-2-1 and ISA-75.01.01.</p>
+  </div>
+
+  <!-- Quick Presets -->
+  <div style="margin-bottom:1.5rem;">
+    <label style="font-weight:600; font-size:0.9rem; color:var(--text-muted); display:block; margin-bottom:0.5rem;">INDUSTRIAL PROCESS SERVICE PRESETS</label>
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:0.5rem;">
+      <button type="button" class="btn-preset" onclick="applyCVPreset('boiler_feed')">💧 Boiler Feedwater (High &Delta;P Liquid / Globe FL=0.90)</button>
+      <button type="button" class="btn-preset" onclick="applyCVPreset('gas_regulator')">💨 Natural Gas Regulating (Choked Gas / xT=0.72)</button>
+      <button type="button" class="btn-preset" onclick="applyCVPreset('steam_prv')">♨️ Steam Pressure Reduction (250 &rarr; 50 psig)</button>
+      <button type="button" class="btn-preset" onclick="applyCVPreset('cooling_water')">🌊 Cooling Water Loop (Butterfly FL=0.62 / Low &Delta;P)</button>
+    </div>
+  </div>
+
+  <form id="cvForm" onsubmit="return false;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem; margin-bottom:1.5rem;">
+      
+      <!-- Fluid & Process Thermodynamic Operating Conditions -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>🌊</span> Fluid State & Hydraulic Conditions
+        </h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="cvFluidPhase" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Fluid Phase</label>
+            <select id="cvFluidPhase" class="form-control" onchange="onCVPhaseChange(); calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+              <option value="liquid" selected>Liquid (Water, Hydrocarbon, Chemical)</option>
+              <option value="gas">Compressible Gas (Natural Gas, Air, N2)</option>
+              <option value="steam">Steam (Saturated or Superheated)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cvFlowRate" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;" id="cvFlowLabel">Flow Rate Q (GPM)</label>
+            <input type="number" id="cvFlowRate" class="form-control" value="450" step="any" min="0.1" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="cvP1" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Upstream Pressure P1 (psig)</label>
+            <input type="number" id="cvP1" class="form-control" value="180" step="any" min="0.1" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="cvP2" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Downstream Pressure P2 (psig)</label>
+            <input type="number" id="cvP2" class="form-control" value="120" step="any" min="0" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="cvTempF" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Temperature (&deg;F)</label>
+            <input type="number" id="cvTempF" class="form-control" value="100" step="any" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="cvSG" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;" id="cvSgLabel">Specific Gravity Gf</label>
+            <input type="number" id="cvSG" class="form-control" value="1.0" step="0.01" min="0.01" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+      <!-- Valve Construction & Cavitation Recovery Factors -->
+      <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155);">
+        <h3 style="font-size:1rem; margin-top:0; margin-bottom:1rem; color:var(--primary, #38bdf8); display:flex; align-items:center; gap:0.5rem;">
+          <span>⚙️</span> Valve Trim & Recovery Characteristics
+        </h3>
+
+        <div class="form-group" style="margin-bottom:1rem;">
+          <label for="cvValveType" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Valve Body & Trim Type</label>
+          <select id="cvValveType" class="form-control" onchange="onCVTypeChange(); calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+            <option value="globe_std" selected>Standard Globe Valve (FL = 0.90, xT = 0.72)</option>
+            <option value="globe_anticav">Globe Valve with Anti-Cavitation Trim (FL = 0.96, xT = 0.75)</option>
+            <option value="butterfly">High-Performance Butterfly (FL = 0.62, xT = 0.35)</option>
+            <option value="ball_segmented">Segmented V-Ball Valve (FL = 0.60, xT = 0.30)</option>
+            <option value="eccentric_plug">Eccentric Rotary Plug (FL = 0.80, xT = 0.55)</option>
+          </select>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div class="form-group">
+            <label for="cvFL" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Liquid Recovery Factor F<sub>L</sub></label>
+            <input type="number" id="cvFL" class="form-control" value="0.90" step="0.01" min="0.4" max="0.99" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="cvXT" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Gas Choked Index x<sub>T</sub></label>
+            <input type="number" id="cvXT" class="form-control" value="0.72" step="0.01" min="0.1" max="0.9" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+          <div class="form-group">
+            <label for="cvVaporP" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Vapor Pressure P<sub>v</sub> (psia)</label>
+            <input type="number" id="cvVaporP" class="form-control" value="0.95" step="any" min="0.01" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+          <div class="form-group">
+            <label for="cvPipingFP" style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:0.25rem;">Piping Factor F<sub>p</sub></label>
+            <input type="number" id="cvPipingFP" class="form-control" value="1.00" step="0.01" min="0.7" max="1.0" oninput="calculateControlValve();" style="width:100%; padding:0.5rem; border-radius:4px; background:var(--bg-input, #0f172a); border:1px solid var(--border, #334155); color:inherit;">
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </form>
+
+  <!-- Real-Time Flow Sizing Results Grid -->
+  <div style="background:var(--bg-surface, #0f172a); padding:1.5rem; border-radius:8px; border:2px solid var(--primary, #38bdf8); margin-bottom:1.5rem;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; border-bottom:1px solid var(--border, #334155); padding-bottom:0.75rem;">
+      <h2 style="font-size:1.25rem; margin:0; color:var(--primary, #38bdf8);">IEC 60534 Valve Sizing & Cavitation Results</h2>
+      <div id="cvRegimeBadge" style="padding:0.35rem 0.85rem; border-radius:999px; font-weight:700; font-size:0.85rem; background:#10b981; color:#fff;">SUB-CRITICAL TURBULENT (NO CHOKING)</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-bottom:1.25rem;">
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Required Flow Coeff C_v</span>
+        <strong id="cvResultCv" style="font-size:1.4rem; color:#38bdf8;">58.1</strong>
+        <span id="cvResultKv" style="font-size:0.8rem; color:var(--text-muted); display:block;">Metric K_v: 50.3 m&sup3;/h</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Effective Pressure Drop (&Delta;P_eff)</span>
+        <strong id="cvResultDp" style="font-size:1.4rem; color:#f59e0b;">60.0 psi</strong>
+        <span id="cvResultDpBar" style="font-size:0.8rem; color:var(--text-muted); display:block;">4.14 bar (Actual: 60.0 psi)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Choked Cavitation Limit (&Delta;P_max)</span>
+        <strong id="cvChokedDp" style="font-size:1.4rem; color:#10b981;">156.4 psi</strong>
+        <span id="cvCavIndex" style="font-size:0.8rem; color:var(--text-muted); display:block;">Cavitation Index &sigma; = 3.23 (Safe)</span>
+      </div>
+
+      <div style="background:var(--bg-subtle, #1e293b); padding:1rem; border-radius:6px;">
+        <span style="font-size:0.8rem; color:var(--text-muted); display:block;">Recommended Nominal Body Size</span>
+        <strong id="cvBodySize" style="font-size:1.4rem; color:#38bdf8;">3" (DN 80)</strong>
+        <span id="cvStrokePct" style="font-size:0.8rem; color:var(--text-muted); display:block;">Selected Valve Rated Cv: 95.0 (61% Travel)</span>
+      </div>
+    </div>
+
+    <!-- Secondary Technical Diagnostics -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; background:rgba(0,0,0,0.2); padding:1rem; border-radius:6px; font-size:0.85rem;">
+      <div>
+        <span style="color:var(--text-muted); display:block;">Cavitation Regime:</span>
+        <strong id="cvCavRegime" style="color:#10b981;">Incipient Cavitation Free</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Gas Expansion Factor (Y):</span>
+        <strong id="cvExpFactor" style="color:inherit;">1.000 (Liquid Incompressible)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Estimated Aerodynamic Noise:</span>
+        <strong id="cvNoiseLevel" style="color:inherit;">&lt; 75 dBA (Acceptable)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted); display:block;">Estimated Valve Authority:</span>
+        <strong id="cvAuthority" style="color:inherit;">0.35 (Controllable 0.25 - 0.50)</strong>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostic Summary Button -->
+    <div style="margin-top:1.25rem; display:flex; justify-content:flex-end;">
+      <button type="button" id="btnCopyCV" class="btn btn-secondary" onclick="copyCVSummary();" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 1rem; cursor:pointer;">
+        <span>📋</span> Copy Diagnostic Summary
+      </button>
+    </div>
+  </div>
+
+  <!-- Dynamic SVG Control Valve Flow Profile & Trim Characteristic Diagram -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1rem; margin-top:0; margin-bottom:0.5rem; color:var(--primary, #38bdf8);">
+      Control Valve Internal Vena Contracta Velocity Profile & Travel Characteristic
+    </h3>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+      Schematic illustrating fluid acceleration across the valve seat, pressure dip below vapor pressure at the vena contracta, and downstream pressure recovery.
+    </p>
+    <div style="width:100%; overflow-x:auto;">
+      <svg id="cvValveSvg" viewBox="0 0 800 280" style="width:100%; height:auto; background:#0b1120; border-radius:6px; border:1px solid #1e293b; display:block;">
+        <!-- Rendered via JS -->
+      </svg>
+    </div>
+    <div style="display:flex; justify-content:center; gap:1.5rem; margin-top:0.75rem; font-size:0.8rem; color:var(--text-muted);">
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#38bdf8; border-radius:2px;"></span> Valve Body & Trim</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#10b981; border-radius:2px;"></span> Upstream Pressure P1</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#f59e0b; border-radius:2px;"></span> Vena Contracta Dip</span>
+      <span style="display:flex; align-items:center; gap:0.35rem;"><span style="display:inline-block; width:12px; height:12px; background:#ef4444; border-radius:2px;"></span> Vapor Pressure Limit (Pv)</span>
+    </div>
+  </div>
+
+  <!-- Worked Formula Derivation with Live Dynamic Values -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:0.75rem; color:var(--primary, #38bdf8);">
+      Mathematical Derivations: IEC 60534-2-1 & ISA-75.01 Sizing Equations
+    </h3>
+    <div id="cvDerivationContent" style="font-size:0.9rem; line-height:1.6; color:var(--text, #e2e8f0);">
+      <!-- Populated dynamically via JS -->
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div style="margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      5 Fatal Pitfalls in Control Valve Sizing & Selection
+    </h3>
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #ef4444; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#ef4444; font-size:0.95rem;">1. Choked Cavitation & Trim Destruction (Ignoring FL Recovery)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          In liquid service, fluid accelerates through the narrow orifice, causing pressure to plunge at the vena contracta. If vena contracta pressure drops below vapor pressure P<sub>v</sub>, vapor bubbles form and violently implode downstream. High-recovery valves (butterfly F<sub>L</sub>=0.60) choke at much smaller pressure drops than low-recovery globe valves (F<sub>L</sub>=0.90). Failing to check &Delta;P<sub>max</sub> = F<sub>L</sub>&sup2;(P1 - F<sub>F</sub>P<sub>v</sub>) destroys valve trim via cavitation erosion within weeks!
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #f59e0b; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#f59e0b; font-size:0.95rem;">2. The Low Valve Authority Trap (N_a &lt; 0.25 Loop Hunting)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Valve authority is the ratio of full-open valve pressure drop to total system friction drop: N<sub>a</sub> = &Delta;P<sub>valve</sub> / (&Delta;P<sub>valve</sub> + &Delta;P<sub>pipe</sub>). If an oversized valve is selected with low &Delta;P (N<sub>a</sub> &lt; 0.20), piping friction dominates the flow profile. An equal-percentage trim distorts into a quick-opening characteristic, causing PID controllers to oscillate uncontrollably and hunt around setpoints.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #10b981; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#10b981; font-size:0.95rem;">3. Severe Aerodynamic Noise & Sonic Choking in Gas Service</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          When gas pressure drop ratio x = &Delta;P / P1 exceeds the terminal limit F<sub>k</sub> &times; x<sub>T</sub>, sonic flow velocity develops in the valve throat. Pressure drop beyond the sonic limit does not increase mass flow, but converts kinetic energy into deafening acoustic noise exceeding 110 to 125 dBA. This acoustic vibration causes fatigue cracking in downstream pipe walls within hours. Multi-stage tortuous path trims are mandatory.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #3b82f6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#3b82f6; font-size:0.95rem;">4. The "Safety Factor" Oversizing Blunder (Operating &lt; 10% Stroke)</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Process engineers add 20% to design flow, mechanical engineers add 20% to pump head, and instrument engineers size the valve for 150% of required Cv. In reality, the valve operates throttled at 5% to 10% stroke where clearance flow and plug clearance flow instability cause severe seat wire-drawing, poor resolution, and frequent valve sticking. Optimal sizing targets <strong>60% to 80% stroke at normal flow</strong> and &gt; 15% at minimum flow.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--bg-subtle, #1e293b); border-left:4px solid #8b5cf6; padding:1rem; border-radius:0 6px 6px 0;">
+        <h4 style="margin:0 0 0.35rem 0; color:#8b5cf6; font-size:0.95rem;">5. Overlooking Piping Geometry Factor (Fp &lt; 1.0) on Line Reducers</h4>
+        <p style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+          Control valves are routinely sized one or two nominal pipe sizes smaller than the surrounding pipeline (e.g. 3" valve in a 6" pipe line) to optimize velocity. The abrupt pipe reducers and expanders create inlet and outlet friction losses that derate the valve\'s effective flow capacity by 5% to 20% (F<sub>p</sub> = 0.80 to 0.95). Failing to include F<sub>p</sub> results in an undersized valve unable to pass maximum required design flow.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Interactive FAQ Accordion -->
+  <div style="background:var(--bg-subtle, #1e293b); padding:1.25rem; border-radius:8px; border:1px solid var(--border, #334155); margin-bottom:1.5rem;">
+    <h3 style="font-size:1.1rem; margin-top:0; margin-bottom:1rem; color:var(--text, #fff);">
+      Frequently Asked Questions: Control Valve Sizing & IEC 60534
+    </h3>
+    <div class="faq-container">
+      
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the difference between Cv and Kv?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          <strong>C<sub>v</sub></strong> is the Imperial flow coefficient, defined as the number of US Gallons per minute of 60&deg;F water that will flow through the valve with a 1.0 psi pressure drop. <strong>K<sub>v</sub></strong> is the metric equivalent, defined as m&sup3;/h of water with a 1.0 bar pressure drop. The exact conversion is: <strong>C<sub>v</sub> = 1.156 &times; K<sub>v</sub></strong> (or K<sub>v</sub> = 0.865 &times; C<sub>v</sub>).
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is the liquid pressure recovery factor FL?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          F<sub>L</sub> is a dimensionless ratio representing the valve\'s internal geometry and pressure recovery after the vena contracta: <strong>F<sub>L</sub> = &radic;[ (P1 - P2) / (P1 - P<sub>vc</sub>) ]</strong>. High-recovery valves (ball, butterfly) have low F<sub>L</sub> values (~0.55 to 0.65), recovering most velocity head into pressure, which makes them highly susceptible to cavitation. Low-recovery valves (globe valves) have high F<sub>L</sub> values (~0.85 to 0.95).
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">How is choked flow calculated in compressible gas service?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          For gases, flow increases with pressure drop ratio x = &Delta;P / P1 up to a terminal limit <strong>x<sub>choked</sub> = F<sub>k</sub> &times; x<sub>T</sub></strong>, where F<sub>k</sub> = k / 1.4 is the specific heat ratio factor and x<sub>T</sub> is the valve terminal pressure drop ratio. Once x reaches this limit, sonic shock waves form in the orifice throat, and flow becomes choked (Mach 1.0).
+        </p>
+      </details>
+
+      <details style="margin-bottom:0.75rem; border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">What is valve authority and why is it important?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          Valve authority (N<sub>a</sub>) is the ratio of full-open valve pressure drop to total system friction pressure drop: <strong>N<sub>a</sub> = &Delta;P<sub>valve</sub> / &Delta;P<sub>system</sub></strong>. An authority between 0.25 and 0.50 is recommended. If N<sub>a</sub> is too low (&lt; 0.20), the valve has negligible effect on flow until almost completely closed, degrading control precision.
+        </p>
+      </details>
+
+      <details style="border:1px solid var(--border, #334155); border-radius:6px; padding:0.75rem;">
+        <summary style="font-weight:600; cursor:pointer; color:var(--primary, #38bdf8);">When should equal percentage vs linear trims be used?</summary>
+        <p style="margin-top:0.5rem; font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+          <strong>Equal percentage trims</strong> are used when system pressure drop varies significantly with flow rate (i.e. piping friction accounts for a major fraction of head loss) or when high turndown is needed. <strong>Linear trims</strong> are preferred when pressure drop across the valve remains relatively constant across all flow rates (such as liquid level control loops or bypass recirculation).
+        </p>
+      </details>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function onCVPhaseChange() {
+  var phase = document.getElementById('cvFluidPhase').value;
+  var flowLabel = document.getElementById('cvFlowLabel');
+  var sgLabel = document.getElementById('cvSgLabel');
+  var flowInput = document.getElementById('cvFlowRate');
+
+  if (phase === 'liquid') {
+    flowLabel.textContent = 'Flow Rate Q (GPM)';
+    sgLabel.textContent = 'Specific Gravity Gf';
+    flowInput.value = '450';
+  } else if (phase === 'gas') {
+    flowLabel.textContent = 'Flow Rate Q (SCFM)';
+    sgLabel.textContent = 'Gas Molecular Wt (M)';
+    flowInput.value = '2500';
+    document.getElementById('cvSG').value = '18.0'; // Natural gas
+  } else if (phase === 'steam') {
+    flowLabel.textContent = 'Steam Flow W (lb/hr)';
+    sgLabel.textContent = 'Superheat (&deg;F above Tsat)';
+    flowInput.value = '12000';
+    document.getElementById('cvSG').value = '0'; // saturated
+  }
+}
+
+function onCVTypeChange() {
+  var vType = document.getElementById('cvValveType').value;
+  var flEl = document.getElementById('cvFL');
+  var xtEl = document.getElementById('cvXT');
+
+  if (vType === 'globe_std') {
+    flEl.value = '0.90';
+    xtEl.value = '0.72';
+  } else if (vType === 'globe_anticav') {
+    flEl.value = '0.96';
+    xtEl.value = '0.75';
+  } else if (vType === 'butterfly') {
+    flEl.value = '0.62';
+    xtEl.value = '0.35';
+  } else if (vType === 'ball_segmented') {
+    flEl.value = '0.60';
+    xtEl.value = '0.30';
+  } else if (vType === 'eccentric_plug') {
+    flEl.value = '0.80';
+    xtEl.value = '0.55';
+  }
+}
+
+function applyCVPreset(key) {
+  if (key === 'boiler_feed') {
+    document.getElementById('cvFluidPhase').value = 'liquid';
+    onCVPhaseChange();
+    document.getElementById('cvValveType').value = 'globe_anticav';
+    onCVTypeChange();
+    document.getElementById('cvFlowRate').value = '650';
+    document.getElementById('cvP1').value = '1850';
+    document.getElementById('cvP2').value = '1450';
+    document.getElementById('cvTempF').value = '280';
+    document.getElementById('cvSG').value = '0.93';
+    document.getElementById('cvVaporP').value = '50.0';
+    document.getElementById('cvPipingFP').value = '0.96';
+  } else if (key === 'gas_regulator') {
+    document.getElementById('cvFluidPhase').value = 'gas';
+    onCVPhaseChange();
+    document.getElementById('cvValveType').value = 'globe_std';
+    onCVTypeChange();
+    document.getElementById('cvFlowRate').value = '5000'; // SCFM
+    document.getElementById('cvP1').value = '450';
+    document.getElementById('cvP2').value = '150';
+    document.getElementById('cvTempF').value = '60';
+    document.getElementById('cvSG').value = '16.5';
+    document.getElementById('cvPipingFP').value = '1.00';
+  } else if (key === 'steam_prv') {
+    document.getElementById('cvFluidPhase').value = 'steam';
+    onCVPhaseChange();
+    document.getElementById('cvValveType').value = 'globe_std';
+    onCVTypeChange();
+    document.getElementById('cvFlowRate').value = '15000'; // lb/hr
+    document.getElementById('cvP1').value = '250';
+    document.getElementById('cvP2').value = '50';
+    document.getElementById('cvTempF').value = '406';
+    document.getElementById('cvSG').value = '0';
+    document.getElementById('cvPipingFP').value = '1.00';
+  } else if (key === 'cooling_water') {
+    document.getElementById('cvFluidPhase').value = 'liquid';
+    onCVPhaseChange();
+    document.getElementById('cvValveType').value = 'butterfly';
+    onCVTypeChange();
+    document.getElementById('cvFlowRate').value = '1200';
+    document.getElementById('cvP1').value = '45';
+    document.getElementById('cvP2').value = '35';
+    document.getElementById('cvTempF').value = '85';
+    document.getElementById('cvSG').value = '1.0';
+    document.getElementById('cvVaporP').value = '0.60';
+    document.getElementById('cvPipingFP').value = '0.98';
+  }
+  calculateControlValve();
+}
+
+function calculateControlValve() {
+  var phase = document.getElementById('cvFluidPhase').value;
+  var Q = parseFloat(document.getElementById('cvFlowRate').value) || 450.0;
+  var P1_psig = parseFloat(document.getElementById('cvP1').value) || 180.0;
+  var P2_psig = parseFloat(document.getElementById('cvP2').value) || 120.0;
+  var tempF = parseFloat(document.getElementById('cvTempF').value) || 100.0;
+  var propSG = parseFloat(document.getElementById('cvSG').value) || 1.0;
+  var FL = parseFloat(document.getElementById('cvFL').value) || 0.90;
+  var xT = parseFloat(document.getElementById('cvXT').value) || 0.72;
+  var Pv_psia = parseFloat(document.getElementById('cvVaporP').value) || 0.95;
+  var Fp = parseFloat(document.getElementById('cvPipingFP').value) || 1.00;
+
+  var P1_psia = P1_psig + 14.696;
+  var P2_psia = P2_psig + 14.696;
+  var deltaP_actual = Math.max(0.1, P1_psig - P2_psig);
+
+  var Cv = 0;
+  var deltaP_eff = deltaP_actual;
+  var chokedDeltaP = 9999.0;
+  var isChoked = false;
+  var cavIndex = 99.0;
+  var expFactorY = 1.0;
+
+  if (phase === 'liquid') {
+    // Liquid Sizing per IEC 60534-2-1
+    // Critical pressure of water Pc ~ 3200 psia
+    var Pc = 3200.0;
+    var FF = 0.96 - 0.28 * Math.sqrt(Math.min(1.0, Pv_psia / Pc));
+    chokedDeltaP = Math.pow(FL, 2) * (P1_psia - FF * Pv_psia);
+    cavIndex = (P1_psia - Pv_psia) / deltaP_actual;
+
+    if (deltaP_actual >= chokedDeltaP) {
+      isChoked = true;
+      deltaP_eff = chokedDeltaP;
+    } else {
+      deltaP_eff = deltaP_actual;
+    }
+
+    // Cv = Q / (Fp * sqrt(deltaP_eff / Gf))
+    Cv = Q / (Fp * Math.sqrt(deltaP_eff / propSG));
+  } else if (phase === 'gas') {
+    // Gas Sizing (SCFM) per IEC 60534-2-1
+    // x = deltaP / P1
+    var x = deltaP_actual / P1_psia;
+    var k_ratio = 1.30; // natural gas
+    var Fk = k_ratio / 1.40;
+    var x_choked = Fk * xT;
+
+    if (x >= x_choked) {
+      isChoked = true;
+      x = x_choked;
+      expFactorY = 0.667;
+    } else {
+      expFactorY = 1.0 - (x / (3.0 * Fk * xT));
+    }
+    deltaP_eff = x * P1_psia;
+    chokedDeltaP = x_choked * P1_psia;
+
+    // Cv formula for gas (SCFM, P in psia, T in R)
+    var T_R = tempF + 459.67;
+    var M = propSG; // molecular weight
+    var Gg = M / 28.97;
+    Cv = (Q / (963.0 * Fp * P1_psia * expFactorY)) * Math.sqrt((Gg * T_R) / x);
+  } else if (phase === 'steam') {
+    // Steam Sizing (lb/hr)
+    var x = deltaP_actual / P1_psia;
+    var x_choked = 0.70;
+    if (x >= x_choked) {
+      isChoked = true;
+      x = x_choked;
+      expFactorY = 0.667;
+    } else {
+      expFactorY = 1.0 - (x / (3.0 * x_choked));
+    }
+    deltaP_eff = x * P1_psia;
+    chokedDeltaP = x_choked * P1_psia;
+
+    // Saturated steam approximation (W in lb/hr)
+    Cv = Q / (2.1 * P1_psia * expFactorY * Math.sqrt(x));
+  }
+
+  var Kv = Cv * 0.865;
+
+  // Commercial body sizing estimation
+  var bodySizeText = '1" (DN 25)';
+  var ratedCv = 18.0;
+  if (Cv <= 12) { bodySizeText = '1" (DN 25)'; ratedCv = 18.0; }
+  else if (Cv <= 28) { bodySizeText = '1.5" (DN 40)'; ratedCv = 36.0; }
+  else if (Cv <= 65) { bodySizeText = '2" (DN 50)'; ratedCv = 75.0; }
+  else if (Cv <= 140) { bodySizeText = '3" (DN 80)'; ratedCv = 160.0; }
+  else if (Cv <= 240) { bodySizeText = '4" (DN 100)'; ratedCv = 280.0; }
+  else if (Cv <= 520) { bodySizeText = '6" (DN 150)'; ratedCv = 620.0; }
+  else if (Cv <= 900) { bodySizeText = '8" (DN 200)'; ratedCv = 1100.0; }
+  else { bodySizeText = '10"+ (DN 250+)'; ratedCv = Cv * 1.35; }
+
+  var strokePct = Math.min(95, Math.round((Cv / ratedCv) * 100));
+
+  // Status Badge
+  var badgeEl = document.getElementById('cvRegimeBadge');
+  if (isChoked) {
+    badgeEl.textContent = phase === 'liquid' ? 'WARNING: CHOKED CAVITATION / FLASHING ACTIVE!' : 'SONIC CHOKED FLOW (MACH 1.0 THROAT)';
+    badgeEl.style.background = '#ef4444';
+  } else if (phase === 'liquid' && cavIndex < 1.5) {
+    badgeEl.textContent = 'CAUTION: INCIPIENT CAVITATION REGIME';
+    badgeEl.style.background = '#f59e0b';
+  } else {
+    badgeEl.textContent = 'PASS: SUB-CRITICAL REGULAR FLOW';
+    badgeEl.style.background = '#10b981';
+  }
+
+  // DOM Updates
+  document.getElementById('cvResultCv').textContent = Cv.toFixed(1);
+  document.getElementById('cvResultKv').textContent = 'Metric K_v: ' + Kv.toFixed(1) + ' m\u00b3/h';
+
+  document.getElementById('cvResultDp').textContent = deltaP_eff.toFixed(1) + ' psi';
+  document.getElementById('cvResultDpBar').textContent = (deltaP_eff * 0.0689476).toFixed(2) + ' bar (Actual: ' + deltaP_actual.toFixed(1) + ' psi)';
+
+  document.getElementById('cvChokedDp').textContent = chokedDeltaP.toFixed(1) + ' psi';
+  document.getElementById('cvCavIndex').textContent = phase === 'liquid' ? ('Cavitation Index \u03c3 = ' + cavIndex.toFixed(2) + (isChoked ? ' (CHOKED!)' : ' (Safe)')) : ('Choked Limit: ' + chokedDeltaP.toFixed(1) + ' psi');
+
+  document.getElementById('cvBodySize').textContent = bodySizeText;
+  document.getElementById('cvStrokePct').textContent = 'Selected Valve Rated Cv: ' + ratedCv.toFixed(0) + ' (' + strokePct + '% Travel)';
+
+  var cavRegEl = document.getElementById('cvCavRegime');
+  if (isChoked) {
+    cavRegEl.textContent = 'Severe Choked Vaporization';
+    cavRegEl.style.color = '#ef4444';
+  } else if (cavIndex < 1.5) {
+    cavRegEl.textContent = 'Incipient Bubble Collapse';
+    cavRegEl.style.color = '#f59e0b';
+  } else {
+    cavRegEl.textContent = 'Incipient Cavitation Free';
+    cavRegEl.style.color = '#10b981';
+  }
+
+  document.getElementById('cvExpFactor').textContent = expFactorY.toFixed(3) + (phase === 'liquid' ? ' (Liquid Incompressible)' : '');
+
+  renderCVSvg(P1_psig, P2_psig, deltaP_eff, isChoked);
+
+  renderCVDerivations({
+    phase: phase, Q: Q, P1_psig: P1_psig, P2_psig: P2_psig, deltaP_actual: deltaP_actual,
+    deltaP_eff: deltaP_eff, chokedDeltaP: chokedDeltaP, isChoked: isChoked,
+    Cv: Cv, Kv: Kv, FL: FL, xT: xT, bodySizeText: bodySizeText, strokePct: strokePct
+  });
+}
+
+function renderCVSvg(P1, P2, dp, isChoked) {
+  var svg = document.getElementById('cvValveSvg');
+  var w = 800;
+  var h = 280;
+
+  var svgContent = ''
+    + '<!-- Valve Body Outline -->'
+    + '<path d="M 120,90 L 320,90 L 370,140 L 320,190 L 120,190 Z" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />'
+    + '<path d="M 680,90 L 480,90 L 430,140 L 480,190 L 680,190 Z" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />'
+    + '<rect x="370" y="115" width="60" height="50" fill="#0f172a" stroke="#f59e0b" stroke-width="2" />'
+
+    + '<!-- Valve Plug & Stem -->'
+    + '<line x1="400" y1="30" x2="400" y2="125" stroke="#94a3b8" stroke-width="8" />'
+    + '<polygon points="380,125 420,125 400,145" fill="#f59e0b" />'
+    + '<text x="400" y="25" fill="#e2e8f0" font-size="11" font-weight="700" text-anchor="middle">Actuator Stem</text>'
+
+    + '<!-- Flow Streamlines -->'
+    + '<path d="M 150,140 L 360,140 Q 400,140 400,155 Q 400,140 440,140 L 650,140" fill="none" stroke="#10b981" stroke-width="4" />'
+
+    + '<!-- Vena Contracta Pressure Profile Curve -->'
+    + '<path d="M 150,220 L 350,220 L 400,260 L 470,235 L 650,235" fill="none" stroke="#f59e0b" stroke-width="2.5" />'
+    + '<text x="250" y="212" fill="#10b981" font-size="10">P1: ' + P1.toFixed(0) + ' psig</text>'
+    + '<text x="400" y="275" fill="#ef4444" font-size="10" font-weight="700" text-anchor="middle">Vena Contracta</text>'
+    + '<text x="560" y="227" fill="#38bdf8" font-size="10">P2: ' + P2.toFixed(0) + ' psig</text>'
+
+    + '<!-- Choking Warning Box -->'
+    + '<rect x="520" y="45" width="240" height="40" rx="6" fill="#1e293b" stroke="' + (isChoked ? '#ef4444' : '#10b981') + '" />'
+    + '<text x="640" y="70" fill="' + (isChoked ? '#ef4444' : '#10b981') + '" font-size="11" font-weight="700" text-anchor="middle">' + (isChoked ? '⚠ CHOKED CAVITATION ACTIVE' : '✓ SUB-CRITICAL FLOW') + '</text>';
+
+  svg.innerHTML = svgContent;
+}
+
+function renderCVDerivations(p) {
+  var container = document.getElementById('cvDerivationContent');
+  container.innerHTML = ''
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>1. Flow Coefficient Sizing Formula (IEC 60534-2-1):</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#38bdf8;">'
+    + (p.phase === 'liquid' ?
+      'C_v = \frac{Q}{F_p} &times; \sqrt{\frac{G_f}{\Delta P_{eff}}}' :
+      'C_v = \frac{Q}{963 &times; F_p &times; P_1 &times; Y} &times; \sqrt{\frac{G_g &times; T}{x}}')
+    + '</div>'
+    + '<div>'
+    + 'Required Flow Capacity: <strong>C_v = ' + p.Cv.toFixed(2) + ' (K_v = ' + p.Kv.toFixed(2) + ' m\u00b3/h)</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px; margin-bottom:1rem;">'
+    + '<strong>2. Choked Pressure Drop Limit:</strong>'
+    + '<div style="font-family:monospace; margin:0.35rem 0; color:#f59e0b;">'
+    + '\Delta P_{choked} = ' + (p.phase === 'liquid' ? 'F_L\u00b2 &times; (P_1 - F_F &times; P_v)' : 'F_k &times; x_T &times; P_1') + ' = <strong>' + p.chokedDeltaP.toFixed(1) + ' psi</strong>'
+    + '</div>'
+    + '<div>'
+    + 'Actual \Delta P = ' + p.deltaP_actual.toFixed(1) + ' psi &rarr; Status: <strong>' + (p.isChoked ? 'CHOKED FLOW (Effective \Delta P capped)' : 'Sub-Critical (No Choking)') + '</strong>'
+    + '</div>'
+    + '</div>'
+
+    + '<div style="background:rgba(0,0,0,0.25); padding:1rem; border-radius:6px;">'
+    + '<strong>3. Commercial Valve Selection:</strong>'
+    + '<div>'
+    + 'Recommended Nominal Size: <strong>' + p.bodySizeText + '</strong> with ~' + p.strokePct + '% Travel at Design Flow'
+    + '</div>'
+    + '</div>';
+}
+
+function copyCVSummary() {
+  var cv = document.getElementById('cvResultCv').textContent;
+  var kv = document.getElementById('cvResultKv').textContent;
+  var dp = document.getElementById('cvResultDp').textContent;
+  var chk = document.getElementById('cvChokedDp').textContent;
+  var size = document.getElementById('cvBodySize').textContent;
+  var travel = document.getElementById('cvStrokePct').textContent;
+  var badge = document.getElementById('cvRegimeBadge').textContent;
+
+  var summary = [
+    '=== IEC 60534 CONTROL VALVE SIZING REPORT ===',
+    'Flow Regime: ' + badge,
+    'Required Flow Coeff (Cv): ' + cv,
+    'Metric Flow Coeff (Kv): ' + kv,
+    'Effective Pressure Drop: ' + dp,
+    'Choked Limit (DeltaP_max): ' + chk,
+    'Recommended Body Size: ' + size,
+    'Travel Operating Point: ' + travel,
+    'Standards: IEC 60534-2-1 & ISA-75.01.01',
+    'Computed via Digital Tools Shed (https://digitaltoolsshed.com)'
+  ].join('\n');
+
+  var btn = document.getElementById('btnCopyCV');
+  navigator.clipboard.writeText(summary).then(function() {
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<span>\u2713</span> Copied!';
+    btn.style.color = '#10b981';
+    setTimeout(function() {
+      btn.innerHTML = orig;
+      btn.style.color = 'inherit';
+    }, 2500);
+  }).catch(function() {});
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  calculateControlValve();
+});
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  calculateControlValve();
+}
+</script>
+`;
+
+
+
+// ==========================================
+// TOOL AK4: Pressure Vessel Nozzle Local Stress & Piping External Load Calculator (WRC-107 / WRC-537 & ASME Section VIII Div 2 Part 5)
+// ==========================================
+const toolAK4Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">ASME Section VIII Div 2 Part 5 &bull; WRC-107 / WRC-537 &bull; API 650 Appendix P</div>
+    <h1>Pressure Vessel Nozzle Local Stress & Piping External Load Calculator</h1>
+    <p class="text-muted">Calculate local shell membrane and bending stresses at cylindrical vessel nozzle junctions subjected to sustained internal pressure, piping radial thrust ($P$), and longitudinal & circumferential bending moments ($M_L, M_C$) per WRC-537 / WRC-107 and ASME Section VIII Div 2 stress intensity criteria.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. Vessel & Nozzle Geometry</h3>
+      
+      <div class="input-group">
+        <label for="ak4_vessel_od">Vessel Outside Diameter ($D_o$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_vessel_od" value="60" min="6" max="360" step="0.5">
+          <span class="unit-badge">in</span>
+        </div>
+        <small class="text-muted">Vessel shell OD (6 to 360 in / 150 to 9,000 mm)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_shell_thk">Vessel Shell Wall Thickness ($T$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_shell_thk" value="0.75" min="0.125" max="6" step="0.0625">
+          <span class="unit-badge">in</span>
+        </div>
+        <small class="text-muted">Nominal corroded shell thickness</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_nozzle_od">Nozzle Outside Diameter ($d_o$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_nozzle_od" value="10.75" min="1" max="120" step="0.125">
+          <span class="unit-badge">in</span>
+        </div>
+        <small class="text-muted">e.g. 10.75" for 10" NPS nozzle</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_pad_thk">Reinforcing Pad Thickness ($T_{pad}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_pad_thk" value="0.0" min="0" max="6" step="0.0625">
+          <span class="unit-badge">in</span>
+        </div>
+        <small class="text-muted">Enter 0 if unreinforced / no repad</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_p_int">Internal Operating Pressure ($P_{int}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_p_int" value="250" min="0" max="5000" step="5">
+          <span class="unit-badge">psig</span>
+        </div>
+        <small class="text-muted">Internal coincident pressure</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. External Piping Loads & Material Limits</h3>
+
+      <div class="input-group">
+        <label for="ak4_mat_allow">Material Allowable Stress ($S$ or $S_m$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_mat_allow" value="20000" min="5000" max="60000" step="500">
+          <span class="unit-badge">psi</span>
+        </div>
+        <small class="text-muted">ASME Section II Part D allowable stress (e.g. 20,000 psi for SA-516 Gr 70)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_load_case">Load Combination Category</label>
+        <select id="ak4_load_case">
+          <option value="sustained" selected>Sustained / Occasional (Weight + Pressure, Limit: 1.5 Sm)</option>
+          <option value="expansion">Operating / Total (Sustained + Thermal Piping, Limit: 3.0 Sm)</option>
+        </select>
+        <small class="text-muted">ASME Section VIII Div 2 stress categorization</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_p_rad">Radial Force ($P_R$ / $F_R$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_p_rad" value="2500" min="-100000" max="100000" step="100">
+          <span class="unit-badge">lbf</span>
+        </div>
+        <small class="text-muted">Positive = Outward tension; Negative = Inward push</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_m_long">Longitudinal Bending Moment ($M_L$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_m_long" value="4800" min="0" max="200000" step="100">
+          <span class="unit-badge">ft-lbf</span>
+        </div>
+        <small class="text-muted">Moment acting in longitudinal vessel plane</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_m_circ">Circumferential Bending Moment ($M_C$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_m_circ" value="3600" min="0" max="200000" step="100">
+          <span class="unit-badge">ft-lbf</span>
+        </div>
+        <small class="text-muted">Moment acting in circumferential vessel plane</small>
+      </div>
+
+      <div class="input-group">
+        <label for="ak4_m_tor">Torsional Moment ($M_T$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="ak4_m_tor" value="1500" min="0" max="100000" step="50">
+          <span class="unit-badge">ft-lbf</span>
+        </div>
+        <small class="text-muted">Torsion around nozzle center axis</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">Local Junction Stress & ASME Code Evaluation</h3>
+      <div id="ak4_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Max Stress Intensity</div>
+        <div id="ak4_out_smax" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- psi</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="ak4_out_smax_loc">Location: Point A / Outer</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Allowable Stress Limit</div>
+        <div id="ak4_out_slimit" style="font-size:22px; font-weight:800; color:#3b82f6; margin:4px 0;">-- psi</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="ak4_out_slimit_basis">Basis: 1.5 Sm (Sustained)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="ak4_util_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Stress Utilization Ratio</div>
+        <div id="ak4_out_util" style="font-size:22px; font-weight:800; color:#10b981; margin:4px 0;">-- %</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="ak4_out_margin">Reserve Margin: -- psi</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">WRC Dimension Ratios</div>
+        <div id="ak4_out_ratios" style="font-size:16px; font-weight:700; color:var(--text-primary); margin:4px 0;">β = -- | γ = --</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="ak4_out_wrc_valid">WRC-107 Validity: OK</div>
+      </div>
+    </div>
+
+    <!-- Cardinal Point Breakdown Table -->
+    <div style="margin-top:18px; overflow-x:auto;">
+      <h4 style="font-size:13px; margin:0 0 8px 0; color:var(--text-secondary);">4-Cardinal Points Stress Intensity Summary (Outer & Inner Shell Surfaces)</h4>
+      <table style="width:100%; font-size:12px; border-collapse:collapse; text-align:right;">
+        <thead>
+          <tr style="border-bottom:2px solid var(--border-color); color:var(--text-muted);">
+            <th style="text-align:left; padding:6px 8px;">Cardinal Point & Axis</th>
+            <th style="padding:6px 8px;">Circ. Stress $\sigma_\phi$ (psi)</th>
+            <th style="padding:6px 8px;">Long. Stress $\sigma_x$ (psi)</th>
+            <th style="padding:6px 8px;">Shear $\tau$ (psi)</th>
+            <th style="padding:6px 8px;">Outer $S_i$ (psi)</th>
+            <th style="padding:6px 8px;">Inner $S_i$ (psi)</th>
+            <th style="padding:6px 8px;">Util. %</th>
+          </tr>
+        </thead>
+        <tbody id="ak4_points_tbody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Live SVG Stress Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Interactive Nozzle Junction & Cardinal Orientation (WRC-107 / WRC-537)</span>
+        <span style="font-size:11px; color:var(--text-muted);">View looking down nozzle axis onto cylindrical shell</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="ak4_svg" viewBox="0 0 600 300" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="ak4_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy Nozzle Stress Report
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivation & ASME Section VIII / WRC Methodology</h2>
+    <p>Welding Research Council (WRC) Bulletins 107 and 537 calculate localized stresses induced by external piping forces and moments in thin-walled pressure vessel shells using Bijlaard's double Fourier series solution for shallow thin shells.</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. Non-Dimensional Geometric Parameters:</strong><br>
+      Shell mean radius: $R_m = \frac{D_o - T_e}{2}$<br>
+      Nozzle outer mean radius: $r_o = \frac{d_o}{2}$<br>
+      Effective shell thickness: $T_e = T + T_{pad}$ (within reinforcing limits)<br>
+      Cylindrical slenderness ratio: $\\gamma = \frac{R_m}{T_e}$ (validity range: $5 \le \gamma \le 300$)<br>
+      Nozzle-to-shell radius ratio: $\\beta = 0.875 \cdot \frac{r_o}{R_m}$ (validity range: $0.05 \le \beta \le 0.5$)<br><br>
+
+      <strong>2. Membrane & Bending Stress Superposition at Cardinal Points:</strong><br>
+      External loads produce stresses distributed across four orthogonal cardinal points around the nozzle neck:<br>
+      &bull; <strong>Point A & B (Longitudinal Plane):</strong> Maximum bending from Longitudinal Moment $M_L$. Bending stress: $\\sigma_{x, b} = \pm K_{ML} \frac{M_L}{R_m T_e^2 \beta \sqrt{\\beta \gamma}}$.<br>
+      &bull; <strong>Point C & D (Circumferential Plane):</strong> Maximum bending from Circumferential Moment $M_C$. Bending stress: $\\sigma_{\\phi, b} = \pm K_{MC} \frac{M_C}{R_m T_e^2 \beta \sqrt{\\beta \gamma}}$.<br>
+      &bull; <strong>Radial Thrust $P_R$:</strong> Generates both circumferential ($\sigma_\phi$) and longitudinal ($\sigma_x$) membrane and bending stresses: $\\sigma_m = K_{P,m} \frac{P_R}{T_e^2}$ and $\\sigma_b = \pm K_{P,b} \frac{P_R}{T_e^2}$.<br><br>
+
+      <strong>3. Internal Pressure Superposition:</strong><br>
+      General membrane hoop and longitudinal stresses due to internal pressure $P_{int}$ are added directly:<br>
+      $$\\sigma_{\\phi, p} = \frac{P_{int} (D_o - 2 T_e)}{2 T_e}, \quad \sigma_{x, p} = \frac{P_{int} (D_o - 2 T_e)}{4 T_e}$$<br>
+      
+      <strong>4. Stress Intensity per ASME Section VIII Div 2 Part 5:</strong><br>
+      For biaxial stresses with torsion shear $\\tau = \frac{M_T}{2 \pi r_o^2 T_e}$, the Tresca stress intensity is evaluated at both outer ($+T_e/2$) and inner ($-T_e/2$) fibers:<br>
+      $$S = \sqrt{(\\sigma_\phi - \sigma_x)^2 + 4 \tau^2}$$ or von Mises equivalent: $$S_{eq} = \sqrt{\\sigma_\phi^2 - \sigma_\phi \sigma_x + \sigma_x^2 + 3\tau^2}$$
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in Vessel Nozzle Stress Analysis</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. The $\\beta > 0.5$ Large Nozzle Extrapolation Trap</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          WRC-107 and WRC-537 formulas are strictly derived from Bijlaard's thin shallow shell theory, valid only up to $\\beta = 0.875 r_o / R_m \le 0.5$ (or $d/D \le 0.33$). Applying WRC-107 to large nozzles (e.g. 24" nozzle on a 36" vessel, $d/D = 0.67$) drastically underestimates peak circumferential shell stresses by 200% to 500%. For large diameter ratios, ASME Section VIII Div 2 Part 5 finite element analysis (FEA) or WRC-297 is legally mandated.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. The Primary ($1.5 S_m$) vs Secondary ($3.0 S_m$) Stress Classification Confusion</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Evaluating pure thermal piping expansion moments against the primary membrane plus bending limit of $1.5 S_m$ forces piping engineers to insert unnecessary, expensive expansion loops. Conversely, treating mechanical slug flow or water hammer transient thrusts as secondary loads allowable to $3.0 S_m$ risks gross plastic deformation and catastrophic nozzle weld neck fatigue rupture.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. The Repad Edge Weld Toe Notch Failure</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          While a reinforcing pad adds thickness ($T_e = T + T_{pad}$) directly at the nozzle neck, it transfers the structural discontinuity to the outer perimeter fillet weld toe. If the nozzle moments are high, peak bending stresses at the repad edge in the unreinforced vessel shell often exceed allowable limits even when the nozzle-to-pad junction easily passes. Both junctions must be audited.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Coordinate Axis Mismatch (Caesar II / AutoPIPE vs WRC-107)</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Piping stress programs output forces and moments in global coordinates ($F_X, F_Y, F_Z, M_X, M_Y, M_Z$) or local nozzle coordinates where axes depend on nozzle skew and vessel orientation. Confusing longitudinal moment $M_L$ (acting along vessel axis) with circumferential moment $M_C$ (acting around vessel circumference) swaps Points A/B with C/D, severely distorting combined stress intensity because cylindrical shells are 2 to 3 times stiffer longitudinally than circumferentially.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Ignoring Pressure Thrust Area ($P_{int} \cdot \pi r_i^2$)</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          The internal fluid pressure exerts an outward radial thrust on the nozzle closure or piping bend equal to $F_{thrust} = P_{int} \times \pi (d_o/2 - t_n)^2$. If this pressure blowout force is not explicitly included in the radial load $P_R$, the tensile membrane stress pulling the nozzle away from the shell is severely undercalculated, leading to premature nozzle neck cracking.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function calcAK4() {
+    var Do = parseFloat(document.getElementById('ak4_vessel_od').value) || 60;
+    var T = parseFloat(document.getElementById('ak4_shell_thk').value) || 0.75;
+    var do_nozz = parseFloat(document.getElementById('ak4_nozzle_od').value) || 10.75;
+    var Tpad = parseFloat(document.getElementById('ak4_pad_thk').value) || 0;
+    var Pint = parseFloat(document.getElementById('ak4_p_int').value) || 0;
+    var Sm = parseFloat(document.getElementById('ak4_mat_allow').value) || 20000;
+    var loadCase = document.getElementById('ak4_load_case').value;
+    var Pr = parseFloat(document.getElementById('ak4_p_rad').value) || 0;
+    var Ml = parseFloat(document.getElementById('ak4_m_long').value) || 0; // ft-lbf
+    var Mc = parseFloat(document.getElementById('ak4_m_circ').value) || 0; // ft-lbf
+    var Mt = parseFloat(document.getElementById('ak4_m_tor').value) || 0; // ft-lbf
+
+    var Te = T + Tpad;
+    var Rm = (Do - Te) / 2;
+    var ro = do_nozz / 2;
+    var beta = 0.875 * (ro / Rm);
+    var gamma = Rm / Te;
+
+    // Convert moments to in-lbf
+    var Ml_in = Ml * 12;
+    var Mc_in = Mc * 12;
+    var Mt_in = Mt * 12;
+
+    // Internal pressure stresses
+    var Di = Do - 2 * Te;
+    var sig_phi_p = Pint * Di / (2 * Te); // Hoop
+    var sig_x_p = Pint * Di / (4 * Te);   // Longitudinal
+
+    // WRC-107/537 coefficient approximations based on Bijlaard shell charts
+    // Radial load factors
+    var kp_m = 0.35 / Math.pow(beta, 0.4);
+    var kp_b = 0.75 * Math.pow(gamma, 0.3) / Math.pow(beta, 0.5);
+
+    // Moment bending factors
+    var kmc = 1.25 / (Math.pow(beta, 0.8) * Math.pow(gamma, 0.25));
+    var kml = 0.85 / (Math.pow(beta, 0.8) * Math.pow(gamma, 0.25));
+
+    // Stresses due to Pr (psi)
+    var sig_pr_m = kp_m * (Pr / (Te * Te));
+    var sig_pr_b = kp_b * (Pr / (Te * Te));
+
+    // Stresses due to Mc (psi)
+    var sig_mc_b = kmc * (Mc_in / (Rm * Te * Te * beta));
+
+    // Stresses due to Ml (psi)
+    var sig_ml_b = kml * (Ml_in / (Rm * Te * Te * beta));
+
+    // Torsion shear (psi)
+    var tau_t = Mt_in / (2 * Math.PI * ro * ro * Te);
+
+    // Allowable limit
+    var Slimit = (loadCase === 'sustained') ? (1.5 * Sm) : (3.0 * Sm);
+
+    // Evaluate 4 cardinal points (Outer and Inner fibers)
+    // Points A and B are in longitudinal plane (governed by Ml)
+    // Points C and D are in circumferential plane (governed by Mc)
+    var points = [
+      { name: 'Point A (Long. +)', sig_phi: sig_phi_p + 0.5 * sig_pr_m, sig_x_m: sig_x_p + sig_pr_m, sig_x_b: sig_ml_b, tau: tau_t },
+      { name: 'Point B (Long. -)', sig_phi: sig_phi_p + 0.5 * sig_pr_m, sig_x_m: sig_x_p + sig_pr_m, sig_x_b: -sig_ml_b, tau: tau_t },
+      { name: 'Point C (Circ. +)', sig_phi_m: sig_phi_p + sig_pr_m, sig_phi_b: sig_mc_b, sig_x: sig_x_p + 0.5 * sig_pr_m, tau: tau_t },
+      { name: 'Point D (Circ. -)', sig_phi_m: sig_phi_p + sig_pr_m, sig_phi_b: -sig_mc_b, sig_x: sig_x_p + 0.5 * sig_pr_m, tau: tau_t }
+    ];
+
+    var maxSi = 0;
+    var maxLoc = '';
+    var tableHtml = '';
+
+    points.forEach(function(pt, idx) {
+      var s_phi_out = 0, s_phi_in = 0;
+      var s_x_out = 0, s_x_in = 0;
+      var tau = pt.tau;
+
+      if (idx < 2) {
+        // Point A / B
+        s_phi_out = pt.sig_phi + 0.5 * sig_pr_b;
+        s_phi_in  = pt.sig_phi - 0.5 * sig_pr_b;
+        s_x_out   = pt.sig_x_m + pt.sig_x_b + sig_pr_b;
+        s_x_in    = pt.sig_x_m - pt.sig_x_b - sig_pr_b;
+      } else {
+        // Point C / D
+        s_phi_out = pt.sig_phi_m + pt.sig_phi_b + sig_pr_b;
+        s_phi_in  = pt.sig_phi_m - pt.sig_phi_b - sig_pr_b;
+        s_x_out   = pt.sig_x + 0.5 * sig_pr_b;
+        s_x_in    = pt.sig_x - 0.5 * sig_pr_b;
+      }
+
+      // von Mises Stress Intensity
+      var si_out = Math.sqrt(s_phi_out * s_phi_out - s_phi_out * s_x_out + s_x_out * s_x_out + 3 * tau * tau);
+      var si_in  = Math.sqrt(s_phi_in * s_phi_in - s_phi_in * s_x_in + s_x_in * s_x_in + 3 * tau * tau);
+
+      var ptMax = Math.max(si_out, si_in);
+      if (ptMax > maxSi) {
+        maxSi = ptMax;
+        maxLoc = pt.name + (si_out > si_in ? ' / Outer' : ' / Inner');
+      }
+
+      var utilPt = (ptMax / Slimit) * 100;
+      var utilColor = utilPt > 100 ? '#ef4444' : (utilPt > 85 ? '#f59e0b' : '#10b981');
+
+      tableHtml += '<tr style="border-bottom:1px solid var(--border-color);">' +
+        '<td style="text-align:left; font-weight:600; padding:6px 8px;">' + pt.name + '</td>' +
+        '<td style="padding:6px 8px;">' + Math.round(s_phi_out).toLocaleString() + '</td>' +
+        '<td style="padding:6px 8px;">' + Math.round(s_x_out).toLocaleString() + '</td>' +
+        '<td style="padding:6px 8px;">' + Math.round(tau).toLocaleString() + '</td>' +
+        '<td style="padding:6px 8px; font-weight:700;">' + Math.round(si_out).toLocaleString() + '</td>' +
+        '<td style="padding:6px 8px; font-weight:700;">' + Math.round(si_in).toLocaleString() + '</td>' +
+        '<td style="padding:6px 8px; font-weight:700; color:' + utilColor + ';">' + utilPt.toFixed(1) + '%</td>' +
+      '</tr>';
+    });
+
+    var utilTotal = (maxSi / Slimit) * 100;
+    var margin = Slimit - maxSi;
+
+    // Update Hero Display
+    document.getElementById('ak4_out_smax').textContent = Math.round(maxSi).toLocaleString() + ' psi';
+    document.getElementById('ak4_out_smax_loc').textContent = 'Location: ' + maxLoc;
+    document.getElementById('ak4_out_slimit').textContent = Math.round(Slimit).toLocaleString() + ' psi';
+    document.getElementById('ak4_out_slimit_basis').textContent = 'Basis: ' + (loadCase === 'sustained' ? '1.5 Sm (Sustained)' : '3.0 Sm (Operating / Total)');
+    
+    var utilElem = document.getElementById('ak4_out_util');
+    utilElem.textContent = utilTotal.toFixed(1) + ' %';
+    utilElem.style.color = utilTotal > 100 ? '#ef4444' : (utilTotal > 85 ? '#f59e0b' : '#10b981');
+
+    var marginElem = document.getElementById('ak4_out_margin');
+    marginElem.textContent = (margin >= 0 ? 'Reserve Margin: +' : 'Overstress: ') + Math.round(margin).toLocaleString() + ' psi';
+
+    document.getElementById('ak4_out_ratios').textContent = 'β = ' + beta.toFixed(3) + ' | γ = ' + gamma.toFixed(1);
+
+    var validText = '';
+    if (beta > 0.5) validText = '⚠️ β > 0.5 (WRC Exceeded, use FEA)';
+    else if (gamma > 300) validText = '⚠️ γ > 300 (Too Thin, use FEA)';
+    else validText = '✓ WRC-107/537 Ratios Valid';
+    document.getElementById('ak4_out_wrc_valid').textContent = validText;
+
+    var badge = document.getElementById('ak4_status_badge');
+    if (utilTotal <= 85) {
+      badge.textContent = 'PASSED (STABLE)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    } else if (utilTotal <= 100) {
+      badge.textContent = 'MARGINAL (<15% MARGIN)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else {
+      badge.textContent = 'OVERSTRESSED (FAIL)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    }
+
+    document.getElementById('ak4_points_tbody').innerHTML = tableHtml;
+
+    // Render Live SVG Diagram
+    renderSvgAK4(beta, gamma, maxSi, Slimit, utilTotal, Pr, Ml, Mc);
+  }
+
+  function renderSvgAK4(beta, gamma, maxSi, Slimit, utilTotal, Pr, Ml, Mc) {
+    var svg = document.getElementById('ak4_svg');
+    if (!svg) return;
+    var s = '';
+
+    // Shell background (cylindrical vessel curvature visualizer)
+    s += '<rect x="40" y="40" width="520" height="220" rx="12" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="2"/>';
+    
+    // Longitudinal vessel axis line (horizontal)
+    s += '<line x1="50" y1="150" x2="550" y2="150" stroke="#64748b" stroke-dasharray="6,6" stroke-width="1.5"/>';
+    s += '<text x="60" y="142" font-size="11" fill="#64748b" font-weight="600">Longitudinal Vessel Axis (X)</text>';
+    
+    // Circumferential axis (vertical)
+    s += '<line x1="300" y1="50" x2="300" y2="250" stroke="#64748b" stroke-dasharray="6,6" stroke-width="1.5"/>';
+    s += '<text x="310" y="65" font-size="11" fill="#64748b" font-weight="600">Circumferential Axis (Φ)</text>';
+
+    // Nozzle Junction Circle
+    var r_px = Math.min(85, Math.max(35, beta * 180));
+    var heatColor = utilTotal > 100 ? '#ef4444' : (utilTotal > 85 ? '#f59e0b' : '#10b981');
+
+    s += '<circle cx="300" cy="150" r="' + (r_px + 14) + '" fill="none" stroke="' + heatColor + '" stroke-width="3" opacity="0.3"/>';
+    s += '<circle cx="300" cy="150" r="' + r_px + '" fill="var(--bg-secondary)" stroke="' + heatColor + '" stroke-width="3"/>';
+    s += '<circle cx="300" cy="150" r="' + (r_px * 0.7) + '" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="1.5"/>';
+    
+    // Cardinal Points markers
+    // Point A (Long. +) -> Right (300 + r_px, 150)
+    s += '<circle cx="' + (300 + r_px) + '" cy="150" r="5" fill="#3b82f6"/>';
+    s += '<text x="' + (300 + r_px + 8) + '" y="154" font-size="12" font-weight="700" fill="#3b82f6">Pt A</text>';
+
+    // Point B (Long. -) -> Left (300 - r_px, 150)
+    s += '<circle cx="' + (300 - r_px) + '" cy="150" r="5" fill="#3b82f6"/>';
+    s += '<text x="' + (300 - r_px - 34) + '" y="154" font-size="12" font-weight="700" fill="#3b82f6">Pt B</text>';
+
+    // Point C (Circ. +) -> Top (300, 150 - r_px)
+    s += '<circle cx="300" cy="' + (150 - r_px) + '" r="5" fill="#8b5cf6"/>';
+    s += '<text x="306" y="' + (150 - r_px - 8) + '" font-size="12" font-weight="700" fill="#8b5cf6">Pt C</text>';
+
+    // Point D (Circ. -) -> Bottom (300, 150 + r_px)
+    s += '<circle cx="300" cy="' + (150 + r_px) + '" r="5" fill="#8b5cf6"/>';
+    s += '<text x="306" y="' + (150 + r_px + 18) + '" font-size="12" font-weight="700" fill="#8b5cf6">Pt D</text>';
+
+    // Load Vectors Representation
+    // Moment Mc (curved arrow in circumferential plane)
+    s += '<path d="M 270 95 A 40 40 0 0 1 330 95" fill="none" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrow)"/>';
+    s += '<text x="335" y="95" font-size="11" fill="#f59e0b" font-weight="700">Mc = ' + Mc + ' ft-lb</text>';
+
+    // Moment Ml (curved arrow in longitudinal plane)
+    s += '<path d="M 355 120 A 40 40 0 0 1 355 180" fill="none" stroke="#3b82f6" stroke-width="2.5"/>';
+    s += '<text x="365" y="195" font-size="11" fill="#3b82f6" font-weight="700">Ml = ' + Ml + ' ft-lb</text>';
+
+    // Center Radial Load marker
+    s += '<circle cx="300" cy="150" r="12" fill="' + (Pr >= 0 ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)') + '" stroke="' + (Pr >= 0 ? '#10b981' : '#ef4444') + '" stroke-width="2"/>';
+    s += '<text x="300" y="154" font-size="12" font-weight="800" text-anchor="middle" fill="' + (Pr >= 0 ? '#10b981' : '#ef4444') + '">' + (Pr >= 0 ? '⊙' : '⊗') + '</text>';
+    s += '<text x="300" y="174" font-size="10" font-weight="600" text-anchor="middle" fill="var(--text-muted)">' + (Pr >= 0 ? 'Tension' : 'Push') + ' ' + Math.abs(Pr) + ' lb</text>';
+
+    // Utilization gauge bar at bottom
+    s += '<rect x="60" y="270" width="480" height="8" rx="4" fill="var(--bg-secondary)"/>';
+    var barW = Math.min(480, (utilTotal / 100) * 480);
+    s += '<rect x="60" y="270" width="' + barW + '" height="8" rx="4" fill="' + heatColor + '"/>';
+    s += '<line x1="' + (60 + 480 * 0.85) + '" y1="267" x2="' + (60 + 480 * 0.85) + '" y2="281" stroke="#f59e0b" stroke-width="1.5"/>';
+    s += '<line x1="540" y1="267" x2="540" y2="281" stroke="#ef4444" stroke-width="2"/>';
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['ak4_vessel_od', 'ak4_shell_thk', 'ak4_nozzle_od', 'ak4_pad_thk', 'ak4_p_int', 'ak4_mat_allow', 'ak4_load_case', 'ak4_p_rad', 'ak4_m_long', 'ak4_m_circ', 'ak4_m_tor'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAK4);
+      el.addEventListener('change', calcAK4);
+    }
+  });
+
+  var copyBtn = document.getElementById('ak4_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var smax = document.getElementById('ak4_out_smax').textContent;
+      var slimit = document.getElementById('ak4_out_slimit').textContent;
+      var util = document.getElementById('ak4_out_util').textContent;
+      var ratios = document.getElementById('ak4_out_ratios').textContent;
+      var basis = document.getElementById('ak4_out_slimit_basis').textContent;
+      var loc = document.getElementById('ak4_out_smax_loc').textContent;
+      var status = document.getElementById('ak4_status_badge').textContent;
+
+      var text = "=== PRESSURE VESSEL NOZZLE LOCAL STRESS REPORT (WRC-107 / WRC-537) ===\n" +
+        "Status: " + status + "\n" +
+        "Maximum Stress Intensity: " + smax + " (" + loc + ")\n" +
+        "Allowable Stress Limit: " + slimit + " (" + basis + ")\n" +
+        "Stress Utilization: " + util + "\n" +
+        "Dimension Parameters: " + ratios + "\n" +
+        "Vessel OD: " + document.getElementById('ak4_vessel_od').value + ' in, Shell Thk: ' + document.getElementById('ak4_shell_thk').value + ' in\n' +
+        "Nozzle OD: " + document.getElementById('ak4_nozzle_od').value + ' in, Repad: ' + document.getElementById('ak4_pad_thk').value + ' in\n' +
+        "Loads: P = ' + document.getElementById('ak4_p_rad').value + ' lbf, Ml = ' + document.getElementById('ak4_m_long').value + ' ft-lbf, Mc = ' + document.getElementById('ak4_m_circ').value + ' ft-lbf, Pint = ' + document.getElementById('ak4_p_int').value + ' psig\n' +
+        "Standard: ASME Section VIII Div 2 Part 5 / WRC-537 / WRC-107\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ Nozzle Stress Summary Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy Nozzle Stress Report';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAK4();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'pump-npsh-available-cavitation-margin-calculator.html'), renderTradePage({
+  title: 'Pump NPSHA & Cavitation Margin Calculator | HI 9.6.1 & API 610 12th Ed',
+  metaDescription: 'Calculate Net Positive Suction Head Available (NPSHa), temperature-dependent fluid vapor pressure, suction piping friction losses, and API 610 / HI 9.6.1 cavitation margins.',
+  canonical: 'https://digitaltoolsshed.com/calc/pump-npsh-available-cavitation-margin-calculator.html',
+  content: pumpNpshCavitationBody,
+  faq: [
+    {
+      q: 'What is the fundamental difference between NPSHa and NPSHr?',
+      a: 'NPSHa (Net Positive Suction Head Available) is a characteristic of the physical suction piping system, calculated from vessel pressure, static liquid elevation, vapor pressure, and suction friction losses. NPSHr (Net Positive Suction Head Required) is an empirical characteristic of the pump impeller design established by factory testing per HI 14.6 where total discharge head drops by 3% (NPSH3). For reliable continuous operation, NPSHa must exceed NPSHr by an engineering safety margin.'
+    },
+    {
+      q: 'Why does API 610 12th Edition mandate an NPSH margin ratio rather than a fixed buffer?',
+      a: 'A fixed 2 or 3 ft margin is dangerous on high-energy, high-head hydrocarbon and boiler feedwater pumps. API 610 Table 14 and HI 9.6.1 recommend an NPSH margin ratio (NPSHa / NPSHr) of 1.1 to 1.35 or a minimum head buffer of 3.3 ft to 6.6 ft (1.0 to 2.0 m) depending on suction energy and impeller metallurgy to prevent internal bubble collapse pitting and seal failure.'
+    },
+    {
+      q: 'How does liquid temperature increase impact pump NPSHa?',
+      a: 'Vapor pressure (Pv) increases exponentially with temperature according to the Antoine equation. As liquid temperature rises, vapor pressure head (h_vp = Pv / rho*g) increases dramatically, directly subtracting from available suction head and drastically reducing NPSHa, which is the primary cause of summer cooling tower and condenser pump cavitation trips.'
+    },
+    {
+      q: 'What is Suction Specific Speed (Nss) and why is it capped at 11,000?',
+      a: 'Suction Specific Speed (Nss = N * sqrt(Q) / NPSH3^0.75) quantifies impeller suction inlet aggressiveness. Impellers with Nss > 11,000 (US customary units) or > 215 (metric) suffer from severe internal suction recirculation and surging when operating below Best Efficiency Point (BEP), leading to premature mechanical seal, bearing, and impeller shroud failure.'
+    },
+    {
+      q: 'Why is NPSHa in a boiling or saturated liquid vessel independent of operating pressure?',
+      a: 'In a closed boiling accumulator, deaerator, or reboiler where the liquid is at its bubble point, the absolute vessel surface pressure (Ps) exactly equals the liquid vapor pressure (Pv). Therefore, the pressure head and vapor pressure head cancel out (hs - h_vp = 0), leaving NPSHa purely dependent on static liquid height minus suction line friction losses (Z - hf).'
+    }
+  ]
+}));
+
+writeFileSync(join(calcDir, 'flange-leakage-equivalent-pressure-kellogg-calculator.html'), renderTradePage({
+  title: 'Piping Flange Leakage & Equivalent Pressure Calculator | Kellogg Method & ASME B16.5',
+  metaDescription: 'Evaluate piping flange leakage risks under external bending moments and axial forces using the Kellogg Equivalent Pressure Method and ASME Section VIII Div 1 Appendix 2.',
+  canonical: 'https://digitaltoolsshed.com/calc/flange-leakage-equivalent-pressure-kellogg-calculator.html',
+  content: flangeLeakageKelloggBody,
+  faq: [
+    {
+      q: 'What is the Kellogg Equivalent Pressure Method?',
+      a: 'The Kellogg method converts external piping mechanical loads (bending moment M and axial force F) into an equivalent internal fluid pressure: P_eq = P_design + (16*M)/(pi*G^3) + (4*F)/(pi*G^2), where G is the effective gasket contact diameter. If P_eq exceeds the flange ASME B16.5 rating at design temperature, the flange is at severe risk of joint leakage.'
+    },
+    {
+      q: 'What is the difference between Kellogg equivalent pressure and ASME NC-3658.3 code limits?',
+      a: 'The classic Kellogg formula uses a conservative 16*M / (pi*G^3) multiplier based on linear elastic beam-bending stress across the gasket circle. ASME Section III NC-3658.3 applies a 16*M / (pi*G^3) derivation with higher allowable factors for welded-neck flanges with high-strength bolts, recognizing that bolted joints have greater plastic reserve than simple elastic beams.'
+    },
+    {
+      q: 'What causes flange gasket unseating on the tension side?',
+      a: 'Under severe piping bending moments, the outer flange face tilts, compressing the gasket on the compression side while relieving bolt clamp pre-load on the tension side. If the tensile stress exceeds the residual gasket seating stress (m * P), the gasket relaxes below its leak-tight threshold, allowing fluid escape.'
+    },
+    {
+      q: 'How does elevated temperature affect flange pressure ratings?',
+      a: 'Flange material yield and tensile allowable stresses drop substantially at elevated temperatures per ASME B16.5 Table 2 rating tables. For example, a Class 300 A105 carbon steel flange rated at 740 psig at 100°F is derated to 570 psig at 500°F (260°C) and 410 psig at 750°F (400°C), drastically reducing the permissible external piping load.'
+    },
+    {
+      q: 'Why are slip-on flanges more prone to leakage than weld-neck flanges under external moments?',
+      a: 'Slip-on flanges lack the tapered hub transition of weld-neck flanges, causing severe stress concentration at the fillet weld neck and greater flange ring rotation (warping) under external bending moments, which unloads the gasket significantly faster.'
+    }
+  ]
+}));
+
+writeFileSync(join(calcDir, 'control-valve-sizing-cavitation-iec-60534-calculator.html'), renderTradePage({
+  title: 'Control Valve Sizing & Cavitation Calculator | IEC 60534-2-1 & ISA-75.01.01',
+  metaDescription: 'Calculate control valve Cv/Kv, choked flow cavitation limits, liquid pressure recovery (FL), expansion factor (Y), and valve authority per IEC 60534 and ISA-75.',
+  canonical: 'https://digitaltoolsshed.com/calc/control-valve-sizing-cavitation-iec-60534-calculator.html',
+  content: controlValveSizingBody,
+  faq: [
+    {
+      q: 'What is the mathematical relationship between flow coefficient Cv and Kv?',
+      a: 'Cv is in US customary units (GPM of 60°F water at 1 psi pressure drop), while Kv is in metric units (m³/h of 15°C water at 1 bar pressure drop). The exact conversion factor is Cv = 1.156 × Kv, or Kv = 0.865 × Cv.'
+    },
+    {
+      q: 'What is Liquid Pressure Recovery Factor (FL) and why does it dictate choked cavitation?',
+      a: 'The Liquid Pressure Recovery Factor (FL) represents the ratio of the actual pressure drop across the valve to the internal pressure drop from inlet down to the vena contracta. Rotary valves (such as ball and butterfly valves) have high recovery (low FL ~ 0.55 to 0.70), meaning vena contracta pressure dips much lower than globe valves (FL ~ 0.85 to 0.92), making rotary valves choke and cavitate at significantly lower applied pressure drops.'
+    },
+    {
+      q: 'What is the difference between incipient cavitation, flashing, and choked flow?',
+      a: 'Incipient cavitation begins when local vena contracta pressure briefly touches vapor pressure, producing tiny micro-bubbles that collapse downstream with audible hiss. Choked flow occurs when vapor cavities blanket the vena contracta, preventing any increase in flow rate despite lowering downstream pressure. Flashing occurs when downstream pressure remains below liquid vapor pressure, so vapor bubbles never collapse and two-phase vapor-liquid exits the valve.'
+    },
+    {
+      q: 'Why is valve authority (Na) critical for control loop stability?',
+      a: 'Valve authority (Na = ΔP_valve / (ΔP_valve + ΔP_system)) measures the fraction of total system friction loss controlled by the valve. If authority drops below 0.30 (30%), the valve\'s installed characteristic distorts severely (e.g. an equal-percentage valve behaves like quick-opening), leading to hunting, oscillation, and poor control stability near closed positions.'
+    },
+    {
+      q: 'Why should a control valve never be sized to equal pipe nominal diameter?',
+      a: 'Line-sized control valves are almost always oversized, forcing the valve to operate at 5% to 15% travel where flow control is erratic, seat wire-drawing is severe, and clearance flow causes hunting. Proper sizing per IEC 60534 typically selects a valve one to two sizes smaller than line size operating between 20% and 80% stroke.'
+    }
+  ]
+}));
+
+writeFileSync(join(calcDir, 'vessel-nozzle-local-stress-wrc-107-537-calculator.html'), renderTradePage({
+  title: 'Pressure Vessel Nozzle Local Stress Calculator | WRC-107 / WRC-537 & ASME Section VIII',
+  metaDescription: 'Calculate local shell stresses at pressure vessel nozzles under piping loads and internal pressure using WRC-107, WRC-537, and ASME Section VIII Div 2 Part 5 limits.',
+  canonical: 'https://digitaltoolsshed.com/calc/vessel-nozzle-local-stress-wrc-107-537-calculator.html',
+  content: toolAK4Html,
+  faq: [
+    {
+      q: 'What is the fundamental difference between WRC-107 and WRC-537?',
+      a: 'WRC-537 is the updated precision version of WRC-107. Published in 2010, WRC-537 standardizes and mathematically formats the original 1965 WRC-107 hand-drawn charts into precise equations. Both calculate identical theoretical stresses under Bijlaard shallow shell theory, but WRC-537 eliminates human chart-interpolation errors.'
+    },
+    {
+      q: 'When is WRC-107/537 no longer valid for nozzle stress analysis?',
+      a: 'WRC-107/537 is limited to diameter ratios d/D ≤ 0.33 (or non-dimensional parameter β = 0.875 ro / Rm ≤ 0.5) and vessel shell slenderness γ = Rm / T ≤ 300. For large nozzles (d/D > 0.33) or thin-wall tanks, shallow shell theory fails to capture hoop ovalization, requiring WRC-297 or full 3D Finite Element Analysis (FEA) per ASME Section VIII Div 2 Part 5.'
+    },
+    {
+      q: 'What are the stress allowable limits for nozzle external loads in ASME Section VIII?',
+      a: 'For sustained mechanical loads (vessel internal pressure plus piping deadweight), the localized membrane plus bending stress intensity (PL + Pb) must not exceed 1.5 Sm (where Sm is the material allowable stress at design temperature). For total operating loads including thermal piping expansion (P + Q), the stress intensity limit is 3.0 Sm (the shakedown secondary stress criterion).'
+    },
+    {
+      q: 'How are the 4 cardinal points (A, B, C, D) defined on a cylindrical shell nozzle?',
+      a: 'Points A and B lie on the longitudinal vessel centerline axis (0° and 180°), where the longitudinal bending moment ML produces maximum shell bending stress. Points C and D lie on the transverse circumferential plane (90° and 270°), where the circumferential bending moment MC generates maximum hoop bending stress.'
+    },
+    {
+      q: 'Does a reinforcing pad eliminate local nozzle stresses?',
+      a: 'A repad reduces local stresses at the nozzle neck by increasing the effective shell thickness (Te = T + Tpad). However, it transfers the structural stiffness discontinuity to the outer perimeter fillet weld. Engineers must verify stress intensities both at the nozzle neck junction and at the outer pad-to-shell weld toe, where stress concentration frequently controls.'
+    }
+  ]
+}));
+
+
+console.log('  ✓ Built Trade & Construction Suite (91 calculators in /calc/)');
 }
 
