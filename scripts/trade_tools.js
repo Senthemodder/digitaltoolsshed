@@ -76760,6 +76760,2085 @@ writeFileSync(join(calcDir, 'heavy-haul-trailer-axle-weight-bridge-formula-calcu
 }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (99 calculators in /calc/)');
+
+// ==========================================
+// TOOL AN1: Shell-and-Tube Heat Exchanger Vibration & Acoustic Resonance Calculator (TEMA 10th Ed & Eisinger)
+// ==========================================
+const toolAN1Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">TEMA Standard 10th Ed Section 5 &bull; ASME Section VIII &bull; Eisinger FIV Model</div>
+    <h1>Heat Exchanger Tube Vibration & Acoustic Resonance Calculator</h1>
+    <p class="text-muted">Analyze shell-side flow-induced vibration (FIV) and acoustic resonance in shell-and-tube heat exchangers per TEMA 10th Edition Section 5. Calculate crossflow velocity, Strouhal vortex shedding frequency ($f_v$), fluidelastic instability threshold ($v_{crit}$), acoustic standing wave frequency ($f_a$), and mid-span baffle deflection.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. Shell-Side Fluid & Flow Conditions</h3>
+
+      <div class="input-group">
+        <label for="an1_fluid_preset">Shell Fluid Phase & Preset</label>
+        <select id="an1_fluid_preset">
+          <option value="gas_steam" selected>Steam / High Velocity Gas (Sound Speed: 480 m/s, Rho: 4.5 kg/m³)</option>
+          <option value="gas_hydrocarbon">Hydrocarbon Gas / Methane (Sound Speed: 410 m/s, Rho: 12.0 kg/m³)</option>
+          <option value="liquid_water">Liquid Water / Condensate (Sound Speed: 1480 m/s, Rho: 990 kg/m³)</option>
+          <option value="liquid_oil">Thermal Oil / Hydrocarbon Liquid (Sound Speed: 1250 m/s, Rho: 820 kg/m³)</option>
+          <option value="custom">Custom Fluid Properties</option>
+        </select>
+        <small class="text-muted">Sound speed governs acoustic standing wave resonance</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an1_flow_rate">Shell-Side Mass Flow Rate ($W_s$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an1_flow_rate" value="45000" min="500" max="2000000" step="1000">
+          <span class="unit-badge">kg/h</span>
+        </div>
+        <small class="text-muted">Total flowing mass through shell bundle</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an1_density">Shell Fluid Density ($\rho_s$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an1_density" value="4.5" min="0.1" max="2000" step="0.1">
+          <span class="unit-badge">kg/m³</span>
+        </div>
+        <small class="text-muted">Operating density in bundle crossflow area</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an1_sound_speed">Fluid Speed of Sound ($c$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an1_sound_speed" value="480" min="150" max="2000" step="10">
+          <span class="unit-badge">m/s</span>
+        </div>
+        <small class="text-muted">Acoustic wave propagation velocity</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an1_damping_ratio">Logarithmic Damping Decrement ($\delta$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an1_damping_ratio" value="0.08" min="0.01" max="0.30" step="0.01">
+          <span class="unit-badge">decrement</span>
+        </div>
+        <small class="text-muted">Structural + fluid damping (0.05 - 0.15 per TEMA)</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. Bundle Geometry & Baffle Spacing</h3>
+
+      <div class="input-group">
+        <label for="an1_shell_id">Shell Inside Diameter ($D_s$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an1_shell_id" value="30" min="8" max="120" step="1">
+          <span class="unit-badge">in (inches)</span>
+        </div>
+        <small class="text-muted">Shell barrel inside diameter (30 in = 762 mm)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an1_tube_od">Tube Outside Diameter ($d_o$)</label>
+        <select id="an1_tube_od">
+          <option value="0.750" selected>3/4" OD (19.05 mm, 16 BWG: 1.65 mm wall)</option>
+          <option value="1.000">1.0" OD (25.40 mm, 14 BWG: 2.11 mm wall)</option>
+          <option value="1.250">1-1/4" OD (31.75 mm, 12 BWG: 2.77 mm wall)</option>
+          <option value="0.625">5/8" OD (15.88 mm, 18 BWG: 1.24 mm wall)</option>
+        </select>
+        <small class="text-muted">Standard TEMA heat exchanger tube size</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an1_tube_pitch">Tube Pitch Ratio ($P / d_o$)</label>
+        <select id="an1_tube_pitch">
+          <option value="1.25" selected>1.25 P/d (Standard 30° Triangular Pitch)</option>
+          <option value="1.33">1.33 P/d (90° Square Pitch for Cleaning Lanes)</option>
+          <option value="1.50">1.50 P/d (Wide Pitch Low Pressure Drop)</option>
+        </select>
+        <small class="text-muted">Governs Strouhal number and crossflow gap velocity</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an1_baffle_span">Unsupported Tube Span Length ($L_u$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an1_baffle_span" value="36" min="10" max="120" step="1">
+          <span class="unit-badge">in (inches)</span>
+        </div>
+        <small class="text-muted">Baffle-to-baffle span (or 2x baffle pitch in window)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an1_tube_mat">Tube Material Elastic Modulus</label>
+        <select id="an1_tube_mat">
+          <option value="29.0" selected>Carbon Steel (E = 29.0 x 10⁶ psi / 200 GPa)</option>
+          <option value="28.0">Stainless Steel 304/316 (E = 28.0 x 10⁶ psi)</option>
+          <option value="16.0">Titanium Gr 2 (E = 16.0 x 10⁶ psi / 110 GPa)</option>
+          <option value="17.0">Admiralty Brass / Copper (E = 17.0 x 10⁶ psi)</option>
+        </select>
+        <small class="text-muted">Governs structural tube natural bending frequency</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">TEMA Flow-Induced Vibration (FIV) Evaluation</h3>
+      <div id="an1_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Crossflow Velocity ($v_c$)</div>
+        <div id="an1_out_vel_ms" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- m/s</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an1_out_vel_fps">-- ft/s (Gap Velocity)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Fluidelastic Instability Ratio</div>
+        <div id="an1_out_fe_ratio" style="font-size:22px; font-weight:800; color:#3b82f6; margin:4px 0;">--</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an1_out_vcrit">Critical: -- m/s (Limit: &lt; 1.0)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="an1_acoust_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Acoustic Resonance Status</div>
+        <div id="an1_out_acoust_status" style="font-size:18px; font-weight:800; color:#10b981; margin:4px 0;">SAFE (No Screech)</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an1_out_acoust_freq">fv: -- Hz vs fa: -- Hz</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Tube Natural Frequency ($f_n$)</div>
+        <div id="an1_out_fn" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- Hz</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an1_out_deflection">Mid-Span Deflection: -- mils</div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Details Breakdown -->
+    <div style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; font-size:12.5px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div>
+        <span style="color:var(--text-muted);">Vortex Shedding Frequency ($f_v$):</span>
+        <strong id="an1_diag_fv" style="float:right; color:var(--text-primary);">-- Hz (St = 0.28)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Acoustic Standing Wave ($f_a$):</span>
+        <strong id="an1_diag_fa" style="float:right; color:var(--text-primary);">-- Hz (Mode n = 1)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Turbulent Buffeting Peak ($f_b$):</span>
+        <strong id="an1_diag_fb" style="float:right; color:var(--text-primary);">-- Hz</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Total Effective Mass ($m_e$):</span>
+        <strong id="an1_diag_me" style="float:right; color:var(--text-primary);">-- kg/m (incl. added hydro)</strong>
+      </div>
+    </div>
+
+    <!-- Live SVG Vibration Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Shell Crossflow Streamlines, Vortex Street & Tube Bending Mode</span>
+        <span style="font-size:11px; color:var(--text-muted);">TEMA Baffle window vibration schematic</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="an1_svg" viewBox="0 0 600 240" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="an1_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy TEMA FIV Diagnostics
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivations & TEMA Flow-Induced Vibration (FIV) Methodology</h2>
+    <p>Flow-induced vibration in shell-and-tube heat exchangers damages equipment through three distinct physical phenomena: fluidelastic instability, vortex-shedding acoustic resonance, and turbulent buffeting.</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. Bundle Crossflow Velocity ($v_c$):</strong><br>
+      $$S_m = B \cdot \left[ (D_s - d_{otl}) + \frac{d_{otl} - d_o}{P} \cdot (P - d_o) \right] \quad (\text{crossflow area})$$<br>
+      $$v_c = \frac{W_s}{\rho_s \cdot S_m} \quad (\text{m/s or ft/s})$$<br>
+      where $B$ is baffle spacing, $D_s$ is shell ID, and $P$ is tube pitch.<br><br>
+
+      <strong>2. Tube Natural Frequency ($f_n$ - Beam Bending Mode):</strong><br>
+      $$f_n = \frac{\lambda_n^2}{2 \pi L_u^2} \cdot \sqrt{\frac{E \cdot I}{m_e}} \quad (\text{Hz})$$<br>
+      where $\lambda_1 = 3.14$ for simply supported tubes, $I = \frac{\pi (d_o^4 - d_i^4)}{64}$, and $m_e$ is effective mass per unit length including metal, internal fluid, and external hydrodynamic added mass: $m_{added} = \rho_s \cdot \frac{\pi d_o^2}{4} \cdot C_m$.<br><br>
+
+      <strong>3. Fluidelastic Instability (Connors' Criterion):</strong><br>
+      Fluidelastic instability is a self-excited runaway mechanism. The critical crossflow threshold is:<br>
+      $$v_{crit} = \beta \cdot f_n \cdot d_o \cdot \sqrt{\frac{m_e \cdot \delta}{\rho_s \cdot d_o^2}} \quad (\text{m/s})$$<br>
+      TEMA mandates $v_c / v_{crit} < 1.0$ (recommended design limit $\le 0.80$). If $v_c > v_{crit}$, tubes flutter uncontrollably and shear against baffles within hours.<br><br>
+
+      <strong>4. Vortex Shedding & Acoustic Standing Wave Resonance:</strong><br>
+      $$f_v = \frac{S_t \cdot v_c}{d_o} \quad (\text{Strouhal Vortex Frequency})$$<br>
+      $$f_a = \frac{n \cdot c}{2 \cdot D_s} \quad (\text{Shell Acoustic Cavity Resonance Frequency})$$<br>
+      If vortex shedding falls within $0.80 \le f_v / f_a \le 1.20$, periodic vortex formation locks into the transverse acoustic standing wave, creating severe structural vibration and ear-splitting acoustic roar ($>125\ \text{dB}$). De-resonating baffles must be inserted to split the cavity.
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in Heat Exchanger FIV</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. The 130 dB Acoustic Resonance Deafening Screech</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          In high-velocity gas coolers and steam condensers, vortex shedding frequency ($f_v$) often matches the shell internal cavity acoustic frequency ($f_a$). This creates a deafening acoustic standing wave exceeding 130 dB that shakes piping off pipe racks and fractures nozzle welds. The exchanger does not suffer physical tube collisions, but operators cannot enter the plant without ear protection. De-resonating acoustic baffles parallel to flow are required to shift $f_a$.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. Fluidelastic Instability Window Tube Flutter Rupture</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Tubes located in the baffle cut window are supported only by every second baffle, effectively doubling their unsupported span length ($L_u \times 2$). Because natural frequency scales inversely with length squared ($f_n \propto 1/L_u^2$), window tubes have only 25% of the stiffness of non-window tubes. Exceeding Connors' critical velocity ($v_c / v_{crit} > 1.0$) causes sudden dynamic flutter that impacts neighboring tubes, shearing tubes in half within 48 hours of startup.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. Baffle Hole Edge "Sawing" & Fretting Fatigue</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Standard manufacturing tolerances allow a 1/32" (0.8 mm) diametral clearance between tube OD and carbon steel baffle holes. When tubes vibrate with amplitudes exceeding 10 to 15 mils under turbulent buffeting, the sharp edges of the baffle plate saw into the thin tube wall (fretting wear). Over months of operation, this cuts a ring groove around the tube circumference, triggering sudden high-pressure leak blowouts.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Underestimating Hydrodynamic Added Mass in Dense Fluids</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          When computing tube natural frequency, novices consider only the metal tube weight and internal liquid. In dense shell liquids (water, heavy oil, crude), the vibrating tube must displace an external cylinder of surrounding liquid on every cycle. This hydrodynamic added mass ($m_{added} = C_m \cdot \rho_s \pi d_o^2 / 4$) can double the effective vibrating mass, slashing the calculated natural frequency ($f_n$) by 30% and moving an assumed "safe" bundle directly into the resonant flutter zone.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Shell Inlet Nozzle Impingement Erosion without Protection Plate</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Per TEMA Paragraph RCB-4.61, when inlet nozzle kinetic energy $\rho v^2$ exceeds $1,500\ \text{lb}/(\text{ft}\cdot\text{s}^2)$ for non-corrosive gases or $500$ for liquids, high-momentum jet streams directly striking the top rows of tubes cause violent local vibration and rapid droplet erosion. An impingement baffle plate or distributor dome must be installed directly below the inlet nozzle to dissipate fluid momentum.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var fluidPresets = {
+    gas_steam: { c: 480, rho: 4.5, delta: 0.08 },
+    gas_hydrocarbon: { c: 410, rho: 12.0, delta: 0.09 },
+    liquid_water: { c: 1480, rho: 990.0, delta: 0.15 },
+    liquid_oil: { c: 1250, rho: 820.0, delta: 0.12 }
+  };
+
+  function onPresetChange() {
+    var key = document.getElementById('an1_fluid_preset').value;
+    if (fluidPresets[key]) {
+      document.getElementById('an1_sound_speed').value = fluidPresets[key].c;
+      document.getElementById('an1_density').value = fluidPresets[key].rho;
+      document.getElementById('an1_damping_ratio').value = fluidPresets[key].delta;
+    }
+    calcAN1();
+  }
+
+  function calcAN1() {
+    var Ws_kgh = parseFloat(document.getElementById('an1_flow_rate').value) || 45000;
+    var rho_s = parseFloat(document.getElementById('an1_density').value) || 4.5;
+    var c_sound = parseFloat(document.getElementById('an1_sound_speed').value) || 480;
+    var delta = parseFloat(document.getElementById('an1_damping_ratio').value) || 0.08;
+    var Ds_in = parseFloat(document.getElementById('an1_shell_id').value) || 30;
+    var do_in = parseFloat(document.getElementById('an1_tube_od').value) || 0.75;
+    var pitchRatio = parseFloat(document.getElementById('an1_tube_pitch').value) || 1.25;
+    var Lu_in = parseFloat(document.getElementById('an1_baffle_span').value) || 36;
+    var E_psi_m = parseFloat(document.getElementById('an1_tube_mat').value) || 29.0;
+
+    // Convert to SI for core dynamics
+    var Ds_m = Ds_in * 0.0254;
+    var do_m = do_in * 0.0254;
+    var Lu_m = Lu_in * 0.0254;
+    var pitch_m = do_m * pitchRatio;
+
+    // Tube wall thickness (approx 16 BWG = 1.65 mm = 0.065")
+    var tw_in = 0.065;
+    if (do_in >= 1.0) tw_in = 0.083;
+    var di_in = do_in - 2 * tw_in;
+    var di_m = di_in * 0.0254;
+
+    // Mass flow in kg/s
+    var Ws_kgs = Ws_kgh / 3600;
+
+    // Crossflow Area (Sm per TEMA)
+    // Approx bundle clearance fraction
+    var B_m = Lu_m; // assume baffle pitch ~ unsupported span
+    var gapFraction = (pitch_m - do_m) / pitch_m;
+    var Sm_sqm = Ds_m * B_m * gapFraction * 0.75; // 0.75 bundle factor
+
+    // Crossflow Velocity (vc)
+    var vc = Ws_kgs / (rho_s * Sm_sqm);
+    var vc_fps = vc * 3.28084;
+
+    // Tube Structural Dynamics
+    // Moment of Inertia I = pi * (do^4 - di^4) / 64 (m4)
+    var I_m4 = (Math.PI * (Math.pow(do_m, 4) - Math.pow(di_m, 4))) / 64;
+    var E_pa = E_psi_m * 1e6 * 6894.76;
+
+    // Metal mass per unit length (kg/m) - Steel density 7850 kg/m3
+    var A_metal = (Math.PI * (Math.pow(do_m, 2) - Math.pow(di_m, 2))) / 4;
+    var m_metal = A_metal * 7850;
+
+    // Internal fluid mass (assume water if liquid, or negligible for gas)
+    var isLiquid = rho_s > 100;
+    var rho_tube_fluid = isLiquid ? 990 : 10;
+    var m_internal = (Math.PI * Math.pow(di_m, 2) / 4) * rho_tube_fluid;
+
+    // Hydrodynamic Added Mass (Cm factor approx 1.6 for bundle pitch 1.25)
+    var Cm = (1 + Math.pow(do_m / pitch_m, 2)) / (1 - Math.pow(do_m / pitch_m, 2));
+    var m_added = Cm * rho_s * (Math.PI * Math.pow(do_m, 2) / 4);
+
+    var me_total = m_metal + m_internal + m_added;
+
+    // Natural Frequency fn (Hz) - Simply supported beam mode 1
+    var fn = (Math.PI / (2 * Math.pow(Lu_m, 2))) * Math.sqrt((E_pa * I_m4) / me_total);
+
+    // Strouhal Number (approx 0.28 for 30 deg triangular pitch)
+    var St = 0.28;
+    if (pitchRatio >= 1.33) St = 0.24;
+    var fv = (St * vc) / do_m;
+
+    // Acoustic Natural Frequency (fa) across shell cavity
+    // fa = c / (2 * Ds)
+    var fa = c_sound / (2 * Ds_m);
+
+    // Turbulent Buffeting Peak Frequency (fb)
+    var fb = (0.22 * vc) / do_m;
+
+    // Connors' Fluidelastic Critical Velocity (vcrit)
+    var beta_connors = 3.0;
+    var massDamping = (me_total * delta) / (rho_s * Math.pow(do_m, 2));
+    var vcrit = beta_connors * fn * do_m * Math.sqrt(massDamping);
+
+    var feRatio = vc / vcrit;
+
+    // Mid-span deflection under crossflow drag (mils)
+    var q_drag = 0.5 * rho_s * vc * vc * do_m * 1.0; // N/m drag load
+    var y_max_m = (5 * q_drag * Math.pow(Lu_m, 4)) / (384 * E_pa * I_m4);
+    var y_max_mils = (y_max_m / 0.0254) * 1000;
+
+    // Acoustic Resonance Check
+    var acoustRatio = fv / fa;
+    var isAcousticResonant = (acoustRatio >= 0.80 && acoustRatio <= 1.20);
+
+    // Hero Outputs
+    document.getElementById('an1_out_vel_ms').textContent = vc.toFixed(2) + ' m/s';
+    document.getElementById('an1_out_vel_fps').textContent = vc_fps.toFixed(1) + ' ft/s (Gap Velocity)';
+
+    var feElem = document.getElementById('an1_out_fe_ratio');
+    feElem.textContent = feRatio.toFixed(2);
+    feElem.style.color = feRatio >= 1.0 ? '#ef4444' : (feRatio >= 0.8 ? '#f59e0b' : '#10b981');
+    document.getElementById('an1_out_vcrit').textContent = 'Critical: ' + vcrit.toFixed(1) + ' m/s (Limit: < 1.0)';
+
+    var acoustElem = document.getElementById('an1_out_acoust_status');
+    if (isAcousticResonant) {
+      acoustElem.textContent = 'ACOUSTIC SCREECH RISK';
+      acoustElem.style.color = '#ef4444';
+    } else {
+      acoustElem.textContent = 'SAFE (No Screech)';
+      acoustElem.style.color = '#10b981';
+    }
+    document.getElementById('an1_out_acoust_freq').textContent = 'fv: ' + Math.round(fv) + ' Hz vs fa: ' + Math.round(fa) + ' Hz';
+
+    document.getElementById('an1_out_fn').textContent = fn.toFixed(1) + ' Hz';
+    document.getElementById('an1_out_deflection').textContent = 'Mid-Span Deflection: ' + y_max_mils.toFixed(1) + ' mils';
+
+    // Diagnostics
+    document.getElementById('an1_diag_fv').textContent = fv.toFixed(1) + ' Hz (St = ' + St + ')';
+    document.getElementById('an1_diag_fa').textContent = fa.toFixed(1) + ' Hz (Cavity n = 1)';
+    document.getElementById('an1_diag_fb').textContent = fb.toFixed(1) + ' Hz';
+    document.getElementById('an1_diag_me').textContent = me_total.toFixed(3) + ' kg/m (incl. hydro)';
+
+    // Status Badge
+    var badge = document.getElementById('an1_status_badge');
+    if (feRatio >= 1.0) {
+      badge.textContent = 'FLUIDELASTIC INSTABILITY (TUBE FLUTTER FAIL)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (isAcousticResonant) {
+      badge.textContent = 'ACOUSTIC RESONANCE (ADD DE-RESONATING BAFFLE)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (feRatio >= 0.80) {
+      badge.textContent = 'MARGINAL STABILITY (>0.80 LIMIT)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else {
+      badge.textContent = '100% TEMA FIV COMPLIANT';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    }
+
+    renderSvgAN1(feRatio, isAcousticResonant, vc, vcrit, fn);
+  }
+
+  function renderSvgAN1(feRatio, isAcousticResonant, vc, vcrit, fn) {
+    var svg = document.getElementById('an1_svg');
+    if (!svg) return;
+    var s = '';
+
+    // Shell Barrel Outline
+    s += '<rect x="40" y="40" width="520" height="150" rx="14" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="2"/>';
+
+    // Baffles (Vertical partitions with window cuts)
+    // Baffle 1 at x = 160 (cut at top)
+    s += '<line x1="160" y1="80" x2="160" y2="190" stroke="#64748b" stroke-width="4"/>';
+    // Baffle 2 at x = 280 (cut at bottom)
+    s += '<line x1="280" y1="40" x2="280" y2="150" stroke="#64748b" stroke-width="4"/>';
+    // Baffle 3 at x = 400 (cut at top)
+    s += '<line x1="400" y1="80" x2="400" y2="190" stroke="#64748b" stroke-width="4"/>';
+
+    // Tube Bundle lines (horizontal)
+    var tubeColor = feRatio >= 1.0 ? '#ef4444' : (feRatio >= 0.8 ? '#f59e0b' : '#3b82f6');
+    for (var y = 65; y <= 165; y += 25) {
+      if (y === 115) {
+        // Vibrating tube at mid-height (exaggerated deflection curve)
+        var defl = feRatio >= 1.0 ? 14 : 4;
+        s += '<path d="M 40 115 Q 160 ' + (115 + defl) + ', 220 115 T 400 ' + (115 - defl) + ' T 560 115" fill="none" stroke="' + tubeColor + '" stroke-width="3"/>';
+        s += '<text x="340" y="108" font-size="10" font-weight="700" fill="' + tubeColor + '">fn = ' + fn.toFixed(1) + ' Hz</text>';
+      } else {
+        s += '<line x1="40" y1="' + y + '" x2="560" y2="' + y + '" stroke="#64748b" stroke-width="1.5" stroke-dasharray="6,4"/>';
+      }
+    }
+
+    // Crossflow fluid stream arrows
+    s += '<path d="M 120 45 C 150 70, 170 120, 200 160 C 230 180, 260 180, 280 160" fill="none" stroke="#10b981" stroke-width="2.5" stroke-dasharray="4,2"/>';
+    s += '<polygon points="285,155 275,160 282,168" fill="#10b981"/>';
+    s += '<text x="120" y="60" font-size="10" font-weight="700" fill="#10b981">Crossflow (vc = ' + vc.toFixed(1) + ' m/s)</text>';
+
+    // Vortex shedding street simulation
+    for (var i = 0; i < 4; i++) {
+      var vx = 210 + i * 35;
+      var vy = 115 + (i % 2 === 0 ? 8 : -8);
+      s += '<circle cx="' + vx + '" cy="' + vy + '" r="5" fill="none" stroke="#f59e0b" stroke-width="1.5"/>';
+    }
+
+    // Acoustic standing wave indicator if resonant
+    if (isAcousticResonant) {
+      s += '<path d="M 50 175 Q 300 215, 550 175" fill="none" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,4"/>';
+      s += '<text x="300" y="200" font-size="11" font-weight="800" fill="#ef4444" text-anchor="middle">⚠️ ACOUSTIC STANDING WAVE LOCK-IN (SCREECH)</text>';
+    } else {
+      s += '<text x="300" y="210" font-size="11" font-weight="700" fill="#10b981" text-anchor="middle">✓ Stable Acoustic Field (No Standing Wave)</text>';
+    }
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['an1_flow_rate', 'an1_density', 'an1_sound_speed', 'an1_damping_ratio', 'an1_shell_id', 'an1_baffle_span'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAN1);
+      el.addEventListener('change', calcAN1);
+    }
+  });
+
+  document.getElementById('an1_fluid_preset').addEventListener('change', onPresetChange);
+  document.getElementById('an1_tube_od').addEventListener('change', calcAN1);
+  document.getElementById('an1_tube_pitch').addEventListener('change', calcAN1);
+  document.getElementById('an1_tube_mat').addEventListener('change', calcAN1);
+
+  var copyBtn = document.getElementById('an1_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var vc = document.getElementById('an1_out_vel_ms').textContent;
+      var fe = document.getElementById('an1_out_fe_ratio').textContent;
+      var fn = document.getElementById('an1_out_fn').textContent;
+      var ac = document.getElementById('an1_out_acoust_status').textContent;
+      var status = document.getElementById('an1_status_badge').textContent;
+
+      var text = "=== TEMA HEAT EXCHANGER VIBRATION & ACOUSTIC RESONANCE REPORT ===\n" +
+        "Status: " + status + "\n" +
+        "Crossflow Velocity: " + vc + " (" + document.getElementById('an1_out_vel_fps').textContent + ")\n" +
+        "Fluidelastic Instability Ratio: " + fe + " (" + document.getElementById('an1_out_vcrit').textContent + ")\n" +
+        "Acoustic Resonance: " + ac + " (" + document.getElementById('an1_out_acoust_freq').textContent + ")\n" +
+        "Tube Natural Frequency: " + fn + ", " + document.getElementById('an1_out_deflection').textContent + "\n" +
+        "Shell ID: " + document.getElementById('an1_shell_id').value + ' in, Baffle Span: ' + document.getElementById('an1_baffle_span').value + ' in\n' +
+        "Tube OD: " + document.getElementById('an1_tube_od').value + ' in, Pitch: ' + document.getElementById('an1_tube_pitch').value + ' P/d\n' +
+        "Standard: TEMA 10th Edition Section 5 / ASME Section VIII / Eisinger\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ TEMA FIV Diagnostics Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy TEMA FIV Diagnostics';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAN1();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'shell-and-tube-heat-exchanger-vibration-calculator.html'), renderTradePage({
+  title: 'Heat Exchanger Vibration & Acoustic Resonance Calculator | TEMA 10th Ed',
+  metaDescription: 'Analyze shell-and-tube heat exchanger tube vibration and acoustic resonance per TEMA 10th Ed Section 5. Calculate crossflow velocity, fluidelastic instability, and vortex shedding.',
+  canonical: 'https://digitaltoolsshed.com/calc/shell-and-tube-heat-exchanger-vibration-calculator.html',
+  content: toolAN1Html,
+  faq: [
+    {
+      q: 'What is Fluidelastic Instability (FEI) in heat exchangers and why is it fatal?',
+      a: 'Fluidelastic instability is a self-excited aeroelastic runaway mechanism governed by Connors’ equation. When crossflow velocity exceeds the critical threshold (vc > vcrit), energy fed into the vibrating tubes by fluid forces exceeds the structural and viscous damping dissipation. Amplitudes grow exponentially until neighboring tubes violently collide, sawing against baffle holes and fracturing within hours of startup.'
+    },
+    {
+      q: 'What causes deafening acoustic resonance screech in shell-and-tube exchangers?',
+      a: 'In gas cooling services, periodic vortex shedding behind tubes occurs at Strouhal frequency (fv). If this frequency matches the natural acoustic standing wave frequency of the cylindrical shell cavity (fa = c / 2Ds), a powerful acoustic resonance locks in. This produces intense, ear-splitting screeching (>125 dB) that can crack shell nozzle welds even if tubes do not physically touch.'
+    },
+    {
+      q: 'How do de-resonating baffles eliminate acoustic screech?',
+      a: 'De-resonating baffles are thin longitudinal divider plates installed parallel to the flow direction inside the tube bundle. They divide the shell cavity into two or more narrower acoustic chambers, doubling the acoustic natural frequency (fa) and shifting it far above the vortex shedding excitation frequency, completely extinguishing the standing wave.'
+    },
+    {
+      q: 'Why are tubes in the baffle cut window most vulnerable to vibration?',
+      a: 'Tubes passing through the baffle cut window are supported only by alternate baffles, doubling their unsupported span length (Lu). Because beam natural frequency scales inversely with length squared (fn ∝ 1 / Lu²), window tubes have only one-fourth the stiffness of non-window tubes, making them the primary point of failure.'
+    },
+    {
+      q: 'What is Hydrodynamic Added Mass in heat exchanger vibration analysis?',
+      a: 'When tubes vibrate submerged in dense liquids, they accelerate the fluid surrounding them. This displaced fluid acts as an additional mass attached to the tube (added mass), which can equal or exceed the weight of the metal tube itself. Ignoring hydrodynamic added mass artificially inflates calculated natural frequency by 25% to 40%, masking dangerous flutter risks.'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// TOOL AN2: Electric Submersible Pump (ESP) Sizing & Total Dynamic Head Calculator (API RP 11S2)
+// ==========================================
+const toolAN2Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">API RP 11S2 &bull; API RP 11S3 &bull; GPSA Chapter 7 Artificial Lift</div>
+    <h1>Electric Submersible Pump (ESP) Sizing & TDH Calculator</h1>
+    <p class="text-muted">Size downhole Electric Submersible Pump (ESP) artificial lift systems per API RP 11S2 and API RP 11S3. Calculate Total Dynamic Head ($TDH$), pump intake pressure ($PIP$), number of impeller stages, downhole motor brake horsepower ($BHP$), cable voltage drop, and motor cooling annular velocity.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. Wellbore & Reservoir Inflow Parameters</h3>
+
+      <div class="input-group">
+        <label for="an2_prod_rate">Target Liquid Production Rate ($Q_l$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an2_prod_rate" value="2500" min="100" max="50000" step="100">
+          <span class="unit-badge">BPD (bbl/day)</span>
+        </div>
+        <small class="text-muted">Gross liquid rate (2,500 BPD ≈ 73 GPM ≈ 397 m³/day)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an2_res_press">Static Reservoir Pressure ($P_R$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an2_res_press" value="2800" min="200" max="10000" step="50">
+          <span class="unit-badge">psig</span>
+        </div>
+        <small class="text-muted">Average shut-in bottomhole reservoir pressure</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an2_pi">Productivity Index ($PI$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an2_pi" value="2.5" min="0.1" max="50.0" step="0.1">
+          <span class="unit-badge">BPD / psi</span>
+        </div>
+        <small class="text-muted">Well inflow capability index</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an2_pump_depth">Pump Setting True Vertical Depth ($TVD$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an2_pump_depth" value="6500" min="500" max="25000" step="100">
+          <span class="unit-badge">ft (feet)</span>
+        </div>
+        <small class="text-muted">Vertical depth to pump intake perforations</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an2_water_cut">Water Cut ($WC$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an2_water_cut" value="65" min="0" max="100" step="1">
+          <span class="unit-badge">%</span>
+        </div>
+        <small class="text-muted">Produced water fraction of total liquid</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. Surface Pressures, Casing & Power</h3>
+
+      <div class="input-group">
+        <label for="an2_wh_press">Surface Wellhead Tubing Pressure ($P_{wh}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an2_wh_press" value="180" min="20" max="1500" step="10">
+          <span class="unit-badge">psig</span>
+        </div>
+        <small class="text-muted">Flowline discharge manifold backpressure</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an2_csg_press">Casing Annular Gas Pressure ($P_{csg}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an2_csg_press" value="50" min="0" max="500" step="5">
+          <span class="unit-badge">psig</span>
+        </div>
+        <small class="text-muted">Casing vent pressure assisting pump suction</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an2_casing_id">Casing Inside Diameter ($ID_{csg}$)</label>
+        <select id="an2_casing_id">
+          <option value="6.276">7" Casing (26 lb/ft, ID: 6.276")</option>
+          <option value="6.049">7" Casing (32 lb/ft, ID: 6.049")</option>
+          <option value="4.892">5-1/2" Casing (17 lb/ft, ID: 4.892")</option>
+          <option value="8.681">9-5/8" Casing (40 lb/ft, ID: 8.681")</option>
+        </select>
+        <small class="text-muted">Governs motor cooling annular clearance</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an2_tubing_od">Production Tubing Size</label>
+        <select id="an2_tubing_od">
+          <option value="2.441">2-7/8" Tubing (ID: 2.441" / 62.0 mm)</option>
+          <option value="2.992" selected>3-1/2" Tubing (ID: 2.992" / 76.0 mm)</option>
+          <option value="3.958">4-1/2" Tubing (ID: 3.958" / 100.5 mm)</option>
+        </select>
+        <small class="text-muted">Governs vertical lift friction head loss</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an2_cable_size">Downhole Power Cable Size</label>
+        <select id="an2_cable_size">
+          <option value="0.161">#1 AWG Copper (0.161 Ω/1000 ft)</option>
+          <option value="0.203" selected>#2 AWG Copper (0.203 Ω/1000 ft)</option>
+          <option value="0.323">#4 AWG Copper (0.323 Ω/1000 ft)</option>
+        </select>
+        <small class="text-muted">Lead-armored EPDM submersible cable</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">ESP Stage Sizing, Motor Horsepower & Electrical Performance</h3>
+      <div id="an2_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Total Dynamic Head ($TDH$)</div>
+        <div id="an2_out_tdh_ft" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- ft</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an2_out_tdh_psi">-- psi differential</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Required Pump Stages</div>
+        <div id="an2_out_stages" style="font-size:22px; font-weight:800; color:#3b82f6; margin:4px 0;">-- Stages</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an2_out_head_stage">Avg Head/Stage: -- ft</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="an2_motor_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Downhole Motor Power</div>
+        <div id="an2_out_motor_hp" style="font-size:22px; font-weight:800; color:#10b981; margin:4px 0;">-- HP</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an2_out_motor_amps">Current: -- A (2400V)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Motor Cooling Annular Velocity</div>
+        <div id="an2_out_annular_vel" style="font-size:18px; font-weight:700; color:var(--text-primary); margin:4px 0;">-- ft/s</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an2_out_cooling_status">Min Req: 1.0 ft/s (SAFE)</div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Details Breakdown -->
+    <div style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; font-size:12.5px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div>
+        <span style="color:var(--text-muted);">Pump Intake Pressure ($PIP$):</span>
+        <strong id="an2_diag_pip" style="float:right; color:var(--text-primary);">-- psig</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Composite Fluid Specific Gravity ($SG$):</span>
+        <strong id="an2_diag_sg" style="float:right; color:var(--text-primary);">0.95 (Gradient: 0.41 psi/ft)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Tubing Friction Head Loss:</span>
+        <strong id="an2_diag_fric" style="float:right; color:var(--text-primary);">-- ft (-- psi)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Cable Voltage Drop:</span>
+        <strong id="an2_diag_cable_drop" style="float:right; color:#10b981;">-- V (-- %)</strong>
+      </div>
+    </div>
+
+    <!-- Live SVG ESP Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Downhole ESP String Assembly & Fluid Dynamics</span>
+        <span style="font-size:11px; color:var(--text-muted);">Wellbore casing, motor shroud, intake, and multistage pump</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="an2_svg" viewBox="0 0 600 240" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="an2_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy ESP Sizing Diagnostics
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivations & API RP 11S2 ESP Methodology</h2>
+    <p>Sizing downhole Electric Submersible Pumps involves coupling the reservoir inflow performance relationship (IPR) with multistage centrifugal pump hydraulics and downhole electrical power transmission.</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. Producing Flowing Bottomhole Pressure ($P_{wf}$) & Pump Intake ($PIP$):</strong><br>
+      $$P_{wf} = P_R - \frac{Q_l}{PI} \quad (\text{psig})$$<br>
+      Assuming pump is set near perforations, $PIP \approx P_{wf} - \Delta P_{perf}$.<br><br>
+
+      <strong>2. Composite Fluid Specific Gravity ($SG_{mix}$) & Pressure Gradient:</strong><br>
+      $$SG_{mix} = (WC / 100) \cdot 1.05 + (1 - WC / 100) \cdot 0.85$$<br>
+      $$\text{Gradient } (G) = SG_{mix} \cdot 0.433 \quad (\text{psi/ft of fluid})$$<br><br>
+
+      <strong>3. Total Dynamic Head ($TDH$ in feet of fluid):</strong><br>
+      $$TDH = H_{net\_lift} + H_{friction} + H_{wellhead} - H_{casing}$$<br>
+      where:<br>
+      &bull; $H_{net\_lift} = TVD - \frac{PIP}{G}$ (Net fluid lift height)<br>
+      &bull; $H_{wellhead} = \frac{P_{wh}}{G}$<br>
+      &bull; $H_{casing} = \frac{P_{csg}}{G}$<br>
+      &bull; $H_{friction} = \text{tubing friction head loss per Hazen-Williams}(C=120)$.<br><br>
+
+      <strong>4. Multistage Pump Sizing & Brake Horsepower ($BHP$):</strong><br>
+      At Best Efficiency Point (BEP), a standard 400/538 series stage generates $\sim 35 - 55\ \text{ft}$ of head per stage:<br>
+      $$N_{stages} = \frac{TDH}{\text{Head per Stage}}$$<br>
+      $$BHP = \frac{Q_{bpd} \cdot TDH \cdot SG_{mix}}{135,700 \cdot \eta_{pump}} + HP_{seal}$$<br>
+      
+      <strong>5. Motor Cooling Annular Velocity:</strong><br>
+      $$v_{annular} = \frac{Q_{bpd} \cdot 0.000971}{ID_{csg}^2 - OD_{motor}^2} \quad (\text{ft/s})$$<br>
+      API RP 11S2 mandates $v_{annular} \ge 1.0\ \text{ft/s}$ past the motor housing to carry away electrical waste heat and prevent winding burnout.
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in ESP Artificial Lift Systems</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. The Free Gas Lock-In & Churning Vapor Lock Trap</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          When pump intake pressure ($PIP$) drops below the oil bubble point, dissolved solution gas flashes into free vapor. Standard mixed-flow impellers can tolerate only up to $10\%$ to $15\%$ free gas fraction by volume. Above $15\%$, vapor bubbles coalesce in the impeller eye, decoupling centrifugal pressure rise. The pump stages churn vapor without lifting fluid, head drops to zero, and the deadheaded pump overheats and seizes within minutes. Rotary vortex gas separators or multi-phase helico-axial gas handlers are mandatory for gassy wells.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. Motor Burnout from Low Annular Velocity Below Perforations</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Setting an ESP below the casing perforations without a motor shroud is a death sentence for the equipment. When set below perfs, fluid enters the pump intake directly from above, leaving the downhole motor submerged in dead, stagnant fluid. Because ESP motors reject $15\%$ to $20\%$ of their electrical power as heat into the passing fluid stream, lack of annular flow ($< 1.0\ \text{ft/s}$) causes motor winding temperatures to soar past $350^\circ\text{F}$ ($175^\circ\text{C}$), destroying the stator insulation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. Upthrust Destruction from Sizing Past the High Flow Limit</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Every ESP impeller stage has a recommended operating range (ROR). Operating at high flow rates beyond the right side of the ROR reverses the net axial hydraulic thrust from downthrust to upthrust. In upthrust, impellers lift upward, grinding their top phenolic/bronze pads against the diffuser bowl. This destroys impeller eye seals, fills the wellbore with brass shavings, and leads to catastrophic shaft shearing.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Starting Current Cable Voltage Drop Motor Stall</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Across 8,000 to 12,000 feet of downhole cable, conductor resistance is significant. During direct-on-line (DOL) startup, motor inrush current spikes to $400\%$ to $600\%$ of full load amps (FLA). If the cable gauge is undersized (e.g. #4 AWG instead of #1 AWG), cable voltage drop exceeds $25\%$, dropping motor terminal voltage below its breakdown pull-out torque. The motor stalls, draws locked-rotor current, and trips the surface switchboard on thermal overload.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Backspin Motor Re-Start Catastrophe</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          When an ESP shuts down, the thousands of feet of fluid in the production tubing column drains backward through the pump stages, spinning the motor in reverse at high RPM. If an operator or automated restart timer attempts to restart the motor while it is backspinning, the opposing electromagnetic torque snaps the high-strength Monel drive shaft instantly. Check valves and backspin anti-rotation sensors are mandatory.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function calcAN2() {
+    var Q_bpd = parseFloat(document.getElementById('an2_prod_rate').value) || 2500;
+    var PR = parseFloat(document.getElementById('an2_res_press').value) || 2800;
+    var PI = parseFloat(document.getElementById('an2_pi').value) || 2.5;
+    var TVD = parseFloat(document.getElementById('an2_pump_depth').value) || 6500;
+    var WC = parseFloat(document.getElementById('an2_water_cut').value) || 65;
+    var Pwh = parseFloat(document.getElementById('an2_wh_press').value) || 180;
+    var Pcsg = parseFloat(document.getElementById('an2_csg_press').value) || 50;
+    var ID_csg = parseFloat(document.getElementById('an2_casing_id').value) || 6.276;
+    var ID_tubing = parseFloat(document.getElementById('an2_tubing_od').value) || 2.992;
+    var R_cable_kft = parseFloat(document.getElementById('an2_cable_size').value) || 0.203;
+
+    // Drawdown and Pump Intake Pressure (PIP)
+    var drawdown = Q_bpd / PI;
+    var PIP = Math.max(50, PR - drawdown);
+
+    // Composite fluid SG
+    var SG_mix = (WC / 100) * 1.05 + (1 - WC / 100) * 0.85;
+    var grad = SG_mix * 0.4335; // psi/ft
+
+    // Net fluid lift (ft)
+    // Fluid level above pump intake = PIP / grad
+    var fluidLevelAboveIntake = PIP / grad;
+    var netLiftFt = Math.max(0, TVD - fluidLevelAboveIntake);
+
+    // Tubing friction head loss (Hazen-Williams C=120)
+    // Head loss in ft per 1000 ft
+    var gpm = Q_bpd / 34.2857;
+    var h_fric_1000 = (10.44 * Math.pow(gpm, 1.852)) / (Math.pow(120, 1.852) * Math.pow(ID_tubing, 4.87));
+    var h_friction_total = h_fric_1000 * (TVD / 1000);
+
+    // Surface wellhead head (ft)
+    var h_wh = Pwh / grad;
+    // Casing gas head assist (ft)
+    var h_csg = Pcsg / grad;
+
+    // Total Dynamic Head (TDH) in feet of fluid
+    var TDH = netLiftFt + h_friction_total + h_wh - h_csg;
+    var TDH_psi = TDH * grad;
+
+    // Multistage sizing (standard 400 series produces ~45 ft/stage at BEP)
+    var headPerStage = 45.0;
+    var numStages = Math.ceil(TDH / headPerStage);
+
+    // Motor BHP
+    var pumpEff = 0.68;
+    var hydBHP = (Q_bpd * TDH * SG_mix) / (135700 * pumpEff);
+    var sealBHP = 4.0;
+    var totalBHP = hydBHP + sealBHP;
+    var motorHP = Math.ceil(totalBHP / 10) * 10; // round up to nearest 10 HP
+
+    // Motor electrical parameters (approx 2400V standard downhole motor)
+    var motorVolt = 2400;
+    var motorAmps = (motorHP * 746) / (Math.sqrt(3) * motorVolt * 0.85 * 0.88);
+
+    // Cable voltage drop across TVD length
+    var cableOhms = R_cable_kft * (TVD / 1000);
+    var vDrop = Math.sqrt(3) * motorAmps * cableOhms;
+    var vDropPct = (vDrop / motorVolt) * 100;
+
+    // Motor cooling annular velocity (ft/s)
+    // Motor OD approx 4.56" for 400 series or 5.40" for 538 series
+    var OD_motor = (ID_csg >= 6.0) ? 4.56 : 3.75;
+    var annularArea_sqin = (Math.PI / 4) * (ID_csg * ID_csg - OD_motor * OD_motor);
+    var annularVel_fps = (Q_bpd * 0.000971) / (ID_csg * ID_csg - OD_motor * OD_motor);
+
+    // Hero Outputs
+    document.getElementById('an2_out_tdh_ft').textContent = Math.round(TDH).toLocaleString() + ' ft';
+    document.getElementById('an2_out_tdh_psi').textContent = Math.round(TDH_psi).toLocaleString() + ' psi (Lift: ' + Math.round(netLiftFt) + "')";
+
+    document.getElementById('an2_out_stages').textContent = numStages + ' Stages';
+    document.getElementById('an2_out_head_stage').textContent = 'Avg Head/Stage: ' + (TDH / numStages).toFixed(1) + ' ft';
+
+    document.getElementById('an2_out_motor_hp').textContent = motorHP + ' HP Motor';
+    document.getElementById('an2_out_motor_amps').textContent = 'Current: ' + motorAmps.toFixed(1) + ' A (BHP: ' + totalBHP.toFixed(1) + ')';
+
+    var velElem = document.getElementById('an2_out_annular_vel');
+    velElem.textContent = annularVel_fps.toFixed(2) + ' ft/s';
+    velElem.style.color = annularVel_fps >= 1.0 ? '#10b981' : '#ef4444';
+
+    var coolElem = document.getElementById('an2_out_cooling_status');
+    if (annularVel_fps >= 1.0) {
+      coolElem.textContent = 'Min Req: 1.0 ft/s (SAFE)';
+      coolElem.style.color = '#10b981';
+    } else {
+      coolElem.textContent = 'OVERHEAT RISK (<1.0 ft/s) - Add Shroud';
+      coolElem.style.color = '#ef4444';
+    }
+
+    // Diagnostics
+    document.getElementById('an2_diag_pip').textContent = Math.round(PIP).toLocaleString() + ' psig';
+    document.getElementById('an2_diag_sg').textContent = SG_mix.toFixed(2) + ' (Gradient: ' + grad.toFixed(3) + ' psi/ft)';
+    document.getElementById('an2_diag_fric').textContent = Math.round(h_friction_total) + ' ft (' + Math.round(h_friction_total * grad) + ' psi)';
+
+    var dropElem = document.getElementById('an2_diag_cable_drop');
+    dropElem.textContent = Math.round(vDrop) + ' V (' + vDropPct.toFixed(1) + '%)';
+    dropElem.style.color = vDropPct <= 5.0 ? '#10b981' : '#f59e0b';
+
+    // Status Badge
+    var badge = document.getElementById('an2_status_badge');
+    if (annularVel_fps < 1.0) {
+      badge.textContent = 'MOTOR COOLING DEFICIT (<1.0 ft/s)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (vDropPct > 5.0) {
+      badge.textContent = 'HIGH CABLE VOLTAGE DROP (>5%)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else if (PIP < 150) {
+      badge.textContent = 'LOW PIP (FREE GAS LOCKOUT RISK)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else {
+      badge.textContent = 'OPTIMAL API ESP SIZING';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    }
+
+    renderSvgAN2(TVD, netLiftFt, PIP, numStages, motorHP, annularVel_fps);
+  }
+
+  function renderSvgAN2(TVD, netLiftFt, PIP, numStages, motorHP, annularVel) {
+    var svg = document.getElementById('an2_svg');
+    if (!svg) return;
+    var s = '';
+
+    // Wellbore Casing (Vertical Tube Profile)
+    s += '<rect x="220" y="20" width="160" height="200" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="2"/>';
+
+    // Surface Wellhead (Top)
+    s += '<rect x="200" y="10" width="200" height="15" rx="3" fill="#64748b"/>';
+    s += '<text x="300" y="22" font-size="10" font-weight="700" fill="#ffffff" text-anchor="middle">Surface Wellhead</text>';
+
+    // Production Tubing hanging down
+    s += '<rect x="285" y="25" width="30" height="85" fill="var(--bg-secondary)" stroke="#3b82f6" stroke-width="1.5"/>';
+
+    // ESP String (Bottom assembly)
+    // 1. Multistage Pump (Top of ESP string)
+    s += '<rect x="280" y="110" width="40" height="35" rx="2" fill="#3b82f6" stroke="var(--text-primary)" stroke-width="1.5"/>';
+    s += '<text x="300" y="132" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">' + numStages + ' Stg</text>';
+
+    // 2. Intake Section
+    s += '<rect x="283" y="145" width="34" height="10" fill="#f59e0b"/>';
+    s += '<text x="300" y="153" font-size="8" font-weight="800" fill="#000000" text-anchor="middle">Intake</text>';
+
+    // 3. Protector / Seal Section
+    s += '<rect x="282" y="155" width="36" height="15" fill="#64748b"/>';
+
+    // 4. Downhole Submersible Motor
+    var motorColor = annularVel >= 1.0 ? '#10b981' : '#ef4444';
+    s += '<rect x="280" y="170" width="40" height="40" rx="2" fill="' + motorColor + '" stroke="var(--text-primary)" stroke-width="1.5"/>';
+    s += '<text x="300" y="195" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">' + motorHP + ' HP</text>';
+
+    // Power Cable running down right side of casing
+    s += '<line x1="335" y1="20" x2="335" y2="175" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="4,2"/>';
+    s += '<text x="345" y="70" font-size="9" font-weight="600" fill="#ef4444">Armored Cable</text>';
+
+    // Reservoir Inflow arrows at bottom
+    s += '<line x1="205" y1="210" x2="225" y2="210" stroke="#3b82f6" stroke-width="3"/>';
+    s += '<line x1="395" y1="210" x2="375" y2="210" stroke="#3b82f6" stroke-width="3"/>';
+    s += '<text x="300" y="218" font-size="9" font-weight="700" fill="#3b82f6" text-anchor="middle">Casing Perforations</text>';
+
+    // Callout text annotations
+    s += '<text x="50" y="50" font-size="12" font-weight="700" fill="var(--text-primary)">TVD: ' + TVD + ' ft</text>';
+    s += '<text x="50" y="70" font-size="11" fill="var(--text-muted)">Net Lift: ' + Math.round(netLiftFt) + ' ft</text>';
+
+    s += '<text x="430" y="125" font-size="11" font-weight="700" fill="#3b82f6">Pump: ' + numStages + ' Stages</text>';
+    s += '<text x="430" y="145" font-size="11" fill="var(--text-muted)">PIP: ' + Math.round(PIP) + ' psig</text>';
+    s += '<text x="430" y="185" font-size="11" font-weight="700" fill="' + motorColor + '">Annular Vel: ' + annularVel.toFixed(2) + ' ft/s</text>';
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['an2_prod_rate', 'an2_res_press', 'an2_pi', 'an2_pump_depth', 'an2_water_cut', 'an2_wh_press', 'an2_csg_press'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAN2);
+      el.addEventListener('change', calcAN2);
+    }
+  });
+
+  document.getElementById('an2_casing_id').addEventListener('change', calcAN2);
+  document.getElementById('an2_tubing_od').addEventListener('change', calcAN2);
+  document.getElementById('an2_cable_size').addEventListener('change', calcAN2);
+
+  var copyBtn = document.getElementById('an2_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var tdh = document.getElementById('an2_out_tdh_ft').textContent;
+      var stg = document.getElementById('an2_out_stages').textContent;
+      var hp = document.getElementById('an2_out_motor_hp').textContent;
+      var vel = document.getElementById('an2_out_annular_vel').textContent;
+      var pip = document.getElementById('an2_diag_pip').textContent;
+      var status = document.getElementById('an2_status_badge').textContent;
+
+      var text = "=== ELECTRIC SUBMERSIBLE PUMP SIZING REPORT (API RP 11S2) ===\n" +
+        "Status: " + status + "\n" +
+        "Total Dynamic Head: " + tdh + " (" + document.getElementById('an2_out_tdh_psi').textContent + ")\n" +
+        "Pump Sizing: " + stg + " (" + document.getElementById('an2_out_head_stage').textContent + ")\n" +
+        "Motor Power: " + hp + " (" + document.getElementById('an2_out_motor_amps').textContent + ")\n" +
+        "Cooling Velocity: " + vel + ", PIP: " + pip + "\n" +
+        "Rate: " + document.getElementById('an2_prod_rate').value + " BPD, TVD: " + document.getElementById('an2_pump_depth').value + " ft, Water Cut: " + document.getElementById('an2_water_cut').value + "%\n" +
+        "Standard: API RP 11S2 / API RP 11S3 / GPSA Chapter 7\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ ESP Sizing Diagnostics Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy ESP Sizing Diagnostics';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAN2();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'electric-submersible-pump-esp-sizing-calculator.html'), renderTradePage({
+  title: 'Electric Submersible Pump (ESP) Sizing Calculator | API RP 11S2',
+  metaDescription: 'Size downhole Electric Submersible Pump (ESP) artificial lift systems per API RP 11S2. Calculate Total Dynamic Head (TDH), pump stages, motor horsepower, and cable voltage drop.',
+  canonical: 'https://digitaltoolsshed.com/calc/electric-submersible-pump-esp-sizing-calculator.html',
+  content: toolAN2Html,
+  faq: [
+    {
+      q: 'What is Total Dynamic Head (TDH) in an Electric Submersible Pump (ESP) system?',
+      a: 'Total Dynamic Head (TDH) is the total equivalent mechanical feet of liquid head the pump must generate to lift fluid from the flowing bottomhole level to the surface. It is the sum of net vertical lift (surface elevation minus flowing fluid level), tubing frictional head loss, and surface wellhead backpressure head, minus any casing gas pressure assist.'
+    },
+    {
+      q: 'Why is downhole motor cooling annular velocity critical per API RP 11S2?',
+      a: 'Electric submersible motors generate substantial internal heat (rejecting 15% to 20% of their electrical rating into the surrounding fluid). API RP 11S2 mandates a minimum fluid velocity of 1.0 ft/s (0.3 m/s) past the outside of the motor housing. If fluid velocity is insufficient or if the pump is set below perforations without a motor shroud, motor winding insulation burns out rapidly.'
+    },
+    {
+      q: 'How does free gas at the pump intake cause gas locking?',
+      a: 'When pump intake pressure (PIP) drops below the oil bubble point, gas comes out of solution. If the free gas volume exceeds 10% to 15%, the centrifugal impellers cannot effectively compress the gas phase. Vapor blankets the impeller eye, causing head generation to collapse. The pump deadheads, overheats, and trips on underload or burns out.'
+    },
+    {
+      q: 'What is the consequence of operating an ESP outside its Recommended Operating Range (ROR)?',
+      a: 'Operating to the left of the ROR (low flow / high head) produces severe downward hydraulic thrust, prematurely wearing the stage thrust washers. Operating to the right of the ROR (high flow / low head) reverses net hydraulic force into upthrust, causing the impellers to float upward and grind against the diffuser bowls, generating metal shavings and shearing the drive shaft.'
+    },
+    {
+      q: 'Why must downhole power cable voltage drop be verified?',
+      a: 'Across 5,000 to 12,000 feet of downhole copper cable, electrical resistance creates a significant voltage drop. If voltage drop exceeds 5%, motor terminal voltage degrades, causing the motor to draw higher current to produce rated shaft torque. During motor starting, inrush current spikes can drop voltage past the breakdown torque limit, stalling the pump downhole.'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// TOOL AN3: Siphon Spillway Hydraulics & Negative Pressure Crest Calculator (USBR & Henderson)
+// ==========================================
+const toolAN3Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">USBR Design of Small Dams &bull; Henderson Open Channel Flow &bull; Hydraulic Structures</div>
+    <h1>Siphon Spillway Hydraulics & Negative Pressure Calculator</h1>
+    <p class="text-muted">Size siphonic dam spillways and negative-pressure closed conduits per U.S. Bureau of Reclamation (USBR) design guidelines and Henderson hydraulics. Calculate full-bore siphonic discharge ($Q$), throat velocity, sub-atmospheric crest vacuum head ($P_{crest}/\gamma$), cavitation risk thresholds, and de-priming air vent dimensions.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. Reservoir & Siphon Operating Heads</h3>
+
+      <div class="input-group">
+        <label for="an3_net_head">Total Operating Net Head ($H_{net}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an3_net_head" value="18.0" min="2" max="150" step="0.5">
+          <span class="unit-badge">ft (feet)</span>
+        </div>
+        <small class="text-muted">Elevation difference between reservoir surface and outlet tailwater</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an3_crest_lift">Crest Height Above Reservoir ($z_{crest}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an3_crest_lift" value="6.5" min="0.5" max="30" step="0.5">
+          <span class="unit-badge">ft (feet)</span>
+        </div>
+        <small class="text-muted">Height of inside apex crown above flowing reservoir level</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an3_altitude">Dam Site Altitude Above Sea Level</label>
+        <div class="input-with-unit">
+          <input type="number" id="an3_altitude" value="1200" min="0" max="14000" step="100">
+          <span class="unit-badge">ft (feet)</span>
+        </div>
+        <small class="text-muted">Governs barometric atmospheric pressure (lower at high altitude)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an3_water_temp">Water Temperature ($T$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an3_water_temp" value="68" min="35" max="120" step="1">
+          <span class="unit-badge">&deg;F</span>
+        </div>
+        <small class="text-muted">Determines water vapor pressure for cavitation check</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. Siphon Barrel Geometry & Losses</h3>
+
+      <div class="input-group">
+        <label for="an3_throat_w">Siphon Throat Width ($W$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an3_throat_w" value="8.0" min="0.5" max="50" step="0.5">
+          <span class="unit-badge">ft (feet)</span>
+        </div>
+        <small class="text-muted">Width of rectangular barrel throat opening</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an3_throat_h">Siphon Throat Height ($H$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an3_throat_h" value="4.0" min="0.5" max="25" step="0.25">
+          <span class="unit-badge">ft (feet)</span>
+        </div>
+        <small class="text-muted">Vertical depth of throat at crest apex</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an3_coeff_cd">Overall Discharge Coefficient ($C_d$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an3_coeff_cd" value="0.75" min="0.50" max="0.90" step="0.01">
+          <span class="unit-badge">coeff</span>
+        </div>
+        <small class="text-muted">Typically 0.70 - 0.82 for well-rounded siphon conduits</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an3_air_vent_dia">Air Breaker Vent Pipe Diameter</label>
+        <div class="input-with-unit">
+          <input type="number" id="an3_air_vent_dia" value="8" min="2" max="36" step="1">
+          <span class="unit-badge">in (inches)</span>
+        </div>
+        <small class="text-muted">De-priming air inlet to stop siphoning at target low water</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">Siphonic Discharge & Crest Vacuum Evaluation</h3>
+      <div id="an3_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Siphonic Discharge ($Q$)</div>
+        <div id="an3_out_discharge_cfs" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- cfs</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an3_out_discharge_gpm">-- GPM (-- m³/s)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Crest Vacuum Head</div>
+        <div id="an3_out_crest_vac" style="font-size:22px; font-weight:800; color:#3b82f6; margin:4px 0;">-- ft Vac</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an3_out_crest_psi">-- psig (Pabs: -- psia)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="an3_cavit_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Cavitation Safety Margin</div>
+        <div id="an3_out_cavit_margin" style="font-size:20px; font-weight:800; color:#10b981; margin:4px 0;">-- ft Margin</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an3_out_cavit_status">SAFE (Well above vapor press)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Throat Velocity & Priming</div>
+        <div id="an3_out_throat_vel" style="font-size:18px; font-weight:700; color:var(--text-primary); margin:4px 0;">-- ft/s</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an3_out_prime_depth">Priming Head: ~-- in</div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Details Breakdown -->
+    <div style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; font-size:12.5px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div>
+        <span style="color:var(--text-muted);">Atmospheric Pressure Head ($H_{atm}$):</span>
+        <strong id="an3_diag_hatm" style="float:right; color:var(--text-primary);">-- ft of water</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Water Vapor Pressure Head ($H_v$):</span>
+        <strong id="an3_diag_hvap" style="float:right; color:var(--text-primary);">0.78 ft (0.34 psia)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Kinetic Velocity Head ($v^2/2g$):</span>
+        <strong id="an3_diag_vhead" style="float:right; color:var(--text-primary);">-- ft</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">USBR Max Vacuum Limit ($24.0	ext{ ft}$):</span>
+        <strong id="an3_diag_usbr_limit" style="float:right; color:#10b981;">-- % of allowable limit</strong>
+      </div>
+    </div>
+
+    <!-- Live SVG Siphon Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Siphon Spillway Dam Cross-Section & Siphonic Streamlines</span>
+        <span style="font-size:11px; color:var(--text-muted);">Sub-atmospheric crest zone and air breaker vent</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="an3_svg" viewBox="0 0 600 240" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="an3_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy Siphon Spillway Diagnostics
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivations & Siphon Spillway Hydraulics</h2>
+    <p>A siphon spillway functions as a closed conduit that uses atmospheric pressure and sub-atmospheric suction head to discharge flood water at significantly higher velocities than open crest weirs.</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. Siphonic Full-Bore Discharge ($Q$):</strong><br>
+      $$Q = C_d \cdot A_{throat} \cdot \sqrt{2 g H_{net}} \quad (\text{cfs})$$<br>
+      where $A_{throat} = W \cdot H$, $H_{net}$ is total operating head from upstream water to downstream tailwater, and $C_d \approx 0.70 - 0.82$.<br><br>
+
+      <strong>2. Throat Velocity & Velocity Head:</strong><br>
+      $$v_{throat} = \frac{Q}{A_{throat}} \quad (\text{ft/s}), \quad h_v = \frac{v_{throat}^2}{2 g} \quad (\text{ft})$$<br>
+
+      <strong>3. Crest Sub-Atmospheric Pressure Head ($h_{crest}$):</strong><br>
+      Applying Bernoulli equation from the quiescent reservoir pool to the crest crown:<br>
+      $$\frac{P_{crest}}{\gamma} = - \left[ z_{crest} + \frac{v_{throat}^2}{2 g} + h_{loss, inlet} \right] \quad (\text{ft of water gauge vacuum})$$<br>
+      where $z_{crest}$ is the physical height of the crest apex above the reservoir water surface.<br><br>
+
+      <strong>4. Atmospheric Pressure Derating with Altitude:</strong><br>
+      $$P_{atm} = 14.696 \cdot \left( 1 - 6.875 \times 10^{-6} \cdot \text{Altitude} \right)^{5.256} \quad (\text{psia})$$<br>
+      $$H_{atm} = \frac{P_{atm} \times 144}{62.4} \quad (\text{ft of water})$$<br><br>
+
+      <strong>5. Cavitation Criterion & USBR Limits:</strong><br>
+      To prevent explosive water vapor cavitation, absolute pressure at the crest must exceed water vapor pressure ($H_v \approx 0.78\ \text{ft}$ at $68^\circ\text{F}$):<br>
+      $$\text{Margin} = H_{atm} - \left| \frac{P_{crest}}{\gamma} \right| - H_v \ge 6.0\ \text{ft}$$<br>
+      USBR strictly mandates that total vacuum head must not exceed $24.0$ to $26.0\ \text{ft}$ of water ($-7.3$ to $-8.0\ \text{m}$) at sea level.
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in Siphon Spillway Design</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. The 26 ft Cavitation Vapor Spalling Catastrophe</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Allowing the crest vacuum to exceed 25 to 26 ft of water (especially at high-altitude dams where atmospheric pressure is lower) causes water to boil at ambient temperature. Vapor bubbles form along the crest crown and travel down the barrel, where collapsing micro-jets generate localized water hammer shocks of 50,000 psi. This tears concrete reinforcing out of the spillway barrel, causing sudden structural breach and siphonic de-priming during peak flood events.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. Air Breaker Pipe Freezing or Trash Clogging</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          The air breaker vent pipe is the only mechanism that de-primes the siphon once floodwaters recede. If floating trash, twigs, or winter surface ice block the air vent orifice, the siphon cannot admit air when the reservoir drops back to normal pool. The siphon continues running full-bore, draining millions of gallons of municipal drinking or irrigation water down to the lower lip before finally dying. Dual independent air vents with heated trash hoods are essential.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. Violent Pressure Chugging During Siphon Priming</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          During initial flood rise, a siphon passes through an unstable transition between open weir flow and pressurized pipe flow. If the lower sealing deflector is improperly positioned, the siphon gulps large pockets of air cyclically, producing severe structural vibrations and pressure oscillations ("chugging") that can crack concrete arch hoods and cause downstream surge waves. A priming deflector step or auxiliary air-ejector jet ensures smooth, rapid priming.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Atmospheric Shell Buckling on Steel Siphon Conduits</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          When siphon spillways are built using prefabricated steel pipe conduits rather than mass concrete, engineers often calculate wall thickness strictly for internal hydrostatic pressure. However, during full-bore flow, the crest operates under 10 to 12 psi of external atmospheric crushing pressure (vacuum). Unstiffened thin-walled steel conduits instantly buckle and collapse inward under vacuum, shutting off discharge.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Downstream Tailwater Hydraulic Seal Blowout</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          For a siphon to prime, the downstream outlet must be sealed by a tailwater basin or sealing weir to prevent air from entering backward from the bottom. If scour washes away the tailwater weir or if low tailwater exposes the lower lip, atmospheric air enters from below, preventing negative pressure buildup and reducing the spillway capacity to a sluggish open chute.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function calcAN3() {
+    var Hnet = parseFloat(document.getElementById('an3_net_head').value) || 18.0;
+    var zcrest = parseFloat(document.getElementById('an3_crest_lift').value) || 6.5;
+    var altitude = parseFloat(document.getElementById('an3_altitude').value) || 1200;
+    var Tw = parseFloat(document.getElementById('an3_water_temp').value) || 68;
+    var W = parseFloat(document.getElementById('an3_throat_w').value) || 8.0;
+    var H = parseFloat(document.getElementById('an3_throat_h').value) || 4.0;
+    var Cd = parseFloat(document.getElementById('an3_coeff_cd').value) || 0.75;
+    var ventDia_in = parseFloat(document.getElementById('an3_air_vent_dia').value) || 8;
+
+    // Atmospheric pressure calculation based on altitude (psia)
+    var Patm_psia = 14.696 * Math.pow(1 - 6.875e-6 * altitude, 5.256);
+    var Hatm_ft = (Patm_psia * 144) / 62.4; // ft of water
+
+    // Water vapor pressure approx formula (psia and ft of water)
+    var Pvap_psia = 0.0885 * Math.exp(0.033 * (Tw - 32));
+    var Hvap_ft = (Pvap_psia * 144) / 62.4;
+
+    // Throat area (sq ft)
+    var A_throat = W * H;
+
+    // Siphonic Discharge (cfs)
+    var Q_cfs = Cd * A_throat * Math.sqrt(2 * 32.174 * Hnet);
+    var Q_gpm = Q_cfs * 448.831;
+    var Q_m3s = Q_cfs * 0.0283168;
+
+    // Throat velocity (ft/s)
+    var v_throat = Q_cfs / A_throat;
+    var hv = (v_throat * v_throat) / (2 * 32.174);
+
+    // Inlet loss approx 0.1 * hv
+    var h_inlet_loss = 0.12 * hv;
+
+    // Crest vacuum head (ft of water gauge vacuum)
+    // h_vac = zcrest + hv + h_loss
+    var h_vac_ft = zcrest + hv + h_inlet_loss;
+    var h_vac_psi = (h_vac_ft * 62.4) / 144;
+
+    // Absolute pressure at crest
+    var H_abs_ft = Hatm_ft - h_vac_ft;
+    var P_abs_psia = (H_abs_ft * 62.4) / 144;
+
+    // Cavitation Safety Margin (ft above vapor pressure)
+    var cavMargin_ft = H_abs_ft - Hvap_ft;
+
+    // USBR percentage of 24.0 ft limit
+    var usbrPct = (h_vac_ft / 24.0) * 100;
+
+    // Priming head estimate (depth of water above crest to seal and prime, approx 0.15 * H)
+    var primeDepth_in = H * 12 * 0.15;
+
+    // Hero Outputs
+    document.getElementById('an3_out_discharge_cfs').textContent = Math.round(Q_cfs).toLocaleString() + ' cfs';
+    document.getElementById('an3_out_discharge_gpm').textContent = Math.round(Q_gpm).toLocaleString() + ' GPM (' + Q_m3s.toFixed(1) + ' m³/s)';
+
+    document.getElementById('an3_out_crest_vac').textContent = h_vac_ft.toFixed(1) + ' ft Vac';
+    document.getElementById('an3_out_crest_psi').textContent = '-' + h_vac_psi.toFixed(2) + ' psig (Pabs: ' + P_abs_psia.toFixed(2) + ' psia)';
+
+    var cavMarginElem = document.getElementById('an3_out_cavit_margin');
+    cavMarginElem.textContent = cavMargin_ft.toFixed(1) + ' ft Margin';
+    cavMarginElem.style.color = cavMargin_ft >= 6.0 ? '#10b981' : (cavMargin_ft >= 2.0 ? '#f59e0b' : '#ef4444');
+
+    var cavStatusElem = document.getElementById('an3_out_cavit_status');
+    if (cavMargin_ft >= 6.0 && h_vac_ft <= 24.0) {
+      cavStatusElem.textContent = 'SAFE (USBR & Cavitation Compliant)';
+      cavStatusElem.style.color = '#10b981';
+    } else if (h_vac_ft > 24.0 && cavMargin_ft > 2.0) {
+      cavStatusElem.textContent = 'USBR 24 FT VACUUM EXCEEDED';
+      cavStatusElem.style.color = '#f59e0b';
+    } else {
+      cavStatusElem.textContent = 'EXPLOSIVE CAVITATION VAPOR LOCK';
+      cavStatusElem.style.color = '#ef4444';
+    }
+
+    document.getElementById('an3_out_throat_vel').textContent = v_throat.toFixed(1) + ' ft/s';
+    document.getElementById('an3_out_prime_depth').textContent = 'Priming Depth: ~' + primeDepth_in.toFixed(1) + ' in';
+
+    // Diagnostics
+    document.getElementById('an3_diag_hatm').textContent = Hatm_ft.toFixed(1) + ' ft (' + Patm_psia.toFixed(2) + ' psia)';
+    document.getElementById('an3_diag_hvap').textContent = Hvap_ft.toFixed(2) + ' ft (' + Pvap_psia.toFixed(2) + ' psia)';
+    document.getElementById('an3_diag_vhead').textContent = hv.toFixed(1) + ' ft (Loss: ' + h_inlet_loss.toFixed(1) + ' ft)';
+
+    var usbrElem = document.getElementById('an3_diag_usbr_limit');
+    usbrElem.textContent = usbrPct.toFixed(1) + '% of 24 ft Limit';
+    usbrElem.style.color = usbrPct > 100 ? '#ef4444' : (usbrPct > 85 ? '#f59e0b' : '#10b981');
+
+    // Status Badge
+    var badge = document.getElementById('an3_status_badge');
+    if (cavMargin_ft <= 2.0) {
+      badge.textContent = 'CAVITATION FAILURE (VAPOR COLLAPSE)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (h_vac_ft > 24.0) {
+      badge.textContent = 'EXCEEDS USBR 24 FT LIMIT (LOWER CREST)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else if (cavMargin_ft < 6.0) {
+      badge.textContent = 'LOW MARGIN (<6 FT)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else {
+      badge.textContent = 'OPTIMAL USBR SIPHON SIZING';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    }
+
+    renderSvgAN3(h_vac_ft, Hnet, zcrest, cavMargin_ft);
+  }
+
+  function renderSvgAN3(h_vac, Hnet, zcrest, cavMargin) {
+    var svg = document.getElementById('an3_svg');
+    if (!svg) return;
+    var s = '';
+
+    // Dam Body (Concrete Wall Cross-Section)
+    s += '<polygon points="120,200 200,90 270,90 350,200" fill="var(--bg-secondary)" stroke="var(--border-color)" stroke-width="2"/>';
+    s += '<text x="240" y="160" font-size="11" font-weight="700" fill="var(--text-muted)" text-anchor="middle">Dam Crest</text>';
+
+    // Upstream Water Reservoir (Left)
+    s += '<rect x="30" y="110" width="140" height="90" fill="rgba(59,130,246,0.3)"/>';
+    s += '<line x1="30" y1="110" x2="185" y2="110" stroke="#3b82f6" stroke-width="2.5"/>';
+    s += '<text x="80" y="102" font-size="10" font-weight="700" fill="#3b82f6">Reservoir Pool</text>';
+
+    // Siphon Hood (Curved Upper Shell)
+    s += '<path d="M 150 160 L 170 120 C 190 60, 280 60, 300 120 L 370 200" fill="none" stroke="#64748b" stroke-width="5"/>';
+    s += '<path d="M 170 160 L 185 130 C 200 80, 270 80, 285 130 L 350 200" fill="none" stroke="#64748b" stroke-width="4"/>';
+
+    // Siphonic Flow Streamline (Blue water core)
+    s += '<path d="M 160 160 C 175 100, 295 100, 360 200" fill="none" stroke="#3b82f6" stroke-width="8" opacity="0.6"/>';
+
+    // Crest Negative Pressure / Vacuum Zone (Red/Green Heatmap at crown)
+    var cavColor = cavMargin >= 6.0 ? '#10b981' : (cavMargin >= 2.0 ? '#f59e0b' : '#ef4444');
+    s += '<circle cx="235" cy="70" r="14" fill="' + cavColor + '" opacity="0.4"/>';
+    s += '<text x="235" y="74" font-size="9" font-weight="800" fill="#ffffff" text-anchor="middle">Vac</text>';
+    s += '<text x="235" y="50" font-size="10" font-weight="700" fill="' + cavColor + '" text-anchor="middle">' + h_vac.toFixed(1) + " ft Vac</text>";
+
+    // Air Breaker Vent Pipe (On upstream hood)
+    s += '<line x1="175" y1="95" x2="135" y2="95" stroke="#f59e0b" stroke-width="3"/>';
+    s += '<line x1="135" y1="95" x2="135" y2="110" stroke="#f59e0b" stroke-width="3"/>';
+    s += '<circle cx="135" cy="110" r="4" fill="#f59e0b"/>';
+    s += '<text x="135" y="85" font-size="9" font-weight="700" fill="#f59e0b" text-anchor="middle">Air Breaker</text>';
+
+    // Downstream Tailwater Basin (Right)
+    s += '<rect x="340" y="180" width="220" height="20" fill="rgba(59,130,246,0.3)"/>';
+    s += '<line x1="340" y1="180" x2="560" y2="180" stroke="#3b82f6" stroke-width="2"/>';
+    s += '<text x="460" y="174" font-size="10" font-weight="700" fill="#3b82f6">Sealed Tailwater</text>';
+
+    // Net Head Dimension Arrow
+    s += '<line x1="530" y1="110" x2="530" y2="180" stroke="#64748b" stroke-width="1.5"/>';
+    s += '<polygon points="530,110 527,117 533,117" fill="#64748b"/>';
+    s += '<polygon points="530,180 527,173 533,173" fill="#64748b"/>';
+    s += '<text x="540" y="148" font-size="10" font-weight="700" fill="var(--text-primary)">Hnet: ' + Hnet + ' ft</text>';
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['an3_net_head', 'an3_crest_lift', 'an3_altitude', 'an3_water_temp', 'an3_throat_w', 'an3_throat_h', 'an3_coeff_cd', 'an3_air_vent_dia'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAN3);
+      el.addEventListener('change', calcAN3);
+    }
+  });
+
+  var copyBtn = document.getElementById('an3_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var q = document.getElementById('an3_out_discharge_cfs').textContent;
+      var gpm = document.getElementById('an3_out_discharge_gpm').textContent;
+      var vac = document.getElementById('an3_out_crest_vac').textContent;
+      var psi = document.getElementById('an3_out_crest_psi').textContent;
+      var cav = document.getElementById('an3_out_cavit_margin').textContent;
+      var vel = document.getElementById('an3_out_throat_vel').textContent;
+      var status = document.getElementById('an3_status_badge').textContent;
+
+      var text = "=== SIPHON SPILLWAY HYDRAULICS REPORT (USBR & HENDERSON) ===\n" +
+        "Status: " + status + "\n" +
+        "Siphonic Discharge: " + q + " (" + gpm + ")\n" +
+        "Crest Vacuum Head: " + vac + " (" + psi + ")\n" +
+        "Cavitation Margin: " + cav + " (" + document.getElementById('an3_out_cavit_status').textContent + ")\n" +
+        "Throat Velocity: " + vel + ", Net Head: " + document.getElementById('an3_net_head').value + " ft\n" +
+        "Throat Geometry: " + document.getElementById('an3_throat_w').value + " ft W x " + document.getElementById('an3_throat_h').value + " ft H (Cd: " + document.getElementById('an3_coeff_cd').value + ")\n" +
+        "Site Altitude: " + document.getElementById('an3_altitude').value + " ft\n" +
+        "Standard: USBR Design of Small Dams / Henderson Open Channel Flow\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ Siphon Spillway Diagnostics Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy Siphon Spillway Diagnostics';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAN3();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'siphon-spillway-hydraulics-negative-pressure-calculator.html'), renderTradePage({
+  title: 'Siphon Spillway Hydraulics Calculator | USBR & Henderson Equations',
+  metaDescription: 'Calculate siphonic spillway discharge capacity, sub-atmospheric crest vacuum head, and cavitation margins per USBR Design of Small Dams and Henderson hydraulics.',
+  canonical: 'https://digitaltoolsshed.com/calc/siphon-spillway-hydraulics-negative-pressure-calculator.html',
+  content: toolAN3Html,
+  faq: [
+    {
+      q: 'How does a siphon spillway achieve much higher discharge than an open overflow weir?',
+      a: 'An open crest weir discharges water driven only by the shallow depth of water flowing over the crest (Q ∝ H^1.5). A siphon spillway, once primed, acts as a closed pressurized conduit driven by the full head difference between reservoir surface and downstream tailwater (Q ∝ Hnet^0.5). A siphon can pass 3 to 5 times the discharge of an open weir of identical crest length.'
+    },
+    {
+      q: 'What causes cavitation at the siphon spillway crest?',
+      a: 'As water accelerates over the crest apex, potential energy and kinetic velocity heads subtract from atmospheric pressure. If the resulting sub-atmospheric vacuum approaches water vapor pressure (typically when vacuum exceeds 24 to 26 ft of water / ~8 m), the water boils at ambient temperature. Vapor bubbles collapse violently downstream, pitting and spalling concrete and de-priming the siphon.'
+    },
+    {
+      q: 'What is the purpose of the de-priming air breaker vent pipe?',
+      a: 'The air breaker is a pipe connecting the siphon crown to the reservoir water surface at normal pool level. During a flood, rising water submerges the vent, allowing the siphon to exhaust air and prime. When floodwaters recede below the vent lip, atmospheric air rushes into the crest crown, breaking the vacuum and instantly shutting off the siphon before it drains the reservoir pool.'
+    },
+    {
+      q: 'Why does dam site altitude severely reduce allowable siphon crest lift?',
+      a: 'Atmospheric pressure decreases with altitude (e.g. from 34.0 ft of water at sea level to 29.5 ft at 4,000 ft elevation). Because the maximum suction lift is limited by atmospheric pressure minus vapor pressure, high-altitude dams have a lower vacuum threshold before cavitation occurs, requiring lower crest lifts above reservoir water level.'
+    },
+    {
+      q: 'Why is a downstream water seal required for siphon spillways?',
+      a: 'For a siphon to prime automatically, the downstream outlet must be sealed by a tailwater basin or a deflective sealing weir. This water seal prevents air from being drawn backward up the barrel from the bottom, allowing water sweeping over the crest to entrain and eject all trapped air until full-bore pipe flow is established.'
+    }
+  ]
+}));
+
+
+
+// ==========================================
+// TOOL AN4: Spiral Plate Heat Exchanger Sizing & Sludge Friction Calculator (Minton Theory & ISO 16812)
+// ==========================================
+const toolAN4Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">ISO 16812 &bull; Minton Curved Channel Theory &bull; Non-Newtonian Sludge Hydraulics</div>
+    <h1>Spiral Plate Heat Exchanger & Sludge Sizing Calculator</h1>
+    <p class="text-muted">Size industrial spiral plate heat exchangers (SPHE) for non-Newtonian wastewater sludge, biogas digesters, and viscous chemical slurries per Minton's curved-channel model and ISO 16812. Calculate heat duty ($Q$), Dean vortex enhancement, required heat transfer surface area, outer shell diameter ($D_o$), and sludge frictional pressure drop.</p>
+  </div>
+
+  <!-- Primary Inputs Grid -->
+  <div class="calc-grid">
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">1. Process Sludge & Thermal Duty</h3>
+
+      <div class="input-group">
+        <label for="an4_sludge_preset">Hot Fluid / Sludge Preset</label>
+        <select id="an4_sludge_preset">
+          <option value="digested_4" selected>Anaerobic Digested Sludge (4% TS, K = 0.18 Pa·sⁿ, n = 0.55)</option>
+          <option value="raw_sludge_6">Thickened Raw Sludge (6% TS, K = 0.45 Pa·sⁿ, n = 0.48)</option>
+          <option value="was_2">Waste Activated Sludge (2% TS, K = 0.05 Pa·sⁿ, n = 0.65)</option>
+          <option value="manure_8">Biogas Livestock Slurry (8% TS, K = 0.95 Pa·sⁿ, n = 0.42)</option>
+          <option value="clean_water">Clean Industrial Water (Newtonian, 1.0 cP)</option>
+        </select>
+        <small class="text-muted">Preloads non-Newtonian power-law rheology ($K$ and $n$)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an4_hot_flow">Sludge Volumetric Flow Rate ($Q_h$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_hot_flow" value="120" min="10" max="2500" step="5">
+          <span class="unit-badge">GPM</span>
+        </div>
+        <small class="text-muted">Hot sludge stream flow (120 GPM ≈ 27.3 m³/h)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an4_th_in">Hot Sludge Inlet Temp ($T_{h,in}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_th_in" value="140" min="60" max="300" step="1">
+          <span class="unit-badge">&deg;F</span>
+        </div>
+        <small class="text-muted">e.g. 140°F (60°C) from pasteurization or heat source</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an4_th_out">Hot Sludge Outlet Temp ($T_{h,out}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_th_out" value="100" min="50" max="250" step="1">
+          <span class="unit-badge">&deg;F</span>
+        </div>
+        <small class="text-muted">e.g. 100°F (37.8°C) feed to anaerobic digester</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an4_tc_in">Cold Water Inlet Temp ($T_{c,in}$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_tc_in" value="65" min="40" max="200" step="1">
+          <span class="unit-badge">&deg;F</span>
+        </div>
+        <small class="text-muted">Cold utility water or recirculation loop</small>
+      </div>
+    </div>
+
+    <div class="calc-col">
+      <h3 style="margin-bottom:12px; font-size:15px; color:var(--text-primary); border-bottom:1px solid var(--border-color); padding-bottom:6px;">2. Spiral Plate Geometry & Spacing</h3>
+
+      <div class="input-group">
+        <label for="an4_sludge_spacing">Sludge Channel Spacing ($s_1$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_sludge_spacing" value="16" min="8" max="32" step="1">
+          <span class="unit-badge">mm (spacing)</span>
+        </div>
+        <small class="text-muted">Non-clogging gap for solids (16 mm ≈ 0.63 in)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an4_cold_spacing">Utility Channel Spacing ($s_2$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_cold_spacing" value="10" min="6" max="20" step="1">
+          <span class="unit-badge">mm (spacing)</span>
+        </div>
+        <small class="text-muted">Water channel gap (10 mm ≈ 0.39 in)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an4_plate_width">Spiral Plate Width ($W$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_plate_width" value="1000" min="300" max="2500" step="50">
+          <span class="unit-badge">mm (width)</span>
+        </div>
+        <small class="text-muted">Axial plate depth (1000 mm = 1.0 m ≈ 39.4 in)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an4_plate_thk">Plate Sheet Thickness ($t$)</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_plate_thk" value="4.0" min="2.0" max="8.0" step="0.5">
+          <span class="unit-badge">mm (thk)</span>
+        </div>
+        <small class="text-muted">Stainless 316L sheet metal thickness (typically 3 to 5 mm)</small>
+      </div>
+
+      <div class="input-group">
+        <label for="an4_max_dp">Max Allowable Sludge Pressure Drop</label>
+        <div class="input-with-unit">
+          <input type="number" id="an4_max_dp" value="15.0" min="2.0" max="45.0" step="1">
+          <span class="unit-badge">psi</span>
+        </div>
+        <small class="text-muted">Target hydraulic head loss limit across spiral channel</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Hero Display -->
+  <div class="results-panel" style="margin-top:20px; background:var(--card-bg); border-radius:10px; border:1px solid var(--border-color); padding:18px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px;">
+      <h3 style="margin:0; font-size:16px;">Thermal Sizing & Sludge Channel Hydraulics</h3>
+      <div id="an4_status_badge" style="padding:6px 14px; border-radius:20px; font-weight:700; font-size:13px;">CALCULATING</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:14px;">
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid var(--accent);">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Heat Transfer Duty ($Q$)</div>
+        <div id="an4_out_duty_kw" style="font-size:22px; font-weight:800; color:var(--text-primary); margin:4px 0;">-- kW</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an4_out_duty_btu">-- MMBTU/hr (LMTD: -- &deg;F)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #3b82f6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Surface Area & Outer Diameter</div>
+        <div id="an4_out_area_m2" style="font-size:22px; font-weight:800; color:#3b82f6; margin:4px 0;">-- m²</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an4_out_dia">Shell OD: -- mm (-- in)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #10b981;" id="an4_dp_box">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Sludge Channel Pressure Drop</div>
+        <div id="an4_out_dp_psi" style="font-size:22px; font-weight:800; color:#10b981; margin:4px 0;">-- psi</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an4_out_dp_bar">-- bar (Velocity: -- m/s)</div>
+      </div>
+
+      <div style="background:var(--bg-secondary); padding:12px; border-radius:8px; border-left:4px solid #8b5cf6;">
+        <div style="font-size:11px; text-transform:uppercase; color:var(--text-muted); font-weight:600;">Overall Heat Transfer Coeff ($U$)</div>
+        <div id="an4_out_u_val" style="font-size:18px; font-weight:700; color:var(--text-primary); margin:4px 0;">-- W/m²&bull;K</div>
+        <div style="font-size:11px; color:var(--text-muted);" id="an4_out_u_eng">-- BTU/hr&bull;ft²&bull;&deg;F</div>
+      </div>
+    </div>
+
+    <!-- Diagnostic Details Breakdown -->
+    <div style="margin-top:16px; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px; font-size:12.5px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div>
+        <span style="color:var(--text-muted);">Total Spiral Channel Length ($L$):</span>
+        <strong id="an4_diag_length" style="float:right; color:var(--text-primary);">-- m (-- ft)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Self-Cleaning Dean Number ($De$):</span>
+        <strong id="an4_diag_dean" style="float:right; color:var(--text-primary);">-- (Dean Vortices Active)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Sludge Wall Shear Rate ($\dot{\gamma}$):</span>
+        <strong id="an4_diag_shear" style="float:right; color:var(--text-primary);">-- s⁻¹ (App. Visc: -- cP)</strong>
+      </div>
+      <div>
+        <span style="color:var(--text-muted);">Channel Cross-Section Area ($A_c$):</span>
+        <strong id="an4_diag_ac" style="float:right; color:#10b981;">0.0160 m² (16 x 1000 mm)</strong>
+      </div>
+    </div>
+
+    <!-- Live SVG Spiral Visualizer -->
+    <div style="margin-top:18px; border-top:1px solid var(--border-color); padding-top:14px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Concentric Spiral Channel Cross-Section & Flow Paths</span>
+        <span style="font-size:11px; color:var(--text-muted);">Hot sludge channel (red) vs Cold utility channel (blue)</span>
+      </div>
+      <div style="background:var(--bg-secondary); border-radius:8px; padding:12px; display:flex; justify-content:center;">
+        <svg id="an4_svg" viewBox="0 0 600 240" style="width:100%; max-width:600px; height:auto; overflow:visible; font-family:sans-serif;"></svg>
+      </div>
+    </div>
+
+    <!-- Copy Diagnostics Button -->
+    <div style="margin-top:18px; display:flex; justify-content:flex-end;">
+      <button id="an4_copy_btn" type="button" class="btn btn-secondary" style="padding:8px 16px; font-weight:600; cursor:pointer;">
+        📋 Copy Spiral Heat Exchanger Diagnostics
+      </button>
+    </div>
+  </div>
+
+  <!-- Worked Technical Derivations -->
+  <div class="calc-section" style="margin-top:30px;">
+    <h2>Mathematical Derivations & Minton Spiral Channel Methodology</h2>
+    <p>Spiral plate heat exchangers (SPHE) feature two concentric curved rectangular channels rolled around a central core mandrel. The continuous single-channel curve induces centrifugal secondary flows (Dean vortices) that scour the wall, inhibiting solids fouling.</p>
+    
+    <div style="background:var(--card-bg); border-left:4px solid var(--accent); padding:14px; border-radius:4px; margin:14px 0; font-size:13px; line-height:1.7;">
+      <strong>1. True Counter-Current LMTD:</strong><br>
+      Because both fluid channels flow continuously in opposite directions along the entire spiral geometry without dead zones, the logarithmic mean temperature difference is pure counterflow ($F_t = 1.0$):<br>
+      $$\text{LMTD} = \frac{(T_{h,in} - T_{c,out}) - (T_{h,out} - T_{c,in})}{\ln\left(\frac{T_{h,in} - T_{c,out}}{T_{h,out} - T_{c,in}}\right)} \quad (^\circ\text{F or } ^\circ\text{C})$$<br><br>
+
+      <strong>2. Heat Duty & Required Surface Area:</strong><br>
+      $$Q = 500 \cdot Q_{h} \cdot (T_{h,in} - T_{h,out}) \quad (\text{BTU/hr}) = \dot{m}_h \cdot c_p \cdot \Delta T \quad (\text{kW})$$<br>
+      $$A = \frac{Q}{U \cdot \text{LMTD}} \quad (\text{m}^2)$$<br>
+      where $U$ typically ranges from $600$ to $1,100\ \text{W/m}^2\cdot\text{K}$ ($105$ to $195\ \text{BTU/hr}\cdot\text{ft}^2\cdot^\circ\text{F}$) for municipal sludge.<br><br>
+
+      <strong>3. Channel Hydraulic Diameter & Sludge Velocity:</strong><br>
+      For a wide rectangular duct ($W \gg s_1$):<br>
+      $$d_h = \frac{4 \cdot (s_1 \cdot W)}{2 \cdot (s_1 + W)} \approx 2 s_1 \quad (\text{m})$$<br>
+      $$v = \frac{Q_h}{s_1 \cdot W} \quad (\text{m/s})$$<br><br>
+
+      <strong>4. Non-Newtonian Apparent Viscosity (Power-Law):</strong><br>
+      $$\dot{\gamma} = \frac{8 v}{d_h} \cdot \left(\frac{3n + 1}{4n}\right) \quad (\text{s}^{-1})$$<br>
+      $$\mu_{app} = K \cdot \dot{\gamma}^{n-1} \quad (\text{Pa}\cdot\text{s})$$<br><br>
+
+      <strong>5. Dean Number & Pressure Drop per Minton:</strong><br>
+      $$De = Re \cdot \sqrt{\frac{d_h}{2 R_{mean}}}$$<br>
+      $$\Delta P = f_{curved} \cdot \frac{L}{d_h} \cdot \frac{\rho v^2}{2} \quad (\text{psi or bar})$$<br>
+      where $L = \frac{A}{2 W}$ is the total developed plate length.
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="calc-section" style="margin-top:25px;">
+    <h2>5 Fatal Engineering Traps in Spiral Heat Exchanger Design</h2>
+    <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-top:14px;">
+      
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #ef4444; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#ef4444; font-size:14px;">1. High Solids Sludge Laminar Stall (&gt;7% TS)</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Wastewater sludge with total solids (TS) exceeding 6% to 8% exhibits strong Bingham-pseudoplastic yield stress. If velocity inside the single spiral channel drops below 1.0 m/s (3.3 ft/s), wall shear rate ($dot{gamma}$) drops, causing apparent viscosity to spike from 100 cP to over 2,000 cP. The sludge stalls into a laminar plug, completely extinguishing the Dean vortex scrubbing effect and baking solids onto the heated plate wall.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #f59e0b; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#f59e0b; font-size:14px;">2. Differential Pressure Channel Bulging & Pinching</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Operating with a large differential pressure between the two channels (e.g. utility water at 90 psi, sludge at 15 psi, $Delta P = 75 	ext{psi}$) exerts massive bending moments across the unsupported plate spans between spacer pins. The thin sheet metal (3 to 4 mm) bulges into the adjacent lower-pressure channel, constricting the sludge channel gap ($s_1$) from 16 mm down to 8 mm, triggering instant clogging and pump overpressure trips.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #10b981; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#10b981; font-size:14px;">3. Spacer Stud Weld Fatigue & Plate Drumming</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          To maintain constant channel gap, hundreds of small cylindrical metal spacer pins (studs) are resistance-welded to the sheet. Under positive displacement cavity pump pulsations or thermal expansion cycling, the plates flex dynamically (plate drumming). This initiates high-cycle fatigue cracks at the heat-affected zone (HAZ) of the spacer pin welds, allowing toxic sludge to cross-contaminate the clean cooling water circuit.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #3b82f6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#3b82f6; font-size:14px;">4. Fibrous Stringy Material Core Bridging</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          While spiral channels are inherently non-clogging along their length due to the absence of flow splitters, the central split core turn is vulnerable to bridging. Long hair, rags, fibrous plastic wipes, and tomato skins in un-macerated raw sewage wrap around the core dividing baffle, forming a solid fibrous mat that completely blocks the 180° exit turn. Inline twin-shaft grinders/macerators upstream are mandatory.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--card-bg); border-left:4px solid #8b5cf6; padding:14px; border-radius:6px;">
+        <h4 style="margin:0 0 6px 0; color:#8b5cf6; font-size:14px;">5. Peripheral Flat Cover Gasket Blowout</h4>
+        <p style="margin:0; font-size:12.5px; color:var(--text-secondary); line-height:1.5;">
+          Spiral heat exchangers feature full-diameter flat bolted end covers lined with large elastomeric or spiral-wound gaskets. Because the outer diameter can reach 1.5 to 2.5 meters, thermal expansion gradients between the hot central core and cold peripheral turns cause differential cover plate bowing. The gasket relaxes at the 3 o'clock and 9 o'clock positions, causing hazardous black sludge blowouts across plant floors during thermal restarts.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var sludgePresets = {
+    digested_4:   { K: 0.18, n: 0.55, rho: 1020, cp: 4050, U: 850 },
+    raw_sludge_6: { K: 0.45, n: 0.48, rho: 1035, cp: 3980, U: 680 },
+    was_2:        { K: 0.05, n: 0.65, rho: 1010, cp: 4120, U: 1050 },
+    manure_8:     { K: 0.95, n: 0.42, rho: 1050, cp: 3900, U: 520 },
+    clean_water:  { K: 0.001, n: 1.0, rho: 1000, cp: 4184, U: 1400 }
+  };
+
+  function onPresetChange() {
+    calcAN4();
+  }
+
+  function calcAN4() {
+    var pKey = document.getElementById('an4_sludge_preset').value;
+    var p = sludgePresets[pKey] || sludgePresets.digested_4;
+
+    var Qh_gpm = parseFloat(document.getElementById('an4_hot_flow').value) || 120;
+    var Th_in = parseFloat(document.getElementById('an4_th_in').value) || 140;
+    var Th_out = parseFloat(document.getElementById('an4_th_out').value) || 100;
+    var Tc_in = parseFloat(document.getElementById('an4_tc_in').value) || 65;
+
+    var s1_mm = parseFloat(document.getElementById('an4_sludge_spacing').value) || 16;
+    var s2_mm = parseFloat(document.getElementById('an4_cold_spacing').value) || 10;
+    var W_mm = parseFloat(document.getElementById('an4_plate_width').value) || 1000;
+    var t_mm = parseFloat(document.getElementById('an4_plate_thk').value) || 4.0;
+    var maxDp = parseFloat(document.getElementById('an4_max_dp').value) || 15.0;
+
+    // Convert to SI
+    var Qh_m3s = Qh_gpm * 0.0000630902;
+    var s1_m = s1_mm / 1000;
+    var s2_m = s2_mm / 1000;
+    var W_m = W_mm / 1000;
+    var t_m = t_mm / 1000;
+
+    // Channel 1 Cross-Sectional Area (m2)
+    var Ac1 = s1_m * W_m;
+    var dh1 = 2 * s1_m; // hydraulic diameter approx 2 * gap
+
+    // Flow velocity (m/s)
+    var v1 = Qh_m3s / Ac1;
+
+    // Non-Newtonian Shear Rate and Apparent Viscosity
+    var shearRate = (8 * v1 / dh1) * ((3 * p.n + 1) / (4 * p.n));
+    var mu_app = p.K * Math.pow(Math.max(1, shearRate), p.n - 1); // Pa.s
+    var mu_cp = mu_app * 1000;
+
+    // Thermal Duty (Q)
+    var deltaTh_F = Th_in - Th_out;
+    var deltaTh_C = deltaTh_F * (5 / 9);
+    var mdot_h = Qh_m3s * p.rho; // kg/s
+    var Q_watts = mdot_h * p.cp * deltaTh_C;
+    var Q_kw = Q_watts / 1000;
+    var Q_mmbtu = (Q_watts * 3.41214) / 1000000;
+
+    // Estimate cold water outlet temp assuming cold flow ~ hot flow
+    var Tc_out = Tc_in + deltaTh_F * 0.85; // approx 85% thermal match
+    var lmtd_F = ((Th_in - Tc_out) - (Th_out - Tc_in)) / Math.log((Th_in - Tc_out) / (Th_out - Tc_in));
+    var lmtd_C = lmtd_F * (5 / 9);
+
+    // Required Surface Area (m2)
+    var U_val = p.U; // W/m2.K
+    var Area_m2 = Q_watts / (U_val * lmtd_C);
+    var Area_sqft = Area_m2 * 10.7639;
+
+    // Developed Channel Length (m)
+    // Area = 2 * L * W (both sides transfer heat)
+    var L_dev_m = Area_m2 / (2 * W_m);
+    var L_dev_ft = L_dev_m * 3.28084;
+
+    // Outer Shell Diameter Do (m)
+    // Do = sqrt(Dcore^2 + 4 * L * (s1 + s2 + 2t) / pi)
+    var Dcore_m = 0.30; // 300 mm standard core
+    var pitch_spiral = s1_m + s2_m + 2 * t_m;
+    var Do_m = Math.sqrt(Dcore_m * Dcore_m + (4 * L_dev_m * pitch_spiral) / Math.PI);
+    var Do_mm = Do_m * 1000;
+    var Do_in = Do_m * 39.3701;
+
+    // Mean Radius for Dean Number
+    var R_mean = Do_m / 4;
+    var Re_sludge = (p.rho * v1 * dh1) / mu_app;
+    var Dean = Re_sludge * Math.sqrt(dh1 / (2 * R_mean));
+
+    // Friction factor in curved channel
+    var f_straight = Re_sludge < 2100 ? (64 / Math.max(1, Re_sludge)) : (0.316 / Math.pow(Re_sludge, 0.25));
+    var f_curved = f_straight * (1 + 0.075 * Math.pow(Math.max(1, Re_sludge), 0.25) * Math.sqrt(dh1 / (2 * R_mean)));
+
+    // Pressure Drop (psi & bar)
+    var dp_pa = f_curved * (L_dev_m / dh1) * (0.5 * p.rho * v1 * v1);
+    var dp_psi = dp_pa / 6894.76;
+    var dp_bar = dp_pa / 100000;
+
+    // Hero Outputs
+    document.getElementById('an4_out_duty_kw').textContent = Math.round(Q_kw).toLocaleString() + ' kW';
+    document.getElementById('an4_out_duty_btu').textContent = Q_mmbtu.toFixed(2) + ' MMBTU/hr (LMTD: ' + lmtd_F.toFixed(1) + ' °F)';
+
+    document.getElementById('an4_out_area_m2').textContent = Area_m2.toFixed(1) + ' m² (' + Math.round(Area_sqft) + ' sq ft)';
+    document.getElementById('an4_out_dia').textContent = 'Shell OD: ' + Math.round(Do_mm) + ' mm (' + Do_in.toFixed(1) + '")';
+
+    var dpElem = document.getElementById('an4_out_dp_psi');
+    dpElem.textContent = dp_psi.toFixed(1) + ' psi';
+    dpElem.style.color = dp_psi > maxDp ? '#ef4444' : (dp_psi > maxDp * 0.8 ? '#f59e0b' : '#10b981');
+    document.getElementById('an4_out_dp_bar').textContent = dp_bar.toFixed(2) + ' bar (Vel: ' + v1.toFixed(2) + ' m/s)';
+
+    document.getElementById('an4_out_u_val').textContent = Math.round(U_val) + ' W/m²·K';
+    document.getElementById('an4_out_u_eng').textContent = (U_val * 0.17611).toFixed(1) + ' BTU/hr·ft²·°F';
+
+    // Diagnostics
+    document.getElementById('an4_diag_length').textContent = L_dev_m.toFixed(1) + ' m (' + Math.round(L_dev_ft) + ' ft)';
+    document.getElementById('an4_diag_dean').textContent = Math.round(Dean).toLocaleString() + ' (Dean Vortices Active)';
+    document.getElementById('an4_diag_shear').textContent = Math.round(shearRate) + ' s⁻¹ (App. Visc: ' + Math.round(mu_cp) + ' cP)';
+    document.getElementById('an4_diag_ac').textContent = Ac1.toFixed(4) + ' m² (' + s1_mm + ' x ' + W_mm + ' mm)';
+
+    // Status Badge
+    var badge = document.getElementById('an4_status_badge');
+    if (dp_psi > maxDp) {
+      badge.textContent = 'EXCESSIVE PRESSURE DROP (WIDEN SPACING)';
+      badge.style.background = 'rgba(239, 68, 68, 0.15)';
+      badge.style.color = '#ef4444';
+      badge.style.border = '1px solid #ef4444';
+    } else if (v1 < 0.8) {
+      badge.textContent = 'LOW VELOCITY (<0.8 m/s FOULING RISK)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else if (Do_mm > 2200) {
+      badge.textContent = 'LARGE SPIRAL DIAMETER (>2.2m)';
+      badge.style.background = 'rgba(245, 158, 11, 0.15)';
+      badge.style.color = '#f59e0b';
+      badge.style.border = '1px solid #f59e0b';
+    } else {
+      badge.textContent = 'OPTIMAL SPHE DESIGN (SELF-CLEANING)';
+      badge.style.background = 'rgba(16, 185, 129, 0.15)';
+      badge.style.color = '#10b981';
+      badge.style.border = '1px solid #10b981';
+    }
+
+    renderSvgAN4(Do_mm, s1_mm, s2_mm, v1, dp_psi);
+  }
+
+  function renderSvgAN4(Do_mm, s1_mm, s2_mm, v1, dp_psi) {
+    var svg = document.getElementById('an4_svg');
+    if (!svg) return;
+    var s = '';
+
+    // Outer cylindrical shell
+    s += '<circle cx="300" cy="120" r="95" fill="var(--card-bg)" stroke="var(--border-color)" stroke-width="3"/>';
+
+    // Center Mandrel Core
+    s += '<circle cx="300" cy="120" r="18" fill="var(--bg-secondary)" stroke="var(--text-primary)" stroke-width="2"/>';
+    s += '<text x="300" y="124" font-size="8" font-weight="700" fill="var(--text-primary)" text-anchor="middle">Core</text>';
+
+    // Concentric Spiral Curves (Red = Sludge Channel, Blue = Water Channel)
+    // Simulated multi-turn spiral arcs
+    s += '<path d="M 300 102 A 25 25 0 0 1 325 120 A 35 35 0 0 1 300 155 A 45 45 0 0 1 255 120 A 55 55 0 0 1 300 65 A 65 65 0 0 1 365 120" fill="none" stroke="#ef4444" stroke-width="4"/>';
+    s += '<path d="M 300 138 A 25 25 0 0 1 275 120 A 35 35 0 0 1 300 85 A 45 45 0 0 1 345 120 A 55 55 0 0 1 300 175 A 75 75 0 0 1 225 120" fill="none" stroke="#3b82f6" stroke-width="3"/>';
+
+    // Spacer studs dots
+    var studAngles = [0, 45, 90, 135, 180, 225, 270, 315];
+    studAngles.forEach(function(ang) {
+      var rad = ang * Math.PI / 180;
+      var sx = 300 + 40 * Math.cos(rad);
+      var sy = 120 + 40 * Math.sin(rad);
+      s += '<circle cx="' + sx + '" cy="' + sy + '" r="2" fill="#64748b"/>';
+    });
+
+    // Outer Peripheral Flanges / Connections
+    s += '<rect x="300" y="15" width="20" height="15" fill="#ef4444"/>';
+    s += '<text x="310" y="10" font-size="10" font-weight="700" fill="#ef4444" text-anchor="middle">Hot Sludge In</text>';
+
+    s += '<rect x="385" y="110" width="15" height="20" fill="#3b82f6"/>';
+    s += '<text x="445" y="125" font-size="10" font-weight="700" fill="#3b82f6">Cold Water In</text>';
+
+    // Dimensions text
+    s += '<text x="50" y="50" font-size="12" font-weight="700" fill="var(--text-primary)">Shell OD: ' + Math.round(Do_mm) + ' mm</text>';
+    s += '<text x="50" y="70" font-size="11" fill="var(--text-muted)">Sludge Gap: ' + s1_mm + ' mm</text>';
+    s += '<text x="50" y="90" font-size="11" fill="var(--text-muted)">Velocity: ' + v1.toFixed(2) + ' m/s</text>';
+
+    // Dean Vortex Callout
+    s += '<text x="50" y="180" font-size="11" font-weight="700" fill="#10b981">✓ Dean Vortices Active</text>';
+    s += '<text x="50" y="198" font-size="10" fill="var(--text-muted)">Self-Cleaning Scrubbing Action</text>';
+
+    svg.innerHTML = s;
+  }
+
+  var inputs = ['an4_hot_flow', 'an4_th_in', 'an4_th_out', 'an4_tc_in', 'an4_sludge_spacing', 'an4_cold_spacing', 'an4_plate_width', 'an4_plate_thk', 'an4_max_dp'];
+  inputs.forEach(function(id){
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcAN4);
+      el.addEventListener('change', calcAN4);
+    }
+  });
+
+  document.getElementById('an4_sludge_preset').addEventListener('change', onPresetChange);
+
+  var copyBtn = document.getElementById('an4_copy_btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function(){
+      var duty = document.getElementById('an4_out_duty_kw').textContent;
+      var area = document.getElementById('an4_out_area_m2').textContent;
+      var dp = document.getElementById('an4_out_dp_psi').textContent;
+      var u = document.getElementById('an4_out_u_val').textContent;
+      var dia = document.getElementById('an4_out_dia').textContent;
+      var status = document.getElementById('an4_status_badge').textContent;
+
+      var text = "=== SPIRAL PLATE HEAT EXCHANGER SIZING REPORT (MINTON THEORY) ===\n" +
+        "Status: " + status + "\n" +
+        "Thermal Duty: " + duty + " (" + document.getElementById('an4_out_duty_btu').textContent + ")\n" +
+        "Surface Area & Shell: " + area + " (" + dia + ")\n" +
+        "Sludge Pressure Drop: " + dp + " (" + document.getElementById('an4_out_dp_bar').textContent + ")\n" +
+        "Overall U-Value: " + u + " (" + document.getElementById('an4_out_u_eng').textContent + ")\n" +
+        "Flow Rate: " + document.getElementById('an4_hot_flow').value + " GPM, Temps: " + document.getElementById('an4_th_in').value + " -> " + document.getElementById('an4_th_out').value + " deg F\n" +
+        "Channels: Sludge " + document.getElementById('an4_sludge_spacing').value + " mm, Water " + document.getElementById('an4_cold_spacing').value + " mm, Width " + document.getElementById('an4_plate_width').value + " mm\n" +
+        "Standard: ISO 16812 / Minton Curved Channel Theory\n" +
+        "Generated via Digital Tools Shed (Sub-50ms Zero-Overhead Engine)";
+
+      navigator.clipboard.writeText(text).then(function(){
+        copyBtn.textContent = '✓ Spiral Exchanger Diagnostics Copied!';
+        setTimeout(function(){
+          copyBtn.textContent = '📋 Copy Spiral Heat Exchanger Diagnostics';
+        }, 2500);
+      });
+    });
+  }
+
+  calcAN4();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'spiral-plate-heat-exchanger-sizing-calculator.html'), renderTradePage({
+  title: 'Spiral Plate Heat Exchanger Sizing Calculator | ISO 16812 & Minton',
+  metaDescription: 'Size industrial spiral plate heat exchangers (SPHE) for non-Newtonian wastewater sludge and biogas slurries. Calculate area, shell diameter, and sludge pressure drop.',
+  canonical: 'https://digitaltoolsshed.com/calc/spiral-plate-heat-exchanger-sizing-calculator.html',
+  content: toolAN4Html,
+  faq: [
+    {
+      q: 'Why are spiral plate heat exchangers preferred over shell-and-tube for wastewater sludge?',
+      a: 'Spiral plate heat exchangers feature a single continuous curved rectangular channel for each fluid with zero dead zones or distribution splitters. The curved geometry generates centrifugal Dean vortices that continually scour the plate wall (the self-cleaning scrubbing effect), preventing solids deposition and fouling up to three times longer than multi-tube bundles.'
+    },
+    {
+      q: 'What is the minimum recommended channel gap for sludge service?',
+      a: 'For municipal digested sludge or industrial slurries containing suspended solids, channel spacing (s1) should be at least 12 to 19 mm (0.5 to 0.75 inches). Specifying narrow gaps under 10 mm risks bridging by fibrous rags, hair, and grit, leading to sudden channel blockage.'
+    },
+    {
+      q: 'Why does a spiral plate heat exchanger achieve a true counterflow LMTD correction factor of 1.0?',
+      a: 'Unlike shell-and-tube heat exchangers with cross-baffle passes (where Ft is 0.75 to 0.90), both channels in a spiral plate exchanger flow in complete, 100% counter-current opposition along the entire developed plate length. This yields a pure counterflow temperature profile (Ft = 1.0), allowing close temperature approaches down to 3°F to 5°F (1.5°C to 3°C).'
+    },
+    {
+      q: 'How does non-Newtonian sludge rheology impact pressure drop in spiral channels?',
+      a: 'Wastewater sludge is shear-thinning (pseudoplastic). As velocity and wall shear rate increase, apparent viscosity drops substantially according to the Ostwald-de Waele power-law model (μ = K * γ^(n-1)). Operating at moderate velocity (1.2 to 1.8 m/s) maintains high shear rates, keeping viscosity low and preventing laminar plug flow.'
+    },
+    {
+      q: 'What causes differential pressure plate bulging in spiral exchangers?',
+      a: 'Because spiral channels are formed from thin sheet metal (typically 3 to 5 mm stainless steel), a large pressure imbalance between channels (e.g. utility water at 80 psi and sludge at 15 psi) exerts high lateral force across the plate spans between spacer pins. If differential pressure exceeds 45 to 50 psi, plates bulge into the adjacent channel, constricting the gap and triggering pump overpressure trips.'
+    }
+  ]
+}));
+
+
+console.log('  ✓ Built Trade & Construction Suite (103 calculators in /calc/)');
 }
 
