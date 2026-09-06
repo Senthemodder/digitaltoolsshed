@@ -1549,6 +1549,61 @@ Payment due within 30 days. Thank you for your business!</textarea>
       });
     })();
   </script>
+  <!-- MATHEMATICAL DERIVATION -->
+  <div class="no-print" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:0.75rem;font-family:var(--serif);">Invoice Accounting, Tax Allocation & GAAP Rounding Mathematics</h2>
+    <p style="font-size:0.9rem;color:var(--text-muted);line-height:1.6;margin-bottom:1rem;">
+      Professional commercial invoicing enforces discrete line-item rounding rather than unrounded floating-point cumulative summation. This ensures mathematical parity between customer row auditing and general ledger entries:
+    </p>
+    <div style="background:var(--bg);border:1px solid var(--border);padding:1.25rem;border-radius:6px;font-family:var(--mono);font-size:0.85rem;line-height:1.7;">
+      <div><strong>1. Line Item Extension Formula:</strong></div>
+      <div>&nbsp;&nbsp;Subtotal_i = Quantity_i × UnitPrice_i</div>
+      <div><strong>2. Statutory Late Payment Compounding:</strong></div>
+      <div>&nbsp;&nbsp;Interest = Principal × (AnnualRate / 365) × DaysOverdue</div>
+      <div><strong>3. Line-Level Tax Allocation vs Aggregate Tax:</strong></div>
+      <div>&nbsp;&nbsp;TaxTotal = ∑ [ Round(Subtotal_i × TaxRate_i, 2) ] &nbsp;&nbsp;(Eliminates penny mismatch disputes)</div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE FAQS -->
+  <div class="no-print" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1rem;font-family:var(--serif);">Frequently Asked Questions</h2>
+    
+    <details class="faq-item">
+      <summary>How do I save my invoice as a clean PDF without headers or buttons?</summary>
+      <div>
+        Click the "Print or Save PDF" button (or press Ctrl+P / Cmd+P). In the browser print dialog, select "Save as PDF" as the destination printer. This tool features bespoke CSS @media print rules that automatically strip away all buttons, toolbars, and background UI, rendering a spotless, professional vector letterhead.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>What do payment terms like Net 30 and Net 15 mean on an invoice?</summary>
+      <div>
+        Payment terms define the time window the client has to settle the invoice balance from the date of issuance. "Net 30" gives the client 30 calendar days to pay, while "Net 15" requires payment within 15 days. Selecting a payment term in our generator automatically calculates and updates the exact Due Date.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>Are client invoices private, and is my financial data stored on your servers?</summary>
+      <div>
+        Yes, 100% private. All calculations, line-item modifications, and PDF generation happen exclusively inside your browser using client-side JavaScript. No company names, customer contact info, billing rates, or bank details are ever transmitted to or stored on external servers.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>How should sales tax or VAT be applied to services vs digital goods?</summary>
+      <div>
+        In many jurisdictions, pure professional labor and consulting services are exempt from sales tax, while physical deliverables, custom software, and digital assets may be taxable. Our generator provides line-item taxability toggles, allowing you to mark specific products as taxable while leaving consulting hours tax-exempt.
+      </div>
+    </details>
+
+    <details class="faq-item">
+      <summary>What essential legal details must be included on a valid invoice?</summary>
+      <div>
+        A legally enforceable invoice should always display: 1) A unique sequential invoice number; 2) Your business name, street address, and Tax ID/EIN; 3) The client’s legal entity name and billing address; 4) The date of invoice and explicit payment due date; 5) An itemized list of deliverables with quantities and rates; and 6) Clear payment instructions (wire routing, ACH, or check mailing instructions).
+      </div>
+    </details>
+  </div>
 </div>
 
 
