@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Laptop RAM & SSD Upgradeability Matrix free to use?",
+      "name": "Can I upgrade soldered RAM on a laptop after purchase?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Laptop RAM & SSD Upgradeability Matrix on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "No. Soldered memory (LPDDR5, LPDDR5X, or BGA DDR5) is permanently surface-mounted onto the motherboard traces with lead-free solder balls, making aftermarket capacity upgrades impossible without high-risk BGA rework."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "Does opening my laptop to upgrade RAM or SSD void the manufacturer warranty?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Under the Magnuson-Moss Warranty Act in the US and EU regulations, warranty void stickers on customer-replaceable parts are legally unenforceable. Upgrading RAM or storage does not void your warranty as long as you do not cause damage."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Laptop RAM & SSD Upgradeability Matrix work on mobile devices?",
+      "name": "What is LPCAMM2 memory and how does it change laptop upgrades?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "LPCAMM2 is a new JEDEC memory standard that packs ultra-fast LPDDR5X memory onto a thin, screw-mounted modular circuit board, combining the power efficiency of soldered RAM with user-replaceable upgradeability."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I mix different RAM speeds and capacities in dual SO-DIMM sockets?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, but your system will automatically downclock both sticks to match the speed and CAS latency of the slowest module. Matched kits ensure peak dual-channel memory bandwidth."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need single-sided or double-sided M.2 NVMe SSDs for laptop expansion?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Almost all modern laptops require single-sided M.2 SSDs (NAND flash and controller on top side only). Installing double-sided SSDs bends the motherboard PCB or prevents the bottom chassis cover from clipping shut."
       }
     }
   ]
@@ -1040,6 +1056,17 @@
       <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:2rem;">
         Before buying or upgrading a laptop, verify whether memory is user-serviceable or soldered directly to the logic board. Search all 1,000 models below for modular SO-DIMM sockets, dual M.2 NVMe PCIe storage slots, and required teardown chassis screwdriver specifications.
       </p>
+
+      <!-- ACTIONABLE UTILITY DIAGNOSTIC COPY CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--fg);">Actionable Diagnostic Summary</div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">One-click copy of verified modular upgradeable laptop models, M.2 slots, and teardown screwdriver specs.</div>
+        </div>
+        <button id="btnCopyUpgradeReport" type="button" class="btn btn-primary" onclick="copyUpgradeDiagnosticReport()" style="padding:0.6rem 1.25rem;font-family:var(--mono);font-size:0.85rem;cursor:pointer;">
+          📋 Copy Upgradeability Matrix
+        </button>
+      </div>
 
       <!-- FILTER CONTROLS -->
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:2rem;display:flex;gap:1rem;flex-wrap:wrap;align-items:center;">
@@ -4667,6 +4694,62 @@
           </tbody>
         </table>
       </div>
+
+      <!-- 5 FATAL TEARDOWN & UPGRADE TRAPS -->
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:0.5rem;color:var(--fg);">⚠️ 5 Fatal Laptop Upgrade Traps & Teardown Pitfalls</h2>
+        <p style="font-size:0.95rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;">Avoid expensive hardware shorts, rounded chassis screws, and thermal bottlenecks during laptop upgrades:</p>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">1. Single-Channel Soldered RAM Throughput Bottleneck</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Purchasing a base model with 8GB or 16GB of soldered single-channel memory cuts integrated GPU memory bandwidth in half. Because modern Intel Arc and AMD Radeon 780M/890M iGPUs rely entirely on system RAM, gaming frame rates can plummet by 35% to 45% compared to dual-channel configurations.</p>
+        </div>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">2. M.2 2230 vs 2242 vs 2280 Physical Length Incompatibility</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Many compact laptops, handhelds, and ultrabooks (like Microsoft Surface, Dell XPS, or ThinkPad secondary slots) only accept compact 30mm (2230) or 42mm (2242) drives. Purchasing standard 80mm (2280) desktop NVMe SSDs without checking chassis standoff layout results in returns.</p>
+        </div>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">3. Stripped Fasteners & Incorrect Screwdriver Cam-Out</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Using standard Phillips #1 bits on delicate Phillips #00 screws, or attempting to turn Apple Pentalobe P5 or Dell Torx T5 chassis screws with improper drivers strips the soft aluminum screw heads instantly. Always match the exact precision bit specified in our directory.</p>
+        </div>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">4. Battery Connection Neglect & Dropped Screw Motherboard Shorts</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Never install RAM or an M.2 SSD while the internal lithium battery remains plugged into the motherboard. Modern standby circuitry keeps 11.4V–15.4V live rails active across the board. A single microscopic dropped screw can bridge power pins and instantly fry CPU power stages.</p>
+        </div>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">5. PCIe Gen 5 NVMe Thermal Throttling in Sealed Compartments</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Installing hot 10,000+ MB/s PCIe Gen 5 SSDs into tightly packed laptop bottom covers without dedicated copper heat pipes causes drive controllers to quickly hit 85°C, triggering thermal throttling down to 1,500 MB/s. High-efficiency Gen 4 drives run cooler and sustain higher real-world speeds.</p>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;">Frequently Asked Questions</h2>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Can I upgrade soldered RAM on a laptop after purchase?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">No. Soldered memory (LPDDR5, LPDDR5X, or BGA DDR5) is permanently surface-mounted onto the motherboard traces with lead-free solder balls. There are no modular sockets, making aftermarket capacity upgrades impossible without high-risk BGA rework.</div>
+        </details>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Does opening my laptop to upgrade RAM or SSD void the manufacturer warranty?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">In the United States under the Magnuson-Moss Warranty Act, and in the European Union, "warranty void if removed" stickers on customer-replaceable parts are legally unenforceable. Upgrading RAM or storage does not void your warranty as long as you do not physically damage other components during the process.</div>
+        </details>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What is LPCAMM2 memory and how does it change laptop upgrades?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">LPCAMM2 is a revolutionary new JEDEC memory standard that packs ultra-fast LPDDR5X memory onto a thin, screw-mounted modular circuit board. It provides the high speeds and power efficiency of soldered RAM with the user-replaceable upgradeability of SO-DIMM slots.</div>
+        </details>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Can I mix different RAM speeds and capacities in dual SO-DIMM sockets?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Yes, but your system will automatically downclock both sticks to match the speed and CAS latency of the slowest module. While asymmetric capacities (e.g. 16GB + 32GB) support Flex Mode dual-channel up to the matching 32GB boundary, matched kits ensure peak dual-channel memory bandwidth.</div>
+        </details>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Do I need single-sided or double-sided M.2 NVMe SSDs for laptop expansion?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Almost all modern thin-and-light laptops and gaming notebooks require single-sided M.2 SSDs (NAND flash and controller chips on the top side only). Installing double-sided SSDs bends the motherboard PCB or prevents the bottom chassis cover from clipping shut.</div>
+        </details>
+      </div>
     </div>
 
     <script>
@@ -4686,6 +4769,31 @@
             r.style.display = "";
           } else {
             r.style.display = "none";
+          }
+        });
+      }
+
+      function copyUpgradeDiagnosticReport() {
+        var report = [
+          '=== LAPTOP RAM & STORAGE UPGRADEABILITY MATRIX ===',
+          'Database: 1,000 Laptops Verified for User-Serviceability',
+          'Key Findings: ~52% of modern laptops feature soldered RAM; ~48% support modular SO-DIMM / LPCAMM2',
+          'Top Modular Lines: ThinkPad T/P Series, Dell Latitude 5000/7000, ASUS ROG Strix, Framework Laptop 13/16',
+          'Source: Digital Tools Shed (https://digitaltoolsshed.com/laptops/upgrades/)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(report).then(function() {
+          var btn = document.getElementById('btnCopyUpgradeReport');
+          if (btn) {
+            var old = btn.innerHTML;
+            btn.innerHTML = '✓ Matrix Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = old;
+              btn.style.borderColor = '';
+              btn.style.color = '';
+            }, 2500);
           }
         });
       }

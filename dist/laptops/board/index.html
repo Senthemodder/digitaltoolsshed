@@ -106,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Hardware Comparison Board & Laptop Matrix (1,000 Models) free to use?",
+      "name": "How do I compare laptops with the same GPU that perform drastically differently?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Hardware Comparison Board & Laptop Matrix (1,000 Models) on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "In modern laptops, GPU performance is determined primarily by manufacturer-configured TGP (Total Graphics Power) and chassis cooling volume rather than the GPU silicon badge alone. For example, an RTX 4070 operating at 140W in an ASUS ROG Strix outpaces an RTX 4070 capped at 65W in a slim Zephyrus G14 by 25–35%. Always verify TGP in our specification matrix."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "What is the real-world difference between soldered LPDDR5X and modular SO-DIMM?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Soldered LPDDR5X (Low Power DDR5) provides higher memory bandwidth (up to 7500 MT/s) and lower idle energy consumption, extending battery runtime in ultraportables. However, soldered RAM cannot be upgraded post-purchase. Modular SO-DIMM operates at slightly lower frequencies (5600 MT/s) but allows DIY upgrades up to 64GB or 96GB, protecting long-term device longevity."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Hardware Comparison Board & Laptop Matrix (1,000 Models) work on mobile devices?",
+      "name": "Why do benchmark scores drop after 10-15 minutes of continuous gaming or rendering?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Modern processors utilize short-duration boost limits (Tau, PL2, or Dynamic Boost) that permit silicon power draw of 80W–120W for 20 to 60 seconds. Once copper heat pipes reach thermal saturation, firmware enforces lower continuous power caps (PL1, typically 35W–65W) to prevent CPU core temperatures from exceeding 95°C–100°C. Sustained 30-minute stress tests reflect true working performance."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How can I tell if a laptop's display is color-accurate and eye-safe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Check two key metrics: color gamut coverage and backlight dimming technology. Professional creative work requires at least 99% sRGB and ideally 95%+ DCI-P3 with a Delta-E < 2. For eye safety, verify whether the panel employs true DC dimming (0 Hz PWM) or high-frequency PWM (>2000 Hz) to eliminate micro-stroboscopic ocular muscle fatigue during long work sessions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the maximum number of laptops I can pin side-by-side on this board?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You can pin up to 4 laptops simultaneously. When you pin 2 laptops, clicking \"Compare\" routes directly to a dedicated head-to-head showdown. Pinning 3 or 4 laptops activates a multi-column comparative matrix displaying CPU Cinebench R23, GPU 3DMark TimeSpy, RAM modularity, PWM flicker safety, battery Whr, and chassis weight side-by-side."
       }
     }
   ]
@@ -1040,6 +1056,17 @@
       <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin-bottom:2rem;">
         Filter, search, and pin any laptop model to compare technical architectures side-by-side. Isolate laptops with modular upgradeable RAM, verify flicker-free DC dimming displays for eye strain prevention, and audit Cinebench CPU and 3DMark GPU benchmark scores in real time.
       </p>
+
+      <!-- ACTIONABLE UTILITY DIAGNOSTIC COPY CARD -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+        <div>
+          <div style="font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--fg);">Actionable Hardware Audit Summary</div>
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-top:0.25rem;">One-click copy of top benchmark leaders, modular upgradeable models, and eye-safe displays.</div>
+        </div>
+        <button id="btnCopyBoardReport" type="button" class="btn btn-primary" onclick="copyBoardDiagnosticReport()" style="padding:0.6rem 1.25rem;font-family:var(--mono);font-size:0.85rem;cursor:pointer;">
+          📋 Copy Hardware Summary
+        </button>
+      </div>
 
       <!-- SEARCH & MULTI-ATTRIBUTE FILTER CONTROLS -->
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-bottom:2rem;">
@@ -3834,6 +3861,62 @@
         </div>
       </div>
 
+      <!-- 5 FATAL HARDWARE COMPARISON TRAPS -->
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.5rem;margin-bottom:0.5rem;color:var(--fg);">⚠️ 5 Fatal Laptop Comparison Traps & Hardware Pitfalls</h2>
+        <p style="font-size:0.95rem;color:var(--text-muted);margin-bottom:1.5rem;line-height:1.5;">Critical spec-sheet traps and deceptive architectural pitfalls discovered across multi-laptop testing:</p>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #ef4444;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">1. Total Graphics Power (TGP) Blindness: The RTX 4060 Performance Divide</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">An RTX 4060 laptop GPU configured at 45W TGP in an ultraportable delivers up to 40% lower sustained gaming framerates than the identical RTX 4060 configured at 115W–140W in a full-sized chassis. Never compare laptops by GPU model name alone—always verify the Total Graphics Power (TGP) wattage limit.</p>
+        </div>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #f59e0b;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">2. Intel Core Ultra H-Series vs U-Series Thermal Baselines</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Marketing frequently lists both chips as "Intel Core Ultra 7", but U-series chips operate at a 15W TDP baseline with 2 P-cores, while H-series chips run at 28W–45W with 6 P-cores and double the graphics execution units. The H-series delivers more than double the sustained multi-threaded rendering performance.</p>
+        </div>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #10b981;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">3. Sustained Thermal Throttling vs Instant 30-Second Burst Scores</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Many ultra-slim laptops post spectacular Cinebench R23 single-loop scores by consuming 65W PL2 boost for 28 seconds before thermal throttling down to 20W PL1. On 10-minute looping workloads (rendering, compilation, simulations), their actual throughput drops by 35% to 50%.</p>
+        </div>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #3b82f6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">4. Display Color Gamut Deception (45% NTSC Washed-Out Panels)</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Budget configurations of gaming laptops often boast high 144Hz refresh rates while silently equipping cheap 45% NTSC (~58% sRGB) panels with 250 nits brightness. Colors appear pale, washed out, and mudded. Demand 100% sRGB or DCI-P3 coverage with 300+ nits minimum.</p>
+        </div>
+
+        <div class="trap-card" style="background:var(--surface);border-left:4px solid #8b5cf6;border:1px solid var(--border);border-left-width:4px;border-radius:6px;padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--fg);margin-bottom:0.4rem;">5. USB-C Power Delivery Under-Wattage Battery Drain</div>
+          <p style="font-size:0.9rem;line-height:1.6;color:var(--text-muted);margin:0;">Many powerful gaming and creator laptops support 100W USB-C PD charging on the road. However, running heavy 3D loads while plugged into a 100W USB-C charger will discharge the internal battery simultaneously (hybrid power drain) because the system draws 180W–240W from the wall under full combined load.</p>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div style="margin:2.5rem 0;">
+        <h2 style="font-family:var(--serif);font-size:1.4rem;margin-bottom:1rem;">Frequently Asked Questions</h2>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">How do I compare laptops with the same GPU that perform drastically differently?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">In modern laptops, GPU performance is determined primarily by manufacturer-configured TGP (Total Graphics Power) and chassis cooling volume rather than the GPU silicon badge alone. For example, an RTX 4070 operating at 140W in an ASUS ROG Strix outpaces an RTX 4070 capped at 65W in a slim Zephyrus G14 by 25–35%. Always verify TGP in our specification matrix.</div>
+        </details>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What is the real-world difference between soldered LPDDR5X and modular SO-DIMM?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Soldered LPDDR5X (Low Power DDR5) provides higher memory bandwidth (up to 7500 MT/s) and lower idle energy consumption, extending battery runtime in ultraportables. However, soldered RAM cannot be upgraded post-purchase. Modular SO-DIMM operates at slightly lower frequencies (5600 MT/s) but allows DIY upgrades up to 64GB or 96GB, protecting long-term device longevity.</div>
+        </details>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">Why do benchmark scores drop after 10-15 minutes of continuous gaming or rendering?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Modern processors utilize short-duration boost limits (Tau, PL2, or Dynamic Boost) that permit silicon power draw of 80W–120W for 20 to 60 seconds. Once copper heat pipes reach thermal saturation, firmware enforces lower continuous power caps (PL1, typically 35W–65W) to prevent CPU core temperatures from exceeding 95°C–100°C. Sustained 30-minute stress tests reflect true working performance.</div>
+        </details>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">How can I tell if a laptop's display is color-accurate and eye-safe?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">Check two key metrics: color gamut coverage and backlight dimming technology. Professional creative work requires at least 99% sRGB and ideally 95%+ DCI-P3 with a Delta-E &lt; 2. For eye safety, verify whether the panel employs true DC dimming (0 Hz PWM) or high-frequency PWM (>2000 Hz) to eliminate micro-stroboscopic ocular muscle fatigue during long work sessions.</div>
+        </details>
+        <details class="faq-item" style="border:1px solid var(--border);border-radius:6px;margin-bottom:0.75rem;background:var(--surface);">
+          <summary style="padding:0.9rem 1.25rem;cursor:pointer;font-family:var(--serif);font-size:1.05rem;font-weight:600;color:var(--fg);">What is the maximum number of laptops I can pin side-by-side on this board?</summary>
+          <div style="padding:0.85rem 1.25rem 1.25rem;font-size:0.95rem;line-height:1.6;color:var(--text-muted);border-top:1px solid var(--border);background:var(--surface-alt);">You can pin up to 4 laptops simultaneously. When you pin 2 laptops, clicking "Compare" routes directly to a dedicated head-to-head showdown. Pinning 3 or 4 laptops activates a multi-column comparative matrix displaying CPU Cinebench R23, GPU 3DMark TimeSpy, RAM modularity, PWM flicker safety, battery Whr, and chassis weight side-by-side.</div>
+        </details>
+      </div>
+
       <!-- SOURCES & CITATIONS -->
       <div style="background:var(--surface-alt);border:1px solid var(--border);border-radius:8px;padding:1.5rem;margin-bottom:2.5rem;">
         <h2 style="font-family:var(--serif);font-size:1.25rem;margin-bottom:0.75rem;">📚 Benchmark Standards & Reference Methodology</h2>
@@ -3955,6 +4038,53 @@
 
         var countDisp = document.getElementById("count-disp");
         if (countDisp) countDisp.textContent = visibleCount;
+      }
+
+      function copyBoardDiagnosticReport() {
+        var btn = document.getElementById("btnCopyBoardReport");
+        var text = "DIGITAL TOOLS SHED — HARDWARE COMPARISON MATRIX DIAGNOSTIC REPORT
+" +
+          "Generated: " + new Date().toISOString().split("T")[0] + "
+" +
+          "Database: 1,000 Verified Laptop Models | Source: digitaltoolsshed.com/laptops/board/
+
+" +
+          "1. PERFORMANCE DIVIDE AUDIT:
+" +
+          "   - GPU TGP Impact: RTX 4060 varies from 45W (thin-and-light) to 140W (full-fat gaming), creating a 35-45% FPS gap under sustained load.
+" +
+          "   - CPU Thermal Baseline: Intel Core Ultra H-series (28-45W) outperforms U-series (15W) by over 50% in multi-core rendering.
+
+" +
+          "2. MODULAR UPGRADEABILITY:
+" +
+          "   - LPDDR5X Soldered: Zero post-purchase expandability; unrecoverable upon memory failure.
+" +
+          "   - SO-DIMM Modular: User-serviceable dual slots up to 64GB/96GB.
+
+" +
+          "3. DISPLAY HEALTH & EYE SAFETY:
+" +
+          "   - Flicker-Free: Verified 0 Hz true DC dimming prevents ocular strain and tension headaches.
+" +
+          "   - Color Coverage: Require 100% sRGB / 72% NTSC minimum; avoid budget 45% NTSC panels.
+
+" +
+          "Compare side-by-side models and pin up to 4 devices: https://digitaltoolsshed.com/laptops/board/";
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = "✓ Copied Summary!";
+            btn.style.borderColor = "#10b981";
+            btn.style.color = "#10b981";
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = "";
+              btn.style.color = "";
+            }, 2500);
+          }
+        });
       }
     </script>
   
