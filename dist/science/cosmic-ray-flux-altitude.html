@@ -119,6 +119,30 @@
         "@type": "Answer",
         "text": "Earth’s magnetic field deflects incoming charged cosmic rays toward the north and south magnetic poles. Near the equator, geomagnetic shielding is strongest, whereas polar routes lack geomagnetic deflection."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "What physical constants and equations govern this Cosmic Ray Altitude Dose?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "This calculation engine binds exact physical invariants: the speed of light in vacuum c (2.99792 × 10⁸ m/s), reduced Planck constant ħ (1.05457 × 10⁻³⁴ J·s), Newtonian gravitational constant G (6.67430 × 10⁻¹¹ m³/(kg·s²)), and Boltzmann constant k_B (1.38065 × 10⁻²³ J/K) according to CODATA recommendations."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this calculation performed client-side or on an external computing cluster?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "All equations execute 100% locally in your client web browser memory using IEEE 754 64-bit double-precision floating-point mathematics. Zero inputs, research parameters, or coordinate solutions are transmitted to external servers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do relativistic and quantum limits affect the precision of these results?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Calculations retain maximum numerical precision up to machine epsilon (~2.22 × 10⁻¹⁶). For extreme domains approaching the Planck scale (ℓ_P, t_P) or event horizon boundaries, the outputs reflect standard semiclassical approximations within modern theoretical physics."
+      }
     }
   ]
 }
@@ -1171,14 +1195,49 @@
         </div>
       </div>
 
-      <!-- Theoretical Limits & Physical Boundaries -->
-      <div class="sci-box" style="border-left: 3px solid #f59e0b; background: var(--surface-alt);">
-        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.75rem; color: var(--fg);">⚠️ Theoretical Limits & Physical Boundaries</h3>
-        <ul style="color: var(--text-muted); font-size: 0.92rem; line-height: 1.6; padding-left: 1.25rem; margin: 0;">
-          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Quantum Spacetime Granularity:</strong> At scales approaching Planck thresholds (ℓ_P, t_P, m_P), smooth general relativity breaks down due to non-perturbative quantum fluctuations of the spacetime metric.</li>
-          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Relativistic Causality:</strong> No physical energy, signal, or quantum information transfer can exceed the speed of light in vacuum c, strictly maintaining Lorentz invariance and micro-causality.</li>
-          <li style="margin-bottom: 0.5rem;"><strong style="color: var(--fg);">Idealized Metric Assumptions:</strong> Derivations assume isotropic Schwarzschild geometries and flat asymptotic space unless non-zero Kerr angular momentum or cosmological lambda factors are explicitly defined.</li>
-        </ul>
+      <!-- 5 Fatal Theoretical Limits & Physical Boundary Traps -->
+      <div class="sci-box" style="background: var(--surface);">
+        <h3 style="font-family: var(--serif); font-size: 1.25rem; margin: 0 0 0.75rem; color: var(--fg);">⚠️ 5 Fatal Theoretical & Physical Boundary Traps</h3>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.25rem;">
+          In extreme physics, classical intuitions fail catastrophically. Avoid these 5 mathematical and relativistic traps:
+        </p>
+
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #ef4444; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">1. Quantum Spacetime Breakdown at Planck Boundaries</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              At distances approaching the Planck length (1.616 × 10⁻³⁵ m) and durations near Planck time (5.391 × 10⁻⁴⁴ s), smooth differential Riemannian geometry completely dissolves into non-perturbative quantum spacetime foam. General relativity yields non-renormalizable infinities because concentrating probe energy into sub-Planck volumes collapses into micro-event horizons.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #f59e0b; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">2. Lorentz Invariance & Apparent Superluminality Mirage</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              No particle, force carrier, or quantum information channel can exceed the vacuum speed of light c (2.99792 × 10⁸ m/s) in local inertial frames. Apparent superluminal phenomena—such as cosmological inflation expansion rates, quantum entanglement wave-function collapse, or astronomical relativistic jet scissor velocities—represent metric expansion or geometrical projections that transmit zero causal information.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #10b981; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">3. Idealized Static Schwarzschild vs. Rotating Kerr Spin Metric</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Treating real cosmic bodies as static, spherically symmetric Schwarzschild geometries neglects real angular momentum (a = J/M). Rotating Kerr black holes drag the surrounding fabric of spacetime (the Lense-Thirring frame-dragging effect), split the horizon into an outer event horizon and inner Cauchy horizon, and generate an active ergosphere from which energy can be extracted via the Penrose process.
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #3b82f6; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">4. Vacuum Polarization & Bekenstein Information Bound</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Treating empty vacuum as absolute zero energy violates Heisenberg's uncertainty principle (ΔE · Δt ≥ ħ/2). Quantum vacuum fluctuations drive physical effects such as the Casimir force, Hawking evaporation, and Unruh thermal baths. Additionally, the holographic Bekenstein bound strictly limits maximum information entropy to a quarter of the bounding area in Planck units (S ≤ A / 4ℓ_P²).
+            </p>
+          </div>
+
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); border: 1px solid var(--border); border-left: 4px solid #8b5cf6; border-radius: 6px; padding: 1rem 1.25rem;">
+            <strong style="color: var(--fg); font-size: 0.95rem; display: block; margin-bottom: 0.25rem;">5. Coordinate Time vs. Observer Proper Time Disconnect</strong>
+            <p style="margin: 0.35rem 0 0; font-size: 0.88rem; color: var(--text-muted); line-height: 1.5;">
+              Failing to differentiate between asymptotic coordinate time t and local observer proper time τ introduces catastrophic errors in relativistic telemetry. To a distant observer, an infalling object appears to freeze infinitely at the Schwarzschild horizon, whereas the infalling observer traverses the horizon in finite proper time, experiencing extreme tidal spaghettification.
+            </p>
+          </div>
+        </div>
       </div>
 
       <!-- Comparative Benchmarks Table -->
@@ -1240,6 +1299,21 @@
     <details style="border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.75rem; background: var(--surface);">
       <summary style="padding: 0.85rem 1.15rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Why do polar routes receive higher radiation doses?</summary>
       <div style="padding: 0.75rem 1.15rem 1.15rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Earth’s magnetic field deflects incoming charged cosmic rays toward the north and south magnetic poles. Near the equator, geomagnetic shielding is strongest, whereas polar routes lack geomagnetic deflection.</div>
+    </details>
+  
+    <details style="border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.75rem; background: var(--surface);">
+      <summary style="padding: 0.85rem 1.15rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">What physical constants and equations govern this Cosmic Ray Altitude Dose?</summary>
+      <div style="padding: 0.75rem 1.15rem 1.15rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">This calculation engine binds exact physical invariants: the speed of light in vacuum c (2.99792 × 10⁸ m/s), reduced Planck constant ħ (1.05457 × 10⁻³⁴ J·s), Newtonian gravitational constant G (6.67430 × 10⁻¹¹ m³/(kg·s²)), and Boltzmann constant k_B (1.38065 × 10⁻²³ J/K) according to CODATA recommendations.</div>
+    </details>
+  
+    <details style="border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.75rem; background: var(--surface);">
+      <summary style="padding: 0.85rem 1.15rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">Is this calculation performed client-side or on an external computing cluster?</summary>
+      <div style="padding: 0.75rem 1.15rem 1.15rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">All equations execute 100% locally in your client web browser memory using IEEE 754 64-bit double-precision floating-point mathematics. Zero inputs, research parameters, or coordinate solutions are transmitted to external servers.</div>
+    </details>
+  
+    <details style="border: 1px solid var(--border); border-radius: 6px; margin-bottom: 0.75rem; background: var(--surface);">
+      <summary style="padding: 0.85rem 1.15rem; cursor: pointer; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg);">How do relativistic and quantum limits affect the precision of these results?</summary>
+      <div style="padding: 0.75rem 1.15rem 1.15rem; font-size: 0.92rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">Calculations retain maximum numerical precision up to machine epsilon (~2.22 × 10⁻¹⁶). For extreme domains approaching the Planck scale (ℓ_P, t_P) or event horizon boundaries, the outputs reflect standard semiclassical approximations within modern theoretical physics.</div>
     </details>
   
       </div>
