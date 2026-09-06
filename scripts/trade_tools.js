@@ -81304,6 +81304,2359 @@ writeFileSync(join(calcDir, 'tower-crane-foundation-overturning-asce7-calculator
 }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (107 calculators in /calc/)');
+// ==========================================
+// TOOL AP1: Hydrocyclone Particle Separation & Cut Size (d50) Calculator (Plitt & Bradley)
+// ==========================================
+const toolAP1Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">Plitt's Model &bull; Bradley Equation &bull; Mineral Processing & Desanding Standards</div>
+    <h1>Hydrocyclone Particle Cut Size ($d_{50}$) & Separation Calculator</h1>
+    <p class="text-muted">Calculate cut point separation size ($d_{50}$), operating pressure drop ($\Delta P$), volumetric flow split ratio ($S$), and roping discharge limits for industrial hydrocyclones in mineral classification, dredging, drilling mud desanding, and grit separation per Plitt's empirical formulations.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="ap1-unit-metric" onclick="setAP1Unit('metric')">Metric Units (mm, m³/h, kPa, kg/m³)</button>
+    <button type="button" class="unit-toggle-btn" id="ap1-unit-imperial" onclick="setAP1Unit('imperial')">Imperial Units (in, GPM, psi, lb/ft³)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Hydrocyclone Dimensions -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Hydrocyclone Geometry</h3>
+
+      <div class="input-group">
+        <label for="ap1-dc" id="ap1-label-dc">Cyclone Body Cylinder Diameter ($D_c$) (mm):</label>
+        <input type="number" id="ap1-dc" value="250" step="10" min="25" max="1200" oninput="calcAP1()">
+        <span class="text-muted">Standard sizes: 50mm (2"), 150mm (6"), 250mm (10"), 380mm (15"), 500mm (20"), 660mm (26")</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-di" id="ap1-label-di">Inlet Feed Orifice Diameter ($D_i$) (mm):</label>
+        <input type="number" id="ap1-di" value="50" step="5" min="5" max="300" oninput="calcAP1()">
+        <span class="text-muted">Typically 15% to 25% of cyclone diameter ($D_c$)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-do" id="ap1-label-do">Vortex Finder Overflow Diameter ($D_o$) (mm):</label>
+        <input type="number" id="ap1-do" value="75" step="5" min="10" max="450" oninput="calcAP1()">
+        <span class="text-muted">Controls fine particle overflow cutoff (typically 25% to 35% of $D_c$)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-du" id="ap1-label-du">Apex Spigot Underflow Diameter ($D_u$) (mm):</label>
+        <input type="number" id="ap1-du" value="38" step="2" min="5" max="250" oninput="calcAP1()">
+        <span class="text-muted">Controls underflow density and prevents roping overload</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-cone-angle">Included Cone Section Angle ($\theta_{cone}$) (deg):</label>
+        <input type="number" id="ap1-cone-angle" value="20" step="1" min="10" max="60" oninput="calcAP1()">
+        <span class="text-muted">Steep cone (10°-15°) for fine separation; wide cone (20°-30°) for high capacity</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-height" id="ap1-label-height">Free Vortex Height ($h$) (mm):</label>
+        <input type="number" id="ap1-height" value="625" step="25" min="100" max="4000" oninput="calcAP1()">
+        <span class="text-muted">Distance from bottom of vortex finder to apex spigot</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Slurry Properties & Operating Flow -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Feed Slurry & Operating Parameters</h3>
+
+      <div class="input-group">
+        <label for="ap1-feed-flow" id="ap1-label-flow">Feed Slurry Volumetric Flow ($Q_{feed}$) (m³/h):</label>
+        <input type="number" id="ap1-feed-flow" value="65" step="5" min="1" max="1500" oninput="calcAP1()">
+        <span class="text-muted">Slurry volumetric feed rate to the single cyclone unit</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-solids-conc">Feed Solids Volume Concentration ($C_v$) (% vol):</label>
+        <input type="number" id="ap1-solids-conc" value="12.0" step="0.5" min="0.5" max="35.0" oninput="calcAP1()">
+        <span class="text-muted">High concentrations increase viscosity and hinder settling ($C_v > 20\%$ shifts $d_{50}$ coarser)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-solids-density" id="ap1-label-sden">Dry Solids Density ($\rho_s$) (kg/m³):</label>
+        <input type="number" id="ap1-solids-density" value="2650" step="50" min="1200" max="6000" oninput="calcAP1()">
+        <span class="text-muted">Quartz/Sand: 2650 kg/m³, Magnetite: 5100 kg/m³, Coal: 1350 kg/m³</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-liquid-density" id="ap1-label-lden">Liquid Phase Density ($\rho_l$) (kg/m³):</label>
+        <input type="number" id="ap1-liquid-density" value="1000" step="20" min="800" max="1300" oninput="calcAP1()">
+        <span class="text-muted">Water: 1000 kg/m³, Brine/Drilling fluid: 1050-1200 kg/m³</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap1-viscosity">Liquid Dynamic Viscosity ($\mu$) (mPa&middot;s / cP):</label>
+        <input type="number" id="ap1-viscosity" value="1.0" step="0.1" min="0.5" max="10.0" oninput="calcAP1()">
+        <span class="text-muted">Water at 20°C = 1.00 cP; cold slurry/additives = 1.5 - 3.0 cP</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Hydrocyclone Classification & Separation Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Cut Size ($d_{50c}$, corrected)</span>
+        <div id="ap1-res-d50" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- &mu;m</div>
+        <span class="text-muted" id="ap1-sub-d50" style="font-size:0.75rem;">50% separation cutoff</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Pressure Drop ($\Delta P$)</span>
+        <div id="ap1-res-dp" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">-- kPa</div>
+        <span class="text-muted" id="ap1-sub-dp" style="font-size:0.75rem;">Inlet feed head</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Underflow Discharge Status</span>
+        <div id="ap1-res-roping" style="font-size: 1.5rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ap1-sub-roping" style="font-size:0.75rem;">Spray vs Roping state</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Volumetric Flow Split ($S$)</span>
+        <div id="ap1-res-split" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ap1-sub-split" style="font-size:0.75rem;">Underflow / Overflow</span>
+      </div>
+    </div>
+
+    <!-- Interactive Hydrocyclone SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Internal Dual Vortex & Slurry Classification Profile</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live Plitt Vortex Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="ap1-svg" viewBox="0 0 800 280" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Hydrodynamic & Classification Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Plitt Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Operational Target Range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Inlet Tangential Entry Velocity</td>
+              <td style="padding: 8px;">$v_i = Q_{feed} / (\frac{\pi}{4} D_i^2)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap1-res-vi">--</td>
+              <td style="padding: 8px; color: #10b981;">3.5 to 7.5 m/s (11.5 - 25 ft/s)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Inlet Acceleration G-Force</td>
+              <td style="padding: 8px;">$G_{cent} = v_i^2 / (r_c \cdot g)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap1-res-gforce">--</td>
+              <td style="padding: 8px; color: #10b981;">100g to 1500g centrifugal field</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Slurry Apparent Viscosity Factor</td>
+              <td style="padding: 8px;">$\exp(0.063 C_v)$ (Hindered settling)</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap1-res-visc-fac">--</td>
+              <td style="padding: 8px; color: #10b981;">Viscosity multiplier on $d_{50}$</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Underflow Slurry Solids Volume Conc</td>
+              <td style="padding: 8px;">$C_{v,u}$ (Spigot solids loading)</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap1-res-cvu">--</td>
+              <td style="padding: 8px; color: #10b981;">Spray: 40-50%; Roping risk: &gt;52%</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Apex to Vortex Diameter Ratio</td>
+              <td style="padding: 8px;">$D_u / D_o$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap1-res-dudo">--</td>
+              <td style="padding: 8px; color: #10b981;">0.45 to 0.70 (Stable air core)</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Water Recovery to Underflow ($R_f$)</td>
+              <td style="padding: 8px;">$R_f = S / (1 + S)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap1-res-rf">--</td>
+              <td style="padding: 8px; color: #10b981;">Fine particle bypass baseline</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="ap1-copy-btn" onclick="copyAP1Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Hydrocyclone Separation & Classification Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Governing Hydrocyclone Mechanics & Plitt Empirical Models</h3>
+    <p>A hydrocyclone separates solid particles based on size and specific gravity through intense centrifugal sedimentation without moving mechanical parts. Fluid enters tangentially at high velocity, creating a high-speed outer helical vortex that spirals down the conical wall to the apex underflow, and an inner reverse vortex that climbs upward around an atmospheric air core into the vortex finder overflow:</p>
+
+    <h4>1. Plitt's Corrected Cut Size Model ($d_{50c}$)</h4>
+    <p>The cut size $d_{50c}$ represents the particle diameter that has an exact 50% probability of reporting to the underflow (after subtracting unclassified liquid bypass). Plitt's standard empirical equation relates cyclone dimensions, volumetric flow, and slurry rheology:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$d_{50c} = \frac{K_c \cdot D_c^{0.46} \cdot D_i^{0.6} \cdot D_o^{1.21} \cdot \exp(0.063 \cdot C_v)}{D_u^{0.71} \cdot h^{0.38} \cdot Q^{0.45} \cdot (\rho_s - \rho_l)^{0.5} \cdot (1 - 1.9 \cdot C_v)^{1.43}}$$
+    </div>
+    <p>Where $D$ terms are dimensions ($cm$), $h$ is vortex height ($cm$), $Q$ is flow ($L/min$), and $d_{50c}$ is in microns ($\mu m$). The exponential term $\exp(0.063 C_v)$ accounts for hindered settling in dense slurries.</p>
+
+    <h4>2. Operating Pressure Drop ($\Delta P$)</h4>
+    <p>The feed pressure required to overcome centrifugal acceleration and wall friction across the hydrocyclone is governed by Plitt's pressure correlation:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\Delta P = \frac{K_p \cdot Q^{1.78} \cdot \exp(0.0055 \cdot C_v)}{D_c^{0.37} \cdot D_i^{0.94} \cdot h^{0.28} \cdot (D_u^2 + D_o^2)^{0.87}} \quad [\text{kPa}]$$
+    </div>
+    <p>Typical operating pressure drops for stable classification range between $70\ \text{kPa}$ and $250\ \text{kPa}$ ($10$ to $36\ \text{psi}$).</p>
+
+    <h4>3. Volumetric Flow Split Ratio ($S$) & Liquid Bypass ($R_f$)</h4>
+    <p>The ratio of underflow volumetric discharge to overflow volumetric discharge ($S = Q_u / Q_o$) determines water partitioning:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$S = \frac{K_s \cdot (D_u / D_o)^{3.31} \cdot h^{0.54} \cdot (D_u^2 + D_o^2)^{0.36} \cdot \exp(0.0054 \cdot C_v)}{D_c^{1.11} \cdot \Delta P^{0.24}}$$
+      $$R_f = \frac{S}{1 + S} \times 100\%$$
+    </div>
+    <p>Because ultra-fine particles follow the fluid streamlines directly, the fractional water recovery $R_f$ dictates the unclassified bypass of slimes directly into the underflow.</p>
+
+    <h4>4. Spray vs Roping Discharge Physics</h4>
+    <p>Under normal optimal conditions, the discharge from the apex spigot forms a hollow flare cone ('spray discharge', with cone angle $20^\circ - 45^\circ$) sustained by a low-pressure central air core running through the entire cyclone axis. When feed solids surge or the apex orifice is throttled too small, solids crowd the spigot, collapsing the air core into a dense, non-aerated sausage of solids ('roping discharge'). During roping, cut size $d_{50c}$ coarsens drastically and unclassified coarse material flushes out the overflow.</p>
+  </div>
+
+  <!-- 5 Fatal Hydrocyclone Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Failure Modes in Hydrocyclones</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Operating in Apex Roping Discharge Mode</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">When operators attempt to maximize underflow slurry density by severely restricting the spigot diameter ($D_u$), the solids packing density exceeds the critical threshold ($C_{v,u} > 52\%$). The central air core chokes and collapses, changing the discharge from a hollow spray cone to a solid roping stream. In roping mode, centrifugal separation efficiency collapses, causing oversize coarse particles to carry over into the overflow and wreck downstream flotation or leach circuits.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Vortex Finder Exterior Skirt Severe Abrasive Erosion</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">The sharpest velocity shear zone occurs directly between the high-speed tangential feed inlet and the outer cylinder of the vortex finder. Coarse abrasive grains scour the outer wall of the vortex finder, cutting through rubber or ceramic liners. Once the skirt erodes unevenly, short-circuiting flow streams inject unclassified raw feed directly into the overflow, ruining product sizing.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Feed Slurry Viscosity Surges Shifting Cut Size ($d_{50}$) Coarser</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">In mineral processing plants, milling clay-rich ores or failing to dilute thickener recycle water increases slurry viscosity dramatically. Because particle centrifugal settling velocity obeys Stokes law ($v_r \propto 1/\mu$), Plitt's formula demonstrates that high solids volume ($C_v > 25\%$) doubles or triples the actual cut point $d_{50}$, transforming a designed $45\ \mu m$ grind classification into an unacceptable $110\ \mu m$ discharge.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Severe Pressure Imbalance in Multi-Cyclone Radial Clusters</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Industrial grinding circuits install 6 to 30 hydrocyclones in circular radial clusters fed by a central distributor pot. If slurry piping design permits settling dunes or if individual inlet valves are throttled irregularly, unequal inlet pressures develop across the manifold. Low-pressure cyclones experience air core stall and roping, while high-pressure units experience extreme liner wear, destroying circuit classification efficiency.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Overflow Siphoning Backpressure Suppressing Natural Vortex Separation</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">If the overflow discharge pipe drops vertically into a sump without an atmospheric vacuum breaker vent, the plunging water column creates a siphon. This suction pulls the internal low-pressure air core upward, destabilizing the forced vortex and sucking heavy coarse particles out of the outer cone directly into the overflow product line.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let ap1Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAP1Unit = function(unit) {
+    if (ap1Unit === unit) return;
+    ap1Unit = unit;
+    document.getElementById('ap1-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('ap1-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const dc = document.getElementById('ap1-dc');
+    const di = document.getElementById('ap1-di');
+    const do_in = document.getElementById('ap1-do');
+    const du = document.getElementById('ap1-du');
+    const h = document.getElementById('ap1-height');
+    const flow = document.getElementById('ap1-feed-flow');
+    const sden = document.getElementById('ap1-solids-density');
+    const lden = document.getElementById('ap1-liquid-density');
+
+    if (unit === 'imperial') {
+      document.getElementById('ap1-label-dc').innerText = 'Cyclone Body Cylinder Diameter (Dc) (in):';
+      document.getElementById('ap1-label-di').innerText = 'Inlet Feed Orifice Diameter (Di) (in):';
+      document.getElementById('ap1-label-do').innerText = 'Vortex Finder Overflow Diameter (Do) (in):';
+      document.getElementById('ap1-label-du').innerText = 'Apex Spigot Underflow Diameter (Du) (in):';
+      document.getElementById('ap1-label-height').innerText = 'Free Vortex Height (h) (in):';
+      document.getElementById('ap1-label-flow').innerText = 'Feed Slurry Volumetric Flow (Qfeed) (US GPM):';
+      document.getElementById('ap1-label-sden').innerText = 'Dry Solids Density (ρs) (lb/ft³):';
+      document.getElementById('ap1-label-lden').innerText = 'Liquid Phase Density (ρl) (lb/ft³):';
+
+      dc.value = (parseFloat(dc.value) / 25.4).toFixed(2);
+      di.value = (parseFloat(di.value) / 25.4).toFixed(2);
+      do_in.value = (parseFloat(do_in.value) / 25.4).toFixed(2);
+      du.value = (parseFloat(du.value) / 25.4).toFixed(2);
+      h.value = (parseFloat(h.value) / 25.4).toFixed(1);
+      flow.value = (parseFloat(flow.value) * 4.40287).toFixed(1);
+      sden.value = (parseFloat(sden.value) * 0.062428).toFixed(1);
+      lden.value = (parseFloat(lden.value) * 0.062428).toFixed(1);
+    } else {
+      document.getElementById('ap1-label-dc').innerText = 'Cyclone Body Cylinder Diameter (Dc) (mm):';
+      document.getElementById('ap1-label-di').innerText = 'Inlet Feed Orifice Diameter (Di) (mm):';
+      document.getElementById('ap1-label-do').innerText = 'Vortex Finder Overflow Diameter (Do) (mm):';
+      document.getElementById('ap1-label-du').innerText = 'Apex Spigot Underflow Diameter (Du) (mm):';
+      document.getElementById('ap1-label-height').innerText = 'Free Vortex Height (h) (mm):';
+      document.getElementById('ap1-label-flow').innerText = 'Feed Slurry Volumetric Flow (Qfeed) (m³/h):';
+      document.getElementById('ap1-label-sden').innerText = 'Dry Solids Density (ρs) (kg/m³):';
+      document.getElementById('ap1-label-lden').innerText = 'Liquid Phase Density (ρl) (kg/m³):';
+
+      dc.value = (parseFloat(dc.value) * 25.4).toFixed(0);
+      di.value = (parseFloat(di.value) * 25.4).toFixed(0);
+      do_in.value = (parseFloat(do_in.value) * 25.4).toFixed(0);
+      du.value = (parseFloat(du.value) * 25.4).toFixed(0);
+      h.value = (parseFloat(h.value) * 25.4).toFixed(0);
+      flow.value = (parseFloat(flow.value) / 4.40287).toFixed(0);
+      sden.value = (parseFloat(sden.value) / 0.062428).toFixed(0);
+      lden.value = (parseFloat(lden.value) / 0.062428).toFixed(0);
+    }
+    calcAP1();
+  };
+
+  window.calcAP1 = function() {
+    let Dc_val = parseFloat(document.getElementById('ap1-dc').value) || 250;
+    let Di_val = parseFloat(document.getElementById('ap1-di').value) || 50;
+    let Do_val = parseFloat(document.getElementById('ap1-do').value) || 75;
+    let Du_val = parseFloat(document.getElementById('ap1-du').value) || 38;
+    let theta_deg = parseFloat(document.getElementById('ap1-cone-angle').value) || 20;
+    let h_val = parseFloat(document.getElementById('ap1-height').value) || 625;
+    let Q_val = parseFloat(document.getElementById('ap1-feed-flow').value) || 65;
+    let Cv = parseFloat(document.getElementById('ap1-solids-conc').value) || 12.0;
+    let rhos_val = parseFloat(document.getElementById('ap1-solids-density').value) || 2650;
+    let rhol_val = parseFloat(document.getElementById('ap1-liquid-density').value) || 1000;
+    let mu_cp = parseFloat(document.getElementById('ap1-viscosity').value) || 1.0;
+
+    // Convert internally to metric standard units: mm, m³/h, kg/m³
+    let Dc_mm = ap1Unit === 'imperial' ? Dc_val * 25.4 : Dc_val;
+    let Di_mm = ap1Unit === 'imperial' ? Di_val * 25.4 : Di_val;
+    let Do_mm = ap1Unit === 'imperial' ? Do_val * 25.4 : Do_val;
+    let Du_mm = ap1Unit === 'imperial' ? Du_val * 25.4 : Du_val;
+    let h_mm = ap1Unit === 'imperial' ? h_val * 25.4 : h_val;
+    let Q_m3h = ap1Unit === 'imperial' ? Q_val / 4.40287 : Q_val;
+    let rhos_kg = ap1Unit === 'imperial' ? rhos_val / 0.062428 : rhos_val;
+    let rhol_kg = ap1Unit === 'imperial' ? rhol_val / 0.062428 : rhol_val;
+
+    // Plitt's formula uses cm, L/min, g/cm³
+    let Dc_cm = Dc_mm / 10;
+    let Di_cm = Di_mm / 10;
+    let Do_cm = Do_mm / 10;
+    let Du_cm = Du_mm / 10;
+    let h_cm = h_mm / 10;
+    let Q_Lmin = (Q_m3h * 1000) / 60; // L/min
+    let delta_rho = Math.max(0.1, (rhos_kg - rhol_kg) / 1000); // g/cm³
+
+    // 1. Corrected cut size d50c via Plitt
+    // Kc calibration factor ~ 50.5 for industrial minerals
+    let Kc = 50.5;
+    let num_d50 = Kc * Math.pow(Dc_cm, 0.46) * Math.pow(Di_cm, 0.60) * Math.pow(Do_cm, 1.21) * Math.exp(0.063 * Cv);
+    let denom_d50 = Math.pow(Du_cm, 0.71) * Math.pow(h_cm, 0.38) * Math.pow(Q_Lmin, 0.45) * Math.pow(delta_rho, 0.50);
+    let d50c_um = num_d50 / denom_d50;
+    // Viscosity correction factor
+    d50c_um *= Math.pow(mu_cp, 0.5);
+
+    // 2. Pressure drop Delta P (kPa) via Plitt
+    let Kp = 4.7;
+    let num_dp = Kp * Math.pow(Q_Lmin, 1.78) * Math.exp(0.0055 * Cv);
+    let denom_dp = Math.pow(Dc_cm, 0.37) * Math.pow(Di_cm, 0.94) * Math.pow(h_cm, 0.28) * Math.pow(Math.pow(Du_cm, 2) + Math.pow(Do_cm, 2), 0.87);
+    let deltaP_kPa = num_dp / denom_dp;
+    let deltaP_psi = deltaP_kPa * 0.145038;
+
+    // 3. Volumetric Flow Split S (Qu / Qo)
+    let Ks = 1.9;
+    let num_s = Ks * Math.pow(Du_cm / Do_cm, 3.31) * Math.pow(h_cm, 0.54) * Math.pow(Math.pow(Du_cm, 2) + Math.pow(Do_cm, 2), 0.36) * Math.exp(0.0054 * Cv);
+    let denom_s = Math.pow(Dc_cm, 1.11) * Math.pow(Math.max(10, deltaP_kPa), 0.24);
+    let S = num_s / denom_s;
+    let Rf_pct = (S / (1 + S)) * 100;
+
+    // 4. Tangential inlet velocity vi (m/s)
+    let Ai_m2 = (Math.PI / 4) * Math.pow(Di_mm / 1000, 2);
+    let vi_ms = (Q_m3h / 3600) / Ai_m2;
+    let vi_fts = vi_ms * 3.28084;
+
+    // Centrifugal Acceleration G-Force: v^2 / (r * g)
+    let rc_m = (Dc_mm / 2000);
+    let g_force = Math.pow(vi_ms, 2) / (rc_m * 9.80665);
+
+    // 5. Underflow Solids Concentration and Roping Check
+    // Approximate underflow volume fraction Cvu
+    // Solids partition: fine bypass Rf + coarse recovery (typically 75-85% total solids recovery)
+    let solids_recovery = Math.min(0.95, 0.70 + (0.25 * (1 - Math.exp(-d50c_um / 40))));
+    let Qu_m3h = Q_m3h * (S / (1 + S));
+    let solids_feed_m3h = Q_m3h * (Cv / 100);
+    let solids_underflow_m3h = solids_feed_m3h * solids_recovery;
+    let Cvu_pct = Qu_m3h > 0 ? (solids_underflow_m3h / Qu_m3h) * 100 : 0;
+    if (Cvu_pct > 65) Cvu_pct = 65;
+
+    let is_roping = Cvu_pct >= 52.0 || (Du_mm / Do_mm) < 0.35;
+    let is_transition = Cvu_pct >= 47.0 && !is_roping;
+
+    let roping_text = is_roping ? '❌ ROPING OVERLOAD' : (is_transition ? '⚠️ TRANSITION' : '✓ CLEAN SPRAY');
+    let roping_color = is_roping ? '#ef4444' : (is_transition ? '#f59e0b' : '#10b981');
+
+    // UI Updates
+    document.getElementById('ap1-res-d50').innerText = d50c_um.toFixed(1) + ' µm';
+    document.getElementById('ap1-sub-d50').innerText = 'Plitt Model (Δρ = ' + delta_rho.toFixed(2) + ' g/cm³)';
+
+    let ropElem = document.getElementById('ap1-res-roping');
+    ropElem.innerText = roping_text;
+    ropElem.style.color = roping_color;
+    document.getElementById('ap1-sub-roping').innerText = 'Underflow Solids: ' + Cvu_pct.toFixed(1) + '% vol';
+
+    document.getElementById('ap1-res-split').innerText = S.toFixed(3);
+    document.getElementById('ap1-sub-split').innerText = 'Water Bypass: ' + Rf_pct.toFixed(1) + '%';
+
+    document.getElementById('ap1-res-visc-fac').innerText = Math.exp(0.063 * Cv).toFixed(2) + 'x';
+    document.getElementById('ap1-res-cvu').innerText = Cvu_pct.toFixed(1) + ' % vol';
+    document.getElementById('ap1-res-dudo').innerText = (Du_mm / Do_mm).toFixed(2);
+    document.getElementById('ap1-res-rf').innerText = Rf_pct.toFixed(1) + ' %';
+    document.getElementById('ap1-res-gforce').innerText = g_force.toFixed(0) + ' g';
+
+    if (ap1Unit === 'imperial') {
+      document.getElementById('ap1-res-dp').innerText = deltaP_psi.toFixed(1) + ' psi';
+      document.getElementById('ap1-sub-dp').innerText = '(' + deltaP_kPa.toFixed(0) + ' kPa equiv)';
+      document.getElementById('ap1-res-vi').innerText = vi_fts.toFixed(1) + ' ft/s';
+    } else {
+      document.getElementById('ap1-res-dp').innerText = deltaP_kPa.toFixed(1) + ' kPa';
+      document.getElementById('ap1-sub-dp').innerText = '(' + deltaP_psi.toFixed(1) + ' psi equiv)';
+      document.getElementById('ap1-res-vi').innerText = vi_ms.toFixed(2) + ' m/s';
+    }
+
+    // Dynamic SVG Generation
+    renderAP1Svg(Dc_mm, Di_mm, Do_mm, Du_mm, d50c_um, deltaP_kPa, is_roping, roping_color);
+  };
+
+  function renderAP1Svg(Dc_mm, Di_mm, Do_mm, Du_mm, d50c_um, deltaP_kPa, is_roping, roping_color) {
+    const svg = document.getElementById('ap1-svg');
+    if (!svg) return;
+
+    let cx = 400;
+    let cyCylinderTop = 60;
+    let cyConeStart = 120;
+    let cyApex = 230;
+
+    let rCyl = 50;
+    let rDo = 22;
+    let rDu = 12;
+
+    let svgParts = [
+      '<!-- Hydrocyclone Outer Shell Body -->',
+      '<!-- Upper Cylinder -->',
+      '<rect x="' + (cx - rCyl) + '" y="' + cyCylinderTop + '" width="' + (2 * rCyl) + '" height="' + (cyConeStart - cyCylinderTop) + '" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />',
+      
+      '<!-- Conical Lower Section -->',
+      '<polygon points="' + (cx - rCyl) + ',' + cyConeStart + ' ' + (cx + rCyl) + ',' + cyConeStart + ' ' + (cx + rDu) + ',' + cyApex + ' ' + (cx - rDu) + ',' + cyApex + '" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />',
+
+      '<!-- Tangential Inlet Nozzle (Left) -->',
+      '<rect x="' + (cx - rCyl - 55) + '" y="' + (cyCylinderTop + 5) + '" width="55" height="24" fill="#334155" stroke="#94a3b8" stroke-width="1.5" />',
+      '<line x1="' + (cx - rCyl - 45) + '" y1="' + (cyCylinderTop + 17) + '" x2="' + (cx - rCyl - 5) + '" y2="' + (cyCylinderTop + 17) + '" stroke="#38bdf8" stroke-width="2.5" />',
+      '<polygon points="' + (cx - rCyl - 5) + ',' + (cyCylinderTop + 13) + ' ' + (cx - rCyl + 2) + ',' + (cyCylinderTop + 17) + ' ' + (cx - rCyl - 5) + ',' + (cyCylinderTop + 21) + '" fill="#38bdf8" />',
+      '<text x="' + (cx - rCyl - 60) + '" y="' + (cyCylinderTop + 12) + '" fill="#38bdf8" font-size="10" font-weight="700" text-anchor="end">Feed In</text>',
+
+      '<!-- Vortex Finder Overflow Tube (Top Center) -->',
+      '<rect x="' + (cx - rDo) + '" y="20" width="' + (2 * rDo) + '" height="65" fill="#0f172a" stroke="#60a5fa" stroke-width="2" />',
+      '<line x1="' + cx + '" y1="75" x2="' + cx + '" y2="15" stroke="#60a5fa" stroke-width="2.5" />',
+      '<polygon points="' + (cx - 4) + ',15 ' + cx + ',5 ' + (cx + 4) + ',15" fill="#60a5fa" />',
+      '<text x="' + cx + '" y="12" fill="#60a5fa" font-size="10" font-weight="700" text-anchor="middle">Overflow (Fines &lt; ' + d50c_um.toFixed(0) + ' µm)</text>',
+
+      '<!-- Central Air Core (Atmospheric suction core) -->',
+      '<line x1="' + cx + '" y1="80" x2="' + cx + '" y2="' + cyApex + '" stroke="#f8fafc" stroke-width="2" stroke-dasharray="3,3" opacity="0.7" />',
+
+      '<!-- Downward Outer Helical Slurry Flow Lines -->',
+      '<path d="M ' + (cx - rCyl + 6) + ',' + (cyConeStart + 10) + ' Q ' + (cx - 20) + ',' + (cyConeStart + 35) + ' ' + (cx + rCyl - 18) + ',' + (cyConeStart + 45) + '" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2,2" />',
+      '<path d="M ' + (cx + rCyl - 18) + ',' + (cyConeStart + 45) + ' Q ' + (cx + 20) + ',' + (cyConeStart + 65) + ' ' + (cx - rCyl + 24) + ',' + (cyConeStart + 75) + '" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2,2" />',
+
+      '<!-- Apex Spigot Underflow Flare / Rope -->',
+      is_roping ? 
+      ('<!-- Roping Solid Column -->',
+      '<rect x="' + (cx - rDu + 2) + '" y="' + cyApex + '" width="' + (2 * rDu - 4) + '" height="35" fill="#ef4444" />',
+      '<text x="' + cx + '" y="' + (cyApex + 48) + '" fill="#ef4444" font-size="11" font-weight="700" text-anchor="middle">Roping Stream (Air core blocked)</text>') :
+      ('<!-- Spray Flare Cone -->',
+      '<polygon points="' + (cx - rDu) + ',' + cyApex + ' ' + (cx + rDu) + ',' + cyApex + ' ' + (cx + 35) + ',' + (cyApex + 32) + ' ' + (cx - 35) + ',' + (cyApex + 32) + '" fill="#10b981" opacity="0.5" stroke="#10b981" stroke-width="1.5" />',
+      '<text x="' + cx + '" y="' + (cyApex + 45) + '" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">Underflow Spray (Coarse &gt; ' + d50c_um.toFixed(0) + ' µm)</text>'),
+
+      '<!-- Status Banner -->',
+      '<rect x="220" y="248" width="360" height="24" fill="#0f172a" rx="4" stroke="' + roping_color + '" stroke-width="1.5" />',
+      '<text x="400" y="264" fill="' + roping_color + '" font-size="11" font-weight="700" text-anchor="middle">PLITT CUT SIZE: ' + d50c_um.toFixed(1) + ' µm | ΔP = ' + deltaP_kPa.toFixed(1) + ' kPa</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAP1Diagnostics = function() {
+    let d50 = document.getElementById('ap1-res-d50').innerText;
+    let dp = document.getElementById('ap1-res-dp').innerText;
+    let rop = document.getElementById('ap1-res-roping').innerText;
+    let s = document.getElementById('ap1-res-split').innerText;
+    let vi = document.getElementById('ap1-res-vi').innerText;
+    let gf = document.getElementById('ap1-res-gforce').innerText;
+    let cvu = document.getElementById('ap1-res-cvu').innerText;
+    let dudo = document.getElementById('ap1-res-dudo').innerText;
+    let rf = document.getElementById('ap1-res-rf').innerText;
+
+    let text = [
+      '=== HYDROCYCLONE SEPARATION & CLASSIFICATION AUDIT ===',
+      'Standard: Plitt Empirical Hydrocyclone Sizing & Bradley Formulations',
+      '-----------------------------------------------------------------',
+      'Corrected Cut Size (d50c):        ' + d50,
+      'Operating Pressure Drop (ΔP):     ' + dp,
+      'Apex Discharge Classification:    ' + rop,
+      'Volumetric Flow Split Ratio (S):  ' + s,
+      'Tangential Entry Velocity (vi):   ' + vi,
+      'Centrifugal Acceleration:         ' + gf,
+      'Underflow Solids Loading (Cvu):   ' + cvu,
+      'Apex/Vortex Diameter Ratio:       ' + dudo,
+      'Unclassified Slimes Bypass (Rf):  ' + rf,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/hydrocyclone-separation-cut-size-d50-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('ap1-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Hydrocyclone Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAP1();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'hydrocyclone-separation-cut-size-d50-calculator.html'), renderTradePage({
+  title: 'Hydrocyclone Cut Size (d50) & Separation Calculator | Plitt Model',
+  metaDescription: 'Calculate hydrocyclone particle cut point (d50c), pressure drop, flow split, and roping discharge limits per Plitt empirical mineral processing models.',
+  canonical: 'https://digitaltoolsshed.com/calc/hydrocyclone-separation-cut-size-d50-calculator.html',
+  content: toolAP1Html,
+  faq: [
+    {
+      q: 'What is the d50c cut size in hydrocyclone classification?',
+      a: 'The d50c (corrected cut size) is the particle diameter in microns that has an equal 50% probability of reporting to the coarse underflow or the fine overflow, after mathematically subtracting fine particles that bypass directly with liquid recovery (Rf). Particles larger than d50c predominantly exit the spigot, while smaller particles exit the vortex finder.'
+    },
+    {
+      q: 'What causes hydrocyclone "roping" and why is it dangerous?',
+      a: 'Roping occurs when solids volumetric concentration in the underflow exceeds 50% to 52%, or when the apex orifice is throttled too small for the solids feed rate. The internal low-pressure atmospheric air core collapses, forcing slurry to exit as a solid cylindrical rope. In roping mode, classification fails and coarse particles carry over into the overflow product stream.'
+    },
+    {
+      q: 'How does feed slurry solids concentration (Cv) affect cut size?',
+      a: 'Higher solids concentration dramatically increases effective slurry viscosity and hinders particle settling. In Plitt\x27s model, cut size scales exponentially with concentration (exp(0.063 * Cv)). Doubling slurry concentration from 10% to 20% by volume can coarsen the d50 cut point by 80% to 100%, shifting intended separation targets.'
+    },
+    {
+      q: 'Why is the apex-to-vortex finder ratio (Du / Do) critical?',
+      a: 'The ratio of apex diameter to vortex finder diameter (typically 0.45 to 0.70) controls the volumetric flow split (S) and underflow density. If Du / Do is too high, excessive water and unwanted fine slimes report to the underflow. If Du / Do is too low, the apex chokes into severe roping.'
+    },
+    {
+      q: 'What operating pressure drop (ΔP) is optimal for hydrocyclones?',
+      a: 'Industrial hydrocyclones operate best between 70 kPa and 250 kPa (10 to 36 psi). Lower pressure drops produce insufficient centrifugal acceleration (<100g), resulting in poor separation sharpness. Pressures above 300 kPa cause exponential increase in liner abrasive wear without meaningful classification improvement.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AP2: Gravity Thickener & Clarifier Sizing & Solids Flux Calculator (Kynch & Talmadge-Fitch)
+// ==========================================
+const toolAP2Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">Kynch Sedimentation Theory &bull; Talmadge-Fitch &bull; EIMCO Rake Torque Standards</div>
+    <h1>Gravity Thickener & Clarifier Solids Flux Sizing Calculator</h1>
+    <p class="text-muted">Calculate required basin surface area, tank diameter, limiting solids flux capacity ($G_L$), hydraulic surface overflow rate (SOR), and rake drive running torque for industrial clarifiers and gravity thickeners per Kynch sedimentation mechanics and the Talmadge-Fitch graphical flux method.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="ap2-unit-metric" onclick="setAP2Unit('metric')">Metric Units (m, m², m³/h, t/d, kg/m²·h, kNm)</button>
+    <button type="button" class="unit-toggle-btn" id="ap2-unit-imperial" onclick="setAP2Unit('imperial')">Imperial Units (ft, ft², GPM, STPD, lb/ft²·h, ft·kips)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Feed Slurry & Target Underflow -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Feed Throughput & Solids Concentrations</h3>
+
+      <div class="input-group">
+        <label for="ap2-dry-tonnes" id="ap2-label-dry">Dry Solids Feed Mass Rate ($M_{solids}$) (tonnes/day):</label>
+        <input type="number" id="ap2-dry-tonnes" value="1200" step="50" min="10" max="50000" oninput="calcAP2()">
+        <span class="text-muted">Dry mineral tailings, municipal sludge, or chemical precipitate throughput</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap2-feed-conc">Feed Slurry Solids Concentration ($C_{feed}$) (% wt or g/L):</label>
+        <input type="number" id="ap2-feed-conc" value="15.0" step="0.5" min="0.5" max="45.0" oninput="calcAP2()">
+        <span class="text-muted">Inlet slurry solids percent by weight</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap2-underflow-conc">Target Underflow Compaction Concentration ($C_u$) (% wt):</label>
+        <input type="number" id="ap2-underflow-conc" value="55.0" step="1.0" min="20.0" max="75.0" oninput="calcAP2()">
+        <span class="text-muted">High-density thickener: 50-60%; Paste thickener: 65-72%</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap2-solids-sg">Dry Solids Specific Gravity ($SG_s$):</label>
+        <input type="number" id="ap2-solids-sg" value="2.70" step="0.05" min="1.05" max="5.50" oninput="calcAP2()">
+        <span class="text-muted">Silica/Tailings: 2.65 - 2.80; Iron ore: 4.5 - 5.2; Municipal biosludge: 1.05 - 1.20</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap2-flocculant">Flocculant Polymer Dosage Rate (g/tonne dry solids):</label>
+        <input type="number" id="ap2-flocculant" value="25" step="5" min="0" max="250" oninput="calcAP2()">
+        <span class="text-muted">High-molecular-weight polyacrylamide dosage in feedwell</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Settling Flux & Rake Drive Duty -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Sedimentation Kinematics & Rake Duty</h3>
+
+      <div class="input-group">
+        <label for="ap2-settle-vel" id="ap2-label-settle">Initial Flocculated Free Settling Velocity ($v_i$) (m/h):</label>
+        <input type="number" id="ap2-settle-vel" value="6.5" step="0.5" min="0.2" max="30.0" oninput="calcAP2()">
+        <span class="text-muted">Initial unhindered mudline fall rate from cylinder batch test</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap2-retention-tu">Talmadge-Fitch Underflow Time ($t_u$) (hours):</label>
+        <input type="number" id="ap2-retention-tu" value="1.75" step="0.25" min="0.25" max="12.0" oninput="calcAP2()">
+        <span class="text-muted">Derived from tangent intersection at $C_u$ on batch settling curve</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap2-bed-depth" id="ap2-label-bed">Operating Sludge Bed Depth ($h_{bed}$) (m):</label>
+        <input type="number" id="ap2-bed-depth" value="1.8" step="0.1" min="0.5" max="6.0" oninput="calcAP2()">
+        <span class="text-muted">Compacted sediment inventory height above floor cone</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap2-duty-class">EIMCO / Metso Rake Drive Duty Class:</label>
+        <select id="ap2-duty-class" onchange="calcAP2()">
+          <option value="light">Light Duty (Municipal Clarifiers, Flotation Froth, K = 20)</option>
+          <option value="medium" selected>Standard Metallurgical (Tailings, Concentrates, K = 45)</option>
+          <option value="heavy">Heavy Duty Industrial (High-Density Countercurrent, K = 80)</option>
+          <option value="extra_heavy">Severe Duty Paste Thickener (Extreme Yield Slurry, K = 135)</option>
+        </select>
+        <span class="text-muted">Dictates torque cage rating and lift mechanism capacity</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap2-scale-factor">Scale-Up Safety Factor ($SF$):</label>
+        <input type="number" id="ap2-scale-factor" value="1.25" step="0.05" min="1.05" max="1.60" oninput="calcAP2()">
+        <span class="text-muted">Accounts for feedwell turbulence, wind currents, and short-circuiting</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Basin Sizing & Rake Torque Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Thickener Tank Diameter ($D$)</span>
+        <div id="ap2-res-diameter" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- m</div>
+        <span class="text-muted" id="ap2-sub-diameter" style="font-size:0.75rem;">Standard basin size</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Limiting Solids Flux ($G_L$)</span>
+        <div id="ap2-res-flux" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">-- kg/m²·h</div>
+        <span class="text-muted" id="ap2-sub-flux" style="font-size:0.75rem;">Talmadge-Fitch capacity</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Surface Overflow Rate (SOR)</span>
+        <div id="ap2-res-sor" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">-- m/h</div>
+        <span class="text-muted" id="ap2-sub-sor" style="font-size:0.75rem;">Clarification rise rate</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Rake Operating Torque ($T$)</span>
+        <div id="ap2-res-torque" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">-- kNm</div>
+        <span class="text-muted" id="ap2-sub-torque" style="font-size:0.75rem;">Continuous running duty</span>
+      </div>
+    </div>
+
+    <!-- Interactive Thickener Cross-Section SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Gravity Thickener Internal Clarification, Feedwell & Sludge Compaction Zones</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live Kynch Sedimentation Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="ap2-svg" viewBox="0 0 800 270" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Process Mass Balance & Hydrodynamic Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Mass Balance Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Engineering Design Target</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Basin Total Plan Surface Area</td>
+              <td style="padding: 8px;">$A = (M_{solids} / G_L) \times SF$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap2-res-area">--</td>
+              <td style="padding: 8px; color: #10b981;">Total clarification & thickening footprint</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Total Volumetric Slurry Feed Rate</td>
+              <td style="padding: 8px;">$Q_{feed} = M_{solids} / (C_{feed} \cdot \rho_{slurry})$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap2-res-qfeed">--</td>
+              <td style="padding: 8px; color: #10b981;">Feedwell hydraulic sizing basis</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Underflow Concentrated Sludge Discharge</td>
+              <td style="padding: 8px;">$Q_u = M_{solids} / (C_u \cdot \rho_u)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap2-res-qu">--</td>
+              <td style="padding: 8px; color: #10b981;">Underflow slurry pump displacement</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Clarified Liquid Overflow Rate</td>
+              <td style="padding: 8px;">$Q_{overflow} = Q_{feed} - Q_u$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap2-res-qof">--</td>
+              <td style="padding: 8px; color: #10b981;">Peripheral overflow launder capacity</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Peak Alarm / Rake Lift Trip Torque</td>
+              <td style="padding: 8px;">$T_{peak} = 2.0 \times T_{running}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap2-res-tpeak">--</td>
+              <td style="padding: 8px; color: #10b981;">Automatic hydraulic rake lift setpoint</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Sludge Bed Inventory Mass</td>
+              <td style="padding: 8px;">$M_{bed} = A \cdot h_{bed} \cdot C_{bed,avg}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap2-res-mbed">--</td>
+              <td style="padding: 8px; color: #10b981;">Structural foundation deadweight load</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="ap2-copy-btn" onclick="copyAP2Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Gravity Thickener & Clarifier Sizing Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Comprehensive Mathematical Derivation & Sedimentation Flux Theory</h3>
+    <p>Gravity thickeners and clarifiers separate industrial slurries into a clarified supernatant liquid and a dense compacted sludge bed through continuous settling. Sizing the required basin area and mechanical rake drive requires evaluating both the clarification rise rate and the limiting solids flux capacity:</p>
+
+    <h4>1. Kynch Sedimentation & Talmadge-Fitch Solids Flux ($G_L$)</h4>
+    <p>According to Kynch's sedimentation theory, settling velocity $v$ is a unique function of local solids concentration $C$. In continuous thickeners, solids are transported downward both by gravity settling and by bulk underflow withdrawal. The total solids flux $G$ (mass per unit area per unit time) is formulated as:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$G(C) = C \cdot v(C) + C \cdot v_u = C \cdot v(C) + \frac{Q_u \cdot C}{A}$$
+    </div>
+    <p>The Talmadge-Fitch graphical construction simplifies this by determining the critical time $t_u$ required for the interface to reach the desired underflow concentration $C_u$ from batch cylinder settling test data:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$G_L = \frac{C_{feed} \cdot H_0}{t_u} \quad [\text{kg}/(\text{m}^2\cdot\text{h})]$$
+    </div>
+    <p>Where $H_0$ is initial cylinder test pulp height ($m$) and $C_{feed}$ is initial concentration ($kg/m^3$).</p>
+
+    <h4>2. Required Basin Surface Area & Tank Diameter</h4>
+    <p>The total surface plan area required to handle dry solids throughput without slime accumulation is:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$A_{thickener} = \frac{M_{solids}}{G_L} \times SF$$
+      $$D_{thickener} = \sqrt{\frac{4 \cdot A_{thickener}}{\pi}}$$
+    </div>
+    <p>Where $SF \approx 1.20 - 1.35$ is the scale-up factor accounting for feedwell turbulence and density wave short-circuiting.</p>
+
+    <h4>3. Hydraulic Surface Overflow Rate (SOR)</h4>
+    <p>To ensure crystal-clear overflow without fine floc carryover, the upward supernatant rise velocity must not exceed the free settling velocity of the flocculated particles ($v_i$):</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$SOR = \frac{Q_{overflow}}{A_{thickener}} \le v_{clarify}$$
+    </div>
+
+    <h4>4. Rake Drive Running Torque via EIMCO Factor ($K$)</h4>
+    <p>Rotating steel rake blades sweep settled sludge continuously toward the central bottom discharge cone. The continuous mechanical torque ($T$) resisting rotation scales quadratically with basin diameter per EIMCO standards:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$T_{running} = K_{duty} \cdot D^2 \quad [\text{ft}\cdot\text{lbf} \text{ or converted to } \text{kN}\cdot\text{m}]$$
+      $$T_{peak} = 2.0 \times T_{running}$$
+    </div>
+    <p>When torque exceeds $100\%$ of running rating, automated hydraulic lift cylinders raise the rake mechanism to prevent drive box gear shear.</p>
+  </div>
+
+  <!-- 5 Fatal Thickener & Clarifier Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Failure Modes in Thickeners</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Rake Drive Torque Stall & Islanding from Mud Bed Overload</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">If underflow pumps trip or cannot pull viscous sludge fast enough, the compacted bed height rises into the heavy rake truss structure. Cohesive minerals form a rigid circular 'donut' or 'island' that rotates synchronously with the rakes. Drag forces spike exponentially, exceeding planetary gear torque capacity, bending heavy tubular rake arms, and triggering catastrophic drive gearbox destruction.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Overdosing Polymer Flocculant Causing Un-pumpable Gel Blocks</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Operators reacting to cloudy overflow often blindly double the polymer flocculant dosage. Excessive high-molecular-weight polyacrylamide saturates particle surfaces, creating thick un-pumpable yield-stress gels ('elephant snot') in the underflow cone. The underflow pumps lose prime, rake torque spikes, and residual polymer blinds downstream vacuum and pressure filter cloths.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Feedwell High-Velocity Jetting Shearing Delicate Flocs</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Flocculated mineral flocs are extremely fragile agglomerates held together by weak polymer polymer hydrogen bonds. If the slurry feed pipe enters the feedwell with excessive kinetic velocity ($v > 1.5\ \text{m/s}$) without tangential energy-dissipation shelf baffles, hydrodynamic shear rips the flocs apart. Broken flocs never re-agglomerate in the settling zone, resulting in terrible overflow turbidity.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Thermal Inversion Density Currents Causing Overflow Slime Carryover</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">In outdoor thickeners, sudden cold rainstorms or nocturnal temperature drops chill the surface water layer, making it denser than the warm incoming feed slurry. This creates convective turnover and subsurface density currents that carry un-settled fines directly along the tank surface and over the peripheral weir launder, bypassing the entire sludge bed.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Underflow Suction Pipe Cavitation & Rat-Holing</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Because compacted underflow exhibits non-Newtonian Bingham plastic or Casson yield stress, pulling sludge from a central cone at high pump speed draws low-viscosity liquid straight down through the center of the bed like a sinkhole ('rat-holing'). The pump begins sucking clarified water while thick, compacted solids remain stagnant against the perimeter, deceiving density sensors.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let ap2Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAP2Unit = function(unit) {
+    if (ap2Unit === unit) return;
+    ap2Unit = unit;
+    document.getElementById('ap2-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('ap2-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const dry = document.getElementById('ap2-dry-tonnes');
+    const svel = document.getElementById('ap2-settle-vel');
+    const bdep = document.getElementById('ap2-bed-depth');
+
+    if (unit === 'imperial') {
+      document.getElementById('ap2-label-dry').innerText = 'Dry Solids Feed Mass Rate (Msolids) (Short Tons/day):';
+      document.getElementById('ap2-label-settle').innerText = 'Initial Flocculated Free Settling Velocity (vi) (ft/h):';
+      document.getElementById('ap2-label-bed').innerText = 'Operating Sludge Bed Depth (hbed) (ft):';
+
+      dry.value = (parseFloat(dry.value) * 1.10231).toFixed(0);
+      svel.value = (parseFloat(svel.value) * 3.28084).toFixed(1);
+      bdep.value = (parseFloat(bdep.value) * 3.28084).toFixed(1);
+    } else {
+      document.getElementById('ap2-label-dry').innerText = 'Dry Solids Feed Mass Rate (Msolids) (tonnes/day):';
+      document.getElementById('ap2-label-settle').innerText = 'Initial Flocculated Free Settling Velocity (vi) (m/h):';
+      document.getElementById('ap2-label-bed').innerText = 'Operating Sludge Bed Depth (hbed) (m):';
+
+      dry.value = (parseFloat(dry.value) / 1.10231).toFixed(0);
+      svel.value = (parseFloat(svel.value) / 3.28084).toFixed(1);
+      bdep.value = (parseFloat(bdep.value) / 3.28084).toFixed(1);
+    }
+    calcAP2();
+  };
+
+  window.calcAP2 = function() {
+    let M_dry_input = parseFloat(document.getElementById('ap2-dry-tonnes').value) || 1200;
+    let C_feed_pct = parseFloat(document.getElementById('ap2-feed-conc').value) || 15.0;
+    let C_u_pct = parseFloat(document.getElementById('ap2-underflow-conc').value) || 55.0;
+    let SG_s = parseFloat(document.getElementById('ap2-solids-sg').value) || 2.70;
+    let floc_g_t = parseFloat(document.getElementById('ap2-flocculant').value) || 25;
+    let vi_input = parseFloat(document.getElementById('ap2-settle-vel').value) || 6.5;
+    let tu_h = parseFloat(document.getElementById('ap2-retention-tu').value) || 1.75;
+    let h_bed_input = parseFloat(document.getElementById('ap2-bed-depth').value) || 1.8;
+    let duty_class = document.getElementById('ap2-duty-class').value;
+    let SF = parseFloat(document.getElementById('ap2-scale-factor').value) || 1.25;
+
+    // Convert inputs internally to metric (tonnes/day, m/h, m)
+    let M_dry_tpd = ap2Unit === 'imperial' ? M_dry_input / 1.10231 : M_dry_input;
+    let vi_mh = ap2Unit === 'imperial' ? vi_input / 3.28084 : vi_input;
+    let h_bed_m = ap2Unit === 'imperial' ? h_bed_input / 3.28084 : h_bed_input;
+
+    let M_dry_kg_h = (M_dry_tpd * 1000) / 24.0; // kg/h dry solids
+
+    // Slurry densities via weighted fractions
+    // 1 / rho_slurry = (w / rho_s) + ((1-w) / rho_water)
+    let rho_w = 1000.0; // kg/m³
+    let rho_s = SG_s * 1000.0;
+    let w_feed = C_feed_pct / 100.0;
+    let rho_feed = 1.0 / ((w_feed / rho_s) + ((1.0 - w_feed) / rho_w));
+
+    let w_u = C_u_pct / 100.0;
+    let rho_u = 1.0 / ((w_u / rho_s) + ((1.0 - w_u) / rho_w));
+
+    // Volumetric flow rates
+    let total_slurry_mass_kg_h = M_dry_kg_h / w_feed;
+    let Q_feed_m3h = total_slurry_mass_kg_h / rho_feed;
+
+    let total_u_mass_kg_h = M_dry_kg_h / w_u;
+    let Q_u_m3h = total_u_mass_kg_h / rho_u;
+
+    let Q_overflow_m3h = Math.max(0, Q_feed_m3h - Q_u_m3h);
+
+    // 1. Talmadge-Fitch Limiting Solids Flux GL (kg/m²·h)
+    // Initial pulp concentration C0 (kg/m³)
+    let C0_kgm3 = w_feed * rho_feed;
+    let H0_m = 0.50; // standard 500mm test cylinder height
+    let GL_kg_m2_h = (C0_kgm3 * H0_m) / Math.max(0.1, tu_h);
+
+    // 2. Required Basin Area A (m²)
+    let A_thickener_m2 = (M_dry_kg_h / GL_kg_m2_h) * SF;
+
+    // Check against hydraulic clarification rise rate limit (SOR <= 0.8 * vi)
+    let A_clarify_m2 = (Q_overflow_m3h / (0.80 * vi_mh)) * SF;
+    let governing_area_m2 = Math.max(A_thickener_m2, A_clarify_m2);
+
+    // 3. Circular Thickener Diameter D (m)
+    let D_m = Math.sqrt((4.0 * governing_area_m2) / Math.PI);
+    // Round to standard 0.5m construction increments
+    let D_std_m = Math.ceil(D_m * 2) / 2;
+    let A_final_m2 = (Math.PI / 4.0) * Math.pow(D_std_m, 2);
+
+    // 4. Actual Operating Flux & SOR
+    let actual_flux_kg_m2_h = M_dry_kg_h / A_final_m2;
+    let SOR_mh = Q_overflow_m3h / A_final_m2;
+
+    // 5. EIMCO Rake Drive Torque (kN·m)
+    // K factor in ft-lbf / ft^2
+    let K_eimco = 45;
+    if (duty_class === 'light') K_eimco = 20;
+    else if (duty_class === 'medium') K_eimco = 45;
+    else if (duty_class === 'heavy') K_eimco = 80;
+    else if (duty_class === 'extra_heavy') K_eimco = 135;
+
+    let D_ft = D_std_m * 3.28084;
+    let T_running_ftlbf = K_eimco * Math.pow(D_ft, 2);
+    let T_running_kNm = T_running_ftlbf * 0.00135582;
+    let T_peak_kNm = T_running_kNm * 2.0;
+
+    // 6. Sludge Bed Inventory Mass
+    let C_bed_avg_kgm3 = ((w_feed + w_u) / 2.0) * ((rho_feed + rho_u) / 2.0);
+    let M_bed_tonnes = (A_final_m2 * h_bed_m * C_bed_avg_kgm3) / 1000.0;
+
+    // UI Updates
+    document.getElementById('ap2-res-diameter').innerText = (ap2Unit === 'imperial' ? (D_std_m * 3.28084).toFixed(1) + ' ft' : D_std_m.toFixed(1) + ' m');
+    document.getElementById('ap2-sub-diameter').innerText = 'Area: ' + (ap2Unit === 'imperial' ? (A_final_m2 * 10.7639).toFixed(0) + ' ft²' : A_final_m2.toFixed(0) + ' m²');
+
+    if (ap2Unit === 'imperial') {
+      let flux_lb_ft2_h = actual_flux_kg_m2_h * 0.204816;
+      let sor_ft_h = SOR_mh * 3.28084;
+      let T_running_ftkips = T_running_ftlbf / 1000.0;
+
+      document.getElementById('ap2-res-flux').innerText = flux_lb_ft2_h.toFixed(1) + ' lb/ft²·h';
+      document.getElementById('ap2-sub-flux').innerText = '(' + actual_flux_kg_m2_h.toFixed(1) + ' kg/m²·h equiv)';
+      document.getElementById('ap2-res-sor').innerText = sor_ft_h.toFixed(2) + ' ft/h';
+      document.getElementById('ap2-sub-sor').innerText = 'Rise: ' + (sor_ft_h * 12).toFixed(1) + ' in/h';
+      document.getElementById('ap2-res-torque').innerText = T_running_ftkips.toFixed(1) + ' ft·kips';
+      document.getElementById('ap2-sub-torque').innerText = 'Peak Trip: ' + (T_running_ftkips * 2).toFixed(1) + ' ft·kips';
+
+      document.getElementById('ap2-res-area').innerText = (A_final_m2 * 10.7639).toLocaleString('en-US', {maximumFractionDigits:0}) + ' ft²';
+      document.getElementById('ap2-res-qfeed').innerText = (Q_feed_m3h * 4.40287).toFixed(0) + ' US GPM';
+      document.getElementById('ap2-res-qu').innerText = (Q_u_m3h * 4.40287).toFixed(1) + ' US GPM';
+      document.getElementById('ap2-res-qof').innerText = (Q_overflow_m3h * 4.40287).toFixed(0) + ' US GPM';
+      document.getElementById('ap2-res-tpeak').innerText = (T_running_ftkips * 2).toFixed(1) + ' ft·kips';
+      document.getElementById('ap2-res-mbed').innerText = (M_bed_tonnes * 1.10231).toFixed(0) + ' ST';
+    } else {
+      document.getElementById('ap2-res-flux').innerText = actual_flux_kg_m2_h.toFixed(1) + ' kg/m²·h';
+      document.getElementById('ap2-sub-flux').innerText = '(' + (actual_flux_kg_m2_h * 0.204816).toFixed(1) + ' lb/ft²·h equiv)';
+      document.getElementById('ap2-res-sor').innerText = SOR_mh.toFixed(2) + ' m/h';
+      document.getElementById('ap2-sub-sor').innerText = 'Supernatant rise rate';
+      document.getElementById('ap2-res-torque').innerText = T_running_kNm.toFixed(1) + ' kNm';
+      document.getElementById('ap2-sub-torque').innerText = 'Peak Trip: ' + T_peak_kNm.toFixed(1) + ' kNm';
+
+      document.getElementById('ap2-res-area').innerText = A_final_m2.toFixed(1) + ' m²';
+      document.getElementById('ap2-res-qfeed').innerText = Q_feed_m3h.toFixed(1) + ' m³/h';
+      document.getElementById('ap2-res-qu').innerText = Q_u_m3h.toFixed(1) + ' m³/h';
+      document.getElementById('ap2-res-qof').innerText = Q_overflow_m3h.toFixed(1) + ' m³/h';
+      document.getElementById('ap2-res-tpeak').innerText = T_peak_kNm.toFixed(1) + ' kNm';
+      document.getElementById('ap2-res-mbed').innerText = M_bed_tonnes.toFixed(0) + ' tonnes';
+    }
+
+    // Dynamic SVG Simulation
+    renderAP2Svg(D_std_m, h_bed_m, C_feed_pct, C_u_pct, actual_flux_kg_m2_h, SOR_mh, T_running_kNm);
+  };
+
+  function renderAP2Svg(D_std_m, h_bed_m, C_feed_pct, C_u_pct, actual_flux_kg_m2_h, SOR_mh, T_running_kNm) {
+    const svg = document.getElementById('ap2-svg');
+    if (!svg) return;
+
+    let cx = 400;
+    let tankW = 540;
+    let tankH = 120;
+    let tankTop = 70;
+    let tankBottom = tankTop + tankH;
+
+    let feedwellW = 90;
+    let feedwellH = 65;
+
+    let svgParts = [
+      '<!-- Thickener Tank Outer Shell -->',
+      '<rect x="' + (cx - tankW/2) + '" y="' + tankTop + '" width="' + tankW + '" height="' + tankH + '" fill="#0f172a" stroke="#94a3b8" stroke-width="2" />',
+      
+      '<!-- Conical Sludge Bottom Floor -->',
+      '<polygon points="' + (cx - tankW/2) + ',' + tankBottom + ' ' + (cx + tankW/2) + ',' + tankBottom + ' ' + (cx + 35) + ',' + (tankBottom + 30) + ' ' + (cx - 35) + ',' + (tankBottom + 30) + '" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />',
+
+      '<!-- Clarified Water Zone (Upper half) -->',
+      '<rect x="' + (cx - tankW/2 + 2) + '" y="' + (tankTop + 2) + '" width="' + (tankW - 4) + '" height="' + (tankH * 0.45) + '" fill="#0284c7" opacity="0.3" />',
+      '<text x="' + (cx + 170) + '" y="' + (tankTop + 30) + '" fill="#38bdf8" font-size="11" font-weight="600">Clarified Supernatant Zone</text>',
+
+      '<!-- Compacted Sludge Bed Zone (Lower half + cone) -->',
+      '<polygon points="' + (cx - tankW/2 + 2) + ',' + (tankTop + tankH * 0.55) + ' ' + (cx + tankW/2 - 2) + ',' + (tankTop + tankH * 0.55) + ' ' + (cx + 33) + ',' + (tankBottom + 28) + ' ' + (cx - 33) + ',' + (tankBottom + 28) + '" fill="#d97706" opacity="0.55" />',
+      '<text x="' + (cx + 160) + '" y="' + (tankTop + tankH * 0.75) + '" fill="#fbbf24" font-size="11" font-weight="600">Compacted Bed (' + C_u_pct.toFixed(0) + '% wt)</text>',
+
+      '<!-- Center Drive Torque Cage & Bridge -->',
+      '<rect x="100" y="45" width="600" height="15" fill="#334155" stroke="#64748b" stroke-width="1.5" />',
+      '<rect x="' + (cx - 25) + '" y="25" width="50" height="45" fill="#475569" stroke="#cbd5e1" stroke-width="2" rx="3" />',
+      '<text x="' + cx + '" y="42" fill="#f8fafc" font-size="10" font-weight="700" text-anchor="middle">Rake Drive</text>',
+
+      '<!-- Central Feedwell Cylinder -->',
+      '<rect x="' + (cx - feedwellW/2) + '" y="' + (tankTop + 5) + '" width="' + feedwellW + '" height="' + feedwellH + '" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4,2" />',
+      '<text x="' + cx + '" y="' + (tankTop + 35) + '" fill="#f59e0b" font-size="10" font-weight="600" text-anchor="middle">Feedwell</text>',
+
+      '<!-- Feed Pipe Entering from Left -->',
+      '<line x1="120" y1="52" x2="' + (cx - feedwellW/2) + '" y2="52" stroke="#38bdf8" stroke-width="3" />',
+      '<text x="130" y="44" fill="#38bdf8" font-size="10">Slurry Feed In (' + C_feed_pct.toFixed(0) + '% wt)</text>',
+
+      '<!-- Rotating Rake Shaft and Angled Scraper Arms -->',
+      '<line x1="' + cx + '" y1="60" x2="' + cx + '" y2="' + (tankBottom + 15) + '" stroke="#94a3b8" stroke-width="3" />',
+      '<line x1="' + cx + '" y1="' + (tankBottom + 5) + '" x2="' + (cx - tankW/2 + 25) + '" y2="' + (tankBottom - 10) + '" stroke="#94a3b8" stroke-width="2.5" />',
+      '<line x1="' + cx + '" y1="' + (tankBottom + 5) + '" x2="' + (cx + tankW/2 - 25) + '" y2="' + (tankBottom - 10) + '" stroke="#94a3b8" stroke-width="2.5" />',
+
+      '<!-- Peripheral Overflow Launder Weirs (Left & Right) -->',
+      '<rect x="' + (cx - tankW/2 - 12) + '" y="' + tankTop + '" width="12" height="25" fill="#0284c7" stroke="#38bdf8" />',
+      '<rect x="' + (cx + tankW/2) + '" y="' + tankTop + '" width="12" height="25" fill="#0284c7" stroke="#38bdf8" />',
+      '<text x="' + (cx + tankW/2 + 18) + '" y="' + (tankTop + 18) + '" fill="#38bdf8" font-size="10" font-weight="600">Overflow Weir</text>',
+
+      '<!-- Center Bottom Underflow Discharge Cone -->',
+      '<rect x="' + (cx - 15) + '" y="' + (tankBottom + 30) + '" width="30" height="25" fill="#78350f" stroke="#d97706" stroke-width="1.5" />',
+      '<line x1="' + cx + '" y1="' + (tankBottom + 30) + '" x2="' + cx + '" y2="' + (tankBottom + 50) + '" stroke="#f59e0b" stroke-width="2" />',
+      '<polygon points="' + (cx - 4) + ',' + (tankBottom + 50) + ' ' + cx + ',' + (tankBottom + 56) + ' ' + (cx + 4) + ',' + (tankBottom + 50) + '" fill="#f59e0b" />',
+      '<text x="' + cx + '" y="' + (tankBottom + 66) + '" fill="#f59e0b" font-size="10" font-weight="700" text-anchor="middle">Underflow Sludge Cone</text>',
+
+      '<!-- Status Banner -->',
+      '<rect x="200" y="246" width="400" height="22" fill="#0f172a" rx="4" stroke="#10b981" stroke-width="1.5" />',
+      '<text x="400" y="261" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">THICKENER: ' + D_std_m.toFixed(1) + 'm DIA | FLUX: ' + actual_flux_kg_m2_h.toFixed(0) + ' kg/m²·h | TORQUE: ' + T_running_kNm.toFixed(0) + ' kNm</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAP2Diagnostics = function() {
+    let d = document.getElementById('ap2-res-diameter').innerText;
+    let flx = document.getElementById('ap2-res-flux').innerText;
+    let sor = document.getElementById('ap2-res-sor').innerText;
+    let torq = document.getElementById('ap2-res-torque').innerText;
+    let area = document.getElementById('ap2-res-area').innerText;
+    let qf = document.getElementById('ap2-res-qfeed').innerText;
+    let qu = document.getElementById('ap2-res-qu').innerText;
+    let qof = document.getElementById('ap2-res-qof').innerText;
+    let tpk = document.getElementById('ap2-res-tpeak').innerText;
+    let mbd = document.getElementById('ap2-res-mbed').innerText;
+
+    let text = [
+      '=== GRAVITY THICKENER & CLARIFIER SIZING AUDIT ===',
+      'Standard: Kynch Sedimentation Theory & Talmadge-Fitch Solids Flux Method',
+      '-----------------------------------------------------------------',
+      'Thickener Tank Diameter (D):    ' + d,
+      'Limiting Solids Flux (GL):      ' + flx,
+      'Hydraulic Rise Rate (SOR):      ' + sor,
+      'Rake Drive Operating Torque:    ' + torq,
+      'Total Basin Plan Area:          ' + area,
+      'Slurry Volumetric Feed Rate:    ' + qf,
+      'Underflow Sludge Discharge Rate:' + qu,
+      'Clarified Overflow Rate:        ' + qof,
+      'Peak Alarm Rake Lift Torque:    ' + tpk,
+      'Sludge Bed Inventory Mass:      ' + mbd,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/gravity-thickener-clarifier-solids-flux-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('ap2-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Thickener Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAP2();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'gravity-thickener-clarifier-solids-flux-calculator.html'), renderTradePage({
+  title: 'Gravity Thickener & Clarifier Sizing Calculator | Solids Flux',
+  metaDescription: 'Calculate gravity thickener basin diameter, Talmadge-Fitch limiting solids flux capacity, surface overflow rate, and EIMCO rake torque.',
+  canonical: 'https://digitaltoolsshed.com/calc/gravity-thickener-clarifier-solids-flux-calculator.html',
+  content: toolAP2Html,
+  faq: [
+    {
+      q: 'What is the Talmadge-Fitch method for thickener sizing?',
+      a: 'The Talmadge-Fitch method is an empirical graphical technique based on Kynch\x27s sedimentation theory. It uses a single batch settling cylinder curve to determine the limiting solids flux (GL = C0 * H0 / tu), identifying the critical concentration layer that settles slowest and governs the required thickener surface area.'
+    },
+    {
+      q: 'How is rake drive running torque calculated for industrial thickeners?',
+      a: 'Rake running torque is calculated using standard EIMCO and Metso formulas: T = K * D², where D is thickener diameter in feet and K is a duty factor ranging from 20 (light municipal clarifiers) to 45 (metallurgical tailings) and up to 135 (paste thickeners). Peak trip torque is typically sized at 200% of continuous running torque.'
+    },
+    {
+      q: 'What is Surface Overflow Rate (SOR) and why is it monitored?',
+      a: 'Surface Overflow Rate (SOR = Qoverflow / Area) represents the upward velocity of the clarified water in m/h or GPM/ft². If the SOR exceeds the free settling velocity of the flocculated particles, upward water flow carries light flocs over the peripheral overflow weir, ruining clarity.'
+    },
+    {
+      q: 'Why does flocculant overdosing cause problems in thickener operation?',
+      a: 'Excessive polymer dosage saturates particle adsorption sites and forms dense viscoelastic gels in the compression zone. This increases yield stress exponentially, spiking rake torque and causing underflow pumps to cavitate, while blinding downstream filter cloths.'
+    },
+    {
+      q: 'What causes thickener "islanding" and how is it resolved?',
+      a: 'Islanding occurs when a cohesive bed of compacted sludge slips against the tank floor and rotates as a solid mass with the rake mechanism. The rake blades can no longer push material toward the center discharge cone. It is resolved by initiating hydraulic rake lift and boosting underflow pumping rates.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AP3: Crossflow Microfiltration & Ultrafiltration Membrane Sizing Calculator (Hermia & Darcy)
+// ==========================================
+const toolAP3Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">Darcy-Starling Law &bull; Hermia Fouling Models &bull; Lévêque Boundary Layer Theory</div>
+    <h1>Crossflow Membrane Microfiltration & Fouling Calculator</h1>
+    <p class="text-muted">Calculate transmembrane pressure (TMP), steady-state permeate flux ($J$), membrane area requirements, concentration polarization ($CP$) modulus, and Hermia fouling progression for ceramic tubular, hollow fiber, and spiral-wound crossflow MF/UF filtration systems.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="ap3-unit-metric" onclick="setAP3Unit('metric')">Metric Units (m², LMH, bar, m/s, kWh/m³)</button>
+    <button type="button" class="unit-toggle-btn" id="ap3-unit-imperial" onclick="setAP3Unit('imperial')">Imperial Units (ft², GFD, psi, ft/s, kWh/kgal)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Membrane Module & Hydraulic Geometry -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Membrane Geometry & Pressures</h3>
+
+      <div class="input-group">
+        <label for="ap3-module-type">Membrane Configuration & Material:</label>
+        <select id="ap3-module-type" onchange="syncAP3Module()">
+          <option value="ceramic_tubular" selected>Ceramic Multi-Channel Tubular (α-Al2O3 / ZrO2, dh = 4.0mm)</option>
+          <option value="spiral_wound">Spiral Wound Polymeric (PVDF / PES Spacer Channel, dh = 0.85mm)</option>
+          <option value="hollow_fiber">Hollow Fiber Inside-Out (PES / PVDF, dh = 1.2mm)</option>
+          <option value="flat_sheet">Flat Sheet Cassette (Submerged / Plate-and-Frame, dh = 6.0mm)</option>
+        </select>
+        <span class="text-muted" id="ap3-module-hint">Hydraulic channel diameter: dh = 4.0 mm, Clean Rm = 1.8 × 10¹² m⁻¹</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-feed-p" id="ap3-label-pfeed">Feed Inlet Pressure ($P_{feed}$) (bar):</label>
+        <input type="number" id="ap3-feed-p" value="2.8" step="0.1" min="0.2" max="15.0" oninput="calcAP3()">
+        <span class="text-muted">Pressure measured at membrane module inlet header</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-retentate-p" id="ap3-label-pret">Retentate Outlet Pressure ($P_{ret}$) (bar):</label>
+        <input type="number" id="ap3-retentate-p" value="2.1" step="0.1" min="0.1" max="14.0" oninput="calcAP3()">
+        <span class="text-muted">Pressure measured at module concentrate discharge header</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-permeate-p" id="ap3-label-pperm">Permeate Backpressure ($P_{perm}$) (bar):</label>
+        <input type="number" id="ap3-permeate-p" value="0.20" step="0.05" min="0.0" max="5.0" oninput="calcAP3()">
+        <span class="text-muted">Typically atmospheric (0 bar) or slight manifold friction backpressure</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-cf-vel" id="ap3-label-vcf">Crossflow Surface Velocity ($v_{cf}$) (m/s):</label>
+        <input type="number" id="ap3-cf-vel" value="3.5" step="0.2" min="0.2" max="8.0" oninput="calcAP3()">
+        <span class="text-muted">High crossflow velocity sweeps foulants and suppresses cake growth</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-channel-len" id="ap3-label-len">Module Channel Length ($L$) (m):</label>
+        <input type="number" id="ap3-channel-len" value="1.2" step="0.1" min="0.3" max="6.0" oninput="calcAP3()">
+        <span class="text-muted">Length of active membrane filtration channel</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Feed Chemistry, Fouling & Targets -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Feed Characteristics & Permeate Target</h3>
+
+      <div class="input-group">
+        <label for="ap3-target-flow" id="ap3-label-target-flow">Required Permeate Production ($Q_{perm}$) (m³/h):</label>
+        <input type="number" id="ap3-target-flow" value="25.0" step="1.0" min="0.5" max="500.0" oninput="calcAP3()">
+        <span class="text-muted">Net treated filtrate production capacity requirement</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-temp">Operating Liquid Temperature ($T$) (°C):</label>
+        <input type="number" id="ap3-temp" value="25" step="1" min="5" max="85" oninput="calcAP3()">
+        <span class="text-muted">Water viscosity drops ~2.4% per °C rise, boosting flux proportionally</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-solids-tss">Feed Suspended Solids / Colloid Loading ($C_b$) (mg/L):</label>
+        <input type="number" id="ap3-solids-tss" value="850" step="50" min="10" max="25000" oninput="calcAP3()">
+        <span class="text-muted">Particulate concentration driving concentration polarization</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-fouling-regime">Governing Hermia Fouling Mechanism:</label>
+        <select id="ap3-fouling-regime" onchange="calcAP3()">
+          <option value="cake" selected>Cake / Gel Layer Formation (n = 0, surface deposit)</option>
+          <option value="intermediate">Intermediate Blocking (n = 1, simultaneous seal & stack)</option>
+          <option value="constriction">Standard Pore Constriction (n = 1.5, internal wall adsorption)</option>
+          <option value="complete">Complete Pore Blocking (n = 2, surface orifice sealing)</option>
+        </select>
+        <span class="text-muted">Determines rate of flux decline over filtration cycle time</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap3-cycle-time">Filtration Run Time Before Backwash (minutes):</label>
+        <input type="number" id="ap3-cycle-time" value="45" step="5" min="5" max="360" oninput="calcAP3()">
+        <span class="text-muted">Production duration between backpulses or CIP chemical cleans</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Membrane Hydraulic & Sizing Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Transmembrane Pressure (TMP)</span>
+        <div id="ap3-res-tmp" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- bar</div>
+        <span class="text-muted" id="ap3-sub-tmp" style="font-size:0.75rem;">Average driving head</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Operating Permeate Flux ($J$)</span>
+        <div id="ap3-res-flux" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">-- LMH</div>
+        <span class="text-muted" id="ap3-sub-flux" style="font-size:0.75rem;">L/m²·h at operating T</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Required Membrane Area</span>
+        <div id="ap3-res-area" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">-- m²</div>
+        <span class="text-muted" id="ap3-sub-area" style="font-size:0.75rem;">Active membrane surface</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Concentration Polarization ($CP$)</span>
+        <div id="ap3-res-cp" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ap3-sub-cp" style="font-size:0.75rem;">Cm / Cb Modulus</span>
+      </div>
+    </div>
+
+    <!-- Interactive Crossflow Channel SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Crossflow Boundary Layer, Cake Polarization & Permeate Vector Profile</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live Darcy-Lévêque Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="ap3-svg" viewBox="0 0 800 270" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Hydrodynamic, Shear & Energy Consumption Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Governing Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Design Target & Limits</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Channel Reynolds Number</td>
+              <td style="padding: 8px;">$Re = \rho v_{cf} d_h / \mu$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap3-res-re">--</td>
+              <td style="padding: 8px; color: #10b981;">Turbulent ($Re > 4000$) minimizes fouling</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Membrane Wall Shear Rate</td>
+              <td style="padding: 8px;">$\gamma_w = 8 v_{cf} / d_h$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap3-res-shear">--</td>
+              <td style="padding: 8px; color: #10b981;">Target: &gt; 4,000 s⁻¹ for anti-fouling</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Lévêque Mass Transfer Coefficient</td>
+              <td style="padding: 8px;">$k_d = (D_{diff} / d_h) \cdot Sh$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap3-res-kd">--</td>
+              <td style="padding: 8px; color: #10b981;">Colloidal back-diffusion rate</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">End-of-Cycle Flux Retention</td>
+              <td style="padding: 8px;">$J_{end} / J_0$ (Hermia decay)</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap3-res-jdecay">--</td>
+              <td style="padding: 8px; color: #10b981;">Maintain &gt; 65% before backwash</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Crossflow Recirculation Pumping Power</td>
+              <td style="padding: 8px;">$P_{recirc} = Q_{cf} \cdot \Delta P_{drop} / \eta$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap3-res-power">--</td>
+              <td style="padding: 8px; color: #10b981;">Recirculation loop energy demand</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Specific Energy Consumption (SEC)</td>
+              <td style="padding: 8px;">$SEC = P_{total} / Q_{perm}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap3-res-sec">--</td>
+              <td style="padding: 8px; color: #10b981;">Filtrate energy efficiency index</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="ap3-copy-btn" onclick="copyAP3Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Crossflow Membrane & Fouling Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Comprehensive Mathematical Derivation & Membrane Fluid Dynamics</h3>
+    <p>Crossflow membrane filtration (microfiltration, ultrafiltration) mitigates fouling by continuously circulating the pressurized feed slurry tangentially across the membrane surface at high velocity, shearing away accumulated foulants while pure permeate passes through the porous wall:</p>
+
+    <h4>1. Transmembrane Pressure (TMP) & Darcy Flux</h4>
+    <p>The net hydrostatic driving force across the active membrane skin is the arithmetic average of feed and retentate pressures minus permeate backpressure:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$TMP = \frac{P_{feed} + P_{retentate}}{2} - P_{permeate} \quad [\text{bar}]$$
+      $$J = \frac{TMP}{\mu(T) \cdot (R_m + R_{cp} + R_f)} \quad [\text{m}^3/(\text{m}^2\cdot\text{s}) \to \text{LMH}]$$
+    </div>
+    <p>Where dynamic viscosity $\mu(T)$ decreases rapidly with temperature ($\mu \approx 1.002 \times 10^{-3}\ \text{Pa}\cdot\text{s}$ at $20^\circ\text{C}$ vs $0.547 \times 10^{-3}$ at $50^\circ\text{C}$), demonstrating why thermal preheating dramatically boosts flux.</p>
+
+    <h4>2. Concentration Polarization ($CP$) Modulus via Film Theory</h4>
+    <p>As solvent permeates through the membrane, rejected solids accumulate at the membrane wall. Under steady state, convective transport toward the wall is balanced by Fickian back-diffusion into the bulk flow:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$CP = \frac{C_m}{C_b} = \exp\left( \frac{J}{k_d} \right)$$
+    </div>
+    <p>The boundary layer mass transfer coefficient $k_d$ is derived from the Lévêque correlation for developing laminar/turbulent shear flows:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$Sh = \frac{k_d \cdot d_h}{D_{diff}} = 1.62 \left( Re \cdot Sc \cdot \frac{d_h}{L} \right)^{0.33}$$
+    </div>
+
+    <h4>3. Hermia's 4 Classic Fouling Mechanisms</h4>
+    <p>Hermia unified the mathematical kinetics of membrane flux decline through the general differential blocking equation:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\frac{d^2 t}{d V^2} = K \left( \frac{dt}{dV} \right)^n$$
+    </div>
+    <ul>
+      <li><strong>Cake / Gel Layer ($n = 0$):</strong> Particles accumulate on the membrane surface, creating an added porous resistance cake ($J(t) = J_0 / \sqrt{1 + K_c t}$).</li>
+      <li><strong>Intermediate Blocking ($n = 1$):</strong> Probability-based sealing where particles either seal open pores or land atop previously settled particles ($J(t) = J_0 / (1 + K_i t)$).</li>
+      <li><strong>Standard Pore Constriction ($n = 1.5$):</strong> Adsorption onto the internal walls of the membrane pore channels, gradually choking the hydraulic radius ($J(t) = J_0 / (1 + K_s t)^2$).</li>
+      <li><strong>Complete Pore Blocking ($n = 2$):</strong> Every incoming particle seals a pore orifice without superposition ($J(t) = J_0 \exp(-K_b t)$).</li>
+    </ul>
+  </div>
+
+  <!-- 5 Fatal Membrane Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Failure Modes in Crossflow Membranes</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Exceeding Critical Flux ($J_{crit}$) Triggering Irreversible Cake Compaction</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Operators trying to squeeze extra flow often ramp up TMP above the critical flux threshold. Beyond $J_{crit}$, convective drag overwhelms Brownian and shear-induced diffusion. The concentration polarization layer exceeds gel concentration ($C_g$), compressing deformable colloids and biological cells into an impermeable, dense skin. Once compressed, TMP spikes exponentially while permeate flux drops permanently, requiring harsh off-line chemical recovery.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Throttling Crossflow Velocity to 'Save Pumping Power'</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Crossflow recirculation pumps consume significant electricity ($SEC \approx 0.5 - 2.5\ \text{kWh/m}^3$). When plant operators slow recirculation VFDs to save power, crossflow velocity drops into the laminar regime ($Re < 2100$). Wall shear stress ($\tau_w$) plunges, stripping away the hydrodynamic cleaning mechanism. Particulate cake thickness grows tenfold within minutes, choking the entire membrane skid.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Permeate Backpulse Cavitation Delaminating Polymeric Skins</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Backpulsing reverses filtrate flow for 1 to 3 seconds to pop cake deposits off the membrane surface. If the backpulse pressure pulse is applied too abruptly ($dP/dt > 10\ \text{bar/s}$) or if backpulse pressure exceeds manufacturer reverse bursting limits, hydraulic water hammer and cavitation bubbles form between the thin active selective layer and the porous support substrate, tearing the membrane skin and ruining turbidity rejection.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Chemical Cleaning Shock Exceeding pH / Oxidant Tolerance</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Polysulfone (PS), polyethersulfone (PES), and polyamide (PA) membranes have strict chemical exposure limits. Exposing polyamide composite membranes to free chlorine (>0.1 ppm) causes Orton rearrangement and cleavage of amide linkages, destroying rejection. Conversely, cleaning ceramic membranes with hydrofluoric acid dissolves the silica/alumina matrix. Always follow temperature-pH operating envelopes during CIP cycles.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Feed Spacer Biofouling and Channel Choking in Spiral Elements</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">In spiral-wound elements, narrow feed spacer netting (typically 28 to 34 mil) creates high shear but also acts as a physical trap for filamentous bacteria and extracellular polymeric substances (EPS). Biofilms colonize the spacer junctions, causing severe differential pressure drop across the element ($\Delta P_{channel} > 1.2\ \text{bar}$). This crushes the spiral leaves in a telescoping collapse.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let ap3Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAP3Unit = function(unit) {
+    if (ap3Unit === unit) return;
+    ap3Unit = unit;
+    document.getElementById('ap3-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('ap3-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const pfeed = document.getElementById('ap3-feed-p');
+    const pret = document.getElementById('ap3-retentate-p');
+    const pperm = document.getElementById('ap3-permeate-p');
+    const vcf = document.getElementById('ap3-cf-vel');
+    const qflow = document.getElementById('ap3-target-flow');
+
+    if (unit === 'imperial') {
+      document.getElementById('ap3-label-pfeed').innerText = 'Feed Inlet Pressure (Pfeed) (psi):';
+      document.getElementById('ap3-label-pret').innerText = 'Retentate Outlet Pressure (Pret) (psi):';
+      document.getElementById('ap3-label-pperm').innerText = 'Permeate Backpressure (Pperm) (psi):';
+      document.getElementById('ap3-label-vcf').innerText = 'Crossflow Surface Velocity (vcf) (ft/s):';
+      document.getElementById('ap3-label-target-flow').innerText = 'Required Permeate Production (Qperm) (US GPM):';
+
+      pfeed.value = (parseFloat(pfeed.value) * 14.5038).toFixed(1);
+      pret.value = (parseFloat(pret.value) * 14.5038).toFixed(1);
+      pperm.value = (parseFloat(pperm.value) * 14.5038).toFixed(2);
+      vcf.value = (parseFloat(vcf.value) * 3.28084).toFixed(1);
+      qflow.value = (parseFloat(qflow.value) * 4.40287).toFixed(1);
+    } else {
+      document.getElementById('ap3-label-pfeed').innerText = 'Feed Inlet Pressure (Pfeed) (bar):';
+      document.getElementById('ap3-label-pret').innerText = 'Retentate Outlet Pressure (Pret) (bar):';
+      document.getElementById('ap3-label-pperm').innerText = 'Permeate Backpressure (Pperm) (bar):';
+      document.getElementById('ap3-label-vcf').innerText = 'Crossflow Surface Velocity (vcf) (m/s):';
+      document.getElementById('ap3-label-target-flow').innerText = 'Required Permeate Production (Qperm) (m³/h):';
+
+      pfeed.value = (parseFloat(pfeed.value) / 14.5038).toFixed(1);
+      pret.value = (parseFloat(pret.value) / 14.5038).toFixed(1);
+      pperm.value = (parseFloat(pperm.value) / 14.5038).toFixed(2);
+      vcf.value = (parseFloat(vcf.value) / 3.28084).toFixed(1);
+      qflow.value = (parseFloat(qflow.value) / 4.40287).toFixed(1);
+    }
+    calcAP3();
+  };
+
+  window.syncAP3Module = function() {
+    const mod = document.getElementById('ap3-module-type').value;
+    const hint = document.getElementById('ap3-module-hint');
+    if (mod === 'ceramic_tubular') hint.innerText = 'Hydraulic channel diameter: dh = 4.0 mm, Clean Rm = 1.8 × 10¹² m⁻¹ (Robust chemical/thermal tolerance)';
+    else if (mod === 'spiral_wound') hint.innerText = 'Hydraulic channel diameter: dh = 0.85 mm, Clean Rm = 2.5 × 10¹² m⁻¹ (High packing density, sensitive to TSS)';
+    else if (mod === 'hollow_fiber') hint.innerText = 'Hydraulic channel diameter: dh = 1.2 mm, Clean Rm = 1.4 × 10¹² m⁻¹ (Air-scoured / backwashable)';
+    else if (mod === 'flat_sheet') hint.innerText = 'Hydraulic channel diameter: dh = 6.0 mm, Clean Rm = 2.1 × 10¹² m⁻¹ (Low fouling plate-and-frame)';
+    calcAP3();
+  };
+
+  window.calcAP3 = function() {
+    let p_feed_input = parseFloat(document.getElementById('ap3-feed-p').value) || 2.8;
+    let p_ret_input = parseFloat(document.getElementById('ap3-retentate-p').value) || 2.1;
+    let p_perm_input = parseFloat(document.getElementById('ap3-permeate-p').value) || 0.20;
+    let v_cf_input = parseFloat(document.getElementById('ap3-cf-vel').value) || 3.5;
+    let Q_target_input = parseFloat(document.getElementById('ap3-target-flow').value) || 25.0;
+    let L_m = parseFloat(document.getElementById('ap3-channel-len').value) || 1.2;
+    let T_C = parseFloat(document.getElementById('ap3-temp').value) || 25.0;
+    let C_b_mgL = parseFloat(document.getElementById('ap3-solids-tss').value) || 850;
+    let fouling_regime = document.getElementById('ap3-fouling-regime').value;
+    let t_cycle_min = parseFloat(document.getElementById('ap3-cycle-time').value) || 45;
+    let mod_type = document.getElementById('ap3-module-type').value;
+
+    // Convert inputs internally to SI Metric (bar, m/s, m³/h)
+    let P_feed_bar = ap3Unit === 'imperial' ? p_feed_input / 14.5038 : p_feed_input;
+    let P_ret_bar = ap3Unit === 'imperial' ? p_ret_input / 14.5038 : p_ret_input;
+    let P_perm_bar = ap3Unit === 'imperial' ? p_perm_input / 14.5038 : p_perm_input;
+    let v_cf_ms = ap3Unit === 'imperial' ? v_cf_input / 3.28084 : v_cf_input;
+    let Q_target_m3h = ap3Unit === 'imperial' ? Q_target_input / 4.40287 : Q_target_input;
+
+    // Safety checks
+    if (P_ret_bar >= P_feed_bar) P_ret_bar = P_feed_bar - 0.1;
+
+    // 1. Transmembrane Pressure (TMP) in bar
+    let TMP_bar = ((P_feed_bar + P_ret_bar) / 2.0) - P_perm_bar;
+    let TMP_Pa = Math.max(1000, TMP_bar * 1e5);
+
+    // 2. Liquid Viscosity vs Temperature (water approximation in Pa·s)
+    let mu_Pa_s = 0.001792 / (1 + 0.03368 * T_C + 0.000221 * Math.pow(T_C, 2));
+
+    // 3. Module Hydraulic Parameters
+    let dh_m = 0.004; // default ceramic 4mm
+    let Rm = 1.8e12; // clean membrane resistance (m^-1)
+    if (mod_type === 'spiral_wound') { dh_m = 0.00085; Rm = 2.5e12; }
+    else if (mod_type === 'hollow_fiber') { dh_m = 0.0012; Rm = 1.4e12; }
+    else if (mod_type === 'flat_sheet') { dh_m = 0.0060; Rm = 2.1e12; }
+
+    let rho = 1000.0; // kg/m³
+    let Re = (rho * v_cf_ms * dh_m) / mu_Pa_s;
+    let shear_rate_s = (8.0 * v_cf_ms) / dh_m;
+
+    // Mass transfer coefficient kd via Lévêque correlation
+    let D_diff = 1.2e-10; // m²/s colloidal Brownian diffusion
+    let Sc = mu_Pa_s / (rho * D_diff);
+    let Sh = 1.62 * Math.pow(Re * Sc * (dh_m / L_m), 0.33);
+    let kd_ms = (D_diff / dh_m) * Sh;
+
+    // 4. Pure Clean Water Flux (LMH)
+    let J_clean_ms = TMP_Pa / (mu_Pa_s * Rm);
+    let J_clean_LMH = J_clean_ms * 3.6e6; // m/s to L/m²·h
+
+    // 5. Concentration Polarization Modulus CP = exp(J / kd)
+    // Damped iteration to find equilibrium CP and J
+    let J_oper_LMH = J_clean_LMH * 0.70; // baseline reduction
+    let CP = 1.0;
+    for (let i = 0; i < 5; i++) {
+      let J_ms_curr = J_oper_LMH / 3.6e6;
+      CP = Math.exp(Math.min(3.5, J_ms_curr / Math.max(1e-6, kd_ms)));
+      let Rcp = Rm * (CP - 1.0) * 0.45;
+      J_oper_LMH = (TMP_Pa / (mu_Pa_s * (Rm + Rcp))) * 3.6e6;
+    }
+
+    // 6. Hermia Fouling Kinetics Decay over filtration cycle
+    let decay_factor = 0.85;
+    let K_hermia = 0.004;
+    if (fouling_regime === 'cake') {
+      decay_factor = 1.0 / Math.sqrt(1.0 + 2.0 * K_hermia * t_cycle_min);
+    } else if (fouling_regime === 'intermediate') {
+      decay_factor = 1.0 / (1.0 + K_hermia * t_cycle_min);
+    } else if (fouling_regime === 'constriction') {
+      decay_factor = 1.0 / Math.pow(1.0 + K_hermia * t_cycle_min * 0.8, 2);
+    } else if (fouling_regime === 'complete') {
+      decay_factor = Math.exp(-K_hermia * t_cycle_min * 0.9);
+    }
+    decay_factor = Math.max(0.40, Math.min(0.99, decay_factor));
+
+    let J_design_LMH = J_oper_LMH * decay_factor;
+    let J_design_GFD = J_design_LMH * 0.588578;
+
+    // 7. Required Membrane Area (m²)
+    let Q_target_L_h = Q_target_m3h * 1000.0;
+    let A_req_m2 = Q_target_L_h / J_design_LMH;
+    let A_req_ft2 = A_req_m2 * 10.7639;
+
+    // 8. Crossflow Recirculation Pumping Power & SEC
+    let deltaP_channel_bar = P_feed_bar - P_ret_bar;
+    let channel_flow_m3h = A_req_m2 * (v_cf_ms * 3600 * (dh_m / 4.0)); // estimated channel flow
+    let P_recirc_kW = (channel_flow_m3h * (deltaP_channel_bar * 1e5)) / (3.6e6 * 0.70); // pump eff 70%
+    let SEC_kWh_m3 = Q_target_m3h > 0 ? P_recirc_kW / Q_target_m3h : 0;
+
+    // UI Updates
+    document.getElementById('ap3-res-tmp').innerText = (ap3Unit === 'imperial' ? (TMP_bar * 14.5038).toFixed(1) + ' psi' : TMP_bar.toFixed(2) + ' bar');
+    document.getElementById('ap3-sub-tmp').innerText = 'Drop across pipe: ' + (ap3Unit === 'imperial' ? (deltaP_channel_bar * 14.5038).toFixed(1) + ' psi' : deltaP_channel_bar.toFixed(2) + ' bar');
+
+    if (ap3Unit === 'imperial') {
+      document.getElementById('ap3-res-flux').innerText = J_design_GFD.toFixed(1) + ' GFD';
+      document.getElementById('ap3-sub-flux').innerText = '(' + J_design_LMH.toFixed(1) + ' LMH equiv)';
+      document.getElementById('ap3-res-area').innerText = A_req_ft2.toLocaleString('en-US', {maximumFractionDigits:0}) + ' ft²';
+      document.getElementById('ap3-sub-area').innerText = '(' + A_req_m2.toFixed(1) + ' m² active)';
+    } else {
+      document.getElementById('ap3-res-flux').innerText = J_design_LMH.toFixed(1) + ' LMH';
+      document.getElementById('ap3-sub-flux').innerText = '(' + J_design_GFD.toFixed(1) + ' GFD equiv)';
+      document.getElementById('ap3-res-area').innerText = A_req_m2.toFixed(1) + ' m²';
+      document.getElementById('ap3-sub-area').innerText = '(' + A_req_ft2.toLocaleString('en-US', {maximumFractionDigits:0}) + ' ft² active)';
+    }
+
+    document.getElementById('ap3-res-cp').innerText = CP.toFixed(2) + 'x';
+    document.getElementById('ap3-sub-cp').innerText = CP <= 1.5 ? '✓ Low Polarization' : (CP <= 2.5 ? '⚠️ Moderate Gel Layer' : '❌ Severe Concentration');
+
+    document.getElementById('ap3-res-re').innerText = Re.toLocaleString('en-US', {maximumFractionDigits:0}) + (Re > 4000 ? ' (Turbulent)' : ' (Laminar)');
+    document.getElementById('ap3-res-shear').innerText = shear_rate_s.toLocaleString('en-US', {maximumFractionDigits:0}) + ' s⁻¹';
+    document.getElementById('ap3-res-kd').innerText = (kd_ms * 1e5).toFixed(2) + ' × 10⁻⁵ m/s';
+    document.getElementById('ap3-res-jdecay').innerText = (decay_factor * 100).toFixed(1) + ' % of clean flux';
+    document.getElementById('ap3-res-power').innerText = P_recirc_kW.toFixed(1) + ' kW';
+    document.getElementById('ap3-res-sec').innerText = SEC_kWh_m3.toFixed(2) + ' kWh/m³ (' + (SEC_kWh_m3 * 3.78541).toFixed(2) + ' kWh/kgal)';
+
+    // Dynamic SVG Simulation
+    renderAP3Svg(v_cf_ms, TMP_bar, J_design_LMH, CP, fouling_regime);
+  };
+
+  function renderAP3Svg(v_cf_ms, TMP_bar, J_design_LMH, CP, fouling_regime) {
+    const svg = document.getElementById('ap3-svg');
+    if (!svg) return;
+
+    let x0 = 80;
+    let x1 = 720;
+    let yTopChannel = 60;
+    let yMembrane = 140;
+    let yPermeate = 210;
+
+    let gelThickness = Math.min(25, Math.max(4, (CP - 1.0) * 12));
+
+    let svgParts = [
+      '<!-- Crossflow Bulk Channel Background -->',
+      '<rect x="' + x0 + '" y="' + yTopChannel + '" width="' + (x1 - x0) + '" height="' + (yMembrane - yTopChannel) + '" fill="#0284c7" opacity="0.15" />',
+
+      '<!-- Active Membrane Selective Skin -->',
+      '<rect x="' + x0 + '" y="' + yMembrane + '" width="' + (x1 - x0) + '" height="12" fill="#3b82f6" stroke="#60a5fa" stroke-width="1.5" />',
+      '<text x="' + (x1 + 10) + '" y="' + (yMembrane + 10) + '" fill="#38bdf8" font-size="10" font-weight="600">Selective Skin</text>',
+
+      '<!-- Porous Membrane Substrate Support Layer -->',
+      '<rect x="' + x0 + '" y="' + (yMembrane + 12) + '" width="' + (x1 - x0) + '" height="35" fill="#1e293b" stroke="#475569" stroke-width="1.5" />',
+      '<text x="' + (x1 + 10) + '" y="' + (yMembrane + 32) + '" fill="#94a3b8" font-size="10">Porous Support</text>',
+
+      '<!-- Permeate Collection Space (Bottom) -->',
+      '<rect x="' + x0 + '" y="' + (yMembrane + 47) + '" width="' + (x1 - x0) + '" height="30" fill="#0f172a" stroke="#334155" stroke-dasharray="3,3" />',
+      '<text x="' + (x1 + 10) + '" y="' + (yMembrane + 66) + '" fill="#10b981" font-size="10" font-weight="700">Permeate Run</text>',
+
+      '<!-- Concentration Polarization Gel Layer (Directly on Membrane Surface) -->',
+      '<rect x="' + x0 + '" y="' + (yMembrane - gelThickness) + '" width="' + (x1 - x0) + '" height="' + gelThickness + '" fill="#f59e0b" opacity="0.65" />',
+      '<text x="' + ((x0+x1)/2) + '" y="' + (yMembrane - gelThickness/2 + 3) + '" fill="#78350f" font-size="10" font-weight="700" text-anchor="middle">Gel Polarization Cake (CP = ' + CP.toFixed(2) + 'x)</text>',
+
+      '<!-- Crossflow Velocity Vector Gradient Arrows (Left to Right) -->',
+      '<line x1="' + (x0 + 40) + '" y1="80" x2="' + (x0 + 160) + '" y2="80" stroke="#38bdf8" stroke-width="2.5" />',
+      '<polygon points="' + (x0 + 160) + ',76 ' + (x0 + 172) + ',80 ' + (x0 + 160) + ',84" fill="#38bdf8" />',
+      '<text x="' + (x0 + 40) + '" y="73" fill="#38bdf8" font-size="11" font-weight="700">Crossflow Shear (vcf = ' + v_cf_ms.toFixed(1) + ' m/s)</text>',
+
+      '<line x1="' + (x0 + 40) + '" y1="105" x2="' + (x0 + 130) + '" y2="105" stroke="#38bdf8" stroke-width="1.8" />',
+      '<polygon points="' + (x0 + 130) + ',102 ' + (x0 + 140) + ',105 ' + (x0 + 130) + ',108" fill="#38bdf8" />',
+
+      '<!-- Transmembrane Permeate Flux Arrows (Downward Through Membrane) -->',
+      '<line x1="280" y1="130" x2="280" y2="210" stroke="#10b981" stroke-width="2.5" />',
+      '<polygon points="276,210 280,220 284,210" fill="#10b981" />',
+
+      '<line x1="400" y1="130" x2="400" y2="210" stroke="#10b981" stroke-width="2.5" />',
+      '<polygon points="396,210 400,220 404,210" fill="#10b981" />',
+
+      '<line x1="520" y1="130" x2="520" y2="210" stroke="#10b981" stroke-width="2.5" />',
+      '<polygon points="516,210 520,220 524,210" fill="#10b981" />',
+      '<text x="400" y="235" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">Permeate Flux: J = ' + J_design_LMH.toFixed(1) + ' LMH (TMP = ' + TMP_bar.toFixed(2) + ' bar)</text>',
+
+      '<!-- Top Status Banner -->',
+      '<rect x="230" y="15" width="340" height="26" fill="#0f172a" rx="4" stroke="#3b82f6" stroke-width="1.5" />',
+      '<text x="400" y="32" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="middle">HERMIA REGIME: ' + fouling_regime.toUpperCase() + ' FOULING</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAP3Diagnostics = function() {
+    let tmp = document.getElementById('ap3-res-tmp').innerText;
+    let flx = document.getElementById('ap3-res-flux').innerText;
+    let area = document.getElementById('ap3-res-area').innerText;
+    let cp = document.getElementById('ap3-res-cp').innerText;
+    let re = document.getElementById('ap3-res-re').innerText;
+    let shr = document.getElementById('ap3-res-shear').innerText;
+    let kd = document.getElementById('ap3-res-kd').innerText;
+    let dcy = document.getElementById('ap3-res-jdecay').innerText;
+    let pwr = document.getElementById('ap3-res-power').innerText;
+    let sec = document.getElementById('ap3-res-sec').innerText;
+
+    let text = [
+      '=== CROSSFLOW MEMBRANE MICROFILTRATION & FOULING AUDIT ===',
+      'Standard: Darcy-Starling Law, Hermia Fouling Models & Lévêque Theory',
+      '-----------------------------------------------------------------',
+      'Transmembrane Pressure (TMP):    ' + tmp,
+      'Operating Design Flux (J):       ' + flx,
+      'Required Active Membrane Area:   ' + area,
+      'Concentration Polarization (CP): ' + cp,
+      'Channel Reynolds Number:         ' + re,
+      'Wall Shear Rate:                 ' + shr,
+      'Lévêque Mass Transfer (kd):      ' + kd,
+      'Cycle Flux Retention:            ' + dcy,
+      'Recirculation Pumping Power:     ' + pwr,
+      'Specific Energy Consumption:     ' + sec,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/crossflow-membrane-microfiltration-fouling-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('ap3-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Membrane Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAP3();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'crossflow-membrane-microfiltration-fouling-calculator.html'), renderTradePage({
+  title: 'Crossflow Membrane Sizing & Fouling Calculator | Darcy & Hermia',
+  metaDescription: 'Calculate crossflow microfiltration TMP, permeate flux, membrane area, concentration polarization, and Hermia fouling progression.',
+  canonical: 'https://digitaltoolsshed.com/calc/crossflow-membrane-microfiltration-fouling-calculator.html',
+  content: toolAP3Html,
+  faq: [
+    {
+      q: 'What is Transmembrane Pressure (TMP) and how is it calculated in crossflow systems?',
+      a: 'Transmembrane Pressure is the net hydrostatic driving force pushing solvent through the porous membrane wall. In crossflow filtration, pressure declines along the feed channel due to friction, so TMP is calculated as the average of feed inlet and retentate outlet pressures minus permeate backpressure: TMP = (Pfeed + Pret)/2 - Pperm.'
+    },
+    {
+      q: 'What are Hermia\x27s four classic fouling models?',
+      a: 'Hermia unified membrane blocking kinetics into four distinct mathematical mechanisms based on particle size relative to pore dimensions: Cake / Gel Filtration (n = 0, particles deposit on surface), Intermediate Blocking (n = 1, particles either seal open pores or stack on existing deposits), Standard Pore Constriction (n = 1.5, internal adsorption narrows pore throat), and Complete Blocking (n = 2, every particle blocks a pore entrance).'
+    },
+    {
+      q: 'What is Concentration Polarization (CP) and how does crossflow shear mitigate it?',
+      a: 'Concentration polarization is the accumulation of rejected solutes and colloids in a stagnant boundary layer directly against the membrane surface (Cm > Cb). High crossflow velocity induces wall shear stress that sweeps away accumulated particles and promotes Brownian back-diffusion into the bulk stream, preventing premature gel layer collapse.'
+    },
+    {
+      q: 'What is critical flux (Jcrit) in membrane operation?',
+      a: 'Critical flux is the maximum permeate flux threshold below which hydraulic fouling remains minimal and reversible via standard crossflow shear. Operating above critical flux causes rapid, irreversible compaction of the cake layer, causing TMP to spike uncontrollably.'
+    },
+    {
+      q: 'Why does liquid temperature significantly affect membrane flux?',
+      a: 'Permeate flux is inversely proportional to liquid dynamic viscosity (J = TMP / [μ * R]). Because water viscosity decreases by roughly 2.4% for every 1°C increase in temperature, warming feed slurry from 20°C to 40°C increases permeate flux by nearly 50% under identical operating TMP.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AP4: API 650 Welded Steel Storage Tank Shell Thickness & Wind Girder Calculator
+// ==========================================
+const toolAP4Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">API Standard 650 13th Edition &bull; Section 5.6 (One-Foot Method) &bull; Section 5.9 (Wind Girders)</div>
+    <h1>API 650 Storage Tank Shell Thickness & Wind Girder Calculator</h1>
+    <p class="text-muted">Calculate course-by-course cylindrical shell plate thicknesses ($t_d, t_t$), unstiffened shell buckling height ($H_1$), required wind girder section modulus ($Z$), and gross barrel capacity for atmospheric welded steel petroleum storage tanks per API Standard 650.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="ap4-unit-metric" onclick="setAP4Unit('metric')">Metric Units (m, mm, MPa, km/h, m³)</button>
+    <button type="button" class="unit-toggle-btn" id="ap4-unit-imperial" onclick="setAP4Unit('imperial')">Imperial Units (ft, in, psi, mph, Barrels)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Tank Geometry & Plate Dimensions -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Tank Geometry & Shell Courses</h3>
+
+      <div class="input-group">
+        <label for="ap4-diameter" id="ap4-label-diameter">Tank Nominal Inside Diameter ($D$) (m):</label>
+        <input type="number" id="ap4-diameter" value="32.0" step="1.0" min="3.0" max="120.0" oninput="calcAP4()">
+        <span class="text-muted">Common refinery storage: 15m (50ft) to 85m (280ft) diameter</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap4-height" id="ap4-label-height">Total Tank Shell Height ($H$) (m):</label>
+        <input type="number" id="ap4-height" value="14.4" step="0.6" min="3.0" max="30.0" oninput="calcAP4()">
+        <span class="text-muted">Vertical height from bottom plate to top curb angle</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap4-course-width" id="ap4-label-course-w">Individual Course Plate Width ($w_c$) (m):</label>
+        <input type="number" id="ap4-course-width" value="2.40" step="0.2" min="1.50" max="3.50" oninput="calcAP4()">
+        <span class="text-muted">Standard steel mill rolling plate widths: 1.8m (6ft), 2.4m (8ft), 3.0m (10ft)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap4-corr-allow" id="ap4-label-ca">Corrosion Allowance (CA) (mm):</label>
+        <input type="number" id="ap4-corr-allow" value="3.0" step="0.5" min="0.0" max="10.0" oninput="calcAP4()">
+        <span class="text-muted">Added to operating design thickness (not applied during hydrotest)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap4-joint-eff">Weld Joint Efficiency Factor ($E$):</label>
+        <select id="ap4-joint-eff" onchange="calcAP4()">
+          <option value="1.00" selected>E = 1.00 (Fully Radiographed per API 650 Section 8.1)</option>
+          <option value="0.85">E = 0.85 (Spot Radiographed per Section 8.1.2)</option>
+          <option value="0.70">E = 0.70 (Non-Radiographed Appendix A only)</option>
+        </select>
+        <span class="text-muted">Standard API 650 main body tanks require full RT ($E = 1.00$)</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Materials, Fluid & Environmental Wind -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Steel Grade, Stored Liquid & Wind</h3>
+
+      <div class="input-group">
+        <label for="ap4-steel-grade">Shell Steel Plate Material Specification:</label>
+        <select id="ap4-steel-grade" onchange="syncAP4Steel()">
+          <option value="A36">ASTM A36 (Sd = 160 MPa, St = 171 MPa / 23.2 ksi, 24.9 ksi)</option>
+          <option value="A283C">ASTM A283 Grade C (Sd = 137 MPa, St = 154 MPa)</option>
+          <option value="A516_70" selected>ASTM A516 Grade 70 (Sd = 179 MPa, St = 200 MPa / 26.0 ksi, 29.0 ksi)</option>
+          <option value="A573_70">ASTM A573 Grade 70 (Sd = 180 MPa, St = 201 MPa)</option>
+        </select>
+        <span class="text-muted" id="ap4-steel-hint">Allowable Stress: Sd = 179 MPa (Design), St = 200 MPa (Hydrotest)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap4-liquid-sg">Design Liquid Specific Gravity ($G$):</label>
+        <input type="number" id="ap4-liquid-sg" value="0.88" step="0.02" min="0.50" max="1.50" oninput="calcAP4()">
+        <span class="text-muted">Crude oil: 0.82 - 0.92; Gasoline: 0.72; Water test: 1.00 (evaluated independently)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap4-wind-speed" id="ap4-label-wind">3-Second Gust Design Wind Speed ($V_{wind}$) (km/h):</label>
+        <input type="number" id="ap4-wind-speed" value="190" step="5" min="100" max="300" oninput="calcAP4()">
+        <span class="text-muted">API 650 standard baseline: 190 km/h (120 mph) 3-second gust</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ap4-roof-type">Tank Roof Structure Configuration:</label>
+        <select id="ap4-roof-type" onchange="calcAP4()">
+          <option value="cone_fixed" selected>Supported Cone Roof (Internal rafters & center column)</option>
+          <option value="dome_self">Self-Supporting Aluminum Geodesic Dome</option>
+          <option value="floating_external">Open Top External Floating Roof (EFR) (Requires primary wind girder)</option>
+        </select>
+        <span class="text-muted">Open top tanks require a stiffening top wind ring per Section 5.9</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Shell Thickness & Wind Girder Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Course 1 (Bottom) Thickness</span>
+        <div id="ap4-res-tbottom" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- mm</div>
+        <span class="text-muted" id="ap4-sub-tbottom" style="font-size:0.75rem;">One-Foot Method</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Gross Storage Capacity</span>
+        <div id="ap4-res-volume" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ap4-sub-volume" style="font-size:0.75rem;">Total containment volume</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Intermediate Wind Girder</span>
+        <div id="ap4-res-girder" style="font-size: 1.4rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ap4-sub-girder" style="font-size:0.75rem;">Buckling height check</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Total Shell Steel Mass</span>
+        <div id="ap4-res-weight" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">-- tonnes</div>
+        <span class="text-muted" id="ap4-sub-weight" style="font-size:0.75rem;">Cylindrical shell plates</span>
+      </div>
+    </div>
+
+    <!-- Course-by-Course Schedule Table -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Course-by-Course Shell Plate Thickness Schedule (Bottom to Top)</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;" id="ap4-course-table">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Course #</th>
+              <th style="padding: 8px;">Liquid Head ($H_i$)</th>
+              <th style="padding: 8px;">Design Thick ($t_d$)</th>
+              <th style="padding: 8px;">Hydrotest Thick ($t_t$)</th>
+              <th style="padding: 8px;">API Min Thick</th>
+              <th style="padding: 8px;">Governing Nominal ($t_{nom}$)</th>
+              <th style="padding: 8px;">Governing Condition</th>
+            </tr>
+          </thead>
+          <tbody id="ap4-course-tbody">
+            <!-- Populated dynamically by JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Interactive Storage Tank Cross-Section SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Storage Tank Tiered Course Shell Profile & Hydrostatic Pressure Gradient</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live API 650 Elevation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="ap4-svg" viewBox="0 0 800 280" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Wind Buckling & Structural Stiffener Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / API 650 Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">API 650 Code Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Max Unstiffened Shell Height</td>
+              <td style="padding: 8px;">$H_1 = 9.47 t_{top} \sqrt{(t_{top}/D)^3} (190/V)^2$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap4-res-h1">--</td>
+              <td style="padding: 8px; color: #10b981;">Section 5.9.7.1</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Wind Girder Required Modulus</td>
+              <td style="padding: 8px;">$Z = \frac{D^2 H}{17} (V/190)^2$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap4-res-zmod">--</td>
+              <td style="padding: 8px; color: #10b981;">Section 5.9.6.1</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Minimum Annular Bottom Plate Width</td>
+              <td style="padding: 8px;">$L_{ann} = \frac{215 t_b}{\sqrt{H \cdot G}} \ge 600$ mm</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap4-res-lann">--</td>
+              <td style="padding: 8px; color: #10b981;">Section 5.5.2</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Operating Maximum Hydrostatic Head</td>
+              <td style="padding: 8px;">$P_{hydro} = \rho g (H - 0.3)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap4-res-phydro">--</td>
+              <td style="padding: 8px; color: #10b981;">Base hydrostatic hoop stress</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Total Number of Shell Courses</td>
+              <td style="padding: 8px;">$N_{courses} = \lceil H / w_c \rceil$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ap4-res-ncourses">--</td>
+              <td style="padding: 8px; color: #10b981;">Individual welded plate rings</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="ap4-copy-btn" onclick="copyAP4Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy API 650 Storage Tank Design Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Governing API 650 Structural Mechanics & Shell Sizing Equations</h3>
+    <p>Atmospheric storage tanks storing volatile hydrocarbons or water are designed per API Standard 650. The cylindrical steel shell must resist internal hoop tension from hydrostatic liquid pressure while avoiding elastic buckling under high horizontal external wind pressure:</p>
+
+    <h4>1. The 1-Foot Method (API 650 Section 5.6.3)</h4>
+    <p>The 1-Foot Method calculates shell thickness at a design point 0.3 meters (1 foot) above the bottom circumferential weld seam of each shell course, accounting for boundary moment restraint from the bottom floor plate:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$t_d = \frac{4.9 \cdot D \cdot (H_i - 0.3) \cdot G}{S_d \cdot E} + CA \quad [\text{mm}]$$
+      $$t_t = \frac{4.9 \cdot D \cdot (H_i - 0.3)}{S_t \cdot E} \quad [\text{mm}]$$
+    </div>
+    <p>Where:</p>
+    <ul>
+      <li>$D$ = Nominal tank diameter ($m$)</li>
+      <li>$H_i$ = Liquid head from bottom of course under consideration to top of shell ($m$)</li>
+      <li>$G$ = Stored liquid design specific gravity ($G = 1.0$ for water)</li>
+      <li>$S_d$ = Allowable design stress ($MPa$), typically $\min(0.40 f_u, 0.67 f_y)$</li>
+      <li>$S_t$ = Allowable hydrostatic test stress ($MPa$), typically $\min(0.45 f_u, 0.75 f_y)$</li>
+      <li>$CA$ = Corrosion allowance ($mm$)</li>
+      <li>$E$ = Weld joint efficiency ($1.00$ for full RT inspection)</li>
+    </ul>
+
+    <h4>2. Minimum Nominal Shell Thickness ($t_{min}$)</h4>
+    <p>Regardless of calculated pressure requirements, API 650 Section 5.6.1.1 mandates strict minimum structural handling thicknesses:</p>
+    <ul>
+      <li>$D < 15\ \text{m}\ (50\ \text{ft})$: $t_{min} = 5.0\ \text{mm}\ (3/16\ \text{in})$</li>
+      <li>$15\ \text{m} \le D < 36\ \text{m}\ (120\ \text{ft})$: $t_{min} = 6.0\ \text{mm}\ (1/4\ \text{in})$</li>
+      <li>$36\ \text{m} \le D \le 60\ \text{m}\ (200\ \text{ft})$: $t_{min} = 8.0\ \text{mm}\ (5/16\ \text{in})$</li>
+      <li>$D > 60\ \text{m}$: $t_{min} = 10.0\ \text{mm}\ (3/8\ \text{in})$</li>
+    </ul>
+
+    <h4>3. Wind Girder Buckling Analysis (API 650 Section 5.9)</h4>
+    <p>Thin upper courses can buckle inwards under external wind pressure suction. The maximum permissible height of unstiffened shell is formulated as:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$H_1 = 9.47 \cdot t_{top} \sqrt{\left(\frac{t_{top}}{D}\right)^3} \cdot \left(\frac{190}{V_{wind}}\right)^2 \quad [\text{m}]$$
+    </div>
+    <p>If total shell height $H > H_1$, one or more intermediate stiffener wind rings must be installed. The required section modulus is:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$Z = \frac{D^2 \cdot H}{17} \cdot \left(\frac{V_{wind}}{190}\right)^2 \quad [\text{cm}^3]$$
+    </div>
+  </div>
+
+  <!-- 5 Fatal API 650 Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Failure Modes in API 650 Storage Tanks</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Hydrostatic Water Test Condition ($t_t$) Governing Over Operating Design ($t_d$)</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Because petroleum products typically have a specific gravity of $G \approx 0.70 - 0.85$ while hydrostatic proof testing fills the entire tank with clean water ($G = 1.00$), the test liquid is 15% to 30% heavier than operating oil. Even though corrosion allowance is excluded during hydrotest, test stress ($t_t$) frequently governs the required plate thickness of lower courses. Sizing plates based purely on oil density results in catastrophic tank rupture during the pre-commissioning water hydrotest.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Omitting Intermediate Wind Girders Triggering Upper Shell Buckling</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Upper shell courses carry negligible hydrostatic liquid pressure and are rolled from thin 6mm to 8mm plate. When empty or partially filled during hurricanes, wind creates a localized stagnation pressure on the windward face and an immense vacuum suction on the leeward sides. If the unstiffened height exceeds $H_1$ without an intermediate wind ring, the upper courses buckle inward into an ovalized crumpled ruin.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Bottom Annular Plate Radial Width and Thickness Violations</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Per API 650 Section 5.5.2, tanks with bottom course stress $>160\ \text{MPa}$ or plate thickness $>12.5\ \text{mm}$ require butt-welded annular bottom plates with a minimum radial width ($L_{ann} \ge 600\ \text{mm}$). Under hydrostatic head, the shell rotates outward, inducing high plastic bending strain into the bottom-to-shell corner weld. Using standard lap-welded floor plates under thick shells causes low-cycle fatigue toe cracking and massive tank leakage.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Wind Overturning and Uplift When Tank is Empty (Unanchored Tanks)</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">API 650 Section 5.11 requires evaluating unanchored tanks against overturning moments produced by design wind ($V_{wind}$). When a tank is empty, the only stabilizing downward force is the lightweight shell steel weight plus roof framing. If the wind overturning moment exceeds $2/3$ of the restoring moment, the windward shell lifts off its foundation, pulling the floor plates and buckling the bottom annular ring.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Failure to Account for Weld Peaking and Banding Tolerances</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">API 650 Section 7.5 sets strict radial tolerance limits for vertical weld peaking ($le 13\ \text{mm}$) and horizontal weld banding ($le 13\ \text{mm}$) using a 900mm sweep board. Excessive angular distortion along vertical seams introduces high secondary bending stress under hydrostatic pressure, cutting fatigue life and causing weld joint rupture during seismic ground shaking.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let ap4Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAP4Unit = function(unit) {
+    if (ap4Unit === unit) return;
+    ap4Unit = unit;
+    document.getElementById('ap4-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('ap4-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const dInput = document.getElementById('ap4-diameter');
+    const hInput = document.getElementById('ap4-height');
+    const wInput = document.getElementById('ap4-course-width');
+    const caInput = document.getElementById('ap4-corr-allow');
+    const vInput = document.getElementById('ap4-wind-speed');
+
+    if (unit === 'imperial') {
+      document.getElementById('ap4-label-diameter').innerText = 'Tank Nominal Inside Diameter (D) (ft):';
+      document.getElementById('ap4-label-height').innerText = 'Total Tank Shell Height (H) (ft):';
+      document.getElementById('ap4-label-course-w').innerText = 'Individual Course Plate Width (wc) (ft):';
+      document.getElementById('ap4-label-ca').innerText = 'Corrosion Allowance (CA) (in):';
+      document.getElementById('ap4-label-wind').innerText = '3-Second Gust Design Wind Speed (Vwind) (mph):';
+
+      dInput.value = (parseFloat(dInput.value) * 3.28084).toFixed(1);
+      hInput.value = (parseFloat(hInput.value) * 3.28084).toFixed(1);
+      wInput.value = (parseFloat(wInput.value) * 3.28084).toFixed(1);
+      caInput.value = (parseFloat(caInput.value) / 25.4).toFixed(3);
+      vInput.value = (parseFloat(vInput.value) * 0.621371).toFixed(0);
+    } else {
+      document.getElementById('ap4-label-diameter').innerText = 'Tank Nominal Inside Diameter (D) (m):';
+      document.getElementById('ap4-label-height').innerText = 'Total Tank Shell Height (H) (m):';
+      document.getElementById('ap4-label-course-w').innerText = 'Individual Course Plate Width (wc) (m):';
+      document.getElementById('ap4-label-ca').innerText = 'Corrosion Allowance (CA) (mm):';
+      document.getElementById('ap4-label-wind').innerText = '3-Second Gust Design Wind Speed (Vwind) (km/h):';
+
+      dInput.value = (parseFloat(dInput.value) / 3.28084).toFixed(1);
+      hInput.value = (parseFloat(hInput.value) / 3.28084).toFixed(1);
+      wInput.value = (parseFloat(wInput.value) / 3.28084).toFixed(1);
+      caInput.value = (parseFloat(caInput.value) * 25.4).toFixed(1);
+      vInput.value = (parseFloat(vInput.value) / 0.621371).toFixed(0);
+    }
+    calcAP4();
+  };
+
+  window.syncAP4Steel = function() {
+    const grade = document.getElementById('ap4-steel-grade').value;
+    const hint = document.getElementById('ap4-steel-hint');
+    if (grade === 'A36') hint.innerText = 'Allowable Stress: Sd = 160 MPa (Design), St = 171 MPa (Hydrotest)';
+    else if (grade === 'A283C') hint.innerText = 'Allowable Stress: Sd = 137 MPa (Design), St = 154 MPa (Hydrotest)';
+    else if (grade === 'A516_70') hint.innerText = 'Allowable Stress: Sd = 179 MPa (Design), St = 200 MPa (Hydrotest)';
+    else if (grade === 'A573_70') hint.innerText = 'Allowable Stress: Sd = 180 MPa (Design), St = 201 MPa (Hydrotest)';
+    calcAP4();
+  };
+
+  window.calcAP4 = function() {
+    let D_val = parseFloat(document.getElementById('ap4-diameter').value) || 32.0;
+    let H_val = parseFloat(document.getElementById('ap4-height').value) || 14.4;
+    let wc_val = parseFloat(document.getElementById('ap4-course-width').value) || 2.40;
+    let CA_val = parseFloat(document.getElementById('ap4-corr-allow').value) || 3.0;
+    let E = parseFloat(document.getElementById('ap4-joint-eff').value) || 1.00;
+    let G = parseFloat(document.getElementById('ap4-liquid-sg').value) || 0.88;
+    let Vwind_val = parseFloat(document.getElementById('ap4-wind-speed').value) || 190;
+    let steel_grade = document.getElementById('ap4-steel-grade').value;
+    let roof_type = document.getElementById('ap4-roof-type').value;
+
+    // Convert inputs internally to SI Metric (m, mm, MPa, km/h)
+    let D_m = ap4Unit === 'imperial' ? D_val / 3.28084 : D_val;
+    let H_m = ap4Unit === 'imperial' ? H_val / 3.28084 : H_val;
+    let wc_m = ap4Unit === 'imperial' ? wc_val / 3.28084 : wc_val;
+    let CA_mm = ap4Unit === 'imperial' ? CA_val * 25.4 : CA_val;
+    let Vwind_kmh = ap4Unit === 'imperial' ? Vwind_val / 0.621371 : Vwind_val;
+
+    // Steel Allowable Stresses (MPa)
+    let Sd = 179.0;
+    let St = 200.0;
+    if (steel_grade === 'A36') { Sd = 160.0; St = 171.0; }
+    else if (steel_grade === 'A283C') { Sd = 137.0; St = 154.0; }
+    else if (steel_grade === 'A516_70') { Sd = 179.0; St = 200.0; }
+    else if (steel_grade === 'A573_70') { Sd = 180.0; St = 201.0; }
+
+    // API 650 Nominal Minimum Thickness (mm)
+    let t_min_nominal = 5.0;
+    if (D_m < 15.0) t_min_nominal = 5.0;
+    else if (D_m < 36.0) t_min_nominal = 6.0;
+    else if (D_m <= 60.0) t_min_nominal = 8.0;
+    else t_min_nominal = 10.0;
+
+    // 1. Number of Courses
+    let N_courses = Math.max(1, Math.ceil(H_m / wc_m));
+    let courseData = [];
+    let total_shell_mass_kg = 0;
+
+    for (let c = 1; c <= N_courses; c++) {
+      // Liquid head from bottom of course to top of shell
+      let course_bottom_elevation = (c - 1) * wc_m;
+      let H_i = Math.max(0.5, H_m - course_bottom_elevation);
+
+      // One-Foot Method: td = [4.9 * D * (Hi - 0.3) * G] / (Sd * E) + CA
+      let td_mm = (4.9 * D_m * (H_i - 0.3) * G) / (Sd * E) + CA_mm;
+      // Hydrotest: tt = [4.9 * D * (Hi - 0.3)] / (St * E)
+      let tt_mm = (4.9 * D_m * (H_i - 0.3)) / (St * E);
+
+      let t_calc = Math.max(td_mm, tt_mm, t_min_nominal);
+      // Commercial plate standard rounding (round up to whole or half mm)
+      let t_nom_mm = Math.ceil(t_calc * 2) / 2;
+
+      let governing = t_calc === td_mm ? 'Design Oil' : (t_calc === tt_mm ? 'Hydrotest' : 'API Minimum');
+
+      courseData.push({
+        course: c,
+        Hi: H_i,
+        td: td_mm,
+        tt: tt_mm,
+        tmin: t_min_nominal,
+        tnom: t_nom_mm,
+        governing: governing
+      });
+
+      // Course mass: pi * D * wc * t * rho_steel
+      let rho_steel = 7850; // kg/m³
+      let course_vol = Math.PI * D_m * wc_m * (t_nom_mm / 1000);
+      total_shell_mass_kg += (course_vol * rho_steel);
+    }
+
+    let t_bottom_mm = courseData[0].tnom;
+    let t_top_mm = courseData[courseData.length - 1].tnom;
+
+    // 2. Gross Storage Capacity
+    let V_gross_m3 = (Math.PI / 4) * Math.pow(D_m, 2) * H_m;
+    let V_gross_bbl = V_gross_m3 * 6.28981;
+
+    // 3. Wind Girder Buckling Analysis (API 650 Section 5.9.7.1)
+    // H1 = 9.47 * t_top * sqrt((t_top / D)^3) * (190 / Vwind)^2
+    let term_cubed = Math.pow((t_top_mm / 1000) / D_m, 3);
+    let H1_m = 9.47 * (t_top_mm) * Math.sqrt(term_cubed) * 1000 * Math.pow(190 / Vwind_kmh, 2);
+    if (isNaN(H1_m) || H1_m < 0.5) H1_m = 1.0;
+
+    let needs_wind_girder = H_m > H1_m;
+
+    // Required Section Modulus Z (cm³) per Section 5.9.6.1
+    let Z_req_cm3 = ((Math.pow(D_m, 2) * H_m) / 17.0) * Math.pow(Vwind_kmh / 190.0, 2);
+    let Z_req_in3 = Z_req_cm3 * 0.0610237;
+
+    // 4. Minimum Annular Bottom Plate Width Lann (API 650 Section 5.5.2)
+    let Lann_mm = (215 * t_bottom_mm) / Math.sqrt(Math.max(1, H_m * G));
+    if (Lann_mm < 600) Lann_mm = 600;
+
+    // Base hydrostatic pressure
+    let Phydro_kPa = 9.80665 * (H_m - 0.3);
+
+    // Populate Course Table
+    let tbody = document.getElementById('ap4-course-tbody');
+    let tbodyHtml = '';
+    for (let i = 0; i < courseData.length; i++) {
+      let cd = courseData[i];
+      if (ap4Unit === 'imperial') {
+        tbodyHtml += '<tr style="border-bottom: 1px solid var(--border, #334155);">' +
+          '<td style="padding: 8px; font-weight: 600;">Course ' + cd.course + '</td>' +
+          '<td style="padding: 8px;">' + (cd.Hi * 3.28084).toFixed(1) + ' ft</td>' +
+          '<td style="padding: 8px;">' + (cd.td / 25.4).toFixed(3) + ' in</td>' +
+          '<td style="padding: 8px;">' + (cd.tt / 25.4).toFixed(3) + ' in</td>' +
+          '<td style="padding: 8px;">' + (cd.tmin / 25.4).toFixed(3) + ' in</td>' +
+          '<td style="padding: 8px; font-weight: 700; color: #10b981;">' + (cd.tnom / 25.4).toFixed(3) + ' in</td>' +
+          '<td style="padding: 8px;">' + cd.governing + '</td>' +
+        '</tr>';
+      } else {
+        tbodyHtml += '<tr style="border-bottom: 1px solid var(--border, #334155);">' +
+          '<td style="padding: 8px; font-weight: 600;">Course ' + cd.course + '</td>' +
+          '<td style="padding: 8px;">' + cd.Hi.toFixed(1) + ' m</td>' +
+          '<td style="padding: 8px;">' + cd.td.toFixed(2) + ' mm</td>' +
+          '<td style="padding: 8px;">' + cd.tt.toFixed(2) + ' mm</td>' +
+          '<td style="padding: 8px;">' + cd.tmin.toFixed(1) + ' mm</td>' +
+          '<td style="padding: 8px; font-weight: 700; color: #10b981;">' + cd.tnom.toFixed(1) + ' mm</td>' +
+          '<td style="padding: 8px;">' + cd.governing + '</td>' +
+        '</tr>';
+      }
+    }
+    tbody.innerHTML = tbodyHtml;
+
+    // UI Updates
+    document.getElementById('ap4-res-tbottom').innerText = ap4Unit === 'imperial' ? (t_bottom_mm / 25.4).toFixed(3) + ' in' : t_bottom_mm.toFixed(1) + ' mm';
+    document.getElementById('ap4-sub-tbottom').innerText = 'Top Course: ' + (ap4Unit === 'imperial' ? (t_top_mm / 25.4).toFixed(3) + ' in' : t_top_mm.toFixed(1) + ' mm');
+
+    document.getElementById('ap4-res-volume').innerText = ap4Unit === 'imperial' ? V_gross_bbl.toLocaleString('en-US', {maximumFractionDigits:0}) + ' bbl' : V_gross_m3.toLocaleString('en-US', {maximumFractionDigits:0}) + ' m³';
+    document.getElementById('ap4-sub-volume').innerText = ap4Unit === 'imperial' ? '(' + V_gross_m3.toLocaleString('en-US', {maximumFractionDigits:0}) + ' m³)' : '(' + V_gross_bbl.toLocaleString('en-US', {maximumFractionDigits:0}) + ' bbls)';
+
+    document.getElementById('ap4-res-girder').innerText = needs_wind_girder ? 'MANDATORY' : 'NOT REQUIRED';
+    document.getElementById('ap4-res-girder').style.color = needs_wind_girder ? '#f59e0b' : '#10b981';
+    document.getElementById('ap4-sub-girder').innerText = needs_wind_girder ? ('H > H1 (' + H_m.toFixed(1) + 'm > ' + H1_m.toFixed(1) + 'm)') : ('H <= H1 (' + H_m.toFixed(1) + 'm <= ' + H1_m.toFixed(1) + 'm)');
+
+    let shell_tonnes = total_shell_mass_kg / 1000.0;
+    document.getElementById('ap4-res-weight').innerText = ap4Unit === 'imperial' ? (shell_tonnes * 1.10231).toFixed(1) + ' ST' : shell_tonnes.toFixed(1) + ' tonnes';
+    document.getElementById('ap4-sub-weight').innerText = 'Total ' + N_courses + ' welded courses';
+
+    if (ap4Unit === 'imperial') {
+      document.getElementById('ap4-res-h1').innerText = (H1_m * 3.28084).toFixed(1) + ' ft';
+      document.getElementById('ap4-res-zmod').innerText = Z_req_in3.toFixed(1) + ' in³';
+      document.getElementById('ap4-res-lann').innerText = (Lann_mm / 25.4).toFixed(1) + ' in';
+      document.getElementById('ap4-res-phydro').innerText = (Phydro_kPa * 0.145038).toFixed(1) + ' psi';
+    } else {
+      document.getElementById('ap4-res-h1').innerText = H1_m.toFixed(2) + ' m';
+      document.getElementById('ap4-res-zmod').innerText = Z_req_cm3.toFixed(1) + ' cm³';
+      document.getElementById('ap4-res-lann').innerText = Lann_mm.toFixed(0) + ' mm';
+      document.getElementById('ap4-res-phydro').innerText = Phydro_kPa.toFixed(1) + ' kPa';
+    }
+    document.getElementById('ap4-res-ncourses').innerText = N_courses + ' rings (@ ' + (ap4Unit === 'imperial' ? (wc_m * 3.28084).toFixed(1) + ' ft' : wc_m.toFixed(2) + ' m'));
+
+    // Dynamic SVG Simulation
+    renderAP4Svg(D_m, H_m, N_courses, t_bottom_mm, t_top_mm, needs_wind_girder, roof_type);
+  };
+
+  function renderAP4Svg(D_m, H_m, N_courses, t_bottom_mm, t_top_mm, needs_wind_girder, roof_type) {
+    const svg = document.getElementById('ap4-svg');
+    if (!svg) return;
+
+    let cx = 400;
+    let tankW = 380;
+    let tankH = 150;
+    let tankBaseY = 220;
+    let tankTopY = tankBaseY - tankH;
+
+    let svgParts = [
+      '<!-- Foundation Pad Baseline -->',
+      '<rect x="150" y="' + tankBaseY + '" width="500" height="20" fill="#334155" stroke="#64748b" stroke-width="1.5" />',
+      '<text x="160" y="' + (tankBaseY + 35) + '" fill="#94a3b8" font-size="10">Reinforced Concrete Ringwall / Asphalt Foundation</text>',
+
+      '<!-- Tank Liquid Fill (Hydrostatic gradient) -->',
+      '<rect x="' + (cx - tankW/2) + '" y="' + (tankTopY + 15) + '" width="' + tankW + '" height="' + (tankH - 15) + '" fill="#0284c7" opacity="0.3" />',
+      '<line x1="' + (cx - tankW/2) + '" y1="' + (tankTopY + 15) + '" x2="' + (cx + tankW/2) + '" y2="' + (tankTopY + 15) + '" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,2" />',
+      '<text x="' + (cx - tankW/2 + 10) + '" y="' + (tankTopY + 28) + '" fill="#38bdf8" font-size="10" font-weight="600">Design Liquid Level</text>',
+
+      '<!-- Hydrostatic Pressure Triangle (Right) -->',
+      '<polygon points="' + (cx + tankW/2 + 25) + ',' + (tankTopY + 15) + ' ' + (cx + tankW/2 + 25) + ',' + tankBaseY + ' ' + (cx + tankW/2 + 95) + ',' + tankBaseY + '" fill="#ef4444" opacity="0.35" stroke="#ef4444" stroke-width="1.5" />',
+      '<text x="' + (cx + tankW/2 + 30) + '" y="' + (tankBaseY - 8) + '" fill="#ef4444" font-size="10" font-weight="700">Pmax</text>',
+      '<text x="' + (cx + tankW/2 + 30) + '" y="' + (tankTopY + 10) + '" fill="#ef4444" font-size="9">Hydrostatic Head</text>'
+    ];
+
+    // Multi-course shell plate rings with graduated line thickness
+    let courseH = tankH / N_courses;
+    for (let c = 0; c < N_courses; c++) {
+      let cy = tankBaseY - (c * courseH);
+      let cyTop = cy - courseH;
+      // Stroke width representation of thickness: bottom course thick, top course thin
+      let strokeW = Math.max(2, 6 - (c * 0.8));
+
+      svgParts.push('<line x1="' + (cx - tankW/2) + '" y1="' + cy + '" x2="' + (cx - tankW/2) + '" y2="' + cyTop + '" stroke="#f8fafc" stroke-width="' + strokeW + '" />');
+      svgParts.push('<line x1="' + (cx + tankW/2) + '" y1="' + cy + '" x2="' + (cx + tankW/2) + '" y2="' + cyTop + '" stroke="#f8fafc" stroke-width="' + strokeW + '" />');
+      svgParts.push('<line x1="' + (cx - tankW/2) + '" y1="' + cyTop + '" x2="' + (cx + tankW/2) + '" y2="' + cyTop + '" stroke="#475569" stroke-width="1" stroke-dasharray="2,2" />');
+    }
+
+    // Intermediate Wind Girder Stiffener Ring
+    if (needs_wind_girder) {
+      let girderY = tankBaseY - (tankH * 0.65);
+      svgParts.push('<rect x="' + (cx - tankW/2 - 12) + '" y="' + girderY + '" width="12" height="6" fill="#f59e0b" stroke="#fbbf24" stroke-width="1" />');
+      svgParts.push('<rect x="' + (cx + tankW/2) + '" y="' + girderY + '" width="12" height="6" fill="#f59e0b" stroke="#fbbf24" stroke-width="1" />');
+      svgParts.push('<text x="' + (cx - tankW/2 - 18) + '" y="' + (girderY + 5) + '" fill="#f59e0b" font-size="9" font-weight="700" text-anchor="end">Wind Girder</text>');
+    }
+
+    // Roof Structure
+    if (roof_type === 'floating_external') {
+      // Floating roof deck inside tank
+      svgParts.push('<rect x="' + (cx - tankW/2 + 4) + '" y="' + (tankTopY + 12) + '" width="' + (tankW - 8) + '" height="8" fill="#475569" stroke="#94a3b8" />');
+      svgParts.push('<rect x="' + (cx - tankW/2 - 14) + '" y="' + tankTopY + '" width="14" height="8" fill="#3b82f6" />');
+      svgParts.push('<rect x="' + (cx + tankW/2) + '" y="' + tankTopY + '" width="14" height="8" fill="#3b82f6" />');
+      svgParts.push('<text x="' + cx + '" y="' + (tankTopY - 10) + '" fill="#3b82f6" font-size="10" font-weight="600" text-anchor="middle">Open Top Primary Wind Ring</text>');
+    } else {
+      // Cone roof
+      svgParts.push('<polygon points="' + (cx - tankW/2 - 5) + ',' + tankTopY + ' ' + cx + ',' + (tankTopY - 30) + ' ' + (cx + tankW/2 + 5) + ',' + tankTopY + '" fill="#1e293b" stroke="#94a3b8" stroke-width="2" />');
+      svgParts.push('<text x="' + cx + '" y="' + (tankTopY - 35) + '" fill="#94a3b8" font-size="10" text-anchor="middle">Fixed Cone Roof</text>');
+    }
+
+    // Annotations
+    svgParts.push('<text x="' + cx + '" y="25" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">API 650 Storage Tank: ' + D_m.toFixed(1) + 'm Dia × ' + H_m.toFixed(1) + 'm High (' + N_courses + ' Shell Courses)</text>');
+    svgParts.push('<text x="' + cx + '" y="' + (tankBaseY - 10) + '" fill="#10b981" font-size="11" font-weight="700" text-anchor="middle">Bottom Course 1: ' + t_bottom_mm.toFixed(1) + 'mm | Top Course ' + N_courses + ': ' + t_top_mm.toFixed(1) + 'mm</text>');
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAP4Diagnostics = function() {
+    let tb = document.getElementById('ap4-res-tbottom').innerText;
+    let vol = document.getElementById('ap4-res-volume').innerText;
+    let grd = document.getElementById('ap4-res-girder').innerText;
+    let wt = document.getElementById('ap4-res-weight').innerText;
+    let h1 = document.getElementById('ap4-res-h1').innerText;
+    let z = document.getElementById('ap4-res-zmod').innerText;
+    let lann = document.getElementById('ap4-res-lann').innerText;
+    let ph = document.getElementById('ap4-res-phydro').innerText;
+    let nc = document.getElementById('ap4-res-ncourses').innerText;
+
+    let text = [
+      '=== API 650 OIL STORAGE TANK SHELL DESIGN AUDIT ===',
+      'Standard: API Standard 650 13th Edition / Section 5.6 One-Foot Method',
+      '-----------------------------------------------------------------',
+      'Bottom Course 1 Nominal Thick:   ' + tb,
+      'Gross Containment Volume:        ' + vol,
+      'Intermediate Wind Girder Status: ' + grd,
+      'Total Cylindrical Shell Mass:    ' + wt,
+      'Max Unstiffened Height (H1):     ' + h1,
+      'Wind Girder Required Modulus (Z):' + z,
+      'Minimum Annular Plate Width:     ' + lann,
+      'Base Operating Hydrostatic Head: ' + ph,
+      'Number of Shell Plate Courses:   ' + nc,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/api-650-storage-tank-shell-thickness-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('ap4-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Tank Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAP4();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'api-650-storage-tank-shell-thickness-calculator.html'), renderTradePage({
+  title: 'API 650 Storage Tank Shell Thickness Calculator | One-Foot Method',
+  metaDescription: 'Calculate API 650 storage tank course-by-course shell thicknesses, unstiffened wind buckling height, wind girder section modulus, and capacity.',
+  canonical: 'https://digitaltoolsshed.com/calc/api-650-storage-tank-shell-thickness-calculator.html',
+  content: toolAP4Html,
+  faq: [
+    {
+      q: 'What is the API 650 One-Foot Method for tank shell design?',
+      a: 'The One-Foot Method (API 650 Section 5.6.3) calculates the required thickness of each cylindrical shell course at a point 0.3 meters (1 foot) above the bottom circumferential weld seam. It accounts for internal hydrostatic hoop stress while allowing for bottom plate moment restraint: td = [4.9 * D * (H - 0.3) * G] / (Sd * E) + CA.'
+    },
+    {
+      q: 'Why does the hydrostatic test thickness (tt) often govern over design thickness (td)?',
+      a: 'Tanks are proof-tested by filling with clean water (G = 1.00), which is 15% to 30% heavier than operating crude oil or light hydrocarbons (G ≈ 0.70 to 0.85). Even though corrosion allowance is excluded during hydrotest, the heavier liquid weight frequently produces higher hoop tension, making tt the governing thickness on lower courses.'
+    },
+    {
+      q: 'What is the purpose of an intermediate wind girder on an API 650 tank?',
+      a: 'Thin upper shell courses are vulnerable to inward elastic buckling from hurricane wind pressure when the tank is empty. API 650 Section 5.9 defines the maximum permissible height of unstiffened shell (H1). If the total shell height exceeds H1, intermediate stiffening rings (wind girders) must be installed to resist wind suction.'
+    },
+    {
+      q: 'What is the minimum nominal shell thickness mandated by API 650?',
+      a: 'Regardless of calculated pressure requirements, API 650 Section 5.6.1.1 enforces minimum nominal plate thicknesses for structural handling and erection rigidity: 5 mm for D < 15m, 6 mm for 15m ≤ D < 36m, 8 mm for 36m ≤ D ≤ 60m, and 10 mm for D > 60m.'
+    },
+    {
+      q: 'Why are annular bottom plates required beneath thick tank shells?',
+      a: 'When lower shell plates exceed 12.5 mm thickness or design stress exceeds 160 MPa, API 650 Section 5.5 mandates dedicated butt-welded annular bottom plates with a minimum radial width of 600 mm. Under hydrostatic loading, the shell rotates outward, inducing high localized plastic bending strain that would tear thin lap-welded floor plates.'
+    }
+  ]
+}));
+
+
+console.log('  ✓ Built Trade & Construction Suite (111 calculators in /calc/)');
 }
 
