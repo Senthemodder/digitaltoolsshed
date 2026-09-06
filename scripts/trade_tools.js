@@ -18213,6 +18213,2197 @@ export function buildTradeTools() {
   }));
 
 
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SPRINKLER IRRIGATION PRECIPITATION RATE, ZONE FLOW & RUN TIME CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const sprinklerIrrigationBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Sprinkler Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Sprinkler Irrigation Precipitation Rate & Run Time Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate sprinkler zone gross precipitation rate (PR in/hr), total zone GPM, Christiansen Distribution Uniformity (DU), irrigation run time based on evapotranspiration (ET_o), and soil infiltration cycle-and-soak schedules.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M4.93 4.93l4.24 4.24m5.66 5.66l4.24 4.24M2 12h6m8 0h6M4.93 19.07l4.24-4.24m5.66-5.66l4.24-4.24"/></svg>
+        Zone Geometry & Nozzle Specifications
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spHeadType">Sprinkler Head Type</label>
+          <select id="spHeadType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="spray">Fixed Spray Heads (1.5–2.0 in/hr PR)</option>
+            <option value="rotary" selected>Rotary MP Rotator (0.4–0.8 in/hr PR)</option>
+            <option value="rotor">Gear-Driven Rotors (0.5–1.0 in/hr PR)</option>
+            <option value="drip">Drip Irrigation Emitter Grid</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spSpacingPattern">Layout Spacing Pattern</label>
+          <select id="spSpacingPattern" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="square" selected>Square Grid (Head-to-Head)</option>
+            <option value="triangular">Equilateral Triangular (55% Overlap)</option>
+            <option value="custom">Direct Area & Zone GPM</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="spGridInputs" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spHeadSpacing">Head Spacing Along Row (Ft)</label>
+          <input type="number" id="spHeadSpacing" value="15" min="3" max="60" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Distance between heads (S)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spRowSpacing">Row Spacing / Lateral (Ft)</label>
+          <input type="number" id="spRowSpacing" value="15" min="3" max="60" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Distance between rows (L)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spNozzleGpm">Full-Circle Head GPM (360&deg;)</label>
+          <input type="number" id="spNozzleGpm" value="1.45" min="0.1" max="15.0" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Flow per full-circle head</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spHeadCount">Total Heads in Zone</label>
+          <input type="number" id="spHeadCount" value="8" min="1" max="50" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Mixed full/half/quarter heads</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spSoilType">Soil Intake Rate</label>
+          <select id="spSoilType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="0.20">Clay Soil (0.20 in/hr - High Runoff)</option>
+            <option value="0.40" selected>Clay Loam (0.40 in/hr)</option>
+            <option value="0.65">Loam Soil (0.65 in/hr - Medium)</option>
+            <option value="1.20">Sandy Loam / Sand (1.20 in/hr - Fast)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spEtoWeekly">Weekly Turf ET_o Demand</label>
+          <select id="spEtoWeekly" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.85rem;">
+            <option value="0.75">0.75 in/wk (Spring/Fall Cool)</option>
+            <option value="1.25" selected>1.25 in/wk (Summer Moderate)</option>
+            <option value="1.75">1.75 in/wk (Peak Summer Hot)</option>
+            <option value="2.25">2.25 in/wk (Arid Desert Southwest)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="spWaterDays">Irrigation Days Per Week</label>
+        <select id="spWaterDays" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="2">2 Days per Week (Deep Infrequent Watering)</option>
+          <option value="3" selected>3 Days per Week (Standard Municipal Schedule)</option>
+          <option value="4">4 Days per Week (Light Sandy Soils)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Precipitation Rate & Zone Run Time
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Gross Precipitation Rate (PR)</div>
+            <span id="outPrBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#3b82f620;color:#3b82f6;">ROTARY LOW-PRECIP</span>
+          </div>
+          <div id="outPrInHr" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">0.62 in/hr</div>
+          <div id="outPrMmSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">15.7 mm/hr application rate</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Run Time Per Watering Day</div>
+            <div id="outRunTimeMin" style="font-size:1.45rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">40 mins</div>
+            <div id="outPerWeekSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">121 mins/wk (0.42" per cycle)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Total Zone Flow Demand</div>
+            <div id="outTotalZoneGpm" style="font-size:1.45rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">11.6 GPM</div>
+            <div id="outGphSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">696 Gallons/hour flow</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Cycle-and-Soak Split</div>
+            <div id="outCycleSoak" style="font-size:1.15rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">2 &times; 20 min Cycles</div>
+            <div id="outSoakIntervalSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">30-min soak between cycles</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Min Supply Lateral Size</div>
+            <div id="outLateralSize" style="font-size:1.15rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">3/4" Class 200 PVC</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Keeps velocity &le; 5.0 ft/s</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Water Used Per Cycle</div>
+              <div id="outWaterGalPerCycle" style="font-size:1.2rem;font-weight:700;font-family:var(--mono);color:#3b82f6;margin-top:0.25rem;">464 Gallons</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Distribution Uniformity</div>
+              <div id="outDuPercent" style="font-size:0.85rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">DU_lq &approx; 75% (Good)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copySpBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Irrigation Schedule Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: HEAD-TO-HEAD OVERLAP & WATER COVERAGE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg>
+      Interactive Head-to-Head 100% Overlap & Spray Distribution Geometry
+    </h3>
+    <div id="spSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & IRRIGATION ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Irrigation Design Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Stretching Head Spacing Past Throw Radius (Donut Brown Rings)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Sprinkler nozzles deliver a triangular distribution curve: maximum precipitation occurs at the midpoint of the stream, while the area immediately surrounding the nozzle base receives very little water. To achieve uniform coverage, the industry demands <strong>100% Head-to-Head coverage</strong>: the spray from Head A must reach all the way to Head B. Stretching a 15-foot nozzle to 18 feet to "save a head" leaves a severe drought ring between heads. Homeowners then crank run times from 20 to 60 minutes, wasting tens of thousands of gallons of water trying to green up dry spots while drowning the rest of the lawn.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Mixing Rotors and Spray Heads on the Same Valve Zone</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Fixed spray nozzles apply water at <strong>1.5 to 2.0 inches per hour</strong>, whereas gear-driven rotors apply water at only <strong>0.5 to 0.8 inches per hour</strong>. Placing rotors and sprays on the same control valve is a fatal hydraulic error. If you run the zone for 20 minutes, the spray zone receives 0.5 inches of water while the rotor zone receives a pitiful 0.17 inches (dying of dehydration). If you run the zone for 50 minutes to satisfy the rotors, the spray section is swamped with 1.5 inches of water, triggering fungal root rot and massive runoff.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Operating Spray Heads Above 30 PSI (Misting & Wind Drift)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Fixed spray heads are engineered to operate at exactly <strong>30 PSI</strong> (and rotary nozzles at 40&ndash;45 PSI). Connecting spray heads to an unregulated 70 PSI municipal mainline atomizes water droplets into an ultra-fine fog. Up to <strong>40% to 50% of the water evaporates into thin air</strong> or drifts into the street on a 5 MPH breeze without ever contacting the turf canopy. Always install pressure-regulating spray bodies (PRS-30 or PRS-45) to maintain large droplet ballistic integrity.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>💧 Trap 4: Continuous Run Times on Heavy Clay (The Runoff Catastrophe)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Heavy clay soil has a maximum intake infiltration rate of only <strong>0.20 inches per hour</strong>. If a standard spray zone applies water at 1.6 in/hr and runs continuously for 30 minutes, the soil saturates completely within the first 7 minutes. The remaining 23 minutes of water cannot penetrate the soil surface and runs off straight down sidewalks into municipal storm drains. You MUST program <strong>Cycle-and-Soak</strong> (e.g. three 7-minute cycles spaced 45 minutes apart) to allow capillary action to absorb each layer.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🌊 Trap 5: Undersizing Lateral Pipes & Exceeding 5.0 ft/s Velocity</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Irrigation piping standards strictly mandate that water velocity inside PVC or polyethylene lateral pipes must never exceed <strong>5.0 feet per second</strong>. Feeding a 16 GPM zone through a 1/2" pipe forces fluid velocity above 18 ft/s, causing enormous friction pressure drop (the heads at the end of the line only get 12 PSI) and severe water hammer shockwaves whenever the fast-acting 24V electric solenoid valve snaps shut, shattering PVC fittings and cracking backflow preventers.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Irrigation Nomograph Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Precipitation Rate (PR) Formula</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Gross precipitation rate ($PR$ in inches per hour) represents the depth of water applied over an irrigated zone area in one hour:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      PR = \\frac{96.25 \\times \\text{Total Zone GPM}}{\\text{Zone Area (sq ft)}} = \\frac{96.25 \\times \\text{GPM}}{S \\times L}
+    </div>
+    <p style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.5rem;">
+      The conversion constant $96.25$ derives from converting 1 Gallon ($231\\text{ in}^3$) over 1 Square Foot ($144\\text{ in}^2$) in 60 minutes: $\\frac{231}{144} \\times 60 = 96.25$.
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Irrigation Scheduling Run Time</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      To replenish turf evapotranspiration ($ET_o$) requirement adjusted for turf crop coefficient ($K_c \\approx 0.80$) and Distribution Uniformity of the lower quarter ($DU_{lq} \\approx 0.75$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      T_{\\text{cycle}} = \\frac{60 \\times \\left(\\frac{ET_{\\text{weekly}}}{N_{\\text{days}}}\\right)}{PR \\times DU_{lq}} \\quad (\\text{minutes})
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Christiansen Uniformity Coefficient (CU)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      During catch-can audit testing, Christiansen's Uniformity is calculated by:
+      $CU = 100 \\times \\left[1.0 - \\frac{\\sum |x_i - \\bar{x}|}{n \\times \\bar{x}}\\right]$, where $x_i$ is catch depth in can $i$, and $\\bar{x}$ is mean catch depth. Well-designed residential systems achieve $CU \\ge 80\\%$ and $DU_{lq} \\ge 70\\%$.
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is head-to-head sprinkler coverage?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Head-to-head coverage is an irrigation design standard where every sprinkler head throws water all the way to the adjacent heads on both sides. Because single spray heads throw significantly less water right around their base than at mid-stream, 100% overlapping throw patterns are mathematically required to produce uniform moisture across the entire turf surface.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between rotary nozzles (MP Rotators) and fixed spray heads?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Fixed spray heads discharge continuous sheets of water with high precipitation rates (1.5 to 2.0 in/hr), often causing rapid runoff on slopes and clay soils. Multi-stream rotary nozzles (such as Hunter MP Rotators or Rain Bird RVANs) emit rotating streams with low precipitation rates (0.4 to 0.8 in/hr). This allows heavy soils time to absorb moisture and cuts zone GPM demand by 60%, enabling more heads per valve.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is Cycle-and-Soak and how does it save water?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Cycle-and-Soak splits a single long irrigation run time into multiple shorter cycles separated by a 30 to 60 minute pause (the soak time). For example, instead of running for 30 continuous minutes on clay soil, the timer runs three 10-minute cycles. This prevents water from running off the surface into the street, giving gravity and capillary action time to pull water deep into the root zone.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How do I calculate total zone GPM from mixed heads?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        In matched-precipitation sprinkler families, nozzle GPM scales with arc angle: a quarter-circle ($90^\\circ$) head uses 25% of the flow of a full-circle head, and a half-circle ($180^\\circ$) head uses 50%. Total zone GPM equals the sum of all individual head flow rates. For example: 4 quarter heads ($0.36\\text{ GPM each}$) + 4 half heads ($0.72\\text{ GPM each}$) + 2 full heads ($1.45\\text{ GPM each}$) = $1.44 + 2.88 + 2.90 = 7.22\\text{ GPM}$.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why does water velocity in irrigation pipes matter?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Water flowing faster than 5.0 ft/s creates excessive friction loss, starving downstream heads of operating pressure. More critically, when an electric solenoid valve abruptly snaps closed, the kinetic energy of high-velocity water generates a violent hydraulic shock wave (water hammer) that can reach 4 times normal system pressure, fracturing PVC pipes and blowing out valve diaphragms.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      function calcSprinkler() {
+        var headType = document.getElementById('spHeadType').value;
+        var spacingType = document.getElementById('spSpacingPattern').value;
+        var s = parseFloat(document.getElementById('spHeadSpacing').value) || 15;
+        var l = parseFloat(document.getElementById('spRowSpacing').value) || 15;
+        var fullGpm = parseFloat(document.getElementById('spNozzleGpm').value) || 1.45;
+        var headCount = parseFloat(document.getElementById('spHeadCount').value) || 8;
+        var soilIntake = parseFloat(document.getElementById('spSoilType').value) || 0.40;
+        var etoWeekly = parseFloat(document.getElementById('spEtoWeekly').value) || 1.25;
+        var waterDays = parseFloat(document.getElementById('spWaterDays').value) || 3;
+
+        // Area per head calculation
+        var areaPerHead = (s * l);
+        if (spacingType === 'triangular') {
+          areaPerHead = (s * l * 0.866);
+        }
+
+        // Precipitation Rate: PR = 96.25 * FullGpm / Area
+        var prInHr = (96.25 * fullGpm) / areaPerHead;
+        var prMmHr = prInHr * 25.4;
+
+        // Total Zone GPM (Assume average mix of half and quarter heads ~ 50% average flow of full-circle)
+        // In realistic residential zones with corners, sides, and centers: average head is ~ 0.55 of full-circle
+        var totalZoneGpm = headCount * (fullGpm * 0.55);
+        var totalZoneGph = totalZoneGpm * 60;
+
+        // Run time calculation:
+        // Weekly ET depth divided by waterDays = target depth per cycle
+        var depthPerCycle = etoWeekly / waterDays;
+        var du = 0.75; // Standard good DU
+        // Total minutes per cycle = (depthPerCycle / (PR * DU)) * 60
+        var totalRunMin = Math.round((depthPerCycle / (prInHr * du)) * 60);
+        var weeklyRunMin = totalRunMin * waterDays;
+
+        // Cycle and Soak Logic based on soil intake vs PR
+        var maxContinuousMin = 30;
+        if (prInHr > soilIntake) {
+          // Time to runoff: t_runoff ~ (Soil Intake / PR) * 35 mins
+          maxContinuousMin = Math.max(6, Math.round((soilIntake / prInHr) * 30));
+        }
+        var numCycles = 1;
+        var cycleDuration = totalRunMin;
+        if (totalRunMin > maxContinuousMin) {
+          numCycles = Math.ceil(totalRunMin / maxContinuousMin);
+          cycleDuration = Math.ceil(totalRunMin / numCycles);
+        }
+
+        // Water used per cycle
+        var waterGalPerCycle = Math.round(totalZoneGpm * totalRunMin);
+
+        // Pipe sizing recommendation (keeps velocity <= 5 ft/s)
+        var recPipe = '3/4" Class 200 PVC';
+        if (totalZoneGpm > 24) recPipe = '1-1/2" Schedule 40 PVC';
+        else if (totalZoneGpm > 14) recPipe = '1" Class 200 PVC';
+        else if (totalZoneGpm > 8) recPipe = '3/4" Class 200 PVC';
+        else recPipe = '1/2" Class 200 PVC (Small Zone)';
+
+        // PR Badge
+        var badgeText = 'ROTARY LOW-PRECIP';
+        var badgeBg = '#3b82f620';
+        var badgeColor = '#3b82f6';
+        if (headType === 'spray') {
+          badgeText = 'FIXED SPRAY HIGH-PRECIP';
+          badgeBg = '#ef444420';
+          badgeColor = '#ef4444';
+        } else if (headType === 'rotor') {
+          badgeText = 'ROTOR MID-PRECIP';
+          badgeBg = '#10b98120';
+          badgeColor = '#10b981';
+        } else if (headType === 'drip') {
+          badgeText = 'MICRO-DRIP ULTRA-LOW';
+          badgeBg = '#8b5cf620';
+          badgeColor = '#8b5cf6';
+        }
+        var badgeEl = document.getElementById('outPrBadge');
+        badgeEl.textContent = badgeText;
+        badgeEl.style.background = badgeBg;
+        badgeEl.style.color = badgeColor;
+
+        // Update UI
+        document.getElementById('outPrInHr').textContent = prInHr.toFixed(2) + ' in/hr';
+        document.getElementById('outPrMmSub').textContent = prMmHr.toFixed(1) + ' mm/hr application rate';
+
+        document.getElementById('outRunTimeMin').textContent = totalRunMin + ' mins';
+        document.getElementById('outPerWeekSub').textContent = weeklyRunMin + ' mins/wk (' + depthPerCycle.toFixed(2) + '" per cycle)';
+
+        document.getElementById('outTotalZoneGpm').textContent = totalZoneGpm.toFixed(1) + ' GPM';
+        document.getElementById('outGphSub').textContent = Math.round(totalZoneGph) + ' Gallons/hour flow';
+
+        document.getElementById('outCycleSoak').textContent = numCycles + ' \u00D7 ' + cycleDuration + ' min Cycles';
+        document.getElementById('outSoakIntervalSub').textContent = (numCycles > 1 ? '30-min soak between cycles' : 'No runoff soak required');
+
+        document.getElementById('outLateralSize').textContent = recPipe;
+        document.getElementById('outWaterGalPerCycle').textContent = waterGalPerCycle.toLocaleString() + ' Gallons';
+
+        renderSpSvg(s, l, spacingType, fullGpm, prInHr);
+      }
+
+      function renderSpSvg(s, l, spacingType, fullGpm, prInHr) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<radialGradient id="sprayGrad" cx="50%" cy="50%" r="50%">';
+        svg += '<stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/>';
+        svg += '<stop offset="60%" stop-color="#60a5fa" stop-opacity="0.25"/>';
+        svg += '<stop offset="100%" stop-color="#93c5fd" stop-opacity="0.05"/>';
+        svg += '</radialGradient>';
+        svg += '</defs>';
+
+        // Grid heads coordinates
+        var cX1 = 200;
+        var cY1 = 80;
+        var cX2 = 360;
+        var cY2 = 80;
+        var cX3 = 200;
+        var cY3 = 180;
+        var cX4 = 360;
+        var cY4 = 180;
+        var radius = 110; // Scaled throw radius
+
+        // Overlapping Spray Circles
+        svg += '<circle cx="' + cX1 + '" cy="' + cY1 + '" r="' + radius + '" fill="url(#sprayGrad)" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,4"/>';
+        svg += '<circle cx="' + cX2 + '" cy="' + cY2 + '" r="' + radius + '" fill="url(#sprayGrad)" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,4"/>';
+        svg += '<circle cx="' + cX3 + '" cy="' + cY3 + '" r="' + radius + '" fill="url(#sprayGrad)" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,4"/>';
+        svg += '<circle cx="' + cX4 + '" cy="' + cY4 + '" r="' + radius + '" fill="url(#sprayGrad)" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4,4"/>';
+
+        // Head Dots
+        var heads = [[cX1, cY1, 'H1'], [cX2, cY2, 'H2'], [cX3, cY3, 'H3'], [cX4, cY4, 'H4']];
+        for (var i = 0; i < heads.length; i++) {
+          var hX = heads[i][0];
+          var hY = heads[i][1];
+          svg += '<circle cx="' + hX + '" cy="' + hY + '" r="7" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>';
+          svg += '<text x="' + (hX - 18) + '" y="' + (hY - 10) + '" font-size="11" font-weight="700" fill="#2563eb">' + heads[i][2] + '</text>';
+        }
+
+        // Distance indicators
+        svg += '<line x1="' + cX1 + '" y1="' + cY1 + '" x2="' + cX2 + '" y2="' + cY2 + '" stroke="#64748b" stroke-width="2" stroke-dasharray="2,2"/>';
+        svg += '<text x="' + ((cX1 + cX2) / 2) + '" y="' + (cY1 - 10) + '" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">' + s + ' FT SPACING</text>';
+
+        svg += '<line x1="' + cX1 + '" y1="' + cY1 + '" x2="' + cX3 + '" y2="' + cY3 + '" stroke="#64748b" stroke-width="2" stroke-dasharray="2,2"/>';
+        svg += '<text x="' + (cX1 - 15) + '" y="' + ((cY1 + cY3) / 2) + '" text-anchor="end" font-size="12" font-weight="700" fill="var(--fg)">' + l + ' FT</text>';
+
+        // Right side diagnostic panel inside SVG
+        svg += '<rect x="520" y="45" width="260" height="170" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>';
+        svg += '<text x="540" y="75" font-size="12" font-weight="700" fill="#3b82f6">DISTRIBUTION DIAGNOSTICS</text>';
+        svg += '<text x="540" y="105" font-size="14" font-weight="800" fill="var(--fg)">PR = ' + prInHr.toFixed(2) + ' in/hr</text>';
+        svg += '<text x="540" y="130" font-size="12" fill="var(--text-muted)">100% Head-to-Head Overlap: \u2713</text>';
+        svg += '<text x="540" y="155" font-size="12" fill="var(--text-muted)">Matched Precipitation Arc: \u2713</text>';
+        svg += '<text x="540" y="180" font-size="11" font-weight="700" fill="#10b981">Distribution Uniformity: ~75%</text>';
+
+        svg += '<text x="410" y="240" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">Quad-Head Overlap Grid | Center Point Triple-Spray Overlap Eliminates Dry Spots</text>';
+
+        svg += '</svg>';
+        document.getElementById('spSvgWrapper').innerHTML = svg;
+      }
+
+      function copySpSpec() {
+        var pr = document.getElementById('outPrInHr').textContent;
+        var runTime = document.getElementById('outRunTimeMin').textContent;
+        var cycleSoak = document.getElementById('outCycleSoak').textContent;
+        var zoneGpm = document.getElementById('outTotalZoneGpm').textContent;
+        var pipe = document.getElementById('outLateralSize').textContent;
+        var waterUsed = document.getElementById('outWaterGalPerCycle').textContent;
+        var spacing = document.getElementById('spHeadSpacing').value + 'x' + document.getElementById('spRowSpacing').value + ' ft';
+        var headType = document.getElementById('spHeadType').selectedOptions[0].text;
+
+        var text = 'SPRINKLER IRRIGATION SCHEDULE SPECIFICATION\\n';
+        text += '---------------------------------------------------\\n';
+        text += 'Sprinkler Type: ' + headType + '\\n';
+        text += 'Head Spacing: ' + spacing + ' (Head-to-Head Overlap)\\n';
+        text += 'Gross Precipitation Rate (PR): ' + pr + '\\n';
+        text += 'Total Run Time: ' + runTime + ' per scheduled day\\n';
+        text += 'Cycle-and-Soak Program: ' + cycleSoak + '\\n';
+        text += 'Total Zone Flow: ' + zoneGpm + '\\n';
+        text += 'Recommended Lateral Pipe: ' + pipe + '\\n';
+        text += 'Water Volume per Cycle: ' + waterUsed + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copySpBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Irrigation Schedule!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['spHeadType', 'spSpacingPattern', 'spHeadSpacing', 'spRowSpacing', 'spNozzleGpm', 'spHeadCount', 'spSoilType', 'spEtoWeekly', 'spWaterDays'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcSprinkler);
+          el.addEventListener('change', calcSprinkler);
+        }
+      });
+
+      document.getElementById('copySpBtn').addEventListener('click', copySpSpec);
+
+      calcSprinkler();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'sprinkler-irrigation-calculator.html'), renderTradePage({
+    title: "Sprinkler Precipitation Rate & Run Time Calculator: GPM, In/Hr | Digital Tools Shed",
+    metaDesc: "Calculate sprinkler precipitation rate (PR in/hr), zone GPM, run time from weekly ET_o, Christiansen Distribution Uniformity, and cycle-and-soak schedules.",
+    canonical: `${DOMAIN}/calc/sprinkler-irrigation-calculator`,
+    bodyContent: sprinklerIrrigationBody,
+    currentPath: '/calc/sprinkler-irrigation-calculator',
+    faq: [
+      {
+        "q": "What is head-to-head sprinkler coverage?",
+        "a": "Head-to-head coverage is an irrigation design standard where every sprinkler head throws water all the way to the adjacent heads on both sides. Because single spray heads throw significantly less water right around their base than at mid-stream, 100% overlapping throw patterns are mathematically required to produce uniform moisture across the entire turf surface."
+      },
+      {
+        "q": "What is the difference between rotary nozzles (MP Rotators) and fixed spray heads?",
+        "a": "Fixed spray heads discharge continuous sheets of water with high precipitation rates (1.5 to 2.0 in/hr), often causing rapid runoff on slopes and clay soils. Multi-stream rotary nozzles (such as Hunter MP Rotators or Rain Bird RVANs) emit rotating streams with low precipitation rates (0.4 to 0.8 in/hr). This allows heavy soils time to absorb moisture and cuts zone GPM demand by 60%, enabling more heads per valve."
+      },
+      {
+        "q": "What is Cycle-and-Soak and how does it save water?",
+        "a": "Cycle-and-Soak splits a single long irrigation run time into multiple shorter cycles separated by a 30 to 60 minute pause (the soak time). For example, instead of running for 30 continuous minutes on clay soil, the timer runs three 10-minute cycles. This prevents water from running off the surface into the street, giving gravity and capillary action time to pull water deep into the root zone."
+      },
+      {
+        "q": "How do I calculate total zone GPM from mixed heads?",
+        "a": "In matched-precipitation sprinkler families, nozzle GPM scales with arc angle: a quarter-circle ($90^\\circ$) head uses 25% of the flow of a full-circle head, and a half-circle ($180^\\circ$) head uses 50%. Total zone GPM equals the sum of all individual head flow rates. For example: 4 quarter heads ($0.36\\text{ GPM each}$) + 4 half heads ($0.72\\text{ GPM each}$) + 2 full heads ($1.45\\text{ GPM each}$) = $1.44 + 2.88 + 2.90 = 7.22\\text{ GPM}$."
+      },
+      {
+        "q": "Why does water velocity in irrigation pipes matter?",
+        "a": "Water flowing faster than 5.0 ft/s creates excessive friction loss, starving downstream heads of operating pressure. More critically, when an electric solenoid valve abruptly snaps closed, the kinetic energy of high-velocity water generates a violent hydraulic shock wave (water hammer) that can reach 4 times normal system pressure, fracturing PVC pipes and blowing out valve diaphragms."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // EV CHARGING TIME, NON-LINEAR TAPER CURVE, LEVEL 1/2/3 & COST CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const evChargingBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>EV Charging Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">EV Charging Time, Taper Curve & Cost Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate electric vehicle charging duration across Level 1, Level 2, and Level 3 DC Fast Chargers (DCFC). Models non-linear battery acceptance curves, onboard AC charger bottlenecks, temperature derating, and electricity vs gasoline cost comparisons.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 3v4M8 3v4"/></svg>
+        Vehicle Battery & Charger Specs
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evPreset">EV Battery Preset</label>
+          <select id="evPreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="60">Chevy Bolt EV (60 kWh)</option>
+            <option value="75" selected>Tesla Model 3 / Y Long Range (75 kWh)</option>
+            <option value="82">Hyundai Ioniq 5 / Kia EV6 (77.4 kWh)</option>
+            <option value="90">Porsche Taycan / Audi e-tron (93.4 kWh)</option>
+            <option value="100">Tesla Model S / X (100 kWh)</option>
+            <option value="131">Ford F-150 Lightning Ext (131 kWh)</option>
+            <option value="200">GMC Hummer EV / Silverado EV (205 kWh)</option>
+            <option value="custom">Custom Battery Size...</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evPackKwh">Total Pack Capacity (kWh)</label>
+          <input type="number" id="evPackKwh" value="75" min="10" max="250" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evStartSoc">Starting Charge (%)</label>
+          <input type="number" id="evStartSoc" value="20" min="0" max="95" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Initial battery percentage</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evTargetSoc">Target Charge (%)</label>
+          <input type="number" id="evTargetSoc" value="80" min="10" max="100" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">80% recommended for road trips</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evChargerType">Charging Equipment & Speed</label>
+        <select id="evChargerType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;font-weight:600;">
+          <optgroup label="Level 1 (120V Household Outlet)">
+            <option value="1.44">Level 1: 120V @ 12A (1.4 kW Standard Wall Plug)</option>
+            <option value="1.92">Level 1: 120V @ 16A (1.9 kW Dedicated 20A Circuit)</option>
+          </optgroup>
+          <optgroup label="Level 2 (240V AC Home / Public)">
+            <option value="3.84">Level 2: 240V @ 16A (3.8 kW NEMA 6-20)</option>
+            <option value="7.68">Level 2: 240V @ 32A (7.7 kW NEMA 14-50 Plug)</option>
+            <option value="9.60">Level 2: 240V @ 40A (9.6 kW 50A Breaker)</option>
+            <option value="11.52" selected>Level 2: 240V @ 48A (11.5 kW Hardwired 60A)</option>
+            <option value="19.20">Level 2: 240V @ 80A (19.2 kW Commercial High-Power)</option>
+          </optgroup>
+          <optgroup label="Level 3 DC Fast Charging (Commercial DCFC)">
+            <option value="50">Level 3 DC: 50 kW (Standard Highway DCFC)</option>
+            <option value="150">Level 3 DC: 150 kW (Fast Highway Corridor)</option>
+            <option value="250">Level 3 DC: 250 kW (Tesla V3 Supercharger)</option>
+            <option value="350">Level 3 DC: 350 kW (800V Ultra-Fast CCS)</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evOnboardLimit">Vehicle AC Limit (kW)</label>
+          <select id="evOnboardLimit" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="7.7">7.7 kW (Most standard EVs)</option>
+            <option value="11.5" selected>11.5 kW (Tesla, Hyundai, BMW)</option>
+            <option value="19.2">19.2 kW (F-150 Lightning Dual, Taycan)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Caps Level 2 AC charging speed</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evTempEnv">Ambient Temperature</label>
+          <select id="evTempEnv" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="1.0" selected>Optimal (65&deg;F–75&deg;F / Preconditioned)</option>
+            <option value="0.85">Chilly (40&deg;F–55&deg;F / Mild Derate)</option>
+            <option value="0.65">Freezing (20&deg;F / Cold Battery Derate)</option>
+            <option value="0.50">Sub-Zero (0&deg;F / Severe Cold)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evRateKwh">Electricity Rate ($/kWh)</label>
+          <input type="number" id="evRateKwh" value="0.16" min="0.04" max="0.80" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="evEfficiency">Vehicle Efficiency (mi/kWh)</label>
+          <input type="number" id="evEfficiency" value="3.5" min="1.5" max="5.5" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Charging Duration & Energy Transfer
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Total Estimated Charge Time</div>
+            <span id="outTaperBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#10b98120;color:#10b981;">LEVEL 2 AC</span>
+          </div>
+          <div id="outTotalTimeStr" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">4 hrs 21 mins</div>
+          <div id="outEnergyAddedSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">45.0 kWh added (20% to 80% SoC)</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Miles Added Per Hour</div>
+            <div id="outMilesPerHour" style="font-size:1.45rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">36.2 mi/hr</div>
+            <div id="outTotalRangeAdded" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">+157.5 miles added total</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Effective Average Power</div>
+            <div id="outEffectiveKw" style="font-size:1.45rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">10.3 kW</div>
+            <div id="outKwLimitSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Capped by 11.5 kW onboard limit</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Session Electric Cost</div>
+            <div id="outSessionCost" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">$8.00</div>
+            <div id="outCostPerMile" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">$0.051 per mile driven</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Gasoline Equivalent Cost</div>
+            <div id="outGasCostEquiv" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#ef4444;margin-top:0.25rem;">$18.38</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">At 30 MPG and $3.50/gal gas</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Net Fuel Cost Savings</div>
+              <div id="outNetSavings" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">$10.38 Saved</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Efficiency Factor</div>
+              <div id="outEfficiencyPct" style="font-size:0.8rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">90% System Net</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyEvBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy EV Charging Diagnostic Report</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: NON-LINEAR BATTERY CHARGE TAPER CURVE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>
+      Interactive Non-Linear Battery Acceptance Taper Curve
+    </h3>
+    <div id="evSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & EV CHARGING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & EV Fast-Charging Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Staying on DC Fast Chargers Past 80% (The 80% Taper Wall)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          On a road trip, fast-charging from <strong>10% to 80%</strong> typically takes 20 to 25 minutes at peak speeds up to 250 kW. However, charging the remaining <strong>80% to 100%</strong> can take another 40 minutes because the Battery Management System (BMS) slashes charging power down to 15 kW to prevent lithium plating and thermal degradation. Staying at a DC fast charger past 80% quadruples your waiting time per mile added and blocks stalls for other drivers. Always unplug at 80% and resume driving.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Skipping Battery Preconditioning in Cold Winter Weather</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Cold lithium cells have high internal electrochemical impedance. If you arrive at a 250 kW Supercharger with a frozen 25&deg;F battery without navigating to the charger to activate <strong>thermal preconditioning</strong>, the BMS will throttle charge rate to a glacial 30 kW to avoid plating metallic lithium onto the anode. Charging from 20% to 80% will balloon from 22 minutes to over an hour while the battery heater slowly warms the pack using incoming power.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Breaker Sizing & The NEC 125% Continuous Duty Rule (NEC 625.42)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Electric vehicle supply equipment (EVSE) draws full rated power continuously for hours at a time, classifying it as a continuous load under NEC Article 625. Under NEC 210.19(A)(1), branch circuit conductors and breakers must be rated for at least <strong>125% of the continuous load</strong>. If you install a 48-amp EV charger, you CANNOT place it on a 50-amp breaker; it requires a dedicated <strong>60-amp breaker and #6 AWG copper wire (or #4 AWG Romex NM-B)</strong>. Running a 48A load through a 50A breaker causes thermal breaker fatigue and nuisance tripping after 90 minutes.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>❄️ Trap 4: Bottlenecking on the Vehicle Onboard AC Rectifier</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Home Level 2 chargers supply alternating current (AC) to the car; the vehicle's internal onboard charger must convert that AC to direct current (DC) to fill the battery cells. If your vehicle has a 7.7 kW onboard charger (common in older or budget EVs), spending extra money on an expensive 19.2 kW (80-amp) home charging station will NOT charge your car any faster. The vehicle will strictly draw a maximum of 32 amps (7.7 kW), leaving the remaining capacity unused.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🔋 Trap 5: Daily 100% Charging on Nickel-Manganese-Cobalt (NMC) Batteries</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Unless your vehicle is equipped with a Lithium Iron Phosphate (LiFePO4) battery, charging an NMC or NCA lithium battery to 100% state of charge every night causes high cathode mechanical stress, transition metal dissolution, and rapid electrolyte oxidation. Manufacturers strongly recommend capping daily home charging at <strong>80% SoC</strong> for routine commuting, reserving 100% full charges strictly for long-distance highway road trips.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles EV Charging Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Energy Delivered & Inversion Efficiency</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Net energy stored in the battery pack ($E_{\\text{stored}}$) and gross grid energy consumed ($E_{\\text{grid}}$) accounting for onboard charger AC-to-DC conversion efficiency ($\\eta_{\\text{eff}} \\approx 0.90$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      E_{\\text{stored}} = C_{\\text{pack}} \\times \\left(\\frac{\\text{Target\\%} - \\text{Start\\%}}{100}\\right) \\quad \\text{kWh} \\\\
+      E_{\\text{grid}} = \\frac{E_{\\text{stored}}}{\\eta_{\\text{eff}}} \\quad \\text{kWh}
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Non-Linear Charging Duration Model</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      For AC Level 1 & Level 2 charging, power is limited by the minimum of the EVSE supply rating ($P_{\\text{evse}}$) and vehicle onboard charger capacity ($P_{\\text{onboard}}$):
+      $P_{\\text{net}} = \\min(P_{\\text{evse}}, P_{\\text{onboard}}) \\times \\eta_{\\text{temp}}$.
+      For Level 3 DC Fast Charging, the BMS enforces a non-linear power curve $P(SoC)$:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      T_{\\text{charge}} = \\int_{\\text{Start\\%}}^{\\text{Target\\%}} \\frac{C_{\\text{pack}}}{P(SoC) \\times \\eta} \\, d(SoC)
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Cost & Fuel Savings Equation</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      Electricity cost: $\\text{Cost}_{\\text{EV}} = E_{\\text{grid}} \\times \\text{Rate}_{\\text{kWh}}$.
+      Equivalent gasoline cost for the same distance traveled ($D = E_{\\text{stored}} \\times \\text{Efficiency}_{\\text{mi/kWh}}$):
+      $\\text{Cost}_{\\text{Gas}} = \\left(\\frac{D}{\\text{MPG}}\\right) \\times \\text{Price}_{\\text{gal}}$.
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How much does it cost to charge an EV from 20% to 80% at home?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        At the US national average residential electricity rate of approximately $0.16 per kWh, adding 45 kWh to a 75 kWh battery pack costs approximately <strong>$7.50 to $8.00</strong> (including 10% AC charging conversion losses). This provides approximately 160 miles of driving range, working out to around $0.05 per mile compared to $0.12 per mile for a 30 MPG gas car.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why does Level 3 DC Fast Charging slow down dramatically above 80%?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        As a lithium-ion battery fills with charge, cell voltage approaches its maximum safety ceiling (typically 4.2V per cell). To prevent metallic lithium from plating out on the graphite anode and causing dendrite short circuits, the Battery Management System transitions from Constant Current (CC) mode to Constant Voltage (CV) mode, aggressively throttling current down from 300+ amps to 20 amps.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Can I charge an electric vehicle on a standard 120V household outlet?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Yes, using a Level 1 charging cord plugged into a standard 120V NEMA 5-15 wall outlet. It provides approximately 1.4 kW of continuous power, adding roughly <strong>3 to 5 miles of driving range per hour of charging</strong>. For drivers with daily commutes under 35 miles, overnight Level 1 charging (10 to 12 hours) is completely sufficient.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What electrical breaker size do I need for a 48-amp Level 2 home charger?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Per NEC 625.42 and 210.19(A)(1), EV charging is a continuous load requiring a breaker and conductor ampacity rated for 125% of the continuous draw: $48\\text{ Amps} \\times 1.25 = 60\\text{ Amps}$. A 48A charger must be hardwired to a dedicated 60-amp double-pole circuit breaker using #6 AWG 75&deg;C copper wire (such as THHN in conduit) or #4 AWG Romex NM-B.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How does cold weather affect EV charging speed?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        In temperatures below 32&deg;F (0&deg;C), liquid electrolyte viscosity increases and chemical ion mobility slows. Without preheating, DC fast charging speeds are automatically derated by up to 50% to prevent cell damage. Home Level 2 charging also incurs slightly higher energy losses because a portion of incoming power is redirected to thermal battery heating loops.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      function calcEv() {
+        var preset = document.getElementById('evPreset').value;
+        var packKwh = parseFloat(document.getElementById('evPackKwh').value) || 75;
+        var startSoc = parseFloat(document.getElementById('evStartSoc').value) || 20;
+        var targetSoc = parseFloat(document.getElementById('evTargetSoc').value) || 80;
+        var chargerPwr = parseFloat(document.getElementById('evChargerType').value) || 11.52;
+        var onboardLimit = parseFloat(document.getElementById('evOnboardLimit').value) || 11.5;
+        var tempFactor = parseFloat(document.getElementById('evTempEnv').value) || 1.0;
+        var rateKwh = parseFloat(document.getElementById('evRateKwh').value) || 0.16;
+        var miKwh = parseFloat(document.getElementById('evEfficiency').value) || 3.5;
+
+        // Auto sync preset
+        if (preset !== 'custom' && parseFloat(preset) !== packKwh) {
+          // If preset changed
+          if (document.activeElement && document.activeElement.id === 'evPreset') {
+            document.getElementById('evPackKwh').value = preset;
+            packKwh = parseFloat(preset);
+          }
+        }
+
+        if (targetSoc <= startSoc) {
+          targetSoc = Math.min(100, startSoc + 10);
+          document.getElementById('evTargetSoc').value = targetSoc;
+        }
+
+        var isDcfc = (chargerPwr >= 45); // DC Fast Charging
+        var netStoredKwh = packKwh * ((targetSoc - startSoc) / 100);
+
+        // Calculate charging time using discrete 1% SoC simulation steps
+        var totalMinutes = 0;
+        var effectiveKwSum = 0;
+        var steps = 0;
+
+        for (var soc = startSoc; soc < targetSoc; soc++) {
+          var stepKwh = packKwh * 0.01;
+          var availPower = chargerPwr;
+
+          if (isDcfc) {
+            // Non-linear DCFC Taper Model
+            if (soc < 50) {
+              availPower = chargerPwr; // Peak rate
+            } else if (soc < 80) {
+              // Linear taper down to 40% of charger rating or 45 kW min
+              var tFrac = (soc - 50) / 30;
+              availPower = chargerPwr - tFrac * (chargerPwr * 0.55);
+            } else {
+              // Steep CV taper above 80% down to 15 kW
+              var tFrac2 = (soc - 80) / 20;
+              availPower = Math.max(15, (chargerPwr * 0.45) - tFrac2 * ((chargerPwr * 0.45) - 15));
+            }
+            availPower = availPower * tempFactor;
+            var eff = 0.94; // DCFC efficiency
+            var stepHours = stepKwh / (availPower * eff);
+            totalMinutes += stepHours * 60;
+            effectiveKwSum += availPower;
+            steps++;
+          } else {
+            // AC Level 1 / Level 2 Charging
+            var cappedPower = Math.min(chargerPwr, onboardLimit);
+            // Slight cell balancing taper from 95% to 100%
+            if (soc >= 95) {
+              cappedPower = cappedPower * 0.5;
+            }
+            cappedPower = cappedPower * tempFactor;
+            var effAc = (chargerPwr < 2.5) ? 0.84 : 0.90; // L1 has lower efficiency
+            var stepHoursAc = stepKwh / (cappedPower * effAc);
+            totalMinutes += stepHoursAc * 60;
+            effectiveKwSum += cappedPower;
+            steps++;
+          }
+        }
+
+        var avgKw = (steps > 0) ? (effectiveKwSum / steps) : chargerPwr;
+        var overallEff = isDcfc ? 0.94 : ((chargerPwr < 2.5) ? 0.84 : 0.90);
+        var grossGridKwh = netStoredKwh / overallEff;
+
+        // Total miles added
+        var milesAdded = netStoredKwh * miKwh;
+        var hoursTotal = totalMinutes / 60;
+        var milesPerHour = (hoursTotal > 0) ? (milesAdded / hoursTotal) : 0;
+
+        // Costs
+        var sessionCost = grossGridKwh * rateKwh;
+        var costPerMile = (milesAdded > 0) ? (sessionCost / milesAdded) : 0;
+        var gasCostEquiv = (milesAdded / 30) * 3.50; // 30 MPG @ $3.50/gal
+        var netSavings = Math.max(0, gasCostEquiv - sessionCost);
+
+        // Format time
+        var hDisplay = Math.floor(totalMinutes / 60);
+        var mDisplay = Math.round(totalMinutes % 60);
+        var timeStr = '';
+        if (hDisplay > 0) {
+          timeStr = hDisplay + ' hr' + (hDisplay > 1 ? 's' : '') + ' ' + mDisplay + ' min' + (mDisplay !== 1 ? 's' : '');
+        } else {
+          timeStr = mDisplay + ' mins';
+        }
+
+        // Taper Badge
+        var badgeText = isDcfc ? 'LEVEL 3 DC FAST' : ((chargerPwr < 2.5) ? 'LEVEL 1 SLOW AC' : 'LEVEL 2 AC');
+        var badgeBg = isDcfc ? '#ef444420' : ((chargerPwr < 2.5) ? '#f59e0b20' : '#10b98120');
+        var badgeColor = isDcfc ? '#ef4444' : ((chargerPwr < 2.5) ? '#f59e0b' : '#10b981');
+        var badgeEl = document.getElementById('outTaperBadge');
+        badgeEl.textContent = badgeText;
+        badgeEl.style.background = badgeBg;
+        badgeEl.style.color = badgeColor;
+
+        // Update UI
+        document.getElementById('outTotalTimeStr').textContent = timeStr;
+        document.getElementById('outEnergyAddedSub').textContent = netStoredKwh.toFixed(1) + ' kWh added (' + startSoc + '% to ' + targetSoc + '% SoC)';
+
+        document.getElementById('outMilesPerHour').textContent = milesPerHour.toFixed(1) + ' mi/hr';
+        document.getElementById('outTotalRangeAdded').textContent = '+' + milesAdded.toFixed(1) + ' miles added total';
+
+        document.getElementById('outEffectiveKw').textContent = avgKw.toFixed(1) + ' kW';
+        document.getElementById('outKwLimitSub').textContent = isDcfc ? 'Average dynamic DC charge speed' : (chargerPwr > onboardLimit ? 'Capped by ' + onboardLimit + ' kW onboard limit' : 'Full supply rate utilized');
+
+        document.getElementById('outSessionCost').textContent = '$' + sessionCost.toFixed(2);
+        document.getElementById('outCostPerMile').textContent = '$' + costPerMile.toFixed(3) + ' per mile driven';
+
+        document.getElementById('outGasCostEquiv').textContent = '$' + gasCostEquiv.toFixed(2);
+        document.getElementById('outNetSavings').textContent = '$' + netSavings.toFixed(2) + ' Saved';
+        document.getElementById('outEfficiencyPct').textContent = Math.round(overallEff * 100) + '% System Net';
+
+        renderEvSvg(isDcfc, chargerPwr, startSoc, targetSoc, avgKw);
+      }
+
+      function renderEvSvg(isDcfc, chargerPwr, startSoc, targetSoc, avgKw) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+
+        var gX = 80;
+        var gY = 40;
+        var gW = 680;
+        var gH = 160;
+
+        // Axes
+        svg += '<line x1="' + gX + '" y1="' + (gY + gH) + '" x2="' + (gX + gW) + '" y2="' + (gY + gH) + '" stroke="#64748b" stroke-width="2"/>';
+        svg += '<line x1="' + gX + '" y1="' + gY + '" x2="' + gX + '" y2="' + (gY + gH) + '" stroke="#64748b" stroke-width="2"/>';
+
+        // Grid lines for SoC (0%, 20%, 50%, 80%, 100%)
+        var socMarks = [0, 20, 50, 80, 100];
+        for (var i = 0; i < socMarks.length; i++) {
+          var xPos = gX + (gW * (socMarks[i] / 100));
+          svg += '<line x1="' + xPos + '" y1="' + gY + '" x2="' + xPos + '" y2="' + (gY + gH) + '" stroke="#334155" stroke-width="1" stroke-dasharray="3,3"/>';
+          svg += '<text x="' + xPos + '" y="' + (gY + gH + 18) + '" text-anchor="middle" font-size="11" fill="var(--text-muted)">' + socMarks[i] + '%</text>';
+        }
+
+        // Active Charge Window Highlight
+        var actX1 = gX + (gW * (startSoc / 100));
+        var actX2 = gX + (gW * (targetSoc / 100));
+        var actW = actX2 - actX1;
+        svg += '<rect x="' + actX1 + '" y="' + gY + '" width="' + actW + '" height="' + gH + '" fill="rgba(59, 130, 246, 0.12)" stroke="#3b82f6" stroke-width="1" stroke-dasharray="2,2"/>';
+        svg += '<text x="' + (actX1 + actW / 2) + '" y="' + (gY + 25) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#3b82f6">SESSION CHARGING WINDOW</text>';
+
+        // Taper Curve Generation
+        var curveD = '';
+        for (var s = 0; s <= 100; s += 2) {
+          var pVal = chargerPwr;
+          if (isDcfc) {
+            if (s < 50) pVal = chargerPwr;
+            else if (s < 80) pVal = chargerPwr - ((s - 50) / 30) * (chargerPwr * 0.55);
+            else pVal = Math.max(15, (chargerPwr * 0.45) - ((s - 80) / 20) * ((chargerPwr * 0.45) - 15));
+          } else {
+            if (s >= 95) pVal = chargerPwr * 0.5;
+          }
+          var maxP = isDcfc ? Math.max(50, chargerPwr) : 22;
+          var ptX = gX + (gW * (s / 100));
+          var ptY = (gY + gH) - (pVal / maxP) * (gH - 20);
+          if (s === 0) curveD += 'M ' + ptX + ' ' + ptY;
+          else curveD += ' L ' + ptX + ' ' + ptY;
+        }
+
+        svg += '<path d="' + curveD + '" fill="none" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round"/>';
+
+        // 80% Cliff marker callout
+        if (isDcfc) {
+          var cliffX = gX + (gW * 0.80);
+          svg += '<circle cx="' + cliffX + '" cy="' + (gY + gH - 60) + '" r="5" fill="#ef4444"/>';
+          svg += '<text x="' + cliffX + '" y="' + (gY + gH - 75) + '" text-anchor="middle" font-size="10" font-weight="700" fill="#ef4444">80% TAPER CLIFF</text>';
+        }
+
+        // Labels
+        svg += '<text x="' + (gX - 10) + '" y="' + (gY + 15) + '" text-anchor="end" font-size="11" font-weight="700" fill="var(--fg)">' + chargerPwr + ' kW</text>';
+        svg += '<text x="' + (gX - 10) + '" y="' + (gY + gH) + '" text-anchor="end" font-size="11" fill="var(--text-muted)">0 kW</text>';
+
+        svg += '<text x="410" y="245" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">State of Charge (% SoC) | Lithium Ion Cell Acceptance Taper Profile</text>';
+
+        svg += '</svg>';
+        document.getElementById('evSvgWrapper').innerHTML = svg;
+      }
+
+      function copyEvSpec() {
+        var preset = document.getElementById('evPreset').selectedOptions[0].text;
+        var start = document.getElementById('evStartSoc').value;
+        var target = document.getElementById('evTargetSoc').value;
+        var charger = document.getElementById('evChargerType').selectedOptions[0].text;
+        var duration = document.getElementById('outTotalTimeStr').textContent;
+        var energy = document.getElementById('outEnergyAddedSub').textContent;
+        var rate = document.getElementById('outMilesPerHour').textContent;
+        var cost = document.getElementById('outSessionCost').textContent;
+        var savings = document.getElementById('outNetSavings').textContent;
+
+        var text = 'EV CHARGING TIME & EFFICIENCY SPECIFICATION\\n';
+        text += '-------------------------------------------------\\n';
+        text += 'Vehicle Profile: ' + preset + '\\n';
+        text += 'Charging Equipment: ' + charger + '\\n';
+        text += 'State of Charge: ' + start + '% to ' + target + '%\\n';
+        text += 'Total Charge Time: ' + duration + '\\n';
+        text += 'Energy Delivered: ' + energy + '\\n';
+        text += 'Charge Speed Rate: ' + rate + '\\n';
+        text += 'Session Electricity Cost: ' + cost + '\\n';
+        text += 'Fuel Cost Savings vs Gas: ' + savings + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyEvBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied EV Charging Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['evPreset', 'evPackKwh', 'evStartSoc', 'evTargetSoc', 'evChargerType', 'evOnboardLimit', 'evTempEnv', 'evRateKwh', 'evEfficiency'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcEv);
+          el.addEventListener('change', calcEv);
+        }
+      });
+
+      document.getElementById('copyEvBtn').addEventListener('click', copyEvSpec);
+
+      calcEv();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'ev-charging-time-calculator.html'), renderTradePage({
+    title: "EV Charging Time Calculator: Level 1, 2, DCFC Taper Curve | Digital Tools Shed",
+    metaDesc: "Calculate electric vehicle charging times across Level 1, Level 2, and DC fast chargers. Models non-linear battery taper curves, onboard charger limits, and cost vs gas.",
+    canonical: `${DOMAIN}/calc/ev-charging-time-calculator`,
+    bodyContent: evChargingBody,
+    currentPath: '/calc/ev-charging-time-calculator',
+    faq: [
+      {
+        "q": "How much does it cost to charge an EV from 20% to 80% at home?",
+        "a": "At the US national average residential electricity rate of approximately $0.16 per kWh, adding 45 kWh to a 75 kWh battery pack costs approximately <strong>$7.50 to $8.00</strong> (including 10% AC charging conversion losses). This provides approximately 160 miles of driving range, working out to around $0.05 per mile compared to $0.12 per mile for a 30 MPG gas car."
+      },
+      {
+        "q": "Why does Level 3 DC Fast Charging slow down dramatically above 80%?",
+        "a": "As a lithium-ion battery fills with charge, cell voltage approaches its maximum safety ceiling (typically 4.2V per cell). To prevent metallic lithium from plating out on the graphite anode and causing dendrite short circuits, the Battery Management System transitions from Constant Current (CC) mode to Constant Voltage (CV) mode, aggressively throttling current down from 300+ amps to 20 amps."
+      },
+      {
+        "q": "Can I charge an electric vehicle on a standard 120V household outlet?",
+        "a": "Yes, using a Level 1 charging cord plugged into a standard 120V NEMA 5-15 wall outlet. It provides approximately 1.4 kW of continuous power, adding roughly <strong>3 to 5 miles of driving range per hour of charging</strong>. For drivers with daily commutes under 35 miles, overnight Level 1 charging (10 to 12 hours) is completely sufficient."
+      },
+      {
+        "q": "What electrical breaker size do I need for a 48-amp Level 2 home charger?",
+        "a": "Per NEC 625.42 and 210.19(A)(1), EV charging is a continuous load requiring a breaker and conductor ampacity rated for 125% of the continuous draw: $48\\text{ Amps} \\times 1.25 = 60\\text{ Amps}$. A 48A charger must be hardwired to a dedicated 60-amp double-pole circuit breaker using #6 AWG 75&deg;C copper wire (such as THHN in conduit) or #4 AWG Romex NM-B."
+      },
+      {
+        "q": "How does cold weather affect EV charging speed?",
+        "a": "In temperatures below 32&deg;F (0&deg;C), liquid electrolyte viscosity increases and chemical ion mobility slows. Without preheating, DC fast charging speeds are automatically derated by up to 50% to prevent cell damage. Home Level 2 charging also incurs slightly higher energy losses because a portion of incoming power is redirected to thermal battery heating loops."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // MOTOR FULL LOAD AMPS (FLA), NEC 430.248/430.250 & BREAKER SIZING CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const motorFlaBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Motor FLA Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Motor Full Load Amps (FLA) & NEC Sizing Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Lookup exact NEC Table 430.248 (1-Phase) & 430.250 (3-Phase) motor Full Load Amps (FLA), size 125% branch circuit conductors, calculate maximum NEC 430.52 circuit breaker & fuse ratings, and estimate NEMA Code inrush starting current.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+        Electric Motor Specifications
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mPhase">Phase Configuration</label>
+          <select id="mPhase" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.95rem;font-weight:600;">
+            <option value="3" selected>3-Phase (NEC Table 430.250)</option>
+            <option value="1">1-Phase (NEC Table 430.248)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mHp">Motor Horsepower (HP)</label>
+          <select id="mHp" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0.5">1/2 HP</option>
+            <option value="0.75">3/4 HP</option>
+            <option value="1">1 HP</option>
+            <option value="1.5">1-1/2 HP</option>
+            <option value="2">2 HP</option>
+            <option value="3">3 HP</option>
+            <option value="5">5 HP</option>
+            <option value="7.5">7-1/2 HP</option>
+            <option value="10" selected>10 HP</option>
+            <option value="15">15 HP</option>
+            <option value="20">20 HP</option>
+            <option value="25">25 HP</option>
+            <option value="30">30 HP</option>
+            <option value="40">40 HP</option>
+            <option value="50">50 HP</option>
+            <option value="60">60 HP</option>
+            <option value="75">75 HP</option>
+            <option value="100">100 HP</option>
+            <option value="125">125 HP</option>
+            <option value="150">150 HP</option>
+            <option value="200">200 HP</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mVoltage">System Nominal Voltage</label>
+          <select id="mVoltage" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <!-- Options dynamically populated based on phase -->
+            <option value="460" selected>460 V (480V System)</option>
+            <option value="230">230 V (240V System)</option>
+            <option value="208">208 V (208V System)</option>
+            <option value="575">575 V (600V System)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mOcpdType">OCPD Device Type</label>
+          <select id="mOcpdType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="breaker_inv" selected>Inverse Time Breaker (250% Max)</option>
+            <option value="fuse_delay">Time-Delay Fuse (175% Max)</option>
+            <option value="fuse_nontime">Non-Time-Delay Fuse (300% Max)</option>
+            <option value="mcp">Instantaneous Trip / MCP (800% Max)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mNemaCode">NEMA Locked-Rotor Code</label>
+          <select id="mNemaCode" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+            <option value="5.9">Code G: 5.6–6.29 kVA/HP (Standard)</option>
+            <option value="3.3">Code A–C: 3.15–3.99 kVA/HP (Low Inrush)</option>
+            <option value="4.7">Code D–F: 4.0–5.59 kVA/HP (Medium)</option>
+            <option value="6.7">Code H: 6.3–7.09 kVA/HP</option>
+            <option value="7.5">Code J: 7.1–7.99 kVA/HP</option>
+            <option value="9.5">Code K–M: 8.0–9.99 kVA/HP (High Inrush)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Dictates motor starting inrush current</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mServiceFactor">Motor Service Factor (SF)</label>
+          <select id="mServiceFactor" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+            <option value="1.15" selected>1.15 SF or 40&deg;C Rise (125% Overload)</option>
+            <option value="1.00">1.00 SF / All Others (115% Overload)</option>
+          </select>
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Thermal overload sizing threshold</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mNameplateFla">Actual Nameplate FLA (Optional for Overloads)</label>
+        <input type="number" id="mNameplateFla" value="13.2" min="0.1" max="1000" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Per NEC 430.6(A)(2), overload relays are sized from nameplate FLA!</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          NEC Table Ratings & Sizing Results
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">NEC Table 430 Full Load Current</div>
+            <span id="outTableBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#3b82f620;color:#3b82f6;">TABLE 430.250</span>
+          </div>
+          <div id="outNecFla" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">14.0 A</div>
+          <div id="outNecFlaSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Mandatory for conductor & breaker sizing per NEC 430.6(A)(1)</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Min Conductor (125% FLA)</div>
+            <div id="outWireSize" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">#12 AWG Cu</div>
+            <div id="outWireAmpSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Min 17.5 A (75&deg;C THHN)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Max Circuit Breaker (NEC 430.52)</div>
+            <div id="outBreakerSize" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">35 A</div>
+            <div id="outBreakerRuleSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">250% inverse time breaker</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Max Thermal Overload (NEC 430.32)</div>
+            <div id="outOverloadAmps" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">16.5 A</div>
+            <div id="outOverloadRuleSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">125% of Nameplate (13.2 A)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Locked-Rotor Inrush (LRA)</div>
+            <div id="outLraAmps" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#ef4444;margin-top:0.25rem;">74.1 A</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">5.3 &times; FLA starting spike</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Recommended Disconnect Switch</div>
+              <div id="outDisconnectHp" style="font-size:1.2rem;font-weight:700;font-family:var(--mono);color:#3b82f6;margin-top:0.25rem;">15 HP Rated</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">NEC 430.110 Standard</div>
+              <div style="font-size:0.8rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">&ge; 115% FLA (16.1A)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyMotorBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Motor Branch Circuit Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: MOTOR BRANCH CIRCUIT SCHEMATIC -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Interactive NEC Article 430 Motor Branch Circuit Architecture
+    </h3>
+    <div id="mSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & MOTOR SIZING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Electrician Motor Circuit Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Sizing Wire from the Motor Nameplate Instead of NEC Tables (NEC 430.6(A)(1))</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          The number one reason electricians fail commercial inspections is reading the stamped FLA directly off the physical motor nameplate to size branch conductors and circuit breakers. <strong>NEC 430.6(A)(1) strictly forbids this</strong>! Conductors, switches, and overcurrent protection must be sized using the standardized full-load currents published in <strong>NEC Table 430.248 (Single-Phase) or Table 430.250 (Three-Phase)</strong>. This guarantees that if the motor burns out in the future and is replaced by a less efficient brand with a higher nameplate current, the existing branch circuit wiring will never overheat or catch fire.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Sizing Thermal Overload Heaters from NEC Tables Instead of Nameplate</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          The inverse of Trap 1: while wire and breakers must use the NEC table values, <strong>thermal overload protection (overload heaters and electronic relays per NEC 430.6(A)(2) and 430.32) MUST be sized using the ACTUAL physical motor nameplate rating</strong>! If a high-efficiency 10 HP motor has a nameplate of 12.0 A, but you set the overload relay to 125% of the NEC table value of 14.0 A (17.5 A), the motor can operate in a chronic 145% overload condition until its stator windings incinerate, and the overload will never trip!
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Nuisance Tripping 100% Breakers on NEMA Code G Starting Inrush</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Unlike resistive heaters, an AC induction motor is essentially a dead short circuit across the line at the instant of startup until rotor counter-electromotive force (back-EMF) develops. Standard NEMA Code G motors pull <strong>6 times rated full-load current (600% inrush)</strong> for the first several seconds. Protecting a 14A motor with a standard 20A breaker causes instant thermal-magnetic tripping every time the contactor pulls in. This is why NEC Table 430.52 explicitly authorizes inverse time circuit breakers to be sized up to <strong>250% of FLA</strong> (and up to 400% per 430.52(C)(1) Ex. 2 if required to start the load).
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🔥 Trap 4: Single-Phasing Destruction on 3-Phase Motors</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          If one fuse blows or one phase conductor opens on a running three-phase induction motor, the rotating stator magnetic field collapses into an elliptical oscillating field. To maintain shaft horsepower, the current in the remaining two energized phase windings spikes to <strong>173% of normal FLA</strong>. Even worse, negative-sequence currents induce massive rotor currents, heating the squirrel cage bars to over 600&deg;F within two minutes. Always ensure the motor starter is equipped with three-phase electronic overload protection with built-in phase-loss detection.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>📏 Trap 5: High Starting Voltage Drop Causing Inrush Contactor Chattering</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          On long feeder runs (e.g. 250+ feet to a wastewater lift station or quarry conveyor), sizing wire strictly for 125% running FLA can result in a 15% to 20% voltage drop during full-voltage motor starting. Because induction motor torque is proportional to the square of terminal voltage ($T \\propto V^2$), a 20% voltage dip slashes starting torque by <strong>36%</strong> ($0.80^2 = 0.64$). The motor stalls in locked-rotor mode, the magnetic starter coil drops out, picks up, and chatters violently, destroying contactor tips and burning out the stator.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles NEC Motor Circuit Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Branch-Circuit Conductor Sizing (NEC 430.22)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Conductors supplying a single continuous-duty motor must have an ampacity rating not less than 125% of the motor full-load current rating from NEC Table 430.248 or 430.250:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      I_{\\text{conductor}} = I_{\\text{Table FLA}} \\times 1.25
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Motor Branch-Circuit Short-Circuit Protection (NEC Table 430.52)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Maximum allowable ratings for branch-circuit overcurrent protective devices (OCPD):
+    </p>
+    <ul style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);padding-left:1.25rem;">
+      <li><strong>Inverse Time Breaker:</strong> Max 250% of Table FLA (Next standard size up permitted by 430.52(C)(1) Ex. 1).</li>
+      <li><strong>Time-Delay (Dual-Element) Fuses:</strong> Max 175% of Table FLA.</li>
+      <li><strong>Non-Time-Delay Fuses:</strong> Max 300% of Table FLA.</li>
+      <li><strong>Instantaneous Trip Breakers (MCP):</strong> Max 800% of Table FLA (Requires listed combination starter).</li>
+    </ul>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Locked-Rotor Starting Inrush (NEMA Code Letters)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      Locked-Rotor Amperes ($I_{\\text{LRA}}$) is derived from the NEMA kVA/HP code letter rating:
+      $I_{\\text{LRA}} = \\frac{\\text{kVA/HP} \\times \\text{HP} \\times 1000}{\\sqrt{3} \\times V_{LL}}$ (3-Phase) or $\\frac{\\text{kVA/HP} \\times \\text{HP} \\times 1000}{V}$ (1-Phase).
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why are circuit breakers allowed to be 250% of motor FLA?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Electric motors draw massive locked-rotor inrush currents (typically 600% of FLA) when starting across the line. A circuit breaker sized at 125% would trip magnetically on startup. In motor branch circuits, the breaker exists strictly to protect against ground faults and short circuits, while continuous running overload protection is provided by the thermal overload relays in the motor starter.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between NEC Table 430.248 and Table 430.250?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        <strong>NEC Table 430.248</strong> covers single-phase alternating current motors (115V and 230V), whereas <strong>NEC Table 430.250</strong> covers three-phase induction and synchronous motors across standard industrial voltages (208V, 230V, 460V, and 575V).
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How do I size motor overload protection?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Under NEC 430.32, separate overload devices (such as overload relay heaters or electronic overload settings) must be sized based on the <strong>motor nameplate current rating</strong>, NOT the NEC tables: motors with a service factor (SF) of 1.15 or greater or a temperature rise not over 40&deg;C are sized at a maximum of <strong>125% of nameplate FLA</strong>; all other motors are capped at <strong>115% of nameplate FLA</strong>.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What does a NEMA Code Letter mean on a motor nameplate?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        NEMA Code Letters (ranging from A to V per NEMA MG-1 and NEC Table 430.7(B)) define the locked-rotor kVA per horsepower with the rotor locked at rated voltage and frequency. Most standard general-purpose industrial induction motors are <strong>Code G</strong>, corresponding to 5.6 to 6.29 kVA per horsepower.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why does a 10 HP motor have different FLA at 230V vs 460V?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Because electrical power is proportional to voltage times current ($P = \\sqrt{3} \\times V \\times I$), doubling the voltage from 230V to 460V cuts the required operating current exactly in half. For a 10 HP motor, Table 430.250 specifies 28.0 Amps at 230V, but only 14.0 Amps at 460V, allowing significantly smaller conductors and lower installation costs.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      // NEC Table 430.250 (3-Phase AC Induction Motors)
+      // Key: HP -> { 208V, 230V, 460V, 575V }
+      var table430_250 = {
+        0.5: { 208: 2.4, 230: 2.2, 460: 1.1, 575: 0.9 },
+        0.75: { 208: 3.5, 230: 3.2, 460: 1.6, 575: 1.3 },
+        1: { 208: 4.6, 230: 4.2, 460: 2.1, 575: 1.7 },
+        1.5: { 208: 6.6, 230: 6.0, 460: 3.0, 575: 2.4 },
+        2: { 208: 7.5, 230: 6.8, 460: 3.4, 575: 2.7 },
+        3: { 208: 10.6, 230: 9.6, 460: 4.8, 575: 3.9 },
+        5: { 208: 16.7, 230: 15.2, 460: 7.6, 575: 6.1 },
+        7.5: { 208: 24.2, 230: 22.0, 460: 11.0, 575: 9.0 },
+        10: { 208: 30.8, 230: 28.0, 460: 14.0, 575: 11.0 },
+        15: { 208: 46.2, 230: 42.0, 460: 21.0, 575: 17.0 },
+        20: { 208: 59.4, 230: 54.0, 460: 27.0, 575: 22.0 },
+        25: { 208: 74.8, 230: 68.0, 460: 34.0, 575: 27.0 },
+        30: { 208: 88.0, 230: 80.0, 460: 40.0, 575: 32.0 },
+        40: { 208: 114.0, 230: 104.0, 460: 52.0, 575: 41.0 },
+        50: { 208: 143.0, 230: 130.0, 460: 65.0, 575: 52.0 },
+        60: { 208: 169.0, 230: 154.0, 460: 77.0, 575: 62.0 },
+        75: { 208: 211.0, 230: 192.0, 460: 96.0, 575: 77.0 },
+        100: { 208: 273.0, 230: 248.0, 460: 124.0, 575: 99.0 },
+        125: { 208: 343.0, 230: 312.0, 460: 156.0, 575: 125.0 },
+        150: { 208: 396.0, 230: 360.0, 460: 180.0, 575: 144.0 },
+        200: { 208: 528.0, 230: 480.0, 460: 240.0, 575: 192.0 }
+      };
+
+      // NEC Table 430.248 (1-Phase AC Motors)
+      // Key: HP -> { 115V, 208V, 230V }
+      var table430_248 = {
+        0.5: { 115: 9.8, 208: 5.4, 230: 4.9 },
+        0.75: { 115: 13.8, 208: 7.6, 230: 6.9 },
+        1: { 115: 16.0, 208: 8.8, 230: 8.0 },
+        1.5: { 115: 20.0, 208: 11.0, 230: 10.0 },
+        2: { 115: 24.0, 208: 13.2, 230: 12.0 },
+        3: { 115: 34.0, 208: 18.7, 230: 17.0 },
+        5: { 115: 56.0, 208: 30.8, 230: 28.0 },
+        7.5: { 115: 80.0, 208: 44.0, 230: 40.0 },
+        10: { 115: 100.0, 208: 55.0, 230: 50.0 }
+      };
+
+      var standardBreakers = [15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 125, 150, 175, 200, 225, 250, 300, 350, 400, 450, 500, 600, 700, 800];
+
+      function getStandardBreaker(amps) {
+        for (var i = 0; i < standardBreakers.length; i++) {
+          if (standardBreakers[i] >= amps) {
+            return standardBreakers[i];
+          }
+        }
+        return Math.ceil(amps / 50) * 50;
+      }
+
+      function getCopperConductor(minAmp) {
+        // Table 310.16 75°C Copper
+        if (minAmp <= 15) return '#14 AWG Cu';
+        if (minAmp <= 20) return '#12 AWG Cu';
+        if (minAmp <= 30) return '#10 AWG Cu';
+        if (minAmp <= 50) return '#8 AWG Cu';
+        if (minAmp <= 65) return '#6 AWG Cu';
+        if (minAmp <= 85) return '#4 AWG Cu';
+        if (minAmp <= 100) return '#3 AWG Cu';
+        if (minAmp <= 115) return '#2 AWG Cu';
+        if (minAmp <= 130) return '#1 AWG Cu';
+        if (minAmp <= 150) return '1/0 AWG Cu';
+        if (minAmp <= 175) return '2/0 AWG Cu';
+        if (minAmp <= 200) return '3/0 AWG Cu';
+        if (minAmp <= 230) return '4/0 AWG Cu';
+        if (minAmp <= 255) return '250 kcmil Cu';
+        if (minAmp <= 285) return '300 kcmil Cu';
+        if (minAmp <= 310) return '350 kcmil Cu';
+        if (minAmp <= 380) return '500 kcmil Cu';
+        return 'Parallel 250+ kcmil Cu';
+      }
+
+      function updateVoltageOptions() {
+        var phase = parseInt(document.getElementById('mPhase').value);
+        var vSelect = document.getElementById('mVoltage');
+        var curVal = vSelect.value;
+        vSelect.innerHTML = '';
+        if (phase === 3) {
+          vSelect.innerHTML = '<option value="460" selected>460 V (480V System)</option><option value="230">230 V (240V System)</option><option value="208">208 V (208V System)</option><option value="575">575 V (600V System)</option>';
+        } else {
+          vSelect.innerHTML = '<option value="115" selected>115 V (120V System)</option><option value="230">230 V (240V System)</option><option value="208">208 V (208V System)</option>';
+        }
+      }
+
+      function calcMotor() {
+        var phase = parseInt(document.getElementById('mPhase').value);
+        var hp = parseFloat(document.getElementById('mHp').value) || 10;
+        var v = parseFloat(document.getElementById('mVoltage').value) || (phase === 3 ? 460 : 115);
+        var ocpd = document.getElementById('mOcpdType').value;
+        var nemaCodeKva = parseFloat(document.getElementById('mNemaCode').value) || 5.9;
+        var sf = parseFloat(document.getElementById('mServiceFactor').value) || 1.15;
+        var nameplate = parseFloat(document.getElementById('mNameplateFla').value) || 0;
+
+        // Lookup Table FLA
+        var tableFla = 0;
+        if (phase === 3) {
+          if (table430_250[hp] && table430_250[hp][v]) {
+            tableFla = table430_250[hp][v];
+          } else {
+            tableFla = (hp * 746) / (Math.sqrt(3) * v * 0.88 * 0.85); // Fallback estimate
+          }
+        } else {
+          if (table430_248[hp] && table430_248[hp][v]) {
+            tableFla = table430_248[hp][v];
+          } else {
+            tableFla = (hp * 746) / (v * 0.80 * 0.80); // Fallback estimate
+          }
+        }
+
+        // Conductor minimum ampacity (125% per NEC 430.22)
+        var minConductorAmp = tableFla * 1.25;
+        var recWire = getCopperConductor(minConductorAmp);
+
+        // OCPD Max sizing per NEC Table 430.52
+        var ocpdMultiplier = 2.50; // default inverse time
+        var ocpdName = '250% inverse time breaker';
+        if (ocpd === 'fuse_delay') {
+          ocpdMultiplier = 1.75;
+          ocpdName = '175% dual-element fuse';
+        } else if (ocpd === 'fuse_nontime') {
+          ocpdMultiplier = 3.00;
+          ocpdName = '300% non-time-delay fuse';
+        } else if (ocpd === 'mcp') {
+          ocpdMultiplier = 8.00;
+          ocpdName = '800% instantaneous MCP';
+        }
+        var rawOcpd = tableFla * ocpdMultiplier;
+        var standardBreaker = getStandardBreaker(rawOcpd);
+
+        // Overload Relay Sizing (NEC 430.32)
+        var baseOverload = (nameplate > 0) ? nameplate : tableFla;
+        var overloadMax = baseOverload * (sf >= 1.15 ? 1.25 : 1.15);
+
+        // Locked Rotor Amps (LRA)
+        var lra = 0;
+        if (phase === 3) {
+          lra = (nemaCodeKva * hp * 1000) / (Math.sqrt(3) * v);
+        } else {
+          lra = (nemaCodeKva * hp * 1000) / v;
+        }
+
+        // Disconnect Rating (NEC 430.110 >= 115% FLA)
+        var discHp = hp * 1.5;
+        if (discHp < 1) discHp = 1;
+
+        // Update UI
+        document.getElementById('outNecFla').textContent = tableFla.toFixed(1) + ' A';
+        document.getElementById('outTableBadge').textContent = (phase === 3 ? 'TABLE 430.250' : 'TABLE 430.248');
+
+        document.getElementById('outWireSize').textContent = recWire;
+        document.getElementById('outWireAmpSub').textContent = 'Min ' + minConductorAmp.toFixed(1) + ' A (75\u00B0C THHN)';
+
+        document.getElementById('outBreakerSize').textContent = standardBreaker + ' A';
+        document.getElementById('outBreakerRuleSub').textContent = ocpdName;
+
+        document.getElementById('outOverloadAmps').textContent = overloadMax.toFixed(1) + ' A';
+        document.getElementById('outOverloadRuleSub').textContent = (sf >= 1.15 ? '125%' : '115%') + ' of ' + baseOverload.toFixed(1) + ' A nameplate';
+
+        document.getElementById('outLraAmps').textContent = lra.toFixed(1) + ' A';
+        document.getElementById('outDisconnectHp').textContent = Math.ceil(discHp) + ' HP Rated';
+
+        renderMotorSvg(phase, hp, v, tableFla, standardBreaker, recWire);
+      }
+
+      function renderMotorSvg(phase, hp, v, tableFla, standardBreaker, recWire) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<marker id="arrowWire" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"/></marker>';
+        svg += '</defs>';
+
+        // Main Feeder (Left)
+        svg += '<rect x="40" y="60" width="100" height="140" rx="8" fill="var(--surface)" stroke="#64748b" stroke-width="2"/>';
+        svg += '<text x="90" y="90" text-anchor="middle" font-size="11" font-weight="700" fill="#64748b">PANELBOARD</text>';
+        svg += '<rect x="55" y="105" width="70" height="30" rx="4" fill="#10b98120" stroke="#10b981" stroke-width="1.5"/>';
+        svg += '<text x="90" y="125" text-anchor="middle" font-size="13" font-weight="800" fill="#10b981">' + standardBreaker + 'A</text>';
+        svg += '<text x="90" y="150" text-anchor="middle" font-size="10" fill="var(--text-muted)">NEC 430.52</text>';
+
+        // Feeder lines to Contactor
+        svg += '<line x1="140" y1="120" x2="250" y2="120" stroke="#2563eb" stroke-width="3" marker-end="url(#arrowWire)"/>';
+        svg += '<text x="195" y="110" text-anchor="middle" font-size="11" font-weight="700" fill="#2563eb">' + recWire + '</text>';
+        svg += '<text x="195" y="138" text-anchor="middle" font-size="10" fill="var(--text-muted)">125% FLA</text>';
+
+        // Motor Starter & Overload (Middle)
+        svg += '<rect x="260" y="50" width="180" height="160" rx="8" fill="var(--surface)" stroke="#3b82f6" stroke-width="2"/>';
+        svg += '<text x="350" y="80" text-anchor="middle" font-size="12" font-weight="700" fill="#3b82f6">MAGNETIC STARTER</text>';
+        svg += '<rect x="280" y="95" width="140" height="40" rx="4" fill="#3b82f620" stroke="#3b82f6" stroke-width="1"/>';
+        svg += '<text x="350" y="120" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">CONTACTOR + COIL</text>';
+        svg += '<rect x="280" y="145" width="140" height="40" rx="4" fill="#f59e0b20" stroke="#f59e0b" stroke-width="1"/>';
+        svg += '<text x="350" y="170" text-anchor="middle" font-size="11" font-weight="700" fill="#f59e0b">THERMAL OVERLOAD</text>';
+
+        // Lines to Motor
+        svg += '<line x1="440" y1="120" x2="540" y2="120" stroke="#2563eb" stroke-width="3" marker-end="url(#arrowWire)"/>';
+
+        // Motor (Right)
+        svg += '<circle cx="640" cy="125" r="65" fill="var(--surface)" stroke="#2563eb" stroke-width="4"/>';
+        svg += '<circle cx="640" cy="125" r="45" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="4,4"/>';
+        svg += '<circle cx="640" cy="125" r="14" fill="#1e293b"/>';
+        svg += '<text x="640" y="105" text-anchor="middle" font-size="14" font-weight="800" fill="var(--fg)">' + hp + ' HP</text>';
+        svg += '<text x="640" y="125" text-anchor="middle" font-size="11" font-weight="700" fill="#2563eb">' + tableFla.toFixed(1) + ' A FLA</text>';
+        svg += '<text x="640" y="145" text-anchor="middle" font-size="10" fill="var(--text-muted)">' + v + 'V ' + (phase === 3 ? '3-Ph' : '1-Ph') + '</text>';
+
+        svg += '<text x="410" y="240" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">NEC Article 430 Single Motor Branch Circuit Architecture</text>';
+
+        svg += '</svg>';
+        document.getElementById('mSvgWrapper').innerHTML = svg;
+      }
+
+      function copyMotorSpec() {
+        var phase = document.getElementById('mPhase').value;
+        var hp = document.getElementById('mHp').value;
+        var v = document.getElementById('mVoltage').value;
+        var fla = document.getElementById('outNecFla').textContent;
+        var wire = document.getElementById('outWireSize').textContent;
+        var breaker = document.getElementById('outBreakerSize').textContent;
+        var overload = document.getElementById('outOverloadAmps').textContent;
+        var lra = document.getElementById('outLraAmps').textContent;
+
+        var text = 'NEC MOTOR BRANCH CIRCUIT SIZING SPECIFICATION\\n';
+        text += '---------------------------------------------------\\n';
+        text += 'Motor Rating: ' + hp + ' HP (' + (phase === '3' ? '3-Phase' : '1-Phase') + ' @ ' + v + 'V)\\n';
+        text += 'NEC Table FLA: ' + fla + ' (Table ' + (phase === '3' ? '430.250' : '430.248') + ')\\n';
+        text += 'Minimum Branch Conductor (125% FLA): ' + wire + '\\n';
+        text += 'Max Branch Circuit Breaker (NEC 430.52): ' + breaker + '\\n';
+        text += 'Max Thermal Overload Protection: ' + overload + '\\n';
+        text += 'Locked Rotor Starting Inrush (LRA): ' + lra + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyMotorBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Motor Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['mPhase', 'mHp', 'mVoltage', 'mOcpdType', 'mNemaCode', 'mServiceFactor', 'mNameplateFla'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', function() {
+            if (id === 'mPhase') updateVoltageOptions();
+            calcMotor();
+          });
+          el.addEventListener('change', function() {
+            if (id === 'mPhase') updateVoltageOptions();
+            calcMotor();
+          });
+        }
+      });
+
+      document.getElementById('copyMotorBtn').addEventListener('click', copyMotorSpec);
+
+      updateVoltageOptions();
+      calcMotor();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'motor-full-load-amps-calculator.html'), renderTradePage({
+    title: "Motor FLA Calculator: NEC Tables 430.248 & 430.250, Wire & Breaker | Digital Tools Shed",
+    metaDesc: "Lookup NEC Table 430.248 & 430.250 motor Full Load Amps (FLA), size 125% branch conductors, calculate max circuit breakers, and determine starting inrush (LRA).",
+    canonical: `${DOMAIN}/calc/motor-full-load-amps-calculator`,
+    bodyContent: motorFlaBody,
+    currentPath: '/calc/motor-full-load-amps-calculator',
+    faq: [
+      {
+        "q": "Why are circuit breakers allowed to be 250% of motor FLA?",
+        "a": "Electric motors draw massive locked-rotor inrush currents (typically 600% of FLA) when starting across the line. A circuit breaker sized at 125% would trip magnetically on startup. In motor branch circuits, the breaker exists strictly to protect against ground faults and short circuits, while continuous running overload protection is provided by the thermal overload relays in the motor starter."
+      },
+      {
+        "q": "What is the difference between NEC Table 430.248 and Table 430.250?",
+        "a": "<strong>NEC Table 430.248</strong> covers single-phase alternating current motors (115V and 230V), whereas <strong>NEC Table 430.250</strong> covers three-phase induction and synchronous motors across standard industrial voltages (208V, 230V, 460V, and 575V)."
+      },
+      {
+        "q": "How do I size motor overload protection?",
+        "a": "Under NEC 430.32, separate overload devices (such as overload relay heaters or electronic overload settings) must be sized based on the <strong>motor nameplate current rating</strong>, NOT the NEC tables: motors with a service factor (SF) of 1.15 or greater or a temperature rise not over 40&deg;C are sized at a maximum of <strong>125% of nameplate FLA</strong>; all other motors are capped at <strong>115% of nameplate FLA</strong>."
+      },
+      {
+        "q": "What does a NEMA Code Letter mean on a motor nameplate?",
+        "a": "NEMA Code Letters (ranging from A to V per NEMA MG-1 and NEC Table 430.7(B)) define the locked-rotor kVA per horsepower with the rotor locked at rated voltage and frequency. Most standard general-purpose industrial induction motors are <strong>Code G</strong>, corresponding to 5.6 to 6.29 kVA per horsepower."
+      },
+      {
+        "q": "Why does a 10 HP motor have different FLA at 230V vs 460V?",
+        "a": "Because electrical power is proportional to voltage times current ($P = \\sqrt{3} \\times V \\times I$), doubling the voltage from 230V to 460V cuts the required operating current exactly in half. For a 10 HP motor, Table 430.250 specifies 28.0 Amps at 230V, but only 14.0 Amps at 460V, allowing significantly smaller conductors and lower installation costs."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // RETENTION & DETENTION POND VOLUME, FRUSTUM CONIC & RUNOFF CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const retainingPondBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Retaining Pond Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Stormwater Retention Pond Volume & Runoff Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate stormwater retention and detention basin storage capacity using the exact Prismoidal/Conic Frustum formula (Cubic Feet, Cubic Yards, and Acre-Feet). Models Rational Method watershed peak runoff (Q = CIA), required detention volume, and emergency spillway weir discharge.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Pond Geometry & Slope Dimensions
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rpBottomLen">Basin Bottom Length (Ft)</label>
+          <input type="number" id="rpBottomLen" value="100" min="10" max="2000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Floor floor length (L_b)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rpBottomWid">Basin Bottom Width (Ft)</label>
+          <input type="number" id="rpBottomWid" value="50" min="10" max="1000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Floor floor width (W_b)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rpWaterDepth">Design Water Depth (Ft)</label>
+          <input type="number" id="rpWaterDepth" value="6.0" min="1.0" max="30.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Depth to normal or 100-yr pool</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rpSideSlope">Interior Side Slope (H:1V)</label>
+          <select id="rpSideSlope" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="4.0">4:1 (Gentle Safety Slope)</option>
+            <option value="3.0" selected>3:1 (Standard Municipal Spec)</option>
+            <option value="2.5">2.5:1 (Steep)</option>
+            <option value="2.0">2:1 (Max Slope / Riprap Only)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rpFreeboard">Freeboard Safety Height (Ft)</label>
+          <input type="number" id="rpFreeboard" value="1.0" min="0.5" max="5.0" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Emergency crest safety buffer</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rpDrainageArea">Watershed Area (Acres)</label>
+          <input type="number" id="rpDrainageArea" value="12" min="0.5" max="500" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Tributary drainage area (A)</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="rpRunoffCoeff">Watershed Runoff Type (C-Factor)</label>
+        <select id="rpRunoffCoeff" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="0.90">Pavement / Roofs / Commercial (C = 0.90)</option>
+          <option value="0.70">Dense Urban / High Impervious (C = 0.70)</option>
+          <option value="0.45" selected>Single-Family Residential (C = 0.45)</option>
+          <option value="0.30">Heavy Soil Lawn / Parks (C = 0.30)</option>
+          <option value="0.15">Wooded / Sandy Forest (C = 0.15)</option>
+        </select>
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Rational Method coefficient for 100-yr peak storm</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Storage Capacity & Hydraulic Ratings
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Live Water Storage Volume</div>
+            <span id="outVolBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#10b98120;color:#10b981;">PRISMOIDAL EXACT</span>
+          </div>
+          <div id="outAcreFeet" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">1.07 Acre-Ft</div>
+          <div id="outCuYardsSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">46,720 cu ft (1,730 cu yds | 349,500 gal)</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Top Surface Waterline</div>
+            <div id="outTopDimensions" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">136' &times; 86'</div>
+            <div id="outTopAreaSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">11,696 sq ft surface (0.27 acres)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Capacity with Freeboard</div>
+            <div id="outTotalAcreFt" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">1.37 Acre-Ft</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">59,600 cu ft total to berm top</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Peak Inflow Runoff (Q = CIA)</div>
+            <div id="outPeakCfs" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">21.6 CFS</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">At 4.0 in/hr 100-yr rainfall</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Sediment Forebay Volume</div>
+            <div id="outForebayCuYds" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">173 cu yds</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">10% permanent sediment pool</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Spillway Weir Capacity</div>
+              <div id="outWeirCap" style="font-size:1.2rem;font-weight:700;font-family:var(--mono);color:#3b82f6;margin-top:0.25rem;">30.9 CFS</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Emergency Crest Discharge</div>
+              <div style="font-size:0.8rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">10' Broad-Crested Weir @ 1.0' head</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyRpBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Stormwater Basin Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: POND BASIN CROSS SECTION & FREEBOARD -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Interactive Stormwater Basin Cross-Section & Embankment Profile
+    </h3>
+    <div id="rpSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & STORMWATER ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Civil Stormwater Basin Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: The Average End Area Fallacy (15% Under-Sizing Error)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Many developers mistakenly calculate pond storage volume by averaging top and bottom surface areas: $V = h \\times (A_1 + A_2) / 2$. For an inverted pyramid frustum with flared slopes, the Average End Area formula drastically overstates true capacity by <strong>10% to 15%</strong>. Civil engineering standards (ASCE and local DOT manuals) strictly require the <strong>Prismoidal / Conic Frustum equation</strong>: $V = \\frac{h}{3} (A_1 + A_2 + \\sqrt{A_1 A_2})$. Using Average End Area results in a detention basin that is under-built, overtopping its banks during heavy storms and flooding downstream commercial properties.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Omitting Mandatory 1.0-Foot Freeboard (Catastrophic Dam Breach)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Earthen detention berms are not concrete dams; they cannot withstand water spilling directly over their crest. If design 100-year storm flood levels reach the absolute top of the embankment with zero freeboard, wave action and debris will cause water to wash over the grass crest. Concentrated flowing water rapidly carves rills into uncompacted fill, triggering a catastrophic earthen berm breach that releases hundreds of thousands of gallons of floodwater in seconds. A strict minimum of <strong>1.0 foot (and often 2.0 feet) of settled freeboard</strong> is required above the 100-year storm elevation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Neglecting the Sediment Forebay (Silt Infilling & Maintenance Collapse)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Urban stormwater carries heavy loads of suspended construction silt, sand, and tire dust. If incoming runoff discharges directly into the main detention pool, sediment settles across the entire bottom. Within 5 years, accumulated sediment eats up 30% of active flood storage capacity. Every municipality mandates a hardened <strong>Sediment Forebay</strong> sized for 10% to 15% of the total detention volume. The forebay traps heavy coarse sediment at the inlet where excavators can clean it out in a single afternoon without draining the entire retention pond.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>💧 Trap 4: Sub-Surface Piping Erosion Along the Outfall Conduit</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When the low-level discharge barrel pipe penetrates the earthen embankment dam, water under hydraulic head pressure seeks the path of least resistance along the smooth outer exterior of the pipe. Without <strong>anti-seep collars</strong> or an engineered sand/bentonite filter diaphragm, sub-surface seepage fluidizes fine soil particles along the pipe barrel ("piping failure"), creating an internal erosion tunnel that collapses the dam structure from within.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚜 Trap 5: Slopes Steeper than 3:1 Causing Mower Rollovers & Bank Sloughing</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Designing interior or exterior side slopes at 2:1 to maximize storage volume creates a deadly maintenance liability. Commercial zero-turn lawnmowers flip backward on slopes steeper than 3:1, causing fatal commercial operator crushing accidents. Furthermore, saturated clay soils on 2:1 slopes undergo rotational shear slope failure (sloughing) during rapid drawdown after a hurricane, requiring tens of thousands of dollars in riprap stabilization.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Civil Engineering Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Exact Prismoidal / Conic Frustum Volume Equation</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      For a basin of depth $h$, bottom surface area $A_1$, and top surface area $A_2$:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      V = \\frac{h}{3} \\left( A_1 + A_2 + \\sqrt{A_1 \\times A_2} \\right) \\quad (\\text{Cubic Feet})
+    </div>
+    <p style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.5rem;">
+      Where $A_1 = L_b \\times W_b$ and $A_2 = (L_b + 2 Z h) \\times (W_b + 2 Z h)$, with $Z$ being the horizontal-to-vertical side slope ratio. To convert to Acre-Feet: $\\text{Acre-Ft} = \\frac{V}{43,560}$.
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Rational Method Peak Stormwater Runoff (Q = CIA)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Peak design storm runoff discharge rate ($Q$ in cubic feet per second):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      Q = C \\times I \\times A
+    </div>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      Where $C$ is the dimensionless runoff coefficient ($0.05$ to $0.95$), $I$ is rainfall intensity in inches/hour (from local NOAA Atlas 14 IDF curves), and $A$ is watershed area in acres. (Note: 1 acre-inch/hour $\\approx 1.008\\text{ cfs}$).
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Broad-Crested Emergency Spillway Weir Discharge</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      Discharge over an emergency overflow weir crest:
+      $Q_{\\text{weir}} = C_w \\times L_{\\text{weir}} \\times H^{1.5}$, where $C_w \\approx 3.09$ for broad-crested earthen/riprap weirs, $L_{\\text{weir}}$ is weir crest width, and $H$ is head over crest.
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between a retention pond and a detention pond?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        A <strong>detention pond (dry pond)</strong> is designed to temporarily store storm runoff and release it slowly through an orifice over 24 to 48 hours, completely drying out between rain events. A <strong>retention pond (wet pond)</strong> maintains a permanent pool of water at all times to enhance biological nutrient removal and settling of fine pollutants, with storm surge storage accommodated above the permanent pool elevation.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How many gallons are in an acre-foot of water?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        One acre-foot equals <strong>43,560 cubic feet</strong>, which converts to exactly <strong>325,851 US Gallons</strong>. It represents the volume of water required to cover one full acre of land to a uniform depth of exactly one foot.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why is a 3:1 side slope recommended for stormwater ponds?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        A 3:1 slope (3 feet horizontal for every 1 foot vertical) is the standard civil engineering threshold for human egress and equipment safety. It allows people who accidentally fall into the pond to climb out easily without slipping, prevents slope bank sloughing when saturated, and permits commercial mowers to cut grass without dangerous rollover accidents.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is a sediment forebay and why is it required?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        A sediment forebay is a separate, smaller settling pool located at the pond inlet, typically separated by an underwater riprap gabion weir. Sized for 10% to 15% of the total storage, it slows incoming runoff velocity, causing 80%+ of heavy gravel, sand, and trash to settle out before reaching the main basin, concentrating routine dredging into an easily accessible zone.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why does Average End Area produce inaccurate pond volumes?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        The Average End Area method assumes linear cross-sectional transitions, which works well for long, uniform highway road cuts. For bowl-shaped and trapezoidal frustum ponds where cross-sectional area changes with the square of water depth, Average End Area mathematically overestimates volume by 10% to 15%, leading to undersized retention facilities that fail civil stormwater plan review.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      function calcPond() {
+        var bLen = parseFloat(document.getElementById('rpBottomLen').value) || 100;
+        var bWid = parseFloat(document.getElementById('rpBottomWid').value) || 50;
+        var depth = parseFloat(document.getElementById('rpWaterDepth').value) || 6.0;
+        var z = parseFloat(document.getElementById('rpSideSlope').value) || 3.0;
+        var fb = parseFloat(document.getElementById('rpFreeboard').value) || 1.0;
+        var areaAcres = parseFloat(document.getElementById('rpDrainageArea').value) || 12;
+        var cVal = parseFloat(document.getElementById('rpRunoffCoeff').value) || 0.45;
+
+        // Bottom Area
+        var aBottom = bLen * bWid;
+
+        // Top Waterline Dimensions & Area
+        var tLen = bLen + (2 * z * depth);
+        var tWid = bWid + (2 * z * depth);
+        var aTop = tLen * tWid;
+
+        // Prismoidal Frustum Water Volume: V = (h / 3) * (A1 + A2 + sqrt(A1 * A2))
+        var vCuFt = (depth / 3) * (aBottom + aTop + Math.sqrt(aBottom * aTop));
+        var vCuYds = vCuFt / 27;
+        var vAcreFt = vCuFt / 43560;
+        var vGal = vCuFt * 7.48052;
+
+        // Total Volume with Freeboard to top of berm
+        var totDepth = depth + fb;
+        var totLen = bLen + (2 * z * totDepth);
+        var totWid = bWid + (2 * z * totDepth);
+        var aTotBerm = totLen * totWid;
+        var vTotCuFt = (totDepth / 3) * (aBottom + aTotBerm + Math.sqrt(aBottom * aTotBerm));
+        var vTotAcreFt = vTotCuFt / 43560;
+
+        // Rational Method Peak Inflow (Q = C * I * A)
+        // Assume 4.0 in/hr 100-year storm intensity
+        var rainfallInt = 4.0;
+        var qPeakCfs = cVal * rainfallInt * areaAcres;
+
+        // Sediment forebay sizing (10% of live storage)
+        var forebayCuYds = vCuYds * 0.10;
+
+        // Broad-Crested Emergency Weir Discharge (Q = Cw * L * H^1.5)
+        // 10-ft weir with 1.0 ft of head
+        var weirL = 10.0;
+        var weirHead = 1.0;
+        var qWeir = 3.09 * weirL * Math.pow(weirHead, 1.5);
+
+        // Update UI
+        document.getElementById('outAcreFeet').textContent = vAcreFt.toFixed(2) + ' Acre-Ft';
+        document.getElementById('outCuYardsSub').textContent = Math.round(vCuFt).toLocaleString() + ' cu ft (' + Math.round(vCuYds).toLocaleString() + ' cu yds | ' + Math.round(vGal).toLocaleString() + ' gal)';
+
+        document.getElementById('outTopDimensions').textContent = Math.round(tLen) + "' \u00D7 " + Math.round(tWid) + "'";
+        document.getElementById('outTopAreaSub').textContent = Math.round(aTop).toLocaleString() + ' sq ft surface (' + (aTop / 43560).toFixed(2) + ' acres)';
+
+        document.getElementById('outTotalAcreFt').textContent = vTotAcreFt.toFixed(2) + ' Acre-Ft';
+        document.getElementById('outPeakCfs').textContent = qPeakCfs.toFixed(1) + ' CFS';
+        document.getElementById('outForebayCuYds').textContent = Math.round(forebayCuYds).toLocaleString() + ' cu yds';
+        document.getElementById('outWeirCap').textContent = qWeir.toFixed(1) + ' CFS';
+
+        renderPondSvg(bLen, tLen, depth, fb, z, vAcreFt);
+      }
+
+      function renderPondSvg(bLen, tLen, depth, fb, z, vAcreFt) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<pattern id="earthFill" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M0,16 L16,0 M-4,4 L4,-4 M12,20 L20,12" stroke="#64748b" stroke-width="1.2" opacity="0.3"/></pattern>';
+        svg += '</defs>';
+
+        // Ground Cutaway Base & Slopes
+        var bermLeft = 60;
+        var bermRight = 760;
+        var crestY = 50;
+        var waterY = crestY + (fb * 25);
+        var floorY = waterY + (depth * 20);
+
+        var floorLeft = 280;
+        var floorRight = 540;
+
+        var slopeTopLeft = floorLeft - (depth + fb) * (z * 6);
+        var slopeTopRight = floorRight + (depth + fb) * (z * 6);
+
+        // Ground polygon
+        svg += '<polygon points="' + bermLeft + ',' + crestY + ' ' + slopeTopLeft + ',' + crestY + ' ' + floorLeft + ',' + floorY + ' ' + floorRight + ',' + floorY + ' ' + slopeTopRight + ',' + crestY + ' ' + bermRight + ',' + crestY + ' ' + bermRight + ',250 ' + bermLeft + ',250" fill="url(#earthFill)" stroke="#475569" stroke-width="2"/>';
+
+        // Water Basin Body
+        var waterTopLeft = floorLeft - (depth * z * 6);
+        var waterTopRight = floorRight + (depth * z * 6);
+        svg += '<polygon points="' + waterTopLeft + ',' + waterY + ' ' + waterTopRight + ',' + waterY + ' ' + floorRight + ',' + floorY + ' ' + floorLeft + ',' + floorY + '" fill="rgba(59, 130, 246, 0.45)" stroke="#2563eb" stroke-width="2"/>';
+
+        // Waterline Wave indicator
+        svg += '<line x1="' + waterTopLeft + '" y1="' + waterY + '" x2="' + waterTopRight + '" y2="' + waterY + '" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="6,4"/>';
+        svg += '<text x="410" y="' + (waterY - 8) + '" text-anchor="middle" font-size="12" font-weight="700" fill="#2563eb">DESIGN POOL: ' + vAcreFt.toFixed(2) + ' ACRE-FEET</text>';
+
+        // Freeboard bracket
+        svg += '<line x1="' + (slopeTopLeft - 10) + '" y1="' + crestY + '" x2="' + (slopeTopLeft - 10) + '" y2="' + waterY + '" stroke="#ef4444" stroke-width="2"/>';
+        svg += '<text x="' + (slopeTopLeft - 15) + '" y="' + ((crestY + waterY) / 2 + 4) + '" text-anchor="end" font-size="11" font-weight="700" fill="#ef4444">' + fb + "' FREEBOARD</text>';
+
+        // Depth bracket
+        svg += '<line x1="410" y1="' + waterY + '" x2="410" y2="' + floorY + '" stroke="#ffffff" stroke-width="2" stroke-dasharray="3,3"/>';
+        svg += '<text x="418" y="' + ((waterY + floorY) / 2 + 4) + '" font-size="11" font-weight="700" fill="#ffffff">DEPTH: ' + depth.toFixed(1) + "'</text>';
+
+        // Slope annotation
+        svg += '<text x="' + (floorRight + 35) + '" y="' + ((waterY + floorY) / 2) + '" font-size="12" font-weight="700" fill="var(--fg)">' + z + ':1 SLOPE</text>';
+
+        // Bottom Length
+        svg += '<line x1="' + floorLeft + '" y1="' + (floorY + 14) + '" x2="' + floorRight + '" y2="' + (floorY + 14) + '" stroke="#64748b" stroke-width="1.5"/>';
+        svg += '<text x="410" y="' + (floorY + 28) + '" text-anchor="middle" font-size="11" font-weight="700" fill="var(--text-muted)">Floor: ' + bLen + "' L</text>';
+
+        svg += '<text x="410" y="248" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">Trapezoidal Frustum Geometry | Anti-Seep Collars & Forebay Standard</text>';
+
+        svg += '</svg>';
+        document.getElementById('rpSvgWrapper').innerHTML = svg;
+      }
+
+      function copyRpSpec() {
+        var vol = document.getElementById('outAcreFeet').textContent;
+        var cuYds = document.getElementById('outCuYardsSub').textContent;
+        var topDim = document.getElementById('outTopDimensions').textContent;
+        var slope = document.getElementById('rpSideSlope').value + ':1';
+        var depth = document.getElementById('rpWaterDepth').value + ' ft';
+        var fb = document.getElementById('rpFreeboard').value + ' ft';
+        var qPeak = document.getElementById('outPeakCfs').textContent;
+        var forebay = document.getElementById('outForebayCuYds').textContent;
+
+        var text = 'STORMWATER RETENTION BASIN SPECIFICATION\\n';
+        text += '-------------------------------------------------\\n';
+        text += 'Live Storage Capacity: ' + vol + '\\n';
+        text += 'Volumetric Measurements: ' + cuYds + '\\n';
+        text += 'Top Surface Waterline: ' + topDim + '\\n';
+        text += 'Design Depth: ' + depth + ' | Side Slope: ' + slope + '\\n';
+        text += 'Mandatory Freeboard: ' + fb + '\\n';
+        text += 'Peak Inflow Runoff (100-yr Q = CIA): ' + qPeak + '\\n';
+        text += 'Sediment Forebay Volume (10%): ' + forebay + '\\n';
+        text += 'Formula: Exact Prismoidal / Conic Frustum Integral\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyRpBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Stormwater Basin Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['rpBottomLen', 'rpBottomWid', 'rpWaterDepth', 'rpSideSlope', 'rpFreeboard', 'rpDrainageArea', 'rpRunoffCoeff'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcPond);
+          el.addEventListener('change', calcPond);
+        }
+      });
+
+      document.getElementById('copyRpBtn').addEventListener('click', copyRpSpec);
+
+      calcPond();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'retaining-pond-volume-calculator.html'), renderTradePage({
+    title: "Retention Pond Volume Calculator: Conic Frustum, CFS & Acre-Feet | Digital Tools Shed",
+    metaDesc: "Calculate stormwater retention and detention pond volume (cu ft, cu yds, acre-feet) using the prismoidal frustum formula. Sizes runoff Q=CIA and freeboard.",
+    canonical: `${DOMAIN}/calc/retaining-pond-volume-calculator`,
+    bodyContent: retainingPondBody,
+    currentPath: '/calc/retaining-pond-volume-calculator',
+    faq: [
+      {
+        "q": "What is the difference between a retention pond and a detention pond?",
+        "a": "A <strong>detention pond (dry pond)</strong> is designed to temporarily store storm runoff and release it slowly through an orifice over 24 to 48 hours, completely drying out between rain events. A <strong>retention pond (wet pond)</strong> maintains a permanent pool of water at all times to enhance biological nutrient removal and settling of fine pollutants, with storm surge storage accommodated above the permanent pool elevation."
+      },
+      {
+        "q": "How many gallons are in an acre-foot of water?",
+        "a": "One acre-foot equals <strong>43,560 cubic feet</strong>, which converts to exactly <strong>325,851 US Gallons</strong>. It represents the volume of water required to cover one full acre of land to a uniform depth of exactly one foot."
+      },
+      {
+        "q": "Why is a 3:1 side slope recommended for stormwater ponds?",
+        "a": "A 3:1 slope (3 feet horizontal for every 1 foot vertical) is the standard civil engineering threshold for human egress and equipment safety. It allows people who accidentally fall into the pond to climb out easily without slipping, prevents slope bank sloughing when saturated, and permits commercial mowers to cut grass without dangerous rollover accidents."
+      },
+      {
+        "q": "What is a sediment forebay and why is it required?",
+        "a": "A sediment forebay is a separate, smaller settling pool located at the pond inlet, typically separated by an underwater riprap gabion weir. Sized for 10% to 15% of the total storage, it slows incoming runoff velocity, causing 80%+ of heavy gravel, sand, and trash to settle out before reaching the main basin, concentrating routine dredging into an easily accessible zone."
+      },
+      {
+        "q": "Why does Average End Area produce inaccurate pond volumes?",
+        "a": "The Average End Area method assumes linear cross-sectional transitions, which works well for long, uniform highway road cuts. For bowl-shaped and trapezoidal frustum ponds where cross-sectional area changes with the square of water depth, Average End Area mathematically overestimates volume by 10% to 15%, leading to undersized retention facilities that fail civil stormwater plan review."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
