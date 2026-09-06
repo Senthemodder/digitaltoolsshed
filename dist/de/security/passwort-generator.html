@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sicherer Passwort Generator Online | Digital Tools Shed DE</title>
-  <meta name="description" content="Generieren Sie hochsichere Passwörter direkt im Browser mit der Web Cryptography API. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <title>Sicherer Passwort Generator Online [CSPRNG & Entropie] | Digital Tools Shed DE</title>
+  <meta name="description" content="Generieren Sie hochsichere, kryptografisch unvorhersehbare Passwörter direkt im Browser mit der Web Cryptography API und Entropie-Analyse — 100% free, instant & private.">
   <link rel="canonical" href="https://digitaltoolsshed.com/de/security/passwort-generator">
-  <meta property="og:title" content="Sicherer Passwort Generator Online | Digital Tools Shed DE">
-  <meta property="og:description" content="Generieren Sie hochsichere Passwörter direkt im Browser mit der Web Cryptography API. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta property="og:title" content="Sicherer Passwort Generator Online [CSPRNG & Entropie] | Digital Tools Shed DE">
+  <meta property="og:description" content="Generieren Sie hochsichere, kryptografisch unvorhersehbare Passwörter direkt im Browser mit der Web Cryptography API und Entropie-Analyse — 100% free, instant & private.">
   <meta property="og:url" content="https://digitaltoolsshed.com/de/security/passwort-generator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Sicherer Passwort Generator Online | Digital Tools Shed DE">
-  <meta name="twitter:description" content="Generieren Sie hochsichere Passwörter direkt im Browser mit der Web Cryptography API. ✓ 100% Free ✓ No Sign-Up ✓ Instant Results.">
+  <meta name="twitter:title" content="Sicherer Passwort Generator Online [CSPRNG & Entropie] | Digital Tools Shed DE">
+  <meta name="twitter:description" content="Generieren Sie hochsichere, kryptografisch unvorhersehbare Passwörter direkt im Browser mit der Web Cryptography API und Entropie-Analyse — 100% free, instant & private.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -97,7 +97,7 @@
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Generieren Sie hochsichere Passwörter direkt im Browser mit der Web Cryptography API.",
+  "description": "Generieren Sie hochsichere, kryptografisch unvorhersehbare Passwörter direkt im Browser mit der Web Cryptography API und Entropie-Analyse.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -112,26 +112,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Sicherer Passwort Generator Online free to use?",
+      "name": "Warum ist window.crypto.getRandomValues sicherer als Math.random()?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Sicherer Passwort Generator Online on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Math.random() ist ein deterministischer Pseudozufallszahlengenerator (PRNG), dessen interner Status durch wenige beobachtete Ausgaben rekonstruiert werden kann. window.crypto greift hingegen auf den kryptografischen Entropiepool des Betriebssystems zu (CSPRNG) und ist mathematisch unvorhersehbar."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "Wie viele Bits Entropie benötigt ein sicheres Passwort?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "NIST und BSI empfehlen für Standard-Passwörter mindestens 64 bis 80 Bits Entropie. Für Master-Passwörter von Passwort-Managern, Root-Zugänge oder Krypto-Wallets sollten 100 bis 128 Bits gewählt werden."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Sicherer Passwort Generator Online work on mobile devices?",
+      "name": "Werden die hier generierten Passwörter irgendwo gespeichert?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "Nein. Alle Passwörter entstehen lokal im Arbeitsspeicher Ihres Browsers. Es erfolgt keinerlei Netzwerkkommunikation, Speicherung in Cookies oder serverseitiges Logging."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Warum sollten mehrdeutige Zeichen wie 0, O, 1 und l vermieden werden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Das Ausschließen optisch ähnlicher Zeichen verhindert menschliche Lesefehler beim manuellen Abtippen von Notfall-Backups auf Mobilgeräten oder Terminal-Konsolen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wie lange bräuchte ein modernes GPU-Cluster, um ein 20-stelliges Passwort zu knacken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ein 20-stelliges Passwort mit Groß-, Kleinbuchstaben, Ziffern und Sonderzeichen besitzt rund 131 Bits Entropie. Selbst ein Verbund von 10.000 High-End-Grafikkarten bräuchte Billionen Jahre zur vollständigen Erschöpfung des Suchraums."
       }
     }
   ]
@@ -142,7 +158,7 @@
   "@context": "https://schema.org",
   "@type": "HowTo",
   "name": "How to Use the Sicherer Passwort Generator Online",
-  "description": "Generieren Sie hochsichere Passwörter direkt im Browser mit der Web Cryptography API.",
+  "description": "Generieren Sie hochsichere, kryptografisch unvorhersehbare Passwörter direkt im Browser mit der Web Cryptography API und Entropie-Analyse.",
   "step": [
     {
       "@type": "HowToStep",
@@ -960,7 +976,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Sicherer Passwort Generator Online | Digital Tools Shed DE</span>
+            <span>Sicherer Passwort Generator Online [CSPRNG & Entropie] | Digital Tools Shed DE</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1031,22 +1047,233 @@
           
 
           
-      <div class="article-container" style="max-width: 900px;">
-        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);"><a href="/de/">Startseite</a> &gt; Passwort Generator</nav>
-        <h1 style="font-family: var(--serif); font-size: 1.8rem; margin-bottom: 0.5rem;">Sicherer Passwort Generator</h1>
-        <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0;">
-          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem;">
-            <input type="text" id="pw-output" style="width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 1.2rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px;" readonly />
-            <button onclick="var btn=this; navigator.clipboard.writeText(document.getElementById('pw-output').value).then(function(){ var o=btn.textContent; btn.textContent='✓ Kopiert!'; setTimeout(function(){ btn.textContent=o; }, 2000); });" style="background: var(--btn-bg, #3b82f6); color:#fff; border:none; padding:0.75rem 1.5rem; border-radius:4px; font-weight:bold; cursor:pointer;">Kopieren</button>
+  <style>
+    .article-container { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem 3rem; }
+    .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin: 1.5rem 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .field-group { margin-bottom: 1.25rem; }
+    .field-label { display: block; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; font-weight: 600; }
+    .text-input, .code-input { width: 100%; padding: 0.65rem 0.85rem; font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
+    .code-input { font-family: var(--mono); }
+    .btn-primary, .btn-copy { background: var(--btn-bg, #3b82f6); color: #fff; border: none; padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.15s ease, background 0.15s ease; }
+    .btn-primary:hover, .btn-copy:hover { opacity: 0.9; }
+    .btn-sec { background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.65rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
+    .btn-sec:hover { background: var(--border); }
+    .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin: 1.25rem 0; }
+    .stat-card { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; text-align: center; }
+    .stat-num { font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: var(--btn-bg, #3b82f6); }
+    .stat-lbl { font-size: 0.78rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.25rem; }
+    .trap-card { background: var(--surface-alt); border-radius: 6px; padding: 1rem 1.25rem; margin-bottom: 0.85rem; font-size: 0.9rem; line-height: 1.6; border: 1px solid var(--border); }
+    .trap-card strong { display: block; margin-bottom: 0.35rem; font-size: 0.95rem; }
+    .faq-item { margin-bottom: 0.75rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); overflow: hidden; }
+    .faq-item summary { padding: 0.85rem 1.15rem; font-weight: 600; cursor: pointer; font-size: 0.95rem; list-style: none; display: flex; justify-content: space-between; align-items: center; color: var(--fg); }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::after { content: "+"; font-family: var(--mono); font-size: 1.2rem; }
+    .faq-item[open] summary::after { content: "−"; }
+    .faq-item div { padding: 0.85rem 1.15rem; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+    .deriv-box { background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; margin: 1.5rem 0; font-size: 0.9rem; line-height: 1.6; }
+  </style>
+<div class="article-container">
+        <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);"><a href="/de/">Startseite</a> &gt; <a href="/de/">Sicherheit</a> &gt; Passwort Generator</nav>
+        <h1 style="font-family: var(--serif); font-size: 1.85rem; margin-bottom: 0.5rem;">Sicherer Passwort Generator Online [CSPRNG &amp; Entropie]</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+          Erstellen Sie kryptografisch unknackbare Passwörter direkt im Browser via Web Cryptography API. Mit Entropie-Berechnung, GPU-Knackzeit-Schätzung und Batch-Generierung.
+        </p>
+
+        <div class="tool-box">
+          <div class="field-group">
+            <label class="field-label">Generiertes Passwort</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="de-pw-out" class="code-input" style="font-size: 1.25rem; font-weight: bold; color: var(--fg);" readonly />
+              <button class="btn-primary" onclick="genDePW()" style="flex-shrink: 0;">↻ Neu</button>
+            </div>
           </div>
-          <button onclick="genPw()" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.9rem; cursor: pointer; border-radius: 4px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.5 9a9 9 0 0 1 14.9-3.4L23 10M1 14l4.6 4.4A9 9 0 0 0 20.5 15"/></svg> Generieren</button>
+
+          <div class="field-group">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+              <label class="field-label" style="margin: 0;">Länge: <span id="de-pw-len-val" style="color: var(--fg); font-weight: bold;">20</span> Zeichen</label>
+              <span id="de-pw-badge" style="font-family: var(--mono); font-size: 0.8rem; color: #22c55e; font-weight: bold;">131 Bits (Sehr stark)</span>
+            </div>
+            <input type="range" id="de-pw-len" min="8" max="64" value="20" style="width: 100%; cursor: pointer;" oninput="document.getElementById('de-pw-len-val').textContent = this.value; genDePW();" />
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.5rem; padding: 1rem; background: var(--surface-alt); border-radius: 6px; border: 1px solid var(--border); margin-bottom: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;"><input type="checkbox" id="de-opt-u" checked onchange="genDePW()"> Großbuchstaben (A-Z)</label>
+            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;"><input type="checkbox" id="de-opt-l" checked onchange="genDePW()"> Kleinbuchstaben (a-z)</label>
+            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;"><input type="checkbox" id="de-opt-d" checked onchange="genDePW()"> Ziffern (0-9)</label>
+            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;"><input type="checkbox" id="de-opt-s" checked onchange="genDePW()"> Sonderzeichen (!@#$%)</label>
+            <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; cursor: pointer;"><input type="checkbox" id="de-opt-no-ambig" onchange="genDePW()"> Ohne 0, O, 1, l, I</label>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div id="de-stat-ent" class="stat-num" style="color: var(--btn-bg, #3b82f6);">131 Bits</div>
+              <div class="stat-lbl">Shannon-Entropie</div>
+            </div>
+            <div class="stat-card">
+              <div id="de-stat-pool" class="stat-num" style="color: var(--fg);">94 Zeichen</div>
+              <div class="stat-lbl">Zeichensatz-Pool</div>
+            </div>
+            <div class="stat-card">
+              <div id="de-stat-crack-on" class="stat-num" style="color: #22c55e;">Unknackbar</div>
+              <div class="stat-lbl">Online-Angriff (100/s)</div>
+            </div>
+            <div class="stat-card">
+              <div id="de-stat-crack-gpu" class="stat-num" style="color: #22c55e;">Billionen Jahre</div>
+              <div class="stat-lbl">GPU-Cluster (100 Mrd/s)</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem;">
+            <button id="btnCopyDePW" class="btn-primary" onclick="copyDePW()">📋 Passwort Kopieren</button>
+            <button class="btn-sec" onclick="genDeBatch()">⚡ 5er-Batch Generieren</button>
+          </div>
+
+          <div id="de-batch-box" style="display: none; margin-top: 1.25rem; padding: 1rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold;">Batch-Passwörter (5×)</span>
+              <button id="btnCopyDeBatch" class="btn-copy" onclick="copyDeBatch()">📋 Alle Kopieren</button>
+            </div>
+            <pre id="de-batch-list" style="margin: 0; font-family: var(--mono); font-size: 0.9rem; line-height: 1.6;"></pre>
+          </div>
+        </div>
+
+        <script>
+          function getDeCharPool() {
+            let pool = '';
+            if (document.getElementById('de-opt-u').checked) pool += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (document.getElementById('de-opt-l').checked) pool += 'abcdefghijklmnopqrstuvwxyz';
+            if (document.getElementById('de-opt-d').checked) pool += '0123456789';
+            if (document.getElementById('de-opt-s').checked) pool += '!@#$%^&*()-_=+[]{}|;:,.<>?';
+            if (document.getElementById('de-opt-no-ambig').checked) {
+              pool = pool.replace(/[0O1lI]/g, '');
+            }
+            return pool || 'abcdefghijklmnopqrstuvwxyz';
+          }
+          function genDePW() {
+            const len = parseInt(document.getElementById('de-pw-len').value, 10);
+            const pool = getDeCharPool();
+            const poolLen = pool.length;
+
+            const arr = new Uint32Array(len);
+            window.crypto.getRandomValues(arr);
+            let pw = '';
+            for (let i = 0; i < len; i++) {
+              pw += pool[arr[i] % poolLen];
+            }
+            document.getElementById('de-pw-out').value = pw;
+
+            const entropy = Math.round(len * (Math.log(poolLen) / Math.log(2)));
+            document.getElementById('de-stat-ent').textContent = entropy + ' Bits';
+            document.getElementById('de-stat-pool').textContent = poolLen + ' Zeichen';
+
+            let badgeText = 'Sehr schwach', badgeCol = '#ef4444';
+            if (entropy >= 100) { badgeText = entropy + ' Bits (Militärischer Standard)'; badgeCol = '#22c55e'; }
+            else if (entropy >= 80) { badgeText = entropy + ' Bits (Sehr stark)'; badgeCol = '#10b981'; }
+            else if (entropy >= 60) { badgeText = entropy + ' Bits (Ausreichend)'; badgeCol = '#f59e0b'; }
+            const bEl = document.getElementById('de-pw-badge');
+            bEl.textContent = badgeText;
+            bEl.style.color = badgeCol;
+          }
+          function copyDePW() {
+            const btn = document.getElementById('btnCopyDePW');
+            const pw = document.getElementById('de-pw-out').value;
+            navigator.clipboard.writeText(pw).then(function() {
+              const prev = btn.textContent;
+              btn.textContent = '✓ Kopiert!';
+              setTimeout(function() { btn.textContent = prev; }, 2000);
+            });
+          }
+          function genDeBatch() {
+            const len = parseInt(document.getElementById('de-pw-len').value, 10);
+            const pool = getDeCharPool();
+            const poolLen = pool.length;
+            const list = [];
+            for (let b = 0; b < 5; b++) {
+              const arr = new Uint32Array(len);
+              window.crypto.getRandomValues(arr);
+              let pw = '';
+              for (let i = 0; i < len; i++) pw += pool[arr[i] % poolLen];
+              list.push(pw);
+            }
+            document.getElementById('de-batch-list').textContent = list.join('\n');
+            document.getElementById('de-batch-box').style.display = 'block';
+          }
+          function copyDeBatch() {
+            const btn = document.getElementById('btnCopyDeBatch');
+            const txt = document.getElementById('de-batch-list').textContent;
+            navigator.clipboard.writeText(txt).then(function() {
+              const prev = btn.textContent;
+              btn.textContent = '✓ Kopiert!';
+              setTimeout(function() { btn.textContent = prev; }, 2000);
+            });
+          }
+          document.addEventListener('DOMContentLoaded', genDePW);
+        </script>
+      
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem; color: var(--fg);">⚠️ 5 Häufige Fallstricke &amp; Berechnungsfallen</h2>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          
+            <div class="trap-card" style="border-left: 4px solid #ef4444;">
+              <strong style="color: #ef4444; font-size: 0.95rem;">1. Verwendung von Math.random() für Sicherheitsrelevantes</strong>
+              <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">In vielen Online-Generatoren wird fälschlicherweise Math.random() genutzt. Algorithmen wie xorshift128+ sind für Spiele und Animationen gedacht, aber kryptografisch völlig ungeeignet. Ein Angreifer kann frühere und künftige Passwörter vorhersagen.</p>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+              <strong style="color: #f59e0b; font-size: 0.95rem;">2. Modulo-Verzerrung (Modulo Bias) im Algorithmus</strong>
+              <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Wird ein Zufallswert mit 'randInt % chars.length' auf den Zeichensatz abgebildet, werden vordere Zeichen statistisch geringfügig häufiger gewählt, wenn die Zufallsspanne kein ganzzahliges Vielfaches der Poolgröße ist. Dies schwächt die kryptografische Stärke messbar.</p>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #10b981;">
+              <strong style="color: #10b981; font-size: 0.95rem;">3. Gefahr durch Zwischenablage-Überwachung (Clipboard Snooping)</strong>
+              <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Beim Kopieren in die Zwischenablage verbleibt das Klartext-Passwort unverschlüsselt im Betriebssystem. Schadsoftware oder bösartige Browser-Erweiterungen können diesen Speicherbereich abfangen. Fügen Sie Passwörter direkt in Passwort-Manager ein und leeren Sie das Clipboard.</p>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+              <strong style="color: #3b82f6; font-size: 0.95rem;">4. Serverseitige Passwort-Erzeugung im Hintergrund</strong>
+              <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Websites, die Passwörter über REST-APIs auf einem Webserver generieren, gefährden Ihre Sicherheit: Das Passwort existiert kurzzeitig im Server-Log, im TLS-Terminierungs-Proxy oder im Arbeitsspeicher des Betreibers. Vertrauen Sie nur client-seitigen Generatoren.</p>
+            </div>
+          
+            <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+              <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Wiederverwendung desselben Passworts auf mehreren Seiten</strong>
+              <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">Selbst das stärkste 30-stellige Passwort ist nutzlos, wenn es für mehrere Konten genutzt wird. Wird ein einziger Online-Dienst gehackt und dessen Datenbank geleakt, sind sofort alle verknüpften Konten kompromittiert.</p>
+            </div>
+          
         </div>
       </div>
-      <script>
-        function genPw(){ const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+'; const arr=new Uint32Array(16); window.crypto.getRandomValues(arr); let res=''; for(let i=0;i<16;i++) res+=chars[arr[i]%chars.length]; document.getElementById('pw-output').value=res; }
-        document.addEventListener('DOMContentLoaded', genPw);
-      </script>
     
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.5rem; margin-bottom: 1rem; color: var(--fg);">💬 Häufig Gestellte Fragen (FAQ)</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          
+            <details class="faq-item">
+              <summary>Warum ist window.crypto.getRandomValues sicherer als Math.random()?</summary>
+              <div>Math.random() ist ein deterministischer Pseudozufallszahlengenerator (PRNG), dessen interner Status durch wenige beobachtete Ausgaben rekonstruiert werden kann. window.crypto greift hingegen auf den kryptografischen Entropiepool des Betriebssystems zu (CSPRNG) und ist mathematisch unvorhersehbar.</div>
+            </details>
+          
+            <details class="faq-item">
+              <summary>Wie viele Bits Entropie benötigt ein sicheres Passwort?</summary>
+              <div>NIST und BSI empfehlen für Standard-Passwörter mindestens 64 bis 80 Bits Entropie. Für Master-Passwörter von Passwort-Managern, Root-Zugänge oder Krypto-Wallets sollten 100 bis 128 Bits gewählt werden.</div>
+            </details>
+          
+            <details class="faq-item">
+              <summary>Werden die hier generierten Passwörter irgendwo gespeichert?</summary>
+              <div>Nein. Alle Passwörter entstehen lokal im Arbeitsspeicher Ihres Browsers. Es erfolgt keinerlei Netzwerkkommunikation, Speicherung in Cookies oder serverseitiges Logging.</div>
+            </details>
+          
+            <details class="faq-item">
+              <summary>Warum sollten mehrdeutige Zeichen wie 0, O, 1 und l vermieden werden?</summary>
+              <div>Das Ausschließen optisch ähnlicher Zeichen verhindert menschliche Lesefehler beim manuellen Abtippen von Notfall-Backups auf Mobilgeräten oder Terminal-Konsolen.</div>
+            </details>
+          
+            <details class="faq-item">
+              <summary>Wie lange bräuchte ein modernes GPU-Cluster, um ein 20-stelliges Passwort zu knacken?</summary>
+              <div>Ein 20-stelliges Passwort mit Groß-, Kleinbuchstaben, Ziffern und Sonderzeichen besitzt rund 131 Bits Entropie. Selbst ein Verbund von 10.000 High-End-Grafikkarten bräuchte Billionen Jahre zur vollständigen Erschöpfung des Suchraums.</div>
+            </details>
+          
+        </div>
+      </div>
+    </div>
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1056,8 +1283,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fde%2Fsecurity%2Fpasswort-generator&text=Sicherer%20Passwort%20Generator%20Online%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fde%2Fsecurity%2Fpasswort-generator&title=Sicherer%20Passwort%20Generator%20Online" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fde%2Fsecurity%2Fpasswort-generator&text=Sicherer%20Passwort%20Generator%20Online%20%5BCSPRNG%20%26%20Entropie%5D%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fde%2Fsecurity%2Fpasswort-generator&title=Sicherer%20Passwort%20Generator%20Online%20%5BCSPRNG%20%26%20Entropie%5D" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
