@@ -20404,6 +20404,2033 @@ export function buildTradeTools() {
   }));
 
 
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // ASPHALT PAVING TONNAGE, COMPACTION FLUFF, TACK COAT & BASE STONE CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const asphaltPavingBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Asphalt Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Asphalt Paving Tonnage & Base Stone Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate Hot-Mix Asphalt (HMA) tonnage, loose screed laydown fluff factor (25% pre-compaction height), crushed aggregate base stone (ABC) tonnage, tack coat emulsion volume, and dump truck delivery loads.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        Paving Project Dimensions
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="asLength">Pavement Length (Ft)</label>
+          <input type="number" id="asLength" value="120" min="5" max="5000" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Total driveway/road run</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="asWidth">Pavement Width (Ft)</label>
+          <input type="number" id="asWidth" value="20" min="4" max="200" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Average lane/drive width</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="asThickness">Compacted HMA Depth (In)</label>
+          <select id="asThickness" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="1.5">1.5" (Resurfacing / Overlay)</option>
+            <option value="2.0">2.0" (Standard Residential Drive)</option>
+            <option value="2.5" selected>2.5" (Heavy Duty Residential)</option>
+            <option value="3.0">3.0" (Commercial Parking Lot)</option>
+            <option value="4.0">4.0" (2-Lift Base + Surface)</option>
+            <option value="5.0">5.0" (Heavy Truck Loading Dock)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="asStoneDepth">Crushed Base Depth (In)</label>
+          <select id="asStoneDepth" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0">0" (Paving Over Existing Asphalt)</option>
+            <option value="4.0">4.0" (Standard Driveway Base)</option>
+            <option value="6.0" selected>6.0" (Heavy Residential / Loam)</option>
+            <option value="8.0">8.0" (Commercial / Clay Soil)</option>
+            <option value="10.0">10.0" (Industrial Heavy Subbase)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="asWastePct">Compaction & Waste Margin</label>
+          <select id="asWastePct" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.9rem;">
+            <option value="5">5% (Rectangular Clean Site)</option>
+            <option value="10" selected>10% (Standard Curved Edges)</option>
+            <option value="15">15% (Irregular Cul-de-sacs)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="asTruckType">Dump Truck Size</label>
+          <select id="asTruckType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="20" selected>Tri-Axle Dump (20–22 Tons)</option>
+            <option value="15">Tandem Dump (14–16 Tons)</option>
+            <option value="25">Quad-Axle Dump (24–26 Tons)</option>
+            <option value="10">Single Axle Bobtail (10 Tons)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="asCostPerTon">Installed Asphalt Price ($/Ton)</label>
+        <input type="number" id="asCostPerTon" value="115" min="50" max="300" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Typical contractor installed rate ($90–$140/ton)</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Material Tonnage & Logistics
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Hot-Mix Asphalt Required</div>
+            <span id="outHmaBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#3b82f620;color:#3b82f6;">145 LBS/CU FT</span>
+          </div>
+          <div id="outHmaTons" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">39.9 Tons</div>
+          <div id="outHmaCuYdsSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">19.8 cu yds compacted (2,400 sq ft / 267 sq yds)</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Loose Screed Fluff Depth</div>
+            <div id="outLooseFluff" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">3.1 Inches</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Pave 25% thicker before rolling</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Crushed Stone Base (ABC)</div>
+            <div id="outBaseTons" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">89.1 Tons</div>
+            <div id="outBaseCuYdsSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">6" depth (48.9 cu yds)</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Asphalt Truckloads</div>
+            <div id="outTruckCount" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">2 Loads</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Tri-Axle dumps (20T each)</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Tack Coat Emulsion</div>
+            <div id="outTackCoatGal" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#f59e0b;margin-top:0.25rem;">16.0 Gallons</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">SS-1h @ 0.06 gal/sq yd</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Estimated Asphalt Material Cost</div>
+              <div id="outTotalCost" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">$4,589</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Unit Cost</div>
+              <div id="outCostPerSqFt" style="font-size:0.8rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">$1.91 / sq ft</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyAsBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Asphalt Paving Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: ASPHALT CROSS-SECTION & ROLLER COMPACTION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Interactive Cross-Section: Subbase Stone, Tack Coat & Compacted HMA
+    </h3>
+    <div id="asSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & ASPHALT PAVING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Asphalt Paving Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Paving on Soft Subgrade Clay (Alligator Cracking Death)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Asphalt is a flexible pavement, meaning it possesses zero bridge strength. It derives 100% of its load-carrying capacity from the aggregate stone base and compacted subgrade beneath it. Paving asphalt over soft topsoil or uncompacted wet clay without proof-rolling causes the base to yield under vehicle tire loads. The asphalt flexes repeatedly, developing structural fatigue fractures resembling alligator skin. Within two winters, water penetrates the cracks, freeze-thaw cycles heave the base, and the entire driveway disintegrates into loose gravel potholes.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Neglecting the 25% Loose Fluff Compaction Factor</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Hot-mix asphalt exits the paving machine screed in a loose, uncompacted state with roughly 20% to 25% air voids. When compacted with a 3-ton to 10-ton steel drum vibratory roller, it compresses by exactly <strong>one-quarter of its loose thickness</strong>. If your contract specifies 2.0 inches of compacted asphalt, your crew must lay down <strong>2.5 inches of loose mat</strong>. Paving 2.0 inches loose results in an anemic 1.5-inch finished mat that will crack under garbage trucks and delivery vans within 12 months.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Cold-Weather Paving Below 50&deg;F (The 175&deg;F Cessation Temperature)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Hot-mix asphalt arrives from the plant at 280&deg;F to 320&deg;F. Once its internal temperature drops below <strong>175&deg;F</strong> (the cessation temperature), the liquid petroleum bitumen binder stiffens and refuses to compact further, regardless of roller passes. On a chilly 40&deg;F windy day, a thin 1.5-inch mat loses heat to the frozen base stone in under 8 minutes! If rollers cannot achieve 92% to 96% target density before reaching 175&deg;F, the asphalt remains porous, absorbs rain, and ravells apart during the first freeze.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>💧 Trap 4: Skipping Tack Coat Emulsion on Overlays (Slippage Delamination)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When paving a new asphalt surface over an existing milled or concrete pavement, you MUST apply an asphalt emulsion tack coat (SS-1h at 0.05 to 0.08 gal/sq yd). Tack coat acts as an adhesive glue welding the two lifts together into a monolithic composite slab. Skipping tack coat to save $200 allows horizontal vehicle braking shear forces to break the bond, creating crescent-shaped "slippage tears" and shoving ripples within weeks of opening to traffic.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>📏 Trap 5: Flat Grading & Lack of 2% Slope (The "Birdbath" Freeze Hazard)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Asphalt surfaces must have a minimum cross-slope of <strong>1.5% to 2.0% (1/4 inch per foot)</strong> to shed stormwater rapidly. Grading an asphalt driveway completely flat guarantees standing water puddles ("birdbaths"). Standing water strips the acidic bitumen oils off the aggregate surface, weakens the pavement matrix, and forms dangerous black ice patches in sub-freezing winter weather.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Asphalt Paving Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Hot-Mix Asphalt Tonnage Formula</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Compacted Hot-Mix Asphalt (HMA) has an engineering design unit weight of <strong>145 to 148 lbs per cubic foot</strong> (approx. $2.01\\text{ tons/cu yd}$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      T_{\\text{asphalt}} = \\frac{\\text{Area (sq ft)} \\times \\left(\\frac{t_{\\text{compacted}}}{12}\\right) \\times 145}{2000} \\times (1 + \\text{Waste})
+    </div>
+    <p style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.5rem;">
+      Quick Rule of Thumb: A 1-inch compacted lift requires approximately <strong>110 to 115 lbs of asphalt per square yard</strong>.
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Crushed Aggregate Base Course (ABC) Tonnage</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Compacted crushed stone base course (crusher run / dense graded aggregate) weighs approximately <strong>135 lbs per cubic foot</strong> ($1.82\\text{ tons/cu yd}$):
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      T_{\\text{base}} = \\frac{\\text{Area (sq ft)} \\times \\left(\\frac{t_{\\text{stone}}}{12}\\right) \\times 135}{2000} \\times (1 + \\text{Waste})
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Compaction Fluff Factor (Loose vs Compacted)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      Asphalt compacts by 20% to 25% under steel drum vibratory rollers:
+      $t_{\\text{loose}} = t_{\\text{compacted}} \\times 1.25$.
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How thick should a residential asphalt driveway be?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        For typical passenger cars and pickup trucks, the industry standard is <strong>2.0 to 2.5 inches of compacted hot-mix asphalt</strong> over a well-compacted <strong>6 to 8-inch crushed aggregate stone base</strong>. If heavy delivery trucks, garbage trucks, or motorhomes will regularly use the driveway, increase asphalt thickness to 3.0 inches (applied in two 1.5-inch lifts) over 8 to 10 inches of base stone.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How much does a ton of asphalt cover?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        One ton of hot-mix asphalt covers approximately <strong>160 to 170 square feet at 1.5 inches compacted</strong>, <strong>120 to 125 square feet at 2.0 inches compacted</strong>, or <strong>80 square feet at 3.0 inches compacted</strong>.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between loose depth and compacted depth?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Loose depth is the thickness of the asphalt screeded by the paving machine before rolling. Steel vibratory compaction compacts the material by approximately 20% to 25%. To achieve a finished, compacted thickness of 2.0 inches, the crew must pave a loose mat of 2.5 inches.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is tack coat and when is it required?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Tack coat is a light application of liquid asphalt emulsion (such as SS-1h) sprayed at approximately 0.05 to 0.08 gallons per square yard. It is required whenever paving an asphalt overlay on top of existing asphalt or concrete pavement to bond the two lifts together, preventing slippage and delamination under vehicle braking.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How long before you can drive on new asphalt?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        You should keep vehicles off newly paved asphalt for at least <strong>48 to 72 hours</strong>. Although it cools to ambient temperature within hours, the liquid petroleum oils take 6 to 12 months to fully oxidize and cure. Turning car wheels while stationary on hot summer days can scuff or gouge fresh asphalt during its first season.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      function calcAsphalt() {
+        var length = parseFloat(document.getElementById('asLength').value) || 120;
+        var width = parseFloat(document.getElementById('asWidth').value) || 20;
+        var thickIn = parseFloat(document.getElementById('asThickness').value) || 2.5;
+        var stoneIn = parseFloat(document.getElementById('asStoneDepth').value) || 6.0;
+        var wastePct = parseFloat(document.getElementById('asWastePct').value) || 10;
+        var truckCap = parseFloat(document.getElementById('asTruckType').value) || 20;
+        var costPerTon = parseFloat(document.getElementById('asCostPerTon').value) || 115;
+
+        var areaSqFt = length * width;
+        var areaSqYd = areaSqFt / 9;
+        var wasteFactor = 1 + (wastePct / 100);
+
+        // Compacted asphalt volume in cu ft & cu yds
+        var hmaCuFt = areaSqFt * (thickIn / 12);
+        var hmaCuYds = hmaCuFt / 27;
+
+        // Tonnage: 145 lbs/cu ft density
+        var hmaTons = (hmaCuFt * 145 / 2000) * wasteFactor;
+
+        // Loose fluff depth (25% pre-compaction height)
+        var looseFluffIn = thickIn * 1.25;
+
+        // Base Stone Tonnage: 135 lbs/cu ft density
+        var stoneCuFt = areaSqFt * (stoneIn / 12);
+        var stoneCuYds = stoneCuFt / 27;
+        var stoneTons = (stoneCuFt * 135 / 2000) * wasteFactor;
+
+        // Tack coat: 0.06 gal / sq yd
+        var tackGal = areaSqYd * 0.06;
+
+        // Truckloads
+        var truckCount = Math.ceil(hmaTons / truckCap);
+
+        // Costs
+        var totalAsCost = hmaTons * costPerTon;
+        var costPerSqFt = (areaSqFt > 0) ? (totalAsCost / areaSqFt) : 0;
+
+        // Update UI
+        document.getElementById('outHmaTons').textContent = hmaTons.toFixed(1) + ' Tons';
+        document.getElementById('outHmaCuYdsSub').textContent = (hmaCuYds * wasteFactor).toFixed(1) + ' cu yds (' + Math.round(areaSqFt).toLocaleString() + ' sq ft / ' + Math.round(areaSqYd) + ' sq yds)';
+
+        document.getElementById('outLooseFluff').textContent = looseFluffIn.toFixed(1) + ' Inches';
+        document.getElementById('outBaseTons').textContent = stoneTons.toFixed(1) + ' Tons';
+        document.getElementById('outBaseCuYdsSub').textContent = stoneIn.toFixed(1) + '" depth (' + (stoneCuYds * wasteFactor).toFixed(1) + ' cu yds)';
+
+        document.getElementById('outTruckCount').textContent = truckCount + ' Load' + (truckCount > 1 ? 's' : '');
+        document.getElementById('outTackCoatGal').textContent = tackGal.toFixed(1) + ' Gallons';
+
+        document.getElementById('outTotalCost').textContent = '$' + Math.round(totalAsCost).toLocaleString();
+        document.getElementById('outCostPerSqFt').textContent = '$' + costPerSqFt.toFixed(2) + ' / sq ft';
+
+        renderAsSvg(thickIn, stoneIn, looseFluffIn, hmaTons);
+      }
+
+      function renderAsSvg(thickIn, stoneIn, looseFluffIn, hmaTons) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<pattern id="stonePat" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="2.5" fill="#94a3b8"/><circle cx="11" cy="11" r="3" fill="#64748b"/></pattern>';
+        svg += '</defs>';
+
+        // Subgrade Earth (Bottom layer)
+        svg += '<rect x="60" y="170" width="700" height="60" fill="#334155" stroke="#1e293b" stroke-width="2"/>';
+        svg += '<text x="410" y="205" text-anchor="middle" font-size="12" font-weight="700" fill="#94a3b8">COMPACTED SUBGRADE NATIVE SOIL</text>';
+
+        // Crushed Base Stone (Middle layer)
+        var baseH = Math.min(65, Math.max(25, stoneIn * 6.5));
+        var baseY = 170 - baseH;
+        svg += '<rect x="60" y="' + baseY + '" width="700" height="' + baseH + '" fill="url(#stonePat)" stroke="#64748b" stroke-width="1.5"/>';
+        svg += '<text x="180" y="' + (baseY + baseH / 2 + 5) + '" font-size="12" font-weight="700" fill="#cbd5e1">CRUSHED AGGREGATE BASE STONE (ABC): ' + stoneIn.toFixed(1) + '" DEPTH</text>';
+
+        // Tack Coat Line
+        svg += '<line x1="60" y1="' + baseY + '" x2="760" y2="' + baseY + '" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6,4"/>';
+
+        // Compacted Asphalt Layer (Top layer)
+        var aspH = Math.min(50, Math.max(20, thickIn * 10));
+        var aspY = baseY - aspH;
+        svg += '<rect x="60" y="' + aspY + '" width="700" height="' + aspH + '" rx="4" fill="#0f172a" stroke="#334155" stroke-width="2"/>';
+        svg += '<text x="410" y="' + (aspY + aspH / 2 + 5) + '" text-anchor="middle" font-size="13" font-weight="800" fill="#f8fafc">HOT-MIX ASPHALT (HMA): ' + thickIn.toFixed(1) + '" COMPACTED (' + looseFluffIn.toFixed(1) + '" LOOSE MAT)</text>';
+
+        // Heavy Roller callout
+        svg += '<rect x="620" y="' + (aspY - 45) + '" width="110" height="40" rx="8" fill="#eab308" stroke="#ca8a04" stroke-width="2"/>';
+        svg += '<text x="675" y="' + (aspY - 20) + '" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">TANDEM ROLLER</text>';
+
+        svg += '<text x="410" y="248" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">Flexible Pavement Design | 25% Loose Fluff Compaction Rule Enforced</text>';
+
+        svg += '</svg>';
+        document.getElementById('asSvgWrapper').innerHTML = svg;
+      }
+
+      function copyAsSpec() {
+        var tons = document.getElementById('outHmaTons').textContent;
+        var fluff = document.getElementById('outLooseFluff').textContent;
+        var stone = document.getElementById('outBaseTons').textContent;
+        var trucks = document.getElementById('outTruckCount').textContent;
+        var tack = document.getElementById('outTackCoatGal').textContent;
+        var cost = document.getElementById('outTotalCost').textContent;
+        var len = document.getElementById('asLength').value;
+        var wid = document.getElementById('asWidth').value;
+        var thick = document.getElementById('asThickness').value;
+
+        var text = 'ASPHALT PAVING MATERIAL SPECIFICATION SUMMARY\\n';
+        text += '---------------------------------------------------\\n';
+        text += 'Dimensions: ' + len + ' ft x ' + wid + ' ft (' + (len * wid) + ' sq ft)\\n';
+        text += 'Compacted HMA Thickness: ' + thick + ' inches\\n';
+        text += 'Loose Screed Fluff Depth: ' + fluff + ' (Pave 25% thicker)\\n';
+        text += 'Hot-Mix Asphalt Tonnage: ' + tons + '\\n';
+        text += 'Crushed Aggregate Base Stone: ' + stone + '\\n';
+        text += 'Truckload Deliveries: ' + trucks + '\\n';
+        text += 'Tack Coat Emulsion: ' + tack + '\\n';
+        text += 'Estimated Installed Cost: ' + cost + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyAsBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Asphalt Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['asLength', 'asWidth', 'asThickness', 'asStoneDepth', 'asWastePct', 'asTruckType', 'asCostPerTon'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcAsphalt);
+          el.addEventListener('change', calcAsphalt);
+        }
+      });
+
+      document.getElementById('copyAsBtn').addEventListener('click', copyAsSpec);
+
+      calcAsphalt();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'asphalt-paving-calculator.html'), renderTradePage({
+    title: "Asphalt Paving Calculator: Hot-Mix Tonnage, Fluff Factor & Base | Digital Tools Shed",
+    metaDesc: "Calculate Hot-Mix Asphalt (HMA) tonnage, 25% loose fluff factor, crushed stone base (ABC) tons, tack coat emulsion, and dump truck delivery loads.",
+    canonical: `${DOMAIN}/calc/asphalt-paving-calculator`,
+    bodyContent: asphaltPavingBody,
+    currentPath: '/calc/asphalt-paving-calculator',
+    faq: [
+      {
+        "q": "How thick should a residential asphalt driveway be?",
+        "a": "For typical passenger cars and pickup trucks, the industry standard is <strong>2.0 to 2.5 inches of compacted hot-mix asphalt</strong> over a well-compacted <strong>6 to 8-inch crushed aggregate stone base</strong>. If heavy delivery trucks, garbage trucks, or motorhomes will regularly use the driveway, increase asphalt thickness to 3.0 inches (applied in two 1.5-inch lifts) over 8 to 10 inches of base stone."
+      },
+      {
+        "q": "How much does a ton of asphalt cover?",
+        "a": "One ton of hot-mix asphalt covers approximately <strong>160 to 170 square feet at 1.5 inches compacted</strong>, <strong>120 to 125 square feet at 2.0 inches compacted</strong>, or <strong>80 square feet at 3.0 inches compacted</strong>."
+      },
+      {
+        "q": "What is the difference between loose depth and compacted depth?",
+        "a": "Loose depth is the thickness of the asphalt screeded by the paving machine before rolling. Steel vibratory compaction compacts the material by approximately 20% to 25%. To achieve a finished, compacted thickness of 2.0 inches, the crew must pave a loose mat of 2.5 inches."
+      },
+      {
+        "q": "What is tack coat and when is it required?",
+        "a": "Tack coat is a light application of liquid asphalt emulsion (such as SS-1h) sprayed at approximately 0.05 to 0.08 gallons per square yard. It is required whenever paving an asphalt overlay on top of existing asphalt or concrete pavement to bond the two lifts together, preventing slippage and delamination under vehicle braking."
+      },
+      {
+        "q": "How long before you can drive on new asphalt?",
+        "a": "You should keep vehicles off newly paved asphalt for at least <strong>48 to 72 hours</strong>. Although it cools to ambient temperature within hours, the liquid petroleum oils take 6 to 12 months to fully oxidize and cure. Turning car wheels while stationary on hot summer days can scuff or gouge fresh asphalt during its first season."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // GROUNDING ELECTRODE SYSTEM RESISTANCE, DWIGHT FORMULA & NEC 250.66 CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const groundingElectrodeBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Grounding System Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Grounding Electrode Resistance & NEC 250.66 Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate single and dual ground rod resistance to earth using Dwight's equation, verify the NEC 25-Ohm rule, calculate Concrete-Encased Ufer ground impedance, and size Grounding Electrode Conductors (GEC) per NEC Table 250.66.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v14M8 12l4 4 4-4M5 20h14"/></svg>
+        Grounding System & Soil Parameters
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="geServiceSize">Electrical Service Rating</label>
+          <select id="geServiceSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="100">100 Amp (#4 Cu / #2 Al)</option>
+            <option value="150">150 Amp (#1 Cu / 2/0 Al)</option>
+            <option value="200" selected>200 Amp (2/0 Cu / 4/0 Al)</option>
+            <option value="400">400 Amp (350 kcmil Cu / 500 Al)</option>
+            <option value="600">600 Amp (2x 350 kcmil Cu)</option>
+            <option value="800">800 Amp (2x 500 kcmil Cu)</option>
+            <option value="1200">1200 Amp (3x 500 kcmil Cu)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="geRodLength">Ground Rod Dimensions</label>
+          <select id="geRodLength" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="8_0.625" selected>8 Ft &times; 5/8" Copper-Clad</option>
+            <option value="10_0.625">10 Ft &times; 5/8" Copper-Clad</option>
+            <option value="10_0.75">10 Ft &times; 3/4" Full Size</option>
+            <option value="8_0.5">8 Ft &times; 1/2" (Standard Minimum)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="geSoilType">Soil Resistivity (&rho; in &Omega;&middot;m)</label>
+          <select id="geSoilType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="30">Marsh / Wetland (30 &Omega;&middot;m)</option>
+            <option value="100" selected>Moist Clay / Garden Loam (100 &Omega;&middot;m)</option>
+            <option value="300">Sandy Loam / Farmland (300 &Omega;&middot;m)</option>
+            <option value="1000">Dry Sand / Gravel (1,000 &Omega;&middot;m)</option>
+            <option value="3000">Rocky Ledge / Granite (3,000 &Omega;&middot;m)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="geRodCount">Ground Rod Quantity & Spacing</label>
+          <select id="geRodCount" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="2_16" selected>2 Rods @ 16' Spacing (2x Length Optimal)</option>
+            <option value="2_6">2 Rods @ 6' Spacing (NEC Min Distance)</option>
+            <option value="1_0">1 Single Rod (Subject to 25&Omega; Rule)</option>
+            <option value="3_16">3 Rods in Triangle @ 16' Spacing</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="geUferPresent">Supplemental Ufer Concrete-Encased Ground?</label>
+        <select id="geUferPresent" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.9rem;">
+          <option value="yes" selected>Yes: 20+ Ft Rebar in Footing (NEC 250.52(A)(3))</option>
+          <option value="no">No: Rods Only (Retrofit / Older Home)</option>
+        </select>
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Mandatory in new construction when concrete footing exists</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Resistance to Earth & GEC Sizing
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">System Resistance to Earth</div>
+            <span id="outNec25Badge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#10b98120;color:#10b981;">&le; 25&Omega; COMPLIANT</span>
+          </div>
+          <div id="outTotalOhms" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">18.4 &Omega;</div>
+          <div id="outRodResistanceSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Single rod alone: 31.2 &Omega; (Dual rods paralleled)</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">GEC to Ground Rods (250.66(A))</div>
+            <div id="outGecRodSize" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">#6 AWG Cu</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Max required to rods is #6 Cu</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">GEC to Ufer Ground (250.66(B))</div>
+            <div id="outGecUferSize" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">#4 AWG Cu</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Max required to Ufer is #4 Cu</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Main Water Pipe GEC (250.66)</div>
+            <div id="outGecWaterSize" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">#4 AWG Cu</div>
+            <div id="outServiceConductorSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Based on 2/0 Cu service size</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Ufer Ground Resistance</div>
+            <div id="outUferOhms" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">~3.5 &Omega;</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Concrete hygroscopic dissipation</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">NEC 250.53(A)(2) Status</div>
+              <div id="outNecStatus" style="font-size:1.15rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">Fully Compliant</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Sphere Overlap Loss</div>
+              <div id="outSphereLoss" style="font-size:0.8rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">&lt; 10% Interference @ 16'</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyGeBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Grounding Electrode Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: GROUNDING ELECTRODE SYSTEM INFRASTRUCTURE -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Interactive Grounding Electrode Infrastructure & Dissipation Hemispheres
+    </h3>
+    <div id="geSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & GROUNDING ELECTRICAL PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Electrician Grounding Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Spacing Dual Ground Rods Only 6 Feet Apart (Hemisphere Clashing)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          While NEC 250.53(A)(3) lists 6 feet as the bare legal minimum spacing between ground rods, doing so is poor engineering. An 8-foot ground rod creates an electrical dissipation hemisphere in the soil with an effective radius of 8 feet. When two 8-foot rods are driven only 6 feet apart, their resistance shells severely overlap, wasting <strong>up to 40% of the second rod's grounding capability</strong>. Paralleling two rods at 6 feet only reduces total resistance by about 15%. To achieve true parallel resistance reduction (approaching 50%), rods should be spaced at <strong>twice their length (16 feet apart)</strong>.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Oversizing the Ground Rod GEC (The Wasted Copper Trap)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Electricians frequently inspect Table 250.66 for a 400A service, see #1/0 or #2/0 copper listed, and run massive, expensive #1/0 copper all the way out to their ground rods. <strong>NEC 250.66(A) explicitly states that where a GEC connects solely to rod, pipe, or plate electrodes, it is NEVER required to be larger than #6 AWG copper</strong> (or #4 AWG aluminum)! Because a physical ground rod's contact resistance with earth cannot conduct more current than a #6 copper wire can safely carry, running larger copper to a rod is 100% wasted money.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Missing the Foundation Ufer Inspection Before the Concrete Pour</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Per NEC 250.50, if a concrete-encased electrode (Ufer ground: &ge; 20 ft of #4 rebar or bare copper in footing) is present on a new building site, it <strong>MUST be incorporated into the grounding electrode system</strong>. If the electrical contractor fails to bond to the rebar and document it before the concrete truck arrives, the inspector will fail the service. The builder is then forced to either core-drill the cured foundation slab down to rebar or pay thousands for geotechnical testing and chemical ground rod grids to satisfy local building officials.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>💧 Trap 4: Bonding Water Pipe Past the 5-Foot Interior Limit (NEC 250.52(A)(1))</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When using an underground metal water pipe as a grounding electrode, the connection of the GEC must be made within the first <strong>5 feet of where the pipe enters the building</strong>. Clamping onto a copper water line 20 feet away in a utility room is an immediate code violation. Why? Plumbers frequently cut interior copper pipes to insert dielectric unions, plastic water softeners, or PEX transitions, which permanently severs the electrical bond to the underground earth.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 5: Confusing System Grounding with Equipment Grounding (Fault Clearing)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Ground rods and earth electrodes DO NOT trip circuit breakers during a short circuit! If an ungrounded 120V hot wire touches the metal chassis of a machine connected only to a ground rod (without an Equipment Grounding Conductor back to the main service panel neutral), earth resistance (e.g. 25 &Omega;) limits current to just 4.8 Amps ($I = 120V / 25\Omega$). A standard 20A breaker will never trip; instead, the machine chassis remains energized at lethal 120V indefinitely. Earth grounds exist strictly for lightning and high-voltage surge dissipation.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Grounding Resistance Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Dwight's Ground Rod Resistance Equation</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Theoretical resistance to earth ($R$) of a single vertical driven cylindrical ground rod:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      R = \\frac{\\rho}{2 \\pi L} \\left[ \\ln\\left(\\frac{4 L}{d}\\right) - 1 \\right] \\quad (\\text{Ohms})
+    </div>
+    <p style="font-size:0.925rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.5rem;">
+      Where $\\rho$ is soil resistivity in $\\Omega \\cdot \\text{m}$, $L$ is rod length in meters, and $d$ is rod diameter in meters.
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Paralleled Two-Rod Resistance with Spacing (s)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Accounting for mutual interference between hemispherical resistance shells:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      R_{2} = \\frac{R_1 + R_m}{2} \\approx \\frac{R_1}{2} \\left( 1 + \\frac{L}{s \\cdot \\ln(4L/d)} \\right)
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Grounding Electrode Conductor Sizing Rules (NEC 250.66)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      Standard Table 250.66 sizes the GEC to metal water pipes and building steel based on service entrance wire size. However, <strong>NEC 250.66(A) caps the GEC to ground rods at #6 AWG Cu</strong>, and <strong>NEC 250.66(B) caps the GEC to concrete-encased Ufer electrodes at #4 AWG Cu</strong>, regardless of how large the building's electrical service is!
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the NEC 25-Ohm rule for ground rods?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Under NEC 250.53(A)(2), a single rod, pipe, or plate electrode must have a resistance to earth of 25 ohms or less. If the resistance exceeds 25 ohms (or if you choose not to pay for an expensive 3-point fall-of-potential resistance test), you are required to install one additional supplemental electrode (such as a second ground rod) spaced at least 6 feet away. Once the second rod is driven, code is satisfied regardless of actual resistance.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is an Ufer ground (Concrete-Encased Electrode)?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Invented by Herbert Ufer during WWII for ammunition depots in dry desert soils, an Ufer ground consists of at least 20 feet of electrically continuous steel reinforcing rebar (at least 1/2" diameter) or #4 AWG bare copper wire encased in the bottom of a concrete foundation footing in direct contact with the earth. Because concrete is hygroscopic (absorbing and retaining groundwater), an Ufer ground consistently achieves 2 to 5 ohms of resistance, vastly outperforming driven rods.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why is #6 AWG copper the maximum size required for ground rods?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Per NEC 250.66(A), the portion of the grounding electrode conductor that is the sole connection to a rod, pipe, or plate electrode is never required to be larger than #6 AWG copper. This is because the contact resistance between an 8-foot rod and the surrounding earth naturally limits the amount of current that can be dissipated into the soil to a level well within the thermal capacity of a #6 copper wire.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How far apart should dual ground rods be driven?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        While NEC 250.53(A)(3) permits a minimum spacing of 6 feet, IEEE and electrical engineering standards recommend spacing dual 8-foot rods at least <strong>16 feet apart (twice the rod length)</strong>. Driving them 16 feet apart eliminates electrical overlap between their hemispherical resistance shells, maximizing the current dissipation into the earth.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What causes high ground rod resistance?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        High ground resistance is primarily caused by soil composition (dry sand, gravel, and solid rock have resistivities 10 to 30 times higher than moist clay), low soil moisture content, seasonal freezing (frozen soil acts as an insulator), and poor mechanical contact between the driven rod and rocky backfill.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      // NEC Table 250.66 Grounding Electrode Conductor Sizing
+      var gecTable = {
+        100: '#8 AWG Cu',
+        150: '#6 AWG Cu',
+        200: '#4 AWG Cu',
+        400: '#2 AWG Cu',
+        600: '1/0 AWG Cu',
+        800: '2/0 AWG Cu',
+        1200: '3/0 AWG Cu'
+      };
+
+      function calcGrounding() {
+        var service = parseInt(document.getElementById('geServiceSize').value) || 200;
+        var rodDim = document.getElementById('geRodLength').value.split('_');
+        var lenFt = parseFloat(rodDim[0]) || 8.0;
+        var diaIn = parseFloat(rodDim[1]) || 0.625;
+        var rho = parseFloat(document.getElementById('geSoilType').value) || 100;
+        var countConfig = document.getElementById('geRodCount').value.split('_');
+        var count = parseInt(countConfig[0]) || 2;
+        var spacingFt = parseFloat(countConfig[1]) || 16.0;
+        var ufer = document.getElementById('geUferPresent').value;
+
+        // Metric conversions for Dwight formula
+        var lMeters = lenFt * 0.3048;
+        var dMeters = (diaIn * 0.0254);
+
+        // Dwight's Formula: R = (rho / (2 * pi * L)) * (ln(4L / d) - 1)
+        var singleRodR = (rho / (2 * Math.PI * lMeters)) * (Math.log((4 * lMeters) / dMeters) - 1);
+
+        // Multiple rod resistance with spacing interference
+        var systemR = singleRodR;
+        var interferenceStr = 'Single Rod';
+        if (count === 2) {
+          var sMeters = spacingFt * 0.3048;
+          var factor = 1 + (lMeters / (sMeters * Math.log((4 * lMeters) / dMeters)));
+          systemR = (singleRodR / 2) * factor;
+          var pctLoss = Math.round((factor - 1) * 100);
+          interferenceStr = pctLoss + '% Overlap Loss @ ' + spacingFt + "' Spacing";
+        } else if (count === 3) {
+          systemR = singleRodR * 0.42;
+          interferenceStr = 'Triangular Grid @ 16\' Spacing';
+        }
+
+        // Ufer effect
+        var uferR = (rho * 0.035); // Concrete encasement hygroscopic factor
+        if (uferR < 2.5) uferR = 2.5;
+
+        var netSystemR = systemR;
+        if (ufer === 'yes') {
+          // Parallel combination of rods and Ufer
+          netSystemR = (systemR * uferR) / (systemR + uferR);
+        }
+
+        // NEC 250.66 GEC lookup
+        var waterPipeGec = gecTable[service] || '#4 AWG Cu';
+        var rodGec = '#6 AWG Cu'; // Max required per 250.66(A)
+        var uferGec = '#4 AWG Cu'; // Max required per 250.66(B)
+
+        // NEC 25-Ohm Badge
+        var badgeText = '&le; 25&Omega; COMPLIANT';
+        var badgeBg = '#10b98120';
+        var badgeColor = '#10b981';
+        var statusText = 'Fully Compliant';
+
+        if (netSystemR > 25 && count === 1 && ufer === 'no') {
+          badgeText = '> 25&Omega; SECOND ROD REQUIRED';
+          badgeBg = '#ef444420';
+          badgeColor = '#ef4444';
+          statusText = 'Second Rod Mandated (NEC 250.53(A)(2))';
+        }
+
+        // Update UI
+        document.getElementById('outTotalOhms').textContent = netSystemR.toFixed(1) + ' \u03A9';
+        document.getElementById('outRodResistanceSub').textContent = 'Single rod alone: ' + singleRodR.toFixed(1) + ' \u03A9 (' + count + ' rod' + (count > 1 ? 's' : '') + (ufer === 'yes' ? ' + Ufer' : '') + ')';
+
+        var badgeEl = document.getElementById('outNec25Badge');
+        badgeEl.innerHTML = badgeText;
+        badgeEl.style.background = badgeBg;
+        badgeEl.style.color = badgeColor;
+
+        document.getElementById('outGecRodSize').textContent = rodGec;
+        document.getElementById('outGecUferSize').textContent = (ufer === 'yes' ? uferGec : 'N/A (No Ufer)');
+        document.getElementById('outGecWaterSize').textContent = waterPipeGec;
+        document.getElementById('outUferOhms').textContent = (ufer === 'yes' ? '~' + uferR.toFixed(1) + ' \u03A9' : 'N/A');
+
+        var statEl = document.getElementById('outNecStatus');
+        statEl.textContent = statusText;
+        statEl.style.color = (netSystemR <= 25 || count >= 2 || ufer === 'yes') ? '#10b981' : '#ef4444';
+
+        document.getElementById('outSphereLoss').textContent = interferenceStr;
+
+        renderGeSvg(count, spacingFt, lenFt, ufer, netSystemR);
+      }
+
+      function renderGeSvg(count, spacingFt, lenFt, ufer, netSystemR) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<radialGradient id="sphereGrad" cx="50%" cy="0%" r="90%">';
+        svg += '<stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/>';
+        svg += '<stop offset="50%" stop-color="#60a5fa" stop-opacity="0.15"/>';
+        svg += '<stop offset="100%" stop-color="#93c5fd" stop-opacity="0.0"/>';
+        svg += '</radialGradient>';
+        svg += '</defs>';
+
+        // Grade Line
+        svg += '<line x1="40" y1="90" x2="780" y2="90" stroke="#64748b" stroke-width="3"/>';
+        svg += '<text x="60" y="80" font-size="11" font-weight="700" fill="#64748b">FINISHED GRADE</text>';
+
+        // Main Service Panel (Left above grade)
+        svg += '<rect x="60" y="20" width="70" height="60" rx="4" fill="var(--surface)" stroke="#2563eb" stroke-width="2"/>';
+        svg += '<text x="95" y="45" text-anchor="middle" font-size="10" font-weight="700" fill="#2563eb">MAIN PANEL</text>';
+        svg += '<text x="95" y="60" text-anchor="middle" font-size="9" fill="var(--text-muted)">MBJ BOND</text>';
+
+        // GEC Copper Wire running from panel along grade
+        svg += '<line x1="95" y1="80" x2="95" y2="95" stroke="#f59e0b" stroke-width="2.5"/>';
+        svg += '<line x1="95" y1="95" x2="680" y2="95" stroke="#f59e0b" stroke-width="2.5"/>';
+        svg += '<text x="210" y="85" font-size="10" font-weight="700" fill="#f59e0b">#6 AWG CU GEC (NEC 250.66(A))</text>';
+
+        // Ufer Ground Footing (Left under panel)
+        if (ufer === 'yes') {
+          svg += '<rect x="140" y="110" width="180" height="50" rx="4" fill="#475569" opacity="0.3" stroke="#64748b" stroke-width="1.5"/>';
+          svg += '<line x1="150" y1="135" x2="310" y2="135" stroke="#94a3b8" stroke-width="4"/>';
+          svg += '<line x1="95" y1="95" x2="160" y2="135" stroke="#f59e0b" stroke-width="2"/>';
+          svg += '<text x="230" y="150" text-anchor="middle" font-size="10" font-weight="700" fill="var(--fg)">UFER: 20\' #4 REBAR IN FOOTING</text>';
+        }
+
+        // Ground Rod 1
+        var rod1X = 420;
+        svg += '<path d="M ' + (rod1X - 90) + ' 90 A 90 90 0 0 0 ' + (rod1X + 90) + ' 90 Z" fill="url(#sphereGrad)"/>';
+        svg += '<line x1="' + rod1X + '" y1="90" x2="' + rod1X + '" y2="230" stroke="#f59e0b" stroke-width="4"/>';
+        svg += '<circle cx="' + rod1X + '" cy="92" r="5" fill="#d97706"/>';
+        svg += '<text x="' + rod1X + '" y="245" text-anchor="middle" font-size="11" font-weight="700" fill="var(--fg)">ROD 1 (' + lenFt + '\')</text>';
+
+        // Ground Rod 2 (if count >= 2)
+        if (count >= 2) {
+          var rod2X = 640;
+          svg += '<path d="M ' + (rod2X - 90) + ' 90 A 90 90 0 0 0 ' + (rod2X + 90) + ' 90 Z" fill="url(#sphereGrad)"/>';
+          svg += '<line x1="' + rod2X + '" y1="90" x2="' + rod2X + '" y2="230" stroke="#f59e0b" stroke-width="4"/>';
+          svg += '<circle cx="' + rod2X + '" cy="92" r="5" fill="#d97706"/>';
+          svg += '<text x="' + rod2X + '" y="245" text-anchor="middle" font-size="11" font-weight="700" fill="var(--fg)">ROD 2 (' + lenFt + '\')</text>';
+
+          // Distance dimension between rods
+          svg += '<line x1="' + rod1X + '" y1="70" x2="' + rod2X + '" y2="70" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="3,3"/>';
+          svg += '<text x="' + ((rod1X + rod2X) / 2) + '" y="65" text-anchor="middle" font-size="11" font-weight="700" fill="#3b82f6">' + spacingFt + ' FT SPACING</text>';
+        }
+
+        svg += '<text x="410" y="25" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">Dwight Nomograph Model | Net System Earth Resistance: ' + netSystemR.toFixed(1) + ' \u03A9</text>';
+
+        svg += '</svg>';
+        document.getElementById('geSvgWrapper').innerHTML = svg;
+      }
+
+      function copyGeSpec() {
+        var service = document.getElementById('geServiceSize').selectedOptions[0].text;
+        var rTotal = document.getElementById('outTotalOhms').textContent;
+        var rodGec = document.getElementById('outGecRodSize').textContent;
+        var uferGec = document.getElementById('outGecUferSize').textContent;
+        var waterGec = document.getElementById('outGecWaterSize').textContent;
+        var status = document.getElementById('outNecStatus').textContent;
+        var rods = document.getElementById('geRodCount').selectedOptions[0].text;
+        var soil = document.getElementById('geSoilType').selectedOptions[0].text;
+
+        var text = 'NEC GROUNDING ELECTRODE SYSTEM SPECIFICATION\\n';
+        text += '---------------------------------------------------\\n';
+        text += 'Service Rating: ' + service + '\\n';
+        text += 'Soil Condition: ' + soil + '\\n';
+        text += 'Electrode Layout: ' + rods + '\\n';
+        text += 'Total Calculated Resistance: ' + rTotal + '\\n';
+        text += 'NEC 25-Ohm Compliance: ' + status + '\\n';
+        text += 'GEC to Ground Rods: ' + rodGec + ' (Max per 250.66(A))\\n';
+        text += 'GEC to Ufer Ground: ' + uferGec + ' (Max per 250.66(B))\\n';
+        text += 'GEC to Water Pipe: ' + waterGec + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyGeBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Grounding Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['geServiceSize', 'geRodLength', 'geSoilType', 'geRodCount', 'geUferPresent'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcGrounding);
+          el.addEventListener('change', calcGrounding);
+        }
+      });
+
+      document.getElementById('copyGeBtn').addEventListener('click', copyGeSpec);
+
+      calcGrounding();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'grounding-electrode-system-calculator.html'), renderTradePage({
+    title: "Grounding Electrode Resistance Calculator: Dwight Formula & NEC 250.66 | Digital Tools Shed",
+    metaDesc: "Calculate ground rod resistance to earth via Dwight's formula, verify the NEC 25-ohm rule, size Ufer grounds, and calculate NEC 250.66 GEC wire sizes.",
+    canonical: `${DOMAIN}/calc/grounding-electrode-system-calculator`,
+    bodyContent: groundingElectrodeBody,
+    currentPath: '/calc/grounding-electrode-system-calculator',
+    faq: [
+      {
+        "q": "What is the NEC 25-Ohm rule for ground rods?",
+        "a": "Under NEC 250.53(A)(2), a single rod, pipe, or plate electrode must have a resistance to earth of 25 ohms or less. If the resistance exceeds 25 ohms (or if you choose not to pay for an expensive 3-point fall-of-potential resistance test), you are required to install one additional supplemental electrode (such as a second ground rod) spaced at least 6 feet away. Once the second rod is driven, code is satisfied regardless of actual resistance."
+      },
+      {
+        "q": "What is an Ufer ground (Concrete-Encased Electrode)?",
+        "a": "Invented by Herbert Ufer during WWII for ammunition depots in dry desert soils, an Ufer ground consists of at least 20 feet of electrically continuous steel reinforcing rebar (at least 1/2\" diameter) or #4 AWG bare copper wire encased in the bottom of a concrete foundation footing in direct contact with the earth. Because concrete is hygroscopic (absorbing and retaining groundwater), an Ufer ground consistently achieves 2 to 5 ohms of resistance, vastly outperforming driven rods."
+      },
+      {
+        "q": "Why is #6 AWG copper the maximum size required for ground rods?",
+        "a": "Per NEC 250.66(A), the portion of the grounding electrode conductor that is the sole connection to a rod, pipe, or plate electrode is never required to be larger than #6 AWG copper. This is because the contact resistance between an 8-foot rod and the surrounding earth naturally limits the amount of current that can be dissipated into the soil to a level well within the thermal capacity of a #6 copper wire."
+      },
+      {
+        "q": "How far apart should dual ground rods be driven?",
+        "a": "While NEC 250.53(A)(3) permits a minimum spacing of 6 feet, IEEE and electrical engineering standards recommend spacing dual 8-foot rods at least <strong>16 feet apart (twice the rod length)</strong>. Driving them 16 feet apart eliminates electrical overlap between their hemispherical resistance shells, maximizing the current dissipation into the earth."
+      },
+      {
+        "q": "What causes high ground rod resistance?",
+        "a": "High ground resistance is primarily caused by soil composition (dry sand, gravel, and solid rock have resistivities 10 to 30 times higher than moist clay), low soil moisture content, seasonal freezing (frozen soil acts as an insulator), and poor mechanical contact between the driven rod and rocky backfill."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CHILLER PLANT EFFICIENCY KW/TON, COP, EER, IPLV & AUXILIARY POWER CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const chillerPlantBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Chiller Plant Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Chiller Plant Efficiency (kW/Ton, COP, IPLV) Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate central chilled water plant efficiency in kW/ton, COP, and EER. Evaluates chiller compressor power, chilled water pumps (CHWP), condenser water pumps (CWP), cooling tower fans, AHRI 550/590 IPLV part-load, and annual energy costs.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Central Plant Equipment Specs
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chTonnage">Nominal Cooling Capacity</label>
+          <select id="chTonnage" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="150">150 Tons (1,800 kBTU/h)</option>
+            <option value="250">250 Tons (3,000 kBTU/h)</option>
+            <option value="500" selected>500 Tons (6,000 kBTU/h)</option>
+            <option value="750">750 Tons (9,000 kBTU/h)</option>
+            <option value="1000">1,000 Tons (12,000 kBTU/h)</option>
+            <option value="1500">1,500 Tons (18,000 kBTU/h)</option>
+            <option value="2000">2,000 Tons (24,000 kBTU/h)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chType">Chiller Compressor Technology</label>
+          <select id="chType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="wc_mag_vfd" selected>Water-Cooled Mag-Bearing VFD (0.52 kW/t)</option>
+            <option value="wc_cent_vfd">Water-Cooled Centrifugal VFD (0.58 kW/t)</option>
+            <option value="wc_cent_const">Water-Cooled Centrifugal Const (0.64 kW/t)</option>
+            <option value="wc_screw">Water-Cooled Rotary Screw (0.68 kW/t)</option>
+            <option value="ac_screw_vfd">Air-Cooled Screw VFD (1.10 kW/t)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chPartLoadPct">Operating Part Load (%)</label>
+          <select id="chPartLoadPct" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="100">100% Load (Design Peak)</option>
+            <option value="75" selected>75% Load (Standard AHRI)</option>
+            <option value="50">50% Load (Sweet Spot)</option>
+            <option value="25">25% Load (Low Load Unloading)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chDeltaT">Chilled Water &Delta;T (&deg;F)</label>
+          <select id="chDeltaT" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="12" selected>12&deg;F &Delta;T (44&deg;F Supply / 56&deg;F Return)</option>
+            <option value="10">10&deg;F &Delta;T (Standard ASHRAE)</option>
+            <option value="8">8&deg;F &Delta;T (Low &Delta;T Syndrome!)</option>
+            <option value="14">14&deg;F &Delta;T (High Performance Low Flow)</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Auxiliary Plant Equipment (kW/Ton)</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chChwpKw">Chilled Water Pumps (CHWP)</label>
+          <input type="number" id="chChwpKw" value="0.08" min="0.01" max="0.30" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">kW per operating ton</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chCwpKw">Condenser Water Pumps (CWP)</label>
+          <input type="number" id="chCwpKw" value="0.09" min="0.01" max="0.30" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">kW per operating ton</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chTowerKw">Cooling Tower Fans</label>
+          <input type="number" id="chTowerKw" value="0.05" min="0.01" max="0.20" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">VFD fan kW per ton</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="chElecRate">Electric Rate ($/kWh)</label>
+          <input type="number" id="chElecRate" value="0.12" min="0.04" max="0.50" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Blended commercial rate</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Total Plant Efficiency & Power Draw
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Total Central Plant Efficiency</div>
+            <span id="outPlantEffBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#10b98120;color:#10b981;">WORLD CLASS (&lt; 0.70)</span>
+          </div>
+          <div id="outTotalKwTon" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">0.65 kW/Ton</div>
+          <div id="outChillerAloneSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Chiller alone: 0.43 kW/ton | COP: 5.41 | EER: 18.5</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Total Plant Power Demand</div>
+            <div id="outTotalPlantKw" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">243.8 kW</div>
+            <div id="outChillerKwSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Chiller: 161.3 kW | Aux: 82.5 kW</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">AHRI 550/590 NPLV Rating</div>
+            <div id="outIplvRating" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">0.34 kW/Ton</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Integrated Part-Load Value</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Annual Energy Consumption</div>
+            <div id="outAnnualKwh" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">487,500 kWh</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">At 2,000 full-load hours</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Annual Power Operating Cost</div>
+            <div id="outAnnualCost" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">$58,500 / yr</div>
+            <div id="outCostPerTonHr" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">$0.078 per ton-hour</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Chilled Water Flow Demand</div>
+              <div id="outChwGpm" style="font-size:1.2rem;font-weight:700;font-family:var(--mono);color:#3b82f6;margin-top:0.25rem;">750 GPM</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Condenser Flow (3 GPM/ton)</div>
+              <div id="outCwGpm" style="font-size:0.85rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">1,125 GPM to Towers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyChBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Central Chiller Plant Report</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: CENTRAL CHILLER PLANT HYDRONIC LOOPS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Interactive Central Chilled Water & Condenser Loop Schematic
+    </h3>
+    <div id="chSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & CHILLER PLANT PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Central Chiller Plant Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: "Low Delta-T Syndrome" & False Chiller Staging</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When building air handling unit (AHU) cooling coils are fouled, hunting, or equipped with oversized control valves, chilled water passes through coils without absorbing heat. Instead of returning to the central plant at the design 56&deg;F, water returns at 48&deg;F (a measly 4&deg;F &Delta;T instead of 12&deg;F). Because the plant flow reaches maximum pumping GPM limits while total thermal cooling load is only 40%, operators are tricked into starting a second and third 500-ton chiller just to pump water! Running three chillers at 30% load instead of one chiller at 90% load balloons plant energy use by over <strong>35% ($40,000+ per year)</strong>.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Running Condenser Water Too Cold in Screw Compressors</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Lowering cooling tower condenser water temperature improves centrifugal chiller efficiency by roughly 1.5% per &deg;F. However, in rotary screw chillers that rely on high-to-low refrigerant differential pressure to lubricate bearings and inject oil into rotor meshing, feeding 55&deg;F condenser water during spring collapses the head pressure. The oil separator fails, lubricating oil migrates permanently into the evaporator shell, and the precision twin-screw compressor catastrophically seizes from oil starvation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Constant-Speed Pumping vs Variable Primary Flow (VPF)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          In legacy primary/secondary pumping systems running constant-speed 60 Hz pump motors, pump electrical power remains 100% constant regardless of building cooling demand. Because pump power scales with the cube of flow velocity ($P \\propto N^3$ via Affinity Laws), slowing pump speed by just 20% with modern Variable Frequency Drives (VFDs) slashes electrical power draw by <strong>almost 50%</strong> ($0.80^3 = 0.512$). Upgrading to Variable Primary Flow (VPF) pays for itself in under 18 months.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>💧 Trap 4: Condenser Tube Scale & The 0.001" Penalty</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Cooling towers act as giant industrial air scrubbers, continually washing dust, pollen, and airborne minerals into open condenser water. Without strict chemical water treatment and blowdown control, calcium carbonate scale precipitates onto the inside of copper condenser tubes. A microscopic mineral scale layer of merely <strong>0.001 inches (0.025 mm) adds an immediate 10% to 12% energy penalty</strong> to compressor motor power, elevating condensing pressure and causing high-pressure head trips on 95&deg;F summer days.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>📏 Trap 5: Ignoring Cooling Tower Fan Staging & VFD Inversion</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Running one cooling tower cell fan at 100% speed while leaving the adjacent twin cell fan completely turned off consumes twice the electrical power of running both fans at 50% speed for the exact same heat rejection! Under fan affinity laws, two fans at 50% speed consume only $2 \\times (0.50)^3 = 25\\%$ of the power of one fan at 100% speed. Central plant automation must always distribute cooling tower water over all available cells and ramp all fan VFDs simultaneously.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Central Chiller Plant Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Overall Central Plant kW/Ton Equation</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Total central plant efficiency sums electrical power across all primary chiller components and hydronic distribution auxiliaries:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      kW_{\\text{plant}}/\\text{ton} = \\frac{kW_{\\text{chiller}} + kW_{\\text{CHWP}} + kW_{\\text{CWP}} + kW_{\\text{tower}}}{\\text{Operating Cooling Tons}}
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. AHRI 550/590 IPLV / NPLV Metric</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Because commercial chillers spend less than 1% of operating hours at 100% design peak load, AHRI 550/590 weights part-load efficiencies:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      \\text{IPLV} = 0.01 A + 0.42 B + 0.45 C + 0.12 D
+    </div>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      Where $A = \\text{kW/ton @ 100\\%}$, $B = \\text{kW/ton @ 75\\%}$, $C = \\text{kW/ton @ 50\\%}$, and $D = \\text{kW/ton @ 25\\%}$.
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. Thermodynamic Conversions (COP & EER)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      $\\text{COP} = \\frac{3.517}{kW/\\text{ton}}$ \\quad \\quad $\\text{EER} = \\frac{12}{kW/\\text{ton}} = 3.412 \\times \\text{COP}$
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is a good kW/ton benchmark for a water-cooled chiller plant?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Per ASHRAE 90.1 and federal energy management guidelines: <strong>World-Class / Best-in-Class is under 0.70 kW/ton total plant</strong> (including pumps and towers); <strong>Good / High Efficiency is 0.70 to 0.85 kW/ton</strong>; <strong>Average is 0.85 to 1.05 kW/ton</strong>; and legacy or poorly controlled plants exceed <strong>1.10 kW/ton</strong>.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between chiller standalone kW/ton and plant kW/ton?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Chiller standalone kW/ton accounts only for the electrical power consumed by the chiller compressor and onboard control panel (typically 0.50 to 0.60 kW/ton). Total plant kW/ton includes all auxiliary parasitic loads required to operate the hydronic system: chilled water distribution pumps, condenser water pumps, and cooling tower fan motors, typically adding 0.15 to 0.25 kW/ton to the baseline.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is Low Delta-T Syndrome?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Low Delta-T syndrome occurs when chilled water returns to the central plant at a temperature significantly colder than design (e.g. returning at 48&deg;F instead of 56&deg;F, yielding only a 4&deg;F &Delta;T). Because the water is not absorbing full heat in building coils, water flow demand increases, maxing out pump capacities and forcing operators to start additional chillers that run inefficiently at very low part loads.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why are magnetic-bearing (Turbocor) centrifugal chillers so efficient?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Magnetic-bearing centrifugal compressors levitate the rotor shaft in a permanent magnetic field, eliminating mechanical friction bearings, oil pumps, and oil separators. Completely oil-free operation prevents lubricating oil from coating heat exchanger tubes, maintaining pristine heat transfer and achieving extraordinary part-load efficiencies as low as 0.30 kW/ton at 50% load.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">How do you convert kW/ton to COP and EER?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        One ton of refrigeration equals 12,000 BTU/hr (or 3.517 kW of thermal cooling). Therefore: $\\text{COP} = \\frac{3.517}{kW/\\text{ton}}$ and $\\text{EER} = \\frac{12}{kW/\\text{ton}}$. For example, a 0.60 kW/ton chiller corresponds to a COP of 5.86 and an EER of 20.0.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      // Baseline Chiller Performance Data
+      // [100% kW/t, 75% kW/t, 50% kW/t, 25% kW/t]
+      var chillerCurves = {
+        'wc_mag_vfd': [0.52, 0.41, 0.31, 0.38],
+        'wc_cent_vfd': [0.58, 0.46, 0.36, 0.44],
+        'wc_cent_const': [0.64, 0.62, 0.66, 0.85],
+        'wc_screw': [0.68, 0.56, 0.48, 0.58],
+        'ac_screw_vfd': [1.10, 0.88, 0.72, 0.82]
+      };
+
+      function calcChiller() {
+        var tonsRated = parseFloat(document.getElementById('chTonnage').value) || 500;
+        var chType = document.getElementById('chType').value;
+        var loadPct = parseFloat(document.getElementById('chPartLoadPct').value) || 75;
+        var deltaT = parseFloat(document.getElementById('chDeltaT').value) || 12;
+        var chwpKwTon = parseFloat(document.getElementById('chChwpKw').value) || 0.08;
+        var cwpKwTon = parseFloat(document.getElementById('chCwpKw').value) || 0.09;
+        var towerKwTon = parseFloat(document.getElementById('chTowerKw').value) || 0.05;
+        var rateKwh = parseFloat(document.getElementById('chElecRate').value) || 0.12;
+
+        var curve = chillerCurves[chType] || [0.58, 0.46, 0.36, 0.44];
+        var opTons = tonsRated * (loadPct / 100);
+
+        // Chiller kW/ton at active load
+        var chKwTon = curve[1]; // default 75%
+        if (loadPct >= 90) chKwTon = curve[0];
+        else if (loadPct >= 65) chKwTon = curve[1];
+        else if (loadPct >= 40) chKwTon = curve[2];
+        else chKwTon = curve[3];
+
+        // Auxiliary power per ton at active load
+        // If low delta T, pump power increases
+        var deltaTFactor = 12 / deltaT;
+        var adjChwp = chwpKwTon * deltaTFactor;
+
+        var totalAuxKwTon = adjChwp + cwpKwTon + towerKwTon;
+        var totalPlantKwTon = chKwTon + totalAuxKwTon;
+
+        // Power demand in kW
+        var chillerKw = opTons * chKwTon;
+        var auxKw = opTons * totalAuxKwTon;
+        var totalPlantKw = chillerKw + auxKw;
+
+        // Efficiencies
+        var cop = 3.517 / chKwTon;
+        var eer = 12 / chKwTon;
+
+        // AHRI 550/590 IPLV: 0.01A + 0.42B + 0.45C + 0.12D
+        var iplv = (0.01 * curve[0]) + (0.42 * curve[1]) + (0.45 * curve[2]) + (0.12 * curve[3]);
+
+        // Annual costs (assuming 2,000 EFLH)
+        var eflh = 2000;
+        var annualKwh = totalPlantKw * eflh;
+        var annualCost = annualKwh * rateKwh;
+        var costPerTonHr = (opTons * eflh > 0) ? (annualCost / (opTons * eflh)) : 0;
+
+        // Flow rates: GPM = (Tons * 24) / DeltaT
+        var chwGpm = (opTons * 24) / deltaT;
+        var cwGpm = opTons * 3.0; // Standard 3.0 GPM/ton for cooling towers
+
+        // Benchmark Badge
+        var badgeText = 'WORLD CLASS (< 0.70)';
+        var badgeBg = '#10b98120';
+        var badgeColor = '#10b981';
+        if (totalPlantKwTon > 1.05) {
+          badgeText = 'INEFFICIENT (> 1.05)';
+          badgeBg = '#ef444420';
+          badgeColor = '#ef4444';
+        } else if (totalPlantKwTon > 0.85) {
+          badgeText = 'MARGINAL (0.85–1.05)';
+          badgeBg = '#f59e0b20';
+          badgeColor = '#f59e0b';
+        } else if (totalPlantKwTon > 0.70) {
+          badgeText = 'HIGH EFFICIENCY (0.70–0.85)';
+          badgeBg = '#3b82f620';
+          badgeColor = '#3b82f6';
+        }
+
+        var badgeEl = document.getElementById('outPlantEffBadge');
+        badgeEl.textContent = badgeText;
+        badgeEl.style.background = badgeBg;
+        badgeEl.style.color = badgeColor;
+
+        // Update UI
+        document.getElementById('outTotalKwTon').textContent = totalPlantKwTon.toFixed(2) + ' kW/Ton';
+        document.getElementById('outChillerAloneSub').textContent = 'Chiller alone: ' + chKwTon.toFixed(2) + ' kW/ton | COP: ' + cop.toFixed(2) + ' | EER: ' + eer.toFixed(1);
+
+        document.getElementById('outTotalPlantKw').textContent = totalPlantKw.toFixed(1) + ' kW';
+        document.getElementById('outChillerKwSub').textContent = 'Chiller: ' + chillerKw.toFixed(1) + ' kW | Aux: ' + auxKw.toFixed(1) + ' kW';
+
+        document.getElementById('outIplvRating').textContent = iplv.toFixed(2) + ' kW/Ton';
+        document.getElementById('outAnnualKwh').textContent = Math.round(annualKwh).toLocaleString() + ' kWh';
+        document.getElementById('outAnnualCost').textContent = '$' + Math.round(annualCost).toLocaleString() + ' / yr';
+        document.getElementById('outCostPerTonHr').textContent = '$' + costPerTonHr.toFixed(3) + ' per ton-hour';
+
+        document.getElementById('outChwGpm').textContent = Math.round(chwGpm).toLocaleString() + ' GPM';
+        document.getElementById('outCwGpm').textContent = Math.round(cwGpm).toLocaleString() + ' GPM to Towers';
+
+        renderChSvg(opTons, totalPlantKwTon, chKwTon, totalAuxKwTon, chwGpm, cwGpm);
+      }
+
+      function renderChSvg(opTons, totalPlantKwTon, chKwTon, totalAuxKwTon, chwGpm, cwGpm) {
+        var w = 820;
+        var h = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+        svg += '<defs>';
+        svg += '<marker id="arrowLoop" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2563eb"/></marker>';
+        svg += '<marker id="arrowHot" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#ef4444"/></marker>';
+        svg += '</defs>';
+
+        // Chiller Central Shell
+        svg += '<rect x="290" y="55" width="240" height="150" rx="10" fill="var(--surface)" stroke="#2563eb" stroke-width="2.5"/>';
+        svg += '<text x="410" y="85" text-anchor="middle" font-size="14" font-weight="800" fill="var(--fg)">CENTRAL CHILLER</text>';
+        svg += '<text x="410" y="108" text-anchor="middle" font-size="12" font-weight="700" fill="#2563eb">' + opTons.toFixed(0) + ' Operating Tons (' + chKwTon.toFixed(2) + ' kW/t)</text>';
+        svg += '<rect x="310" y="125" width="200" height="30" rx="4" fill="#2563eb20" stroke="#2563eb" stroke-width="1"/>';
+        svg += '<text x="410" y="145" text-anchor="middle" font-size="11" font-weight="800" fill="#2563eb">PLANT: ' + totalPlantKwTon.toFixed(2) + ' KW/TON</text>';
+
+        // Left: Chilled Water Distribution Loop
+        svg += '<rect x="50" y="65" width="160" height="130" rx="8" fill="var(--surface)" stroke="#3b82f6" stroke-width="1.5"/>';
+        svg += '<text x="130" y="95" text-anchor="middle" font-size="11" font-weight="700" fill="#3b82f6">BUILDING AHU COILS</text>';
+        svg += '<text x="130" y="120" text-anchor="middle" font-size="14" font-weight="800" fill="var(--fg)">' + Math.round(chwGpm) + ' GPM</text>';
+        svg += '<text x="130" y="145" text-anchor="middle" font-size="10" fill="var(--text-muted)">44\u00B0F Supply / 56\u00B0F Return</text>';
+
+        // CHW Flow arrows
+        svg += '<line x1="290" y1="100" x2="220" y2="100" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowLoop)"/>';
+        svg += '<line x1="210" y1="170" x2="280" y2="170" stroke="#60a5fa" stroke-width="3" marker-end="url(#arrowLoop)"/>';
+
+        // Right: Cooling Tower Condenser Loop
+        svg += '<rect x="610" y="65" width="160" height="130" rx="8" fill="var(--surface)" stroke="#ef4444" stroke-width="1.5"/>';
+        svg += '<text x="690" y="95" text-anchor="middle" font-size="11" font-weight="700" fill="#ef4444">COOLING TOWERS</text>';
+        svg += '<text x="690" y="120" text-anchor="middle" font-size="14" font-weight="800" fill="var(--fg)">' + Math.round(cwGpm) + ' GPM</text>';
+        svg += '<text x="690" y="145" text-anchor="middle" font-size="10" fill="var(--text-muted)">85\u00B0F Supply / 95\u00B0F Return</text>';
+
+        // CW Flow arrows
+        svg += '<line x1="530" y1="100" x2="600" y2="100" stroke="#ef4444" stroke-width="3" marker-end="url(#arrowHot)"/>';
+        svg += '<line x1="610" y1="170" x2="540" y2="170" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrowHot)"/>';
+
+        svg += '<text x="410" y="245" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">Variable Primary Flow Architecture | Total Auxiliaries: ' + totalAuxKwTon.toFixed(2) + ' kW/ton</text>';
+
+        svg += '</svg>';
+        document.getElementById('chSvgWrapper').innerHTML = svg;
+      }
+
+      function copyChSpec() {
+        var tons = document.getElementById('chTonnage').selectedOptions[0].text;
+        var chType = document.getElementById('chType').selectedOptions[0].text;
+        var load = document.getElementById('chPartLoadPct').value + '%';
+        var eff = document.getElementById('outTotalKwTon').textContent;
+        var kw = document.getElementById('outTotalPlantKw').textContent;
+        var iplv = document.getElementById('outIplvRating').textContent;
+        var annualCost = document.getElementById('outAnnualCost').textContent;
+        var chwGpm = document.getElementById('outChwGpm').textContent;
+        var cwGpm = document.getElementById('outCwGpm').textContent;
+
+        var text = 'CENTRAL CHILLER PLANT EFFICIENCY SPECIFICATION\\n';
+        text += '-----------------------------------------------------\\n';
+        text += 'Chiller Capacity: ' + tons + '\\n';
+        text += 'Compressor Type: ' + chType + '\\n';
+        text += 'Operating Load: ' + load + '\\n';
+        text += 'Total Central Plant Efficiency: ' + eff + '\\n';
+        text += 'Total Plant Electric Demand: ' + kw + '\\n';
+        text += 'AHRI 550/590 NPLV Rating: ' + iplv + '\\n';
+        text += 'Annual Operating Power Cost: ' + annualCost + '\\n';
+        text += 'Chilled Water Flow: ' + chwGpm + '\\n';
+        text += 'Condenser Water Flow: ' + cwGpm + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyChBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Chiller Plant Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['chTonnage', 'chType', 'chPartLoadPct', 'chDeltaT', 'chChwpKw', 'chCwpKw', 'chTowerKw', 'chElecRate'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcChiller);
+          el.addEventListener('change', calcChiller);
+        }
+      });
+
+      document.getElementById('copyChBtn').addEventListener('click', copyChSpec);
+
+      calcChiller();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'chiller-plant-efficiency-calculator.html'), renderTradePage({
+    title: "Chiller Plant Efficiency Calculator: kW/Ton, COP, EER & IPLV | Digital Tools Shed",
+    metaDesc: "Calculate central chiller plant efficiency in kW/ton, COP, and EER. Sizes chiller compressor, chilled water pumps, condenser pumps, towers, and annual power costs.",
+    canonical: `${DOMAIN}/calc/chiller-plant-efficiency-calculator`,
+    bodyContent: chillerPlantBody,
+    currentPath: '/calc/chiller-plant-efficiency-calculator',
+    faq: [
+      {
+        "q": "What is a good kW/ton benchmark for a water-cooled chiller plant?",
+        "a": "Per ASHRAE 90.1 and federal energy management guidelines: <strong>World-Class / Best-in-Class is under 0.70 kW/ton total plant</strong> (including pumps and towers); <strong>Good / High Efficiency is 0.70 to 0.85 kW/ton</strong>; <strong>Average is 0.85 to 1.05 kW/ton</strong>; and legacy or poorly controlled plants exceed <strong>1.10 kW/ton</strong>."
+      },
+      {
+        "q": "What is the difference between chiller standalone kW/ton and plant kW/ton?",
+        "a": "Chiller standalone kW/ton accounts only for the electrical power consumed by the chiller compressor and onboard control panel (typically 0.50 to 0.60 kW/ton). Total plant kW/ton includes all auxiliary parasitic loads required to operate the hydronic system: chilled water distribution pumps, condenser water pumps, and cooling tower fan motors, typically adding 0.15 to 0.25 kW/ton to the baseline."
+      },
+      {
+        "q": "What is Low Delta-T Syndrome?",
+        "a": "Low Delta-T syndrome occurs when chilled water returns to the central plant at a temperature significantly colder than design (e.g. returning at 48&deg;F instead of 56&deg;F, yielding only a 4&deg;F &Delta;T). Because the water is not absorbing full heat in building coils, water flow demand increases, maxing out pump capacities and forcing operators to start additional chillers that run inefficiently at very low part loads."
+      },
+      {
+        "q": "Why are magnetic-bearing (Turbocor) centrifugal chillers so efficient?",
+        "a": "Magnetic-bearing centrifugal compressors levitate the rotor shaft in a permanent magnetic field, eliminating mechanical friction bearings, oil pumps, and oil separators. Completely oil-free operation prevents lubricating oil from coating heat exchanger tubes, maintaining pristine heat transfer and achieving extraordinary part-load efficiencies as low as 0.30 kW/ton at 50% load."
+      },
+      {
+        "q": "How do you convert kW/ton to COP and EER?",
+        "a": "One ton of refrigeration equals 12,000 BTU/hr (or 3.517 kW of thermal cooling). Therefore: $\\text{COP} = \\frac{3.517}{kW/\\text{ton}}$ and $\\text{EER} = \\frac{12}{kW/\\text{ton}}$. For example, a 0.60 kW/ton chiller corresponds to a COP of 5.86 and an EER of 20.0."
+      }
+    ]
+  }));
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // CABLE TRAY FILL RATIO, NEC ARTICLE 392 & STRUCTURAL LOAD CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const cableTrayBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade & Construction</a> &gt; <span>Cable Tray Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Cable Tray Fill & Structural Weight Calculator (NEC 392)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate ladder and ventilated cable tray fill percentages per NEC Article 392 (Table 392.22(A) & 392.22(B)). Size power, multiconductor control, and instrumentation cables, check CEMA structural load ratings (lbs/ft), and verify divider barrier isolation.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h18M3 16h18"/></svg>
+        Cable Tray Dimensions & Cable Class
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctWidth">Inside Tray Width (Inches)</label>
+          <select id="ctWidth" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="6">6" Width</option>
+            <option value="9">9" Width</option>
+            <option value="12" selected>12" Width (Standard)</option>
+            <option value="18">18" Width</option>
+            <option value="24">24" Width</option>
+            <option value="30">30" Width</option>
+            <option value="36">36" Width</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctDepth">Inside Usable Depth (Inches)</label>
+          <select id="ctDepth" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="3">3" Loading Depth</option>
+            <option value="4" selected>4" Loading Depth (Standard)</option>
+            <option value="5">5" Loading Depth</option>
+            <option value="6">6" Heavy Industrial Depth</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctCableCategory">NEC 392 Cable Category</label>
+          <select id="ctCableCategory" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--sans);font-size:0.85rem;">
+            <option value="multi_small" selected>Multiconductor Smaller than 4/0 (Table 392.22(A) Col 2)</option>
+            <option value="control">Control & Signal Cables (50% Max Area)</option>
+            <option value="single">Single-Conductor Power (Table 392.22(B))</option>
+            <option value="multi_large">Multiconductor 4/0 or Larger (Sum of Diameters)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctCemaClass">Tray NEMA / CEMA Rating</label>
+          <select id="ctCemaClass" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.85rem;">
+            <option value="50">NEMA 8A (50 lbs/ft @ 8' span)</option>
+            <option value="75" selected>NEMA 12B (75 lbs/ft @ 12' span)</option>
+            <option value="100">NEMA 20C (100 lbs/ft @ 20' span)</option>
+            <option value="150">Heavy Industrial (150 lbs/ft)</option>
+          </select>
+        </div>
+      </div>
+
+      <h3 style="font-size:1rem;margin-top:1.5rem;margin-bottom:0.75rem;color:var(--fg);border-top:1px solid var(--border);padding-top:1rem;">Installed Cable Bundle Inventory</h3>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctCableOd">Average Cable Outside Diameter (In)</label>
+          <input type="number" id="ctCableOd" value="0.75" min="0.10" max="4.00" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Including outer jacket (OD)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctCableCount">Total Number of Cables</label>
+          <input type="number" id="ctCableCount" value="28" min="1" max="500" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1.05rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Cables running in tray run</span>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ctCableWeight">Average Cable Weight (lbs/ft per cable)</label>
+        <input type="number" id="ctCableWeight" value="0.85" min="0.05" max="25.0" step="0.05" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);display:block;margin-top:0.25rem;">Used to verify structural hanger load limits</span>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          NEC Fill & Structural Load Verification
+        </h2>
+
+        <div style="background:var(--bg);padding:1rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1.25rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">
+            <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:700;">Cable Tray Fill Percentage</div>
+            <span id="outFillBadge" style="font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;background:#10b98120;color:#10b981;">NEC COMPLIANT</span>
+          </div>
+          <div id="outFillPct" style="font-size:2.2rem;font-weight:800;font-family:var(--mono);color:#2563eb;">25.7%</div>
+          <div id="outFillAreaSub" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">12.37 sq in cable area / 48.0 sq in tray gross</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Max Allowable Fill Area</div>
+            <div id="outMaxAllowArea" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.25rem;">14.0 sq in</div>
+            <div id="outNecRuleSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">NEC Table 392.22(A) Col 2</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Total Cable Weight</div>
+            <div id="outTotalWeight" style="font-size:1.35rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">23.8 lbs/ft</div>
+            <div id="outTrayRatingSub" style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Well within 75 lbs/ft NEMA 12B</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Sum of Cable Diameters</div>
+            <div id="outSumDiameters" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);margin-top:0.25rem;">21.0 Inches</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Total bundle linear width</div>
+          </div>
+          <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Required Divider Barrier?</div>
+            <div id="outBarrierReq" style="font-size:1.25rem;font-weight:700;font-family:var(--mono);color:#3b82f6;margin-top:0.25rem;">Not Required</div>
+            <div style="font-size:0.7rem;color:var(--text-muted);margin-top:0.15rem;">Single cable class in tray</div>
+          </div>
+        </div>
+
+        <div style="background:var(--bg);padding:0.85rem;border-radius:8px;border:1px solid var(--border);margin-bottom:1rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;">Spare Capacity Headroom</div>
+              <div id="outSpareCapacity" style="font-size:1.2rem;font-weight:700;font-family:var(--mono);color:#10b981;margin-top:0.25rem;">+11.6% Remaining</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:0.7rem;color:var(--text-muted);">Recommended Next Width</div>
+              <div id="outRecWidth" style="font-size:0.85rem;font-weight:700;font-family:var(--mono);color:var(--fg);margin-top:0.2rem;">12" is optimal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button id="copyCtBtn" style="width:100%;margin-top:1rem;padding:0.85rem 1rem;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        <span>Copy Cable Tray Specification</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SVG DIAGRAM: CABLE TRAY CROSS-SECTION & CABLE LAYOUT -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:2.5rem;">
+    <h3 style="font-size:1.1rem;margin-top:0;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+      Interactive Ladder Cable Tray Cross-Section & Fill Architecture
+    </h3>
+    <div id="ctSvgWrapper" style="width:100%;overflow-x:auto;">
+      <!-- Dynamic SVG generated via JS -->
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & CABLE TRAY ENGINEERING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">5 Fatal Traps & Cable Tray Engineering Pitfalls</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div class="trap-card" style="border-left:4px solid #ef4444;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#ef4444;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>🚨 Trap 1: Mixing Control and 480V Power Without a Solid Divider Barrier (NEC 392.20)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Laying 4-20mA instrumentation cables, Ethernet data runs, or 24V PLC I/O lines directly beside 480V motor feeder cables in the same tray is a catastrophic code and engineering violation. Fast-switching VFD inverter pulses induce massive electromagnetic interference (EMI) and common-mode noise voltage across the low-voltage cables, scrambling sensor data and shutting down automated production lines. <strong>NEC 392.20(B) strictly requires a continuous, grounded metallic barrier</strong> separating circuits over 600V (or power circuits) from control and instrumentation conductors.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #f59e0b;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#f59e0b;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚠️ Trap 2: Violating the 50% Area Fill Limit (Heat Entrapment & Ampacity Meltdown)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          Electricians often see empty vertical space in a 4-inch deep cable tray and pile cables up to the top side rail flange. NEC Article 392 strictly caps multiconductor control/signal cables at <strong>50% of the tray cross-sectional area</strong>, and power cables are governed by strict square-inch tables (NEC Table 392.22(A)). Over-filling cable trays blocks natural air convection cooling: thermal imaging reveals internal cable core temperatures exceeding 190&deg;F, melting PVC jackets, causing cross-phase insulation breakdown, and triggering fire.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #10b981;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#10b981;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>⚡ Trap 3: Single-Conductor Cable Grouping & Tray Rung Inductive Heating</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When running single-conductor cables (such as 500 kcmil feeds), you must <strong>NEVER separate phases into individual bunches</strong> (e.g. grouping all Phase A cables on the left and Phase B on the right). Running single phases separately creates an uncancelled alternating magnetic flux loop around the steel or aluminum ladder rungs. Eddy currents induce intense heat directly inside the tray metal itself, turning the rungs into electric stove heating elements that incinerate cable insulation. Cables must always be bound in tight <strong>three-phase trefoil (triangular) or ABC flat groups</strong> so alternating magnetic fields cancel out completely.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #3b82f6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#3b82f6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>❄️ Trap 4: Structural Support Span Overloading Under Ice & Ash Accumulation</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When sizing cable tray support hangers (e.g. threaded rod ceiling drops or unistrut trapezes on an 8-foot or 12-foot span), engineers frequently only sum the bare weight of copper conductors. On outdoor petrochemical or manufacturing pipe racks, heavy winter freezing rain adds <strong>up to 25 lbs/ft of solid ice loading</strong>, while heavy industrial plants accumulate wet mineral dust and fly ash. Neglecting environmental dead loads causes structural tray buckling, snapped support rods, and catastrophic collapse of entire overhead cable runs.
+        </p>
+      </div>
+
+      <div class="trap-card" style="border-left:4px solid #8b5cf6;background:var(--surface);padding:1.25rem;border-radius:0 8px 8px 0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h4 style="margin:0 0 0.5rem 0;color:#8b5cf6;font-size:1rem;display:flex;align-items:center;gap:0.5rem;">
+          <span>📏 Trap 5: Sharp Edge Jacket Splitting at Tray Drop-Outs (Minimum Bend Radius)</span>
+        </h4>
+        <p style="margin:0;font-size:0.925rem;line-height:1.6;color:var(--fg);">
+          When cables exit a horizontal cable tray to drop down into a motor control center or transformer, pulling them tightly over the bottom rung or side rail edge creates concentrated mechanical shear stress. Under vibration and thermal expansion, the sharp aluminum corner slices through the outer chlorinated polyethylene (CPE) jacket, grounding out the conductor. <strong>Always install manufactured smooth-radius drop-out plates</strong> that enforce the cable's mandatory 8x to 12x outer diameter minimum bending radius.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATHEMATICAL & ENGINEERING DERIVATIONS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.5rem;margin-top:0;margin-bottom:1rem;">First-Principles Cable Tray Derivations</h2>
+    
+    <h3 style="font-size:1.1rem;margin-top:1.25rem;margin-bottom:0.5rem;color:var(--fg);">1. Total Cable Bundle Cross-Sectional Area</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      Each cable of outer diameter $OD$ occupies a circular area:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      A_{\\text{cable}} = \\frac{\\pi}{4} \\times (OD)^2 \\approx 0.7854 \\times (OD)^2 \\\\
+      A_{\\text{total}} = N_{\\text{cables}} \\times A_{\\text{cable}}
+    </div>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">2. Allowable Fill Area (NEC Table 392.22(A) Column 2)</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);margin-bottom:0.75rem;">
+      For multiconductor cables smaller than 4/0 installed in ladder or ventilated trough cable trays, NEC Table 392.22(A) Column 2 defines allowable fill:
+    </p>
+    <div style="background:var(--bg);padding:0.85rem;border-radius:8px;font-family:var(--mono);font-size:1rem;margin-bottom:1rem;border:1px solid var(--border);">
+      A_{\\text{allowable}} = \\text{Width (in)} \\times 1.167 \\quad (\\text{approx. for 4\" deep tray})
+    </div>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      For <strong>Control and Signal Cables</strong>: $A_{\\text{allowable}} = 0.50 \\times \\text{Width} \\times \\text{Depth}$ (50% max cross-section).
+    </p>
+
+    <h3 style="font-size:1.1rem;margin-top:1.5rem;margin-bottom:0.5rem;color:var(--fg);">3. CEMA Structural Support Load</h3>
+    <p style="font-size:0.95rem;line-height:1.6;color:var(--text-muted);">
+      $W_{\\text{total}} = N_{\\text{cables}} \\times w_{\\text{cable}}$ (lbs/ft). Must not exceed the NEMA VE-1 load rating of the selected tray profile across the designated support hanger span.
+    </p>
+  </div>
+
+  <!-- FAQ SECTION -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+    
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the maximum allowable cable tray fill percentage per NEC?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Under NEC Article 392: for <strong>control and signal cables</strong>, maximum fill is strictly <strong>50% of the inside cross-sectional area</strong> ($0.50 \\times W \\times D$). For <strong>multiconductor power cables smaller than 4/0</strong>, fill is limited to the square-inch values specified in NEC Table 392.22(A) Column 2 (e.g. 14 sq in for a 12" wide tray). For cables 4/0 or larger, the sum of cable diameters cannot exceed the inside width of the tray.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">When is a metallic divider barrier required in a cable tray?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        Per NEC 392.20(B), a continuous solid metallic divider barrier is mandatory whenever conductors of different voltage classifications (such as 480V power circuits and low-voltage Class 1, 2, or 3 control, instrumentation, or communication cables) share the same cable tray. The barrier prevents both insulation breakdown flashover and inductive electromagnetic noise coupling.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What is the difference between ladder tray and solid-bottom cable tray?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        <strong>Ladder cable tray</strong> features open rungs spaced 9" or 12" apart, offering maximum natural air ventilation, higher cable ampacity ratings, and easy cable drop-outs. <strong>Solid-bottom tray</strong> provides continuous physical support for delicate small-diameter instrumentation cables and protects sensitive wiring against falling debris and shielding from electromagnetic radiation, but traps heat and requires lower ampacity deratings.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">Why do single-conductor power cables need to be bound in trefoil formation?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        In three-phase systems, binding phases A, B, and C tightly together in an equilateral triangular (trefoil) formation ensures that the three alternating magnetic fields cancel each other out. This eliminates dangerous inductive heating in metallic tray rungs and neutralizes violent electromagnetic repulsive forces between conductors during high-current short-circuit faults.
+      </div>
+    </details>
+
+    <details class="faq-item" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;margin-bottom:0.75rem;cursor:pointer;">
+      <summary style="font-weight:600;font-size:1rem;color:var(--fg);">What are NEMA VE-1 load classes for cable trays?</summary>
+      <div style="margin-top:0.75rem;font-size:0.925rem;line-height:1.6;color:var(--text-muted);">
+        NEMA VE-1 classifies cable trays by allowable working load and support span: Class 8A supports 50 lbs/ft across an 8-foot span; Class 12B supports 75 lbs/ft across a 12-foot span; and Class 20C supports 100 lbs/ft across a 20-foot span with a safety factor of 1.5 against structural yield.
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function() {
+      // NEC Table 392.22(A) Column 2 Allowable Area Lookups for Multiconductor < 4/0
+      var nec392TableCol2 = {
+        6: 7.0,
+        9: 10.5,
+        12: 14.0,
+        18: 21.0,
+        24: 28.0,
+        30: 35.0,
+        36: 42.0
+      };
+
+      function calcCableTray() {
+        var w = parseFloat(document.getElementById('ctWidth').value) || 12;
+        var d = parseFloat(document.getElementById('ctDepth').value) || 4;
+        var category = document.getElementById('ctCableCategory').value;
+        var cemaLimit = parseFloat(document.getElementById('ctCemaClass').value) || 75;
+        var od = parseFloat(document.getElementById('ctCableOd').value) || 0.75;
+        var count = parseInt(document.getElementById('ctCableCount').value) || 28;
+        var unitWt = parseFloat(document.getElementById('ctCableWeight').value) || 0.85;
+
+        // Individual cable area = (pi / 4) * d^2
+        var singleArea = (Math.PI / 4) * (od * od);
+        var totalCableArea = count * singleArea;
+
+        // Gross Tray Area = W * D
+        var grossTrayArea = w * d;
+
+        // Max Allowable Fill Area per NEC 392
+        var maxAllowArea = 14.0;
+        var ruleNote = 'NEC Table 392.22(A) Col 2';
+        if (category === 'control') {
+          maxAllowArea = 0.50 * grossTrayArea; // 50% max rule
+          ruleNote = '50% Max Gross Cross-Section Area';
+        } else if (category === 'multi_small') {
+          maxAllowArea = nec392TableCol2[w] || (w * 1.167);
+          ruleNote = 'NEC Table 392.22(A) Col 2 Area';
+        } else if (category === 'multi_large') {
+          maxAllowArea = w * d * 0.40;
+          ruleNote = 'Sum of Diameters <= Tray Width';
+        } else {
+          maxAllowArea = nec392TableCol2[w] * 0.90;
+          ruleNote = 'NEC Table 392.22(B) Single Conductor';
+        }
+
+        // Percentage fill of gross tray
+        var fillPct = (totalCableArea / grossTrayArea) * 100;
+
+        // Sum of diameters
+        var sumDiameters = count * od;
+
+        // Structural weight (lbs/ft)
+        var totalWeightLbsFt = count * unitWt;
+
+        // Compliance checks
+        var isCompliant = true;
+        if (category === 'multi_large') {
+          if (sumDiameters > w) isCompliant = false;
+        } else {
+          if (totalCableArea > maxAllowArea) isCompliant = false;
+        }
+        if (totalWeightLbsFt > cemaLimit) isCompliant = false;
+
+        var spareCapPct = 0;
+        if (isCompliant) {
+          spareCapPct = ((maxAllowArea - totalCableArea) / grossTrayArea) * 100;
+        }
+
+        // Recommended width if failed
+        var recWidth = w + '" is optimal';
+        if (!isCompliant) {
+          var neededArea = totalCableArea * 1.25;
+          recWidth = 'Upgrade to ' + (w >= 30 ? '36"' : (w >= 24 ? '30"' : (w >= 18 ? '24"' : '18"'))) + ' tray';
+        }
+
+        // Barrier requirement
+        var barrierText = (category === 'control' ? 'Barrier Recommended' : 'Not Required');
+
+        // Badge
+        var badgeText = 'NEC COMPLIANT';
+        var badgeBg = '#10b98120';
+        var badgeColor = '#10b981';
+        if (!isCompliant) {
+          badgeText = 'EXCEEDS NEC 392 LIMIT';
+          badgeBg = '#ef444420';
+          badgeColor = '#ef4444';
+        } else if (totalCableArea > (maxAllowArea * 0.85)) {
+          badgeText = 'NEAR CAPACITY (> 85%)';
+          badgeBg = '#f59e0b20';
+          badgeColor = '#f59e0b';
+        }
+
+        var badgeEl = document.getElementById('outFillBadge');
+        badgeEl.textContent = badgeText;
+        badgeEl.style.background = badgeBg;
+        badgeEl.style.color = badgeColor;
+
+        // Update UI
+        document.getElementById('outFillPct').textContent = fillPct.toFixed(1) + '%';
+        document.getElementById('outFillAreaSub').textContent = totalCableArea.toFixed(2) + ' sq in cable area / ' + grossTrayArea.toFixed(1) + ' sq in gross';
+
+        document.getElementById('outMaxAllowArea').textContent = maxAllowArea.toFixed(1) + ' sq in';
+        document.getElementById('outNecRuleSub').textContent = ruleNote;
+
+        document.getElementById('outTotalWeight').textContent = totalWeightLbsFt.toFixed(1) + ' lbs/ft';
+        var wtSub = document.getElementById('outTrayRatingSub');
+        if (totalWeightLbsFt <= cemaLimit) {
+          wtSub.textContent = 'Within ' + cemaLimit + ' lbs/ft NEMA limit';
+          wtSub.style.color = 'var(--text-muted)';
+        } else {
+          wtSub.textContent = 'OVERWEIGHT: Exceeds ' + cemaLimit + ' lbs/ft!';
+          wtSub.style.color = '#ef4444';
+        }
+
+        document.getElementById('outSumDiameters').textContent = sumDiameters.toFixed(1) + ' Inches';
+        document.getElementById('outBarrierReq').textContent = barrierText;
+
+        document.getElementById('outSpareCapacity').textContent = (isCompliant ? '+' + spareCapPct.toFixed(1) + '% Remaining' : 'Overfilled by ' + (totalCableArea - maxAllowArea).toFixed(1) + ' sq in');
+        document.getElementById('outSpareCapacity').style.color = isCompliant ? '#10b981' : '#ef4444';
+        document.getElementById('outRecWidth').textContent = recWidth;
+
+        renderCtSvg(w, d, count, od, fillPct, isCompliant);
+      }
+
+      function renderCtSvg(w, d, count, od, fillPct, isCompliant) {
+        var svgW = 820;
+        var svgH = 260;
+        var svg = '';
+        svg += '<svg viewBox="0 0 ' + svgW + ' ' + svgH + '" style="width:100%;height:auto;max-height:280px;background:var(--bg);border-radius:8px;display:block;">';
+
+        // Scaled tray box
+        var tX = 160;
+        var tY = 70;
+        var tWidthPx = w * 13; // scaled width
+        var tHeightPx = d * 22; // scaled height
+
+        // Side Rails
+        svg += '<rect x="' + (tX - 16) + '" y="' + tY + '" width="16" height="' + tHeightPx + '" rx="2" fill="#64748b" stroke="#475569" stroke-width="2"/>';
+        svg += '<rect x="' + (tX + tWidthPx) + '" y="' + tY + '" width="16" height="' + tHeightPx + '" rx="2" fill="#64748b" stroke="#475569" stroke-width="2"/>';
+
+        // Bottom Rungs
+        svg += '<rect x="' + tX + '" y="' + (tY + tHeightPx - 10) + '" width="' + tWidthPx + '" height="10" fill="#475569" stroke="#334155" stroke-width="1.5"/>';
+
+        // Cable Circles rendering
+        var cableRadiusPx = Math.min(18, Math.max(5, (od / 2) * 22));
+        var cols = Math.floor(tWidthPx / (cableRadiusPx * 2.1));
+        if (cols < 1) cols = 1;
+
+        var rendered = 0;
+        var curRow = 0;
+        var cableColor = isCompliant ? '#2563eb' : '#ef4444';
+
+        while (rendered < count && rendered < 80) {
+          var rowY = (tY + tHeightPx - 10 - cableRadiusPx) - (curRow * cableRadiusPx * 1.9);
+          for (var c = 0; c < cols && rendered < count; c++) {
+            var colX = tX + cableRadiusPx + (c * cableRadiusPx * 2.05) + 4;
+            svg += '<circle cx="' + colX + '" cy="' + rowY + '" r="' + (cableRadiusPx - 1) + '" fill="' + cableColor + '" stroke="#ffffff" stroke-width="1"/>';
+            rendered++;
+          }
+          curRow++;
+        }
+
+        // Width dimension
+        svg += '<line x1="' + tX + '" y1="' + (tY - 15) + '" x2="' + (tX + tWidthPx) + '" y2="' + (tY - 15) + '" stroke="#64748b" stroke-width="1.5"/>';
+        svg += '<text x="' + (tX + tWidthPx / 2) + '" y="' + (tY - 22) + '" text-anchor="middle" font-size="12" font-weight="700" fill="var(--fg)">' + w + '" TRAY WIDTH</text>';
+
+        // Depth dimension
+        svg += '<line x1="' + (tX - 25) + '" y1="' + tY + '" x2="' + (tX - 25) + '" y2="' + (tY + tHeightPx) + '" stroke="#64748b" stroke-width="1.5"/>';
+        svg += '<text x="' + (tX - 32) + '" y="' + (tY + tHeightPx / 2 + 4) + '" text-anchor="end" font-size="11" font-weight="700" fill="var(--fg)">' + d + '"</text>';
+
+        // Status callout right side
+        svg += '<rect x="620" y="70" width="160" height="110" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>';
+        svg += '<text x="700" y="98" text-anchor="middle" font-size="11" font-weight="700" fill="#2563eb">FILL STATUS</text>';
+        svg += '<text x="700" y="125" text-anchor="middle" font-size="16" font-weight="800" fill="' + (isCompliant ? '#10b981' : '#ef4444') + '">' + fillPct.toFixed(1) + '%</text>';
+        svg += '<text x="700" y="148" text-anchor="middle" font-size="11" fill="var(--text-muted)">' + (isCompliant ? 'NEC PASS' : 'NEC FAIL') + '</text>';
+
+        svg += '<text x="410" y="240" text-anchor="middle" font-size="12" font-weight="700" fill="var(--text-muted)">Ladder Cable Tray Architecture | Conductor Heat Dissipation Cross-Section</text>';
+
+        svg += '</svg>';
+        document.getElementById('ctSvgWrapper').innerHTML = svg;
+      }
+
+      function copyCtSpec() {
+        var w = document.getElementById('ctWidth').value + '"';
+        var d = document.getElementById('ctDepth').value + '"';
+        var fill = document.getElementById('outFillPct').textContent;
+        var allow = document.getElementById('outMaxAllowArea').textContent;
+        var wt = document.getElementById('outTotalWeight').textContent;
+        var status = document.getElementById('outFillBadge').textContent;
+        var count = document.getElementById('ctCableCount').value;
+        var od = document.getElementById('ctCableOd').value + '"';
+
+        var text = 'NEC CABLE TRAY SIZING & STRUCTURAL SPECIFICATION\\n';
+        text += '-----------------------------------------------------\\n';
+        text += 'Tray Profile: ' + w + ' Width x ' + d + ' Loading Depth\\n';
+        text += 'Cable Inventory: ' + count + ' Cables @ ' + od + ' OD\\n';
+        text += 'Cable Tray Fill Ratio: ' + fill + ' [' + status + ']\\n';
+        text += 'NEC 392 Allowable Area: ' + allow + '\\n';
+        text += 'Total Distributed Cable Weight: ' + wt + '\\n';
+        text += 'Calculated via Digital Tools Shed (https://digitaltoolsshed.com)';
+
+        navigator.clipboard.writeText(text).then(function() {
+          var btn = document.getElementById('copyCtBtn');
+          var orig = btn.innerHTML;
+          btn.innerHTML = '<span>✓ Copied Cable Tray Spec!</span>';
+          setTimeout(function() { btn.innerHTML = orig; }, 2000);
+        });
+      }
+
+      var inputs = ['ctWidth', 'ctDepth', 'ctCableCategory', 'ctCemaClass', 'ctCableOd', 'ctCableCount', 'ctCableWeight'];
+      inputs.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', calcCableTray);
+          el.addEventListener('change', calcCableTray);
+        }
+      });
+
+      document.getElementById('copyCtBtn').addEventListener('click', copyCtSpec);
+
+      calcCableTray();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'cable-tray-fill-calculator.html'), renderTradePage({
+    title: "Cable Tray Fill Calculator: NEC Article 392 Area & Weight | Digital Tools Shed",
+    metaDesc: "Calculate ladder and ventilated cable tray fill percentages per NEC 392. Models power, multiconductor control, single-conductor fill, and CEMA structural weight loads.",
+    canonical: `${DOMAIN}/calc/cable-tray-fill-calculator`,
+    bodyContent: cableTrayBody,
+    currentPath: '/calc/cable-tray-fill-calculator',
+    faq: [
+      {
+        "q": "What is the maximum allowable cable tray fill percentage per NEC?",
+        "a": "Under NEC Article 392: for <strong>control and signal cables</strong>, maximum fill is strictly <strong>50% of the inside cross-sectional area</strong> ($0.50 \\times W \\times D$). For <strong>multiconductor power cables smaller than 4/0</strong>, fill is limited to the square-inch values specified in NEC Table 392.22(A) Column 2 (e.g. 14 sq in for a 12\" wide tray). For cables 4/0 or larger, the sum of cable diameters cannot exceed the inside width of the tray."
+      },
+      {
+        "q": "When is a metallic divider barrier required in a cable tray?",
+        "a": "Per NEC 392.20(B), a continuous solid metallic divider barrier is mandatory whenever conductors of different voltage classifications (such as 480V power circuits and low-voltage Class 1, 2, or 3 control, instrumentation, or communication cables) share the same cable tray. The barrier prevents both insulation breakdown flashover and inductive electromagnetic noise coupling."
+      },
+      {
+        "q": "What is the difference between ladder tray and solid-bottom cable tray?",
+        "a": "<strong>Ladder cable tray</strong> features open rungs spaced 9\" or 12\" apart, offering maximum natural air ventilation, higher cable ampacity ratings, and easy cable drop-outs. <strong>Solid-bottom tray</strong> provides continuous physical support for delicate small-diameter instrumentation cables and protects sensitive wiring against falling debris and shielding from electromagnetic radiation, but traps heat and requires lower ampacity deratings."
+      },
+      {
+        "q": "Why do single-conductor power cables need to be bound in trefoil formation?",
+        "a": "In three-phase systems, binding phases A, B, and C tightly together in an equilateral triangular (trefoil) formation ensures that the three alternating magnetic fields cancel each other out. This eliminates dangerous inductive heating in metallic tray rungs and neutralizes violent electromagnetic repulsive forces between conductors during high-current short-circuit faults."
+      },
+      {
+        "q": "What are NEMA VE-1 load classes for cable trays?",
+        "a": "NEMA VE-1 classifies cable trays by allowable working load and support span: Class 8A supports 50 lbs/ft across an 8-foot span; Class 12B supports 75 lbs/ft across a 12-foot span; and Class 20C supports 100 lbs/ft across a 20-foot span with a safety factor of 1.5 against structural yield."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 
