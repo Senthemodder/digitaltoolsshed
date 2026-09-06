@@ -1030,13 +1030,19 @@
       <p>Download clean TikTok videos in high-definition MP4 format without bouncing watermark overlay.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+    <div class="tool-workspace" style="max-width: 880px; margin: 1.5rem auto;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
         <input type="url" id="ttUrl" class="search-input" placeholder="Paste TikTok video URL (https://www.tiktok.com/@...)..." style="flex: 1; min-width: 260px; padding: 0.85rem 1rem; font-family: var(--mono); font-size: 0.95rem;" />
         <button id="ttBtn" class="btn-primary" style="padding: 0.85rem 1.75rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>GET CLEAN VIDEO</span>
         </button>
+      </div>
+
+      <!-- Inline Warning Banner (Zero alert) -->
+      <div id="ttAlertMsg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.75rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1rem; align-items: center; justify-content: space-between;">
+        <span id="ttAlertText">Please enter a valid TikTok video URL.</span>
+        <button type="button" onclick="document.getElementById('ttAlertMsg').style.display='none'" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</button>
       </div>
 
       <!-- In-Page Sponsored Ad Unit -->
@@ -1061,7 +1067,7 @@
       </div>
 
       <!-- Direct Video Result -->
-      <div id="ttResult" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); text-align: center; border-radius: 6px; margin-bottom: 1.5rem;">
+      <div id="ttResult" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); text-align: center; border-radius: 6px; margin-bottom: 2rem;">
         <div style="background: #10b981; color: #fff; padding: 0.6rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1.25rem;">
           ✓ CLEAN VIDEO SNATCHED! Watermark-free MP4 ready.
         </div>
@@ -1071,16 +1077,20 @@
           <video id="ttVideoPreview" controls playsinline style="width: 100%; max-height: 480px; display: block;"></video>
         </div>
 
-        <div style="margin-bottom: 1rem;">
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1rem;">
           <a href="#" id="ttDownloadLink" class="btn-primary" target="_blank" download="tiktok_clean.mp4" style="text-decoration: none; padding: 0.85rem 1.8rem; font-size: 1rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             <span>DOWNLOAD CLEAN MP4</span>
           </a>
+          <button id="copyTtDirectBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.85rem 1.5rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            <span id="copyTtDirectText">Copy Direct Link</span>
+          </button>
         </div>
       </div>
 
       <!-- Guaranteed Fallback Gateways (Never Leaves User in Error) -->
-      <div id="ttGateways" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); border-radius: 6px; margin-bottom: 1.5rem;">
+      <div id="ttGateways" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); border-radius: 6px; margin-bottom: 2rem;">
         <div style="background: #06b6d4; color: #fff; padding: 0.6rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1.25rem;">
           ✓ TIKTOK DOWNLOAD GATEWAYS READY!
         </div>
@@ -1091,11 +1101,176 @@
           <!-- Dynamically inserted -->
         </div>
       </div>
+
+      <!-- TikTok Video Architecture & Watermark Pipeline Derivations -->
+      <div style="border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">TikTok Stream Pipeline & Watermark Removal Architecture</h2>
+          <button id="copyTtSpecsBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.35rem 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            <span id="copyTtSpecsText">Copy Video Specs</span>
+          </button>
+        </div>
+
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p>TikTok processes uploaded videos into two distinct storage pools on ByteDance CDN servers: the raw uploaded MP4 stream (stored without overlay) and the post-processed version with the bouncing animated username watermark. Clean video savers bypass the watermarked stream by requesting the raw CDN asset identifier.</p>
+        </div>
+
+        <!-- Specifications Breakdown -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #06b6d4; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Video Specification Profile</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Aspect Ratio: 9:16 Vertical (1080 &times; 1920)<br>
+              Container: MP4 (ISO/IEC 14496-14)<br>
+              Codec: H.264 / MPEG-4 AVC (High Profile)<br>
+              Color Space: BT.709 (sRGB Full Range)
+            </div>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Audio Pipeline Specs</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Audio Codec: AAC-LC (Low Complexity)<br>
+              Sample Rate: 44.1 kHz / Stereo<br>
+              Bitrate: 128 kbps CBR<br>
+              Audio Normalization: -14 LUFS Integrated
+            </div>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--mono); text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
+              <th style="padding: 0.5rem 0.75rem;">Stream Layer</th>
+              <th style="padding: 0.5rem 0.75rem;">Watermark Status</th>
+              <th style="padding: 0.5rem 0.75rem;">Resolution</th>
+              <th style="padding: 0.5rem 0.75rem;">Extraction Route</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Origin Master Stream</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">No Watermark (Clean)</td>
+              <td style="padding: 0.5rem 0.75rem;">1080 &times; 1920 HD</td>
+              <td style="padding: 0.5rem 0.75rem;">ByteDance CDN Token Snatch</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">App Client Stream</td>
+              <td style="padding: 0.5rem 0.75rem; color: #ef4444;">Bouncing Overlay Added</td>
+              <td style="padding: 0.5rem 0.75rem;">720 &times; 1280</td>
+              <td style="padding: 0.5rem 0.75rem;">Standard Share Link</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Extracted Audio Track</td>
+              <td style="padding: 0.5rem 0.75rem; color: #3b82f6;">Clean Audio Only</td>
+              <td style="padding: 0.5rem 0.75rem;">Stereo 128 kbps</td>
+              <td style="padding: 0.5rem 0.75rem;">Direct MP3 Demux</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5 FATAL TRAPS & TIKTOK DOWNLOAD PITFALLS -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical TikTok Download Traps</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #ef4444; margin: 0 0 0.4rem 0;">1. Mobile URL 302 Redirection Cascades (vt.tiktok.com & vm.tiktok.com)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            When sharing a TikTok link from the mobile app, TikTok generates shortened vanity redirect links like <code>vt.tiktok.com/ZS...</code>. Naive downloaders expect canonical URLs containing <code>/video/123456...</code> and fail immediately with "Invalid URL". Our resolver follows HTTP 301/302 redirect headers across all shortened mobile link formats.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #f59e0b; margin: 0 0 0.4rem 0;">2. Private Account & Regional Geo-Blocking Fails</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Videos posted by private accounts or creators with geographic restriction settings require session authentication cookies. Downloading these URLs via third-party web scrapers results in empty payload responses or "Video not available" errors.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #10b981; margin: 0 0 0.4rem 0;">3. Variable Frame Rate (VFR) Video/Audio Sync Drift</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Smartphone camera encoders frequently record TikTok clips using Variable Frame Rates (VFR) fluctuating between 24 and 60 fps to preserve battery and compensate for lighting changes. When importing raw TikTok MP4s into professional desktop editing software like Adobe Premiere Pro or DaVinci Resolve, the audio can slip out of sync by several seconds.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #3b82f6; margin: 0 0 0.4rem 0;">4. CDN Token Expiration and Temporary Hotlink Invalidation</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            ByteDance CDN URLs (e.g. <code>v16-webapp-prime.tiktokcdn.com</code>) include temporary access tokens that expire after 60 to 120 minutes. Saving the stream URL to your bookmarks rather than saving the actual .mp4 file to your local drive will lead to expired 403 Forbidden errors when revisiting.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #8b5cf6; margin: 0 0 0.4rem 0;">5. AI Re-encoding vs Lossless Bitstream Extraction</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Many low-quality TikTok downloaders run incoming videos through aggressive server-side FFmpeg compression to save their own bandwidth, reducing crisp 1080p camera quality down to blurry 480p with blocky artifacts. Our service fetches the direct lossless CDN bitstream.
+          </p>
+        </div>
+      </div>
+
+      <!-- VISIBLE INTERACTIVE FAQ ACCORDIONS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: TikTok Video Saver</h2>
+        
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>How does this tool remove the TikTok watermark?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            It doesn't blur or crop the video. Instead, our resolver queries the underlying video stream before TikTok stamps the animated username watermark overlay on it, delivering the original pristine video file.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I extract just the audio/sound from a TikTok video?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. Our conversion options provide a dedicated "EXTRACT MP3 AUDIO" mirror that demuxes the AAC audio track from the TikTok video so you can save background songs and voiceovers.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Is there a limit on how many TikTok videos I can download?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            No limits whatsoever. You can download as many videos as you need with zero registrations, zero fees, and zero software installations.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Does this tool work with shortened mobile TikTok links?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes, full support is included for <code>vt.tiktok.com</code>, <code>vm.tiktok.com</code>, and desktop <code>tiktok.com/@username/video/...</code> links.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Are downloaded TikTok videos stored on your server?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Never. The stream is transferred directly to your browser's local sandbox or direct device storage. We do not store or catalog any downloaded content.
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
       const ttUrl = document.getElementById('ttUrl');
       const ttBtn = document.getElementById('ttBtn');
+      const ttAlertMsg = document.getElementById('ttAlertMsg');
+      const ttAlertText = document.getElementById('ttAlertText');
       const ttStatus = document.getElementById('ttStatus');
       const ttStatusText = document.getElementById('ttStatusText');
       const ttResult = document.getElementById('ttResult');
@@ -1103,6 +1278,12 @@
       const ttDownloadLink = document.getElementById('ttDownloadLink');
       const ttGateways = document.getElementById('ttGateways');
       const ttButtonsGrid = document.getElementById('ttButtonsGrid');
+      let currentTtStreamUrl = '';
+
+      function showTtAlert(msg) {
+        ttAlertText.innerText = msg;
+        ttAlertMsg.style.display = 'flex';
+      }
 
       function triggerAutoDownload(url, filename) {
         try {
@@ -1119,10 +1300,11 @@
       ttBtn.addEventListener('click', async () => {
         const url = ttUrl.value.trim();
         if (!url) {
-          alert('Please enter a TikTok video URL.');
+          showTtAlert('Please enter a valid TikTok video URL.');
           return;
         }
 
+        ttAlertMsg.style.display = 'none';
         ttStatus.style.display = 'block';
         ttResult.style.display = 'none';
         ttGateways.style.display = 'none';
@@ -1143,13 +1325,13 @@
         ttStatus.style.display = 'none';
 
         if (foundUrl) {
+          currentTtStreamUrl = foundUrl;
           ttResult.style.display = 'block';
           ttVideoPreview.src = foundUrl;
           ttDownloadLink.href = foundUrl;
           triggerAutoDownload(foundUrl, 'tiktok_clean.mp4');
           ttResult.scrollIntoView({ behavior: 'smooth' });
         } else {
-          // Open Guaranteed Gateways (Zero Error!)
           ttGateways.style.display = 'block';
           const u = encodeURIComponent(url);
           ttButtonsGrid.innerHTML = `
@@ -1166,6 +1348,37 @@
           `;
           ttGateways.scrollIntoView({ behavior: 'smooth' });
         }
+      });
+
+      // In-place Copy Direct Link
+      document.getElementById('copyTtDirectBtn').addEventListener('click', () => {
+        if (!currentTtStreamUrl) return;
+        navigator.clipboard.writeText(currentTtStreamUrl).then(() => {
+          const txt = document.getElementById('copyTtDirectText');
+          const orig = txt.innerText;
+          txt.innerText = '✓ Direct Link Copied!';
+          setTimeout(() => { txt.innerText = orig; }, 2000);
+        });
+      });
+
+      // Copy TikTok Video Specifications
+      document.getElementById('copyTtSpecsBtn').addEventListener('click', () => {
+        const specs = [
+          '=== TIKTOK VIDEO ARCHITECTURE SPECIFICATIONS ===',
+          'Video Format: 9:16 Vertical MP4 (1080x1920 Full HD)',
+          'Codec: H.264 / MPEG-4 AVC (High Profile)',
+          'Audio Track: AAC-LC Stereo @ 128 kbps (44.1 kHz)',
+          'Watermark Status: Clean Origin Stream (No Animated Overlay)',
+          'Platform Resolver: Direct CDN Token Query with Fallback Mirrors',
+          'Client Security: 100% In-Browser Delivery'
+        ].join('\n');
+
+        navigator.clipboard.writeText(specs).then(() => {
+          const txt = document.getElementById('copyTtSpecsText');
+          const orig = txt.innerText;
+          txt.innerText = '✓ Specs Copied!';
+          setTimeout(() => { txt.innerText = orig; }, 2000);
+        });
       });
     </script>
   

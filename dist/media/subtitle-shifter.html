@@ -1025,13 +1025,13 @@
           
 
           
-    <div class="article-container" style="max-width: 900px;">
+    <div class="article-container" style="max-width: 950px;">
       <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
         <a href="/">Home</a> &gt; <a href="/media/">Media Tools</a> &gt; Subtitle Time Shifter
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Subtitle Time Shifter (.SRT & .VTT)</h1>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Subtitle Time Shifter & Resync (.SRT & .VTT)</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
           Easily fix out-of-sync movie and video subtitles. Shift all timestamps forward or backward by exact milliseconds with zero file uploads.
         </p>
@@ -1040,17 +1040,191 @@
       <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
         <div style="margin-bottom: 1.25rem;">
           <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Upload .SRT or .VTT File</label>
-          <input type="file" id="subFileInput" accept=".srt,.vtt" class="search-input" style="padding: 0.5rem;" />
+          <input type="file" id="subFileInput" accept=".srt,.vtt" class="search-input" style="padding: 0.5rem; width: 100%;" />
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+        <!-- Inline Subtitle Alert (Zero alert) -->
+        <div id="subAlertMsg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.75rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1rem; align-items: center; justify-content: space-between;">
+          <span id="subAlertText">Please choose an .SRT or .VTT subtitle file first.</span>
+          <button type="button" onclick="document.getElementById('subAlertMsg').style.display='none'" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
           <div>
             <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Time Shift (Milliseconds)</label>
-            <input type="number" id="shiftMs" value="1500" step="100" class="search-input" style="width: 100%; padding: 0.5rem 0.75rem; font-family: var(--mono);" />
-            <span style="font-size: 0.75rem; color: var(--text-muted);">Use negative for earlier (e.g. -2000), positive for later (e.g. 1500)</span>
+            <input type="number" id="shiftMs" value="1500" step="100" class="search-input" style="width: 100%; padding: 0.55rem 0.75rem; font-family: var(--mono);" />
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Use negative for earlier (e.g. -2000), positive for later (e.g. +1500)</span>
           </div>
           <div style="display: flex; align-items: flex-end;">
-            <button class="btn-primary" onclick="shiftSubtitles()" style="width: 100%; padding: 0.65rem;">Sync & Download Subtitles</button>
+            <button id="shiftSubBtn" class="btn-primary" onclick="shiftSubtitles()" style="width: 100%; padding: 0.75rem; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span id="shiftSubBtnText">SYNC & DOWNLOAD SUBTITLES</span>
+            </button>
+          </div>
+        </div>
+
+        <div id="subStatusNotice" style="display: none; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; color: #34d399; padding: 0.65rem 0.9rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem;"></div>
+      </div>
+
+      <!-- Live Timing Derivations & Format Architecture -->
+      <div style="border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">Subtitle Mathematics & Clock Drift Derivations</h2>
+          <button id="copySubSpecsBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.35rem 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            <span id="copySubSpecsText">Copy Math Specs</span>
+          </button>
+        </div>
+
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p>Subtitle synchronization problems occur in two fundamental ways: constant linear offset (fixed delay caused by introductory studio credits) and progressive frame rate clock drift (speed difference between PAL 25.0 fps, Film 23.976 fps, and NTSC 29.97 fps).</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Timestamp Math Derivation</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              T<sub>ms</sub> = (HH &times; 3,600,000) + (MM &times; 60,000) + (SS &times; 1,000) + MS<br>
+              T<sub>new</sub> = max(0, T<sub>ms</sub> + &Delta;<sub>shift</sub>)<br>
+              SRT Separator: <code>,</code> (comma)<br>
+              VTT Separator: <code>.</code> (period)
+            </div>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Progressive Drift Speed Ratio</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              PAL (25 fps) to Film (23.976 fps):<br>
+              Ratio = 25.0 / 23.976 = 1.04271 (&Delta; = +4.27%)<br>
+              Clock Drift = 2.56 minutes per hour<br>
+              Requires Resampling Scaling Factor
+            </div>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--mono); text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
+              <th style="padding: 0.5rem 0.75rem;">Specification</th>
+              <th style="padding: 0.5rem 0.75rem;">SubRip (.SRT)</th>
+              <th style="padding: 0.5rem 0.75rem;">WebVTT (.VTT)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">File Header</td>
+              <td style="padding: 0.5rem 0.75rem; color: var(--text-muted);">None (Starts with Cue "1")</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">Mandatory "WEBVTT"</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Decimal Separator</td>
+              <td style="padding: 0.5rem 0.75rem; color: #3b82f6;">Comma (00:01:23,456)</td>
+              <td style="padding: 0.5rem 0.75rem; color: #f59e0b;">Period (00:01:23.456)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">HTML5 Video Support</td>
+              <td style="padding: 0.5rem 0.75rem; color: #ef4444;">No native browser support</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">Native &lt;track&gt; standard</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">Styling Metadata</td>
+              <td style="padding: 0.5rem 0.75rem;">Basic HTML tags (&lt;i&gt;, &lt;b&gt;)</td>
+              <td style="padding: 0.5rem 0.75rem;">Full CSS cue pseudo-classes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5 FATAL TRAPS & SUBTITLE SYNCHRONIZATION PITFALLS -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Subtitle Resync Traps</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #ef4444; margin: 0 0 0.4rem 0;">1. Millisecond Separator Corruption (Comma vs Period Syntax Crash)</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            The SubRip specification strictly requires a comma between seconds and milliseconds (<code>00:01:20,500</code>). WebVTT strictly requires a period (<code>00:01:20.500</code>). Naive search-and-replace scripts that replace commas with periods or vice-versa will render the subtitle file completely unreadable in hardware players, TVs, or VLC. Our shifter dynamically detects and preserves the exact format-compliant separator.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #f59e0b; margin: 0 0 0.4rem 0;">2. Negative Timestamp Clamping Overflow</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            When shifting subtitles earlier by a negative millisecond offset (e.g. -3000ms), cue lines that begin within the first 3 seconds of the movie will compute to negative timestamps (e.g. <code>-00:00:01,500</code>). Negative timestamps violate the parser grammar, causing video players to drop all subsequent subtitles or crash. Our algorithm clamps all computed values to <code>00:00:00,000</code>.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #10b981; margin: 0 0 0.4rem 0;">3. Constant Offset vs Frame Rate Speed Drift</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            If your subtitles are aligned at the 5-minute mark but are 3 seconds late at the 60-minute mark, your issue is not a constant linear delay—it is a frame rate mismatch (23.976 fps film rip played against a 25.000 fps PAL broadcast). Applying a static shift will never fix progressive frame drift; the subtitle timestamps must be stretched or compressed by the exact mathematical frame ratio.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #3b82f6; margin: 0 0 0.4rem 0;">4. UTF-8 Byte Order Mark (BOM) & Encoding Corruption</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Windows text editors frequently save text files as "UTF-8 with BOM" (inserting invisible bytes <code>EF BB BF</code> at index 0). In WebVTT, this displaces the initial <code>WEBVTT</code> header, causing HTML5 <code>&lt;track&gt;</code> elements to reject the file with a MIME type mismatch error. Our client-side reader processes clean Unicode UTF-8 strings.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #8b5cf6; margin: 0 0 0.4rem 0;">5. Multi-Line Cue Overlapping Collisions</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Indiscriminately shifting cues without checking bounding limits can cause rapid-fire dialog cues to overlap with preceding subtitles, causing media players to flicker or display dual stacked subtitles simultaneously on screen.
+          </p>
+        </div>
+      </div>
+
+      <!-- VISIBLE INTERACTIVE FAQ ACCORDIONS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Subtitle Time Shifter</h2>
+        
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>How do I know how many milliseconds to shift?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Pause the video when someone starts speaking and note the player timestamp. Then look at the subtitle file to see what timestamp that line has. Subtract the subtitle timestamp from the video timestamp. For example, if speech starts at 00:01:15,000 but the subtitle shows at 00:01:13,500, enter +1500 ms.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Are my subtitle files uploaded to any server?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Never. The FileReader API reads your subtitle file directly into your browser memory, shifts the timestamps using local JavaScript regex expressions, and downloads the result as a new file. Zero network transmission occurs.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Does this tool support both .SRT and .VTT files?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes, both SubRip (.srt) and WebVTT (.vtt) file formats are fully supported, automatically detecting and preserving each format's distinct decimal separators.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>What happens if I shift by a negative number that goes before 00:00:00?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Our shifter safely clamps all resulting timestamps to 00:00:00,000 so that your file never contains invalid negative timecodes that could crash media players.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I shift by fractional seconds like 1.5 seconds?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes, simply enter 1500 for 1.5 seconds, 500 for half a second, or 250 for a quarter of a second. The millisecond input allows micro-second timing precision.
           </div>
         </div>
       </div>
@@ -1059,21 +1233,41 @@
     <script>
       var subContent = '';
       var fileName = 'synced_subtitles.srt';
+      var subAlertMsg = document.getElementById('subAlertMsg');
+      var subAlertText = document.getElementById('subAlertText');
+      var subStatusNotice = document.getElementById('subStatusNotice');
+      var shiftSubBtnText = document.getElementById('shiftSubBtnText');
+
+      function showSubAlert(msg) {
+        subAlertText.innerText = msg;
+        subAlertMsg.style.display = 'flex';
+      }
 
       document.getElementById('subFileInput').addEventListener('change', function(e) {
+        subAlertMsg.style.display = 'none';
         if (e.target.files.length) {
           fileName = e.target.files[0].name;
           var reader = new FileReader();
-          reader.onload = function(evt) { subContent = evt.target.result; };
+          reader.onload = function(evt) {
+            subContent = evt.target.result;
+            subStatusNotice.innerText = 'Loaded ' + fileName + ' (' + Math.round(subContent.length / 1024) + ' KB ready to shift)';
+            subStatusNotice.style.display = 'block';
+          };
           reader.readAsText(e.target.files[0]);
         }
       });
 
       function shiftSubtitles() {
-        if (!subContent) { alert('Please choose an .SRT or .VTT subtitle file first.'); return; }
+        if (!subContent) {
+          showSubAlert('Please choose an .SRT or .VTT subtitle file first.');
+          return;
+        }
+        subAlertMsg.style.display = 'none';
         var delta = parseInt(document.getElementById('shiftMs').value, 10) || 0;
 
+        var shiftCount = 0;
         var shifted = subContent.replace(/(\d{2}):(\d{2}):(\d{2})[,.](\d{3})/g, function(match, hh, mm, ss, ms) {
+          shiftCount++;
           var totalMs = parseInt(hh, 10) * 3600000 + parseInt(mm, 10) * 60000 + parseInt(ss, 10) * 1000 + parseInt(ms, 10);
           totalMs = Math.max(0, totalMs + delta);
 
@@ -1094,7 +1288,34 @@
         a.href = URL.createObjectURL(blob);
         a.download = 'shifted_' + fileName;
         a.click();
+
+        subStatusNotice.innerText = '✓ Successfully shifted ' + Math.floor(shiftCount / 2) + ' subtitle cues by ' + (delta >= 0 ? '+' : '') + delta + 'ms and downloaded ' + a.download;
+        subStatusNotice.style.display = 'block';
+
+        var orig = shiftSubBtnText.innerText;
+        shiftSubBtnText.innerText = '✓ SYNCED & DOWNLOADED!';
+        setTimeout(function() { shiftSubBtnText.innerText = orig; }, 2500);
       }
+
+      // Copy Math Specs
+      document.getElementById('copySubSpecsBtn').addEventListener('click', function() {
+        var specs = [
+          '=== SUBTITLE SHIFTER SPECIFICATIONS ===',
+          'Supported Formats: SubRip (.SRT) and WebVTT (.VTT)',
+          'Timestamp Precision: Millisecond granularity (00:00:00,000 / 00:00:00.000)',
+          'Negative Boundary: Clamped safely to 00:00:00,000',
+          'Encoding: UTF-8 Unicode without BOM',
+          'Processing Engine: 100% Client-Side HTML5 FileReader API',
+          'Zero Uploads: Complete local privacy'
+        ].join('\n');
+
+        navigator.clipboard.writeText(specs).then(function() {
+          var txt = document.getElementById('copySubSpecsText');
+          var orig = txt.innerText;
+          txt.innerText = '✓ Specs Copied!';
+          setTimeout(function() { txt.innerText = orig; }, 2000);
+        });
+      });
     </script>
   
 

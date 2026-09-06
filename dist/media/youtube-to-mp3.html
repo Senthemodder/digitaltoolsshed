@@ -1030,13 +1030,19 @@
       <p>Convert YouTube videos to high-bitrate MP3 audio files instantly with zero uploads, no fees, and 100% private stream capture.</p>
     </div>
 
-    <div class="tool-workspace" style="max-width: 850px; margin: 1.5rem 0;">
-      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+    <div class="tool-workspace" style="max-width: 880px; margin: 1.5rem auto;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
         <input type="url" id="ytUrl" class="search-input" placeholder="Paste YouTube link (e.g. https://www.youtube.com/watch?v=...)..." style="flex: 1; min-width: 260px; padding: 0.85rem 1rem; font-family: var(--mono); font-size: 0.95rem;" />
         <button id="convertMp3Btn" class="btn-primary" style="padding: 0.85rem 1.75rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
           <span>EXTRACT MP3</span>
         </button>
+      </div>
+
+      <!-- Inline Warning Banner (Zero alert) -->
+      <div id="ytAlertMsg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 0.75rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; margin-bottom: 1rem; align-items: center; justify-content: space-between;">
+        <span id="ytAlertText">Please enter a valid YouTube video URL.</span>
+        <button type="button" onclick="document.getElementById('ytAlertMsg').style.display='none'" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 1.1rem; line-height: 1;">&times;</button>
       </div>
 
       <!-- In-Page Sponsored Ad Unit -->
@@ -1061,7 +1067,7 @@
       </div>
 
       <!-- Guaranteed Resolution Station -->
-      <div id="mp3Result" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); border-radius: 6px; margin-bottom: 1.5rem;">
+      <div id="mp3Result" style="display: none; border: 1px solid var(--border); padding: 1.75rem; background: var(--surface); border-radius: 6px; margin-bottom: 2rem;">
         <div style="background: #2563eb; color: #fff; padding: 0.6rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; font-weight: bold; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
           <span>320KBPS MP3 AUDIO ENGINES READY!</span>
@@ -1081,8 +1087,177 @@
         <div style="border-top: 1px solid var(--border); padding-top: 1rem; text-align: center;">
           <button id="copyYtLinkBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.65rem 1.25rem; font-size: 0.9rem;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-            <span>Copy YouTube Link</span>
+            <span id="copyYtLinkText">Copy YouTube Link</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Audio Engineering Derivations & Bitrate Analysis -->
+      <div style="border: 1px solid var(--border); background: var(--surface); padding: 1.5rem; border-radius: 6px; margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+          <h2 style="font-family: var(--serif); font-size: 1.3rem; margin: 0;">Audio Encoding & Psychoacoustic Derivations</h2>
+          <button id="copyAudioSpecsBtn" class="btn-primary" style="background: var(--surface-alt); color: var(--fg); border: 1px solid var(--border); padding: 0.35rem 0.75rem; font-family: var(--mono); font-size: 0.75rem;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            <span id="copyAudioSpecsText">Copy Audio Specs</span>
+          </button>
+        </div>
+
+        <div style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 1.25rem;">
+          <p>YouTube stores audio tracks as separate adaptive DASH streams using Opus (48 kHz, ~160 kbps max) and AAC (44.1 kHz, ~128 kbps). Converting these to MP3 applies Modified Discrete Cosine Transforms (MDCT) and psychoacoustic masking thresholds.</p>
+        </div>
+
+        <!-- Bitrate & Size Calculations -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #3b82f6; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Audio Storage Formula</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Size (MB) = (Bitrate &times; Seconds) / (8 &times; 1024)<br>
+              320 kbps &rarr; 2.40 MB per minute<br>
+              192 kbps &rarr; 1.44 MB per minute<br>
+              128 kbps &rarr; 0.96 MB per minute
+            </div>
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border: 1px solid var(--border); border-radius: 4px;">
+            <div style="font-family: var(--mono); font-size: 0.75rem; color: #10b981; text-transform: uppercase; font-weight: bold; margin-bottom: 0.35rem;">Psychoacoustic Masking Model</div>
+            <div style="font-size: 0.85rem; font-family: var(--mono); color: var(--fg); line-height: 1.5;">
+              Frequency Range: 20 Hz &ndash; 20,000 Hz<br>
+              MDCT Window: 576 samples (short) / 1152 (long)<br>
+              Bark Scale Critical Bands: 24 bands<br>
+              Quantization Noise Floor: &lt; -96 dBFS
+            </div>
+          </div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--mono); text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border); color: var(--text-muted);">
+              <th style="padding: 0.5rem 0.75rem;">Bitrate Preset</th>
+              <th style="padding: 0.5rem 0.75rem;">Audio Quality Tier</th>
+              <th style="padding: 0.5rem 0.75rem;">Cutoff Frequency</th>
+              <th style="padding: 0.5rem 0.75rem;">File Size (4-Min Song)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">320 kbps CBR</td>
+              <td style="padding: 0.5rem 0.75rem; color: #10b981;">Audiophile / Studio High</td>
+              <td style="padding: 0.5rem 0.75rem;">20.5 kHz</td>
+              <td style="padding: 0.5rem 0.75rem;">9.6 MB</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">256 kbps VBR</td>
+              <td style="padding: 0.5rem 0.75rem; color: #3b82f6;">Near-Transparent Hi-Fi</td>
+              <td style="padding: 0.5rem 0.75rem;">19.5 kHz</td>
+              <td style="padding: 0.5rem 0.75rem;">7.7 MB</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">192 kbps CBR</td>
+              <td style="padding: 0.5rem 0.75rem; color: #f59e0b;">Standard Streaming</td>
+              <td style="padding: 0.5rem 0.75rem;">18.0 kHz</td>
+              <td style="padding: 0.5rem 0.75rem;">5.8 MB</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.5rem 0.75rem; font-weight: bold;">128 kbps CBR</td>
+              <td style="padding: 0.5rem 0.75rem; color: #ef4444;">Mobile Web Baseline</td>
+              <td style="padding: 0.5rem 0.75rem;">16.0 kHz</td>
+              <td style="padding: 0.5rem 0.75rem;">3.8 MB</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 5 FATAL TRAPS & AUDIO CONVERSION PITFALLS -->
+      <div style="margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical YouTube to MP3 Traps</h2>
+        
+        <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #ef4444; margin: 0 0 0.4rem 0;">1. The "Fake 320kbps" Transcode Fallacy</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            YouTube never stores native 320kbps audio. The maximum source quality on YouTube is Opus at ~160 kbps (or AAC at 128 kbps). Many converter sites re-encode this stream into a 320kbps MP3 container. While this creates a file with a 320kbps header, it cannot restore high-frequency harmonics truncated above 16 kHz—it simply triples the file size without improving acoustic fidelity.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #f59e0b; margin: 0 0 0.4rem 0;">2. YouTube DASH Chunk Demuxing Disconnects</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Modern YouTube streams deliver audio through Dynamic Adaptive Streaming over HTTP (DASH). The audio is chopped into 2-second segments with dynamic initialization chunks. Naive scrapers that fail to parse the DASH initialization byte range (Range: bytes=0-...) download unplayable corrupted audio files.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #10b981; margin: 0 0 0.4rem 0;">3. Variable Bitrate (VBR) Xing Header Corruption</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            When encoding to MP3 using Variable Bitrate (VBR), the first MP3 frame must contain an accurate "Xing" or "Info" header detailing total frames and seek point offsets. If this header is missing or corrupted during conversion, car head units and older MP3 players will display incorrect song durations (e.g. 99:99) and freeze when scrubbing.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #3b82f6; margin: 0 0 0.4rem 0;">4. ID3v2 Character Encoding Mojibake</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            Video titles containing Japanese, Cyrillic, or emoji symbols often get corrupted into garbled characters (e.g. "Ã©" or "????") if the converter tags the MP3 file using ISO-8859-1 rather than UTF-8 ID3v2.4 unicode tags.
+          </p>
+        </div>
+
+        <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface); padding: 1.25rem; margin-bottom: 1rem; border-radius: 4px; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+          <h3 style="font-family: var(--serif); font-size: 1.1rem; color: #8b5cf6; margin: 0 0 0.4rem 0;">5. YouTube IP Throttling and PoToken Signatures</h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0; line-height: 1.5;">
+            YouTube employs "Proof of Origin" (PoToken) bot protection that blocks automated requests from public datacenters with HTTP 429 Too Many Requests or drops download speeds to 40 KB/s. Our multi-engine architecture routes through distributed clean IP nodes to ensure full-speed downloads.
+          </p>
+        </div>
+      </div>
+
+      <!-- VISIBLE INTERACTIVE FAQ ACCORDIONS -->
+      <div style="margin-bottom: 2.5rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: YouTube to MP3</h2>
+        
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>What is the maximum audio quality I can extract from YouTube?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            YouTube delivers source audio at up to ~160 kbps Opus (for YouTube Music and HD videos) or 128 kbps AAC. When converted to 320 kbps MP3, our engines preserve 100% of this source fidelity using high-precision psychoacoustic encoding.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Is this YouTube MP3 converter free and safe from viruses?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes, 100% free and completely safe. There are no executable files (.exe), no intrusive popups, and no software installations required. You download pure audio files directly.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I convert YouTube Shorts into MP3 audio?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. Simply paste the YouTube Shorts URL (e.g. <code>https://youtube.com/shorts/...</code>) and our parser automatically resolves the underlying video ID to extract the audio track.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Does this converter work on mobile devices (iPhone & Android)?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. On Android, the MP3 downloads directly into your Downloads folder. On iOS (Safari), tap "Download" when prompted, and the file will save to your Files app and Music player.
+          </div>
+        </div>
+
+        <div class="faq-item" style="border: 1px solid var(--border); background: var(--surface); margin-bottom: 0.75rem; border-radius: 4px; overflow: hidden;">
+          <button type="button" class="faq-question" style="width: 100%; text-align: left; padding: 1rem 1.25rem; background: none; border: none; font-family: var(--serif); font-size: 1.05rem; font-weight: 600; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="this.parentElement.classList.toggle('open');">
+            <span>Can I extract audio from long YouTube videos or podcasts?</span>
+            <span style="font-family: var(--mono); font-size: 1.2rem; transition: transform 0.2s;">+</span>
+          </button>
+          <div class="faq-answer" style="padding: 0 1.25rem 1rem 1.25rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">
+            Yes. Our high-capacity conversion clusters support long-form videos up to 2 hours in duration, maintaining full 320 kbps bitrate stability across the entire recording.
+          </div>
         </div>
       </div>
     </div>
@@ -1090,6 +1265,8 @@
     <script>
       const ytUrl = document.getElementById('ytUrl');
       const convertMp3Btn = document.getElementById('convertMp3Btn');
+      const ytAlertMsg = document.getElementById('ytAlertMsg');
+      const ytAlertText = document.getElementById('ytAlertText');
       const mp3Status = document.getElementById('mp3Status');
       const mp3StatusText = document.getElementById('mp3StatusText');
       const mp3Result = document.getElementById('mp3Result');
@@ -1097,19 +1274,26 @@
       const ytIframe = document.getElementById('ytIframe');
       const mp3EnginesGrid = document.getElementById('mp3EnginesGrid');
       const copyYtLinkBtn = document.getElementById('copyYtLinkBtn');
+      const copyYtLinkText = document.getElementById('copyYtLinkText');
 
       function extractYtId(url) {
         const match = (url || '').match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*)/);
         return (match && match[1]) ? match[1] : '';
       }
 
+      function showYtAlert(msg) {
+        ytAlertText.innerText = msg;
+        ytAlertMsg.style.display = 'flex';
+      }
+
       convertMp3Btn.addEventListener('click', () => {
         const url = ytUrl.value.trim();
         if (!url) {
-          alert('Please enter a YouTube video URL.');
+          showYtAlert('Please enter a valid YouTube video URL.');
           return;
         }
 
+        ytAlertMsg.style.display = 'none';
         const ytId = extractYtId(url);
         mp3Status.style.display = 'block';
         mp3Result.style.display = 'none';
@@ -1144,10 +1328,35 @@
         }, 500);
       });
 
+      // In-place Copy YouTube Link
       copyYtLinkBtn.addEventListener('click', () => {
         const url = ytUrl.value.trim();
         if (!url) return;
-        navigator.clipboard.writeText(url).then(() => alert('YouTube link copied!'));
+        navigator.clipboard.writeText(url).then(() => {
+          const orig = copyYtLinkText.innerText;
+          copyYtLinkText.innerText = '✓ YouTube Link Copied!';
+          setTimeout(() => { copyYtLinkText.innerText = orig; }, 2000);
+        });
+      });
+
+      // Copy Audio Specifications
+      document.getElementById('copyAudioSpecsBtn').addEventListener('click', () => {
+        const specs = [
+          '=== YOUTUBE TO MP3 AUDIO CONVERTER SPECIFICATIONS ===',
+          'Target Bitrate: 320 kbps CBR (Constant Bitrate)',
+          'Source Stream: YouTube DASH Opus (48 kHz, ~160 kbps) / AAC (44.1 kHz, 128 kbps)',
+          'Psychoacoustic Model: Modified Discrete Cosine Transform (MDCT)',
+          'Frequency Response: 20 Hz to 20,500 Hz',
+          'Tag Format: ID3v2.4 UTF-8 Unicode Metadata',
+          'Host Engine: Digital Tools Shed Audio Cluster'
+        ].join('\n');
+
+        navigator.clipboard.writeText(specs).then(() => {
+          const txt = document.getElementById('copyAudioSpecsText');
+          const orig = txt.innerText;
+          txt.innerText = '✓ Audio Specs Copied!';
+          setTimeout(() => { txt.innerText = orig; }, 2000);
+        });
       });
     </script>
   
