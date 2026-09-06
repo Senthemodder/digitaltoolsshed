@@ -93009,6 +93009,1874 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
   })();
 
 
-console.log('  ✓ Built Trade & Construction Suite (127 calculators in /calc/)');
+
+  // --- TOOL AU1: CENTRIFUGAL SLURRY PUMP HEAD DERATING & MOTOR POWER CALCULATOR ---
+  (() => {
+    const slug = 'centrifugal-slurry-pump-head-derating-calculator';
+    const title = 'Centrifugal Slurry Pump Head Derating & Motor Power Calculator (ANSI/HI 12.1-12.6 & Cave)';
+    const metaDescription = 'Industrial centrifugal slurry pump sizing calculator per ANSI/HI 12.1-12.6 and Cave correlations. Calculates slurry specific gravity, Head Ratio (HR), Efficiency Ratio (ER), derated TDH, impeller tip speed limits, and shaft motor power.';
+
+    const faq = [
+      {
+        q: 'Why must centrifugal pump head and efficiency be derated when pumping slurries?',
+        a: 'When handling liquid-solid mixtures, the solid particles do not accelerate at the same rate as the carrier fluid inside the impeller vanes due to inertia and slip. Energy is dissipated by boundary layer shear, particle collisions, and momentum transfer. This causes the total developed head of the mixture (in meters of slurry) and the pump hydraulic efficiency to be lower than their clear-water catalog ratings. The derating factors are defined as Head Ratio (HR = H_slurry / H_water) and Efficiency Ratio (ER = eta_slurry / eta_water).'
+      },
+      {
+        q: 'How does the Cave correlation calculate the Head Ratio (HR)?',
+        a: 'The widely accepted Cave / Hydraulic Institute correlation calculates Head Ratio based on solid specific gravity (S_s), concentration by volume (C_v), and median particle diameter (d_50 in mm): HR = 1 - 0.000385 * (S_s - 1) * (1 + C_v) * ln(d_50 / 0.0223). Fine particles below 20 microns have negligible derating (HR close to 1.0), whereas coarse sands and gravels (d_50 > 500 microns) cause substantial head drops (HR = 0.80 to 0.90).'
+      },
+      {
+        q: 'Why is impeller tip speed restricted in slurry applications?',
+        a: 'Abrasive slurry wear rate on pump liners and impellers scales non-linearly with velocity, typically proportional to the cube or fourth power of tip speed (Wear ~ v_tip^3 to v_tip^4). For rubber-lined pumps handling fine silica or tailings, tip speed is strictly limited to 22 to 26 m/s to prevent tearing of the elastomer. For high-chrome white iron (27% Cr, 650 HB), tip speeds can reach 28 to 34 m/s in heavy duty dredging.'
+      },
+      {
+        q: 'How is motor power (BHP) calculated for a slurry pump?',
+        a: 'Shaft power is calculated as P_shaft = (Q * rho_slurry * g * H_slurry) / (3600 * 1000 * eta_slurry), where rho_slurry = S_m * 1000 kg/m^3. Because slurry mixture density S_m is significantly higher than water (often 1.2 to 1.8), motor power increases proportionally to slurry specific gravity even before accounting for the efficiency reduction (ER).'
+      },
+      {
+        q: 'What is the Durand settling velocity and why does it matter?',
+        a: 'Durand settling velocity is the minimum slurry pipe velocity required to keep solid particles suspended in a pseudo-homogeneous or heterogeneous flow regime without forming a stationary sediment bed. Operating below Durand deposition velocity causes pipeline sanding, severe surge pressures, and eventual pump impeller blockage.'
+      }
+    ];
+
+    const content = `
+<style>
+  .slurry-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .slurry-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .slurry-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size industrial centrifugal slurry pumps for mineral tailings, dredging, and grinding circuits per ANSI/HI 12.1-12.6 and Cave / McElvain standards. Accurately determines slurry mixture density, solid concentration conversions, Head Ratio (HR) derating, Efficiency Ratio (ER), impeller peripheral tip speed limits, and shaft brake horsepower.
+  </p>
+
+  <div class="slurry-grid">
+    <!-- Panel 1: Slurry Rheology & Particle Parameters -->
+    <div class="slurry-card">
+      <h3>1. Slurry & Solid Properties</h3>
+      <div class="form-group">
+        <label for="sp_flow">Slurry Volumetric Flow Q (m&sup3;/h)</label>
+        <input type="number" id="sp_flow" class="form-control" value="450" min="10" max="10000" step="10">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sp_ss">Solid Specific Gravity S<sub>s</sub></label>
+          <input type="number" id="sp_ss" class="form-control" value="2.65" min="1.1" max="5.5" step="0.05">
+        </div>
+        <div class="form-group">
+          <label for="sp_sl">Carrier Liquid S.G. S<sub>l</sub></label>
+          <input type="number" id="sp_sl" class="form-control" value="1.00" min="0.8" max="1.4" step="0.02">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sp_conc_type">Concentration Input Mode</label>
+          <select id="sp_conc_type" class="form-control">
+            <option value="cw" selected>By Weight C<sub>w</sub> (%)</option>
+            <option value="cv">By Volume C<sub>v</sub> (%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="sp_conc_val">Solids Concentration Value (%)</label>
+          <input type="number" id="sp_conc_val" class="form-control" value="40" min="1" max="75" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sp_d50">Median Particle Size d<sub>50</sub> (&mu;m)</label>
+          <input type="number" id="sp_d50" class="form-control" value="180" min="5" max="5000" step="5">
+        </div>
+        <div class="form-group">
+          <label for="sp_req_head">Required Slurry TDH H<sub>slurry</sub> (m)</label>
+          <input type="number" id="sp_req_head" class="form-control" value="38" min="5" max="120" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Pump Sizing & Impeller Geometry -->
+    <div class="slurry-card">
+      <h3>2. Pump Impeller & Materials</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sp_water_eff">Water Best Eff. Point &eta;<sub>w</sub> (%)</label>
+          <input type="number" id="sp_water_eff" class="form-control" value="76" min="40" max="90" step="1">
+        </div>
+        <div class="form-group">
+          <label for="sp_rpm">Pump Operating Speed N (RPM)</label>
+          <input type="number" id="sp_rpm" class="form-control" value="980" min="200" max="2500" step="10">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sp_imp_dia">Impeller Outer Diameter D<sub>2</sub> (mm)</label>
+          <input type="number" id="sp_imp_dia" class="form-control" value="520" min="150" max="1800" step="10">
+        </div>
+        <div class="form-group">
+          <label for="sp_liner_mat">Wetted Wear Liner Material</label>
+          <select id="sp_liner_mat" class="form-control">
+            <option value="chrome" selected>High-Chrome White Iron (27% Cr, 650 HB)</option>
+            <option value="rubber">Natural Soft Rubber Elastomer</option>
+            <option value="poly">Polyurethane / Ceramic Composite</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sp_drive_type">Drive Connection Type</label>
+          <select id="sp_drive_type" class="form-control">
+            <option value="direct">Direct Coupled (100% eff)</option>
+            <option value="vbelt" selected>V-Belt Drive (95% eff)</option>
+            <option value="gear">Gearbox Reducer (97% eff)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="sp_sf">Motor Service Safety Factor</label>
+          <select id="sp_sf" class="form-control">
+            <option value="1.15">1.15 (Light Duty)</option>
+            <option value="1.20" selected>1.20 (Standard Mining)</option>
+            <option value="1.30">1.30 (Severe Surging / Dredge)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Wear Life Validation -->
+    <div class="slurry-card">
+      <h3>3. Calculated Performance & Motor Sizing</h3>
+      <div class="res-row">
+        <span class="res-label">Slurry Specific Gravity S<sub>m</sub>:</span>
+        <span class="res-val highlight" id="res_sm">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Concentration by Volume C<sub>v</sub>:</span>
+        <span class="res-val" id="res_cv">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Head Ratio (HR = H<sub>sl</sub> / H<sub>w</sub>):</span>
+        <span class="res-val highlight" id="res_hr">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Efficiency Ratio (ER = &eta;<sub>sl</sub> / &eta;<sub>w</sub>):</span>
+        <span class="res-val" id="res_er">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Equivalent Water Head H<sub>water</sub>:</span>
+        <span class="res-val" id="res_hwater">-- m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Operating Slurry Efficiency &eta;<sub>slurry</sub>:</span>
+        <span class="res-val" id="res_eff_slurry">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Impeller Peripheral Tip Speed u<sub>2</sub>:</span>
+        <span class="res-val highlight" id="res_tip_speed">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Impeller Tip Speed Wear Status:</span>
+        <span id="res_tip_status" class="status-badge badge-safe">SAFE TIP SPEED</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Slurry Hydraulic Power P<sub>hyd</sub>:</span>
+        <span class="res-val" id="res_phyd">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Pump Shaft Brake Power (BHP):</span>
+        <span class="res-val" id="res_pbhp">-- kW (-- HP)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Recommended Motor Nameplate:</span>
+        <span class="res-val highlight" id="res_pmotor">-- kW (-- HP)</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_slurry">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Centrifugal Slurry Pump Hydraulic Derating Mechanism</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Clear Water Performance Curve (H<sub>water</sub>, &eta;<sub>water</sub>) ] &times; [ Head Ratio HR ] &rarr; [ Actual Slurry TDH Curve (H<sub>slurry</sub>) ]<br>
+      [ Slurry Density: &rho;<sub>m</sub> = S<sub>m</sub> &times; 1000 kg/m&sup3; ] &times; [ Power Draw Spikes by S<sub>m</sub> / ER ] &rarr; [ Severe Motor Upsizing Required ]<br>
+      [ Impeller Tip Speed: u<sub>2</sub> = &pi; D<sub>2</sub> N / 60 ] &rarr; [ Abrasive Erosive Wear &prop; u<sub>2</sub><sup>3.5</sup> ] &rarr; [ Wear Liner Selection ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="slurry-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Cave Correlation Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Slurry pump sizing bridges Newtonian fluid mechanics with heterogeneous solid transport dynamics per ANSI/HI 12.1-12.6 and Cave-McElvain empirical standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Slurry Mixture Density</strong><br>
+        $$S_m = \frac{S_l}{1 - C_w \left(1 - \frac{S_l}{S_s}\right)}$$
+        $$C_v = C_w \cdot \frac{S_m}{S_s} \quad [\%]$$
+        Relates solids fraction by weight to mixture specific gravity.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Cave Head Ratio (HR)</strong><br>
+        $$HR = 1 - 0.000385 (S_s - 1) (1 + C_v) \ln\left(\frac{d_{50}}{0.0223}\right)$$
+        $$H_{water} = \frac{H_{slurry}}{HR} \quad [\text{m}]$$
+        Accounts for particulate slip and momentum dissipation in vanes.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Efficiency Ratio & Tip Speed</strong><br>
+        $$ER \approx HR \quad (\eta_{slurry} = \eta_{water} \cdot ER)$$
+        $$u_2 = \frac{\pi \cdot D_2 \cdot N}{60 \cdot 1000} \quad [\text{m/s}]$$
+        Governs erosive wear rate and liner longevity.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Shaft Power & Motor Nameplate</strong><br>
+        $$P_{BHP} = \frac{Q \cdot (S_m \cdot 1000) \cdot g \cdot H_{slurry}}{3600 \cdot 1000 \cdot \eta_{slurry}} \quad [\text{kW}]$$
+        $$P_{motor} = \frac{P_{BHP}}{\eta_{drive}} \cdot SF \quad [\text{kW}]$$
+        Reflects elevated mass and lowered hydraulic efficiency.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="slurry-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Centrifugal Slurry Pumping</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. Sizing Drive Motors with Clear Water Density (Instant Motor Burnout)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The most common catastrophic mistake made by piping engineers is calculating pump brake horsepower using clear water density (1,000 kg/m³). Slurry power scales directly with slurry mixture density ($S_m$). For an iron ore or copper tailings slurry with $S_m = 1.45$ and an efficiency ratio $ER = 0.88$, the actual power draw is $(1.45 / 0.88) = 1.65\times$ (65% higher) than water. A motor sized without factoring $S_m$ and $ER$ will trip its overload breakers or catch fire during the first hour of laden slurry commissioning.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Over-Speeding Rubber Impellers Beyond 26 m/s (Elastomer Delamination)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Natural rubber liners offer superb abrasion resistance against rounded particles smaller than 5 mm. However, rubber has poor mechanical shear strength at high centrifugal stresses. If a pump speed is cranked up such that impeller peripheral tip speed exceeds 25 to 26 m/s, centrifugal forces and hydrodynamic friction cause rubber delamination, blister formation, and catastrophic tearing from the steel armature. For tip speeds above 26 m/s or sharp-edged angular crushed ore, always specify high-chrome white iron (27% Cr).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Ignoring Head Ratio (HR) Derating & Failing to Meet System Static Head</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Selecting a slurry pump directly from clear water vendor curves without derating by Head Ratio results in the pump delivering less head than required by the discharge pipeline. Coarse slurries can reduce developed head by 10% to 20% ($HR = 0.80 - 0.90$). If the derated slurry curve falls below the pipeline static lift, the flow collapses, velocity drops below the Durand settling limit, and the pipeline immediately sands off, requiring manual dig-out of thousands of meters of pipe.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Suction Sump Frothing & Air Entrainment Cavitation</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        In mineral flotation circuits, slurries contain frothing reagents and entrained air bubbles (often 5% to 15% air by volume). Centrifugal force inside the rotating impeller separates dense slurry to the outer vane radius while air collects in a stagnant pocket at the impeller eye. This air pocket throttles flow, causes severe surging, reduces head by 40%, and accelerates corrosive cavitation pitting on the vane leading edges. Always specify oversized froth sumps or recessed-impeller froth pumps.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Gland Seal Water Starvation & Abrasive Packing Destruction</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Standard centrifugal slurry pumps use packed stuffing boxes that require external high-pressure gland seal water injected at 35 to 70 kPa (5 to 10 psi) above pump discharge pressure. If gland water pressure drops below internal pump pressure, gritty abrasive slurry enters the packing lantern ring, grinding the hardened shaft sleeve into scrap metal within 48 hours and destroying bearing seals. Always install differential pressure switches with automatic pump trip interlocks.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="slurry-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Copper Mine Ball Mill Discharge Slurry Pump to Cyclones.</p>
+      <ul>
+        <li><strong>Flow Rate:</strong> $Q = 450\text{ m}^3/\text{h} = 0.125\text{ m}^3/\text{s}$. Required Slurry TDH $H_{slurry} = 38.0\text{ m}$.</li>
+        <li><strong>Slurry Solids:</strong> Quartz/chalcopyrite gangue with solid S.G. $S_s = 2.65$, carrier liquid water ($S_l = 1.00$).</li>
+        <li><strong>Solids Fraction:</strong> $C_w = 40.0\%$ solids by weight. Median particle size $d_{50} = 180\ \mu\text{m} = 0.180\text{ mm}$.</li>
+        <li><strong>Pump Geometry:</strong> Impeller OD $D_2 = 520\text{ mm}$, speed $N = 980\text{ RPM}$, clear water efficiency $\eta_w = 76\%$, V-belt drive ($\eta_d = 95\%$), $SF = 1.20$.</li>
+      </ul>
+      <p><strong>Step 1: Slurry Mixture Specific Gravity & Volume Fraction:</strong></p>
+      $$S_m = \frac{1.0}{1 - 0.40 \left(1 - \frac{1.0}{2.65}\right)} = \frac{1.0}{1 - 0.40 \times 0.6226} = \frac{1.0}{0.7509} = 1.332$$
+      $$C_v = 40.0\% \times \frac{1.332}{2.65} = 20.10\% \text{ solids by volume}$$
+      <p><strong>Step 2: Cave Head Ratio (HR) & Efficiency Ratio (ER):</strong></p>
+      $$\ln\left(\frac{d_{50}}{0.0223}\right) = \ln\left(\frac{0.180}{0.0223}\right) = \ln(8.0717) = 2.088$$
+      $$HR = 1 - 0.000385 \times (2.65 - 1) \times (1 + 20.10) \times 2.088 = 1 - 0.000385 \times 1.65 \times 21.10 \times 2.088 = 1 - 0.02798 = 0.972$$
+      $$H_{water} = \frac{38.0\text{ m}}{0.972} = 39.10\text{ m of water}$$
+      $$\text{Slurry Efficiency } \eta_{slurry} = \eta_w \times ER = 0.76 \times 0.972 = 73.87\%$$
+      <p><strong>Step 3: Impeller Peripheral Tip Speed Validation:</strong></p>
+      $$u_2 = \frac{\pi \times 0.520\text{ m} \times 980\text{ RPM}}{60} = 26.68\text{ m/s}$$
+      $$\text{For } u_2 = 26.68\text{ m/s} > 25.0\text{ m/s}, \text{ specify \textbf{High-Chrome White Iron}} \text{ (wear rate acceptable } \le 32\text{ m/s}).$$
+      <p><strong>Step 4: Shaft Brake Power & Motor Nameplate:</strong></p>
+      $$\rho_m = 1.332 \times 1000 = 1,332\text{ kg/m}^3$$
+      $$P_{BHP} = \frac{450 \times 1332 \times 9.81 \times 38.0}{3600 \times 1000 \times 0.7387} = \frac{223,499,310}{2,659,320} = 84.04\text{ kW} \quad (112.7\text{ HP})$$
+      $$P_{motor} = \frac{84.04\text{ kW}}{0.95} \times 1.20 = 106.16\text{ kW} \implies \text{\textbf{Standard 110 kW (150 HP) Motor Selected}}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const concType = document.getElementById('sp_conc_type');
+  const concVal = document.getElementById('sp_conc_val');
+
+  function calcSlurry() {
+    const Q = parseFloat(document.getElementById('sp_flow').value) || 100;
+    const Ss = parseFloat(document.getElementById('sp_ss').value) || 2.65;
+    const Sl = parseFloat(document.getElementById('sp_sl').value) || 1.0;
+    const concMode = document.getElementById('sp_conc_type').value;
+    const concInput = parseFloat(document.getElementById('sp_conc_val').value) || 30;
+    const d50_um = parseFloat(document.getElementById('sp_d50').value) || 150;
+    const d50_mm = d50_um / 1000;
+    const Hslurry = parseFloat(document.getElementById('sp_req_head').value) || 30;
+    const eta_w = (parseFloat(document.getElementById('sp_water_eff').value) || 75) / 100;
+    const N_rpm = parseFloat(document.getElementById('sp_rpm').value) || 1000;
+    const D2_mm = parseFloat(document.getElementById('sp_imp_dia').value) || 500;
+    const D2 = D2_mm * 1e-3; // m
+    const linerMat = document.getElementById('sp_liner_mat').value;
+    const driveType = document.getElementById('sp_drive_type').value;
+    const sf = parseFloat(document.getElementById('sp_sf').value) || 1.2;
+
+    let eta_drive = 1.0;
+    if (driveType === 'vbelt') eta_drive = 0.95;
+    if (driveType === 'gear') eta_drive = 0.97;
+
+    // 1. Density & Concentration conversions
+    let Cw = 0;
+    let Cv = 0;
+    let Sm = 1.0;
+
+    if (concMode === 'cw') {
+      Cw = concInput / 100;
+      Sm = Sl / (1 - Cw * (1 - Sl / Ss));
+      Cv = Cw * (Sm / Ss);
+    } else {
+      Cv = concInput / 100;
+      Sm = Cv * Ss + (1 - Cv) * Sl;
+      Cw = (Cv * Ss) / Sm;
+    }
+
+    const Cw_pct = Cw * 100;
+    const Cv_pct = Cv * 100;
+
+    // 2. Cave Head Ratio (HR) and Efficiency Ratio (ER)
+    // HR = 1 - 0.000385 * (Ss - 1) * (1 + Cv_pct) * ln(d50_mm / 0.0223)
+    let HR = 1.0;
+    if (d50_mm > 0.0223) {
+      HR = 1 - 0.000385 * (Ss - 1) * (1 + Cv_pct) * Math.log(d50_mm / 0.0223);
+    }
+    HR = Math.max(0.65, Math.min(1.0, HR));
+    const ER = HR; // standard approximation per ANSI/HI
+
+    const Hwater = Hslurry / HR;
+    const eta_slurry = eta_w * ER;
+
+    // 3. Tip speed
+    const u2 = (Math.PI * D2 * N_rpm) / 60; // m/s
+
+    // 4. Power
+    const g = 9.80665;
+    const rho_slurry = Sm * 1000; // kg/m3
+    const Phyd_kw = (Q * rho_slurry * g * Hslurry) / (3600 * 1000); // kW
+    const Pbhp_kw = Phyd_kw / Math.max(eta_slurry, 0.2); // kW
+    const Pmotor_req = (Pbhp_kw / eta_drive) * sf; // kW
+
+    // Standard metric motor sizes in kW
+    const stdMotors = [1.5, 2.2, 3.0, 4.0, 5.5, 7.5, 11, 15, 18.5, 22, 30, 37, 45, 55, 75, 90, 110, 132, 160, 200, 250, 315, 355, 400, 500, 630];
+    let selectedMotor = stdMotors[stdMotors.length - 1];
+    for (let i = 0; i < stdMotors.length; i++) {
+      if (stdMotors[i] >= Pmotor_req) {
+        selectedMotor = stdMotors[i];
+        break;
+      }
+    }
+
+    // Update UI
+    document.getElementById('res_sm').textContent = Sm.toFixed(3) + ' (Density: ' + rho_slurry.toFixed(0) + ' kg/m³)';
+    document.getElementById('res_cv').textContent = Cv_pct.toFixed(1) + ' % (Cw = ' + Cw_pct.toFixed(1) + ' %)';
+    document.getElementById('res_hr').textContent = HR.toFixed(3);
+    document.getElementById('res_er').textContent = ER.toFixed(3);
+    document.getElementById('res_hwater').textContent = Hwater.toFixed(2) + ' m (' + (Hwater * 3.28084).toFixed(1) + ' ft)';
+    document.getElementById('res_eff_slurry').textContent = (eta_slurry * 100).toFixed(1) + ' % (Water BEP: ' + (eta_w * 100).toFixed(0) + ' %)';
+    document.getElementById('res_tip_speed').textContent = u2.toFixed(2) + ' m/s (' + (u2 * 196.85).toFixed(0) + ' ft/min)';
+
+    const tipBadge = document.getElementById('res_tip_status');
+    let maxSafeTip = 32;
+    if (linerMat === 'rubber') maxSafeTip = 25;
+    if (linerMat === 'poly') maxSafeTip = 28;
+
+    if (u2 <= maxSafeTip * 0.85) {
+      tipBadge.className = 'status-badge badge-safe';
+      tipBadge.textContent = 'LOW WEAR RATE (<' + (maxSafeTip * 0.85).toFixed(0) + ' m/s)';
+    } else if (u2 <= maxSafeTip) {
+      tipBadge.className = 'status-badge badge-warn';
+      tipBadge.textContent = 'MODERATE WEAR: ACCEPTABLE TIP SPEED';
+    } else {
+      tipBadge.className = 'status-badge badge-danger';
+      tipBadge.textContent = 'EXCESSIVE WEAR: LINER DELAMINATION RISK (>' + maxSafeTip + ' m/s)';
+    }
+
+    document.getElementById('res_phyd').textContent = Phyd_kw.toFixed(1) + ' kW';
+    document.getElementById('res_pbhp').textContent = Pbhp_kw.toFixed(1) + ' kW (' + (Pbhp_kw * 1.34102).toFixed(1) + ' HP)';
+    document.getElementById('res_pmotor').textContent = selectedMotor + ' kW (' + (selectedMotor * 1.34102).toFixed(0) + ' HP) [Required: ' + Pmotor_req.toFixed(1) + ' kW]';
+  }
+
+  const inputs = ['sp_flow', 'sp_ss', 'sp_sl', 'sp_conc_type', 'sp_conc_val', 'sp_d50', 'sp_req_head', 'sp_water_eff', 'sp_rpm', 'sp_imp_dia', 'sp_liner_mat', 'sp_drive_type', 'sp_sf'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcSlurry);
+      el.addEventListener('change', calcSlurry);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_slurry');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- CENTRIFUGAL SLURRY PUMP ENGINEERING DATASHEET ---',
+        'Flow Rate: ' + document.getElementById('sp_flow').value + ' m³/h | Required Slurry TDH: ' + document.getElementById('sp_req_head').value + ' m',
+        'Slurry Specific Gravity: ' + document.getElementById('res_sm').textContent,
+        'Solids Fraction: ' + document.getElementById('res_cv').textContent + ' | Median Size d50: ' + document.getElementById('sp_d50').value + ' μm',
+        'Head Ratio (HR): ' + document.getElementById('res_hr').textContent + ' | Water Equivalent Head: ' + document.getElementById('res_hwater').textContent,
+        'Efficiency Ratio (ER): ' + document.getElementById('res_er').textContent + ' | Derated Eff: ' + document.getElementById('res_eff_slurry').textContent,
+        'Impeller Tip Speed: ' + document.getElementById('res_tip_speed').textContent + ' [' + document.getElementById('res_tip_status').textContent + ']',
+        'Hydraulic Power: ' + document.getElementById('res_phyd').textContent,
+        'Brake Shaft Power (BHP): ' + document.getElementById('res_pbhp').textContent,
+        'Recommended Motor Nameplate: ' + document.getElementById('res_pmotor').textContent,
+        'Generated via DigitalToolsShed.com Slurry Pumping Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcSlurry();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL AU2: CRYOGENIC AIR SEPARATION DISTILLATION & CONDENSER-REBOILER CALCULATOR ---
+  (() => {
+    const slug = 'cryogenic-air-separation-distillation-calculator';
+    const title = 'Cryogenic Air Separation Distillation Column & Condenser-Reboiler Calculator (ASU)';
+    const metaDescription = 'Industrial cryogenic air separation unit (ASU) sizing calculator. Solves double-column (HP/LP) distillation mass balances, main condenser-reboiler thermal pinch (BAHX), vapor flooding velocities, and hydrocarbon safety limits.';
+
+    const faq = [
+      {
+        q: 'How does the cryogenic double-column air separation cycle work?',
+        a: 'The Linde double-column cycle thermally couples a High Pressure (HP) column (5.0 to 6.5 bar a) and a Low Pressure (LP) column (1.2 to 1.5 bar a). Air is purified and cooled to near liquefaction (~-173°C) before entering the HP column, which produces pure gaseous nitrogen at the top and oxygen-enriched liquid bottoms (35-40% O2). The LP column separates this rich liquid into high-purity gaseous/liquid oxygen (>99.5% O2) at the bottom and waste/pure nitrogen at the top. The two columns are linked by a shared main condenser-reboiler.'
+      },
+      {
+        q: 'What is the role of the main condenser-reboiler in an ASU coldbox?',
+        a: 'The main condenser-reboiler operates at the junction between the HP and LP columns. High pressure nitrogen vapor from the HP column top condenses at ~95.5 K, releasing latent heat that simultaneously boils liquid oxygen in the LP column sump at ~92.5 K. This thermal integration eliminates external refrigeration utilities. The difference in saturation temperatures (the thermal pinch, typically 1.5 to 3.0 K) dictates the required heat transfer area (UA) of the brazed aluminum plate-fin heat exchanger (BAHX).'
+      },
+      {
+        q: 'Why is dry boiling strictly forbidden in cryogenic oxygen reboilers?',
+        a: 'Ambient air contains trace hydrocarbons (methane, ethane, ethylene, and acetylene) that survive front-end molecular sieve cleanup in parts-per-billion levels. These hydrocarbons concentrate in the liquid oxygen sump. Acetylene has extremely low cryogenic solubility (~5 ppm at 90 K). If reboiler channels experience dry-out, solid acetylene crystals precipitate out of solution; in contact with pure liquid oxygen, even minute friction or static sparks trigger catastrophic coldbox explosions. Continuous liquid recirculation and liquid blowdown are mandatory.'
+      },
+      {
+        q: 'Why does argon create a composition peak inside the low pressure column?',
+        a: 'Argon has a boiling point (-185.9°C / 87.3 K) between nitrogen (-195.8°C / 77.4 K) and oxygen (-183.0°C / 90.2 K), with a relative volatility of ~1.5 relative to oxygen. As vapors rise and liquids descend in the LP column, argon cannot escape easily out the top or bottom. It builds up into a sharp concentration peak (8% to 15% Ar) in the middle of the lower column section. An argon side-draw column is tapped at this exact peak to extract crude argon and prevent column separation fouling.'
+      },
+      {
+        q: 'What determines the vapor velocity flooding limit in cryogenic columns?',
+        a: 'Flooding is calculated using the Souders-Brown factor C_s = u_v * sqrt(rho_v / (rho_L - rho_v)). Cryogenic liquids have very low surface tension (~8 to 14 mN/m) compared to water (72 mN/m), which makes the liquid foam and entrain easily. For modern structured corrugated gauze packing, maximum allowable C_s is typically 0.08 to 0.11 m/s. Operating above 85% of flooding causes massive liquid holdup, pressure drop spikes, and rapid loss of product purity.'
+      }
+    ];
+
+    const content = `
+<style>
+  .cryo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .cryo-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .cryo-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Dimension cryogenic Air Separation Unit (ASU) double distillation columns and the core brazed aluminum main condenser-reboiler. Evaluates HP/LP column mass and mole balances, oxygen recovery fractions, main reboiler pinch temperature & Delta;T, structured packing Souders-Brown flooding velocity, and liquid oxygen hydrocarbon safety limits.
+  </p>
+
+  <div class="cryo-grid">
+    <!-- Panel 1: Air Feed & Column Pressure Conditions -->
+    <div class="cryo-card">
+      <h3>1. Coldbox Feed & Pressures</h3>
+      <div class="form-group">
+        <label for="asu_air_flow">Treated Air Feed Rate (Nm&sup3;/h)</label>
+        <input type="number" id="asu_air_flow" class="form-control" value="25000" min="1000" max="500000" step="1000">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="asu_p_hp">HP Column Pressure P<sub>HP</sub> (bar a)</label>
+          <input type="number" id="asu_p_hp" class="form-control" value="5.6" min="4.0" max="8.0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="asu_p_lp">LP Column Pressure P<sub>LP</sub> (bar a)</label>
+          <input type="number" id="asu_p_lp" class="form-control" value="1.35" min="1.1" max="2.2" step="0.05">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="asu_o2_purity">Target Oxygen Purity (% O<sub>2</sub>)</label>
+          <input type="number" id="asu_o2_purity" class="form-control" value="99.6" min="90.0" max="99.9" step="0.1">
+        </div>
+        <div class="form-group">
+          <label for="asu_o2_recovery">Oxygen Recovery Target (%)</label>
+          <input type="number" id="asu_o2_recovery" class="form-control" value="98.5" min="85.0" max="99.8" step="0.5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="asu_rich_o2">HP Rich Liquid O<sub>2</sub> Content (%)</label>
+        <input type="number" id="asu_rich_o2" class="form-control" value="38.5" min="30.0" max="45.0" step="0.5">
+      </div>
+    </div>
+
+    <!-- Panel 2: Condenser-Reboiler & Column Column Diameter -->
+    <div class="cryo-card">
+      <h3>2. BAHX Reboiler & Column Geometry</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="asu_bahx_u">Reboiler Overall U (W/m&sup2;&middot;K)</label>
+          <input type="number" id="asu_bahx_u" class="form-control" value="1150" min="600" max="2500" step="50">
+        </div>
+        <div class="form-group">
+          <label for="asu_circ_ratio">Thermosiphon Liquid Circ. Ratio</label>
+          <select id="asu_circ_ratio" class="form-control">
+            <option value="3.0">3.0x (Standard Thermosiphon)</option>
+            <option value="4.5" selected>4.5x (Safe Anti-Dryout)</option>
+            <option value="6.0">6.0x (High Recirculation Bath)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="asu_col_dia">LP Column Diameter D<sub>col</sub> (mm)</label>
+          <input type="number" id="asu_col_dia" class="form-control" value="2200" min="500" max="6000" step="100">
+        </div>
+        <div class="form-group">
+          <label for="asu_pack_type">Internals Configuration</label>
+          <select id="asu_pack_type" class="form-control">
+            <option value="structured" selected>Corrugated Structured Packing (500X)</option>
+            <option value="sieve">Sieve Trays (Standard Downcomer)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="asu_feed_c2h2">Air Feed Acetylene C<sub>2</sub>H<sub>2</sub> (ppb)</label>
+          <input type="number" id="asu_feed_c2h2" class="form-control" value="15" min="1" max="200" step="5">
+        </div>
+        <div class="form-group">
+          <label for="asu_lox_purge">LOX Sump Purge Fraction (% Prod)</label>
+          <input type="number" id="asu_lox_purge" class="form-control" value="0.35" min="0.05" max="2.0" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Thermal Validation -->
+    <div class="cryo-card">
+      <h3>3. Separation Output & Reboiler Sizing</h3>
+      <div class="res-row">
+        <span class="res-label">Pure Oxygen Production Rate:</span>
+        <span class="res-val highlight" id="res_o2_prod">-- Nm&sup3;/h (-- t/d)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Pure Nitrogen Production Rate:</span>
+        <span class="res-val" id="res_n2_prod">-- Nm&sup3;/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">HP Nitrogen Sat. Temp T<sub>sat,N2</sub>:</span>
+        <span class="res-val" id="res_tsat_n2">-- K (-- &deg;C)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">LP Oxygen Boiling Temp T<sub>sat,O2</sub>:</span>
+        <span class="res-val" id="res_tsat_o2">-- K (-- &deg;C)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Main Reboiler Pinch &Delta;T:</span>
+        <span class="res-val highlight" id="res_pinch_dt">-- K</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Main Reboiler Duty Q<sub>reboiler</sub>:</span>
+        <span class="res-val" id="res_q_reboil">-- kW</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required BAHX Surface Area:</span>
+        <span class="res-val highlight" id="res_bahx_area">-- m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Superficial Vapor Factor C<sub>s</sub>:</span>
+        <span class="res-val" id="res_cs">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Column Hydraulic Flooding:</span>
+        <span class="res-val" id="res_flood_pct">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Flooding Margin Status:</span>
+        <span id="res_flood_status" class="status-badge badge-safe">SAFE HYDRAULICS</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Sump Acetylene (C<sub>2</sub>H<sub>2</sub>) Conc:</span>
+        <span class="res-val" id="res_c2h2">-- ppm</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Hydrocarbon Explosion Safety:</span>
+        <span id="res_safety_status" class="status-badge badge-safe">SAFE: NO DRYOUT</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_cryo">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Linde Double-Column ASU Coldbox Thermal Architecture</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Air Feed: 20.95% O<sub>2</sub>, 78.09% N<sub>2</sub>, 0.93% Ar ] &rarr; [ HP Column: P<sub>HP</sub> ~ 5.6 bar ] &rarr; [ Pure N<sub>2</sub> Vapor Top ]<br>
+      [ Thermal Coupling: Main Condenser-Reboiler (BAHX) &Delta;T ~ 2.5 K ] &harr; [ N<sub>2</sub> Condenses / O<sub>2</sub> Boils ]<br>
+      [ LP Column: P<sub>LP</sub> ~ 1.35 bar ] &rarr; [ Pure LOX / GOX Sump Product: 99.6% O<sub>2</sub> ] &rarr; [ Argon Peak Side-Draw ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="cryo-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & ASU Cryogenic Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Cryogenic distillation combines ternary vapor-liquid equilibrium (N₂-Ar-O₂) with multi-stream cryogenic heat exchange per Linde and ASME standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Overall Oxygen Recovery</strong><br>
+        $$F_{O2,in} = V_{air} \cdot 0.2095 \quad [\text{Nm}^3/\text{h}]$$
+        $$P_{O2} = \frac{F_{O2,in} \cdot \eta_{rec}}{y_{O2}} \quad [\text{Nm}^3/\text{h}]$$
+        Determines pure oxygen split and residual nitrogen stream flow.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Saturation Temperatures & Pinch</strong><br>
+        $$T_{sat,N2}(P_{HP}) \approx \frac{B_{N2}}{A_{N2} - \log_{10}(P_{HP})} \quad [\text{K}]$$
+        $$T_{sat,O2}(P_{LP}) \approx \frac{B_{O2}}{A_{O2} - \log_{10}(P_{LP})} \quad [\text{K}]$$
+        $$\Delta T_{pinch} = T_{sat,N2} - T_{sat,O2} \ge 1.5 \text{ K}$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Reboiler Duty & BAHX Area</strong><br>
+        $$Q_{reb} = \dot{m}_{boil} \cdot \Delta H_{vap,O2} \quad [\text{kW}]$$
+        $$A_{BAHX} = \frac{Q_{reb} \cdot 1000}{U \cdot \Delta T_{pinch}} \quad [\text{m}^2]$$
+        Thermosiphon bath or falling film core sizing.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Souders-Brown Flooding & Safety</strong><br>
+        $$C_s = u_v \sqrt{\frac{\rho_v}{\rho_L - \rho_v}} \quad [\text{m/s}]$$
+        $$X_{C2H2,sump} = \frac{C_{2}H_{2,feed} \cdot V_{air}}{P_{O2} \cdot f_{purge}} \le 0.1 \text{ ppm}$$
+        Ensures hydraulic stability and prevents detonation.
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="cryo-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Cryogenic Air Separation Operations</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Hydrocarbon Concentration Dry-Boiling Detonation Trap</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The single most lethal disaster in industrial gas history is a coldbox explosion caused by hydrocarbon accumulation in the main condenser-reboiler. If thermosiphon circulation rates drop, local boiling channels evaporate to 100% dryness. Trace acetylene ($C_2H_2$), which has a solubility of only ~5 ppm in liquid oxygen at 90 K, crystallizes into solid flakes. Solid acetylene is an explosive that violently detonates upon contact with liquid oxygen. Sump liquid must be continuously circulated at 3x to 5x boilup rates with a non-negotiable continuous liquid oxygen bleed purge to keep acetylene below 0.1 ppm.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Main Reboiler Thermal Pinch Collapse (&Delta;T &lt; 1.2 K)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The entire heat engine of the double-column depends on nitrogen condensing at a higher temperature than oxygen boils. If LP column pressure rises (e.g. from downstream backpressure) or HP column pressure drops, the temperature pinch $Delta T = T_{sat,N2} - T_{sat,O2}$ collapses below 1.2 K. When this happens, nitrogen vapor can no longer condense. The HP column loses reflux liquid, its top nitrogen purity collapses, and the entire coldbox experiences total thermodynamic decoupling within 15 minutes.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Moisture & CO₂ Ice Breakthrough from Pre-Purification Units (PPU)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Front-end molecular sieve adsorbers remove ambient water vapor and carbon dioxide down to $<0.5	ext{ ppm}$ and $<1	ext{ ppm}$ respectively. If an adsorber bed breaks through or regenerates improperly, $CO_2$ and water enter the main heat exchangers at cryogenic temperatures. $CO_2$ freezes solid at $-56.6^circ	ext{C}$ and ice crystals instantly plug the microscopic passages of brazed aluminum plate-fin exchangers, causing massive pressure drop spikes and requiring an emergency multi-day plant defrost (derime).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Argon Peak Trapping & Separation Pinch in the LP Column</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Argon has an intermediate boiling point between nitrogen and oxygen. In the lower section of the LP column, argon accumulates into an internal concentration peak reaching 10% to 15%. If the side-draw argon column is shut down or throttled improperly, this trapped argon bulb broadens, diluting the rectifying section. The separation pinch severely degrades oxygen product purity, forcing operators to dump off-spec oxygen to atmosphere.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Cryogenic Structured Packing Flooding & Liquid Entrainment</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Liquid oxygen and liquid nitrogen have surface tensions near 10 mN/m (one-seventh that of water). Liquid films on corrugated structured packing are exceptionally thin and prone to wave shearing. Pushing vapor throughput past 85% of the flooding velocity ($C_s > 0.11	ext{ m/s}$) causes liquid to bridge across packing corrugations. Liquid entrains upward into the upper sections, destroying column staging efficiency and sending liquid droplets into gas compressors.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="cryo-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Medium-Scale Merchant Gas Cryogenic ASU Coldbox.</p>
+      <ul>
+        <li><strong>Air Feed:</strong> $V_{air} = 25,000\text{ Nm}^3/\text{h}$ (standard composition: $20.95\%\ O_2$, $78.09\%\ N_2$, $0.93\%\ Ar$, trace $C_2H_2 = 15\text{ ppb}$).</li>
+        <li><strong>Pressures:</strong> HP column $P_{HP} = 5.60\text{ bar a}$, LP column $P_{LP} = 1.35\text{ bar a}$.</li>
+        <li><strong>Targets:</strong> Target oxygen purity $y_{O2} = 99.6\%$, oxygen recovery $\eta_{rec} = 98.5\%$.</li>
+        <li><strong>Equipment:</strong> Brazed aluminum main reboiler ($U = 1,150\text{ W/m}^2\text{K}$), circulation ratio $4.5\times$, LP column diameter $D_{col} = 2,200\text{ mm}$, purge fraction $0.35\%$.</li>
+      </ul>
+      <p><strong>Step 1: Oxygen & Nitrogen Production Balances:</strong></p>
+      $$\text{Inlet } O_2 \text{ flow} = 25,000 \times 0.2095 = 5,237.5\text{ Nm}^3/\text{h}$$
+      $$P_{O2} = \frac{5237.5 \times 0.985}{0.996} = 5,179.6\text{ Nm}^3/\text{h}$$
+      $$\text{Mass rate } = \frac{5179.6}{22.414} \times 32.0\text{ kg/kmol} = 7,395\text{ kg/h} = 177.5\text{ metric tonnes/day of } O_2$$
+      $$P_{N2} = 25,000 - 5,180 = 19,820\text{ Nm}^3/\text{h of gross nitrogen}$$
+      <p><strong>Step 2: Saturation Temperatures & Thermal Pinch:</strong></p>
+      $$\text{Pure } N_2 \text{ at } 5.60\text{ bar a} \implies T_{sat,N2} = 95.82\text{ K} \quad (-177.33^\circ\text{C})$$
+      $$\text{Pure } O_2 \text{ at } 1.35\text{ bar a} \implies T_{sat,O2} = 93.18\text{ K} \quad (-179.97^\circ\text{C})$$
+      $$\text{Main Reboiler Pinch } \Delta T_{pinch} = 95.82 - 93.18 = 2.64\text{ K} \quad (\ge 1.5\text{ K} \implies \text{\textbf{Feasible Thermal Driving Force}})$$
+      <p><strong>Step 3: Main Reboiler Heat Duty & BAHX Area:</strong></p>
+      $$\text{Boilup mass rate } \dot{m}_{boil} \approx 1.25 \times \dot{m}_{O2} = 1.25 \times 7,395 = 9,244\text{ kg/h} = 2.568\text{ kg/s}$$
+      $$\Delta H_{vap,O2} \approx 213\text{ kJ/kg} \implies Q_{reb} = 2.568 \times 213 = 547.0\text{ kW}$$
+      $$A_{BAHX} = \frac{547,000\text{ W}}{1150\text{ W/m}^2\text{K} \times 2.64\text{ K}} = 180.2\text{ m}^2 \text{ effective plate-fin surface}$$
+      <p><strong>Step 4: Column Flooding & Hydrocarbon Safety:</strong></p>
+      $$\text{Vapor density } \rho_v \approx 5.6\text{ kg/m}^3, \quad \rho_L \approx 1140\text{ kg/m}^3, \quad A_{col} = \frac{\pi}{4}(2.2)^2 = 3.801\text{ m}^2$$
+      $$u_v = \frac{2.568\text{ kg/s} / 5.6\text{ kg/m}^3}{3.801\text{ m}^2} = 0.1206\text{ m/s} \implies C_s = 0.1206 \times \sqrt{\frac{5.6}{1140 - 5.6}} = 0.00847\text{ m/s} \ll 0.10\text{ m/s}$$
+      $$\text{Sump } C_2H_2 = \frac{15\text{ ppb} \times 25,000}{5,180 \times 0.0035} = \frac{375,000}{18.13} = 20,683\text{ ppb} = 0.0207\text{ ppm} \quad (\ll 0.10\text{ ppm safe limit}).$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcCryo() {
+    const Vair = parseFloat(document.getElementById('asu_air_flow').value) || 25000;
+    const Php = parseFloat(document.getElementById('asu_p_hp').value) || 5.6;
+    const Plp = parseFloat(document.getElementById('asu_p_lp').value) || 1.35;
+    const yO2_pct = parseFloat(document.getElementById('asu_o2_purity').value) || 99.6;
+    const yO2 = yO2_pct / 100;
+    const recO2_pct = parseFloat(document.getElementById('asu_o2_recovery').value) || 98.5;
+    const recO2 = recO2_pct / 100;
+    const richO2_pct = parseFloat(document.getElementById('asu_rich_o2').value) || 38.5;
+    const U_bahx = parseFloat(document.getElementById('asu_bahx_u').value) || 1150;
+    const circRatio = parseFloat(document.getElementById('asu_circ_ratio').value) || 4.5;
+    const Dcol_mm = parseFloat(document.getElementById('asu_col_dia').value) || 2200;
+    const Dcol = Dcol_mm * 1e-3; // m
+    const packType = document.getElementById('asu_pack_type').value;
+    const c2h2_ppb = parseFloat(document.getElementById('asu_feed_c2h2').value) || 15;
+    const purge_pct = parseFloat(document.getElementById('asu_lox_purge').value) || 0.35;
+    const purgeFrac = purge_pct / 100;
+
+    // 1. Oxygen and Nitrogen production
+    const Fin_O2 = Vair * 0.2095;
+    const PO2_nm3h = (Fin_O2 * recO2) / yO2;
+    const PO2_kgh = (PO2_nm3h / 22.414) * 32.0; // kg/h
+    const PO2_tpd = (PO2_kgh * 24) / 1000; // metric tonnes per day
+    const PN2_nm3h = Math.max(0, Vair - PO2_nm3h);
+
+    // 2. Cryogenic saturation temperatures
+    // Nitrogen: Antoine approx: log10(P_bar) = 3.619 - 255.68 / (T - 6.6)
+    // Invert: T = 6.6 + 255.68 / (3.619 - log10(P))
+    const Tsat_N2 = 6.6 + 255.68 / (3.619 - Math.log10(Math.max(1.0, Php)));
+    // Oxygen: Antoine approx: log10(P_bar) = 3.816 - 319.01 / (T - 6.0)
+    // Invert: T = 6.0 + 319.01 / (3.816 - log10(P))
+    const Tsat_O2 = 6.0 + 319.01 / (3.816 - Math.log10(Math.max(0.5, Plp)));
+    const pinch_dt = Tsat_N2 - Tsat_O2;
+
+    // 3. Reboiler heat duty and BAHX sizing
+    // Boilup ratio in LP column ~ 1.3 * product rate
+    const m_boil_kgs = (PO2_kgh * 1.35) / 3600; // kg/s
+    const dH_vap_O2 = 213; // kJ/kg
+    const Q_reb_kw = m_boil_kgs * dH_vap_O2; // kW
+    let A_bahx = 100;
+    if (pinch_dt > 0.2) {
+      A_bahx = (Q_reb_kw * 1000) / (U_bahx * pinch_dt);
+    }
+
+    // 4. Column hydraulics & flooding
+    const rho_v = 1.429 * (Plp / 1.013) * (273.15 / Tsat_O2); // kg/m3 vapor
+    const rho_L = 1141; // kg/m3 liquid O2
+    const Acol = (Math.PI / 4) * Math.pow(Dcol, 2);
+    const Qv_m3s = m_boil_kgs / Math.max(rho_v, 0.1);
+    const uv = Qv_m3s / Math.max(Acol, 0.1); // superficial m/s
+    const Cs = uv * Math.sqrt(rho_v / Math.max(10, rho_L - rho_v)); // m/s
+
+    const max_Cs = packType === 'structured' ? 0.095 : 0.065;
+    const flood_pct = (Cs / max_Cs) * 100;
+
+    // 5. Hydrocarbon concentration in sump
+    // C2H2 concentration in sump: (c2h2_ppb * Vair) / (PO2_nm3h * purgeFrac) in ppb -> ppm
+    const c2h2_sump_ppb = (c2h2_ppb * Vair) / Math.max(10, PO2_nm3h * purgeFrac);
+    const c2h2_sump_ppm = c2h2_sump_ppb / 1000;
+
+    // Update UI
+    document.getElementById('res_o2_prod').textContent = PO2_nm3h.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' Nm³/h (' + PO2_tpd.toFixed(1) + ' t/d)';
+    document.getElementById('res_n2_prod').textContent = PN2_nm3h.toLocaleString('en-US', {maximumFractionDigits: 0}) + ' Nm³/h';
+    document.getElementById('res_tsat_n2').textContent = Tsat_N2.toFixed(2) + ' K (' + (Tsat_N2 - 273.15).toFixed(2) + ' °C)';
+    document.getElementById('res_tsat_o2').textContent = Tsat_O2.toFixed(2) + ' K (' + (Tsat_O2 - 273.15).toFixed(2) + ' °C)';
+    document.getElementById('res_pinch_dt').textContent = pinch_dt.toFixed(2) + ' K';
+
+    document.getElementById('res_q_reboil').textContent = Q_reb_kw.toFixed(1) + ' kW (' + (Q_reb_kw * 3412.14 / 1e6).toFixed(2) + ' MMBtu/h)';
+    document.getElementById('res_bahx_area').textContent = A_bahx.toFixed(1) + ' m² (' + (A_bahx * 10.7639).toFixed(0) + ' ft²)';
+    document.getElementById('res_cs').textContent = Cs.toFixed(4) + ' m/s (u_v = ' + uv.toFixed(3) + ' m/s)';
+    document.getElementById('res_flood_pct').textContent = flood_pct.toFixed(1) + ' % of Flooding Limit';
+
+    const floodBadge = document.getElementById('res_flood_status');
+    if (flood_pct <= 75) {
+      floodBadge.className = 'status-badge badge-safe';
+      floodBadge.textContent = 'STABLE PACKING OPERATION (<75%)';
+    } else if (flood_pct <= 88) {
+      floodBadge.className = 'status-badge badge-warn';
+      floodBadge.textContent = 'WARNING: HIGH LOADING NEAR FLOOD';
+    } else {
+      floodBadge.className = 'status-badge badge-danger';
+      floodBadge.textContent = 'DANGER: PACKING FLOODED / PURITY COLLAPSE';
+    }
+
+    document.getElementById('res_c2h2').textContent = c2h2_sump_ppm.toFixed(3) + ' ppm (Limit: 0.100 ppm)';
+    const safetyBadge = document.getElementById('res_safety_status');
+    if (c2h2_sump_ppm <= 0.05) {
+      safetyBadge.className = 'status-badge badge-safe';
+      safetyBadge.textContent = 'SAFE: ADEQUATE PURGE (C2H2 < 0.05 ppm)';
+    } else if (c2h2_sump_ppm <= 0.10) {
+      safetyBadge.className = 'status-badge badge-warn';
+      safetyBadge.textContent = 'CAUTION: ELEVATED C2H2 (INCREASE PURGE)';
+    } else {
+      safetyBadge.className = 'status-badge badge-danger';
+      safetyBadge.textContent = 'EXPLOSION HAZARD: C2H2 EXCEEDS 0.1 ppm!';
+    }
+  }
+
+  const inputs = ['asu_air_flow', 'asu_p_hp', 'asu_p_lp', 'asu_o2_purity', 'asu_o2_recovery', 'asu_rich_o2', 'asu_bahx_u', 'asu_circ_ratio', 'asu_col_dia', 'asu_pack_type', 'asu_feed_c2h2', 'asu_lox_purge'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcCryo);
+      el.addEventListener('change', calcCryo);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_cryo');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- CRYOGENIC AIR SEPARATION UNIT (ASU) DATASHEET ---',
+        'Air Feed: ' + document.getElementById('asu_air_flow').value + ' Nm³/h | HP Press: ' + document.getElementById('asu_p_hp').value + ' bar | LP Press: ' + document.getElementById('asu_p_lp').value + ' bar',
+        'Oxygen Production: ' + document.getElementById('res_o2_prod').textContent,
+        'Nitrogen Production: ' + document.getElementById('res_n2_prod').textContent,
+        'Main Reboiler Pinch ΔT: ' + document.getElementById('res_pinch_dt').textContent + ' (HP N2: ' + document.getElementById('res_tsat_n2').textContent + ' / LP O2: ' + document.getElementById('res_tsat_o2').textContent + ')',
+        'Reboiler Duty: ' + document.getElementById('res_q_reboil').textContent + ' | BAHX Area: ' + document.getElementById('res_bahx_area').textContent,
+        'Column Diameter: ' + document.getElementById('asu_col_dia').value + ' mm | Flooding: ' + document.getElementById('res_flood_pct').textContent + ' [' + document.getElementById('res_flood_status').textContent + ']',
+        'Sump C2H2 Concentration: ' + document.getElementById('res_c2h2').textContent + ' [' + document.getElementById('res_safety_status').textContent + ']',
+        'Generated via DigitalToolsShed.com Cryogenic Separation Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcCryo();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL AU3: VIBRATING SCREEN CAPACITY & DECK AREA CALCULATOR ---
+  (() => {
+    const slug = 'vibrating-screen-capacity-area-calculator';
+    const title = 'Vibrating Screen Capacity & Deck Area Sizing Calculator (VSMA / Allis-Chalmers)';
+    const metaDescription = 'Industrial vibrating screen deck sizing calculator per VSMA standards and ISO 9276. Computes required screen deck area, basic aperture capacity, oversize/halfsize/near-size correction factors, bed depth at discharge, and G-force acceleration.';
+
+    const faq = [
+      {
+        q: 'How does the VSMA formula calculate required vibrating screen deck area?',
+        a: 'The Vibrating Screen Manufacturers Association (VSMA) formula calculates area as A = T / (C * M * K * Q * R * S * T_deck * W), where T is undersize feed rate (t/h), C is basic capacity per unit area for a given cut aperture, and factors account for oversize fraction (M), halfsize fines (K), deck level (Q), near-size pegging (R), wet spray washing (S), media open area percentage (T_deck), and material bulk density (W).'
+      },
+      {
+        q: 'What is the bed depth rule of thumb on a vibrating screen deck?',
+        a: 'To achieve clean separation, the bed of solids at the discharge end of the deck must not exceed 3 to 4 times the screen aperture opening (for material weighing ~1.6 t/m³). If the bed is too thick, smaller fines cannot percolate through the coarse particles to reach the mesh openings before the material discharges into the oversize hopper, causing severe product contamination.'
+      },
+      {
+        q: 'What is the difference between circular motion and linear motion screens?',
+        a: 'Circular motion screens are installed at an incline of 15° to 25° and use gravity combined with single-shaft eccentric rotation to tumble particles forward. They are cost-effective for primary scalping and coarse sizing. Linear motion screens operate horizontally (0° to 5° slope) using twin counter-rotating unbalance motors oriented at 45°, which toss material forward and upward in high-energy parabolic hops, ideal for fine sizing, dewatering, and restricted-headroom installations.'
+      },
+      {
+        q: 'Why does polyurethane or rubber media require larger screen area than woven wire?',
+        a: 'While polyurethane and rubber panels offer 5 to 10 times longer wear life than spring steel woven wire mesh, their thick borders and structural ribs reduce the open screening area from 55-65% (woven wire) down to 30-42%. Because screening capacity is directly proportional to open area, switching to polyurethane without increasing deck dimensions causes severe bottlenecking and carryover.'
+      },
+      {
+        q: 'What is the near-size particle trap and how does it cause blinding?',
+        a: 'Particles sized between 75% and 125% of the aperture opening are termed "near-size." These grains become wedged tightly inside the mesh apertures (pegging) or bounce sluggishly along the wire without passing or clearing. If the feed contains more than 15-20% near-size material, severe aperture blinding quickly covers 30% to 60% of the active deck area unless self-cleaning harp wire, ball trays, or high-G polyurethane flex-mats are used.'
+      }
+    ];
+
+    const content = `
+<style>
+  .screen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .screen-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .screen-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size industrial vibrating screens for aggregate quarrying, iron ore beneficiation, and sand classification per VSMA and Allis-Chalmers design methodologies. Computes required effective deck area, aperture capacity rating, oversize/halfsize/near-size modifier factors, discharge bed depth, and vibratory G-force acceleration.
+  </p>
+
+  <div class="screen-grid">
+    <!-- Panel 1: Feed Material & Throughput -->
+    <div class="screen-card">
+      <h3>1. Feed Material & Particle Distribution</h3>
+      <div class="form-group">
+        <label for="vs_feed_tph">Total Feed Rate to Deck (metric t/h)</label>
+        <input type="number" id="vs_feed_tph" class="form-control" value="280" min="5" max="5000" step="10">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="vs_aperture">Cut Size / Aperture Opening (mm)</label>
+          <input type="number" id="vs_aperture" class="form-control" value="12.5" min="0.5" max="150" step="0.5">
+        </div>
+        <div class="form-group">
+          <label for="vs_density">Bulk Density &rho;<sub>b</sub> (t/m&sup3;)</label>
+          <input type="number" id="vs_density" class="form-control" value="1.60" min="0.5" max="3.5" step="0.05">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="vs_oversize">Oversize in Feed (% &gt; Cut)</label>
+          <input type="number" id="vs_oversize" class="form-control" value="45" min="5" max="95" step="1">
+        </div>
+        <div class="form-group">
+          <label for="vs_halfsize">Halfsize in Feed (% &lt; 0.5&times; Cut)</label>
+          <input type="number" id="vs_halfsize" class="form-control" value="40" min="5" max="90" step="1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="vs_nearsize">Near-Size Fraction (0.75&times; to 1.25&times; Cut) (%)</label>
+          <input type="number" id="vs_nearsize" class="form-control" value="15" min="2" max="60" step="1">
+        </div>
+        <div class="form-group">
+          <label for="vs_wet">Wet Spray Washing?</label>
+          <select id="vs_wet" class="form-control">
+            <option value="no" selected>Dry Screening (S = 1.0)</option>
+            <option value="yes">Wet Spray Bars (S = 1.25)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Screen Deck & Machine Mechanics -->
+    <div class="screen-card">
+      <h3>2. Deck Configuration & Mechanics</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="vs_deck_pos">Deck Position / Tier</label>
+          <select id="vs_deck_pos" class="form-control">
+            <option value="1" selected>Top Deck (Factor Q = 1.0)</option>
+            <option value="2">Second Deck (Factor Q = 0.90)</option>
+            <option value="3">Third Deck (Factor Q = 0.80)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="vs_media">Screen Media Type</label>
+          <select id="vs_media" class="form-control">
+            <option value="wire" selected>High-Tensile Woven Wire (55% Open)</option>
+            <option value="poly">Modular Polyurethane Panels (36% Open)</option>
+            <option value="rubber">Heavy Rubber Punch Plate (32% Open)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="vs_width">Deck Nominal Width W (m)</label>
+          <select id="vs_width" class="form-control">
+            <option value="1.5">1.5 m (5 ft)</option>
+            <option value="1.8">1.8 m (6 ft)</option>
+            <option value="2.1">2.1 m (7 ft)</option>
+            <option value="2.4" selected>2.4 m (8 ft)</option>
+            <option value="3.0">3.0 m (10 ft)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="vs_length">Deck Nominal Length L (m)</label>
+          <select id="vs_length" class="form-control">
+            <option value="4.8">4.8 m (16 ft)</option>
+            <option value="6.0" selected>6.0 m (20 ft)</option>
+            <option value="7.3">7.3 m (24 ft)</option>
+            <option value="8.5">8.5 m (28 ft)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="vs_rpm">Operating Speed N (RPM)</label>
+          <input type="number" id="vs_rpm" class="form-control" value="950" min="600" max="1800" step="25">
+        </div>
+        <div class="form-group">
+          <label for="vs_stroke">Peak-to-Peak Stroke S (mm)</label>
+          <input type="number" id="vs_stroke" class="form-control" value="9.5" min="3.0" max="18.0" step="0.5">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="vs_slope">Screen Motion & Incline</label>
+        <select id="vs_slope" class="form-control">
+          <option value="circ_18" selected>Circular Throw (Inclined 18&deg; - Standard Aggregate)</option>
+          <option value="lin_0">Linear Throw (Horizontal 0&deg; - High G Sizing)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 3: Performance & Area Validation -->
+    <div class="screen-card">
+      <h3>3. Calculated Sizing & Loading Output</h3>
+      <div class="res-row">
+        <span class="res-label">Material Passing (Undersize T):</span>
+        <span class="res-val" id="res_undersize">-- t/h</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">VSMA Basic Unit Capacity C:</span>
+        <span class="res-val" id="res_unit_c">-- t/h&middot;m&sup2;</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Composite Correction Factor:</span>
+        <span class="res-val highlight" id="res_comp_factor">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Required Active Deck Area A<sub>req</sub>:</span>
+        <span class="res-val highlight" id="res_area_req">-- m&sup2; (-- ft&sup2;)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Selected Machine Area (W &times; L):</span>
+        <span class="res-val" id="res_area_act">-- m&sup2; (-- ft&sup2;)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Deck Area Utilization Loading:</span>
+        <span class="res-val" id="res_util_pct">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Screen Capacity Status:</span>
+        <span id="res_cap_status" class="status-badge badge-safe">ADEQUATE AREA</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Discharge Lip Bed Depth h<sub>bed</sub>:</span>
+        <span class="res-val highlight" id="res_bed_depth">-- mm</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Bed Depth / Aperture Ratio:</span>
+        <span class="res-val" id="res_bed_ratio">-- &times; Cut</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Bed Stratification Status:</span>
+        <span id="res_strat_status" class="status-badge badge-safe">FREE PERCOLATION</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Vibratory G-Force Acceleration:</span>
+        <span class="res-val" id="res_gforce">-- g</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_screen">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">VSMA Vibrating Screen Deck Granular Segregation Mechanics</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Feed Chute: Total Throughput T<sub>tot</sub> ] &rarr; [ Bagnold Kinetic Segregation: Fines Percolate Down ] &rarr; [ Coarse Floats to Top ]<br>
+      [ Active Deck: Length L &times; Width W ] &rarr; [ Undersize Passes Mesh Aperture ] &darr; [ Undersize Product Hopper ]<br>
+      [ Discharge Lip Bed Depth h<sub>bed</sub> &le; 3.0&times; Aperture ] &rarr; [ Clean Oversize Without Entrained Fines ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="screen-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & VSMA Sizing Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Vibrating screen design combines empirical aperture penetration rates with granular bed kinematics and dynamic exciter mechanics per VSMA standards:
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Basic Unit Capacity Factor C</strong><br>
+        $$C = 1.32 \cdot d_{ap}^{0.66} \quad [\text{metric t/h}\cdot\text{m}^2]$$
+        Represents the benchmark metric throughput per square meter of 50% open wire mesh for clean crushed stone.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Correction Multipliers</strong><br>
+        $$M = 1.25 - 0.005 \cdot (\%\text{Oversize})$$
+        $$K = 0.40 + 0.02 \cdot (\%\text{Halfsize})$$
+        $$R = 1.0 - 0.008 \cdot (\%\text{Near-Size})$$
+        Modifiers reflect particle interference and pegging resistance.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Required Deck Area</strong><br>
+        $$A_{req} = \frac{T_{under}}{C \cdot M \cdot K \cdot Q \cdot R \cdot S \cdot T_{deck} \cdot W} \quad [\text{m}^2]$$
+        $$W = \frac{\rho_b}{1.60} \quad [\text{density factor}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Discharge Bed Depth & G-Force</strong><br>
+        $$h_{bed} = \frac{T_{over}}{\rho_b \cdot W \cdot v_{mat} \cdot 3.6} \quad [\text{mm}]$$
+        $$G = \frac{S_{stroke} \cdot (2\pi N / 60)^2}{2 \cdot 9.80665 \cdot 1000} \approx 4.0 - 5.0\text{ g}$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="screen-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Vibrating Screen Sizing & Operation</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Thick Bed Suffocation Trap (Fines Carryover Catastrophe)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Selecting an undersized screen width causes bulk solids to pile into a deep, dense layer ($h_{bed} > 4.0\times\text{aperture}$). In a thick bed, granular segregation cannot occur; fine particles remain trapped in the top layer and ride over coarse rocks directly into the oversize discharge chute. Up to 30% of saleable fines are lost into the crusher circuit, overloading downstream cone crushers with packing dust and causing premature liner wear. Always ensure bed depth at the discharge lip remains $\le 3.0\times\text{aperture}$.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Switching to Polyurethane Media Without Area Compensation</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Plant operators frequently replace worn wire mesh with modular polyurethane panels to extend wear life. However, polyurethane panels have thick structural ribs and perimeter bezels that slash open area from 55% down to 32-36% (a ~40% loss of passage area). If the machine was operating near capacity with wire mesh, switching to polyurethane causes immediate deck choking, blinding, and massive fines carryover. Polyurethane retrofits require a 25% to 40% larger deck area or high-frequency flex-mat modules.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Near-Size Particle Pegging & Progressive Deck Blinding</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When feed contains $>15\%$ of near-size particles (within 0.75x to 1.25x aperture), irregular angular grains wedge permanently into square openings. Within hours, 40% to 60% of apertures are plugged (pegged), effectively cutting active deck area in half and forcing operators to shut down the circuit for labor-intensive manual wire punching. In high near-size feeds, specify rectangular slotted mesh, self-cleaning crimped harp wire, or ball tray decks.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Coast-Down Resonance & Side-Plate Fatigue Cracking</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When a vibrating screen is shut down, motor RPM coasts down through the fundamental natural frequency of the isolation springs (~150 to 250 RPM). If coast-down takes longer than 10 to 15 seconds, the machine experiences violent transient resonant rocking that magnifies structural stresses by 500%. This induces fatigue micro-cracks around cross-beam huck-bolts and exciter mounting plates, leading to sudden catastrophic side-plate rupture. Always install dynamic DC motor injection braking or VFD decelerator stops.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. Asymmetric Feed Chute Loading & One-Sided Wear</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Feeding a vibrating screen off-center from a 90° conveyor transfer chute loads 70% of material onto one side of the deck while leaving the other side bare. The heavily loaded side suffers severe bed suffocating and carryover, while the bare side experiences accelerated wire scouring from unbuffered rock impacts. Furthermore, asymmetric weight causes lateral torsional twisting of the screen frame, breaking suspension coil springs and overheating exciter spherical roller bearings. Always install a rock box dead-bed distributor or feed spreader.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="screen-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Crushed Granite Secondary Aggregate Sizing Screen.</p>
+      <ul>
+        <li><strong>Feed Rate:</strong> Total feed $T_{tot} = 280\text{ metric t/h}$. Bulk density $\rho_b = 1.60\text{ t/m}^3$.</li>
+        <li><strong>Cut Size:</strong> Square aperture $d_{ap} = 12.5\text{ mm}$. Dry screening ($S = 1.0$).</li>
+        <li><strong>Gradation:</strong> Oversize $(>12.5\text{ mm}) = 45\%$, Halfsize $(<6.25\text{ mm}) = 40\%$, Near-size $(9.5 - 15.5\text{ mm}) = 15\%$.</li>
+        <li><strong>Screen Geometry:</strong> Top deck ($Q = 1.0$), Woven wire mesh ($T_{deck} = 1.05$), Selected machine $2.4\text{ m} \times 6.0\text{ m}$ ($8\text{ ft} \times 20\text{ ft}$, area $14.4\text{ m}^2$).</li>
+        <li><strong>Mechanics:</strong> $N = 950\text{ RPM}$, Stroke $S = 9.5\text{ mm}$, Inclined 18° ($v_{mat} \approx 0.60\text{ m/s}$).</li>
+      </ul>
+      <p><strong>Step 1: Undersize & Oversize Split:</strong></p>
+      $$T_{over} = 280 \times 0.45 = 126\text{ t/h of coarse rock}$$
+      $$T_{under} = 280 \times (1 - 0.45) = 154\text{ t/h of material to pass apertures}$$
+      <p><strong>Step 2: Basic Capacity & Correction Factors:</strong></p>
+      $$C = 1.32 \times (12.5)^{0.66} = 1.32 \times 5.302 = 7.00\text{ t/h}\cdot\text{m}^2$$
+      $$M = 1.25 - 0.005 \times 45 = 1.025$$
+      $$K = 0.40 + 0.02 \times 40 = 1.200$$
+      $$R = 1.0 - 0.008 \times 15 = 0.880$$
+      $$\text{Total modifier } F_{tot} = C \times M \times K \times Q \times R \times S \times T_{deck} \times W$$
+      $$F_{tot} = 7.00 \times 1.025 \times 1.200 \times 1.0 \times 0.880 \times 1.0 \times 1.05 \times 1.0 = 7.917\text{ t/h}\cdot\text{m}^2$$
+      <p><strong>Step 3: Required Screen Area & Utilization:</strong></p>
+      $$A_{req} = \frac{T_{under}}{F_{tot}} = \frac{154\text{ t/h}}{7.917\text{ t/h}\cdot\text{m}^2} = 19.45\text{ m}^2 \text{ required (with 1.25 safety factor } \implies 12.5 - 15.0\text{ m}^2)$$
+      $$\text{Selected Area } A_{act} = 2.4\text{ m} \times 6.0\text{ m} = 14.40\text{ m}^2 \implies \text{Loading } \approx 85.8\% \quad (\text{\textbf{Safe Loading}})$$
+      <p><strong>Step 4: Discharge Lip Bed Depth & G-Force:</strong></p>
+      $$h_{bed} = \frac{126\text{ t/h}}{1.60\text{ t/m}^3 \times 2.4\text{ m} \times 0.60\text{ m/s} \times 3.6} = \frac{126}{8.2944} = 15.19\text{ mm}$$
+      $$\text{Bed Depth Ratio: } \frac{h_{bed}}{d_{ap}} = \frac{15.19\text{ mm}}{12.5\text{ mm}} = 1.215 \times \text{aperture} \quad (\le 3.0 \implies \text{\textbf{Excellent Stratification}})$$
+      $$G = \frac{0.0095 \times (2 \times 3.1416 \times 950 / 60)^2}{2 \times 9.80665} = \frac{0.0095 \times 9896.7}{19.613} = 4.79\text{ g} \quad (4.5 - 5.0\text{ g ideal}).$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcScreen() {
+    const Tfeed = parseFloat(document.getElementById('vs_feed_tph').value) || 200;
+    const dap = parseFloat(document.getElementById('vs_aperture').value) || 10;
+    const rho_b = parseFloat(document.getElementById('vs_density').value) || 1.6;
+    const pctOver = parseFloat(document.getElementById('vs_oversize').value) || 40;
+    const pctHalf = parseFloat(document.getElementById('vs_halfsize').value) || 40;
+    const pctNear = parseFloat(document.getElementById('vs_nearsize').value) || 15;
+    const wet = document.getElementById('vs_wet').value === 'yes';
+    const deckPos = parseInt(document.getElementById('vs_deck_pos').value) || 1;
+    const media = document.getElementById('vs_media').value;
+    const W = parseFloat(document.getElementById('vs_width').value) || 2.4;
+    const L = parseFloat(document.getElementById('vs_length').value) || 6.0;
+    const N_rpm = parseFloat(document.getElementById('vs_rpm').value) || 950;
+    const stroke_mm = parseFloat(document.getElementById('vs_stroke').value) || 9.5;
+    const stroke_m = stroke_mm * 1e-3;
+    const slopeType = document.getElementById('vs_slope').value;
+
+    // 1. Throughput split
+    const Tover = Tfeed * (pctOver / 100);
+    const Tunder = Tfeed * (1 - pctOver / 100);
+
+    // 2. Basic Capacity C per VSMA
+    const C = 1.32 * Math.pow(Math.max(dap, 0.2), 0.66); // t/h.m2
+
+    // 3. Modifiers
+    const M = Math.max(0.6, 1.25 - 0.005 * pctOver);
+    const K = Math.min(2.2, Math.max(0.4, 0.40 + 0.02 * pctHalf));
+    let Q = 1.0;
+    if (deckPos === 2) Q = 0.90;
+    if (deckPos === 3) Q = 0.80;
+    const R = Math.max(0.65, 1.0 - 0.008 * pctNear);
+    const S = wet ? 1.25 : 1.0;
+
+    let Tdeck = 1.05; // woven wire ~55% open
+    if (media === 'poly') Tdeck = 0.72; // poly ~36% open
+    if (media === 'rubber') Tdeck = 0.65; // rubber ~32% open
+
+    const W_density = rho_b / 1.60;
+
+    const compFactor = C * M * K * Q * R * S * Tdeck * W_density;
+
+    // 4. Required Area
+    const Areq = Tunder / Math.max(compFactor, 0.1);
+    const Aact = W * L;
+    const utilPct = (Areq / Math.max(Aact, 0.1)) * 100;
+
+    // 5. Discharge Bed Depth
+    const vmat = slopeType === 'circ_18' ? 0.60 : 0.40; // m/s travel speed
+    const hbed_mm = (Tover / (rho_b * W * vmat * 3.6));
+    const bedRatio = hbed_mm / Math.max(dap, 0.1);
+
+    // 6. G-force acceleration
+    const omega = (2 * Math.PI * N_rpm) / 60;
+    const gforce = (stroke_m * Math.pow(omega, 2)) / (2 * 9.80665);
+
+    // Update UI
+    document.getElementById('res_undersize').textContent = Tunder.toFixed(1) + ' t/h (Oversize: ' + Tover.toFixed(1) + ' t/h)';
+    document.getElementById('res_unit_c').textContent = C.toFixed(2) + ' t/h·m²';
+    document.getElementById('res_comp_factor').textContent = compFactor.toFixed(2) + ' t/h·m² (M=' + M.toFixed(2) + ', K=' + K.toFixed(2) + ', R=' + R.toFixed(2) + ')';
+    document.getElementById('res_area_req').textContent = Areq.toFixed(2) + ' m² (' + (Areq * 10.7639).toFixed(1) + ' ft²)';
+    document.getElementById('res_area_act').textContent = Aact.toFixed(2) + ' m² (' + (Aact * 10.7639).toFixed(1) + ' ft²)';
+    document.getElementById('res_util_pct').textContent = utilPct.toFixed(1) + ' % of Capacity';
+
+    const capBadge = document.getElementById('res_cap_status');
+    if (utilPct <= 85) {
+      capBadge.className = 'status-badge badge-safe';
+      capBadge.textContent = 'ADEQUATE DECK AREA (<85% LOAD)';
+    } else if (utilPct <= 100) {
+      capBadge.className = 'status-badge badge-warn';
+      capBadge.textContent = 'HIGH LOADING: FINES CARRYOVER LIKELY';
+    } else {
+      capBadge.className = 'status-badge badge-danger';
+      capBadge.textContent = 'OVERLOADED: INSUFFICIENT DECK AREA';
+    }
+
+    document.getElementById('res_bed_depth').textContent = hbed_mm.toFixed(1) + ' mm';
+    document.getElementById('res_bed_ratio').textContent = bedRatio.toFixed(2) + ' × Cut Aperture';
+
+    const stratBadge = document.getElementById('res_strat_status');
+    if (bedRatio <= 3.0) {
+      stratBadge.className = 'status-badge badge-safe';
+      stratBadge.textContent = 'EXCELLENT STRATIFICATION (≤ 3.0×)';
+    } else if (bedRatio <= 4.0) {
+      stratBadge.className = 'status-badge badge-warn';
+      stratBadge.textContent = 'ACCEPTABLE STRATIFICATION';
+    } else {
+      stratBadge.className = 'status-badge badge-danger';
+      stratBadge.textContent = 'BED TOO DEEP: FINES TRAPPED IN TOP LAYER';
+    }
+
+    document.getElementById('res_gforce').textContent = gforce.toFixed(2) + ' g (Stroke: ' + stroke_mm.toFixed(1) + ' mm @ ' + N_rpm + ' RPM)';
+  }
+
+  const inputs = ['vs_feed_tph', 'vs_aperture', 'vs_density', 'vs_oversize', 'vs_halfsize', 'vs_nearsize', 'vs_wet', 'vs_deck_pos', 'vs_media', 'vs_width', 'vs_length', 'vs_rpm', 'vs_stroke', 'vs_slope'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcScreen);
+      el.addEventListener('change', calcScreen);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_screen');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- VSMA VIBRATING SCREEN ENGINEERING DATASHEET ---',
+        'Feed Rate: ' + document.getElementById('vs_feed_tph').value + ' t/h | Cut Aperture: ' + document.getElementById('vs_aperture').value + ' mm | Bulk Density: ' + document.getElementById('vs_density').value + ' t/m³',
+        'Undersize to Pass: ' + document.getElementById('res_undersize').textContent,
+        'Composite Capacity: ' + document.getElementById('res_comp_factor').textContent,
+        'Required Deck Area: ' + document.getElementById('res_area_req').textContent,
+        'Selected Machine: ' + document.getElementById('vs_width').value + ' m x ' + document.getElementById('vs_length').value + ' m (' + document.getElementById('res_area_act').textContent + ')',
+        'Deck Area Utilization: ' + document.getElementById('res_util_pct').textContent + ' [' + document.getElementById('res_cap_status').textContent + ']',
+        'Discharge Bed Depth: ' + document.getElementById('res_bed_depth').textContent + ' (' + document.getElementById('res_bed_ratio').textContent + ') [' + document.getElementById('res_strat_status').textContent + ']',
+        'G-Force Acceleration: ' + document.getElementById('res_gforce').textContent,
+        'Generated via DigitalToolsShed.com Vibrating Screen Sizing Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcScreen();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // --- TOOL AU4: HYDROCYCLONE CUT SIZE & CLASSIFICATION CALCULATOR ---
+  (() => {
+    const slug = 'hydrocyclone-cut-size-efficiency-calculator';
+    const title = 'Hydrocyclone Cut Size (d50) & Classification Efficiency Calculator (Plitt Model)';
+    const metaDescription = 'Industrial hydrocyclone sizing calculator per Plitt (1976) empirical models and Lynch-Rao mechanics. Solves corrected cut size d50c, feed pressure drop, volumetric flow split, Tromp curve sharpness, and apex roping limits.';
+
+    const faq = [
+      {
+        q: 'What is the Plitt model for hydrocyclone classification?',
+        a: 'The Plitt (1976) model is the global standard empirical framework for sizing and simulating industrial hydrocyclones in mineral processing. It relates geometric dimensions (barrel diameter D_c, inlet D_i, vortex finder D_o, spigot D_u, and free height h) to operating variables (feed pressure drop, volumetric flow Q, and solids concentration C_v) to calculate corrected cut size d_50c, flow split S, pressure drop P, and sharpness of separation m.'
+      },
+      {
+        q: 'What is the corrected cut size d50c and how does it differ from actual d50?',
+        a: 'The cut size d_50 represents the particle diameter that has an equal 50% probability of reporting to the underflow or overflow. However, fine particles suspended in the carrier liquid bypass directly to the underflow in proportion to the water split (liquid bypass R_f). The corrected cut size d_50c removes this liquid bypass component to represent true centrifugal classification efficiency alone: y_actual = y_corrected * (1 - R_f) + R_f.'
+      },
+      {
+        q: 'What causes "roping" discharge and why is it dangerous in grinding circuits?',
+        a: 'A healthy hydrocyclone operates in "spray discharge," where a central low-pressure air core forms from the apex to the vortex finder, discharging underflow as an open hollow cone (20° to 40° flare). If feed solids increase or the apex orifice is undersized, solids pack into the spigot throat, choking the air core. The underflow changes into a solid, cylindrical "rope" of high density (>58% solids by volume). Roping destroys centrifugal classification, allowing coarse oversize rocks to bypass directly into the overflow and poison flotation or leaching circuits.'
+      },
+      {
+        q: 'How does feed pressure drop affect cut size?',
+        a: 'Hydrocyclone cut size d_50c is inversely proportional to pressure drop and flow: d_50c ~ P^-0.25 to Q^-0.45. Higher feed pressure (typically 70 to 140 kPa / 10 to 20 psi) increases tangential velocity and centrifugal acceleration (up to 1,000 g), resulting in a finer cut size. However, pressures exceeding 170 kPa (25 psi) drastically accelerate abrasive liner wear on the vortex finder and lower cone with diminishing returns on separation sharpness.'
+      },
+      {
+        q: 'How does apex (spigot) wear alter hydrocyclone operation over time?',
+        a: 'The apex orifice experiences the most severe abrasive scouring in the entire plant. As coarse heavy minerals scour the rubber or ceramic spigot insert, its diameter D_u increases. An enlarged apex draws more water to the underflow, diluting underflow pulp density, reducing the water split, and causing the cut size d_50c to shift finer, upsetting downstream mill recirculating loads.'
+      }
+    ];
+
+    const content = `
+<style>
+  .cyclone-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .cyclone-card { background: var(--card-bg, #1e293b); border: 1px solid var(--border-color, #334155); border-radius: 0.75rem; padding: 1.5rem; }
+  .cyclone-card h3 { margin-top: 0; margin-bottom: 1rem; color: #38bdf8; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; margin-bottom: 0.35rem; font-size: 0.875rem; font-weight: 500; color: var(--text-muted, #94a3b8); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .form-control { width: 100%; padding: 0.6rem 0.75rem; border-radius: 0.375rem; border: 1px solid var(--border-color, #334155); background: var(--input-bg, #0f172a); color: #f8fafc; font-size: 0.95rem; box-sizing: border-box; }
+  .form-control:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+  .res-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid rgba(148, 163, 184, 0.15); }
+  .res-row:last-child { border-bottom: none; }
+  .res-label { font-size: 0.875rem; color: var(--text-muted, #94a3b8); }
+  .res-val { font-size: 1.05rem; font-weight: 600; color: #f8fafc; font-variant-numeric: tabular-nums; }
+  .res-val.highlight { color: #38bdf8; }
+  .res-val.warning { color: #f59e0b; }
+  .res-val.danger { color: #ef4444; }
+  .res-val.success { color: #10b981; }
+  .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; }
+  .badge-safe { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+  .badge-warn { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+  .badge-danger { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+  .trap-card { border-left: 4px solid; padding: 1rem 1.25rem; border-radius: 0.375rem; margin-bottom: 1rem; background: rgba(15, 23, 42, 0.6); }
+  .btn-copy { background: #0284c7; color: #ffffff; border: none; border-radius: 0.375rem; padding: 0.65rem 1.25rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+  .btn-copy:hover { background: #0369a1; }
+  .diagram-box { background: #0f172a; border: 1px solid #334155; border-radius: 0.5rem; padding: 1rem; text-align: center; margin: 1rem 0; }
+</style>
+
+<div class="calculator-container" style="max-width: 1100px; margin: 0 auto;">
+  <p style="font-size: 1.05rem; line-height: 1.6; color: var(--text-muted, #94a3b8); margin-bottom: 1.5rem;">
+    Size hydrocyclone classifiers for closed-circuit grinding, desliming, and tailings dewatering per the Plitt (1976) empirical equations and Lynch-Rao models. Solves corrected cut size d<sub>50c</sub>, feed slurry pressure drop, volumetric underflow split, Tromp separation sharpness, and apex roping thresholds.
+  </p>
+
+  <div class="cyclone-grid">
+    <!-- Panel 1: Hydrocyclone Geometry -->
+    <div class="cyclone-card">
+      <h3>1. Hydrocyclone Geometry</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hc_dia">Barrel Inside Diameter D<sub>c</sub> (mm)</label>
+          <input type="number" id="hc_dia" class="form-control" value="250" min="50" max="1200" step="25">
+        </div>
+        <div class="form-group">
+          <label for="hc_inlet">Inlet Equivalent Dia D<sub>i</sub> (mm)</label>
+          <input type="number" id="hc_inlet" class="form-control" value="65" min="10" max="350" step="5">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hc_vortex">Vortex Finder Dia D<sub>o</sub> (mm)</label>
+          <input type="number" id="hc_vortex" class="form-control" value="85" min="15" max="450" step="5">
+        </div>
+        <div class="form-group">
+          <label for="hc_apex">Apex / Spigot Dia D<sub>u</sub> (mm)</label>
+          <input type="number" id="hc_apex" class="form-control" value="45" min="8" max="250" step="2">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hc_height">Free Vortex Height h (mm)</label>
+          <input type="number" id="hc_height" class="form-control" value="750" min="150" max="3000" step="50">
+        </div>
+        <div class="form-group">
+          <label for="hc_cone_angle">Cone Full Angle &theta; (&deg;)</label>
+          <input type="number" id="hc_cone_angle" class="form-control" value="20" min="10" max="45" step="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel 2: Slurry Feed Operating Conditions -->
+    <div class="cyclone-card">
+      <h3>2. Feed Slurry Operating Conditions</h3>
+      <div class="form-group">
+        <label for="hc_flow">Feed Volumetric Flow Rate Q (m&sup3;/h)</label>
+        <input type="number" id="hc_flow" class="form-control" value="65" min="2" max="2000" step="5">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hc_cv">Solids Volume Conc. C<sub>v</sub> (%)</label>
+          <input type="number" id="hc_cv" class="form-control" value="18" min="2" max="50" step="1">
+        </div>
+        <div class="form-group">
+          <label for="hc_rhos">Solid Particle Density &rho;<sub>s</sub> (t/m&sup3;)</label>
+          <input type="number" id="hc_rhos" class="form-control" value="2.70" min="1.2" max="5.5" step="0.05">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hc_rhol">Carrier Liquid Density &rho;<sub>l</sub> (t/m&sup3;)</label>
+          <input type="number" id="hc_rhol" class="form-control" value="1.00" min="0.8" max="1.4" step="0.02">
+        </div>
+        <div class="form-group">
+          <label for="hc_liquid_visc">Liquid Viscosity &mu; (mPa&middot;s / cP)</label>
+          <input type="number" id="hc_liquid_visc" class="form-control" value="1.0" min="0.5" max="20.0" step="0.1">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="hc_num_cyclones">Number of Cyclones in Cluster</label>
+        <input type="number" id="hc_num_cyclones" class="form-control" value="1" min="1" max="24" step="1">
+      </div>
+    </div>
+
+    <!-- Panel 3: Plitt Classification Results -->
+    <div class="cyclone-card">
+      <h3>3. Sizing & Classification Output</h3>
+      <div class="res-row">
+        <span class="res-label">Corrected Cut Size d<sub>50c</sub>:</span>
+        <span class="res-val highlight" id="res_d50c">-- &mu;m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Estimated Actual Cut Size d<sub>50</sub>:</span>
+        <span class="res-val" id="res_d50_act">-- &mu;m</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Operating Feed Pressure Drop &Delta;P:</span>
+        <span class="res-val highlight" id="res_press_drop">-- kPa (-- psi)</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Inlet Velocity v<sub>inlet</sub>:</span>
+        <span class="res-val" id="res_vinlet">-- m/s</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Underflow Volumetric Split S (Q<sub>u</sub>/Q<sub>o</sub>):</span>
+        <span class="res-val" id="res_split_s">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Water Bypass to Underflow R<sub>f</sub>:</span>
+        <span class="res-val" id="res_rf">-- %</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Tromp Sharpness Parameter m:</span>
+        <span class="res-val highlight" id="res_sharp_m">--</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Separation Sharpness Status:</span>
+        <span id="res_sharp_status" class="status-badge badge-safe">SHARP SEPARATION</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Estimated Underflow Solids Conc C<sub>v,u</sub>:</span>
+        <span class="res-val highlight" id="res_cv_under">-- % vol</span>
+      </div>
+      <div class="res-row">
+        <span class="res-label">Apex Discharge Flare State:</span>
+        <span id="res_rope_status" class="status-badge badge-safe">HEALTHY SPRAY DISCHARGE</span>
+      </div>
+      <div style="margin-top: 1.25rem;">
+        <button type="button" class="btn-copy" id="btn_copy_cyclone">
+          <span>📋 Copy Engineering Datasheet</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram-box">
+    <div style="font-weight: 600; color: #38bdf8; margin-bottom: 0.5rem;">Plitt Hydrocyclone Centrifugal Classification Mechanics</div>
+    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5;">
+      [ Tangential Feed: Q @ &Delta;P &sim; 100 kPa ] &rarr; [ Outer Downward Helical Vortex ] &rarr; [ Heavy Coarse Solids to Cone Wall ]<br>
+      [ Central Upward Helical Vortex ] &rarr; [ Vortex Finder D<sub>o</sub> ] &rarr; [ Fine Overflow Product ]<br>
+      [ Central Axial Air Core ] &rarr; [ Apex / Spigot D<sub>u</sub> ] &rarr; [ 20&deg;-40&deg; Spray Umbrella Underflow Discharge ]
+    </div>
+  </div>
+
+  <!-- Deep Engineering Formulations -->
+  <div class="cyclone-card" style="margin-bottom: 2rem;">
+    <h3>Mathematical Foundations & Plitt (1976) Derivations</h3>
+    <p style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      Hydrocyclone classification balances centrifugal particle sedimentation against inward fluid drag per the classic Plitt empirical equations (dimensions in cm, flow in L/min, pressure in kPa):
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #38bdf8;">
+        <strong style="color: #38bdf8;">1. Corrected Cut Size d₅₀c</strong><br>
+        $$d_{50c} = \frac{50.5 \cdot D_c^{0.46} \cdot D_i^{0.60} \cdot D_o^{1.21} \cdot \exp(0.063 \cdot C_v)}{D_u^{0.71} \cdot h^{0.38} \cdot Q^{0.45} \cdot (\rho_s - \rho_l)^{0.5}} \quad [\mu\text{m}]$$
+        Governs the 50/50 centrifugal partition particle diameter.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #10b981;">
+        <strong style="color: #10b981;">2. Pressure Drop ΔP</strong><br>
+        $$P = \frac{4.7 \cdot Q^{1.78} \cdot \exp(0.0055 \cdot C_v)}{D_c^{0.37} \cdot D_i^{0.94} \cdot h^{0.28} \cdot (D_u^2 + D_o^2)^{0.36}} \quad [\text{kPa}]$$
+        Determines feed pump head required for vortex acceleration.
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #f59e0b;">
+        <strong style="color: #f59e0b;">3. Underflow Flow Split S</strong><br>
+        $$S = \frac{18.62 \cdot (D_u / D_o)^{3.31} \cdot h^{0.54} \cdot (D_u^2 + D_o^2)^{0.36} \cdot \exp(0.0054 \cdot C_v)}{D_c^{1.11} \cdot P^{0.24}}$$
+        $$R_f = \frac{S}{1 + S} \quad [\text{liquid bypass fraction}]$$
+      </div>
+      <div style="background: rgba(15, 23, 42, 0.7); padding: 1rem; border-radius: 0.375rem; border-left: 3px solid #8b5cf6;">
+        <strong style="color: #8b5cf6;">4. Tromp Sharpness Index m</strong><br>
+        $$m = 1.94 \cdot \exp(-1.58 \cdot R_v) \cdot \left(\frac{D_c^2 \cdot h}{Q}\right)^{0.15}$$
+        $$y_{act} = \left(1 - \exp\left[-0.693\left(\frac{d}{d_{50c}}\right)^m\right]\right)(1 - R_f) + R_f$$
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 Fatal Engineering Traps -->
+  <div class="cyclone-card" style="margin-bottom: 2rem;">
+    <h3>5 Fatal Traps in Hydrocyclone Classification & Operation</h3>
+
+    <div class="trap-card" style="border-color: #ef4444;">
+      <strong style="color: #ef4444;">1. The Catastrophic Roping Collapse Trap (Total Grinding Circuit Choking)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When feed solids surge or the apex orifice is too small, solids pack densely into the spigot throat, pinching off the central low-pressure air core. The underflow collapses from a healthy 30° spray umbrella into a thick cylindrical "rope" of solids ($C_{v,under} > 56\%$). When roping begins, classification efficiency plunges to zero: unground, millimeter-sized pebble rocks shoot through the vortex finder directly into flotation cells or leach tanks, sinking impellers and destroying mineral recovery. Immediate apex upsizing or water dilution is required.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #f59e0b;">
+      <strong style="color: #f59e0b;">2. Apex (Spigot) Gouging Wear & Invisible Cut Size Drift</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        The apex insert handles the highest concentration of high-velocity coarse abrasives in the entire grinding mill. Over weeks of operation, severe scouring expands the apex diameter by 15% to 30%. Because $d_{50c}$ scales inversely with $D_u^{0.71}$, an enlarged apex pulls excess water into the underflow and shifts the cut size finer, returning finished fines back into the ball mill for destructive over-grinding. Install daily ultrasonic wall gauge checks or ceramic silicon carbide inserts.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #10b981;">
+      <strong style="color: #10b981;">3. Operating at Depressed Feed Pressure (&Delta;P &lt; 50 kPa / 7 psi)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        Attempting to save pumping energy by throttling feed pump speed until cyclone pressure drops below 50 kPa collapses centrifugal acceleration. Without sufficient rotational momentum, the centrifugal sedimentation velocity cannot overcome fluid drag; the air core destabilizes, separation sharpness index ($m$) plunges below 1.5, and coarse particles entrain into the overflow. Cyclone clusters must be modulated by opening/closing automated pneumatic valves on individual cyclones to maintain feed pressure within 70 to 120 kPa (10 to 18 psi).
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #3b82f6;">
+      <strong style="color: #3b82f6;">4. Air Ingestion in Pump Sump Causing Air Core Turbulence</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        If slurry sump level drops low enough to draw surface vortex air into the slurry feed pump, large turbulent air pockets are pumped into the hydrocyclone feed chamber. These erratic air bubbles disrupt the delicate stable air core running down the center of the vortex. The entire classification vortex violently pulses, splashing coarse slurry out the overflow nozzle in irregular periodic gulps. Always install ultrasonic sump level transmitters with automated dilution water valves.
+      </p>
+    </div>
+
+    <div class="trap-card" style="border-color: #8b5cf6;">
+      <strong style="color: #8b5cf6;">5. High Feed Solids Viscosity Cushioning (Hindered Settling)</strong>
+      <p style="font-size: 0.875rem; margin: 0.35rem 0 0; color: #cbd5e1;">
+        When pulp volume concentration ($C_v$) exceeds 22% to 25% (or >55% solids by weight in clay-rich ore), slurry apparent viscosity increases exponentially. The exponential factor $\exp(0.063 \cdot C_v)$ in the Plitt equation causes $d_{50c}$ to coarsen rapidly. Particle-particle interference switches sedimentation from free settling into hindered settling. Grinding mill capacity plummets because the hydrocyclone cannot extract liberated fines. Dilute feed slurry with process water to maintain $C_v \le 18 - 20\%$.
+      </p>
+    </div>
+  </div>
+
+  <!-- Worked Engineering Example -->
+  <div class="cyclone-card" style="margin-bottom: 2rem;">
+    <h3>Step-by-Step Worked Engineering Example</h3>
+    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1;">
+      <p><strong>Application:</strong> Gold Ore Primary Ball Mill Classification Hydrocyclone.</p>
+      <ul>
+        <li><strong>Geometry:</strong> Barrel $D_c = 250\text{ mm} = 25\text{ cm}$, Inlet $D_i = 65\text{ mm} = 6.5\text{ cm}$, Vortex finder $D_o = 85\text{ mm} = 8.5\text{ cm}$, Apex $D_u = 45\text{ mm} = 4.5\text{ cm}$, Height $h = 750\text{ mm} = 75\text{ cm}$, Cone angle $\theta = 20^\circ$.</li>
+        <li><strong>Slurry:</strong> Slurry flow per cyclone $Q = 65.0\text{ m}^3/\text{h} = 1,083.3\text{ L/min}$. Feed solids $C_v = 18.0\%$, $\rho_s = 2.70\text{ g/cm}^3$, $\rho_l = 1.00\text{ g/cm}^3$.</li>
+      </ul>
+      <p><strong>Step 1: Feed Pressure Drop per Plitt (1976):</strong></p>
+      $$D_u^2 + D_o^2 = (4.5)^2 + (8.5)^2 = 20.25 + 72.25 = 92.5\text{ cm}^2$$
+      $$P = \frac{4.7 \times (1083.3)^{1.78} \times \exp(0.0055 \times 18)}{(25)^{0.37} \times (6.5)^{0.94} \times (75)^{0.28} \times (92.5)^{0.36}}$$
+      $$P = \frac{4.7 \times 247,480 \times 1.104}{3.291 \times 5.807 \times 3.349 \times 5.086} = \frac{1,284,140}{325.2} = 98.7\text{ kPa} \quad (14.3\text{ psi} \implies \text{\textbf{Optimal Operating Pressure}})$$
+      <p><strong>Step 2: Corrected Cut Size $d_{50c}$:</strong></p>
+      $$\Delta\rho = \rho_s - \rho_l = 2.70 - 1.00 = 1.70\text{ g/cm}^3 \implies (\Delta\rho)^{0.5} = 1.3038$$
+      $$d_{50c} = \frac{50.5 \times (25)^{0.46} \times (6.5)^{0.60} \times (8.5)^{1.21} \times \exp(0.063 \times 18)}{(4.5)^{0.71} \times (75)^{0.38} \times (1083.3)^{0.45} \times 1.3038}$$
+      $$d_{50c} = \frac{50.5 \times 4.397 \times 3.076 \times 13.44 \times 3.108}{2.914 \times 5.126 \times 23.32 \times 1.3038} = \frac{28,527}{454.0} = 62.8\ \mu\text{m}$$
+      $$\text{Target grind } P_{80} \approx 1.45 \times d_{50c} \approx 91\ \mu\text{m} \quad (\text{\textbf{Ideal flotation liberation}})$$
+      <p><strong>Step 3: Flow Split & Underflow Water Bypass:</strong></p>
+      $$S = \frac{18.62 \times (4.5 / 8.5)^{3.31} \times (75)^{0.54} \times (92.5)^{0.36} \times \exp(0.0054 \times 18)}{(25)^{1.11} \times (98.7)^{0.24}} = 0.285$$
+      $$R_f = \frac{0.285}{1 + 0.285} = 22.18\% \text{ water bypass to underflow}$$
+      $$d_{50,act} \approx d_{50c} \times (1 - R_f)^{0.33} = 62.8 \times (0.778)^{0.33} = 57.8\ \mu\text{m}$$
+      <p><strong>Step 4: Discharge Roping Assessment:</strong></p>
+      $$C_{v,under} \approx \frac{C_v \times 0.72}{R_v} \approx 48.5\% \text{ solids by volume}$$
+      $$\text{Because } C_{v,under} = 48.5\% < 55.0\%, \text{ the underflow maintains a } \mathbf{25^\circ\text{ healthy spray flare}} \text{ with open air core}.$$
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  function calcCyclone() {
+    const Dc_mm = parseFloat(document.getElementById('hc_dia').value) || 250;
+    const Di_mm = parseFloat(document.getElementById('hc_inlet').value) || 65;
+    const Do_mm = parseFloat(document.getElementById('hc_vortex').value) || 85;
+    const Du_mm = parseFloat(document.getElementById('hc_apex').value) || 45;
+    const h_mm = parseFloat(document.getElementById('hc_height').value) || 750;
+    const coneAngle = parseFloat(document.getElementById('hc_cone_angle').value) || 20;
+
+    const Q_m3h_tot = parseFloat(document.getElementById('hc_flow').value) || 65;
+    const numCyclones = parseInt(document.getElementById('hc_num_cyclones').value) || 1;
+    const Q_m3h = Q_m3h_tot / Math.max(1, numCyclones);
+    const Q_lmin = (Q_m3h * 1000) / 60; // L/min per cyclone
+
+    const Cv = parseFloat(document.getElementById('hc_cv').value) || 18;
+    const rhos = parseFloat(document.getElementById('hc_rhos').value) || 2.7;
+    const rhol = parseFloat(document.getElementById('hc_rhol').value) || 1.0;
+    const visc = parseFloat(document.getElementById('hc_liquid_visc').value) || 1.0;
+
+    // Plitt model uses centimeters
+    const Dc = Dc_mm / 10;
+    const Di = Di_mm / 10;
+    const Do = Do_mm / 10;
+    const Du = Du_mm / 10;
+    const h = h_mm / 10;
+
+    // 1. Pressure Drop P (kPa)
+    const term_Dudo = Math.pow(Du, 2) + Math.pow(Do, 2);
+    const P_num = 4.7 * Math.pow(Math.max(10, Q_lmin), 1.78) * Math.exp(0.0055 * Cv);
+    const P_den = Math.pow(Dc, 0.37) * Math.pow(Di, 0.94) * Math.pow(h, 0.28) * Math.pow(term_Dudo, 0.36);
+    const P_kpa = Math.max(10, P_num / Math.max(0.1, P_den));
+    const P_psi = P_kpa * 0.145038;
+
+    // 2. Corrected Cut Size d50c (microns)
+    const drho = Math.max(0.1, rhos - rhol);
+    const visc_factor = Math.pow(visc, 0.5);
+    const d50_num = 50.5 * Math.pow(Dc, 0.46) * Math.pow(Di, 0.60) * Math.pow(Do, 1.21) * Math.exp(0.063 * Cv) * visc_factor;
+    const d50_den = Math.pow(Du, 0.71) * Math.pow(h, 0.38) * Math.pow(Math.max(10, Q_lmin), 0.45) * Math.sqrt(drho);
+    const d50c_um = d50_num / Math.max(0.1, d50_den);
+
+    // 3. Volumetric Underflow Split S
+    const S_num = 18.62 * Math.pow(Du / Math.max(0.1, Do), 3.31) * Math.pow(h, 0.54) * Math.pow(term_Dudo, 0.36) * Math.exp(0.0054 * Cv);
+    const S_den = Math.pow(Dc, 1.11) * Math.pow(P_kpa, 0.24);
+    const split_S = Math.max(0.02, Math.min(2.0, S_num / Math.max(0.1, S_den)));
+    const Rf = (split_S / (1 + split_S)) * 100; // % water bypass
+
+    // Actual cut size approx
+    const d50_act_um = d50c_um * Math.pow(Math.max(0.2, 1 - Rf / 100), 0.33);
+
+    // 4. Tromp Sharpness m
+    const Rv = split_S / (1 + split_S);
+    const sharp_m = 1.94 * Math.exp(-1.58 * Rv) * Math.pow((Math.pow(Dc, 2) * h) / Math.max(10, Q_lmin), 0.15);
+
+    // 5. Inlet velocity
+    const Ainlet_m2 = (Math.PI / 4) * Math.pow(Di_mm * 1e-3, 2);
+    const vinlet = (Q_m3h / 3600) / Math.max(0.0001, Ainlet_m2); // m/s
+
+    // 6. Underflow solids concentration
+    const recoverySolids = Math.min(0.92, 0.45 + (1 - Math.exp(-0.693 * Math.pow(75 / d50c_um, sharp_m))));
+    const underflowSolidsVol = (Q_m3h * (Cv / 100) * recoverySolids);
+    const underflowTotalVol = (Q_m3h * Rv);
+    const Cv_under = Math.min(65, Math.max(Cv, (underflowSolidsVol / Math.max(0.01, underflowTotalVol)) * 100));
+
+    // Update UI
+    document.getElementById('res_d50c').textContent = d50c_um.toFixed(1) + ' μm';
+    document.getElementById('res_d50_act').textContent = d50_act_um.toFixed(1) + ' μm';
+    document.getElementById('res_press_drop').textContent = P_kpa.toFixed(1) + ' kPa (' + P_psi.toFixed(1) + ' psi)';
+    document.getElementById('res_vinlet').textContent = vinlet.toFixed(2) + ' m/s (' + (vinlet * 3.28084).toFixed(1) + ' ft/s)';
+    document.getElementById('res_split_s').textContent = split_S.toFixed(3);
+    document.getElementById('res_rf').textContent = Rf.toFixed(1) + ' %';
+    document.getElementById('res_sharp_m').textContent = sharp_m.toFixed(2);
+
+    const sharpBadge = document.getElementById('res_sharp_status');
+    if (sharp_m >= 2.5) {
+      sharpBadge.className = 'status-badge badge-safe';
+      sharpBadge.textContent = 'HIGH SHARPNESS (m ≥ 2.5)';
+    } else if (sharp_m >= 1.8) {
+      sharpBadge.className = 'status-badge badge-warn';
+      sharpBadge.textContent = 'MODERATE SHARPNESS (1.8 ≤ m < 2.5)';
+    } else {
+      sharpBadge.className = 'status-badge badge-danger';
+      sharpBadge.textContent = 'POOR SHARPNESS: HIGH BYPASS (m < 1.8)';
+    }
+
+    document.getElementById('res_cv_under').textContent = Cv_under.toFixed(1) + ' % vol';
+
+    const ropeBadge = document.getElementById('res_rope_status');
+    if (Cv_under <= 52) {
+      ropeBadge.className = 'status-badge badge-safe';
+      ropeBadge.textContent = 'HEALTHY SPRAY FLARE (25°-40°)';
+    } else if (Cv_under <= 56) {
+      ropeBadge.className = 'status-badge badge-warn';
+      ropeBadge.textContent = 'TRANSITION ZONE: APPROACHING ROPING';
+    } else {
+      ropeBadge.className = 'status-badge badge-danger';
+      ropeBadge.textContent = 'ROPING DISCHARGE: AIR CORE COLLAPSED!';
+    }
+  }
+
+  const inputs = ['hc_dia', 'hc_inlet', 'hc_vortex', 'hc_apex', 'hc_height', 'hc_cone_angle', 'hc_flow', 'hc_num_cyclones', 'hc_cv', 'hc_rhos', 'hc_rhol', 'hc_liquid_visc'];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', calcCyclone);
+      el.addEventListener('change', calcCyclone);
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_copy_cyclone');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '--- PLITT HYDROCYCLONE CLASSIFICATION DATASHEET ---',
+        'Cyclone Diameter: ' + document.getElementById('hc_dia').value + ' mm | Inlet: ' + document.getElementById('hc_inlet').value + ' mm',
+        'Vortex Finder: ' + document.getElementById('hc_vortex').value + ' mm | Apex (Spigot): ' + document.getElementById('hc_apex').value + ' mm',
+        'Feed Flow: ' + document.getElementById('hc_flow').value + ' m³/h | Solids Conc: ' + document.getElementById('hc_cv').value + '% vol',
+        'Corrected Cut Size d50c: ' + document.getElementById('res_d50c').textContent,
+        'Estimated Actual Cut Size d50: ' + document.getElementById('res_d50_act').textContent,
+        'Pressure Drop ΔP: ' + document.getElementById('res_press_drop').textContent,
+        'Inlet Velocity: ' + document.getElementById('res_vinlet').textContent,
+        'Underflow Split S: ' + document.getElementById('res_split_s').textContent + ' | Water Bypass: ' + document.getElementById('res_rf').textContent,
+        'Tromp Sharpness m: ' + document.getElementById('res_sharp_m').textContent + ' [' + document.getElementById('res_sharp_status').textContent + ']',
+        'Underflow Density: ' + document.getElementById('res_cv_under').textContent + ' [' + document.getElementById('res_rope_status').textContent + ']',
+        'Generated via DigitalToolsShed.com Hydrocyclone Modeling Suite'
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Datasheet Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcCyclone();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+console.log('  ✓ Built Trade & Construction Suite (131 calculators in /calc/)');
 }
 
