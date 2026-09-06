@@ -3206,6 +3206,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://digitaltoolsshed.com/calc/pressure-vacuum-relief-valve-api-2000-sizing-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://digitaltoolsshed.com/calc/ps-to-kw</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
@@ -3351,6 +3357,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/regenerative-brayton-cycle-recuperator-gas-turbine-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/regenerative-thermal-oxidizer-rto-voc-destruction-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3915,6 +3927,12 @@
   </url>
   <url>
     <loc>https://digitaltoolsshed.com/calc/subsea-pipeline-bottom-stability-dnv-calculator</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://digitaltoolsshed.com/calc/subsea-pipeline-on-bottom-stability-dnv-f109-calculator</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
