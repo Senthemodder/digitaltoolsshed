@@ -30191,6 +30191,2474 @@ export function buildTradeTools() {
   }));
 
 
-  console.log('  ✓ Built Trade & Construction Suite (27 calculators in /calc/)');
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COMPRESSED AIR PIPE SIZING, PRESSURE DROP & RECEIVER TANK CALCULATOR (CAGI / ISO 8573)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const compressedAirPipeBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Compressed Air Pipe Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Compressed Air Pipe Sizing &amp; Pressure Drop Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Size industrial compressed air distribution piping per CAGI guidelines: calculate air velocity (ft/s), friction pressure drop ($\Delta P$), loop-ring header advantages, air receiver tank capacity, and the true annual cost of compressed air leaks.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Compressed Air System Parameters
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="airFlowScfm">Air Flow Demand (SCFM)</label>
+          <input type="number" id="airFlowScfm" value="150" min="1" max="10000" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Standard CFM at full load</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="airPressurePsig">Operating Pressure (PSIG)</label>
+          <input type="number" id="airPressurePsig" value="100" min="40" max="350" step="5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Main header gauge pressure</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pipeNominalSize">Nominal Pipe Diameter</label>
+          <select id="pipeNominalSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0.5">1/2" NPS (0.622" ID)</option>
+            <option value="0.75">3/4" NPS (0.824" ID)</option>
+            <option value="1.0">1" NPS (1.049" ID)</option>
+            <option value="1.25">1-1/4" NPS (1.380" ID)</option>
+            <option value="1.5" selected>1-1/2" NPS (1.610" ID)</option>
+            <option value="2.0">2" NPS (2.067" ID)</option>
+            <option value="2.5">2-1/2" NPS (2.469" ID)</option>
+            <option value="3.0">3" NPS (3.068" ID)</option>
+            <option value="4.0">4" NPS (4.026" ID)</option>
+            <option value="6.0">6" NPS (6.065" ID)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pipeMaterial">Pipe Material</label>
+          <select id="pipeMaterial" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="aluminum" selected>Extruded Aluminum (AirNet / Transair)</option>
+            <option value="copper">Copper Tubing (Type L)</option>
+            <option value="stainless">Stainless Steel (Sch 10/40)</option>
+            <option value="black_iron">Black Steel / Iron (Sch 40)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="totalLengthFt">Total Equivalent Pipe Length (ft)</label>
+          <input type="number" id="totalLengthFt" value="350" min="10" max="5000" step="25" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Includes elbows &amp; valve allowances</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="headerTopology">Piping Loop Topology</label>
+          <select id="headerTopology" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="loop" selected>Closed Ring Main (Dual Feed Loop)</option>
+            <option value="radial">Single Dead-End (Straight Run)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Internal Diameter: <strong id="lblInnerDia" style="color:var(--fg);">1.610 in</strong></div>
+          <div>Friction Factor (C): <strong id="lblRoughness" style="color:var(--fg);">C = 150 (Smooth)</strong></div>
+          <div>Atmospheric Pressure: <strong style="color:var(--fg);">14.70 PSIA</strong></div>
+          <div>CAGI Velocity Limit: <strong style="color:var(--fg);">&lt; 30 ft/s (Header)</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Compressed Air Flow Velocity</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resVelocity">13.6</span> <span style="font-size:1.25rem;font-weight:500;">ft/s</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              <span id="resVelocityMps">4.1</span> m/s &nbsp;|&nbsp; Actual CFM: <span id="resAcfm">19.2</span> ACFM
+            </div>
+          </div>
+          <span id="badgeVelocity" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">CAGI COMPLIANT</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Total Header Pressure Drop</span>
+            <span id="resPressureDrop" style="font-family:var(--mono);font-size:1.45rem;font-weight:700;color:var(--fg);">0.42 PSI</span>
+            <span id="resDropPct" style="font-size:0.75rem;color:#10b981;display:block;font-weight:600;">0.42% Total Drop (&lt;3% Limit)</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">End-of-Line Pressure</span>
+            <span id="resTerminalPressure" style="font-family:var(--mono);font-size:1.45rem;font-weight:700;color:var(--fg);">99.58 PSIG</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;">Delivered at Tool Regulator</span>
+          </div>
+        </div>
+
+        <!-- RECEIVER TANK & LEAK AUDIT CARDS -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;">Recommended Receiver Tank</div>
+            <div style="font-family:var(--mono);font-size:1.35rem;font-weight:700;color:var(--primary);margin-top:0.25rem;" id="resTankGallons">600 Gallons</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">Based on 4 gal/SCFM rule for modulating screw compressors</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;">
+            <div style="font-size:0.75rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;">1/4" Leak Annual Cost</div>
+            <div style="font-family:var(--mono);font-size:1.35rem;font-weight:700;color:#ef4444;margin-top:0.25rem;" id="resLeakCost">$8,420 / yr</div>
+            <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem;">104 CFM loss @ $0.12/kWh (8,760 operating hrs/yr)</div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">System Dynamics Diagnosis:</span>
+            <strong id="resSummaryStatus" style="font-family:var(--mono);color:#10b981;">OPTIMAL VELOCITY &amp; PRESSURE</strong>
+          </div>
+          <div id="resSummaryAdvice" style="color:var(--text-muted);font-size:0.75rem;">Pipe diameter provides minimal friction loss and excellent pneumatic surge capacity.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Compressed Air Sizing Report</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE COMPRESSED AIR DISTRIBUTION & LOOP MAIN SCHEMATIC SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+      Industrial Compressed Air Plant &amp; Closed-Loop Main Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live engineering layout depicting compressor room equipment train (compressor, coalescing filter, refrigerated air dryer, wet/dry receiver tanks) connected to a dual-feed ring main header with gooseneck drops and moisture drip legs.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="airSvgContainer" style="width:100%;max-width:720px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: Compressible Flow, Pressure Drop &amp; Storage</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        Compressed air piping systems transport compressible fluids governed by the ideal gas law and fluid dynamics. Flow is rated in Standard Cubic Feet per Minute (SCFM, defined at 14.7 PSIA, 68&deg;F, and 0% relative humidity). Under operating line pressure, the air is compressed to Actual Cubic Feet per Minute (ACFM):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        Q<sub>actual</sub> = Q<sub>scfm</sub> &times; [ P<sub>atm</sub> / (P<sub>gauge</sub> + P<sub>atm</sub>) ] &times; [ (T<sub>line</sub> + 460) / 528 ] &nbsp;&nbsp;[ACFM]
+      </div>
+      <p>
+        Flow velocity inside a circular pipe of inner diameter \( d \) inches is directly derived from continuity:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        V = (Q<sub>actual</sub> &times; 144) / [ (&pi;/4) &times; d<sup>2</sup> &times; 60 ] = (0.4085 &times; Q<sub>scfm</sub> &times; P<sub>atm</sub>) / [ d<sup>2</sup> &times; P<sub>abs</sub> ] &nbsp;&nbsp;[ft/s]
+      </div>
+      <p>
+        Compressed Air and Gas Institute (CAGI) standards mandate that main distribution header velocities remain below <strong>20 to 30 ft/s (6 to 9 m/s)</strong>. Velocities exceeding 40 ft/s create severe turbulence, dislodge rust particles, entrain bulk moisture past filters, and cause excessive friction pressure drop.
+      </p>
+      <p>
+        Friction pressure drop (\(\Delta P\)) across length \( L \) (ft) in compressible pipe flow is computed using the empirical Harris formula:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        &Delta;P = [ c &times; L &times; Q<sub>scfm</sub><sup>1.85</sup> ] / [ P<sub>abs</sub> &times; d<sup>5</sup> ] &nbsp;&nbsp;[PSI]
+      </div>
+      <p>
+        Where friction factor \( c \) equals <strong>0.1025</strong> for smooth extruded aluminum or copper, and <strong>0.1450</strong> for standard Schedule 40 black steel pipe.
+      </p>
+      <p>
+        In a <strong>Closed Ring Main (Loop Header)</strong>, air flows in both directions around the loop to any point of use. This cuts effective air flow per branch in half (\( Q/2 \)) and reduces effective length by half, reducing header pressure drop by approximately <strong>70% to 75%</strong> compared to an identical single dead-end radial pipe.
+      </p>
+      <p>
+        Air receiver tank volume required to bridge peak cyclical demand events without pulling system pressure below tool cutouts is calculated by Boyle's Law:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        V<sub>tank</sub> = [ t &times; (C - S) &times; P<sub>atm</sub> ] / [ &Delta;P<sub>allowable</sub> ] &times; 7.4805 &nbsp;&nbsp;[Gallons]
+      </div>
+      <p>
+        Where \( t \) is peak duration in minutes, \( C \) is peak CFM demand, \( S \) is compressor supply CFM, and \( \Delta P \) is the allowable pressure decay band (typically 15 to 20 PSI).
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & COMPRESSED AIR PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Compressed Air Piping</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: Installing PVC Plastic Pipe (OSHA Catastrophic Shrapnel Hazard)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Using standard PVC or CPVC pipe for compressed air is illegal under OSHA Standard 1910. Compressed air stores immense pneumatic energy. When brittle PVC fails under pressure or is struck by a tool, it does not split; it explodes into razor-sharp supersonic plastic shrapnel that penetrates clothing and causes blindness or fatal trauma. Always use extruded aluminum, copper, stainless steel, or specifically rated PE100 polyethylene pipe.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Bottom-Tapped Drops (The "Water Hose" Trap)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Plumbing branch drops out of the bottom of an overhead distribution header forces all condensing water, compressor lubricating oil, and rust sludge directly into pneumatic tools, CNC machines, and paint spray guns. Branch drops must always take off from the <strong>top of the header (gooseneck / overhead loop)</strong> at a 180-degree bend before dropping down, with a moisture drip leg and auto-drain valve at the bottom.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Jacking Up Compressor Discharge Pressure Instead of Fixing Piping</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          When tools at the end of the factory starve for pressure during production spikes, untrained maintenance teams frequently raise the compressor discharge setpoint from 100 PSI to 125 PSI. Every 2 PSI increase in compressor discharge pressure consumes <strong>1% more total electrical energy</strong> across the plant while increasing air leak loss by over 20%. The proper solution is enlarging undersized headers and installing point-of-use secondary receiver tanks.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Undersizing Receiver Tanks on Modulating Rotary Screw Compressors</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Sizing an air receiver tank at the old piston rule of thumb (1 gallon per CFM) causes rotary screw compressors to rapidly short-cycle between loaded and unloaded states every few seconds. Short-cycling burns out motor contactors, causes severe oil carryover past the separator, and wastes 70% of full-load electrical power while running unloaded. Industrial screw systems require <strong>3 to 5 gallons per rated CFM</strong> to ensure smooth load-unload cycles.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Ignoring Cumulative Thread &amp; Quick-Disconnect Fitting Leaks</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          In typical manufacturing plants without ultrasonic leak detection programs, <strong>20% to 30% of total compressor output</strong> is lost entirely through tiny hiss leaks at worn quick-connect couplers, threaded NPT joints, and push-to-connect tubing fittings. In a 500 CFM plant, this represents over $25,000 to $40,000 in wasted annual electricity—quietly evaporating 24/7 even when production is shut down on weekends.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Pipe Inner Diameters (inches) for Schedule 40 / Standard Tubing
+      const PIPE_DIMS = {
+        '0.5': 0.622,
+        '0.75': 0.824,
+        '1.0': 1.049,
+        '1.25': 1.380,
+        '1.5': 1.610,
+        '2.0': 2.067,
+        '2.5': 2.469,
+        '3.0': 3.068,
+        '4.0': 4.026,
+        '6.0': 6.065
+      };
+
+      // Friction factors for materials (c in Harris equation)
+      const MATERIAL_FACTORS = {
+        'aluminum': { c: 0.1025, desc: 'C = 150 (Smooth Extruded Aluminum)' },
+        'copper': { c: 0.1025, desc: 'C = 150 (Smooth Drawn Copper)' },
+        'stainless': { c: 0.1150, desc: 'C = 140 (Clean Stainless Steel)' },
+        'black_iron': { c: 0.1450, desc: 'C = 100 (Commercial Sch 40 Steel)' }
+      };
+
+      const inFlow = document.getElementById('airFlowScfm');
+      const inPressure = document.getElementById('airPressurePsig');
+      const selPipe = document.getElementById('pipeNominalSize');
+      const selMaterial = document.getElementById('pipeMaterial');
+      const inLength = document.getElementById('totalLengthFt');
+      const selTopology = document.getElementById('headerTopology');
+
+      function calcAir() {
+        const scfm = parseFloat(inFlow.value) || 150;
+        const psig = parseFloat(inPressure.value) || 100;
+        const pipeSz = selPipe.value;
+        const innerDia = PIPE_DIMS[pipeSz] || 1.610;
+        const mat = selMaterial.value;
+        const matData = MATERIAL_FACTORS[mat] || MATERIAL_FACTORS['aluminum'];
+        const lengthFt = parseFloat(inLength.value) || 350;
+        const topology = selTopology.value;
+
+        document.getElementById('lblInnerDia').textContent = innerDia.toFixed(3) + ' in';
+        document.getElementById('lblRoughness').textContent = matData.desc;
+
+        const pAtm = 14.70;
+        const pAbs = psig + pAtm;
+
+        // Effective flow and length for topology
+        // In a balanced closed ring loop, flow splits in two directions (Q / 2)
+        // and travels roughly half the perimeter (L / 2).
+        const flowFactor = topology === 'loop' ? 0.5 : 1.0;
+        const lengthFactor = topology === 'loop' ? 0.5 : 1.0;
+
+        const effectiveScfm = scfm * flowFactor;
+        const effectiveLength = lengthFt * lengthFactor;
+
+        // Actual CFM: ACFM = SCFM * (14.7 / Pabs) * (528 / 528)
+        const acfm = scfm * (pAtm / pAbs);
+        document.getElementById('resAcfm').textContent = acfm.toFixed(1);
+
+        // Velocity: V = (0.4085 * SCFM * 14.7) / (d^2 * Pabs) [ft/s]
+        // In the header, velocity depends on topology
+        const headerAcfm = effectiveScfm * (pAtm / pAbs);
+        const pipeAreaSqFt = (Math.PI / 4) * Math.pow(innerDia / 12, 2);
+        const velocityFps = (headerAcfm / 60) / pipeAreaSqFt;
+        const velocityMps = velocityFps * 0.3048;
+
+        document.getElementById('resVelocity').textContent = velocityFps.toFixed(1);
+        document.getElementById('resVelocityMps').textContent = velocityMps.toFixed(1);
+
+        // Friction pressure drop via Harris Formula:
+        // DeltaP = (c * L * Q^1.85) / (Pabs * d^5)
+        const dropPsi = (matData.c * effectiveLength * Math.pow(effectiveScfm, 1.85)) / (pAbs * Math.pow(innerDia, 5));
+        const dropPct = (dropPsi / psig) * 100;
+        const terminalPressure = Math.max(0, psig - dropPsi);
+
+        document.getElementById('resPressureDrop').textContent = dropPsi.toFixed(2) + ' PSI';
+        document.getElementById('resTerminalPressure').textContent = terminalPressure.toFixed(2) + ' PSIG';
+
+        const resDropPct = document.getElementById('resDropPct');
+        resDropPct.textContent = dropPct.toFixed(2) + '% Total Drop ' + (dropPct <= 3.0 ? '(<3% Limit)' : '(EXCEEDS 3% LIMIT)');
+        resDropPct.style.color = dropPct <= 3.0 ? '#10b981' : '#ef4444';
+
+        // Velocity Badge & Diagnosis
+        const badgeVel = document.getElementById('badgeVelocity');
+        const resDiag = document.getElementById('resSummaryStatus');
+        const resAdvice = document.getElementById('resSummaryAdvice');
+
+        if (velocityFps <= 25.0 && dropPct <= 3.0) {
+          badgeVel.style.background = '#10b981';
+          badgeVel.textContent = 'CAGI COMPLIANT';
+          resDiag.textContent = 'OPTIMAL VELOCITY & PRESSURE';
+          resDiag.style.color = '#10b981';
+          resAdvice.textContent = 'Pipe diameter provides minimal friction loss (<3%) and excellent pneumatic surge capacity.';
+        } else if (velocityFps <= 35.0 && dropPct <= 5.0) {
+          badgeVel.style.background = '#f59e0b';
+          badgeVel.textContent = 'MARGINAL VELOCITY';
+          resDiag.textContent = 'ELEVATED VELOCITY / DROP';
+          resDiag.style.color = '#f59e0b';
+          resAdvice.textContent = 'Velocity is near the upper CAGI limit. Consider upsizing to the next standard pipe diameter.';
+        } else {
+          badgeVel.style.background = '#ef4444';
+          badgeVel.textContent = 'SEVERE RESTRICTION';
+          resDiag.textContent = 'UNDERSIZED PIPE RESTRICTION';
+          resDiag.style.color = '#ef4444';
+          resAdvice.textContent = 'Velocity exceeds 35 ft/s or pressure drop exceeds 5%. Causes moisture carryover and tool starvation.';
+        }
+
+        // Receiver tank sizing: 3 to 4 gal / SCFM for rotary screw, minimum 1 gal/SCFM
+        const tankGallons = Math.round(scfm * 4);
+        document.getElementById('resTankGallons').textContent = tankGallons.toLocaleString() + ' Gallons';
+
+        // 1/4" leak cost: ~104 CFM loss at 100 PSIG
+        // Power: ~0.18 kW/CFM for compressor -> 104 * 0.18 = 18.72 kW
+        // Annual cost: 18.72 kW * 8760 hrs * $0.12/kWh * (psig / 100)
+        const leakCost = Math.round(104 * 0.18 * 8760 * 0.12 * (psig / 100));
+        document.getElementById('resLeakCost').textContent = '$' + leakCost.toLocaleString() + ' / yr';
+
+        // Draw Interactive SVG
+        drawAirSvg(topology, innerDia, pipeSz, velocityFps, dropPsi, psig, scfm);
+      }
+
+      function drawAirSvg(topology, innerDia, pipeSz, vel, drop, psig, scfm) {
+        const container = document.getElementById('airSvgContainer');
+        const w = 720;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Background grid / bounding box
+        s += '<rect x="10" y="10" width="700" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // COMPRESSOR ROOM (Left side)
+        s += '<rect x="25" y="25" width="190" height="370" rx="8" fill="#0f172a" stroke="#475569" stroke-width="1.5" stroke-dasharray="4,3"/>';
+        s += '<text x="35" y="48" fill="#94a3b8" font-size="12" font-weight="700">COMPRESSOR ROOM</text>';
+
+        // Rotary Screw Compressor Box
+        s += '<rect x="40" y="65" width="70" height="75" rx="6" fill="#3b82f6" stroke="#60a5fa" stroke-width="2"/>';
+        s += '<text x="75" y="102" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">ROTARY</text>';
+        s += '<text x="75" y="116" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">SCREW</text>';
+        s += '<text x="75" y="155" text-anchor="middle" fill="#94a3b8" font-size="9">' + scfm + ' SCFM</text>';
+
+        // Wet Receiver Tank
+        s += '<rect x="135" y="65" width="60" height="95" rx="15" fill="#2563eb" stroke="#93c5fd" stroke-width="1.5"/>';
+        s += '<text x="165" y="112" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">WET</text>';
+        s += '<text x="165" y="124" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">TANK</text>';
+
+        // Refrigerated Air Dryer
+        s += '<rect x="40" y="185" width="65" height="70" rx="6" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>';
+        s += '<text x="72" y="222" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">REF AIR</text>';
+        s += '<text x="72" y="234" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">DRYER</text>';
+
+        // Dry Storage Receiver Tank
+        s += '<rect x="135" y="185" width="60" height="110" rx="15" fill="#0369a1" stroke="#38bdf8" stroke-width="2"/>';
+        s += '<text x="165" y="235" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">DRY</text>';
+        s += '<text x="165" y="249" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">TANK</text>';
+        s += '<text x="165" y="263" text-anchor="middle" fill="#e0f2fe" font-size="8">' + Math.round(scfm * 4) + ' GAL</text>';
+
+        // Piping connects inside compressor room
+        s += '<path d="M 110 102 L 135 102" fill="none" stroke="#38bdf8" stroke-width="4"/>';
+        s += '<path d="M 165 160 L 165 172 L 72 172 L 72 185" fill="none" stroke="#38bdf8" stroke-width="4"/>';
+        s += '<path d="M 105 220 L 135 220" fill="none" stroke="#38bdf8" stroke-width="4"/>';
+
+        // MAIN PLANT DISTRIBUTION (Right side)
+        const mx = 270;
+        const my = 50;
+        const mw = 420;
+        const mh = 260;
+
+        if (topology === 'loop') {
+          // Closed Ring Main Loop
+          s += '<rect x="' + mx + '" y="' + my + '" width="' + mw + '" height="' + mh + '" rx="8" fill="none" stroke="#0ea5e9" stroke-width="6"/>';
+          s += '<text x="' + (mx + mw / 2) + '" y="' + (my - 12) + '" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="700">CLOSED RING MAIN (DUAL-FEED LOOP)</text>';
+
+          // Feed into loop from compressor room
+          s += '<path d="M 195 240 L ' + mx + ' 240" fill="none" stroke="#0ea5e9" stroke-width="6"/>';
+
+          // Flow directional arrows
+          s += '<polygon points="' + (mx + 80) + ',' + (my - 6) + ' ' + (mx + 95) + ',' + my + ' ' + (mx + 80) + ',' + (my + 6) + '" fill="#38bdf8"/>';
+          s += '<polygon points="' + (mx + 320) + ',' + (my - 6) + ' ' + (mx + 335) + ',' + my + ' ' + (mx + 320) + ',' + (my + 6) + '" fill="#38bdf8"/>';
+          s += '<polygon points="' + (mx + 80) + ',' + (my + mh - 6) + ' ' + (mx + 95) + ',' + (my + mh) + ' ' + (mx + 80) + ',' + (my + mh + 6) + '" fill="#38bdf8"/>';
+          s += '<polygon points="' + (mx + 320) + ',' + (my + mh - 6) + ' ' + (mx + 335) + ',' + (my + mh) + ' ' + (mx + 320) + ',' + (my + mh + 6) + '" fill="#38bdf8"/>';
+        } else {
+          // Radial dead-end single header
+          s += '<line x1="195" y1="180" x2="' + (mx + mw) + '" y2="180" stroke="#f59e0b" stroke-width="6"/>';
+          s += '<text x="' + (mx + mw / 2) + '" y="160" text-anchor="middle" fill="#f59e0b" font-size="12" font-weight="700">SINGLE DEAD-END RADIAL HEADER</text>';
+          s += '<polygon points="' + (mx + 150) + ',174 ' + (mx + 170) + ',180 ' + (mx + 150) + ',186" fill="#f59e0b"/>';
+          s += '<polygon points="' + (mx + 300) + ',174 ' + (mx + 320) + ',180 ' + (mx + 300) + ',186" fill="#f59e0b"/>';
+        }
+
+        // GOOSENECK DROPS with Drip Legs
+        const dropXPositions = [mx + 90, mx + 210, mx + 330];
+        const topY = topology === 'loop' ? my : 180;
+
+        dropXPositions.forEach(function(dx, i) {
+          // Gooseneck top loop (prevent moisture runoff)
+          s += '<path d="M ' + dx + ' ' + topY + ' L ' + dx + ' ' + (topY - 14) + ' Q ' + (dx + 12) + ' ' + (topY - 26) + ' ' + (dx + 24) + ' ' + (topY - 14) + ' L ' + (dx + 24) + ' ' + (topY + 130) + '" fill="none" stroke="#22d3ee" stroke-width="3"/>';
+
+          // Tool take-off branch
+          s += '<line x1="' + (dx + 24) + '" y1="' + (topY + 70) + '" x2="' + (dx + 48) + '" y2="' + (topY + 70) + '" stroke="#22d3ee" stroke-width="3"/>';
+          // Filter / Regulator / Lubricator (FRL)
+          s += '<rect x="' + (dx + 48) + '" y="' + (topY + 60) + '" width="22" height="20" rx="3" fill="#10b981" stroke="#34d399" stroke-width="1"/>';
+          s += '<text x="' + (dx + 59) + '" y="' + (topY + 74) + '" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">FRL</text>';
+
+          // Tool / Machine
+          s += '<circle cx="' + (dx + 82) + '" cy="' + (topY + 70) + '" r="9" fill="#e2e8f0"/>';
+          s += '<text x="' + (dx + 82) + '" y="' + (topY + 74) + '" text-anchor="middle" fill="#0f172a" font-size="8" font-weight="700">T' + (i + 1) + '</text>';
+
+          // Drip leg downward extension & Drain valve
+          s += '<line x1="' + (dx + 24) + '" y1="' + (topY + 130) + '" x2="' + (dx + 24) + '" y2="' + (topY + 155) + '" stroke="#64748b" stroke-width="2.5"/>';
+          s += '<polygon points="' + (dx + 20) + ',' + (topY + 155) + ' ' + (dx + 28) + ',' + (topY + 155) + ' ' + (dx + 24) + ',' + (topY + 162) + '" fill="#94a3b8"/>';
+          s += '<text x="' + (dx + 24) + '" y="' + (topY + 172) + '" text-anchor="middle" fill="#94a3b8" font-size="7">AUTO-DRAIN</text>';
+        });
+
+        // Bottom Metrics Banner
+        s += '<rect x="25" y="325" width="670" height="65" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="45" y="348" fill="#94a3b8" font-size="11" font-weight="600">PIPE SELECTION:</text>';
+        s += '<text x="45" y="372" fill="#38bdf8" font-size="15" font-weight="700" font-family="monospace">' + pipeSz + '" NPS (' + innerDia.toFixed(3) + '" ID)</text>';
+
+        s += '<text x="260" y="348" fill="#94a3b8" font-size="11" font-weight="600">AIR VELOCITY:</text>';
+        s += '<text x="260" y="372" fill="' + (vel <= 30 ? '#10b981' : '#ef4444') + '" font-size="15" font-weight="700" font-family="monospace">' + vel.toFixed(1) + ' ft/s</text>';
+
+        s += '<text x="450" y="348" fill="#94a3b8" font-size="11" font-weight="600">FRICTION LOSS:</text>';
+        s += '<text x="450" y="372" fill="' + (drop <= 3 ? '#10b981' : '#ef4444') + '" font-size="15" font-weight="700" font-family="monospace">' + drop.toFixed(2) + ' PSI</text>';
+
+        s += '<text x="610" y="348" fill="#94a3b8" font-size="11" font-weight="600">LINE PSIG:</text>';
+        s += '<text x="610" y="372" fill="#ffffff" font-size="15" font-weight="700" font-family="monospace">' + psig + ' PSIG</text>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const scfm = inFlow.value;
+        const psig = inPressure.value;
+        const pipeSz = selPipe.options[selPipe.selectedIndex].text;
+        const mat = selMaterial.options[selMaterial.selectedIndex].text;
+        const len = inLength.value;
+        const top = selTopology.options[selTopology.selectedIndex].text;
+
+        const vel = document.getElementById('resVelocity').textContent;
+        const velMps = document.getElementById('resVelocityMps').textContent;
+        const drop = document.getElementById('resPressureDrop').textContent;
+        const dropPct = document.getElementById('resDropPct').textContent;
+        const term = document.getElementById('resTerminalPressure').textContent;
+        const tank = document.getElementById('resTankGallons').textContent;
+        const leak = document.getElementById('resLeakCost').textContent;
+        const diag = document.getElementById('resSummaryStatus').textContent;
+
+        const summary = [
+          '=== COMPRESSED AIR DISTRIBUTION SIZING REPORT ===',
+          'Flow Demand: ' + scfm + ' SCFM | Header Pressure: ' + psig + ' PSIG',
+          'Pipe Specification: ' + pipeSz + ' | Material: ' + mat,
+          'Total Equivalent Length: ' + len + ' ft | Topology: ' + top,
+          '',
+          '--- FLOW VELOCITY & PRESSURE DYNAMICS ---',
+          'Air Velocity: ' + vel + ' ft/s (' + velMps + ' m/s) [CAGI Target: < 30 ft/s]',
+          'Total Header Pressure Drop: ' + drop + ' (' + dropPct + ')',
+          'Delivered Terminal Pressure: ' + term,
+          'System Status: ' + diag,
+          '',
+          '--- AUXILIARY PLANT SIZING & EFFICIENCY ---',
+          'Recommended Air Receiver Tank: ' + tank,
+          'Estimated 1/4" Leak Waste Cost: ' + leak,
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/compressed-air-pipe-sizing-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Sizing Report Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Sizing Report Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy Compressed Air Sizing Report';
+          }, 2500);
+        });
+      });
+
+      inFlow.addEventListener('input', calcAir);
+      inPressure.addEventListener('input', calcAir);
+      selPipe.addEventListener('change', calcAir);
+      selMaterial.addEventListener('change', calcAir);
+      inLength.addEventListener('input', calcAir);
+      selTopology.addEventListener('change', calcAir);
+
+      calcAir();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'compressed-air-pipe-sizing-calculator.html'), renderTradePage({
+    title: "Compressed Air Pipe Sizing Calculator: CFM, Velocity & Pressure Drop | Digital Tools Shed",
+    metaDesc: "Size industrial compressed air distribution piping per CAGI guidelines: calculate air velocity (ft/s), friction pressure drop, loop ring headers, and receiver tank gallons.",
+    canonical: `${DOMAIN}/calc/compressed-air-pipe-sizing-calculator`,
+    bodyContent: compressedAirPipeBody,
+    currentPath: '/calc/compressed-air-pipe-sizing-calculator',
+    faq: [
+      {
+        "q": "What is the maximum recommended air velocity in compressed air piping?",
+        "a": "The Compressed Air and Gas Institute (CAGI) recommends velocities between 20 and 30 ft/s (6 to 9 m/s) in main distribution headers, and 30 to 45 ft/s in short equipment branch drops. Exceeding 40 ft/s creates excessive friction pressure drops and sweeps liquid water and oil mist past filter bowls."
+      },
+      {
+        "q": "Why is a closed loop ring main better than a single radial line?",
+        "a": "A closed loop header allows air to travel in both directions toward any point of demand. This halves the flow rate and effective pipe length per branch, reducing overall header friction pressure drop by 70% to 75% compared to an identical straight dead-end pipe."
+      },
+      {
+        "q": "Why is PVC pipe illegal for compressed air systems?",
+        "a": "Under OSHA Standard 1910, standard PVC and CPVC pipes cannot be used for compressed gases. When PVC fails under pneumatic pressure or is struck by an object, it shatters into razor-sharp supersonic plastic shrapnel that can cause fatal injuries."
+      },
+      {
+        "q": "How do you calculate compressed air receiver tank size?",
+        "a": "For modern rotary screw compressors, the rule of thumb is 3 to 5 gallons of tank storage per rated compressor CFM (e.g., a 100 CFM compressor requires a 300 to 500-gallon receiver tank) to prevent motor contactor short-cycling and maintain consistent pressure during cyclical tool surges."
+      },
+      {
+        "q": "Why should compressed air drops take off from the top of the header?",
+        "a": "Moisture and compressor lubricating oil continuously condense and flow along the bottom of the pipe header. By looping branches out of the top of the pipe (gooseneck design) with a bottom drip leg, gravity prevents condensed water and sludge from entering tools and spray equipment."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SOLAR PV STRING SIZING & INVERTER MPPT VOLTAGE WINDOW CALCULATOR (NEC 690.7)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const solarStringSizingBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Solar String Sizing Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Solar PV String Sizing &amp; Inverter MPPT Voltage Calculator (NEC 690.7)</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate maximum and minimum solar modules in series per NEC 690.7: adjust open-circuit voltage ($V_{oc}$) for extreme winter cold, calculate summer cell operating $V_{mp}$, and keep PV strings within the inverter's MPPT voltage tracking window.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        PV Module &amp; Inverter Electrical Specs
+      </h2>
+
+      <!-- Module Preset Selector -->
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pvModulePreset">PV Module Model / Preset</label>
+        <select id="pvModulePreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="custom">Custom Module Parameters</option>
+          <option value="res400" selected>Modern 400W Monocrystalline (Voc: 37.2V, Vmp: 31.2V)</option>
+          <option value="com550">Commercial 550W Bifacial (Voc: 49.8V, Vmp: 41.9V)</option>
+          <option value="high430">High-Efficiency 430W N-Type (Voc: 43.1V, Vmp: 36.5V)</option>
+          <option value="old300">Legacy 300W 60-Cell (Voc: 39.8V, Vmp: 32.6V)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pvVoc">Module Open-Circuit Voltage (Voc)</label>
+          <input type="number" id="pvVoc" value="37.2" min="15" max="80" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">STC Rating (25&deg;C)</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pvVmp">Module Max Power Voltage (Vmp)</label>
+          <input type="number" id="pvVmp" value="31.2" min="12" max="70" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">STC Rating (25&deg;C)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tempCoeffVoc">Temp Coeff of Voc (% / &deg;C)</label>
+          <input type="number" id="tempCoeffVoc" value="-0.27" min="-0.50" max="-0.15" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Manufacturer datasheet &alpha;Voc</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tempCoeffPmp">Temp Coeff of Pmp (% / &deg;C)</label>
+          <input type="number" id="tempCoeffPmp" value="-0.35" min="-0.60" max="-0.20" step="0.01" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Power / Vmp temperature drift</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tempWinterMin">Extreme Winter Low (&deg;C)</label>
+          <input type="number" id="tempWinterMin" value="-15" min="-45" max="15" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">ASHRAE design min dry bulb</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tempSummerMax">Summer High Ambient (&deg;C)</label>
+          <input type="number" id="tempSummerMax" value="38" min="20" max="55" step="1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">ASHRAE 2% summer peak</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mountType">Mounting Architecture</label>
+          <select id="mountType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="roof" selected>Rooftop Parallel (+30&deg;C Cell Rise)</option>
+            <option value="ground">Ground Mount / Tilted (+20&deg;C Cell Rise)</option>
+            <option value="bapv">Direct BAPV / Poor Airflow (+35&deg;C)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="inverterMaxV">Inverter Max DC Voltage (Vmax)</label>
+          <select id="inverterMaxV" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="600" selected>600V (US Residential NEC Limit)</option>
+            <option value="1000">1000V (Commercial Three-Phase)</option>
+            <option value="1500">1500V (Utility Scale Central)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mpptMinV">MPPT Min Voltage (Vmppt_min)</label>
+          <input type="number" id="mpptMinV" value="120" min="60" max="600" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Inverter tracking lower limit</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="mpptMaxV">MPPT Max Voltage (Vmppt_max)</label>
+          <input type="number" id="mpptMaxV" value="480" min="150" max="1400" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Inverter tracking upper limit</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Allowable Series Modules Per String</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resStringRange">5 to 14</span> <span style="font-size:1.25rem;font-weight:500;">Modules</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              Recommended Optimal Target: <strong id="resTargetSeries" style="color:var(--fg);">10 to 12 Modules</strong>
+            </div>
+          </div>
+          <span id="badgeCompliance" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">NEC 690.7 PASS</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Cold Weather Max Voc (Per Module)</span>
+            <span id="resColdVoc" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">41.22 V</span>
+            <span id="resColdFactor" style="font-size:0.75rem;color:var(--primary);display:block;font-weight:600;">+10.8% Voltage Rise @ -15&deg;C</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Hot Summer Operating Vmp (Per Module)</span>
+            <span id="resHotVmp" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">26.50 V</span>
+            <span id="resHotCell" style="font-size:0.75rem;color:#ef4444;display:block;font-weight:600;">-15.1% Voltage Drop @ 68&deg;C Cell</span>
+          </div>
+        </div>
+
+        <!-- STRING VOLTAGE ENVELOPE SUMMARY -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <h3 style="font-size:0.9rem;margin-top:0;margin-bottom:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Worst-Case String Voltage Envelope (at Max String Size)</h3>
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.5rem;text-align:center;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Max Winter Voc</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:#3b82f6;margin-top:0.25rem;" id="resStringMaxVoc">577.1 V</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">&lt; 600V Limit</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">STC Rated Vmp</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--fg);margin-top:0.25rem;" id="resStringStcVmp">436.8 V</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">In MPPT Range</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Min Summer Vmp</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:#10b981;margin-top:0.25rem;" id="resStringMinVmp">371.0 V</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">&gt; Vmppt_min</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">Inverter Voltage Status:</span>
+            <strong id="resStatusText" style="font-family:var(--mono);color:#10b981;">SAFE MPPT VOLTAGE WINDOW</strong>
+          </div>
+          <div id="resStatusAdvice" style="color:var(--text-muted);font-size:0.75rem;">Selected string configuration leaves safe headroom below inverter max DC voltage while remaining well above minimum MPPT turn-on voltage.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy String Sizing Schedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SOLAR ARRAY & INVERTER MPPT VOLTAGE WINDOW SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      Interactive String Architecture &amp; Inverter MPPT Window Bar Gauge
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live schematic illustrating series-connected PV modules, DC disconnect switch, and real-time MPPT inverter voltage bar window tracking cold Voc, STC Vmp, and hot summer Vmp against hardware limits.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="solarSvgContainer" style="width:100%;max-width:720px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: Temperature-Corrected Solar Voltage</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        Photovoltaic silicon cells exhibit a negative temperature coefficient of voltage. As ambient temperatures drop in winter, semiconductor bandgap energy widens, causing open-circuit voltage (\( V_{oc} \)) to rise substantially above Standard Test Conditions (STC, 25&deg;C). Under <strong>NEC Article 690.7</strong>, photovoltaic circuit conductors, disconnects, and inverters must be sized based on the maximum cold-weather system voltage:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        V<sub>oc(cold)</sub> = V<sub>oc(STC)</sub> &times; [ 1 + (&alpha;<sub>Voc</sub> / 100) &times; (T<sub>min(ambient)</sub> - 25&deg;C) ] &nbsp;&nbsp;[Volts]
+      </div>
+      <p>
+        Where \( \alpha_{Voc} \) is the temperature coefficient of open-circuit voltage in %/&deg;C (a negative value, typically -0.26% to -0.30%/&deg;C), and \( T_{min} \) is the lowest expected ambient temperature taken from ASHRAE climatic design tables.
+      </p>
+      <p>
+        The absolute maximum number of modules permitted in series per string (\( N_{max} \)) is bounded by the inverter's maximum allowable DC input voltage (\( V_{max} \), typically 600V for residential dwellings under NEC 690.7, or 1000V/1500V for commercial installations):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        N<sub>max</sub> = &lfloor; V<sub>max(inverter)</sub> / V<sub>oc(cold)</sub> &rfloor;
+      </div>
+      <p>
+        Conversely, on hot summer days, dark photovoltaic cells exposed to intense solar irradiance (1,000 W/m&sup2;) operate significantly hotter than the surrounding air. The operating cell temperature is estimated by:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        T<sub>cell(hot)</sub> = T<sub>max(ambient)</sub> + &Delta;T<sub>mount</sub> &nbsp;&nbsp;[where &Delta;T<sub>mount</sub> &approx; 30&deg;C for flush roof racks]
+      </div>
+      <p>
+        The maximum power voltage (\( V_{mp} \)) drops severely under this high cell temperature:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        V<sub>mp(hot)</sub> = V<sub>mp(STC)</sub> &times; [ 1 + (&gamma;<sub>Pmp</sub> / 100) &times; (T<sub>cell(hot)</sub> - 25&deg;C) ] &nbsp;&nbsp;[Volts]
+      </div>
+      <p>
+        To prevent the inverter from dropping out of Maximum Power Point Tracking (MPPT) during peak summer generation, the string voltage must remain strictly above the inverter's minimum MPPT voltage tracking threshold (\( V_{mppt(min)} \)):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        N<sub>min</sub> = &lceil; V<sub>mppt(min)</sub> / V<sub>mp(hot)</sub> &rceil;
+      </div>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & SOLAR PV PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Solar String Sizing</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: The "Nameplate 25&deg;C" Inverter Fryer</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Using the nameplate STC 25&deg;C Voc rating on module spec sheets without applying the NEC 690.7 cold weather temperature correction is the #1 cause of blown inverter input stages. On a crisp 0&deg;F (-18&deg;C) winter morning, an array of fourteen 37V modules produces over 630 volts DC. This immediately exceeds the 600V residential limit, triggering permanent overvoltage destruction of the inverter's internal input capacitors and MOSFETs, and instantly voiding equipment warranties.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Summer MPPT Voltage Drop-Out</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Installing strings that are too short (e.g., 4 or 5 modules) may work during mild spring weather, but will fail completely during mid-summer heatwaves. With roof ambient temperatures at 100&deg;F and cell temperatures soaring to 155&deg;F (68&deg;C), module Vmp drops by 15% to 20%. The total string voltage collapses below the inverter's minimum MPPT window threshold (e.g. &lt;120V), causing the inverter to drop offline or enter severe thermal power curtailment during the highest solar production hours of the year.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Exceeding Maximum Inverter Short-Circuit Current (Isc)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Paralleling two or three strings into a single MPPT channel using modern high-power modules (which often produce 13A to 18A Isc each) frequently violates the inverter's maximum DC short-circuit current rating (often 20A to 25A per MPPT). In the event of an internal inverter crowbar fault, excessive array current can cause catastrophic thermal runaway and fires inside the inverter's DC disconnect box.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Series Mismatching Different Module Wattages or Orientations</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Wiring modules with different current (Imp) ratings—or modules located on different roof azimuths (e.g. 6 panels facing East and 6 facing South)—into the same series string creates devastating mismatch losses. Per Kirchhoff's laws, identical current must flow through every module in a series string; the single lowest-performing or shaded module chokes the output of all other panels down to its reduced current level, wasting 20% to 35% of total system generation.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Forgetting the 156% Conductor &amp; Fuse Sizing Rule</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Under NEC 690.8(A)(1), maximum circuit current must be calculated as 125% of the module's rated short-circuit current (to account for enhanced irradiance and cloud-edge lens effects). Then, under NEC 690.8(B)(1), the overcurrent protection and branch conductors must be sized for an additional 125% continuous duty factor. Conductor ampacity must therefore satisfy \( 1.25 \times 1.25 = 1.5625 \times I_{sc} \) (156.25%) before conduit ambient temperature deratings are applied.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const MODULE_PRESETS = {
+        'res400': { voc: 37.2, vmp: 31.2, aVoc: -0.27, aPmp: -0.35 },
+        'com550': { voc: 49.8, vmp: 41.9, aVoc: -0.26, aPmp: -0.34 },
+        'high430': { voc: 43.1, vmp: 36.5, aVoc: -0.25, aPmp: -0.30 },
+        'old300': { voc: 39.8, vmp: 32.6, aVoc: -0.31, aPmp: -0.41 }
+      };
+
+      const selPreset = document.getElementById('pvModulePreset');
+      const inVoc = document.getElementById('pvVoc');
+      const inVmp = document.getElementById('pvVmp');
+      const inCoeffVoc = document.getElementById('tempCoeffVoc');
+      const inCoeffPmp = document.getElementById('tempCoeffPmp');
+      const inWinterMin = document.getElementById('tempWinterMin');
+      const inSummerMax = document.getElementById('tempSummerMax');
+      const selMount = document.getElementById('mountType');
+      const selInverterV = document.getElementById('inverterMaxV');
+      const inMpptMin = document.getElementById('mpptMinV');
+      const inMpptMax = document.getElementById('mpptMaxV');
+
+      function applyPreset() {
+        const p = MODULE_PRESETS[selPreset.value];
+        if (p) {
+          inVoc.value = p.voc;
+          inVmp.value = p.vmp;
+          inCoeffVoc.value = p.aVoc;
+          inCoeffPmp.value = p.aPmp;
+        }
+      }
+
+      function calcString() {
+        const vocStc = parseFloat(inVoc.value) || 37.2;
+        const vmpStc = parseFloat(inVmp.value) || 31.2;
+        const aVoc = parseFloat(inCoeffVoc.value) || -0.27;
+        const aPmp = parseFloat(inCoeffPmp.value) || -0.35;
+        const tMin = parseFloat(inWinterMin.value) || -15;
+        const tMax = parseFloat(inSummerMax.value) || 38;
+        const mount = selMount.value;
+        const vMaxInv = parseFloat(selInverterV.value) || 600;
+        const vMpptMin = parseFloat(inMpptMin.value) || 120;
+        const vMpptMax = parseFloat(inMpptMax.value) || 480;
+
+        // Temperature rise above ambient for mounting
+        let deltaT = 30; // standard roof
+        if (mount === 'ground') deltaT = 20;
+        else if (mount === 'bapv') deltaT = 35;
+
+        // Cold weather Voc: Voc_cold = Voc_stc * [1 + (aVoc / 100) * (Tmin - 25)]
+        const coldVoc = vocStc * (1 + (aVoc / 100) * (tMin - 25));
+        const coldFactorPct = ((coldVoc - vocStc) / vocStc) * 100;
+
+        document.getElementById('resColdVoc').textContent = coldVoc.toFixed(2) + ' V';
+        document.getElementById('resColdFactor').textContent = (coldFactorPct >= 0 ? '+' : '') + coldFactorPct.toFixed(1) + '% Voltage Rise @ ' + tMin + '°C';
+
+        // Hot summer cell temp and Vmp:
+        // Tcell = Tmax + deltaT
+        const tCellHot = tMax + deltaT;
+        // Vmp_hot = Vmp_stc * [1 + (aPmp / 100) * (Tcell - 25)]
+        const hotVmp = vmpStc * (1 + (aPmp / 100) * (tCellHot - 25));
+        const hotFactorPct = ((hotVmp - vmpStc) / vmpStc) * 100;
+
+        document.getElementById('resHotVmp').textContent = hotVmp.toFixed(2) + ' V';
+        document.getElementById('resHotCell').textContent = hotFactorPct.toFixed(1) + '% Voltage Drop @ ' + Math.round(tCellHot) + '°C Cell';
+
+        // Max series modules based on inverter max DC voltage (NEC 690.7 limit)
+        const maxSeries = Math.floor(vMaxInv / coldVoc);
+
+        // Min series modules based on inverter min MPPT voltage
+        const minSeries = Math.ceil(vMpptMin / hotVmp);
+
+        // Max modules to stay inside MPPT max tracking range under STC Vmp
+        const maxMpptSeries = Math.floor(vMpptMax / vmpStc);
+
+        const safeMax = Math.min(maxSeries, maxMpptSeries > 0 ? maxMpptSeries : maxSeries);
+        const safeMin = Math.max(1, minSeries);
+
+        document.getElementById('resStringRange').textContent = safeMin + ' to ' + maxSeries;
+
+        let targetRange = Math.min(safeMax, Math.max(safeMin, Math.round(safeMax * 0.85)));
+        let targetLow = Math.max(safeMin, targetRange - 2);
+        document.getElementById('resTargetSeries').textContent = targetLow + ' to ' + targetRange + ' Modules';
+
+        // String voltage envelope at maxSeries
+        const curMaxCount = maxSeries;
+        const strMaxVoc = curMaxCount * coldVoc;
+        const strStcVmp = curMaxCount * vmpStc;
+        const strMinVmp = curMaxCount * hotVmp;
+
+        document.getElementById('resStringMaxVoc').textContent = strMaxVoc.toFixed(1) + ' V';
+        document.getElementById('resStringStcVmp').textContent = strStcVmp.toFixed(1) + ' V';
+        document.getElementById('resStringMinVmp').textContent = strMinVmp.toFixed(1) + ' V';
+
+        const badge = document.getElementById('badgeCompliance');
+        const resStat = document.getElementById('resStatusText');
+        const resAdv = document.getElementById('resStatusAdvice');
+
+        if (safeMin <= maxSeries && strMaxVoc <= vMaxInv) {
+          badge.style.background = '#10b981';
+          badge.textContent = 'NEC 690.7 PASS';
+          resStat.textContent = 'SAFE MPPT VOLTAGE WINDOW';
+          resStat.style.color = '#10b981';
+          resAdv.textContent = 'String configuration of ' + targetLow + ' to ' + targetRange + ' modules complies with NEC 690.7 cold voltage limits while remaining centered in the inverter MPPT tracking band.';
+        } else {
+          badge.style.background = '#ef4444';
+          badge.textContent = 'WINDOW CONFLICT';
+          resStat.textContent = 'VOLTAGE WINDOW MISMATCH';
+          resStat.style.color = '#ef4444';
+          resAdv.textContent = 'Minimum string count exceeds maximum allowable series limit for this inverter voltage class. Choose an inverter with wider MPPT range.';
+        }
+
+        // Draw Interactive SVG
+        drawSolarSvg(safeMin, maxSeries, targetRange, coldVoc, hotVmp, vMaxInv, vMpptMin, vMpptMax, strMaxVoc, strMinVmp);
+      }
+
+      function drawSolarSvg(minMod, maxMod, targetMod, coldVoc, hotVmp, vMax, mpptMin, mpptMax, strMaxVoc, strMinVmp) {
+        const container = document.getElementById('solarSvgContainer');
+        const w = 720;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Dark background card
+        s += '<rect x="10" y="10" width="700" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // LEFT: Solar String Physical Schematic
+        s += '<g transform="translate(25, 30)">';
+        s += '<rect x="0" y="0" width="375" height="350" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="15" y="26" fill="#f8fafc" font-size="13" font-weight="700">Photovoltaic Series String Schematic</text>';
+
+        // Draw 6 sample PV panels connected in series
+        const pCols = 3;
+        const pRows = 2;
+        const pw = 85;
+        const ph = 50;
+        const gapX = 25;
+        const gapY = 35;
+        const startX = 25;
+        const startY = 48;
+
+        for (let r = 0; r < pRows; r++) {
+          for (let c = 0; c < pCols; c++) {
+            const px = startX + c * (pw + gapX);
+            const py = startY + r * (ph + gapY);
+            const pNum = r * pCols + c + 1;
+
+            // Solar module frame
+            s += '<rect x="' + px + '" y="' + py + '" width="' + pw + '" height="' + ph + '" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5"/>';
+            // Grid lines on panel
+            s += '<line x1="' + (px + pw * 0.33) + '" y1="' + py + '" x2="' + (px + pw * 0.33) + '" y2="' + (py + ph) + '" stroke="rgba(255,255,255,0.2)"/>';
+            s += '<line x1="' + (px + pw * 0.66) + '" y1="' + py + '" x2="' + (px + pw * 0.66) + '" y2="' + (py + ph) + '" stroke="rgba(255,255,255,0.2)"/>';
+            s += '<line x1="' + px + '" y1="' + (py + ph * 0.5) + '" x2="' + (px + pw) + '" y2="' + (py + ph * 0.5) + '" stroke="rgba(255,255,255,0.2)"/>';
+
+            s += '<text x="' + (px + pw / 2) + '" y="' + (py + ph / 2 + 4) + '" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="700">MOD #' + pNum + '</text>';
+
+            // Series jumper lines
+            if (c < pCols - 1 && r === 0) {
+              s += '<path d="M ' + (px + pw) + ' ' + (py + ph / 2) + ' L ' + (px + pw + gapX) + ' ' + (py + ph / 2) + '" stroke="#f59e0b" stroke-width="2.5"/>';
+            }
+          }
+        }
+
+        // Row 1 to Row 2 series crossover wire
+        s += '<path d="M 330 73 L 345 73 L 345 158 L 330 158" fill="none" stroke="#f59e0b" stroke-width="2.5"/>';
+        // Row 2 series interconnections
+        s += '<path d="M 220 158 L 195 158" stroke="#f59e0b" stroke-width="2.5"/>';
+        s += '<path d="M 110 158 L 85 158" stroke="#f59e0b" stroke-width="2.5"/>';
+
+        // DC Disconnect & Combiner box
+        s += '<rect x="25" y="240" width="140" height="85" rx="6" fill="#1e293b" stroke="#e2e8f0" stroke-width="1.5"/>';
+        s += '<text x="95" y="265" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="700">DC DISCONNECT</text>';
+        s += '<line x1="45" y1="285" x2="145" y2="285" stroke="#ef4444" stroke-width="3"/>';
+        s += '<circle cx="65" cy="285" r="4" fill="#ffffff"/>';
+        s += '<circle cx="125" cy="285" r="4" fill="#ffffff"/>';
+        s += '<text x="95" y="310" text-anchor="middle" fill="#94a3b8" font-size="9">NEC 690.13 Compliant</text>';
+
+        // String wires down to disconnect
+        s += '<path d="M 25 73 L 12 73 L 12 285 L 25 285" fill="none" stroke="#ef4444" stroke-width="2.5"/>';
+        s += '<path d="M 25 158 L 18 158 L 18 295 L 25 295" fill="none" stroke="#000000" stroke-width="2.5"/>';
+
+        // Wire to inverter
+        s += '<path d="M 165 285 L 375 285" stroke="#f59e0b" stroke-width="3" stroke-dasharray="4,3"/>';
+        s += '<text x="270" y="278" text-anchor="middle" fill="#f59e0b" font-size="9" font-weight="600">DC STRING HOMERUN</text>';
+
+        s += '</g>';
+
+        // RIGHT: Inverter MPPT Voltage Bar Gauge
+        const gx = 425;
+        const gy = 30;
+        const gw = 270;
+        const gh = 350;
+
+        s += '<g transform="translate(' + gx + ', ' + gy + ')">';
+        s += '<rect x="0" y="0" width="' + gw + '" height="' + gh + '" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="15" y="26" fill="#f8fafc" font-size="13" font-weight="700">Inverter MPPT Voltage Window</text>';
+
+        // Vertical Bar Gauge Background
+        const barX = 45;
+        const barY = 50;
+        const barW = 35;
+        const barH = 260;
+
+        // Scale: 0V at barY + barH (bottom) to vMax * 1.1 at barY (top)
+        const vScaleMax = vMax * 1.08;
+        function vToY(v) {
+          return barY + barH - (Math.min(vScaleMax, Math.max(0, v)) / vScaleMax) * barH;
+        }
+
+        // Full bar back
+        s += '<rect x="' + barX + '" y="' + barY + '" width="' + barW + '" height="' + barH + '" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>';
+
+        // MPPT Active Green Window
+        const yMpptMin = vToY(mpptMin);
+        const yMpptMax = vToY(mpptMax);
+        const mpptH = yMpptMin - yMpptMax;
+        s += '<rect x="' + barX + '" y="' + yMpptMax + '" width="' + barW + '" height="' + mpptH + '" fill="rgba(16, 185, 129, 0.3)" stroke="#10b981" stroke-width="1.5"/>';
+
+        // Inverter Max Limit Red Line
+        const yMax = vToY(vMax);
+        s += '<line x1="' + (barX - 8) + '" y1="' + yMax + '" x2="' + (barX + barW + 8) + '" y2="' + yMax + '" stroke="#ef4444" stroke-width="2.5"/>';
+        s += '<text x="' + (barX + barW + 14) + '" y="' + (yMax + 4) + '" fill="#ef4444" font-size="10" font-weight="700">' + vMax + 'V MAX</text>';
+
+        // MPPT Max Line
+        s += '<line x1="' + barX + '" y1="' + yMpptMax + '" x2="' + (barX + barW) + '" y2="' + yMpptMax + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="2,2"/>';
+        s += '<text x="' + (barX + barW + 14) + '" y="' + (yMpptMax + 4) + '" fill="#10b981" font-size="9">' + mpptMax + 'V (MPPT Max)</text>';
+
+        // MPPT Min Line
+        s += '<line x1="' + barX + '" y1="' + yMpptMin + '" x2="' + (barX + barW) + '" y2="' + yMpptMin + '" stroke="#10b981" stroke-width="1.5" stroke-dasharray="2,2"/>';
+        s += '<text x="' + (barX + barW + 14) + '" y="' + (yMpptMin + 4) + '" fill="#10b981" font-size="9">' + mpptMin + 'V (MPPT Min)</text>';
+
+        // Live Operating Points (Pointers on the left of bar)
+        // Cold Voc Pointer (Blue)
+        const yColdVoc = vToY(strMaxVoc);
+        s += '<polygon points="' + (barX - 2) + ',' + yColdVoc + ' ' + (barX - 10) + ',' + (yColdVoc - 5) + ' ' + (barX - 10) + ',' + (yColdVoc + 5) + '" fill="#3b82f6"/>';
+        s += '<text x="' + (barX - 14) + '" y="' + (yColdVoc + 4) + '" text-anchor="end" fill="#3b82f6" font-size="9" font-weight="700">' + Math.round(strMaxVoc) + 'V Voc (Cold)</text>';
+
+        // Hot Vmp Pointer (Amber)
+        const yHotVmp = vToY(strMinVmp);
+        s += '<polygon points="' + (barX - 2) + ',' + yHotVmp + ' ' + (barX - 10) + ',' + (yHotVmp - 5) + ' ' + (barX - 10) + ',' + (yHotVmp + 5) + '" fill="#f59e0b"/>';
+        s += '<text x="' + (barX - 14) + '" y="' + (yHotVmp + 4) + '" text-anchor="end" fill="#f59e0b" font-size="9" font-weight="700">' + Math.round(strMinVmp) + 'V Vmp (Hot)</text>';
+
+        // Bottom Legend Card inside Right Pane
+        s += '<rect x="15" y="318" width="' + (gw - 30) + '" height="24" rx="4" fill="#1e293b"/>';
+        s += '<text x="' + (gw / 2) + '" y="334" text-anchor="middle" fill="#94a3b8" font-size="9">Target String: ' + targetMod + ' Modules (' + minMod + '-' + maxMod + ' Range)</text>';
+
+        s += '</g>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const preset = selPreset.options[selPreset.selectedIndex].text;
+        const voc = inVoc.value;
+        const vmp = inVmp.value;
+        const aVoc = inCoeffVoc.value;
+        const tMin = inWinterMin.value;
+        const tMax = inSummerMax.value;
+        const mount = selMount.options[selMount.selectedIndex].text;
+        const invV = selInverterV.value;
+        const mpptMin = inMpptMin.value;
+        const mpptMax = inMpptMax.value;
+
+        const range = document.getElementById('resStringRange').textContent;
+        const target = document.getElementById('resTargetSeries').textContent;
+        const cVoc = document.getElementById('resColdVoc').textContent;
+        const hVmp = document.getElementById('resHotVmp').textContent;
+        const strVoc = document.getElementById('resStringMaxVoc').textContent;
+        const strVmp = document.getElementById('resStringMinVmp').textContent;
+        const stat = document.getElementById('resStatusText').textContent;
+
+        const summary = [
+          '=== SOLAR PV STRING SIZING REPORT (NEC 690.7) ===',
+          'Module Specification: ' + preset,
+          'STC Ratings: ' + voc + 'V Voc | ' + vmp + 'V Vmp | Temp Coeff: ' + aVoc + '%/°C',
+          'Climatic Design: Min ' + tMin + '°C Winter Low | Max ' + tMax + '°C Summer Ambient',
+          'Mounting Architecture: ' + mount,
+          'Inverter Limits: ' + invV + 'V Max DC | ' + mpptMin + 'V to ' + mpptMax + 'V MPPT Window',
+          '',
+          '--- SERIES STRING SIZING RESULTS ---',
+          'Allowable Series Range: ' + range + ' Modules per String',
+          'Recommended Optimal Target: ' + target,
+          'Individual Module Cold Voc: ' + cVoc + ' (at ' + tMin + '°C)',
+          'Individual Module Hot Vmp: ' + hVmp + ' (at Hot Cell Temp)',
+          '',
+          '--- WORST-CASE STRING VOLTAGE ENVELOPE ---',
+          'Max Cold String Voc: ' + strVoc + ' [Limit: < ' + invV + 'V]',
+          'Min Hot String Vmp: ' + strVmp + ' [Limit: > ' + mpptMin + 'V]',
+          'NEC Compliance Status: ' + stat,
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/solar-pv-string-sizing-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy String Sizing Schedule';
+          }, 2500);
+        });
+      });
+
+      selPreset.addEventListener('change', function() {
+        applyPreset();
+        calcString();
+      });
+      inVoc.addEventListener('input', calcString);
+      inVmp.addEventListener('input', calcString);
+      inCoeffVoc.addEventListener('input', calcString);
+      inCoeffPmp.addEventListener('input', calcString);
+      inWinterMin.addEventListener('input', calcString);
+      inSummerMax.addEventListener('input', calcString);
+      selMount.addEventListener('change', calcString);
+      selInverterV.addEventListener('change', calcString);
+      inMpptMin.addEventListener('input', calcString);
+      inMpptMax.addEventListener('input', calcString);
+
+      applyPreset();
+      calcString();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'solar-pv-string-sizing-calculator.html'), renderTradePage({
+    title: "Solar String Sizing Calculator: NEC 690.7 Cold Voc & MPPT Window | Digital Tools Shed",
+    metaDesc: "Calculate series solar string sizing per NEC 690.7: adjust open-circuit voltage for extreme winter cold, check summer operating Vmp, and clamp to inverter MPPT voltage limits.",
+    canonical: `${DOMAIN}/calc/solar-pv-string-sizing-calculator`,
+    bodyContent: solarStringSizingBody,
+    currentPath: '/calc/solar-pv-string-sizing-calculator',
+    faq: [
+      {
+        "q": "Why is cold weather temperature correction mandatory for solar string sizing?",
+        "a": "Photovoltaic cells produce higher voltage as temperatures decrease. Under NEC 690.7, installers must calculate string open-circuit voltage based on the lowest expected ambient temperature. Sizing strings without this correction causes winter morning voltage to surge past the inverter's maximum DC rating, destroying input circuitry."
+      },
+      {
+        "q": "What is the maximum DC voltage allowed for residential solar systems?",
+        "a": "Under National Electrical Code Article 690.7, photovoltaic source circuits on one- and two-family dwellings are limited to a maximum system voltage of 600 Volts DC. Commercial and ground-mount arrays commonly operate at 1,000V or 1,500V DC."
+      },
+      {
+        "q": "What happens if a solar string voltage falls below the inverter MPPT minimum?",
+        "a": "If high summer roof temperatures cause string voltage to drop below the inverter's minimum MPPT window threshold (e.g. 120V), the inverter loses the ability to dynamically optimize power, leading to severe power curtailment or complete system shutdown during peak midday sun."
+      },
+      {
+        "q": "How much hotter do solar cells get compared to ambient air on a roof?",
+        "a": "On flush-mounted rooftop racking with restricted airflow, dark solar panels absorb radiant energy and typically operate 25°C to 35°C (45°F to 63°F) hotter than ambient air. A 35°C (95°F) summer day results in cell temperatures of 65°C to 70°C (150°F to 158°F)."
+      },
+      {
+        "q": "What is the NEC 156% rule for solar wiring and overcurrent protection?",
+        "a": "NEC 690.8 requires multiplying module short-circuit current (Isc) by 125% for peak irradiance enhancement, and by another 125% for continuous duty overcurrent protection: 1.25 * 1.25 = 1.5625 (156.25%). Conductor ampacity and fuses must handle at least 156% of rated Isc."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // REFRIGERANT RECOVERY CYLINDER 80% MAX FILL & TARE WEIGHT CALCULATOR (EPA 608 / DOT 4BA)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const refrigerantRecoveryBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Refrigerant Recovery Cylinder Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Refrigerant Recovery Cylinder 80% Max Fill &amp; Scale Cutoff Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Calculate safe maximum gross fill weight and digital scale cutoff targets per EPA Section 608, DOT 49 CFR &sect; 173.304, and ARI Guideline K. Prevent hydraulic expansion ruptures across R-410A, R-22, R-134a, R-454B, and R-32 recovery tanks.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M10 2v4"/><path d="M14 2v4"/><line x1="4" y1="10" x2="20" y2="10"/></svg>
+        Recovery Cylinder &amp; Gas Specifications
+      </h2>
+
+      <div style="margin-bottom:1.25rem;">
+        <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tankPreset">Cylinder Size Preset (DOT 4BA)</label>
+        <select id="tankPreset" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+          <option value="custom">Custom Stamped Values</option>
+          <option value="tank30" selected>Standard 30 lb Tank (WC: 26.2 lbs, TW: 16.5 lbs)</option>
+          <option value="tank50">Standard 50 lb Tank (WC: 47.7 lbs, TW: 28.5 lbs)</option>
+          <option value="tank100">Standard 100 lb Tank (WC: 95.4 lbs, TW: 52.0 lbs)</option>
+        </select>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="waterCapacity">Water Capacity (WC in lbs)</label>
+          <input type="number" id="waterCapacity" value="26.2" min="5" max="250" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Stamped "WC" on tank collar</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="tareWeight">Tare Weight (TW in lbs)</label>
+          <input type="number" id="tareWeight" value="16.5" min="5" max="150" step="0.1" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Stamped "TW" (Empty tank weight)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="refrigerantType">Refrigerant Designation</label>
+          <select id="refrigerantType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="r410a" selected>R-410A (Puron / HFC Blend)</option>
+            <option value="r22">R-22 (Freon / HCFC)</option>
+            <option value="r134a">R-134a (Automotive &amp; Chiller)</option>
+            <option value="r404a">R-404A (Commercial Low Temp)</option>
+            <option value="r407c">R-407C (R-22 Retrofit)</option>
+            <option value="r454b">R-454B (Opteon XL41 / A2L)</option>
+            <option value="r32">R-32 (Pure A2L)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="ambientDesignTemp">Design Temperature Standard</label>
+          <select id="ambientDesignTemp" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="130" selected>130&deg;F / 54.4&deg;C (DOT / ARI Standard)</option>
+            <option value="120">120&deg;F / 48.9&deg;C (Moderate Climate)</option>
+            <option value="140">140&deg;F / 60.0&deg;C (Extreme Hot Van Roof)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Liquid Specific Gravity: <strong id="lblSpecGravity" style="color:var(--fg);">0.958 @ 130&deg;F</strong></div>
+          <div>Liquid Density: <strong id="lblDensity" style="color:var(--fg);">59.78 lb/cu ft</strong></div>
+          <div>DOT Tank Specification: <strong style="color:var(--fg);">DOT 4BA / 4BW</strong></div>
+          <div>Pressure Relief Setting: <strong id="lblPrvSetting" style="color:var(--fg);">600 PSIG (R-410A)</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Max Scale Cutoff Weight (Gross)</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resMaxGross">36.58</span> <span style="font-size:1.25rem;font-weight:500;">lbs</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              <span id="resMaxGrossKg">16.59</span> kg &nbsp;|&nbsp; Stop Scale Target: <strong id="resStopTarget" style="color:var(--fg);">36.5 lbs</strong>
+            </div>
+          </div>
+          <span id="badgeCompliance" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">80% DOT SAFE</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Max Net Refrigerant Fill</span>
+            <span id="resMaxNet" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">20.08 lbs</span>
+            <span id="resMaxNetKg" style="font-size:0.75rem;color:var(--text-muted);display:block;">9.11 kg Maximum Liquid</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Vapor Headspace Safety Cushion</span>
+            <span id="resHeadspace" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:#10b981;">20.0% Cushion</span>
+            <span style="font-size:0.75rem;color:var(--text-muted);display:block;">Prevents Hydrostatic Rupture</span>
+          </div>
+        </div>
+
+        <!-- REFRIGERANT WARNING CALLOUT -->
+        <div id="boxWarning" style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.25rem;">
+            <span style="color:#f59e0b;font-weight:700;font-size:0.9rem;">⚠️ CRITICAL REFRIGERANT NOTICE:</span>
+          </div>
+          <div id="lblWarningText" style="font-size:0.8rem;color:var(--text);line-height:1.5;">
+            Never put 30 lbs of refrigerant in a "30 lb" tank. A 30 lb tank only holds 26.2 lbs of water; with R-410A liquid density, the maximum legal and safe net fill is only <strong>20.08 lbs</strong>! Exceeding this fill weight risks explosive cylinder failure in hot vehicles.
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">Digital Scale Procedure:</span>
+            <strong style="font-family:var(--mono);color:var(--primary);">TARE OR AUTO-SHUTOFF</strong>
+          </div>
+          <div style="color:var(--text-muted);font-size:0.75rem;">Set recovery machine automatic scale shutoff to <strong id="resShutoffLbs" style="color:var(--fg);">36.5 lbs</strong>. If taring the scale with empty tank, stop recovery at exactly <strong id="resNetShutoffLbs" style="color:var(--fg);">20.0 lbs</strong>.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy DOT Recovery Scale Target</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE SECTIONAL CUTAWAY RECOVERY CYLINDER SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Interactive DOT 4BA Cylinder Cutaway &amp; Scale Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live cutaway visualization of ARI Guideline N recovery cylinder (yellow top / gray body) showing safe 80% liquid level, 20% vapor expansion buffer, dual vapor/liquid valves, dip tube, and live digital scale readout.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="tankSvgContainer" style="width:100%;max-width:680px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: The 80% Liquid Fill Equation</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        Compressed gases and liquefied refrigerants are classified as hazardous materials under Title 49 of the US Code of Federal Regulations (DOT 49 CFR &sect; 173.304). Liquefied gases expand dramatically with increasing temperature. To ensure that cylinders never become 100% liquid-full (hydrostatically locked) under thermal exposure in hot vehicles, federal law and <strong>ARI Guideline K</strong> mandate that recovery cylinders be filled to a maximum of <strong>80% of their water capacity</strong> at a reference temperature of 130&deg;F (54.4&deg;C).
+      </p>
+      <p>
+        The governing maximum net fill weight formula is defined as:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        W<sub>max(net)</sub> = 0.80 &times; WC &times; SG &nbsp;&nbsp;[lbs]
+      </div>
+      <p>Where:</p>
+      <ul style="padding-left:1.5rem;margin-bottom:1rem;">
+        <li><strong>WC</strong> = Water Capacity (lbs of water the cylinder holds at 60&deg;F), permanently stamped on the cylinder handle collar.</li>
+        <li><strong>SG</strong> = Specific Gravity of the liquid refrigerant at reference temperature (130&deg;F / 54.4&deg;C), defined as \( \rho_{refrigerant} / \rho_{water} \), where water density is 62.4 lb/cu ft.</li>
+        <li><strong>0.80</strong> = 80% liquid volume limit, ensuring a 20% compressible vapor headspace cushion.</li>
+      </ul>
+      <p>
+        The digital charging/recovery scale measures total combined weight. The maximum gross scale cutoff target is calculated by adding the stamped cylinder Tare Weight (TW):
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        W<sub>max(gross)</sub> = W<sub>max(net)</sub> + TW = [ 0.80 &times; WC &times; SG ] + TW &nbsp;&nbsp;[lbs]
+      </div>
+      <p>
+        If a cylinder is overfilled past 80% at 70&deg;F and subsequently heated to 130&deg;F inside an unventilated van, the thermal expansion of the liquid consumes the entire vapor pocket. Once liquid-full, further temperature rise creates <strong>hydraulic pressure spikes of 50 to 100 PSI per degree Fahrenheit</strong>, generating pressures exceeding 1,500 PSI within minutes and causing catastrophic cylinder wall fragmentation or sudden relief burst.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & EPA 608 PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Refrigerant Recovery</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: The "Nominal 50 lb Tank" Overfilling Disaster</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          HVAC technicians routinely assume a "50 lb recovery tank" can safely hold 50 lbs of refrigerant. This is dangerously false. A nominal 50 lb cylinder has a stamped water capacity of only 47.7 lbs. When recovering R-410A (SG = 0.958 at 130&deg;F), the maximum legal net fill is only <strong>36.56 lbs</strong>! Pumping 50 lbs of R-410A into a 50 lb tank overfills it to 109% of its safe volume, creating a lethal bomb waiting to explode on the next hot summer day.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: Hot Service Van Hydraulic Explosion</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Parking an enclosed service van in direct sunlight with outdoor temperatures at 95&deg;F can cause interior vehicle temperatures to exceed 140&deg;F to 150&deg;F within two hours. If an overfilled recovery tank with an exhausted vapor headspace reaches this temperature, hydraulic liquid pressure forces open the internal relief valve (or ruptures the spring-loaded burst disc), discharging dozens of pounds of toxic, asphyxiating gas into the van compartment.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: Mixing Refrigerants (Cross-Contamination Financial Penalty)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Recovering even 0.5 lbs of R-410A into a cylinder already containing R-22 cross-contaminates the tank into an inseparable mixed blend. EPA reclamation facilities cannot separate mixed refrigerants via standard distillation. Instead of receiving financial credit for the reclaimed R-22, the technician is penalized with a hazardous chemical thermal destruction disposal invoice costing <strong>$1,500 to $3,000</strong> per tank.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Recovering A2L Flammables into Legacy Cylinders</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          With the EPA transition to low-GWP refrigerants like R-454B and R-32 (ASHRAE Class A2L mildly flammable), technicians cannot use standard legacy recovery cylinders. A2L refrigerants legally mandate DOT cylinders equipped with <strong>left-hand reverse threads</strong> and pressure relief devices certified for flammable refrigerants to prevent accidental connection to standard manifold gauges or non-spark-proof vacuum pumps.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Transporting Expired 5-Year Hydro-Stamped Cylinders</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Under DOT 49 CFR regulations, DOT 4BA and 4BW recovery cylinders must undergo professional hydrostatic pressure testing and visual requalification every <strong>5 years</strong> from their stamped manufacture date. Transporting filled recovery cylinders with expired hydro stamps on public roads is a federal HazMat violation carrying civil penalties exceeding $75,000 per occurrence. Always verify collar date stamps before filling.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Specific Gravity and Density data at design temperatures
+      // [SG_130F, SG_120F, SG_140F, density_130, prvRating]
+      const REF_DATA = {
+        'r410a': [0.958, 1.012, 0.895, 59.78, 600],
+        'r22': [1.107, 1.135, 1.076, 69.08, 350],
+        'r134a': [1.087, 1.118, 1.054, 67.83, 350],
+        'r404a': [0.923, 0.981, 0.855, 57.60, 600],
+        'r407c': [1.061, 1.096, 1.022, 66.21, 600],
+        'r454b': [0.910, 0.965, 0.848, 56.78, 600],
+        'r32': [0.888, 0.942, 0.825, 55.41, 600]
+      };
+
+      const TANK_PRESETS = {
+        'tank30': { wc: 26.2, tw: 16.5 },
+        'tank50': { wc: 47.7, tw: 28.5 },
+        'tank100': { wc: 95.4, tw: 52.0 }
+      };
+
+      const selPreset = document.getElementById('tankPreset');
+      const inWc = document.getElementById('waterCapacity');
+      const inTw = document.getElementById('tareWeight');
+      const selRef = document.getElementById('refrigerantType');
+      const selTemp = document.getElementById('ambientDesignTemp');
+
+      function applyTankPreset() {
+        const p = TANK_PRESETS[selPreset.value];
+        if (p) {
+          inWc.value = p.wc;
+          inTw.value = p.tw;
+        }
+      }
+
+      function calcRecovery() {
+        const wc = parseFloat(inWc.value) || 26.2;
+        const tw = parseFloat(inTw.value) || 16.5;
+        const ref = selRef.value;
+        const refData = REF_DATA[ref] || REF_DATA['r410a'];
+        const temp = selTemp.value;
+
+        let sg = refData[0]; // 130F default
+        if (temp === '120') sg = refData[1];
+        else if (temp === '140') sg = refData[2];
+
+        const density = refData[3];
+        const prv = refData[4];
+
+        document.getElementById('lblSpecGravity').textContent = sg.toFixed(3) + ' @ ' + temp + '°F';
+        document.getElementById('lblDensity').textContent = density.toFixed(2) + ' lb/cu ft';
+        document.getElementById('lblPrvSetting').textContent = prv + ' PSIG (' + selRef.options[selRef.selectedIndex].text.split(' ')[0] + ')';
+
+        // 80% rule: Wmax_net = 0.80 * WC * SG
+        const maxNetLbs = 0.80 * wc * sg;
+        const maxNetKg = maxNetLbs * 0.453592;
+
+        // Gross scale cutoff: Wmax_gross = Wmax_net + TW
+        const maxGrossLbs = maxNetLbs + tw;
+        const maxGrossKg = maxGrossLbs * 0.453592;
+
+        document.getElementById('resMaxNet').textContent = maxNetLbs.toFixed(2) + ' lbs';
+        document.getElementById('resMaxNetKg').textContent = maxNetKg.toFixed(2) + ' kg Maximum Liquid';
+
+        document.getElementById('resMaxGross').textContent = maxGrossLbs.toFixed(2);
+        document.getElementById('resMaxGrossKg').textContent = maxGrossKg.toFixed(2);
+        document.getElementById('resStopTarget').textContent = maxGrossLbs.toFixed(1) + ' lbs';
+
+        document.getElementById('resShutoffLbs').textContent = maxGrossLbs.toFixed(1) + ' lbs';
+        document.getElementById('resNetShutoffLbs').textContent = maxNetLbs.toFixed(1) + ' lbs';
+
+        // Warning Text Update
+        const nomName = wc < 35 ? '30 lb' : (wc < 70 ? '50 lb' : '100 lb');
+        document.getElementById('lblWarningText').innerHTML = 'Never put ' + nomName + ' of refrigerant in a "' + nomName + '" tank. Stamped water capacity is only ' + wc.toFixed(1) + ' lbs. With ' + selRef.options[selRef.selectedIndex].text.split(' ')[0] + ' liquid density, the maximum safe and legal net fill is exactly <strong>' + maxNetLbs.toFixed(2) + ' lbs</strong> (Scale Gross: <strong>' + maxGrossLbs.toFixed(2) + ' lbs</strong>).';
+
+        // Draw Interactive SVG
+        drawTankSvg(wc, tw, maxNetLbs, maxGrossLbs, ref, temp);
+      }
+
+      function drawTankSvg(wc, tw, netLbs, grossLbs, ref, temp) {
+        const container = document.getElementById('tankSvgContainer');
+        const w = 680;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Dark background
+        s += '<rect x="10" y="10" width="660" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // DIGITAL SCALE PLATFORM (Bottom)
+        const scaleX = 80;
+        const scaleY = 320;
+        const scaleW = 280;
+        const scaleH = 65;
+
+        s += '<rect x="' + scaleX + '" y="' + scaleY + '" width="' + scaleW + '" height="' + scaleH + '" rx="8" fill="#0f172a" stroke="#64748b" stroke-width="2"/>';
+        // Digital LCD Display on Scale
+        s += '<rect x="' + (scaleX + 50) + '" y="' + (scaleY + 16) + '" width="180" height="34" rx="4" fill="#022c22" stroke="#059669" stroke-width="1.5"/>';
+        s += '<text x="' + (scaleX + 140) + '" y="' + (scaleY + 40) + '" text-anchor="middle" fill="#34d399" font-size="20" font-weight="700" font-family="monospace">' + grossLbs.toFixed(2) + ' LBS</text>';
+        s += '<text x="' + (scaleX + 140) + '" y="' + (scaleY + 58) + '" text-anchor="middle" fill="#94a3b8" font-size="8">DIGITAL REFRIGERANT CHARGING SCALE</text>';
+
+        // RECOVERY CYLINDER BODY (Yellow Top Collar / Gray Body - ARI Standard)
+        const tankCx = scaleX + scaleW / 2; // 220
+        const tankW = 160;
+        const tankH = 210;
+        const tankTopY = 95;
+
+        // Gray Cylindrical Body (lower 70%)
+        s += '<rect x="' + (tankCx - tankW / 2) + '" y="' + (tankTopY + 50) + '" width="' + tankW + '" height="' + (tankH - 50) + '" rx="18" fill="#475569" stroke="#64748b" stroke-width="2"/>';
+
+        // Yellow Shoulder / Dome (ARI Guideline N color standard)
+        s += '<path d="M ' + (tankCx - tankW / 2) + ' ' + (tankTopY + 50) + ' Q ' + tankCx + ' ' + (tankTopY - 5) + ' ' + (tankCx + tankW / 2) + ' ' + (tankTopY + 50) + ' Z" fill="#eab308" stroke="#ca8a04" stroke-width="2"/>';
+
+        // Tank Collar Guard & Handle
+        s += '<path d="M ' + (tankCx - 55) + ' ' + (tankTopY + 10) + ' L ' + (tankCx - 55) + ' ' + (tankTopY - 35) + ' Q ' + tankCx + ' ' + (tankTopY - 45) + ' ' + (tankCx + 55) + ' ' + (tankTopY - 35) + ' L ' + (tankCx + 55) + ' ' + (tankTopY + 10) + '" fill="none" stroke="#eab308" stroke-width="8"/>';
+
+        // DUAL Y-VALVE on Top
+        // Blue Vapor Valve (Left)
+        s += '<circle cx="' + (tankCx - 25) + '" cy="' + (tankTopY - 18) + '" r="10" fill="#3b82f6" stroke="#ffffff" stroke-width="1.5"/>';
+        s += '<text x="' + (tankCx - 25) + '" y="' + (tankTopY - 14) + '" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">VAP</text>';
+
+        // Red Liquid Valve (Right) with Dip Tube
+        s += '<circle cx="' + (tankCx + 25) + '" cy="' + (tankTopY - 18) + '" r="10" fill="#ef4444" stroke="#ffffff" stroke-width="1.5"/>';
+        s += '<text x="' + (tankCx + 25) + '" y="' + (tankTopY - 14) + '" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">LIQ</text>';
+
+        // Dip Tube inside tank
+        s += '<line x1="' + (tankCx + 25) + '" y1="' + (tankTopY + 5) + '" x2="' + (tankCx + 25) + '" y2="' + (tankTopY + tankH - 15) + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,3"/>';
+
+        // Cutaway Window in Cylinder to show Liquid Level
+        const cutX = tankCx - 60;
+        const cutY = tankTopY + 30;
+        const cutW = 120;
+        const cutH = 165;
+
+        s += '<rect x="' + cutX + '" y="' + cutY + '" width="' + cutW + '" height="' + cutH + '" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>';
+
+        // Safe 80% Fill Level
+        // CutH is 165. 80% liquid is 132px from bottom.
+        const liquidH = cutH * 0.80; // 132
+        const liquidY = cutY + cutH - liquidH; // cutY + 33
+
+        // Liquid Pool (Green/Teal Safe Zone)
+        s += '<rect x="' + cutX + '" y="' + liquidY + '" width="' + cutW + '" height="' + liquidH + '" fill="rgba(16, 185, 129, 0.45)" stroke="#10b981" stroke-width="1"/>';
+        s += '<text x="' + tankCx + '" y="' + (liquidY + liquidH / 2 + 4) + '" text-anchor="middle" fill="#34d399" font-size="11" font-weight="700">80% LIQUID FILL</text>';
+        s += '<text x="' + tankCx + '" y="' + (liquidY + liquidH / 2 + 18) + '" text-anchor="middle" fill="#e2e8f0" font-size="9">' + netLbs.toFixed(1) + ' lbs Max Net</text>';
+
+        // 20% Vapor Cushion Headspace
+        s += '<rect x="' + cutX + '" y="' + cutY + '" width="' + cutW + '" height="' + (cutH - liquidH) + '" fill="rgba(56, 189, 248, 0.2)"/>';
+        s += '<text x="' + tankCx + '" y="' + (cutY + 20) + '" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="600">20% VAPOR CUSHION</text>';
+
+        // Stamped Stencil Labels on Tank
+        s += '<text x="' + (tankCx - 20) + '" y="' + (tankTopY + 225) + '" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="monospace">WC: ' + wc + ' LB</text>';
+        s += '<text x="' + (tankCx + 25) + '" y="' + (tankTopY + 225) + '" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="monospace">TW: ' + tw + ' LB</text>';
+
+        // RIGHT PANE: Engineering Legend & Check Protocol
+        const rx = 400;
+        const ry = 30;
+        const rw = 250;
+        const rh = 350;
+
+        s += '<g transform="translate(' + rx + ', ' + ry + ')">';
+        s += '<rect x="0" y="0" width="' + rw + '" height="' + rh + '" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="14" y="26" fill="#f8fafc" font-size="13" font-weight="700">DOT 4BA Safety Protocol</text>';
+
+        s += '<circle cx="22" cy="52" r="6" fill="#34d399"/>';
+        s += '<text x="36" y="56" fill="#cbd5e1" font-size="11">Max Gross Cutoff: <tspan fill="#34d399" font-weight="700">' + grossLbs.toFixed(1) + ' lbs</tspan></text>';
+
+        s += '<circle cx="22" cy="78" r="6" fill="#38bdf8"/>';
+        s += '<text x="36" y="82" fill="#cbd5e1" font-size="11">Max Net Refrigerant: <tspan fill="#38bdf8" font-weight="700">' + netLbs.toFixed(1) + ' lbs</tspan></text>';
+
+        s += '<circle cx="22" cy="104" r="6" fill="#94a3b8"/>';
+        s += '<text x="36" y="108" fill="#cbd5e1" font-size="11">Empty Tare (TW): <tspan fill="#f8fafc">' + tw + ' lbs</tspan></text>';
+
+        s += '<circle cx="22" cy="130" r="6" fill="#f59e0b"/>';
+        s += '<text x="36" y="134" fill="#cbd5e1" font-size="11">Water Capacity (WC): <tspan fill="#f8fafc">' + wc + ' lbs</tspan></text>';
+
+        s += '<line x1="14" y1="152" x2="236" y2="152" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="14" y="174" fill="#94a3b8" font-size="11" font-weight="600">LEGAL FILL FORMULA:</text>';
+        s += '<text x="14" y="196" fill="#f8fafc" font-size="10" font-family="monospace">Wmax = 0.80 &times; WC &times; SG</text>';
+        s += '<text x="14" y="214" fill="#94a3b8" font-size="9">DOT 49 CFR &sect; 173.304 Standard</text>';
+
+        s += '<line x1="14" y1="230" x2="236" y2="230" stroke="#334155" stroke-width="1"/>';
+
+        s += '<text x="14" y="252" fill="#ef4444" font-size="11" font-weight="700">⚠️ OVERFILL HAZARD:</text>';
+        s += '<text x="14" y="272" fill="#cbd5e1" font-size="9">Liquid expansion without vapor</text>';
+        s += '<text x="14" y="286" fill="#cbd5e1" font-size="9">cushion causes hydraulic burst</text>';
+        s += '<text x="14" y="300" fill="#cbd5e1" font-size="9">pressures &gt; 1,500 PSI in hot vans.</text>';
+
+        s += '<rect x="14" y="315" width="222" height="24" rx="4" fill="#1e293b"/>';
+        s += '<text x="125" y="331" text-anchor="middle" fill="#34d399" font-size="10" font-weight="700">SCALE TARGET: ' + grossLbs.toFixed(1) + ' LBS</text>';
+
+        s += '</g>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const preset = selPreset.options[selPreset.selectedIndex].text;
+        const wc = inWc.value;
+        const tw = inTw.value;
+        const ref = selRef.options[selRef.selectedIndex].text;
+        const temp = selTemp.value;
+
+        const maxGross = document.getElementById('resMaxGross').textContent;
+        const maxGrossKg = document.getElementById('resMaxGrossKg').textContent;
+        const maxNet = document.getElementById('resMaxNet').textContent;
+        const maxNetKg = document.getElementById('resMaxNetKg').textContent;
+        const target = document.getElementById('resStopTarget').textContent;
+        const sg = document.getElementById('lblSpecGravity').textContent;
+
+        const summary = [
+          '=== REFRIGERANT RECOVERY 80% FILL & SCALE TARGET REPORT ===',
+          'Cylinder Specification: ' + preset,
+          'Stamped Collar Data: WC = ' + wc + ' lbs | TW = ' + tw + ' lbs',
+          'Refrigerant: ' + ref,
+          'Design Standard: ' + temp + '°F / Specific Gravity: ' + sg,
+          '',
+          '--- DIGITAL CHARGING SCALE TARGETS ---',
+          'Maximum Gross Scale Cutoff: ' + maxGross + ' lbs (' + maxGrossKg + ' kg)',
+          'Maximum Safe Net Refrigerant Fill: ' + maxNet + ' (' + maxNetKg + ')',
+          'Scale Shutoff Procedure: Stop recovery pump when scale displays ' + target,
+          'Vapor Safety Cushion: 20% Headspace (Complies with EPA 608 & DOT 4BA)',
+          '',
+          '--- REGULATORY COMPLIANCE NOTE ---',
+          'Exceeding 80% liquid volume risks catastrophic hydraulic cylinder rupture under thermal exposure in service vehicles.',
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/refrigerant-recovery-cylinder-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Scale Target Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Scale Target Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy DOT Recovery Scale Target';
+          }, 2500);
+        });
+      });
+
+      selPreset.addEventListener('change', function() {
+        applyTankPreset();
+        calcRecovery();
+      });
+      inWc.addEventListener('input', calcRecovery);
+      inTw.addEventListener('input', calcRecovery);
+      selRef.addEventListener('change', calcRecovery);
+      selTemp.addEventListener('change', calcRecovery);
+
+      applyTankPreset();
+      calcRecovery();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'refrigerant-recovery-cylinder-calculator.html'), renderTradePage({
+    title: "Refrigerant Recovery Cylinder Calculator: 80% Max Fill & Tare Weight | Digital Tools Shed",
+    metaDesc: "Calculate safe maximum gross fill weight and scale cutoff targets per EPA Section 608, DOT 49 CFR, and ARI Guideline K across R-410A, R-22, R-134a, and R-454B tanks.",
+    canonical: `${DOMAIN}/calc/refrigerant-recovery-cylinder-calculator`,
+    bodyContent: refrigerantRecoveryBody,
+    currentPath: '/calc/refrigerant-recovery-cylinder-calculator',
+    faq: [
+      {
+        "q": "Why can't you put 50 lbs of refrigerant in a 50 lb recovery tank?",
+        "a": "A '50 lb' recovery cylinder is named after its approximate capacity, but its actual stamped water capacity (WC) is only 47.7 lbs. Because refrigerants like R-410A have a lower liquid density at 130°F (SG = 0.958), the legal 80% maximum fill limit is only 36.56 lbs of refrigerant. Filling 50 lbs creates an illegal, hydrostatically locked bomb."
+      },
+      {
+        "q": "What is the EPA 608 80% fill rule for refrigerant cylinders?",
+        "a": "EPA Section 608 and DOT 49 CFR § 173.304 mandate that recovery cylinders must never be filled past 80% of their liquid volume at a reference temperature of 130°F (54.4°C). The remaining 20% volume must remain as vapor headspace to cushion liquid thermal expansion."
+      },
+      {
+        "q": "How do you calculate the maximum gross weight for a recovery tank on a scale?",
+        "a": "Maximum Gross Scale Cutoff = (0.80 * Water Capacity * Specific Gravity) + Tare Weight. The Water Capacity (WC) and Tare Weight (TW) are permanently stamped on the cylinder handle collar."
+      },
+      {
+        "q": "What happens if a recovery tank is overfilled and left in a hot service van?",
+        "a": "Liquid refrigerant expands rapidly as temperature rises. When an overfilled tank runs out of vapor headspace, thermal liquid expansion creates hydraulic pressures exceeding 1,500 PSI, violently blowing the pressure relief burst disc or rupturing the tank shell."
+      },
+      {
+        "q": "How often do DOT 4BA refrigerant recovery cylinders need to be retested?",
+        "a": "Under Department of Transportation regulations, DOT 4BA and 4BW recovery cylinders must be hydrostatically tested and visually inspected every 5 years from their stamped date of manufacture before being transported on public highways."
+      }
+    ]
+  }));
+
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HYDRONIC HEATING & CHILLED WATER PIPE SIZING CALCULATOR (ASHRAE / BELL & GOSSETT)
+  // ═══════════════════════════════════════════════════════════════════════════
+  const hydronicPipeSizingBody = `
+<div class="article-container" style="max-width:1040px;margin:0 auto;padding:1.5rem 1rem;">
+  <div style="margin-bottom:2rem;border-bottom:1px solid var(--border);padding-bottom:1.5rem;">
+    <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-muted);margin-bottom:0.5rem;">
+      <a href="/" style="color:inherit;text-decoration:none;">Home</a> &gt; <a href="/calc/" style="color:inherit;text-decoration:none;">Trade &amp; Construction</a> &gt; <span>Hydronic Pipe Sizing Calculator</span>
+    </div>
+    <h1 style="font-family:var(--serif);font-size:2.3rem;margin-bottom:0.75rem;line-height:1.2;">Hydronic Heating &amp; Chilled Water Pipe Sizing Calculator</h1>
+    <p style="color:var(--text-muted);font-size:1.05rem;line-height:1.6;margin:0;">
+      Size closed-loop hydronic heating and cooling piping per ASHRAE and Bell &amp; Gossett standards: compute design GPM from thermal load (BTU/h or Tons), glycol correction, water velocity (ft/s), friction head loss (ft/100 ft), and circulator pump head.
+    </p>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:2rem;margin-bottom:2.5rem;">
+    <!-- INPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Thermal Load &amp; Hydronic Loop Specs
+      </h2>
+
+      <!-- Thermal Load Mode -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="loadType">Application / Load Unit</label>
+          <select id="loadType" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="btuh" selected>Heating Load (BTU/hr)</option>
+            <option value="tons">Cooling Load (Chiller Tons)</option>
+            <option value="gpm_direct">Direct Flow (GPM Entry)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="thermalValue" id="lblThermalValue">Heating Capacity (BTU/hr)</label>
+          <input type="number" id="thermalValue" value="120000" min="1000" max="50000000" step="5000" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);" id="lblThermalSub">120,000 BTU/h (Boiler / Loop)</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="deltaT">Design Delta-T (&Delta;T in &deg;F)</label>
+          <select id="deltaT" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="20" selected>20&deg;F (Standard Hydronic Heating 180/160)</option>
+            <option value="30">30&deg;F (Modern Condensing Boiler 140/110)</option>
+            <option value="40">40&deg;F (High Delta-T Condensing 150/110)</option>
+            <option value="10">10&deg;F (Chilled Water Standard 44/54)</option>
+            <option value="12">12&deg;F (High Delta-T Chilled Water 42/54)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="glycolPct">Fluid / Glycol Concentration</label>
+          <select id="glycolPct" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="0" selected>100% Water (Clean Closed Loop)</option>
+            <option value="20">20% Propylene Glycol (Burst 18&deg;F)</option>
+            <option value="30">30% Propylene Glycol (Burst 8&deg;F)</option>
+            <option value="40">40% Propylene Glycol (Burst -8&deg;F)</option>
+            <option value="50">50% Propylene Glycol (Burst -28&deg;F)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pipeSize">Nominal Pipe Size</label>
+          <select id="pipeSize" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;font-weight:600;">
+            <option value="0.5">1/2" (0.569" ID Copper L)</option>
+            <option value="0.75">3/4" (0.785" ID Copper L)</option>
+            <option value="1.0">1" (1.025" ID Copper L)</option>
+            <option value="1.25" selected>1-1/4" (1.265" ID Copper L)</option>
+            <option value="1.5">1-1/2" (1.505" ID Copper L)</option>
+            <option value="2.0">2" (1.985" ID Copper L)</option>
+            <option value="2.5">2-1/2" (2.465" ID Copper L)</option>
+            <option value="3.0">3" (2.945" ID Copper L)</option>
+            <option value="4.0">4" (3.905" ID Copper L)</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="pipeMaterial">Pipe Material / Wall Schedule</label>
+          <select id="pipeMaterial" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:0.95rem;">
+            <option value="copper_l" selected>Copper Tube (Type L - C=150)</option>
+            <option value="copper_k">Copper Tube (Type K - C=150)</option>
+            <option value="steel_40">Schedule 40 Carbon Steel (C=120)</option>
+            <option value="pex_sdr9">PEX Tubing (SDR 9 - C=150)</option>
+            <option value="ppr">PP-R Polypropylene (SDR 7.4 - C=150)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="circuitLengthFt">Longest Piping Run (ft)</label>
+          <input type="number" id="circuitLengthFt" value="120" min="10" max="2500" step="10" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">One-way supply + return distance</span>
+        </div>
+        <div>
+          <label style="display:block;font-weight:600;font-size:0.875rem;margin-bottom:0.5rem;" for="coilPressureDrop">Terminal Coil Drop (ft head)</label>
+          <input type="number" id="coilPressureDrop" value="5.0" min="0" max="30" step="0.5" style="width:100%;padding:0.65rem 0.85rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:1rem;font-weight:600;">
+          <span style="font-size:0.75rem;color:var(--text-muted);">Fan coil, radiator, or chiller drop</span>
+        </div>
+      </div>
+
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin-top:1rem;">
+        <div style="font-size:0.85rem;color:var(--text-muted);display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div>Actual Inner Diameter: <strong id="lblInnerDia" style="color:var(--fg);">1.265 in</strong></div>
+          <div>C-Factor (Roughness): <strong id="lblCFactor" style="color:var(--fg);">C = 150</strong></div>
+          <div>Recommended Velocity: <strong style="color:var(--fg);">2.0 to 4.0 ft/s</strong></div>
+          <div>Target Head Loss: <strong style="color:var(--fg);">1.0 to 4.0 ft / 100 ft</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OUTPUT COLUMN -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+          <div>
+            <span style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);font-weight:600;">Required Design Flow Rate</span>
+            <div style="font-family:var(--mono);font-size:2.8rem;font-weight:700;color:var(--primary);line-height:1.1;margin-top:0.25rem;">
+              <span id="resFlowGpm">12.0</span> <span style="font-size:1.25rem;font-weight:500;">GPM</span>
+            </div>
+            <div style="font-family:var(--mono);font-size:1.05rem;color:var(--text-muted);margin-top:0.25rem;">
+              <span id="resFlowLpm">45.4</span> L/min &nbsp;|&nbsp; Heat Transfer Factor: <span id="resHtFactor">500</span>
+            </div>
+          </div>
+          <span id="badgeVelocity" style="background:#10b981;color:white;font-size:0.75rem;padding:0.25rem 0.6rem;border-radius:4px;font-weight:700;">IDEAL VELOCITY</span>
+        </div>
+
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Fluid Velocity (ft/s)</span>
+            <span id="resVelocityFps" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">3.06 ft/s</span>
+            <span id="resVelocityMps" style="font-size:0.75rem;color:var(--text-muted);display:block;">0.93 m/s (Target: 2-4 ft/s)</span>
+          </div>
+          <div>
+            <span style="font-size:0.8rem;color:var(--text-muted);display:block;">Friction Head Loss (Rate)</span>
+            <span id="resHeadLoss100" style="font-family:var(--mono);font-size:1.4rem;font-weight:700;color:var(--fg);">2.41 ft/100ft</span>
+            <span id="resHeadLossPsi" style="font-size:0.75rem;color:#10b981;display:block;font-weight:600;">1.04 PSI / 100 ft (Ideal Range)</span>
+          </div>
+        </div>
+
+        <!-- CIRCULATOR PUMP SIZING SUMMARY -->
+        <div style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1.25rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+          <h3 style="font-size:0.9rem;margin-top:0;margin-bottom:0.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;">Circulator Pump Sizing Criteria</h3>
+          <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:0.5rem;text-align:center;">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Total Head (TDH)</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--primary);margin-top:0.25rem;" id="resTotalHead">9.3 ft</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">Pipe + 50% Fittings + Coil</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Equiv Length</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:var(--fg);margin-top:0.25rem;" id="resEquivLength">180 ft</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">1.5x Fitting Multiplier</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.25rem;">
+              <div style="font-size:0.75rem;color:var(--text-muted);">Hydraulic Power</div>
+              <div style="font-family:var(--mono);font-size:1.15rem;font-weight:700;color:#10b981;margin-top:0.25rem;" id="resWaterHp">0.028 HP</div>
+              <div style="font-size:0.7rem;color:var(--text-muted);">21 Watts Water Power</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:0.85rem;font-size:0.85rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+            <span style="color:var(--text-muted);">Hydronic Sizing Diagnosis:</span>
+            <strong id="resStatusText" style="font-family:var(--mono);color:#10b981;">PERFECT HYDRAULIC BALANCE</strong>
+          </div>
+          <div id="resStatusAdvice" style="color:var(--text-muted);font-size:0.75rem;">Pipe velocity is safely within the 2.0 to 4.0 ft/s quiet residential comfort zone, and friction loss is within the 1.0 to 4.0 ft/100ft sweet spot.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:1.5rem;">
+        <button id="btnCopyReport" type="button" style="width:100%;padding:0.75rem;background:var(--primary);color:white;border:none;border-radius:8px;font-weight:600;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:background 0.2s;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="copyBtnText">Copy Hydronic Pipe Sizing Schedule</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTERACTIVE PRIMARY-SECONDARY HYDRONIC PIPING SCHEMATIC SVG -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4"/><path d="M14 12h4"/></svg>
+      Primary-Secondary Hydronic Piping &amp; Circulator Schematic
+    </h2>
+    <p style="color:var(--text-muted);font-size:0.9rem;margin-top:0;margin-bottom:1.25rem;">
+      Live engineering layout showing boiler/chiller primary loop, secondary heating circuit, expansion tank point of no pressure change (PONPC), circulator pump orientation, and air separator.
+    </p>
+
+    <div style="width:100%;overflow-x:auto;display:flex;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;">
+      <div id="hydronicSvgContainer" style="width:100%;max-width:720px;height:420px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPLETE WORKED DERIVATION -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;margin-bottom:2.5rem;box-shadow:0 4px 16px rgba(0,0,0,0.03);">
+    <h2 style="font-size:1.25rem;margin-top:0;margin-bottom:1rem;">First-Principles Engineering Derivation: Hydronic Heat Flow, Friction &amp; Velocity</h2>
+    <div style="color:var(--text);font-size:0.95rem;line-height:1.7;">
+      <p>
+        Hydronic heating and chilled water distribution systems rely on sensible heat transfer governed by the first law of thermodynamics. The thermal power delivered by a fluid loop is:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        q = &macute; &times; C<sub>p</sub> &times; &Delta;T = (GPM &times; 8.33 lb/gal &times; 60 min/hr &times; SG) &times; C<sub>p</sub> &times; &Delta;T &nbsp;&nbsp;[BTU/hr]
+      </div>
+      <p>
+        For pure water at standard room temperature (\( SG = 1.0, C_p = 1.0 \text{ BTU/lb}\cdot^\circ\text{F} \)), the equation simplifies to the universal hydronic formula:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        GPM = BTU/hr / [ 500 &times; &Delta;T ] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [or GPM = (Tons &times; 24) / &Delta;T]
+      </div>
+      <p>
+        When propylene or ethylene glycol antifreeze solutions are added, liquid density increases while specific heat capacity drops. For a 30% to 50% glycol mixture, the heat transfer constant decreases from 500 down to 460 to 485, requiring an increase in flow rate of <strong>5% to 9%</strong> to transport the identical thermal BTU capacity.
+      </p>
+      <p>
+        Fluid velocity inside a circular conduit of inside diameter \( d_i \) inches is derived directly from continuity:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        V = (0.4085 &times; GPM) / d<sub>i</sub><sup>2</sup> &nbsp;&nbsp;[ft/s]
+      </div>
+      <p>
+        Per <strong>ASHRAE 90.1</strong> and Bell &amp; Gossett engineering manuals, optimum hydronic design velocity is bounded by two critical physical constraints:
+      </p>
+      <ul style="padding-left:1.5rem;margin-bottom:1rem;">
+        <li><strong>Minimum Velocity (&ge; 1.5 to 2.0 ft/s):</strong> Below 1.5 ft/s, entrained air bubbles buoyancy overcomes drag, allowing air to coalesce at pipe high points and form circulation-killing air locks.</li>
+        <li><strong>Maximum Velocity (&le; 4.0 ft/s for &le; 2" copper):</strong> Above 4.0 ft/s in hot water (&gt;140&deg;F), copper piping experiences rapid erosion-corrosion wear that erodes pipe elbows from the inside out within 3 to 5 years. In occupied residential areas, velocities &gt;4 ft/s also generate noticeable water-rushing noise.</li>
+      </ul>
+      <p>
+        Head loss per 100 feet of pipe is computed using the empirical Hazen-Williams formula:
+      </p>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1rem;margin:1rem 0;font-family:var(--mono);font-size:1.05rem;text-align:center;">
+        h<sub>f</sub> = 0.2083 &times; [ 100 / C ]<sup>1.852</sup> &times; [ GPM<sup>1.852</sup> / d<sub>i</sub><sup>4.8655</sup> ] &nbsp;&nbsp;[ft head / 100 ft]
+      </div>
+      <p>
+        The gold standard hydronic friction loss design window is <strong>1.0 to 4.0 ft of head per 100 ft of pipe</strong> (typically 2.0 to 2.5 ft/100 ft). Sizing circulator pumps requires computing Total Dynamic Head (\( TDH = h_f \times (L_{run} \times 1.5) / 100 + \Delta H_{coil} \)), ensuring the pump curve intersects the system curve exactly at design GPM.
+      </p>
+    </div>
+  </div>
+
+  <!-- 5 FATAL TRAPS & HYDRONIC SIZING PITFALLS -->
+  <div style="margin-bottom:2.5rem;">
+    <h2 style="font-size:1.35rem;margin-top:0;margin-bottom:1.25rem;">5 Fatal Traps &amp; Engineering Pitfalls in Hydronic Pipe Sizing</h2>
+    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #ef4444;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#ef4444;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 1: Pumping Away from the "Point of No Pressure Change" (PONPC)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          The diaphragm expansion tank connection point is the only location in a hydronic system where static pressure cannot change when the pump starts. If a circulator pump is installed pumping <em>toward</em> the expansion tank (or upstream of it), the pump's dynamic differential head is subtracted from system pressure. This drops high-point pressure below atmospheric, sucking air in through automatic air vents and causing pump cavitation. Always pump <strong>away</strong> from the expansion tank.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #f59e0b;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#f59e0b;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 2: High-Velocity Copper Erosion-Corrosion (>4 ft/s at >140&deg;F)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Undersizing copper pipe to push high flow rates creates severe turbulence at 90-degree elbows and tees. In heating water exceeding 140&deg;F, velocities greater than 4.0 ft/s continually scrub away the soft protective cuprous oxide film inside the pipe. The bare copper underneath oxidizes and erodes repeatedly, carving characteristic horseshoe-shaped pits that cause catastrophic pinhole water leaks through drywall and finished ceilings.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #10b981;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#10b981;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 3: The "Too Slow" Velocity Trap (&lt;1.5 ft/s Air Binding)</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Oversizing pipes "just to be safe" can cause water velocity to drop below 1.5 ft/s. In horizontal hydronic runs, a minimum velocity of 1.5 to 2.0 ft/s is required to create sufficient fluid drag to push entrained microbubbles along the pipe down to the central microbubble air separator. At sluggish velocities below 1.5 ft/s, air bubbles separate and accumulate at high elbows, forming large air pockets that completely block water flow.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #3b82f6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#3b82f6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 4: Forgetting the Glycol Flow &amp; Head Penalty</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Filling a hydronic snow-melt or freeze-protected system with 50% propylene glycol without recalculating pump head and flow is an instant recipe for boiler short-cycling. Because 50% glycol has a lower specific heat (0.88) and 3 to 4 times higher kinematic viscosity at cold temperatures, flow rate must be increased by 9% while friction head loss increases by <strong>15% to 25%</strong>. Sizing the pump using pure water curves starves the heat exchanger.
+        </p>
+      </div>
+
+      <div class="trap-card" style="background:var(--surface);border:1px solid var(--border);border-left:4px solid #8b5cf6;border-radius:8px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+        <h3 style="font-size:1.05rem;margin-top:0;margin-bottom:0.5rem;color:#8b5cf6;display:flex;align-items:center;gap:0.5rem;">
+          <span>Trap 5: Ghost Flow &amp; Lack of Primary-Secondary Hydraulic Decoupling</span>
+        </h3>
+        <p style="font-size:0.9rem;color:var(--text);line-height:1.6;margin:0;">
+          Directly piping multiple zone circulator pumps into a shared boiler manifold without hydraulic separation (closely spaced tees or a low-loss header) causes circulators to fight one another. When one zone pump fires, its dynamic head pushes "ghost flow" backwards through unpowered zones, overheating rooms that aren't calling for heat and causing erratic temperature cycling. Closely spaced tees (spaced &le; 4 pipe diameters apart) eliminate mutual pump interference.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // Pipe Inner Diameters (inches) for materials
+      const PIPE_DATA = {
+        'copper_l': {
+          '0.5': 0.569, '0.75': 0.785, '1.0': 1.025, '1.25': 1.265,
+          '1.5': 1.505, '2.0': 1.985, '2.5': 2.465, '3.0': 2.945, '4.0': 3.905,
+          c: 150, name: 'Copper Type L'
+        },
+        'copper_k': {
+          '0.5': 0.527, '0.75': 0.745, '1.0': 0.995, '1.25': 1.245,
+          '1.5': 1.481, '2.0': 1.959, '2.5': 2.435, '3.0': 2.907, '4.0': 3.857,
+          c: 150, name: 'Copper Type K'
+        },
+        'steel_40': {
+          '0.5': 0.622, '0.75': 0.824, '1.0': 1.049, '1.25': 1.380,
+          '1.5': 1.610, '2.0': 2.067, '2.5': 2.469, '3.0': 3.068, '4.0': 4.026,
+          c: 120, name: 'Schedule 40 Steel'
+        },
+        'pex_sdr9': {
+          '0.5': 0.475, '0.75': 0.671, '1.0': 0.862, '1.25': 1.054,
+          '1.5': 1.244, '2.0': 1.629, '2.5': 2.015, '3.0': 2.400, '4.0': 3.200,
+          c: 150, name: 'PEX SDR 9'
+        },
+        'ppr': {
+          '0.5': 0.512, '0.75': 0.685, '1.0': 0.898, '1.25': 1.157,
+          '1.5': 1.378, '2.0': 1.772, '2.5': 2.205, '3.0': 2.677, '4.0': 3.583,
+          c: 150, name: 'PP-R SDR 7.4'
+        }
+      };
+
+      // Glycol Heat Transfer Constants (500 * SG * Cp)
+      const GLYCOL_DATA = {
+        '0': { factor: 500, sg: 1.000, cp: 1.000 },
+        '20': { factor: 492, sg: 1.018, cp: 0.970 },
+        '30': { factor: 485, sg: 1.026, cp: 0.945 },
+        '40': { factor: 474, sg: 1.036, cp: 0.915 },
+        '50': { factor: 460, sg: 1.048, cp: 0.880 }
+      };
+
+      const selLoadType = document.getElementById('loadType');
+      const inThermal = document.getElementById('thermalValue');
+      const selDeltaT = document.getElementById('deltaT');
+      const selGlycol = document.getElementById('glycolPct');
+      const selPipe = document.getElementById('pipeSize');
+      const selMaterial = document.getElementById('pipeMaterial');
+      const inLength = document.getElementById('circuitLengthFt');
+      const inCoilDrop = document.getElementById('coilPressureDrop');
+
+      function updateLoadLabels() {
+        const t = selLoadType.value;
+        const lblVal = document.getElementById('lblThermalValue');
+        const lblSub = document.getElementById('lblThermalSub');
+        if (t === 'btuh') {
+          lblVal.textContent = 'Heating Capacity (BTU/hr)';
+          lblSub.textContent = 'Boiler, furnace coil, or radiant load';
+          if (inThermal.value === '50' || inThermal.value === '10') inThermal.value = '120000';
+        } else if (t === 'tons') {
+          lblVal.textContent = 'Cooling Capacity (Tons)';
+          lblSub.textContent = '1 Ton = 12,000 BTU/hr';
+          if (parseFloat(inThermal.value) > 1000) inThermal.value = '10';
+        } else {
+          lblVal.textContent = 'Design Flow Rate (GPM)';
+          lblSub.textContent = 'Directly specified water flow';
+          if (parseFloat(inThermal.value) > 500) inThermal.value = '12';
+        }
+      }
+
+      function calcHydronics() {
+        const lType = selLoadType.value;
+        const rawVal = parseFloat(inThermal.value) || 0;
+        const dT = parseFloat(selDeltaT.value) || 20;
+        const glycolKey = selGlycol.value;
+        const gData = GLYCOL_DATA[glycolKey] || GLYCOL_DATA['0'];
+        const htFactor = gData.factor;
+
+        let gpm = 0;
+        if (lType === 'btuh') {
+          gpm = rawVal / (htFactor * (dT / 20) * 20); // rawVal / (htFactor * dT / 20 * 20) = rawVal / (htFactor * (dT/20)... wait:
+          gpm = rawVal / (htFactor * dT);
+        } else if (lType === 'tons') {
+          const btuh = rawVal * 12000;
+          gpm = btuh / (htFactor * dT);
+        } else {
+          gpm = rawVal;
+        }
+
+        const lpm = gpm * 3.78541;
+        document.getElementById('resFlowGpm').textContent = gpm.toFixed(1);
+        document.getElementById('resFlowLpm').textContent = lpm.toFixed(1);
+        document.getElementById('resHtFactor').textContent = htFactor;
+
+        // Pipe dimensions
+        const mat = selMaterial.value;
+        const pSize = selPipe.value;
+        const matGroup = PIPE_DATA[mat] || PIPE_DATA['copper_l'];
+        const innerDia = matGroup[pSize] || 1.265;
+        const cFactor = matGroup.c;
+
+        document.getElementById('lblInnerDia').textContent = innerDia.toFixed(3) + ' in';
+        document.getElementById('lblCFactor').textContent = 'C = ' + cFactor + ' (' + matGroup.name + ')';
+
+        // Fluid velocity: V = (0.4085 * GPM) / di^2 [ft/s]
+        const velFps = (0.4085 * gpm) / Math.pow(innerDia, 2);
+        const velMps = velFps * 0.3048;
+
+        document.getElementById('resVelocityFps').textContent = velFps.toFixed(2) + ' ft/s';
+        document.getElementById('resVelocityMps').textContent = velMps.toFixed(2) + ' m/s (Target: 2-4 ft/s)';
+
+        // Head loss via Hazen-Williams:
+        // hf = 0.2083 * (100 / C)^1.852 * (GPM^1.852 / di^4.8655) [ft head / 100 ft]
+        const hf100 = 0.2083 * Math.pow(100 / cFactor, 1.852) * (Math.pow(gpm, 1.852) / Math.pow(innerDia, 4.8655));
+        const psi100 = hf100 * 0.4335;
+
+        document.getElementById('resHeadLoss100').textContent = hf100.toFixed(2) + ' ft/100ft';
+        document.getElementById('resHeadLossPsi').textContent = psi100.toFixed(2) + ' PSI / 100 ft';
+
+        // Circulator pump sizing
+        const runLen = parseFloat(inLength.value) || 120;
+        const coilDrop = parseFloat(inCoilDrop.value) || 5.0;
+        // Total equivalent length: run length * 1.5 (50% fitting allowance)
+        const equivLen = runLen * 1.5;
+        const pipeHeadLoss = hf100 * (equivLen / 100);
+        const totalHead = pipeHeadLoss + coilDrop;
+
+        document.getElementById('resTotalHead').textContent = totalHead.toFixed(1) + ' ft';
+        document.getElementById('resEquivLength').textContent = Math.round(equivLen) + ' ft';
+
+        // Hydraulic Water Horsepower: WHP = (GPM * TDH * SG) / 3960
+        const waterHp = (gpm * totalHead * gData.sg) / 3960;
+        const waterWatts = waterHp * 745.7;
+        document.getElementById('resWaterHp').textContent = waterHp.toFixed(3) + ' HP';
+
+        // Velocity Badge & Compliance Text
+        const badge = document.getElementById('badgeVelocity');
+        const resStat = document.getElementById('resStatusText');
+        const resAdv = document.getElementById('resStatusAdvice');
+
+        if (velFps < 1.5) {
+          badge.style.background = '#f59e0b';
+          badge.textContent = 'SLUGGISH FLOW';
+          resStat.textContent = 'RISK OF AIR BINDING (< 1.5 ft/s)';
+          resStat.style.color = '#f59e0b';
+          resAdv.textContent = 'Velocity is below 1.5 ft/s. Microbubbles cannot be swept to the air separator, risking permanent air pockets.';
+        } else if (velFps >= 1.5 && velFps <= 4.0 && hf100 <= 4.0) {
+          badge.style.background = '#10b981';
+          badge.textContent = 'IDEAL VELOCITY';
+          resStat.textContent = 'PERFECT HYDRAULIC BALANCE';
+          resStat.style.color = '#10b981';
+          resAdv.textContent = 'Velocity is safely within the 2.0 to 4.0 ft/s quiet residential comfort zone, and friction loss is within the 1.0 to 4.0 ft/100ft sweet spot.';
+        } else if (velFps > 4.0 && velFps <= 6.0) {
+          badge.style.background = '#3b82f6';
+          badge.textContent = 'COMMERCIAL RANGE';
+          resStat.textContent = 'ACCEPTABLE FOR COMMERCIAL MAINS';
+          resStat.style.color = '#3b82f6';
+          resAdv.textContent = 'Velocity is acceptable for commercial mechanical rooms (>2" pipe), but too high for quiet residential living spaces.';
+        } else {
+          badge.style.background = '#ef4444';
+          badge.textContent = 'EROSION RISK';
+          resStat.textContent = 'EXCESSIVE VELOCITY (> 6.0 ft/s)';
+          resStat.style.color = '#ef4444';
+          resAdv.textContent = 'High velocity causes premature copper elbow erosion-corrosion, pipe noise, and high pump electrical consumption.';
+        }
+
+        // Draw Interactive SVG
+        drawHydronicSvg(gpm, velFps, hf100, totalHead, pSize, innerDia, runLen);
+      }
+
+      function drawHydronicSvg(gpm, vel, hf, totalHead, pSize, di, runLen) {
+        const container = document.getElementById('hydronicSvgContainer');
+        const w = 720;
+        const h = 420;
+
+        let s = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" style="font-family:system-ui,sans-serif;">';
+
+        // Background
+        s += '<rect x="10" y="10" width="700" height="400" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1"/>';
+
+        // PRIMARY BOILER LOOP (Left side)
+        s += '<g transform="translate(25, 30)">';
+        s += '<rect x="0" y="0" width="220" height="350" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="15" y="26" fill="#f8fafc" font-size="12" font-weight="700">PRIMARY BOILER LOOP</text>';
+
+        // Boiler Box
+        s += '<rect x="35" y="55" width="85" height="110" rx="8" fill="#b91c1c" stroke="#ef4444" stroke-width="2"/>';
+        s += '<text x="77" y="105" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="700">BOILER</text>';
+        s += '<text x="77" y="122" text-anchor="middle" fill="#fecaca" font-size="9">HEAT SOURCE</text>';
+
+        // Expansion Tank & Air Separator (PONPC)
+        s += '<rect x="150" y="55" width="45" height="70" rx="12" fill="#2563eb" stroke="#60a5fa" stroke-width="1.5"/>';
+        s += '<text x="172" y="92" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">EXP</text>';
+        s += '<text x="172" y="104" text-anchor="middle" fill="#ffffff" font-size="8" font-weight="700">TANK</text>';
+        s += '<text x="172" y="138" text-anchor="middle" fill="#93c5fd" font-size="8" font-weight="600">PONPC</text>';
+
+        // Primary Circulator Pump
+        s += '<circle cx="77" cy="230" r="22" fill="#059669" stroke="#34d399" stroke-width="2"/>';
+        s += '<polygon points="68,220 88,230 68,240" fill="#ffffff"/>';
+        s += '<text x="77" y="268" text-anchor="middle" fill="#34d399" font-size="9" font-weight="700">PRIMARY PUMP</text>';
+
+        // Primary Loop Piping
+        s += '<path d="M 77 55 L 77 40 L 220 40" fill="none" stroke="#ef4444" stroke-width="5"/>'; // Supply Hot (Red)
+        s += '<path d="M 220 300 L 77 300 L 77 252" fill="none" stroke="#3b82f6" stroke-width="5"/>'; // Return (Blue)
+        s += '<path d="M 77 208 L 77 165" fill="none" stroke="#3b82f6" stroke-width="5"/>'; // Pump to boiler
+        s += '<path d="M 172 125 L 172 300" fill="none" stroke="#3b82f6" stroke-width="2" stroke-dasharray="2,2"/>'; // Tank tie-in
+
+        s += '</g>';
+
+        // CLOSELY SPACED TEES (Hydraulic Decoupling Bridge)
+        s += '<g transform="translate(245, 30)">';
+        s += '<rect x="0" y="25" width="45" height="290" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1" stroke-dasharray="2,2"/>';
+        s += '<text x="22" y="170" text-anchor="middle" fill="#94a3b8" font-size="8" transform="rotate(-90 22 170)">HYDRAULIC DECOUPLING</text>';
+
+        // Closely spaced bridge
+        s += '<line x1="0" y1="40" x2="45" y2="40" stroke="#ef4444" stroke-width="5"/>';
+        s += '<line x1="0" y1="300" x2="45" y2="300" stroke="#3b82f6" stroke-width="5"/>';
+        s += '<line x1="22" y1="40" x2="22" y2="300" stroke="#64748b" stroke-width="4"/>';
+        s += '<text x="22" y="20" text-anchor="middle" fill="#f59e0b" font-size="8">&le; 4 x Dia</text>';
+        s += '</g>';
+
+        // SECONDARY DISTRIBUTION LOOP (Right side)
+        s += '<g transform="translate(290, 30)">';
+        s += '<rect x="0" y="0" width="405" height="350" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>';
+        s += '<text x="15" y="26" fill="#f8fafc" font-size="12" font-weight="700">SECONDARY HEATING CIRCUIT</text>';
+
+        // Secondary Circulator Pump (Pumping AWAY from decoupling point)
+        s += '<circle cx="65" cy="40" r="18" fill="#059669" stroke="#34d399" stroke-width="2"/>';
+        s += '<polygon points="58,32 74,40 58,48" fill="#ffffff"/>';
+        s += '<text x="65" y="72" text-anchor="middle" fill="#34d399" font-size="9" font-weight="700">ZONE PUMP</text>';
+
+        // Hot Supply Main Header
+        s += '<path d="M 0 40 L 47 40" stroke="#ef4444" stroke-width="5"/>';
+        s += '<path d="M 83 40 L 330 40 L 330 110" fill="none" stroke="#ef4444" stroke-width="5"/>';
+
+        // Terminal Heat Exchangers (Radiators / Fan Coils)
+        // Unit 1
+        s += '<rect x="290" y="110" width="80" height="40" rx="4" fill="#334155" stroke="#ef4444" stroke-width="1.5"/>';
+        s += '<text x="330" y="132" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">FAN COIL 1</text>';
+        s += '<text x="330" y="144" text-anchor="middle" fill="#fca5a5" font-size="7">' + gpm.toFixed(1) + ' GPM</text>';
+
+        // Unit 2
+        s += '<rect x="290" y="195" width="80" height="40" rx="4" fill="#334155" stroke="#ef4444" stroke-width="1.5"/>';
+        s += '<text x="330" y="217" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="700">FAN COIL 2</text>';
+        s += '<text x="330" y="229" text-anchor="middle" fill="#fca5a5" font-size="7">Terminal Unit</text>';
+
+        // Return Piping (Blue)
+        s += '<path d="M 330 150 L 330 195" stroke="#a855f7" stroke-width="4"/>';
+        s += '<path d="M 330 235 L 330 300 L 0 300" fill="none" stroke="#3b82f6" stroke-width="5"/>';
+
+        // Balancing Valve on Return
+        s += '<polygon points="175,293 195,307 175,307 195,293" fill="#f59e0b"/>';
+        s += '<text x="185" y="322" text-anchor="middle" fill="#f59e0b" font-size="8">BALANCING</text>';
+
+        // Live Dynamic Flow Parameters Box
+        s += '<rect x="20" y="110" width="220" height="150" rx="6" fill="#1e293b" stroke="#475569" stroke-width="1"/>';
+        s += '<text x="35" y="134" fill="#94a3b8" font-size="11" font-weight="600">PIPE SELECTION:</text>';
+        s += '<text x="35" y="152" fill="#38bdf8" font-size="14" font-weight="700" font-family="monospace">' + pSize + '" (' + di.toFixed(3) + '" ID)</text>';
+
+        s += '<text x="35" y="174" fill="#94a3b8" font-size="11" font-weight="600">WATER VELOCITY:</text>';
+        s += '<text x="35" y="192" fill="' + (vel >= 1.5 && vel <= 4.0 ? '#10b981' : '#f59e0b') + '" font-size="14" font-weight="700" font-family="monospace">' + vel.toFixed(2) + ' ft/s</text>';
+
+        s += '<text x="35" y="214" fill="#94a3b8" font-size="11" font-weight="600">FRICTION LOSS:</text>';
+        s += '<text x="35" y="232" fill="' + (hf <= 4 ? '#10b981' : '#ef4444') + '" font-size="14" font-weight="700" font-family="monospace">' + hf.toFixed(2) + ' ft/100ft</text>';
+
+        s += '<text x="35" y="252" fill="#94a3b8" font-size="10">Total Pump Head: <tspan fill="#ffffff" font-weight="700">' + totalHead.toFixed(1) + ' ft</tspan></text>';
+
+        s += '</g>';
+
+        s += '</svg>';
+        container.innerHTML = s;
+      }
+
+      // Copy diagnostic report
+      document.getElementById('btnCopyReport').addEventListener('click', function() {
+        const lType = selLoadType.options[selLoadType.selectedIndex].text;
+        const lVal = inThermal.value;
+        const dt = selDeltaT.options[selDeltaT.selectedIndex].text;
+        const glycol = selGlycol.options[selGlycol.selectedIndex].text;
+        const pipe = selPipe.options[selPipe.selectedIndex].text;
+        const mat = selMaterial.options[selMaterial.selectedIndex].text;
+        const run = inLength.value;
+
+        const gpm = document.getElementById('resFlowGpm').textContent;
+        const lpm = document.getElementById('resFlowLpm').textContent;
+        const vel = document.getElementById('resVelocityFps').textContent;
+        const hf = document.getElementById('resHeadLoss100').textContent;
+        const head = document.getElementById('resTotalHead').textContent;
+        const hp = document.getElementById('resWaterHp').textContent;
+        const stat = document.getElementById('resStatusText').textContent;
+
+        const summary = [
+          '=== HYDRONIC HEATING & CHILLED WATER SIZING REPORT ===',
+          'Load Specification: ' + lVal + ' (' + lType + ') | Delta-T: ' + dt,
+          'Circulation Fluid: ' + glycol,
+          'Piping Specification: ' + pipe + ' | Material: ' + mat,
+          'Longest One-Way Run: ' + run + ' ft (1.5x Fitting Allowance)',
+          '',
+          '--- HYDRAULIC DESIGN RESULTS ---',
+          'Design Flow Rate: ' + gpm + ' GPM (' + lpm + ' L/min)',
+          'Fluid Velocity: ' + vel + ' [Optimal Range: 2.0 to 4.0 ft/s]',
+          'Friction Head Loss Rate: ' + hf + ' [Optimal Range: 1.0 to 4.0 ft/100ft]',
+          'Total Dynamic Head (TDH): ' + head + ' (Includes coil & fittings)',
+          'Hydraulic Water Power: ' + hp,
+          'Sizing Status: ' + stat,
+          '',
+          'Generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/hydronic-pipe-sizing-calculator)'
+        ].join('\n');
+
+        navigator.clipboard.writeText(summary).then(function() {
+          const btn = document.getElementById('btnCopyReport');
+          const btnText = document.getElementById('copyBtnText');
+          const originalText = btnText.textContent;
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          btn.style.background = '#10b981';
+          setTimeout(function() {
+            btnText.textContent = originalText;
+            btn.style.background = 'var(--primary)';
+          }, 2500);
+        }).catch(function() {
+          const ta = document.createElement('textarea');
+          ta.value = summary;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          const btnText = document.getElementById('copyBtnText');
+          btnText.textContent = '✓ Sizing Schedule Copied!';
+          setTimeout(function() {
+            btnText.textContent = 'Copy Hydronic Pipe Sizing Schedule';
+          }, 2500);
+        });
+      });
+
+      selLoadType.addEventListener('change', function() {
+        updateLoadLabels();
+        calcHydronics();
+      });
+      inThermal.addEventListener('input', calcHydronics);
+      selDeltaT.addEventListener('change', calcHydronics);
+      selGlycol.addEventListener('change', calcHydronics);
+      selPipe.addEventListener('change', calcHydronics);
+      selMaterial.addEventListener('change', calcHydronics);
+      inLength.addEventListener('input', calcHydronics);
+      inCoilDrop.addEventListener('input', calcHydronics);
+
+      updateLoadLabels();
+      calcHydronics();
+    })();
+  </script>
+</div>
+`;
+
+  writeFileSync(join(calcDir, 'hydronic-pipe-sizing-calculator.html'), renderTradePage({
+    title: "Hydronic Pipe Sizing Calculator: GPM, Velocity & Friction Head Loss | Digital Tools Shed",
+    metaDesc: "Size hydronic heating and chilled water piping per ASHRAE and Bell & Gossett: compute design GPM from BTU/h or Tons, fluid velocity, head loss, and pump sizing.",
+    canonical: `${DOMAIN}/calc/hydronic-pipe-sizing-calculator`,
+    bodyContent: hydronicPipeSizingBody,
+    currentPath: '/calc/hydronic-pipe-sizing-calculator',
+    faq: [
+      {
+        "q": "What is the recommended water velocity in hydronic heating piping?",
+        "a": "For residential and occupied building areas, ASHRAE recommends water velocities between 2.0 and 4.0 ft/s (0.6 to 1.2 m/s). Velocities below 1.5 ft/s allow entrained air bubbles to separate and form air locks, while velocities above 4.0 ft/s in copper piping cause erosion-corrosion and water rushing noise."
+      },
+      {
+        "q": "How do you calculate GPM from heating BTU/hr?",
+        "a": "Use the standard hydronic formula: GPM = BTU/hr / (500 * Delta-T). For a standard 20°F temperature drop with pure water, GPM = BTU/hr / 10,000 (e.g., 100,000 BTU/hr requires 10 GPM)."
+      },
+      {
+        "q": "What is the acceptable friction head loss rate in hydronic piping?",
+        "a": "The industry standard sweet spot per Bell & Gossett is between 1.0 and 4.0 ft of head loss per 100 ft of pipe (typically targeting 2.0 to 2.5 ft/100 ft). Sizing within this band minimizes pipe material cost while keeping pump electrical power low."
+      },
+      {
+        "q": "Why must a circulator pump pump away from the expansion tank?",
+        "a": "The expansion tank is the Point of No Pressure Change (PONPC). Pumping away from the expansion tank adds the pump's head to system static pressure, raising pressure at high points and preventing air ingestion or pump cavitation."
+      },
+      {
+        "q": "How does glycol antifreeze affect hydronic flow rate and pump sizing?",
+        "a": "Glycol solutions have a lower specific heat capacity than water. A 40% to 50% propylene glycol mixture requires 7% to 9% higher GPM to transfer the same BTUs, and increases friction head loss by 15% to 25% due to higher fluid viscosity."
+      }
+    ]
+  }));
+
+
+  console.log('  ✓ Built Trade & Construction Suite (31 calculators in /calc/)');
 }
 
