@@ -1440,27 +1440,35 @@ export function buildViralTools() {
 
       <header style="margin-bottom: 2rem;">
         <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ec4899; margin-bottom: 0.5rem;">2 AM Real-Time Biological Ticker</div>
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Billionth Second & Heartbeat Milestone Counter</h1>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Billionth Second & Real-Time Heartbeat Milestone Counter</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          You turn 1,000,000,000 seconds old at age <strong>31 years, 251 days</strong>. Track your exact milestone date and watch your cumulative heartbeats and cosmic distance tick live right now.
+          You turn 1,000,000,000 seconds old at age <strong>31 years, 251 days, 13 hours, 46 minutes, and 40 seconds</strong>. Track your exact milestone date and watch your cumulative heartbeats, breaths taken, and solar orbital distance tick live right now.
         </p>
       </header>
 
       <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
         <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1.5rem;">
-          <div>
+          <div style="flex: 1; min-width: 220px;">
             <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Birth Date</label>
-            <input type="date" id="bsBirth" value="1995-03-24" class="search-input" style="padding: 0.55rem; font-family: var(--mono); font-size: 1.1rem;" onchange="updateBillionMilestone()" />
+            <input type="date" id="bsBirth" value="1995-03-24" class="search-input" style="width: 100%; padding: 0.55rem; font-family: var(--mono); font-size: 1.1rem;" onchange="updateBillionMilestone()" />
+          </div>
+          <div style="flex: 1; min-width: 180px;">
+            <label style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; text-transform: uppercase;">Resting Heart Rate (BPM)</label>
+            <input type="number" id="bsBpm" value="72" min="40" max="150" class="search-input" style="width: 100%; padding: 0.55rem; font-family: var(--mono); font-size: 1.1rem;" oninput="updateBillionMilestone()" />
           </div>
         </div>
 
         <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.5rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem;">
           <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted);">Your 1 Billionth Second Date</div>
           <div id="bsTargetDate" style="font-family: var(--serif); font-size: 2.2rem; font-weight: bold; color: #ec4899; margin: 0.4rem 0;">December 1, 2026</div>
-          <div id="bsCountdown" style="font-family: var(--mono); font-size: 1.1rem; color: var(--fg);"></div>
+          <div id="bsCountdown" style="font-family: var(--mono); font-size: 1.1rem; color: var(--fg); margin-bottom: 0.75rem;"></div>
+          <div style="background: var(--surface); border-radius: 999px; height: 12px; width: 100%; max-width: 400px; margin: 0 auto; overflow: hidden; border: 1px solid var(--border);">
+            <div id="bsProgressFill" style="background: linear-gradient(90deg, #3b82f6, #ec4899); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
+          </div>
+          <div id="bsProgressText" style="font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">0% of 1B seconds lived</div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; text-align: center;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; text-align: center; margin-bottom: 1.5rem;">
           <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
             <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px"><circle cx="12" cy="13" r="9"/><polyline points="12 9 12 13 15 16"/><path d="M12 4V2"/><path d="M10 2h4"/></svg> EXACT SECONDS ALIVE</span>
             <div id="bsLiveSeconds" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #3b82f6; margin-top: 0.25rem;">0</div>
@@ -1468,18 +1476,158 @@ export function buildViralTools() {
           <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
             <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg> ESTIMATED HEARTBEATS</span>
             <div id="bsLiveBeats" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #ef4444; margin-top: 0.25rem;">0</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">~72 beats/min (~103,680/day)</div>
+            <div id="bsBeatsSub" style="font-size: 0.75rem; color: var(--text-muted);">~72 beats/min (~103,680/day)</div>
           </div>
           <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
             <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> SOLAR ORBIT DISTANCE</span>
             <div id="bsLiveOrbit" style="font-family: var(--mono); font-size: 1.5rem; font-weight: bold; color: #10b981; margin-top: 0.25rem;">0 km</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Earth travels 29.8 km every second</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Earth travels 29.78 km/s</div>
+          </div>
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+            <span style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:2px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> BREATHS TAKEN</span>
+            <div id="bsLiveBreaths" style="font-family: var(--mono); font-size: 1.5rem; font-weight: bold; color: #8b5cf6; margin-top: 0.25rem;">0</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">~16 breaths/min (~23,040/day)</div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+          <button type="button" id="copyBillionBtn" onclick="copyBillionSummary()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Lifetime Milestone Report
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">1 Billion Seconds: Complete Mathematical & Temporal Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Raw Calendar Conversion Formula</strong>
+            $$1,000,000,000\text{ seconds} \div 60 = 16,666,666.67\text{ minutes}$$
+            $$16,666,666.67 \div 60 = 277,777.78\text{ hours}$$
+            $$277,777.78 \div 24 = 11,574.074\text{ days}$$
+            $$11,574.074 \div 365.2425 = 31.688765\text{ Gregorian solar years}$$
+            Exact duration: <strong>31 years, 251 days, 13 hours, 46 minutes, and 40 seconds</strong>.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Cardiac Expenditure Integral</strong>
+            $$\text{Total Heartbeats} = T_{\text{seconds}} \times \left(\frac{\text{BPM}}{60}\right)$$
+            At standard resting heart rate of 72 bpm (1.2 beats per second), the human myocardium contracts approximately <strong>1,200,000,000 times</strong> (1.2 billion strokes) during this epoch, pumping approximately <strong>84 million liters (22.2 million gallons)</strong> of blood through 60,000 miles of vascular capillaries.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Planetary Heliocentric Kinematics</strong>
+            $$\text{Distance} = T_{\text{seconds}} \times v_{\text{orbit}} = 10^9\text{ s} \times 29.78\text{ km/s} = 29,780,000,000\text{ km}$$
+            Over your first billion seconds, Earth carries you across <strong>29.78 billion kilometers (18.5 billion miles)</strong> through interplanetary space—the equivalent of 199.1 Astronomical Units (AU), or traveling to Pluto and back three full round-trips.
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & ENGINEERING/BIOLOGICAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Traps & Temporal Pitfalls in Lifespan Calculation</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Leap Year & Leap Second Drift Fallacy</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Many online calculators compute 1 billion seconds simply as (10^9 / (365 \times 86400) = 31.7098) years, ignoring leap years. Over a 31-year span, you experience either 7 or 8 leap days ((7 \times 86,400 = 604,800) seconds). Failing to incorporate the leap calendar miscalculates your true billionth second moment by nearly an entire week.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Resting vs Dynamic Heart Rate Variability (HRV) Bias</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Assuming a static 72 bpm ignores circadian rhythms (nocturnal bradycardia drops rates to 50–55 bpm) and physical exertion (aerobic exercise spikes rates to 130–170 bpm). Over 11,574 days, this variance causes the true cardiac stroke count to deviate by (\pm 150,000,000) beats from static linear estimates.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. The General Relativistic Gravitational Time Dilation</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              By Einstein\'s General Theory of Relativity, clocks tick faster at higher gravitational potential. A human residing in Denver, Colorado (elevation 1,600m) ages roughly 90 microseconds faster over 1 billion seconds than someone at sea level in Miami. While imperceptible psychologically, atomic clocks easily detect this discrepancy.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. The 2 Billion & 2.5 Billion Second Lifespan Horizon</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Turning 1 billion seconds old happens in your prime at age 31. However, turning <strong>2 billion seconds</strong> occurs at age <strong>63.37 years</strong>, and <strong>2.5 billion seconds</strong> occurs at age <strong>79.22 years</strong> (the exact modern life expectancy in developed nations). Only centenarians surpass 3 billion seconds (95.06 years).
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. The Decimal Anthropic Fallacy</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Humans celebrate (10^9) seconds because of base-10 anatomy (ten fingers). If our civilization used hexadecimal or binary, we would celebrate (2^{30}) seconds ((1,073,741,824) seconds, or age 34.02 years). The universe acknowledges solar revolutions and entropy, not decimal powers of ten.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Lifespan Seconds & Heartbeats</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>At what exact age does a person reach 1 billion seconds old?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              A human reaches 1 billion seconds old at precisely <strong>31 years, 251 days, 13 hours, 46 minutes, and 40 seconds</strong>. The exact calendar date varies slightly depending on whether your 31-year lifespan contains 7 or 8 leap years.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How many times does the human heart beat in a lifetime?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              At an average resting rate of 72 beats per minute, the heart beats roughly 103,680 times per day, 37.8 million times per year, and approximately <strong>1.2 billion times by age 31.7</strong>. Over a full 80-year lifetime, the human heart beats approximately <strong>3.0 billion times</strong> without a single pause.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How far does the Earth carry you through space in 1 billion seconds?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Earth orbits the Sun at an average velocity of 29.78 kilometers per second (66,600 mph). In 1 billion seconds, you travel <strong>29.78 billion kilometers (18.5 billion miles)</strong> around the Sun. Relative to the Milky Way galactic core (220 km/s), you travel over 220 billion kilometers.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Can a human reach 3 billion seconds old?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. 3 billion seconds corresponds to <strong>95 years, 36 days</strong>. While reaching 3 billion seconds requires reaching exceptional longevity, hundreds of thousands of people alive today have surpassed this threshold. The oldest recorded person, Jeanne Calment (122 years, 164 days), lived approximately 3.86 billion seconds.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the Year 2038 Unix epoch problem?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Unix systems count time as seconds elapsed since January 1, 1970 (UTC). Legacy 32-bit signed integers overflow at (2^{31} - 1 = 2,147,483,647) seconds, which occurs on <strong>January 19, 2038 at 03:14:07 UTC</strong>. At that moment, 32-bit systems will interpret the time as December 13, 1901 unless migrated to 64-bit timestamps.
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <script>
+      function toggleFaq(btn) {
+        var answer = btn.nextElementSibling;
+        var icon = btn.querySelector('.faq-icon');
+        var item = btn.closest('.faq-item');
+        if (answer.style.display === 'block') {
+          answer.style.display = 'none';
+          icon.textContent = '+';
+          item.classList.remove('open');
+        } else {
+          answer.style.display = 'block';
+          icon.textContent = '−';
+          item.classList.add('open');
+        }
+      }
+
       function updateBillionMilestone() {
         var bStr = document.getElementById('bsBirth').value;
         if (!bStr) return;
@@ -1490,6 +1638,12 @@ export function buildViralTools() {
         document.getElementById('bsTargetDate').textContent = targetDate.toLocaleDateString('en-US', {
           weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
         });
+
+        var bpm = parseFloat(document.getElementById('bsBpm').value) || 72;
+        var beatsPerDay = Math.round(bpm * 60 * 24);
+        document.getElementById('bsBeatsSub').textContent = '~' + bpm + ' beats/min (~' + beatsPerDay.toLocaleString('en-US') + '/day)';
+
+        tickLiveStats();
       }
 
       function tickLiveStats() {
@@ -1501,14 +1655,22 @@ export function buildViralTools() {
 
         if (diffSec > 0) {
           document.getElementById('bsLiveSeconds').textContent = Math.floor(diffSec).toLocaleString('en-US');
-          var beats = Math.floor(diffSec * 1.2); // ~72 bpm
+          var bpm = parseFloat(document.getElementById('bsBpm').value) || 72;
+          var beats = Math.floor(diffSec * (bpm / 60));
           document.getElementById('bsLiveBeats').textContent = beats.toLocaleString('en-US');
           var orbitKm = Math.floor(diffSec * 29.78);
           document.getElementById('bsLiveOrbit').textContent = (orbitKm / 1000000).toFixed(1) + 'M km';
+          var breaths = Math.floor(diffSec * (16 / 60));
+          document.getElementById('bsLiveBreaths').textContent = breaths.toLocaleString('en-US');
 
           var billionSec = 1000000000;
+          var progressPct = Math.min(100, Math.max(0, (diffSec / billionSec) * 100));
+          document.getElementById('bsProgressFill').style.width = progressPct.toFixed(2) + '%';
+          document.getElementById('bsProgressText').textContent = progressPct.toFixed(2) + '% of 1 Billion Seconds Lived';
+
           if (diffSec >= billionSec) {
-            document.getElementById('bsCountdown').innerHTML = '<span style="color: #10b981; font-weight: bold;">✓ You have already surpassed 1 Billion Seconds!</span>';
+            var overYears = ((diffSec - billionSec) / 31557600).toFixed(2);
+            document.getElementById('bsCountdown').innerHTML = '<span style="color: #10b981; font-weight: bold;">✓ Surpassed 1 Billion Seconds (' + overYears + ' years ago)</span>';
           } else {
             var left = billionSec - diffSec;
             var days = Math.floor(left / 86400);
@@ -1518,6 +1680,39 @@ export function buildViralTools() {
             document.getElementById('bsCountdown').textContent = days + 'd ' + hrs + 'h ' + mins + 'm ' + s + 's until 1,000,000,000 seconds';
           }
         }
+      }
+
+      function copyBillionSummary() {
+        var birthDate = document.getElementById('bsBirth').value;
+        var targetDate = document.getElementById('bsTargetDate').textContent;
+        var liveSec = document.getElementById('bsLiveSeconds').textContent;
+        var liveBeats = document.getElementById('bsLiveBeats').textContent;
+        var liveOrbit = document.getElementById('bsLiveOrbit').textContent;
+        var liveBreaths = document.getElementById('bsLiveBreaths').textContent;
+        var progress = document.getElementById('bsProgressText').textContent;
+
+        var text = '=== BILLIONTH SECOND & BIOLOGICAL LIFESPAN REPORT ===\n' +
+          'Birth Date: ' + birthDate + '\n' +
+          'Exact 1 Billionth Second Date: ' + targetDate + '\n' +
+          'Progress: ' + progress + '\n' +
+          'Total Seconds Alive: ' + liveSec + ' s\n' +
+          'Cumulative Heartbeats: ' + liveBeats + '\n' +
+          'Cumulative Breaths Taken: ' + liveBreaths + '\n' +
+          'Solar Orbital Distance Traveled: ' + liveOrbit + '\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copyBillionBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Milestone Report Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
       }
 
       document.addEventListener('DOMContentLoaded', function() {
@@ -1530,10 +1725,32 @@ export function buildViralTools() {
 
   writeFileSync(join(utilDir, 'billion-seconds-calculator.html'), renderPage({
     title: 'Billionth Second & Real-Time Heartbeat Milestone Counter | Digital Tools Shed',
-    metaDesc: 'Calculate when you turn 1 billion seconds old. Live real-time ticker tracking lifetime heartbeats, breaths taken, and kilometers traveled through the solar system.',
+    metaDesc: 'Calculate when you turn 1 billion seconds old (age 31.7). Live real-time ticker tracking lifetime heartbeats, breaths taken, and solar orbital distance.',
     canonical: `${DOMAIN}/util/billion-seconds-calculator`,
     bodyContent: billionHtml,
-    currentPath: '/util/billion-seconds-calculator'
+    currentPath: '/util/billion-seconds-calculator',
+    faqSchema: [
+      {
+        q: "At what exact age does a person reach 1 billion seconds old?",
+        a: "A human reaches 1 billion seconds old at precisely 31 years, 251 days, 13 hours, 46 minutes, and 40 seconds."
+      },
+      {
+        q: "How many times does the human heart beat in a lifetime?",
+        a: "At an average resting rate of 72 bpm, the human heart beats approximately 1.2 billion times by age 31.7, and roughly 3.0 billion times over an 80-year lifespan."
+      },
+      {
+        q: "How far does the Earth carry you through space in 1 billion seconds?",
+        a: "In 1 billion seconds, Earth's orbital velocity of 29.78 km/s carries you approximately 29.78 billion kilometers (18.5 billion miles) around the Sun."
+      },
+      {
+        q: "Can a human reach 3 billion seconds old?",
+        a: "Yes. 3 billion seconds corresponds to 95 years and 36 days. Jeanne Calment, the longest living verified human, reached approximately 3.86 billion seconds."
+      },
+      {
+        q: "What is the Year 2038 Unix epoch problem?",
+        a: "Unix timestamps on legacy 32-bit systems overflow at 2,147,483,647 seconds on January 19, 2038, requiring complete migration to 64-bit integers."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -1549,7 +1766,7 @@ export function buildViralTools() {
         <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #ef4444; margin-bottom: 0.5rem;">2 AM Physics & Survival Scaler</div>
         <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Nuclear Blast Radius & Thermal Damage Estimator</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          Physics-based blast damage zones calculated via cube-root scaling laws ($R \\propto Y^{1/3}$) from tactical nukes to thermonuclear megatons and asteroid impacts.
+          Physics-based blast damage zones calculated via Glasstone & Dolan cube-root scaling laws (\(R \propto Y^{1/3}\)) from tactical sub-kiloton devices to thermonuclear megatons.
         </p>
       </header>
 
@@ -1577,31 +1794,148 @@ export function buildViralTools() {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #f97316; padding: 1.25rem; border-radius: 6px;">
             <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Fireball Radius</div>
-            <div id="nbFireball" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #f97316; margin: 0.25rem 0;">0.89 km</div>
+            <div id="nbFireball" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #f97316; margin: 0.25rem 0;">0.89 km</div>
             <div style="font-size: 0.75rem; color: var(--text-muted);">Instant vaporization zone</div>
           </div>
 
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #ef4444; padding: 1.25rem; border-radius: 6px;">
             <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Heavy Blast (20 psi)</div>
-            <div id="nbHeavy" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">1.85 km</div>
+            <div id="nbHeavy" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #ef4444; margin: 0.25rem 0;">1.85 km</div>
             <div style="font-size: 0.75rem; color: var(--text-muted);">Reinforced concrete leveled</div>
           </div>
 
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #eab308; padding: 1.25rem; border-radius: 6px;">
             <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Moderate Blast (5 psi)</div>
-            <div id="nbMod" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #eab308; margin: 0.25rem 0;">3.89 km</div>
+            <div id="nbMod" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #eab308; margin: 0.25rem 0;">3.89 km</div>
             <div style="font-size: 0.75rem; color: var(--text-muted);">Residential homes collapse</div>
           </div>
 
           <div style="background: var(--surface-alt); border: 1px solid var(--border); border-top: 4px solid #8b5cf6; padding: 1.25rem; border-radius: 6px;">
             <div style="font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Thermal Burns (3rd Deg)</div>
-            <div id="nbThermal" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">8.41 km</div>
+            <div id="nbThermal" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #8b5cf6; margin: 0.25rem 0;">8.41 km</div>
             <div style="font-size: 0.75rem; color: var(--text-muted);">Severe 3rd-degree burns to bare skin</div>
           </div>
         </div>
 
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1rem 1.25rem; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
-          Damage radius scales with the cube root of explosive energy yield: <code>R = k · Y^(1/3)</code>. Thermal radiation drops with inverse-square atmospheric extinction.
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 0.5rem;">
+          <button type="button" id="copyBlastBtn" onclick="copyBlastAssessment()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Blast Zones Assessment
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Glasstone & Dolan Blast Physics: Step-by-Step Scaling Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #f97316;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Nuclear Fireball Radius ((R_f))</strong>
+            $$R_{\text{fireball}} \approx 0.11 \times Y^{0.4}\text{ km (where }Y\text{ is in kilotons)}$$
+            For a <span id="derYield1">475</span> kt warhead:
+            $$R_f = 0.11 \times (475)^{0.4} = 0.11 \times 11.75 = 1.29\text{ km}$$
+            Inside this plasma bubble, peak temperatures exceed 100,000,000°C, producing total molecular disintegration.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Shockwave Overpressure Cube-Root Scaling Law</strong>
+            $$R_{\text{overpressure}} = k \times Y^{1/3}$$
+            $$\text{Heavy Damage (20 psi): } R_{20} = 0.237 \times Y^{1/3}$$
+            $$\text{Moderate Collapse (5 psi): } R_5 = 0.50 \times Y^{1/3}$$
+            Shockwave energy expands spherically through the atmosphere. Because volume is proportional to (R^3), blast overpressure scales strictly with the cube root of the explosive yield.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #8b5cf6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Thermal Radiation & Flash Burns ((Q \propto Y / R^2))</strong>
+            $$R_{\text{thermal (3rd deg)}} \approx 1.08 \times Y^{0.41}\text{ km}$$
+            Because thermal energy travels at the speed of light unimpeded by mechanical drag, its effective lethality radius expands significantly faster ((Y^{0.41})) than the acoustic blast shockwave ((Y^{0.333})).
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & MILITARY SURVIVAL PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Nuclear Blast & Survival Fallacies</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Airburst Mach Stem Amplification Trap</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Nuclear weapons are almost never detonated at ground level against cities. When detonated at optimal altitude (airburst), the downward shockwave reflects off the ground and merges with the incident wave, creating a horizontal shock front called the <strong>Mach Stem</strong> that nearly doubles the 5 psi residential collapse radius.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Atmospheric Extinction & Meteorological Attenuation</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Thermal burn equations assume clear, pristine desert air. Cloud cover, heavy fog, rain, or high humidity can attenuate thermal flash fluence by 50% to 80%. Conversely, detonation above dense low cloud decks can reflect thermal energy downward, igniting unpredictable secondary fires.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. The Dangerous Neglect of Local Radioactive Fallout</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Airburst models show minimal prompt fallout because the fireball never touches soil. However, if an adversary attacks hardened underground missile silos with surface bursts, hundreds of thousands of tons of dirt are pulverized, vaporized, neutron-activated, and carried downwind for hundreds of miles as lethal black fallout.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. The Linear Intuition Fallacy in Explosive Yield</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              The human mind defaults to linear proportionality: expecting a 10-megaton weapon to have 10 times the destructive radius of a 1-megaton weapon. Due to the cube-root law ((10^{1/3} \approx 2.15)), a tenfold increase in explosive yield yields only a 2.15-fold increase in blast distance.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. High-Altitude Electromagnetic Pulse (HEMP) Decoupling</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              A weapon detonated 100 to 400 km above the atmosphere causes zero overpressure, zero fireball damage, and zero direct blast injuries at the surface. Instead, gamma rays interact with the Earth\'s magnetic field to generate thousands of volts per meter of electrical transient pulse, permanently destroying electrical grids and communications across continental scales.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Nuclear Blast Physics & Survivability</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How does explosive yield scale with blast radius?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Blast radius scales according to the cube root of explosive energy yield: (R \propto Y^{1/3}). To double the distance of a specific overpressure threshold (such as 5 psi residential destruction), the warhead yield must be multiplied by 8 ((2^3 = 8)).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the difference between 20 psi and 5 psi overpressure?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              20 psi overpressure creates catastrophic structural failure, pulverizing heavily reinforced concrete and steel buildings with wind velocities exceeding 500 mph (fatalities approach 100%). 5 psi overpressure collapses standard residential timber and brick homes with 160 mph winds, causing widespread structural entrapment and moderate-to-severe injuries.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why does thermal radiation travel further than the physical shockwave?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Thermal radiation consists of electromagnetic waves traveling instantaneously at the speed of light ((300,000\text{ km/s})). The blast shockwave is a mechanical acoustic wave that loses energy rapidly compressing ambient air, traveling at merely supersonic speeds before decaying to sonic speed.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is an airburst and why do military strategists prefer it?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              An airburst detonates several hundred to thousands of meters above the surface. This prevents shock energy from being absorbed by cratering the soil, maximizes Mach stem ground reflection, and substantially enlarges the ground footprint of lethal overpressure without creating heavy local radioactive fallout.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How does the Tsar Bomba compare to modern tactical warheads?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The 1961 Soviet Tsar Bomba detonated at 50 megatons (50,000 kilotons)—over 3,300 times more powerful than Hiroshima (15 kt). Modern arsenals favor smaller MIRV warheads (100–475 kt) because distributing multiple smaller warheads destroys a vastly larger total surface area than a single monster bomb.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1617,7 +1951,8 @@ export function buildViralTools() {
 
       function calcBlast() {
         var y = parseFloat(document.getElementById('nbYield').value) || 1; // kt
-        var y_mt = y / 1000; // Mt
+        var d1 = document.getElementById('derYield1');
+        if (d1) d1.textContent = y.toLocaleString('en-US');
 
         // Standard Glasstone & Dolan scaling approximations (km):
         // Fireball radius ~ 0.11 * Y^0.4 (km for Y in kt)
@@ -1638,6 +1973,36 @@ export function buildViralTools() {
         document.getElementById('nbThermal').textContent = r_thermal.toFixed(2) + ' km (' + (r_thermal * 0.621371).toFixed(2) + ' mi)';
       }
 
+      function copyBlastAssessment() {
+        var y = document.getElementById('nbYield').value;
+        var fb = document.getElementById('nbFireball').textContent;
+        var hv = document.getElementById('nbHeavy').textContent;
+        var md = document.getElementById('nbMod').textContent;
+        var th = document.getElementById('nbThermal').textContent;
+
+        var text = '=== NUCLEAR BLAST RADIUS & DAMAGE ZONES ASSESSMENT ===\n' +
+          'Explosive Yield: ' + y + ' Kilotons TNT Equivalent\n' +
+          'Fireball Radius (Instant Vaporization): ' + fb + '\n' +
+          'Heavy Blast Zone (20 psi, Reinforced Concrete Leveled): ' + hv + '\n' +
+          'Moderate Blast Zone (5 psi, Residential Collapse): ' + md + '\n' +
+          'Thermal Radiation Zone (3rd-Degree Flash Burns): ' + th + '\n' +
+          'Physics Engine: Glasstone & Dolan Scaling Equations\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copyBlastBtn');
+        navigator.clipboard.writeText(text).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Blast Zones Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
+      }
+
       document.addEventListener('DOMContentLoaded', calcBlast);
       calcBlast();
     </script>
@@ -1648,7 +2013,29 @@ export function buildViralTools() {
     metaDesc: 'Calculate nuclear explosion damage zones using cube-root physics scaling laws. Estimates fireball, 20 psi overpressure, 5 psi residential collapse, and thermal burn radius.',
     canonical: `${DOMAIN}/util/blast-radius-calculator`,
     bodyContent: blastHtml,
-    currentPath: '/util/blast-radius-calculator'
+    currentPath: '/util/blast-radius-calculator',
+    faqSchema: [
+      {
+        q: "How does explosive yield scale with blast radius?",
+        a: "Blast radius scales according to the cube root of explosive energy yield: R ∝ Y^(1/3). Multiplying warhead yield by 8 doubles the blast radius."
+      },
+      {
+        q: "What is the difference between 20 psi and 5 psi overpressure?",
+        a: "20 psi demolishes reinforced concrete structures with 500 mph winds, while 5 psi collapses ordinary residential structures with 160 mph winds."
+      },
+      {
+        q: "Why does thermal radiation travel further than the physical shockwave?",
+        a: "Thermal radiation travels at the speed of light without mechanical resistance, whereas the blast shockwave slows as it displaces air mass."
+      },
+      {
+        q: "What is an airburst and why do military strategists prefer it?",
+        a: "An airburst detonation optimizes horizontal ground blast via Mach stem reflection, maximizing destruction without significant local fallout."
+      },
+      {
+        q: "How does the Tsar Bomba compare to modern tactical warheads?",
+        a: "The 50-megaton Tsar Bomba was over 3,300 times larger than Hiroshima, but modern arsenals use clusters of smaller 100-475 kt MIRV warheads for far greater coverage efficiency."
+      }
+    ]
   }));
 
   // ──────────────────────────────────────────────────────────────────────────
@@ -1661,10 +2048,10 @@ export function buildViralTools() {
       </nav>
 
       <header style="margin-bottom: 2rem;">
-        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #f59e0b; margin-bottom: 0.5rem;">2 AM Probability Absurdity</div>
-        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">Infinite Monkey Theorem & Typo Probability Calculator</h1>
+        <div style="font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: #3b82f6; margin-bottom: 0.5rem;">2 AM Probability & Deep Time</div>
+        <h1 style="font-family: var(--serif); font-size: 2.2rem; margin-bottom: 0.5rem;">The Infinite Monkey Theorem Odds & Time Calculator</h1>
         <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
-          How long would it take a monkey typing randomly at a keyboard to produce Shakespeare, Hamlet, or your name? Calculate the astronomical odds and time required.
+          Calculate the statistical permutations, probability, and chronological time required for an idealized primate typing randomly at 10 keystrokes/second to produce any phrase, word, or sentence.
         </p>
       </header>
 
@@ -1679,6 +2066,7 @@ export function buildViralTools() {
           <button type="button" class="btn-sm" onclick="setMonkeyPreset('CAT')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">CAT (3 chars)</button>
           <button type="button" class="btn-sm" onclick="setMonkeyPreset('BANANA')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">BANANA (6 chars)</button>
           <button type="button" class="btn-sm" onclick="setMonkeyPreset('TO BE OR NOT')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">TO BE OR NOT (12 chars)</button>
+          <button type="button" class="btn-sm" onclick="setMonkeyPreset('HAMLET')" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; cursor: pointer;">HAMLET (6 chars)</button>
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; text-align: center;">
@@ -1701,12 +2089,132 @@ export function buildViralTools() {
           </div>
         </div>
 
-        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px;">
+        <div style="background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; margin-bottom: 1.5rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
             <span style="font-family: var(--mono); font-size: 0.8rem; font-weight: bold;">Virtual Monkey Live Keystroke Stream:</span>
             <button type="button" class="btn-sm" id="btnToggleSim" onclick="toggleMonkeySim()" style="background: var(--surface); border: 1px solid var(--border); padding: 0.25rem 0.6rem; border-radius: 4px; font-family: var(--mono); font-size: 0.75rem; cursor: pointer;">Start Simulation</button>
           </div>
           <div id="monkeyStream" style="font-family: var(--mono); font-size: 0.9rem; background: var(--surface); border: 1px solid var(--border); padding: 0.75rem; border-radius: 4px; height: 65px; overflow: hidden; word-break: break-all; color: var(--text-muted);">Click 'Start Simulation' to watch a virtual monkey type randomly...</div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end;">
+          <button type="button" id="copyMonkeyBtn" onclick="copyMonkeyAssessment()" class="btn-sm" style="background: var(--surface-alt); border: 1px solid var(--border); padding: 0.5rem 1rem; border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; cursor: pointer;">
+            📋 Copy Combinatorial Odds Report
+          </button>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATIONS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Infinite Monkey Combinatorics: Step-by-Step Derivations</h2>
+        <div style="display: grid; gap: 1rem; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #3b82f6;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">1. Permutation Search Space Formulation</strong>
+            Given an alphabet size (K = 27) (letters A–Z plus whitespace) and a target phrase length (L), every individual keystroke is modeled as an independent identically distributed (i.i.d.) discrete random variable:
+            $$P(\text{single character match}) = \frac{1}{27}$$
+            $$P(\text{exact } L\text{-character match}) = \left(\frac{1}{27}\right)^L = 27^{-L}$$
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #ef4444;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">2. Expected Keystrokes & Geometric Distribution</strong>
+            The waiting time until the first occurrence of a non-overlapping Bernoulli sequence follows a geometric distribution with mean:
+            $$E[\text{keystrokes}] = 27^L$$
+            For length (L=6) (e.g. "BANANA"), (E = 27^6 = 387,420,489) keystrokes.
+            For length (L=12) (e.g. "TO BE OR NOT"), (E = 27^{12} \approx 1.50 \times 10^{17}) keystrokes.
+          </div>
+          <div style="background: var(--surface-alt); padding: 1rem; border-radius: 6px; border-left: 3px solid #10b981;">
+            <strong style="color: var(--fg); display: block; margin-bottom: 0.35rem;">3. Deep Time vs Cosmic Age Benchmarking</strong>
+            $$\text{Time in Seconds} = \frac{E[\text{keystrokes}]}{\text{Typing Speed (10 keys/s)}}$$
+            The observable universe is approximately 13.8 billion years old ((4.35 \times 10^{17}\) seconds). A single monkey typing at 10 keystrokes/s produces (4.35 \times 10^{18}) characters in the entire history of the universe—sufficient only to reliably produce strings of length (L \le 13).
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 FATAL TRAPS & PROBABILITY PITFALLS -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">5 Critical Misconceptions & Combinatorial Traps</h2>
+        <div style="display: grid; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #ef4444;">1. The Independent Trials vs Continuous Stream Trap</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              In a continuous stream, trials are not independent disjoint blocks of (L) characters. Because a target word can begin at any keystroke index, overlapping subsequences reduce the mean waiting time. However, if the word has periodic autocorrelations (like \"ANANAS\"), self-overlaps increase the variance and conditional waiting time.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #f59e0b;">2. Combinatorial Explosion Exceeds Physical Reality</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Typing a short 40-character phrase requires (27^{40} \approx 1.79 \times 10^{57}) keystrokes. By comparison, planet Earth contains approximately (1.33 \times 10^{50}) atoms. Even if every atom on Earth were an ultra-fast quantum computer typing a billion words per second since the Big Bang, they would not yet have produced a single 40-character sentence.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #10b981;">3. Biological Primates Are Not Uniform Pseudo-Random Generators</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              In 2002, researchers at Paignton Zoo gave a computer keyboard to six Celebes crested macaques. The monkeys did not produce random text; they mashed the letter 'S' repeatedly, hit the keyboard with a rock, and urinated on the electronics. Real animals exhibit heavy biological bias, destroying mathematical randomness.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #3b82f6;">4. The Hamlet Delusion & The Heat Death Limit</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              Popular culture claims monkeys will eventually type Shakespeare\'s complete works. But the entire universe will suffer thermodynamic Heat Death ((10^{100}) years) long before a monkey randomly types even the first scene of Hamlet ((27^{130,000}) permutations). Mathematical infinity cannot be realized in a finite universe.
+            </p>
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: var(--surface-alt); padding: 1rem 1.25rem; border-radius: 0 6px 6px 0;">
+            <h3 style="font-size: 0.95rem; font-weight: bold; margin: 0 0 0.35rem; color: #8b5cf6;">5. The Mathematical Definition of "Almost Surely"</h3>
+            <p style="font-size: 0.85rem; line-height: 1.6; margin: 0; color: var(--text-muted);">
+              In measure theory, an event occurring \"almost surely\" (probability 1) means the set of non-occurring sequences has Lebesgue measure zero. However, measure zero does NOT mean impossible—a monkey could theoretically type the letter \"A\" for eternity. Probability 1 does not guarantee physical manifestation in finite spacetime.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ ACCORDION SECTION -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.4rem; margin-bottom: 1rem;">Frequently Asked Questions: Infinite Monkey Theorem</h2>
+        <div class="faq-accordion" style="display: grid; gap: 0.75rem;">
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the mathematical premise of the Infinite Monkey Theorem?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              The theorem states that an infinite sequence of random keystrokes on a typewriter will almost surely contain any given text, including the complete works of William Shakespeare, because the probability of the string appearing somewhere in an infinite sequence approaches 1.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Why does adding just one letter make the time 27 times longer?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Because the search space scales exponentially ((27^L)). Each additional character increases the number of possible permutations by a factor of 27. Going from a 6-letter word to an 8-letter word multiplies the expected keystrokes by (27 \times 27 = 729).
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>How long would it take a monkey to type the word 'BANANA'?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              'BANANA' has 6 letters. On a 27-key keyboard, there are (27^6 = 387,420,489) combinations. At 10 keystrokes per second, a single monkey would take approximately <strong>38.7 million seconds (1.23 years)</strong> of non-stop typing to produce it.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>Has this ever been tested with actual living monkeys?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              Yes. In 2002, the University of Plymouth tested six crested macaques. Over one month, they produced five pages of text largely composed of the letter 'S', smashed the computer with a stone, and defecated on it, demonstrating that living primates do not behave like statistical random variables.
+            </div>
+          </div>
+          <div class="faq-item" style="border: 1px solid var(--border); border-radius: 6px; overflow: hidden;">
+            <button type="button" class="faq-question" onclick="toggleFaq(this)" style="width: 100%; text-align: left; padding: 0.85rem 1rem; background: var(--surface-alt); border: none; font-family: var(--sans); font-size: 0.95rem; font-weight: bold; color: var(--fg); cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+              <span>What is the difference between a random number generator and a physical monkey?</span>
+              <span class="faq-icon" style="font-family: var(--mono); color: var(--text-muted); font-size: 1.1rem;">+</span>
+            </button>
+            <div class="faq-answer" style="display: none; padding: 1rem; font-size: 0.9rem; line-height: 1.6; color: var(--text-muted); border-top: 1px solid var(--border);">
+              A pseudo-random algorithm produces uniform character distributions across all keys. Physical primates exhibit motor fatigue, positional preferences (hitting keys nearest their dominant hand), and behavioral patterns that introduce heavy entropy distortions.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1747,6 +2255,34 @@ export function buildViralTools() {
         document.getElementById('monkeyTime').textContent = timeStr;
       }
 
+      function copyMonkeyAssessment() {
+        var text = document.getElementById('monkeyText').value;
+        var prob = document.getElementById('monkeyProb').textContent;
+        var keys = document.getElementById('monkeyKeys').textContent;
+        var time = document.getElementById('monkeyTime').textContent;
+
+        var report = '=== INFINITE MONKEY THEOREM ODDS & DEEP TIME REPORT ===\n' +
+          'Target String: "' + text + '" (' + text.length + ' characters)\n' +
+          'Alphabet Search Space: 27 Characters (A-Z + Space)\n' +
+          'Probability Per Window: ' + prob + '\n' +
+          'Expected Keystrokes (27^L): ' + keys + '\n' +
+          'Expected Time for 1 Monkey (10 keys/s): ' + time + '\n' +
+          'Calculated via Digital Tools Shed: ' + window.location.href;
+
+        var btn = document.getElementById('copyMonkeyBtn');
+        navigator.clipboard.writeText(report).then(function() {
+          var orig = btn.innerHTML;
+          btn.innerHTML = '✓ Odds Copied!';
+          btn.style.borderColor = '#10b981';
+          btn.style.color = '#10b981';
+          setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+          }, 2500);
+        });
+      }
+
       var simRunning = false;
       var simTimer = null;
       var simChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ ';
@@ -1780,10 +2316,31 @@ export function buildViralTools() {
     metaDesc: 'Calculate the mathematical probability and time required for a monkey typing randomly to produce any word or phrase. Compares against the age of the universe.',
     canonical: `${DOMAIN}/util/infinite-monkey-calculator`,
     bodyContent: monkeyHtml,
-    currentPath: '/util/infinite-monkey-calculator'
+    currentPath: '/util/infinite-monkey-calculator',
+    faqSchema: [
+      {
+        q: "What is the mathematical premise of the Infinite Monkey Theorem?",
+        a: "An infinite sequence of random keystrokes will almost surely contain any finite text, including the complete works of Shakespeare."
+      },
+      {
+        q: "Why does adding just one letter make the time 27 times longer?",
+        a: "Because each additional character multiplies the total permutation space by 27 (27^L)."
+      },
+      {
+        q: "How long would it take a monkey to type the word 'BANANA'?",
+        a: "At 10 keys per second on a 27-key keyboard (387,420,489 combinations), a single monkey takes approximately 1.23 years of continuous typing."
+      },
+      {
+        q: "Has this ever been tested with actual living monkeys?",
+        a: "Yes, in 2002 at Paignton Zoo, macaques mainly produced the letter 'S', smashed the computer with stones, and urinated on it."
+      },
+      {
+        q: "What is the difference between a random number generator and a physical monkey?",
+        a: "Physical primates have biomechanical biases, preferred strike positions, and fatigue, destroying uniform randomness."
+      }
+    ]
   }));
 
-  // ──────────────────────────────────────────────────────────────────────────
   // 10. SIMULATION HYPOTHESIS CALCULATOR (/util/simulation-argument-calculator.html)
   // ──────────────────────────────────────────────────────────────────────────
   const simHtml = `
