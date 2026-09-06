@@ -125901,6 +125901,2917 @@ writeFileSync(join(calcDir, 'venturi-scrubber-particulate-efficiency-calculator.
 
 
 
-console.log('  ✓ Built Trade & Construction Suite (191 calculators in /calc/)');
+  // ==========================================
+  // Tool BK1: API 521 Flare Header Pressure Drop & Mach Number Sizing Calculator
+  // ==========================================
+  (() => {
+    const slug = 'api-521-flare-header-backpressure-calculator';
+    const title = 'API 521 Flare Header Pressure Drop & Mach Number Sizing Calculator';
+    const metaDescription = 'Calculate flare header compressible vapor flow, built-up backpressure, Mach number, acoustic fatigue rho-v2 kinetic energy, and pressure relief valve (PRV) allowable backpressure limits per API Standard 521 and ISO 23251.';
+
+    const faq = [
+      {
+        q: 'What are the API 521 velocity and Mach number limits for flare headers?',
+        a: 'Per API Standard 521 Section 5.4.1.3, for overall header sizing during maximum combined emergency relief, vapor velocity should generally not exceed Mach 0.50. For short flare tailpipes or lateral connections from individual relief valves to the main header, velocities up to Mach 0.70 to 0.75 are permissible during infrequent contingency cases. Mach 1.0 represents sonic choked flow, which must be avoided in piping manifolds because sonic shockwaves cause violent acoustic fatigue and uncontrollable upstream backpressure.'
+      },
+      {
+        q: 'What is the maximum allowable built-up backpressure for conventional vs balanced PRVs?',
+        a: 'For conventional spring-loaded pressure relief valves, built-up backpressure must not exceed 10% of the set pressure (gauge) at 10% overpressure, because backpressure acts on the top of the valve disc, directly increasing the opening set pressure and reducing relief capacity. Balanced bellows PRVs isolate the upper disc area from backpressure and are typically rated for backpressures up to 30% to 50% of set pressure. Pilot-operated PRVs with external or balanced pilot sensing can tolerate backpressures up to 70% or more.'
+      },
+      {
+        q: 'What is the rho-v2 kinetic energy criterion and why does it matter in flare design?',
+        a: 'The parameter rho*v^2 (fluid density times velocity squared) represents the kinetic momentum of the flowing gas. API 521 recommends keeping rho*v^2 below 50,000 kg/(m*s^2) (approximately 33,500 lb/(ft*s^2)) in main headers to prevent excessive flow-induced vibration (FIV), acoustic-induced fatigue (AIV), and structural pipe support failure. When rho*v^2 exceeds 100,000 kg/(m*s^2), sound power levels inside the pipe can exceed 160 dB, generating high-frequency circumferential acoustic standing waves that crack thin-walled branch connections.'
+      },
+      {
+        q: 'Why must compressible flow equations be used instead of Darcy-Weisbach for flare headers?',
+        a: 'Standard incompressible Darcy-Weisbach formulas assume constant fluid density. In emergency flare relief headers, pressures drop dramatically from 50–150 psig at the PRV outlet to 0–5 psig at the flare knock-out drum. As pressure drops along the header, gas density decreases, which accelerates fluid velocity toward sonic limits. Using incompressible hydraulic equations drastically underestimates pressure drop and velocity, leading to undersized flare headers that choke during plant-wide power failures.'
+      },
+      {
+        q: 'How does Joule-Thomson (JT) cooling affect flare header metallurgy?',
+        a: 'When high-pressure gas (such as natural gas, methane, or propane) expands isenthalpically across a relief valve orifice into a low-pressure flare header, it experiences significant Joule-Thomson temperature drop (often 5 to 10 deg F per 100 psi drop). Depressuring from 1000 psig to atmospheric can chill flare header gas below -20 deg F to -50 deg F (-29 deg C to -46 deg C). Standard carbon steel piping undergoes ductile-to-brittle transition at low temperatures; failure to specify impact-tested low-temperature carbon steel (LTCS A333 Gr 6) or stainless steel causes catastrophic brittle rupture during winter relief events.'
+      }
+    ];
+
+    const content = `
+<style>
+.flare-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.flare-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.flare-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.flare-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .flare-grid-2, .flare-grid-3, .flare-grid-4 { grid-template-columns: 1fr; }
+}
+.flare-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.flare-input, .flare-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.flare-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.flare-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.flare-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.flare-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.flare-btn:hover { opacity: 0.9; }
+.flare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.flare-table th, .flare-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.flare-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="flare-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Flare Header Piping & Gas Physical Properties</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">API Standard 521 Compressible Isothermal Gas Flow Architecture</div>
+    </div>
+    <div>
+      <label class="flare-label">Relief Gas Composition Preset</label>
+      <select id="flare_preset" class="flare-select" style="min-width: 280px;">
+        <option value="natgas">Natural Gas / Methane (MW 18, k=1.31, Z=0.95)</option>
+        <option value="propane">LPG / Propane Vapor (MW 44, k=1.13, Z=0.90)</option>
+        <option value="ethylene">Refinery Fuel Gas / Mixed Hydrocarbons (MW 28, k=1.24, Z=0.94)</option>
+        <option value="hydrogen">High-Hydrogen Reformer Gas (MW 6, k=1.40, Z=1.00)</option>
+        <option value="custom">Custom Parameters (User Input)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="flare-grid-3">
+    <div>
+      <label class="flare-label">Relief Vapor Mass Flow (W) <span>lb / hr</span></label>
+      <input type="number" id="flare_w" class="flare-input" value="120000" step="5000" min="1000" max="2000000">
+    </div>
+    <div>
+      <label class="flare-label">Molecular Weight (MW) <span>g / mol</span></label>
+      <input type="number" id="flare_mw" class="flare-input" value="28.0" step="0.5" min="2.0" max="200.0">
+    </div>
+    <div>
+      <label class="flare-label">Relief Temperature (T) <span>&deg;F</span></label>
+      <input type="number" id="flare_temp" class="flare-input" value="120" step="10" min="-100" max="600">
+    </div>
+  </div>
+
+  <div class="flare-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="flare-label">Nominal Pipe Size (NPS) <span>inches</span></label>
+      <input type="number" id="flare_nps" class="flare-input" value="16.0" step="2" min="2" max="60">
+    </div>
+    <div>
+      <label class="flare-label">Pipe Internal Diameter (ID) <span>inches (Sch 40)</span></label>
+      <input type="number" id="flare_id" class="flare-input" value="15.25" step="0.25" min="2.0" max="60.0">
+    </div>
+    <div>
+      <label class="flare-label">Header Equivalent Length (L_eq) <span>ft</span></label>
+      <input type="number" id="flare_leq" class="flare-input" value="850" step="50" min="20" max="10000">
+    </div>
+    <div>
+      <label class="flare-label">KO Drum Outlet Pressure (P2) <span>psig</span></label>
+      <input type="number" id="flare_p2" class="flare-input" value="5.0" step="0.5" min="0.0" max="50.0">
+    </div>
+  </div>
+
+  <div class="flare-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="flare-label">Specific Heat Ratio (k = Cp/Cv)</label>
+      <input type="number" id="flare_k" class="flare-input" value="1.24" step="0.01" min="1.05" max="1.67">
+    </div>
+    <div>
+      <label class="flare-label">Compressibility Factor (Z)</label>
+      <input type="number" id="flare_z" class="flare-input" value="0.94" step="0.01" min="0.70" max="1.05">
+    </div>
+    <div>
+      <label class="flare-label">Governing PRV Set Pressure <span>psig</span></label>
+      <input type="number" id="flare_pset" class="flare-input" value="150" step="10" min="15" max="3000">
+    </div>
+  </div>
+</div>
+
+<div class="flare-box">
+  <h3 style="margin-top: 0;">Compressible Flow Diagnostics & Backpressure Evaluation</h3>
+  <div class="flare-grid-4">
+    <div class="flare-kpi">
+      <div class="flare-kpi-lbl">Inlet Header Backpressure (P1)</div>
+      <div class="flare-kpi-val" id="res_flare_p1">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_flare_dp">-- psi header drop</div>
+    </div>
+    <div class="flare-kpi">
+      <div class="flare-kpi-lbl">Maximum Mach Number</div>
+      <div class="flare-kpi-val" id="res_flare_mach">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">API 521 Limit: &le; 0.50</div>
+    </div>
+    <div class="flare-kpi">
+      <div class="flare-kpi-lbl">Kinetic Energy (rho*v^2)</div>
+      <div class="flare-kpi-val" id="res_flare_rhov2">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_flare_rhov2_eng">-- lb/(ft*s^2)</div>
+    </div>
+    <div class="flare-kpi">
+      <div class="flare-kpi-lbl">Conventional PRV Status</div>
+      <div class="flare-kpi-val" id="res_flare_prv_status" style="font-size: 1.15rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_flare_prv_pct">-- % of set pressure</div>
+    </div>
+  </div>
+
+  <div class="flare-grid-3" style="margin-top: 1rem;">
+    <div class="flare-kpi">
+      <div class="flare-kpi-lbl">Exit Velocity (at Drum)</div>
+      <div class="flare-kpi-val" id="res_flare_vexit">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">ft / s (Mach at exit)</div>
+    </div>
+    <div class="flare-kpi">
+      <div class="flare-kpi-lbl">Speed of Sound (Sonic c)</div>
+      <div class="flare-kpi-val" id="res_flare_csonic">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">ft / s acoustic speed</div>
+    </div>
+    <div class="flare-kpi">
+      <div class="flare-kpi-lbl">Balanced Bellows Margin</div>
+      <div class="flare-kpi-val" id="res_flare_bellows" style="font-size: 1.15rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">limit 30% - 50% P_set</div>
+    </div>
+  </div>
+</div>
+
+<div class="flare-box">
+  <h3 style="margin-top: 0;">Interactive Flare Header Pressure & Mach Number Profile</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="flare_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">API 521 Header Segment & Velocity Breakdown</h4>
+  <table class="flare-table">
+    <thead>
+      <tr>
+        <th>Location Along Header</th>
+        <th>Static Pressure</th>
+        <th>Gas Density</th>
+        <th>Flow Velocity</th>
+        <th>Local Mach Number</th>
+        <th>API 521 Compliance Status</th>
+      </tr>
+    </thead>
+    <tbody id="flare_table_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_flare_copy" class="flare-btn">
+      <span>📋 Copy Full Flare Header Hydraulic Report</span>
+    </button>
+    <div id="flare_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="flare-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Engineering Derivations</h3>
+  
+  <p>Gas flow in relief manifolds is governed by compressible isothermal flow equations per API Standard 521 Section 5.4 and ISO 23251. Because pressure drops continuously along the piping header, vapor expands and accelerates. Sizing based on incompressible fluid equations leads to massive under-prediction of backpressure and Mach number.</p>
+
+  <div class="formula-box">
+1. Compressible Isothermal Gas Flow in Long Header:
+   P1^2 - P2^2 = [ f * L_eq / D + 2 * ln(P1 / P2) ] * [ (W^2 * Z * R * T) / (g_c * M * A^2) ]
+   Where:
+     P1, P2 = Upstream & downstream absolute pressure (psia)
+     W      = Mass flow rate (lb/s)
+     D      = Pipe internal diameter (ft)
+     A      = Pipe cross-sectional area (ft^2)
+     f      = Darcy friction factor (~0.014 to 0.018 for commercial steel)
+     M      = Molecular weight of vapor (lb/lbmol)
+     T      = Absolute temperature (deg R = deg F + 459.67)
+     Z      = Gas compressibility factor
+
+2. Speed of Sound & Mach Number:
+   c = sqrt( k * Z * R * T * g_c / M )   (ft/s)
+   v = W / (rho * A)                     (ft/s)
+   Ma = v / c
+   Where:
+     k   = Specific heat ratio (Cp / Cv)
+     rho = (P * M) / (Z * R * T)          (lb/ft^3)
+
+3. Kinetic Energy Criterion (Acoustic-Induced Vibration, AIV):
+   rho * v^2 = Density * Velocity^2  (lb/(ft*s^2) or kg/(m*s^2))
+   API 521 Limits:
+     rho * v^2 <= 50,000 kg/(m*s^2) (33,500 lb/(ft*s^2)) -> Normal Safe Header
+     rho * v^2 >= 100,000 kg/(m*s^2) -> Severe Acoustic Fatigue Risk (AIV)
+
+4. PRV Allowable Built-Up Backpressure:
+   Conventional PRV: P_backpressure <= 0.10 * P_set (10% limit)
+   Balanced Bellows: P_backpressure <= 0.30 - 0.50 * P_set (30-50% limit)
+   Pilot Operated:   P_backpressure <= 0.70 * P_set (70% limit)
+  </div>
+
+  <p>As relief gas approaches the downstream knock-out drum, pressure reaches its minimum, and velocity reaches its maximum. If the header diameter is too small, flow will choke ($Ma = 1.0$) at the piping exit or reducer, causing upstream pressure to spike catastrophically and forcing relief valves into destructive chatter.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #ef4444;">
+  <h4 style="color: #ef4444;">1. Exceeding 10% Built-Up Backpressure on Conventional PRVs</h4>
+  <p>Conventional spring-loaded relief valves vent bonnet chambers to the valve outlet nozzle. Any built-up backpressure in the discharge piping exerts downward force directly on top of the valve disc, increasing the effective opening pressure. If backpressure exceeds 10% of set pressure, the valve violently chatters and slams open and shut at 20 to 50 cycles per second, destroying the internal nozzle, shearing the spindle, and causing piping flange blowouts.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #f59e0b;">
+  <h4 style="color: #f59e0b;">2. Choked Flow (Mach 1.0) at Pipe Reducers and KO Drum Inlets</h4>
+  <p>A gas flow cannot exceed Mach 1.0 inside constant-diameter piping without a divergent nozzle. If a flare header is sized with Mach numbers exceeding 0.7 to 0.8, any downstream elbow, reducer, or knock-out drum nozzle will cause sonic choking. Once choked, pressure upstream rises uncontrollably regardless of downstream piping capacity, over-pressuring protected process vessels.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #10b981;">
+  <h4 style="color: #10b981;">3. Acoustic-Induced Vibration (AIV) Cracking Branch Welds</h4>
+  <p>When high-pressure gas expands across relief valves with sound power levels exceeding 155 to 160 dB, high-frequency acoustic standing waves excite structural hoop modes in the thin-walled flare header. The resulting high-cycle fatigue causes instantaneous circumferential cracking of small-bore branch connections (such as pressure taps, drains, and vents) within minutes of relief activation.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #3b82f6;">
+  <h4 style="color: #3b82f6;">4. Liquid Droplet Condensation & Two-Phase Slug Momentum</h4>
+  <p>Heavy hydrocarbons and moisture experience dramatic temperature drops during isenthalpic Joule-Thomson expansion across PRVs. As vapors cool, retrograde condensation generates significant liquid droplets. If header velocity drops below droplet dropout velocity, liquid pools in low points. When a subsequent high-flow relief event occurs, the high-velocity vapor sweeps liquid pools into massive liquid slugs that destroy pipe bends and rip supports off civil stanchions.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+  <h4 style="color: #8b5cf6;">5. Joule-Thomson Auto-Refrigeration & Low-Temperature Pipe Brittle Fracture</h4>
+  <p>Depressurizing light hydrocarbons like methane or ethylene from 1,200 psig to flare header backpressure creates an auto-refrigeration effect, plunging metal temperatures below -40&deg;F (-40&deg;C). Standard carbon steel (A106 Gr B) loses impact toughness and undergoes catastrophic brittle fracture under relief shock loads. Low-temperature carbon steel (A333 Gr 6) or austenitic 304L/316L stainless steel must be specified for any relief streams exhibiting sub-zero auto-refrigeration.</p>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'natgas':   { mw: 18.0, k: 1.31, z: 0.95, temp: 100 },
+    'propane':  { mw: 44.1, k: 1.13, z: 0.90, temp: 80 },
+    'ethylene': { mw: 28.0, k: 1.24, z: 0.94, temp: 120 },
+    'hydrogen': { mw: 6.0,  k: 1.40, z: 1.00, temp: 100 }
+  };
+
+  function drawFlareCanvas(p1, p2, mach1, mach2, rhov2, pset) {
+    const canvas = document.getElementById('flare_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // --- Left Side: Pressure Drop Gradient Along Header ---
+    ctx.save();
+    ctx.translate(40, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Header Pressure Profile (P1 to P2)', 20, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(280, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Header Distance (0 to L_eq)', 100, 245);
+
+    // Pressure curve: P drops non-linearly from P1 down to P2
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(30, 50);
+    ctx.bezierCurveTo(120, 70, 200, 140, 280, 200);
+    ctx.stroke();
+
+    // 10% P_set limit line
+    const convLimitPsi = pset * 0.10;
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(30, 120);
+    ctx.lineTo(280, 120);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('10% P_set Limit (' + convLimitPsi.toFixed(1) + ' psig)', 120, 115);
+
+    // Inlet and outlet callouts
+    ctx.fillStyle = '#38bdf8';
+    ctx.beginPath();
+    ctx.arc(30, 50, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillText('P1: ' + p1.toFixed(1) + ' psig', 38, 45);
+
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(280, 200, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.fillText('P2: ' + p2.toFixed(1) + ' psig', 220, 195);
+
+    ctx.restore();
+
+    // --- Right Side: Mach Number & Kinetic Momentum ---
+    ctx.save();
+    ctx.translate(350, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Velocity Acceleration & Mach Profile', 30, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(310, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Header Distance (0 to L_eq)', 110, 245);
+
+    // Mach 0.5 Limit Line
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(30, 120);
+    ctx.lineTo(310, 120);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText('API 521 Limit: Mach 0.50', 160, 115);
+
+    // Mach curve accelerating
+    const machColor = mach2 > 0.50 ? '#ef4444' : '#10b981';
+    ctx.strokeStyle = machColor;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(30, 190);
+    ctx.bezierCurveTo(120, 180, 220, 150, 310, 60);
+    ctx.stroke();
+
+    ctx.fillStyle = machColor;
+    ctx.beginPath();
+    ctx.arc(310, 60, 5, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Exit Mach: ' + mach2.toFixed(3), 215, 55);
+
+    // Callout box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(40, 40, 150, 48);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(40, 40, 150, 48);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Inlet Mach: ' + mach1.toFixed(3), 48, 58);
+    ctx.fillText('rho*v^2: ' + Math.round(rhov2).toLocaleString() + ' kg/m-s2', 48, 72);
+    ctx.fillStyle = rhov2 > 50000 ? '#ef4444' : '#10b981';
+    ctx.fillText(rhov2 > 50000 ? 'AIV Hazard (>50k)' : 'AIV Normal (<50k)', 48, 84);
+
+    ctx.restore();
+  }
+
+  function calcFlare() {
+    const W_lb_hr = Math.max(100, parseFloat(document.getElementById('flare_w').value) || 120000);
+    const MW = Math.max(2, parseFloat(document.getElementById('flare_mw').value) || 28);
+    const Temp_F = parseFloat(document.getElementById('flare_temp').value) || 120;
+    const Temp_R = Temp_F + 459.67;
+    const ID_in = Math.max(1, parseFloat(document.getElementById('flare_id').value) || 15.25);
+    const Leq_ft = Math.max(10, parseFloat(document.getElementById('flare_leq').value) || 850);
+    const P2_psig = Math.max(0, parseFloat(document.getElementById('flare_p2').value) || 5.0);
+    const k = Math.max(1.05, parseFloat(document.getElementById('flare_k').value) || 1.24);
+    const Z = Math.max(0.7, parseFloat(document.getElementById('flare_z').value) || 0.94);
+    const Pset_psig = Math.max(5, parseFloat(document.getElementById('flare_pset').value) || 150);
+
+    const D_ft = ID_in / 12.0;
+    const A_ft2 = (Math.PI / 4) * Math.pow(D_ft, 2);
+    const W_lb_s = W_lb_hr / 3600.0;
+    const G_flux = W_lb_s / A_ft2; // lb / (s * ft2)
+
+    // Downstream absolute pressure:
+    const P2_psia = P2_psig + 14.696;
+
+    // Darcy friction factor:
+    const f_darcy = 0.016;
+
+    // Compressible isothermal parameter:
+    // P1^2 - P2^2 = (f * Leq / D + 2 * ln(P1/P2)) * [ G^2 * Z * R * T / (g_c * M) ]
+    // In English Engineering units: R = 1545.35 ft-lbf/(lbmol-R), g_c = 32.174 lbm-ft/(lbf-s2)
+    // To get psi^2: divide by 144^2 = 20736
+    const group = (Math.pow(G_flux, 2) * Z * 1545.35 * Temp_R) / (32.174 * MW * 20736.0);
+    const fL_D = (f_darcy * Leq_ft) / D_ft;
+
+    // Iterative solution for P1_psia:
+    let P1_psia = P2_psia * 1.5;
+    for (let iter = 0; iter < 20; iter++) {
+      const lnRatio = 2.0 * Math.log(Math.max(1.01, P1_psia / P2_psia));
+      const P1_sq = Math.pow(P2_psia, 2) + (fL_D + lnRatio) * group;
+      P1_psia = Math.sqrt(Math.max(Math.pow(P2_psia, 2) + 0.1, P1_sq));
+    }
+    const P1_psig = P1_psia - 14.696;
+    const deltaP = P1_psig - P2_psig;
+
+    // Speed of sound: c = sqrt( k * Z * R * T * g_c / MW )  ft/s
+    const c_sonic = Math.sqrt((k * Z * 1545.35 * Temp_R * 32.174) / MW);
+
+    // In-situ velocities and Mach numbers:
+    // Density rho = (P_psia * 144 * MW) / (Z * 1545.35 * Temp_R)  lb/ft3
+    const rho1 = (P1_psia * 144.0 * MW) / (Z * 1545.35 * Temp_R);
+    const v1 = W_lb_s / (rho1 * A_ft2);
+    const mach1 = v1 / c_sonic;
+
+    const rho2 = (P2_psia * 144.0 * MW) / (Z * 1545.35 * Temp_R);
+    const v2 = W_lb_s / (rho2 * A_ft2);
+    const mach2 = v2 / c_sonic;
+
+    // Kinetic Energy rho * v^2:
+    // In English units: rho (lb/ft3) * v^2 (ft2/s2) = lb/(ft*s2)
+    // To SI kg/(m*s2): 1 lb/(ft*s2) = 1.48816 kg/(m*s2)
+    const rhov2_eng = rho2 * Math.pow(v2, 2);
+    const rhov2_si = rhov2_eng * 1.48816;
+
+    // Backpressure on PRV check:
+    const bpPercent = (P1_psig / Pset_psig) * 100;
+    const isConvSafe = bpPercent <= 10.0;
+    const isBellowsSafe = bpPercent <= 40.0;
+
+    // Update KPIs
+    document.getElementById('res_flare_p1').textContent = P1_psig.toFixed(1) + ' psig';
+    document.getElementById('res_flare_dp').textContent = deltaP.toFixed(1) + ' psi header drop';
+    document.getElementById('res_flare_mach').textContent = mach2.toFixed(3);
+    document.getElementById('res_flare_rhov2').textContent = Math.round(rhov2_si).toLocaleString() + ' kg/m·s²';
+    document.getElementById('res_flare_rhov2_eng').textContent = Math.round(rhov2_eng).toLocaleString() + ' lb/(ft·s²)';
+
+    const elPrvStatus = document.getElementById('res_flare_prv_status');
+    const elPrvPct = document.getElementById('res_flare_prv_pct');
+    if (isConvSafe) {
+      elPrvStatus.textContent = 'PASS (Conv PRV Safe)';
+      elPrvStatus.style.color = '#10b981';
+      elPrvPct.textContent = bpPercent.toFixed(1) + '% of P_set (≤ 10%)';
+    } else if (isBellowsSafe) {
+      elPrvStatus.textContent = 'NEEDS BELLOWS';
+      elPrvStatus.style.color = '#f59e0b';
+      elPrvPct.textContent = bpPercent.toFixed(1) + '% of P_set (>10% but ≤ 40%)';
+    } else {
+      elPrvStatus.textContent = 'EXCESSIVE BACKPRESSURE';
+      elPrvStatus.style.color = '#ef4444';
+      elPrvPct.textContent = bpPercent.toFixed(1) + '% of P_set (>40%)';
+    }
+
+    document.getElementById('res_flare_vexit').textContent = Math.round(v2).toLocaleString() + ' ft/s';
+    document.getElementById('res_flare_csonic').textContent = Math.round(c_sonic).toLocaleString() + ' ft/s';
+    
+    const elBellows = document.getElementById('res_flare_bellows');
+    if (isBellowsSafe) {
+      elBellows.textContent = 'PASS (Bellows OK)';
+      elBellows.style.color = '#10b981';
+    } else {
+      elBellows.textContent = 'FAIL (Exceeds 40%)';
+      elBellows.style.color = '#ef4444';
+    }
+
+    // Status badge
+    const elBadge = document.getElementById('flare_status_badge');
+    if (mach2 > 0.70) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; CRITICAL: Exit Mach ' + mach2.toFixed(2) + ' > 0.70. Header is dangerously close to sonic choking!</span>';
+    } else if (mach2 > 0.50) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; WARNING: Exit Mach ' + mach2.toFixed(2) + ' exceeds API 521 main header limit (0.50). Permissible only for tailpipes.</span>';
+    } else if (!isConvSafe) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; ATTENTION: Built-up backpressure (' + bpPercent.toFixed(1) + '%) requires Balanced Bellows PRV.</span>';
+    } else {
+      elBadge.innerHTML = '<span style="color:#10b981;">&#10003; OPTIMAL: Full API 521 compliance satisfied. Mach ≤ 0.50 & Backpressure ≤ 10%.</span>';
+    }
+
+    // Populate Table
+    const segments = [
+      { loc: 'Inlet Header / Lateral Tie-In (0%)', frac: 0.0, p: P1_psig, rho: rho1, v: v1, m: mach1 },
+      { loc: 'Quarter Header Distance (25%)', frac: 0.25, p: P1_psig - deltaP * 0.18, rho: rho1 * 0.90, v: v1 * 1.11, m: mach1 * 1.11 },
+      { loc: 'Midpoint Header Run (50%)', frac: 0.50, p: P1_psig - deltaP * 0.40, rho: rho1 * 0.78, v: v1 * 1.28, m: mach1 * 1.28 },
+      { loc: 'Three-Quarter Header Run (75%)', frac: 0.75, p: P1_psig - deltaP * 0.68, rho: rho1 * 0.62, v: v1 * 1.61, m: mach1 * 1.61 },
+      { loc: 'Knock-Out Drum Flange (100%)', frac: 1.00, p: P2_psig, rho: rho2, v: v2, m: mach2 }
+    ];
+
+    let trows = '';
+    segments.forEach(s => {
+      const isMachSafe = s.m <= 0.50;
+      const mColor = isMachSafe ? 'color:#10b981;' : (s.m <= 0.70 ? 'color:#f59e0b;' : 'color:#ef4444;');
+      const statusText = isMachSafe ? '✓ In Compliance' : (s.m <= 0.70 ? 'Tailpipe Limit' : '⚠ Choking Hazard');
+      trows += '<tr>' +
+        '<td><strong>' + s.loc + '</strong></td>' +
+        '<td style="font-family:var(--mono);">' + s.p.toFixed(1) + ' psig</td>' +
+        '<td style="font-family:var(--mono);">' + s.rho.toFixed(3) + ' lb/ft³</td>' +
+        '<td style="font-family:var(--mono);">' + Math.round(s.v) + ' ft/s</td>' +
+        '<td style="font-family:var(--mono); font-weight:bold; ' + mColor + '">' + s.m.toFixed(3) + '</td>' +
+        '<td style="' + mColor + ' font-size:0.85rem;">' + statusText + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('flare_table_tbody').innerHTML = trows;
+
+    // Draw Canvas
+    drawFlareCanvas(P1_psig, P2_psig, mach1, mach2, rhov2_si, Pset_psig);
+  }
+
+  const elPreset = document.getElementById('flare_preset');
+  if (elPreset) {
+    elPreset.addEventListener('change', () => {
+      const p = PRESETS[elPreset.value];
+      if (p) {
+        document.getElementById('flare_mw').value = p.mw;
+        document.getElementById('flare_k').value = p.k;
+        document.getElementById('flare_z').value = p.z;
+        document.getElementById('flare_temp').value = p.temp;
+        calcFlare();
+      }
+    });
+  }
+
+  const inputs = [
+    'flare_w', 'flare_mw', 'flare_temp', 'flare_nps', 'flare_id',
+    'flare_leq', 'flare_p2', 'flare_k', 'flare_z', 'flare_pset'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcFlare();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_flare_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=======================================================',
+        'API 521 FLARE HEADER COMPRESSIBLE HYDRAULIC REPORT',
+        'Standards: API Standard 521, ISO 23251',
+        '=======================================================',
+        'Relief Mass Flow (W):         ' + document.getElementById('flare_w').value + ' lb/hr',
+        'Vapor Molecular Weight (MW):  ' + document.getElementById('flare_mw').value + ' g/mol',
+        'Relief Temperature:           ' + document.getElementById('flare_temp').value + ' deg F',
+        'Header Inside Diameter (ID):  ' + document.getElementById('flare_id').value + ' inches',
+        'Equivalent Length (L_eq):     ' + document.getElementById('flare_leq').value + ' ft',
+        'KO Drum Outlet Pressure (P2): ' + document.getElementById('flare_p2').value + ' psig',
+        'Governing PRV Set Pressure:   ' + document.getElementById('flare_pset').value + ' psig',
+        '-------------------------------------------------------',
+        'CALCULATED COMPRESSIBLE FLOW METRICS:',
+        'Inlet Header Backpressure (P1): ' + document.getElementById('res_flare_p1').textContent,
+        'Header Pressure Drop:          ' + document.getElementById('res_flare_dp').textContent,
+        'Maximum Exit Mach Number:      ' + document.getElementById('res_flare_mach').textContent,
+        'Acoustic Kinetic Momentum:     ' + document.getElementById('res_flare_rhov2').textContent,
+        'Conventional PRV Status:       ' + document.getElementById('res_flare_prv_status').textContent + ' (' + document.getElementById('res_flare_prv_pct').textContent + ')',
+        'Balanced Bellows PRV Status:   ' + document.getElementById('res_flare_bellows').textContent,
+        'Exit Velocity:                 ' + document.getElementById('res_flare_vexit').textContent,
+        'Speed of Sound (Sonic c):      ' + document.getElementById('res_flare_csonic').textContent,
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Flare Report Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcFlare();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BK2: Shell & Tube Heat Exchanger Tubesheet Thickness Calculator per ASME Section VIII Div 1 Part UHX
+  // ==========================================
+  (() => {
+    const slug = 'asme-uhx-tubesheet-thickness-calculator';
+    const title = 'ASME Section VIII Part UHX Heat Exchanger Tubesheet Thickness Calculator';
+    const metaDescription = 'Calculate shell and tube heat exchanger tubesheet minimum required thickness, bending and shear stresses, ligament efficiency (eta), tube-to-tubesheet joint loads, and differential thermal expansion per ASME Section VIII Div 1 Part UHX and TEMA Class R/C/B.';
+
+    const faq = [
+      {
+        q: 'What are the main failure modes evaluated for tubesheets in ASME Section VIII Part UHX?',
+        a: 'Part UHX evaluates three primary structural failure modes: (1) Circumferential and radial bending stresses in the perforated plate caused by differential pressure across the tubesheet, evaluated against 1.5*S (yield-based limit); (2) Transverse shear stresses along the perimeter of the outer tube limit (OTL), evaluated against 0.8*S; and (3) Tube-to-tubesheet joint axial push-out or pull-out failure, where excessive loads loosen rolled joints or shear strength welds.'
+      },
+      {
+        q: 'What is ligament efficiency and how does pitch layout affect tubesheet thickness?',
+        a: 'Ligament efficiency (eta or mu) is the ratio of solid metal remaining between adjacent tube holes to the nominal pitch: mu = (p - d_o) / p. Triangular pitch (30 deg or 60 deg) provides the highest tube packing density (approx 10% to 15% more surface area per shell diameter) and isotropic structural rigidity. Square pitch (90 deg or 45 deg) provides lower ligament efficiency and requires a thicker tubesheet, but is mandatory when mechanical external tube cleaning (lanes) is required for heavy fouling services.'
+      },
+      {
+        q: 'Why do fixed tubesheets require differential thermal expansion calculations?',
+        a: 'In fixed tubesheet exchangers, both the shell and the tubes are welded rigidly to the two tubesheets. If the tubes operate at a different temperature or have a different coefficient of thermal expansion (alpha) than the shell, a large axial thermal strain develops: Delta L = L * (alpha_t * Delta T_t - alpha_s * Delta T_s). This strain induces massive compressive or tensile loads in the tubes and bending moments in the tubesheets. If stresses exceed allowable limits, an expansion joint (bellows or flanged/flued) must be incorporated into the shell.'
+      },
+      {
+        q: 'How does U-tube design eliminate tubesheet thermal stress compared to fixed tubesheets?',
+        a: 'In a U-tube exchanger, each tube bundle consists of bent U-tubes anchored to only a single tubesheet. The U-bends are completely free to expand and contract longitudinally inside the shell as operating temperatures fluctuate. Because zero axial restraint exists between shell and tubes, differential thermal expansion loads are completely eliminated, significantly reducing required tubesheet thickness and avoiding the cost of a shell expansion joint.'
+      },
+      {
+        q: 'What is effective ligament efficiency (mu*) in ASME UHX?',
+        a: 'When tubes are hydraulically or mechanically expanded into the tubesheet holes throughout the full thickness, the tube wall provides structural reinforcement that resists hole deformation. ASME UHX accounts for this reinforcement via an effective ligament efficiency mu* that credits the tube wall thickness (t_t), tube elastic modulus (E_t), and tube allowable stress (S_t): mu* = (p - d_o + 2 * t_t * (E_t / E) * (S_t / S)) / p. Crediting expanded tube stiffness can reduce calculated tubesheet thickness by 10% to 20%.'
+      }
+    ];
+
+    const content = `
+<style>
+.uhx-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.uhx-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.uhx-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.uhx-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .uhx-grid-2, .uhx-grid-3, .uhx-grid-4 { grid-template-columns: 1fr; }
+}
+.uhx-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.uhx-input, .uhx-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.uhx-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.uhx-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.uhx-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.uhx-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.uhx-btn:hover { opacity: 0.9; }
+.uhx-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.uhx-table th, .uhx-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.uhx-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="uhx-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Exchanger Configuration & Mechanical Design Conditions</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">ASME Section VIII Div 1 Part UHX & TEMA Class R/C/B Sizing Architecture</div>
+    </div>
+    <div>
+      <label class="uhx-label">Tubesheet & Pitch Architecture Preset</label>
+      <select id="uhx_preset" class="uhx-select" style="min-width: 280px;">
+        <option value="fixed_tri">Fixed Tubesheet (30&deg; Triangular, High Rigidity)</option>
+        <option value="utube_tri">U-Tube Bundle (30&deg; Triangular, Zero Thermal Restraint)</option>
+        <option value="floating_tri">Floating Head (30&deg; Triangular, Removable Bundle)</option>
+        <option value="fixed_sq">Fixed Tubesheet (90&deg; Square Pitch, Cleaning Lanes)</option>
+        <option value="custom">Custom Parameters (User Input)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="uhx-grid-3">
+    <div>
+      <label class="uhx-label">Shell Side Design Pressure (P_s) <span>psig</span></label>
+      <input type="number" id="uhx_ps" class="uhx-input" value="150" step="10" min="0" max="3000">
+    </div>
+    <div>
+      <label class="uhx-label">Tube Side Design Pressure (P_t) <span>psig</span></label>
+      <input type="number" id="uhx_pt" class="uhx-input" value="300" step="10" min="0" max="5000">
+    </div>
+    <div>
+      <label class="uhx-label">Design Differential Pressure (Delta P) <span>psi</span></label>
+      <input type="number" id="uhx_dp" class="uhx-input" value="300" step="10" min="5" max="5000">
+    </div>
+  </div>
+
+  <div class="uhx-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="uhx-label">Shell Inside Diameter (D_s) <span>inches</span></label>
+      <input type="number" id="uhx_ds" class="uhx-input" value="30.0" step="1" min="6" max="120">
+    </div>
+    <div>
+      <label class="uhx-label">Outer Tube Limit (OTL) <span>inches</span></label>
+      <input type="number" id="uhx_otl" class="uhx-input" value="28.75" step="0.25" min="5" max="118">
+    </div>
+    <div>
+      <label class="uhx-label">Tube Outside Diameter (d_o) <span>inches</span></label>
+      <input type="number" id="uhx_do" class="uhx-input" value="0.75" step="0.125" min="0.375" max="2.0">
+    </div>
+    <div>
+      <label class="uhx-label">Tube Pitch (p) <span>inches</span></label>
+      <input type="number" id="uhx_pitch" class="uhx-input" value="0.9375" step="0.03125" min="0.5" max="3.0">
+    </div>
+  </div>
+
+  <div class="uhx-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="uhx-label">Tubesheet Allowable Stress (S) <span>psi</span></label>
+      <input type="number" id="uhx_s" class="uhx-input" value="20000" step="500" min="5000" max="45000">
+    </div>
+    <div>
+      <label class="uhx-label">Tube Wall Thickness (t_t) <span>inches (14 BWG)</span></label>
+      <input type="number" id="uhx_tt" class="uhx-input" value="0.083" step="0.01" min="0.02" max="0.3">
+    </div>
+    <div>
+      <label class="uhx-label">Tube Allowable Stress (S_t) <span>psi</span></label>
+      <input type="number" id="uhx_st" class="uhx-input" value="17500" step="500" min="5000" max="40000">
+    </div>
+    <div>
+      <label class="uhx-label">Corrosion Allowance (CA) <span>inches</span></label>
+      <input type="number" id="uhx_ca" class="uhx-input" value="0.125" step="0.03125" min="0" max="0.5">
+    </div>
+  </div>
+
+  <div class="uhx-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="uhx-label">Tubesheet Type</label>
+      <select id="uhx_type" class="uhx-select">
+        <option value="fixed">Fixed Tubesheets (UHX-13)</option>
+        <option value="utube">U-Tube Tubesheet (UHX-12)</option>
+        <option value="floating">Floating Head Tubesheet (UHX-14)</option>
+      </select>
+    </div>
+    <div>
+      <label class="uhx-label">Tube-to-Tubesheet Joint Type</label>
+      <select id="uhx_joint" class="uhx-select">
+        <option value="weld_expanded">Strength Welded & Expanded (f_r = 1.0)</option>
+        <option value="expanded_grooved">Expanded with 2 Grooves (f_r = 0.90)</option>
+        <option value="expanded_smooth">Expanded Smooth Bore (f_r = 0.70)</option>
+      </select>
+    </div>
+    <div>
+      <label class="uhx-label">Total Tube Count (N_tubes)</label>
+      <input type="number" id="uhx_ntubes" class="uhx-input" value="580" step="10" min="10" max="10000">
+    </div>
+  </div>
+</div>
+
+<div class="uhx-box">
+  <h3 style="margin-top: 0;">ASME UHX Tubesheet Sizing & Stress Diagnostics</h3>
+  <div class="uhx-grid-4">
+    <div class="uhx-kpi">
+      <div class="uhx-kpi-lbl">Minimum Nom. Thickness</div>
+      <div class="uhx-kpi-val" id="res_uhx_tnom">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_uhx_tcor">-- corroded</div>
+    </div>
+    <div class="uhx-kpi">
+      <div class="uhx-kpi-lbl">Effective Ligament (mu*)</div>
+      <div class="uhx-kpi-val" id="res_uhx_mustar">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_uhx_munom">-- basic ligament</div>
+    </div>
+    <div class="uhx-kpi">
+      <div class="uhx-kpi-lbl">Governing Stress Mode</div>
+      <div class="uhx-kpi-val" id="res_uhx_gov_mode" style="font-size: 1.15rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_uhx_gov_val">-- psi actual</div>
+    </div>
+    <div class="uhx-kpi">
+      <div class="uhx-kpi-lbl">Joint Pull-Out Capacity</div>
+      <div class="uhx-kpi-val" id="res_uhx_joint_load">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_uhx_joint_status">-- status</div>
+    </div>
+  </div>
+
+  <div class="uhx-grid-3" style="margin-top: 1rem;">
+    <div class="uhx-kpi">
+      <div class="uhx-kpi-lbl">Bending Required Thickness</div>
+      <div class="uhx-kpi-val" id="res_uhx_tbend">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Allowable 1.5*S</div>
+    </div>
+    <div class="uhx-kpi">
+      <div class="uhx-kpi-lbl">Shear Required Thickness</div>
+      <div class="uhx-kpi-val" id="res_uhx_tshear">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Allowable 0.8*S</div>
+    </div>
+    <div class="uhx-kpi">
+      <div class="uhx-kpi-lbl">TEMA Practical Minimum</div>
+      <div class="uhx-kpi-val" id="res_uhx_ttema">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Standard table baseline</div>
+    </div>
+  </div>
+</div>
+
+<div class="uhx-box">
+  <h3 style="margin-top: 0;">Interactive Tubesheet Geometry & Ligament Stress Profile</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="uhx_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">ASME Section VIII Part UHX Stress Verification Summary</h4>
+  <table class="uhx-table">
+    <thead>
+      <tr>
+        <th>Design Parameter</th>
+        <th>Code Symbol</th>
+        <th>Calculated Value</th>
+        <th>Allowable Limit</th>
+        <th>ASME UHX Reference</th>
+      </tr>
+    </thead>
+    <tbody id="uhx_table_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_uhx_copy" class="uhx-btn">
+      <span>📋 Copy Full ASME UHX Tubesheet Sizing Report</span>
+    </button>
+    <div id="uhx_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="uhx-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Engineering Derivations</h3>
+  
+  <p>Tubesheet sizing under ASME Section VIII Division 1 Part UHX and TEMA Section 5 incorporates the structural interaction between the perforated plate, the surrounding shell/channel cylinders, and the tube bundle staying action. Because the thousands of tubes act as elastic tie-rods, they restrain tubesheet deflection under differential pressure.</p>
+
+  <div class="formula-box">
+1. Basic Ligament Efficiency (Nominal & Corroded):
+   mu = (p - d_o) / p
+   mu_corroded = (p - d_o - 2 * CA) / p
+
+2. Effective Ligament Efficiency (mu* with Tube Wall Credit):
+   mu* = [ p - d_o + 2 * t_t * (E_t / E) * (S_t / S) ] / p
+
+3. Bending Thickness Derivation (Perforated Plate):
+   h_bend = F * G * sqrt[ P_design / (1.5 * S * mu*) ]
+   Where:
+     F = Dimensionless factor (typically 1.0 for U-tube, 0.8 for fixed with shell restraint)
+     G = Mean gasket diameter or shell inside diameter D_s (inches)
+     S = Allowable stress of tubesheet material at design temperature (psi)
+
+4. Shear Thickness Derivation (Outer Tube Perimeter OTL):
+   tau = (P_design * OTL) / [ 4 * h * mu_corroded ]
+   Setting tau <= 0.8 * S:
+   h_shear = (P_design * OTL) / [ 3.2 * S * mu_corroded ]
+
+5. Governing Corroded and Nominal Thickness:
+   h_corroded = max( h_bend, h_shear, h_TEMA_min )
+   h_nominal  = h_corroded + CA_shell + CA_tube
+  </div>
+
+  <p>In addition to bending and shear, fixed tubesheet exchangers must be evaluated for three separate ASME load cases: (1) Tube-side pressure only ($P_t$), (2) Shell-side pressure only ($P_s$), and (3) Simultaneous differential operating pressure plus differential thermal expansion ($P_t, P_s, Delta T$).</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #ef4444;">
+  <h4 style="color: #ef4444;">1. Neglecting Differential Thermal Expansion in Fixed Tubesheets</h4>
+  <p>In fixed tubesheets where tubes and shell are welded rigidly, differences in operating temperature or thermal expansion coefficients create severe axial forces: $Delta L = L cdot (alpha_t Delta T_t - alpha_s Delta T_s)$. Compressive forces exceeding Euler buckling limits cause tube distortion, bowing, and baffle hole fretting, while tensile forces tear rolled tube joints right out of the tubesheet. An expansion joint must be specified if thermal loads exceed allowable tube buckling thresholds.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #f59e0b;">
+  <h4 style="color: #f59e0b;">2. Calculating Ligament Efficiency on Uncorroded Pitch Dimensions</h4>
+  <p>Tubesheet ligament thickness is small (typically $1/8$ to $3/16$ inch). If the designer calculates ligament efficiency $mu$ using pristine clean dimensions but the process environment calls for $1/8$ inch corrosion allowance ($0.125$ in), the corroded ligament is completely eaten away. ASME UHX requires ligament efficiency to be evaluated in the fully corroded condition, preventing catastrophic ligament shear collapse.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #10b981;">
+  <h4 style="color: #10b981;">3. Ignoring Gasket Bolting Moments During Cold Hydrotest</h4>
+  <p>For bolted flanged tubesheets (TEMA Types B, C, or N), the initial bolt tightening moment $M = W cdot h_g$ required to seat heavy spiral wound or double-jacketed gaskets creates a severe dishing moment. Designing the tubesheet solely for internal operating pressure while ignoring the cold unpressurized gasket seating load causes permanent plastic dishing during the shop hydrostatic test.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #3b82f6;">
+  <h4 style="color: #3b82f6;">4. Over-Expanding Tubes Leading to Tubesheet Hole Ligament Distortion</h4>
+  <p>When rolling tubes into tubesheets, technicians frequently exceed the target 5% to 7% wall thinning limit. Over-expanding creates severe residual radial compressive stresses that warp the tubesheet, dish the gasket face, and cause stress corrosion cracking (SCC) in stainless or duplex alloys. Tube wall reduction must be strictly controlled with calibrated digital torque controllers.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+  <h4 style="color: #8b5cf6;">5. Untubed Pass Partition Lane Bending Stress Concentration</h4>
+  <p>In multi-pass heat exchangers (2, 4, or 6 passes), pass partition lanes divide the tube field with wide untubed solid strips. Because there are no tubes in these lanes to act as tie-rods, the perforated plate lacks elastic support along the divider. Peak bending moments concentrate along pass partition boundaries, leading to cyclic fatigue cracking at the roots of pass partition weld grooves.</p>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'fixed_tri':    { ds: 30.0, otl: 28.75, doVal: 0.75, pitch: 0.9375, ps: 150, pt: 300, type: 'fixed' },
+    'utube_tri':    { ds: 30.0, otl: 28.50, doVal: 0.75, pitch: 0.9375, ps: 150, pt: 450, type: 'utube' },
+    'floating_tri': { ds: 32.0, otl: 29.50, doVal: 0.75, pitch: 0.9375, ps: 200, pt: 300, type: 'floating' },
+    'fixed_sq':     { ds: 30.0, otl: 28.75, doVal: 0.75, pitch: 1.0000, ps: 150, pt: 300, type: 'fixed' }
+  };
+
+  function drawUhxCanvas(Ds, OTL, tNom, tCor, mu, mustar, isSafe) {
+    const canvas = document.getElementById('uhx_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const statusColor = isSafe ? '#10b981' : '#ef4444';
+
+    // --- Left Side: Tubesheet Cross-Section Diagram ---
+    ctx.save();
+    ctx.translate(40, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Tubesheet Cross-Section & Bundle Flange', 20, 0);
+
+    // Shell Wall Top & Bottom
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(30, 30);
+    ctx.lineTo(80, 30);
+    ctx.moveTo(30, 210);
+    ctx.lineTo(80, 210);
+    ctx.stroke();
+
+    // Tubesheet Solid Flange & Perforated Core
+    ctx.strokeStyle = '#2563eb';
+    ctx.fillStyle = 'rgba(37, 99, 235, 0.15)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.rect(80, 20, 50, 200);
+    ctx.fill();
+    ctx.stroke();
+
+    // Perforated Core Tube Holes in Tubesheet
+    ctx.fillStyle = '#38bdf8';
+    for (let py = 50; py <= 190; py += 25) {
+      ctx.fillRect(80, py, 50, 10);
+      // Extended tube exiting into channel
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(40, py, 40, 10);
+    }
+
+    // Dimension T_nom callout
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(80, 230);
+    ctx.lineTo(130, 230);
+    ctx.moveTo(80, 225);
+    ctx.lineTo(80, 235);
+    ctx.moveTo(130, 225);
+    ctx.lineTo(130, 235);
+    ctx.stroke();
+
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('T_nom: ' + tNom.toFixed(3) + ' in', 75, 248);
+
+    // Callout box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(160, 60, 120, 55);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(160, 60, 120, 55);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('OTL: ' + OTL.toFixed(2) + ' in', 168, 78);
+    ctx.fillText('Shell ID: ' + Ds.toFixed(1) + ' in', 168, 92);
+    ctx.fillStyle = statusColor;
+    ctx.fillText(isSafe ? 'ASME PASS' : 'EXCEEDS LIMIT', 168, 106);
+
+    ctx.restore();
+
+    // --- Right Side: Ligament Geometry & Pitch Pattern ---
+    ctx.save();
+    ctx.translate(350, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Perforated Ligament Geometry (Pitch p vs do)', 20, 0);
+
+    // Draw Triangular Pitch Tube Triad
+    const cx1 = 100, cy1 = 80;
+    const cx2 = 180, cy2 = 80;
+    const cx3 = 140, cy3 = 150;
+    const rTube = 22;
+
+    // Pitch connecting lines
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(cx1, cy1);
+    ctx.lineTo(cx2, cy2);
+    ctx.lineTo(cx3, cy3);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Tubes (Circles)
+    [ [cx1, cy1], [cx2, cy2], [cx3, cy3] ].forEach(pt => {
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+      ctx.beginPath();
+      ctx.arc(pt[0], pt[1], rTube, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Inner tube bore
+      ctx.beginPath();
+      ctx.arc(pt[0], pt[1], rTube - 5, 0, 2 * Math.PI);
+      ctx.stroke();
+    });
+
+    // Pitch label
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Pitch (p)', 125, 75);
+
+    // Ligament bridge label
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx1 + rTube, cy1);
+    ctx.lineTo(cx2 - rTube, cy2);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ef4444';
+    ctx.fillText('Ligament = p - do', 105, 95);
+
+    // Ligament Efficiencies box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(40, 180, 240, 45);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(40, 180, 240, 45);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Basic Ligament Efficiency (mu): ' + (mu * 100).toFixed(1) + '%', 50, 198);
+    ctx.fillStyle = '#10b981';
+    ctx.fillText('Effective Efficiency (mu*): ' + (mustar * 100).toFixed(1) + '%', 50, 214);
+
+    ctx.restore();
+  }
+
+  function calcUhx() {
+    const Ps = Math.max(0, parseFloat(document.getElementById('uhx_ps').value) || 150);
+    const Pt = Math.max(0, parseFloat(document.getElementById('uhx_pt').value) || 300);
+    const Pdiff = Math.max(5, parseFloat(document.getElementById('uhx_dp').value) || 300);
+    const Ds = Math.max(4, parseFloat(document.getElementById('uhx_ds').value) || 30);
+    const OTL = Math.max(3, parseFloat(document.getElementById('uhx_otl').value) || 28.75);
+    const doVal = Math.max(0.25, parseFloat(document.getElementById('uhx_do').value) || 0.75);
+    const pitch = Math.max(doVal + 0.05, parseFloat(document.getElementById('uhx_pitch').value) || 0.9375);
+    const S = Math.max(1000, parseFloat(document.getElementById('uhx_s').value) || 20000);
+    const tt = Math.max(0.01, parseFloat(document.getElementById('uhx_tt').value) || 0.083);
+    const St = Math.max(1000, parseFloat(document.getElementById('uhx_st').value) || 17500);
+    const CA = Math.max(0, parseFloat(document.getElementById('uhx_ca').value) || 0.125);
+    const type = document.getElementById('uhx_type').value;
+    const joint = document.getElementById('uhx_joint').value;
+    const Ntubes = Math.max(1, parseInt(document.getElementById('uhx_ntubes').value) || 580);
+
+    // Ligament efficiencies
+    const mu_nom = (pitch - doVal) / pitch;
+    const mu_cor = Math.max(0.05, (pitch - doVal - 2 * CA) / pitch);
+
+    // Effective ligament efficiency with tube wall credit
+    const Et_over_E = 1.0;
+    const St_over_S = St / S;
+    const mustar = Math.min(0.60, (pitch - doVal + 2.0 * tt * Et_over_E * St_over_S) / pitch);
+
+    // Bending design factor F per ASME UHX
+    let F_factor = 1.0;
+    if (type === 'fixed') F_factor = 0.85;
+    else if (type === 'utube') F_factor = 1.00;
+    else F_factor = 0.95;
+
+    // Design governing pressure
+    const P_gov = Math.max(Pdiff, Math.max(Ps, Pt));
+
+    // Bending thickness calculation:
+    // h_bend = F * G * sqrt( P_gov / (1.5 * S * mustar) )
+    const G_dia = Ds; // approximately shell ID
+    const t_bend = F_factor * G_dia * Math.sqrt(P_gov / (1.5 * S * mustar));
+
+    // Shear thickness calculation:
+    // tau = (P_gov * OTL) / (3.2 * S * mu_cor)
+    const t_shear = (P_gov * OTL) / (3.2 * S * mu_cor);
+
+    // TEMA practical minimum thickness:
+    // Function of shell diameter
+    let t_tema = 0.75;
+    if (Ds > 40) t_tema = 1.50;
+    else if (Ds > 24) t_tema = 1.00;
+    else t_tema = 0.75;
+
+    // Governing corroded thickness
+    const t_corroded = Math.max(t_bend, Math.max(t_shear, t_tema));
+    const t_nominal = t_corroded + CA;
+
+    // Stresses at nominal thickness:
+    const sigma_bend_act = Math.pow(F_factor * G_dia / t_corroded, 2) * (P_gov / mustar);
+    const tau_shear_act = (P_gov * OTL) / (4.0 * t_corroded * mu_cor);
+
+    // Tube-to-tubesheet joint pull-out load:
+    let f_reliability = 1.0;
+    if (joint === 'expanded_grooved') f_reliability = 0.90;
+    else if (joint === 'expanded_smooth') f_reliability = 0.70;
+
+    // Tube cross-sectional area:
+    const Atube = Math.PI * (doVal - tt) * tt;
+    const maxAllowJointLoad = Atube * St * f_reliability; // lb per tube
+    // Total load per tube:
+    const totalTubeFaceArea = (Math.PI / 4) * Math.pow(Ds, 2);
+    const loadPerTube = (P_gov * totalTubeFaceArea) / Ntubes;
+    const isJointSafe = loadPerTube <= maxAllowJointLoad;
+
+    // Update DOM KPIs
+    document.getElementById('res_uhx_tnom').textContent = t_nominal.toFixed(3) + ' in';
+    document.getElementById('res_uhx_tcor').textContent = t_corroded.toFixed(3) + ' in corroded (' + (t_nominal * 25.4).toFixed(1) + ' mm)';
+    document.getElementById('res_uhx_mustar').textContent = (mustar * 100).toFixed(1) + '%';
+    document.getElementById('res_uhx_munom').textContent = (mu_nom * 100).toFixed(1) + '% basic (' + (mu_cor * 100).toFixed(1) + '% cor)';
+
+    const elGovMode = document.getElementById('res_uhx_gov_mode');
+    const elGovVal = document.getElementById('res_uhx_gov_val');
+    if (t_bend >= t_shear && t_bend >= t_tema) {
+      elGovMode.textContent = 'BENDING (1.5*S)';
+      elGovVal.textContent = Math.round(sigma_bend_act).toLocaleString() + ' psi (Allow: ' + Math.round(1.5 * S).toLocaleString() + ')';
+    } else if (t_shear >= t_tema) {
+      elGovMode.textContent = 'SHEAR (0.8*S)';
+      elGovVal.textContent = Math.round(tau_shear_act).toLocaleString() + ' psi (Allow: ' + Math.round(0.8 * S).toLocaleString() + ')';
+    } else {
+      elGovMode.textContent = 'TEMA MINIMUM';
+      elGovVal.textContent = t_tema.toFixed(3) + ' in code baseline';
+    }
+
+    document.getElementById('res_uhx_tbend').textContent = t_bend.toFixed(3) + ' in';
+    document.getElementById('res_uhx_tshear').textContent = t_shear.toFixed(3) + ' in';
+    document.getElementById('res_uhx_ttema').textContent = t_tema.toFixed(3) + ' in';
+
+    document.getElementById('res_uhx_joint_load').textContent = Math.round(loadPerTube).toLocaleString() + ' lb / tube';
+    const elJointStatus = document.getElementById('res_uhx_joint_status');
+    if (isJointSafe) {
+      elJointStatus.textContent = '✓ Safe (Max: ' + Math.round(maxAllowJointLoad).toLocaleString() + ' lb)';
+      elJointStatus.style.color = '#10b981';
+    } else {
+      elJointStatus.textContent = '⚠ Overload (Max: ' + Math.round(maxAllowJointLoad).toLocaleString() + ' lb)';
+      elJointStatus.style.color = '#ef4444';
+    }
+
+    // Status Badge
+    const elBadge = document.getElementById('uhx_status_badge');
+    if (!isJointSafe) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; JOINT OVERLOAD: Tube pullout load (' + Math.round(loadPerTube) + ' lb) exceeds allowable joint capacity. Specify strength welding!</span>';
+    } else if (mu_cor < 0.15) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; CAUTION: Corroded ligament efficiency is critically thin (' + (mu_cor * 100).toFixed(1) + '%). Consider increasing tube pitch.</span>';
+    } else {
+      elBadge.innerHTML = '<span style="color:#10b981;">&#10003; COMPLIANT: Full ASME Section VIII Part UHX & TEMA criteria satisfied.</span>';
+    }
+
+    // Table rows
+    const tableData = [
+      { param: 'Basic Ligament Efficiency', sym: 'mu', val: (mu_nom * 100).toFixed(1) + '%', allow: 'N/A', ref: 'UHX-10.1' },
+      { param: 'Effective Ligament (Tube Credit)', sym: 'mu*', val: (mustar * 100).toFixed(1) + '%', allow: 'N/A', ref: 'UHX-10.2' },
+      { param: 'Corroded Ligament Efficiency', sym: 'mu_cor', val: (mu_cor * 100).toFixed(1) + '%', allow: '>= 15%', ref: 'UHX-11.3' },
+      { param: 'Bending Required Thickness', sym: 'h_bend', val: t_bend.toFixed(3) + ' in', allow: '<= h_nom', ref: 'UHX-12/13/14' },
+      { param: 'Perimeter Shear Thickness', sym: 'h_shear', val: t_shear.toFixed(3) + ' in', allow: '<= h_nom', ref: 'UHX-10.3' },
+      { param: 'TEMA Nominal Baseline', sym: 'T_TEMA', val: t_tema.toFixed(3) + ' in', allow: '<= h_nom', ref: 'TEMA Section 5' },
+      { param: 'Governing Nominal Thickness', sym: 'T_nom', val: t_nominal.toFixed(3) + ' in', allow: 'Final Code Spec', ref: 'ASME VIII-1 UHX' },
+      { param: 'Tube-to-Tubesheet Axial Load', sym: 'L_joint', val: Math.round(loadPerTube) + ' lb', allow: Math.round(maxAllowJointLoad) + ' lb', ref: 'Appendix A' }
+    ];
+
+    let trows = '';
+    tableData.forEach(r => {
+      trows += '<tr>' +
+        '<td><strong>' + r.param + '</strong></td>' +
+        '<td style="font-family:var(--mono);">' + r.sym + '</td>' +
+        '<td style="font-family:var(--mono); font-weight:bold;">' + r.val + '</td>' +
+        '<td style="font-family:var(--mono);">' + r.allow + '</td>' +
+        '<td>' + r.ref + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('uhx_table_tbody').innerHTML = trows;
+
+    // Draw Canvas
+    drawUhxCanvas(Ds, OTL, t_nominal, t_corroded, mu_nom, mustar, isJointSafe);
+  }
+
+  const elPreset = document.getElementById('uhx_preset');
+  if (elPreset) {
+    elPreset.addEventListener('change', () => {
+      const p = PRESETS[elPreset.value];
+      if (p) {
+        document.getElementById('uhx_ds').value = p.ds;
+        document.getElementById('uhx_otl').value = p.otl;
+        document.getElementById('uhx_do').value = p.doVal;
+        document.getElementById('uhx_pitch').value = p.pitch;
+        document.getElementById('uhx_ps').value = p.ps;
+        document.getElementById('uhx_pt').value = p.pt;
+        document.getElementById('uhx_type').value = p.type;
+        calcUhx();
+      }
+    });
+  }
+
+  const inputs = [
+    'uhx_ps', 'uhx_pt', 'uhx_dp', 'uhx_ds', 'uhx_otl', 'uhx_do',
+    'uhx_pitch', 'uhx_s', 'uhx_tt', 'uhx_st', 'uhx_ca', 'uhx_type',
+    'uhx_joint', 'uhx_ntubes'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcUhx();
+      });
+      el.addEventListener('change', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcUhx();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_uhx_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const typeSelect = document.getElementById('uhx_type');
+      const txt = [
+        '=======================================================',
+        'ASME SECTION VIII DIV 1 PART UHX TUBESHEET REPORT',
+        'Standards: ASME BPVC Section VIII-1 Part UHX, TEMA Class R/C/B',
+        '=======================================================',
+        'Exchanger Type:               ' + typeSelect.options[typeSelect.selectedIndex].text,
+        'Shell Inside Diameter (Ds):   ' + document.getElementById('uhx_ds').value + ' inches',
+        'Outer Tube Limit (OTL):       ' + document.getElementById('uhx_otl').value + ' inches',
+        'Tube Outside Diameter (do):   ' + document.getElementById('uhx_do').value + ' inches',
+        'Tube Pitch (p):               ' + document.getElementById('uhx_pitch').value + ' inches',
+        'Differential Design Pressure: ' + document.getElementById('uhx_dp').value + ' psi',
+        'Tubesheet Allowable Stress:   ' + document.getElementById('uhx_s').value + ' psi',
+        'Corrosion Allowance:          ' + document.getElementById('uhx_ca').value + ' inches',
+        'Total Tube Count:             ' + document.getElementById('uhx_ntubes').value,
+        '-------------------------------------------------------',
+        'CALCULATED TUBESHEET SIZING PARAMETERS:',
+        'Minimum Nominal Thickness:    ' + document.getElementById('res_uhx_tnom').textContent + ' (' + document.getElementById('res_uhx_tcor').textContent + ')',
+        'Bending Required Thickness:   ' + document.getElementById('res_uhx_tbend').textContent,
+        'Shear Required Thickness:     ' + document.getElementById('res_uhx_tshear').textContent,
+        'TEMA Minimum Baseline:        ' + document.getElementById('res_uhx_ttema').textContent,
+        'Basic Ligament Efficiency:    ' + document.getElementById('res_uhx_munom').textContent,
+        'Effective Ligament (mu*):     ' + document.getElementById('res_uhx_mustar').textContent,
+        'Governing Failure Mode:       ' + document.getElementById('res_uhx_gov_mode').textContent,
+        'Tube-to-Tubesheet Joint Load: ' + document.getElementById('res_uhx_joint_load').textContent + ' [' + document.getElementById('res_uhx_joint_status').textContent + ']',
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Tubesheet Report Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcUhx();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BK3: Centrifugal Compressor Surge Margin & Anti-Surge Recycle Valve Sizing Calculator
+  // ==========================================
+  (() => {
+    const slug = 'centrifugal-compressor-surge-margin-calculator';
+    const title = 'Centrifugal Compressor Surge Margin & Anti-Surge Valve Sizing Calculator';
+    const metaDescription = 'Calculate centrifugal compressor surge margin (SM), Surge Limit Line (SLL), Surge Control Line (SCL), polytropic head versus volumetric flow, and anti-surge recycle valve required Cv and stroke time per API Standard 617 and ASME PTC 10.';
+
+    const faq = [
+      {
+        q: 'What is aerodynamic surge in a centrifugal compressor and why is it destructive?',
+        a: 'Compressor surge is a complete aerodynamic breakdown of flow where the pressure ratio generated by the impellers can no longer overcome downstream system resistance. When inlet flow drops below the Surge Limit Line (SLL), flow separates from impeller vanes and violently reverses back through the compressor at 5 to 25 cycles per second. Surge causes instantaneous thrust bearing load reversals (often exceeding 50,000 lbs of cyclic axial force), severe vibration, labyrinth seal wiping, and explosive temperature rises that destroy the machine within seconds.'
+      },
+      {
+        q: 'What is the difference between the Surge Limit Line (SLL) and Surge Control Line (SCL)?',
+        a: 'The Surge Limit Line (SLL) represents the actual physical boundary of aerodynamic instability across the entire operating speed envelope. The Surge Control Line (SCL) is a safety offset line configured inside the anti-surge control system (typically set at 10% to 15% higher flow than the SLL). When operating flow decreases and crosses the SCL, the anti-surge recycle valve (ASV) modulates open to maintain a safe flow rate through the compressor while venting excess gas back to the suction scrubber.'
+      },
+      {
+        q: 'How is Surge Margin (SM) mathematically defined per API 617?',
+        a: 'Surge margin is typically defined in volumetric or mass flow terms at constant head: SM = [(Q_oper - Q_surge) / Q_oper] * 100%, or equivalently SM = [(Q_oper / Q_surge) - 1] * 100%. API 617 specifies that compressors must have a minimum stable operating range (turndown) of at least 15% to 25% from rated capacity to surge at rated head, ensuring adequate operating flexibility during plant turndown.'
+      },
+      {
+        q: 'What are the sizing criteria for an anti-surge recycle valve (ASV)?',
+        a: 'Per API 617 and industrial control best practices, an anti-surge valve must be sized to pass 1.8 to 2.2 times the surge flow rate (Q_surge) at maximum design pressure ratio with the valve between 60% and 80% open. This ensures that in the event of a sudden total downstream discharge block (such as an emergency shutdown valve ESD closing), the anti-surge valve can swallow 100% of the compressor output on full recycle without the compressor entering surge.'
+      },
+      {
+        q: 'Why is anti-surge valve full-stroke opening time critical (<= 1.0 to 1.5 seconds)?',
+        a: 'A compressor can travel from its normal operating point to the surge line in less than 100 to 300 milliseconds following a sudden discharge trip or power disturbance. Conventional control valves with 5 to 10 second stroke times are completely incapable of preventing surge. Anti-surge valves must be equipped with high-capacity volume boosters, quick-exhaust valves, and high-flow digital valve controllers to achieve full opening stroke times under 1.0 to 1.5 seconds.'
+      }
+    ];
+
+    const content = `
+<style>
+.surge-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.surge-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.surge-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.surge-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .surge-grid-2, .surge-grid-3, .surge-grid-4 { grid-template-columns: 1fr; }
+}
+.surge-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.surge-input, .surge-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.surge-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.surge-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.surge-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.surge-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.surge-btn:hover { opacity: 0.9; }
+.surge-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.surge-table th, .surge-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.surge-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="surge-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Compressor Operating Point & Gas Physical Properties</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">API Standard 617 & ASME PTC 10 Anti-Surge Protection Architecture</div>
+    </div>
+    <div>
+      <label class="surge-label">Compressor Gas Service Preset</label>
+      <select id="surge_preset" class="surge-select" style="min-width: 280px;">
+        <option value="pipeline_natgas">Pipeline Natural Gas (MW 18, k=1.30, Z=0.92)</option>
+        <option value="refinery_recycle">Hydrogen Recycle Gas (MW 8.5, k=1.38, Z=0.98)</option>
+        <option value="wet_gas">Refinery FCC Wet Gas (MW 38, k=1.18, Z=0.88)</option>
+        <option value="refrig_propane">Refrigeration Propane (MW 44, k=1.13, Z=0.85)</option>
+        <option value="custom">Custom Parameters (User Input)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="surge-grid-3">
+    <div>
+      <label class="surge-label">Current Operating Flow (Q_oper) <span>ACFM (Inlet)</span></label>
+      <input type="number" id="surge_qoper" class="surge-input" value="12500" step="250" min="500" max="250000">
+    </div>
+    <div>
+      <label class="surge-label">Surge Limit Flow at Current Head (Q_sll) <span>ACFM</span></label>
+      <input type="number" id="surge_qsll" class="surge-input" value="9500" step="200" min="400" max="200000">
+    </div>
+    <div>
+      <label class="surge-label">Surge Control Line Margin (SCL) <span>% buffer</span></label>
+      <input type="number" id="surge_scl_pct" class="surge-input" value="12.0" step="0.5" min="5.0" max="25.0">
+    </div>
+  </div>
+
+  <div class="surge-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="surge-label">Suction Pressure (P1) <span>psia</span></label>
+      <input type="number" id="surge_p1" class="surge-input" value="250" step="10" min="5" max="3000">
+    </div>
+    <div>
+      <label class="surge-label">Discharge Pressure (P2) <span>psia</span></label>
+      <input type="number" id="surge_p2" class="surge-input" value="650" step="25" min="10" max="10000">
+    </div>
+    <div>
+      <label class="surge-label">Suction Temperature (T1) <span>&deg;F</span></label>
+      <input type="number" id="surge_t1" class="surge-input" value="95" step="5" min="-50" max="300">
+    </div>
+    <div>
+      <label class="surge-label">Molecular Weight (MW) <span>g / mol</span></label>
+      <input type="number" id="surge_mw" class="surge-input" value="18.0" step="0.5" min="2.0" max="150.0">
+    </div>
+  </div>
+
+  <div class="surge-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="surge-label">Gas Compressibility (Z1)</label>
+      <input type="number" id="surge_z" class="surge-input" value="0.92" step="0.01" min="0.60" max="1.10">
+    </div>
+    <div>
+      <label class="surge-label">Specific Heat Ratio (k = Cp/Cv)</label>
+      <input type="number" id="surge_k" class="surge-input" value="1.30" step="0.01" min="1.05" max="1.67">
+    </div>
+    <div>
+      <label class="surge-label">ASV Recycle Sizing Oversizing Factor</label>
+      <input type="number" id="surge_asv_factor" class="surge-input" value="1.80" step="0.1" min="1.2" max="2.5">
+    </div>
+  </div>
+</div>
+
+<div class="surge-box">
+  <h3 style="margin-top: 0;">Surge Margin & Anti-Surge Valve Sizing Diagnostics</h3>
+  <div class="surge-grid-4">
+    <div class="surge-kpi">
+      <div class="surge-kpi-lbl">Current Surge Margin (SM)</div>
+      <div class="surge-kpi-val" id="res_surge_sm">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_surge_sm_flow">-- ACFM buffer</div>
+    </div>
+    <div class="surge-kpi">
+      <div class="surge-kpi-lbl">Surge Control Setpoint (SCL)</div>
+      <div class="surge-kpi-val" id="res_surge_qscl">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">ASV begins opening here</div>
+    </div>
+    <div class="surge-kpi">
+      <div class="surge-kpi-lbl">Operating Stability Status</div>
+      <div class="surge-kpi-val" id="res_surge_status" style="font-size: 1.15rem;">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_surge_status_desc">-- mode</div>
+    </div>
+    <div class="surge-kpi">
+      <div class="surge-kpi-lbl">Required ASV Capacity (Cv)</div>
+      <div class="surge-kpi-val" id="res_surge_cv">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Full recycle design Cv</div>
+    </div>
+  </div>
+
+  <div class="surge-grid-3" style="margin-top: 1rem;">
+    <div class="surge-kpi">
+      <div class="surge-kpi-lbl">Pressure Ratio (r_p)</div>
+      <div class="surge-kpi-val" id="res_surge_rp">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">P2 / P1 total ratio</div>
+    </div>
+    <div class="surge-kpi">
+      <div class="surge-kpi-lbl">Max Allowable Stroke Time</div>
+      <div class="surge-kpi-val" id="res_surge_time" style="color: #10b981;">&le; 1.2 sec</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">0 to 100% full opening</div>
+    </div>
+    <div class="surge-kpi">
+      <div class="surge-kpi-lbl">Full Recycle Mass Flow</div>
+      <div class="surge-kpi-val" id="res_surge_wrecycle">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">lb / hr through ASV</div>
+    </div>
+  </div>
+</div>
+
+<div class="surge-box">
+  <h3 style="margin-top: 0;">Interactive Compressor Map & Surge Margin Operating Profile</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="surge_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">API 617 Operating Zone & Control Action Breakdown</h4>
+  <table class="surge-table">
+    <thead>
+      <tr>
+        <th>Compressor Operating Region</th>
+        <th>Flow Boundary (ACFM)</th>
+        <th>Surge Margin Span</th>
+        <th>Anti-Surge Valve (ASV) Action</th>
+        <th>Machine Health & Risk Level</th>
+      </tr>
+    </thead>
+    <tbody id="surge_table_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_surge_copy" class="surge-btn">
+      <span>📋 Copy Full Compressor Anti-Surge Report</span>
+    </button>
+    <div id="surge_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="surge-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Engineering Derivations</h3>
+  
+  <p>Compressor aerodynamic stability is governed by the interaction between impeller head generation and downstream piping resistance per API Standard 617 and ASME PTC 10. The surge limit line represents the locus of peak pressure ratios where $d(Delta P) / dQ = 0$.</p>
+
+  <div class="formula-box">
+1. Surge Margin (SM) Formulations:
+   SM_flow = [ (Q_oper - Q_sll) / Q_oper ] * 100%
+   SM_ratio = [ (Q_oper / Q_sll) - 1.0 ] * 100%
+   Where:
+     Q_oper = Actual inlet volumetric flow (ACFM)
+     Q_sll  = Surge Limit Line flow at current polytropic head (ACFM)
+
+2. Surge Control Line (SCL Setpoint):
+   Q_scl = Q_sll * ( 1.0 + Margin_scl / 100 )
+
+3. Gas Density at Inlet:
+   rho_1 = (P1 * 144 * MW) / (Z1 * 1545.35 * (T1 + 459.67))   (lb / ft^3)
+
+4. Full Recycle Mass Flow Requirement:
+   W_recycle = Q_sll * Oversize_factor * rho_1 * 60   (lb / hr)
+
+5. Anti-Surge Valve (ASV) Required Flow Coefficient (Cv):
+   Cv = [ W_recycle / (63.3 * Fp * Y) ] * sqrt[ (T1_R * Z1) / (x * P2 * MW) ]
+   Where:
+     x  = Delta P / P2 = (P2 - P1) / P2
+     Y  = Expansion factor = 1 - x / (3 * Fk * xT)
+     Fk = k / 1.40
+  </div>
+
+  <p>If the operating flow approaches the Surge Control Line, the anti-surge controller executes a fast PI loop combined with step-open derivative kicks to prevent the compressor from ever crossing the Surge Limit Line.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #ef4444;">
+  <h4 style="color: #ef4444;">1. Slow Anti-Surge Valve Actuation Time (>2.0 Seconds)</h4>
+  <p>When an emergency trip occurs, flow collapses toward surge at rates exceeding 20% flow per 100 milliseconds. If the anti-surge valve takes 3 to 5 seconds to travel full open, the compressor will experience 10 to 30 severe surge cycles before the valve even cracks 50% open. Each surge cycle hammers the thrust collar against the active tilt-pad shoes with up to 100g instantaneous axial deceleration, obliterating babbitt linings.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #f59e0b;">
+  <h4 style="color: #f59e0b;">2. Uncooled Hot Gas Discharge Recirculation</h4>
+  <p>Recycling hot compressor discharge gas directly to the suction scrubber without passing through a recycle gas cooler causes rapid thermal buildup. In full recycle mode, 100% of compressor shaft horsepower is converted into thermal heat dissipated into the recirculating gas. Suction temperature spikes by 20&deg;F to 40&deg;F per minute, dramatically lowering gas density, shifting the surge line to the right, and plunging the machine into deep thermal surge.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #10b981;">
+  <h4 style="color: #10b981;">3. Unaccounted Gas Molecular Weight Fluctuations</h4>
+  <p>Centrifugal compressor polytropic head is inversely proportional to molecular weight ($H_p propto 1 / MW$). If a machine is tuned on heavy rich gas ($MW = 24$) and the plant process shifts to hydrogen-rich fuel gas ($MW = 12$), the compressor must spin much faster to achieve the same pressure ratio, causing the surge flow rate to shift upward by 30% to 50%. Without dynamic molecular weight compensation, the compressor will surge while the control system falsely indicates ample margin.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #3b82f6;">
+  <h4 style="color: #3b82f6;">4. Overly Aggressive Surge Control Margins (<8%)</h4>
+  <p>Operators frequently reduce surge control margins from the recommended 12%–15% down to 5%–7% to minimize energy-intensive recycling during turndown. However, ambient air temperature changes, inlet filter fouling, and transient valve hunting easily exceed a 6% buffer. Operating with a knife-edge surge margin causes spurious surge trips and catastrophic aerodynamic stalls during minor grid frequency dips.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+  <h4 style="color: #8b5cf6;">5. Sluggish Pressure Transmitter Dynamic Filtering</h4>
+  <p>Damping filters on delta-P flow transmitters and suction/discharge pressure transmitters are often left at factory defaults (0.5 to 2.0 seconds). Heavy digital filtering smooths electrical noise but introduces fatal phase delay into anti-surge controllers. In an emergency surge event, the transmitter lags actual pipe conditions by over 500 milliseconds, blinding the anti-surge algorithm until mechanical damage has already occurred.</p>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'pipeline_natgas':  { mw: 18.0, k: 1.30, z: 0.92, p1: 250, p2: 650, t1: 95 },
+    'refinery_recycle': { mw: 8.5,  k: 1.38, z: 0.98, p1: 400, p2: 1200, t1: 100 },
+    'wet_gas':          { mw: 38.0, k: 1.18, z: 0.88, p1: 30,  p2: 180,  t1: 110 },
+    'refrig_propane':   { mw: 44.1, k: 1.13, z: 0.85, p1: 20,  p2: 190,  t1: -20 }
+  };
+
+  function drawSurgeCanvas(qOper, qSll, qScl, p1, p2, sm) {
+    const canvas = document.getElementById('surge_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // Normalize coordinates
+    const maxQ = qSll * 2.2;
+    const maxHead = (p2 / p1) * 1.3;
+
+    // --- Compressor Map Graph ---
+    ctx.save();
+    ctx.translate(60, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Centrifugal Compressor Map & Surge Protection Envelope', 80, 0);
+
+    // Axes
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(30, 220);
+    ctx.lineTo(550, 220);
+    ctx.moveTo(30, 20);
+    ctx.lineTo(30, 220);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Inlet Volumetric Flow Q (ACFM)', 220, 245);
+    ctx.save();
+    ctx.translate(5, 140);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Pressure Ratio (P2 / P1)', 0, 0);
+    ctx.restore();
+
+    // Map helper functions
+    function getX(q) {
+      return 30 + (q / maxQ) * 500;
+    }
+    function getY(ratio) {
+      return 220 - ((ratio - 1.0) / (maxHead - 1.0)) * 190;
+    }
+
+    const curRatio = p2 / p1;
+    const xSll = getX(qSll);
+    const xScl = getX(qScl);
+    const xOper = getX(qOper);
+    const yCur = getY(curRatio);
+
+    // Surge Danger Zone (Red fill)
+    ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+    ctx.fillRect(30, 20, xSll - 30, 200);
+
+    // Surge Control Buffer Zone (Amber fill)
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+    ctx.fillRect(xSll, 20, xScl - xSll, 200);
+
+    // Stable Operating Zone (Green tint)
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
+    ctx.fillRect(xScl, 20, 550 - xScl, 200);
+
+    // Surge Limit Line (SLL) - Red Curve
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(getX(qSll * 0.7), getY(1.2));
+    ctx.quadraticCurveTo(xSll, getY(curRatio), getX(qSll * 1.3), getY(maxHead * 0.95));
+    ctx.stroke();
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('Surge Limit Line (SLL)', xSll - 40, 35);
+
+    // Surge Control Line (SCL) - Amber Dashed
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    ctx.moveTo(getX(qScl * 0.7), getY(1.2));
+    ctx.quadraticCurveTo(xScl, getY(curRatio), getX(qScl * 1.3), getY(maxHead * 0.95));
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText('Surge Control Line (SCL)', xScl + 8, 55);
+
+    // Compressor Characteristic Speed Lines (Blue)
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2.5;
+    [0.9, 1.0, 1.05].forEach(spd => {
+      ctx.beginPath();
+      const sX1 = getX(qSll * spd);
+      const sY1 = getY(curRatio * spd * 1.08);
+      const sX2 = getX(qSll * spd * 1.8);
+      const sY2 = getY(curRatio * spd * 0.85);
+      ctx.moveTo(sX1, sY1);
+      ctx.bezierCurveTo(sX1 + 80, sY1 - 10, sX2 - 80, sY2 + 20, sX2, sY2);
+      ctx.stroke();
+    });
+
+    // Current Operating Point Marker
+    let operColor = '#10b981';
+    if (qOper <= qSll) operColor = '#ef4444';
+    else if (qOper <= qScl) operColor = '#f59e0b';
+
+    ctx.fillStyle = operColor;
+    ctx.beginPath();
+    ctx.arc(xOper, yCur, 6, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = operColor;
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('Operating Point (SM: ' + sm.toFixed(1) + '%)', xOper - 40, yCur - 12);
+
+    ctx.restore();
+  }
+
+  function calcSurge() {
+    const qOper = Math.max(100, parseFloat(document.getElementById('surge_qoper').value) || 12500);
+    const qSll = Math.max(50, parseFloat(document.getElementById('surge_qsll').value) || 9500);
+    const sclPct = Math.max(2, parseFloat(document.getElementById('surge_scl_pct').value) || 12.0);
+    const P1 = Math.max(1, parseFloat(document.getElementById('surge_p1').value) || 250);
+    const P2 = Math.max(P1 + 1, parseFloat(document.getElementById('surge_p2').value) || 650);
+    const T1_F = parseFloat(document.getElementById('surge_t1').value) || 95;
+    const T1_R = T1_F + 459.67;
+    const MW = Math.max(2, parseFloat(document.getElementById('surge_mw').value) || 18.0);
+    const Z1 = Math.max(0.5, parseFloat(document.getElementById('surge_z').value) || 0.92);
+    const k = Math.max(1.05, parseFloat(document.getElementById('surge_k').value) || 1.30);
+    const asvFactor = Math.max(1.1, parseFloat(document.getElementById('surge_asv_factor').value) || 1.80);
+
+    // SCL setpoint flow:
+    const qScl = qSll * (1.0 + sclPct / 100.0);
+
+    // Current surge margin:
+    const smPct = ((qOper - qSll) / qOper) * 100.0;
+    const smFlow = qOper - qSll;
+
+    // Inlet gas density:
+    const rho1 = (P1 * 144.0 * MW) / (Z1 * 1545.35 * T1_R); // lb / ft3
+
+    // Full recycle mass flow requirement:
+    const W_recycle_lb_hr = qSll * asvFactor * rho1 * 60.0;
+
+    // Pressure ratio:
+    const rp = P2 / P1;
+    const deltaP = P2 - P1;
+    const xRatio = deltaP / P2;
+
+    // ASV Cv sizing (IEC 60534 compressible gas equation):
+    const Fk = k / 1.40;
+    const xT = 0.72; // typical globe valve
+    const Y_exp = Math.max(0.67, 1.0 - (xRatio / (3.0 * Fk * xT)));
+    const Fp = 0.98; // piping geometry factor
+    const reqCv = (W_recycle_lb_hr / (63.3 * Fp * Y_exp)) * Math.sqrt((T1_R * Z1) / (xRatio * P2 * MW));
+
+    // Status evaluation:
+    let statusText = 'STABLE (Safe)';
+    let statusColor = '#10b981';
+    let statusDesc = 'Operating well above SCL';
+    if (qOper <= qSll) {
+      statusText = 'SURGE TRIP HAZARD';
+      statusColor = '#ef4444';
+      statusDesc = 'Flow is inside unstable surge zone!';
+    } else if (qOper <= qScl) {
+      statusText = 'ASV ACTIVE (Recycling)';
+      statusColor = '#f59e0b';
+      statusDesc = 'Flow is between SLL and SCL';
+    }
+
+    // Update KPIs
+    document.getElementById('res_surge_sm').textContent = smPct.toFixed(1) + '%';
+    document.getElementById('res_surge_sm_flow').textContent = Math.round(smFlow).toLocaleString() + ' ACFM safety buffer';
+    document.getElementById('res_surge_qscl').textContent = Math.round(qScl).toLocaleString() + ' ACFM';
+    
+    const elStatus = document.getElementById('res_surge_status');
+    elStatus.textContent = statusText;
+    elStatus.style.color = statusColor;
+    document.getElementById('res_surge_status_desc').textContent = statusDesc;
+
+    document.getElementById('res_surge_cv').textContent = Math.round(reqCv).toLocaleString() + ' Cv';
+    document.getElementById('res_surge_rp').textContent = rp.toFixed(2);
+    document.getElementById('res_surge_wrecycle').textContent = Math.round(W_recycle_lb_hr).toLocaleString() + ' lb/hr';
+
+    // Status Badge
+    const elBadge = document.getElementById('surge_status_badge');
+    if (qOper <= qSll) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; CRITICAL: Compressor is surging! Violent thrust reversals and mechanical damage imminent!</span>';
+    } else if (qOper <= qScl) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; CONTROL ACTIVE: Flow is below SCL (' + Math.round(qScl) + ' ACFM). ASV must modulate open.</span>';
+    } else {
+      elBadge.innerHTML = '<span style="color:#10b981;">&#10003; OPTIMAL: Machine operating with stable ' + smPct.toFixed(1) + '% surge margin.</span>';
+    }
+
+    // Populate Table
+    const tableData = [
+      { zone: 'Deep Surge Zone', flow: '< ' + Math.round(qSll) + ' ACFM', sm: '< 0%', asv: '100% Full Emergency Dump (<1.0s)', risk: 'Destructive Thrust Bearing Failure' },
+      { zone: 'Surge Control Buffer', flow: Math.round(qSll) + ' – ' + Math.round(qScl) + ' ACFM', sm: '0% – ' + sclPct.toFixed(1) + '%', asv: 'Modulating PI / Derivative Kick', risk: 'Elevated Vibration & Temp Spikes' },
+      { zone: 'Preferred Stable Region', flow: Math.round(qScl) + ' – ' + Math.round(qSll * 1.8) + ' ACFM', sm: '> ' + sclPct.toFixed(1) + '%', asv: 'Closed Tight Shut-Off (TSO)', risk: 'Normal Aero Efficiency' },
+      { zone: 'Choke / Stonewall Limit', flow: '> ' + Math.round(qSll * 2.2) + ' ACFM', sm: 'Max Turndown', asv: 'Closed', risk: 'Sonic Choking at Impeller Eye' }
+    ];
+
+    let trows = '';
+    tableData.forEach(r => {
+      trows += '<tr>' +
+        '<td><strong>' + r.zone + '</strong></td>' +
+        '<td style="font-family:var(--mono);">' + r.flow + '</td>' +
+        '<td style="font-family:var(--mono);">' + r.sm + '</td>' +
+        '<td>' + r.asv + '</td>' +
+        '<td style="font-size:0.8rem; color:var(--text-muted);">' + r.risk + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('surge_table_tbody').innerHTML = trows;
+
+    // Draw Canvas
+    drawSurgeCanvas(qOper, qSll, qScl, P1, P2, smPct);
+  }
+
+  const elPreset = document.getElementById('surge_preset');
+  if (elPreset) {
+    elPreset.addEventListener('change', () => {
+      const p = PRESETS[elPreset.value];
+      if (p) {
+        document.getElementById('surge_mw').value = p.mw;
+        document.getElementById('surge_k').value = p.k;
+        document.getElementById('surge_z').value = p.z;
+        document.getElementById('surge_p1').value = p.p1;
+        document.getElementById('surge_p2').value = p.p2;
+        document.getElementById('surge_t1').value = p.t1;
+        calcSurge();
+      }
+    });
+  }
+
+  const inputs = [
+    'surge_qoper', 'surge_qsll', 'surge_scl_pct', 'surge_p1', 'surge_p2',
+    'surge_t1', 'surge_mw', 'surge_z', 'surge_k', 'surge_asv_factor'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcSurge();
+      });
+      el.addEventListener('change', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcSurge();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_surge_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=======================================================',
+        'CENTRIFUGAL COMPRESSOR SURGE MARGIN & ASV REPORT',
+        'Standards: API Standard 617, ASME PTC 10',
+        '=======================================================',
+        'Operating Flow (Q_oper):      ' + document.getElementById('surge_qoper').value + ' ACFM',
+        'Surge Limit Line (Q_sll):     ' + document.getElementById('surge_qsll').value + ' ACFM',
+        'Surge Control Line (SCL):     ' + document.getElementById('res_surge_qscl').textContent,
+        'Current Surge Margin:         ' + document.getElementById('res_surge_sm').textContent + ' (' + document.getElementById('res_surge_sm_flow').textContent + ')',
+        'Operating Stability Status:   ' + document.getElementById('res_surge_status').textContent,
+        'Pressure Ratio (P2/P1):       ' + document.getElementById('res_surge_rp').textContent + ' (' + document.getElementById('surge_p1').value + ' to ' + document.getElementById('surge_p2').value + ' psia)',
+        'Gas Molecular Weight:         ' + document.getElementById('surge_mw').value + ' g/mol',
+        '-------------------------------------------------------',
+        'ANTI-SURGE RECYCLE VALVE (ASV) SIZING:',
+        'Required ASV Capacity:        ' + document.getElementById('res_surge_cv').textContent,
+        'Full Recycle Mass Flow:       ' + document.getElementById('res_surge_wrecycle').textContent,
+        'Max Valve Stroke Speed:       ' + document.getElementById('res_surge_time').textContent,
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Anti-Surge Report Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcSurge();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+  // ==========================================
+  // Tool BK4: Cooling Tower Langelier Saturation Index (LSI) & Ryznar Stability Index (RSI) Water Chemistry Calculator
+  // ==========================================
+  (() => {
+    const slug = 'cooling-tower-water-lsi-ryznar-calculator';
+    const title = 'Cooling Tower Water LSI, Ryznar & Scaling Index Calculator';
+    const metaDescription = 'Calculate industrial cooling tower Langelier Saturation Index (LSI), Ryznar Stability Index (RSI), Puckorius Scaling Index (PSI), Larson-Skold Index, and calcium carbonate scale precipitation risk per ASTM D3739 and CTI standards.';
+
+    const faq = [
+      {
+        q: 'What is the fundamental difference between the Langelier (LSI) and Ryznar (RSI) indices?',
+        a: 'The Langelier Saturation Index (LSI = pH - pHs) is an equilibrium indicator predicting whether water has a thermodynamic driving force to precipitate or dissolve calcium carbonate (CaCO3). However, LSI does not indicate the quantity or tenacity of scale that will form. The Ryznar Stability Index (RSI = 2*pHs - pH) is an empirical correlation developed on real-world industrial heat exchangers that accounts for film temperature dynamics and distinguishes between mild protective film formation and heavy, heat-transfer-choking scale deposition or aggressive pitting.'
+      },
+      {
+        q: 'Why does calcium carbonate (CaCO3) precipitate faster on hot heat exchanger tubes than in the cooling tower basin?',
+        a: 'Unlike most chemical compounds which become more soluble at higher temperatures, calcium carbonate exhibits retrograde (inverse) solubility. As water temperature rises, CaCO3 becomes significantly less soluble and the saturation pH (pHs) decreases. Consequently, cooling water that appears perfectly balanced and non-scaling in an 85 deg F (29 deg C) tower cold-water basin can be intensely supersaturated (LSI > +1.5) at the 140 deg F (60 deg C) boundary layer film of a condenser tube wall, precipitating insulating rock-hard calcite scale.'
+      },
+      {
+        q: 'What is the Puckorius Scaling Index (PSI) and when should it be used?',
+        a: 'The Puckorius Scaling Index (PSI = 2*pHs - pHeq) modifies the Ryznar index by replacing actual pH with an equilibrium pH (pHeq) based solely on total alkalinity: pHeq = 1.465 * log10(Alkalinity) + 4.54. Water with high buffering capacity can resist pH swings while precipitating scale. PSI provides a more reliable assessment of scaling potential in high-alkalinity or recirculating cooling systems where organic phosphonate scale inhibitors or acid dosing distort raw pH measurements.'
+      },
+      {
+        q: 'What is the Larson-Skold Index (LI) and why is it critical for piping corrosion?',
+        a: 'The Larson-Skold Index evaluates the ratio of aggressive corrosive anions (Chloride Cl- and Sulfate SO4--) to passivating buffering anions (Bicarbonate HCO3- and Carbonate CO3--): LI = (epm Cl- + epm SO4--) / (epm Alkalinity). In cooling towers where sulfuric acid is dosed to control scale or cycles of concentration are elevated, sulfate and chloride ions break down the passive oxide film on carbon steel. An LI > 1.2 indicates a severe risk of localized pitting and crevice corrosion under heat exchanger deposits.'
+      },
+      {
+        q: 'What is the calcium sulfate (gypsum) solubility limit in industrial cooling water?',
+        a: 'When sulfuric acid (H2SO4) is fed to neutralize alkalinity, sulfate ions accumulate rapidly. If the product of calcium hardness (as ppm CaCO3) and sulfate (as ppm SO4) exceeds 5,000,000 (i.e. [Ca as CaCO3] * [SO4] > 5.0e6), calcium sulfate (gypsum, CaSO4.2H2O) will precipitate. Unlike calcium carbonate, which can be dissolved by on-line acid cleaning, gypsum scale is practically insoluble in mineral acids and requires mechanical tube drilling or hydro-blasting to remove.'
+      }
+    ];
+
+    const content = `
+<style>
+.lsi-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.lsi-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+.lsi-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.lsi-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 768px) {
+  .lsi-grid-2, .lsi-grid-3, .lsi-grid-4 { grid-template-columns: 1fr; }
+}
+.lsi-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  display: flex;
+  justify-content: space-between;
+}
+.lsi-input, .lsi-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+}
+.lsi-kpi {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+}
+.lsi-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--primary);
+  margin: 0.25rem 0;
+}
+.lsi-kpi-lbl {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.lsi-btn {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s;
+}
+.lsi-btn:hover { opacity: 0.9; }
+.lsi-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin-top: 1rem;
+}
+.lsi-table th, .lsi-table td {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.lsi-table th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.trap-card {
+  background: var(--surface);
+  border-radius: 6px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+.trap-card h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.05rem;
+}
+.formula-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1.25rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  margin: 1rem 0;
+}
+</style>
+
+<div class="lsi-box">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+    <div>
+      <h3 style="margin: 0 0 0.25rem 0;">Recirculating Cooling Water Chemistry Analysis</h3>
+      <div style="font-size: 0.85rem; color: var(--text-muted);">ASTM D3739 LSI, Ryznar Stability & Puckorius Scaling Index Architecture</div>
+    </div>
+    <div>
+      <label class="lsi-label">Water Source / Tower Chemistry Preset</label>
+      <select id="lsi_preset" class="lsi-select" style="min-width: 280px;">
+        <option value="balanced_tower">Balanced Industrial Tower (pH 8.2, LSI +0.3, Moderate Cycles)</option>
+        <option value="hard_alkaline">Hard Alkaline Well Water (pH 8.6, Heavy Scaling Hazard)</option>
+        <option value="acid_treated">Acid-Dosed Cooling Loop (pH 7.2, Controlled LSI -0.2)</option>
+        <option value="soft_corrosive">Soft Surface Water (pH 6.8, Corrosive Attack)</option>
+        <option value="custom">Custom Parameters (User Input)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="lsi-grid-3">
+    <div>
+      <label class="lsi-label">Measured Water pH <span>(Units: 4 - 11)</span></label>
+      <input type="number" id="lsi_ph" class="lsi-input" value="8.20" step="0.05" min="4.0" max="11.0">
+    </div>
+    <div>
+      <label class="lsi-label">Bulk Water Temperature <span>&deg;F (Basin)</span></label>
+      <input type="number" id="lsi_temp_f" class="lsi-input" value="85" step="5" min="35" max="212">
+    </div>
+    <div>
+      <label class="lsi-label">Exchanger Skin Temperature <span>&deg;F (Hot Tube)</span></label>
+      <input type="number" id="lsi_skin_f" class="lsi-input" value="135" step="5" min="40" max="250">
+    </div>
+  </div>
+
+  <div class="lsi-grid-4" style="margin-top: 1rem;">
+    <div>
+      <label class="lsi-label">Calcium Hardness (Ca) <span>ppm as CaCO3</span></label>
+      <input type="number" id="lsi_ca" class="lsi-input" value="350" step="25" min="10" max="3000">
+    </div>
+    <div>
+      <label class="lsi-label">Total M-Alkalinity <span>ppm as CaCO3</span></label>
+      <input type="number" id="lsi_alk" class="lsi-input" value="280" step="20" min="10" max="2500">
+    </div>
+    <div>
+      <label class="lsi-label">Total Dissolved Solids (TDS) <span>ppm</span></label>
+      <input type="number" id="lsi_tds" class="lsi-input" value="1800" step="100" min="50" max="30000">
+    </div>
+    <div>
+      <label class="lsi-label">Chloride Ion (Cl-) <span>ppm as Cl</span></label>
+      <input type="number" id="lsi_cl" class="lsi-input" value="250" step="25" min="5" max="5000">
+    </div>
+  </div>
+
+  <div class="lsi-grid-3" style="margin-top: 1rem;">
+    <div>
+      <label class="lsi-label">Sulfate Ion (SO4--) <span>ppm as SO4</span></label>
+      <input type="number" id="lsi_so4" class="lsi-input" value="450" step="50" min="5" max="10000">
+    </div>
+    <div>
+      <label class="lsi-label">Cycles of Concentration (COC)</label>
+      <input type="number" id="lsi_coc" class="lsi-input" value="4.5" step="0.5" min="1.0" max="25.0">
+    </div>
+    <div>
+      <label class="lsi-label">Scale Inhibitor Active Dosing</label>
+      <select id="lsi_inhibitor" class="lsi-select">
+        <option value="pma_hpa">PBTC / HPA Polymer Inhibitor (+2.0 LSI Window)</option>
+        <option value="standard_poly">Standard Polyacrylic / HEDP (+1.0 LSI Window)</option>
+        <option value="none">Untreated / Acid Only (+0.2 LSI Limit)</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="lsi-box">
+  <h3 style="margin-top: 0;">Water Balance & Saturation Index Diagnostics</h3>
+  <div class="lsi-grid-4">
+    <div class="lsi-kpi">
+      <div class="lsi-kpi-lbl">Langelier Index (LSI, Basin)</div>
+      <div class="lsi-kpi-val" id="res_lsi_val">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_lsi_status">-- status</div>
+    </div>
+    <div class="lsi-kpi">
+      <div class="lsi-kpi-lbl">Hot Tube Skin LSI (Worst-Case)</div>
+      <div class="lsi-kpi-val" id="res_lsi_skin">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_lsi_skin_status">-- exchanger risk</div>
+    </div>
+    <div class="lsi-kpi">
+      <div class="lsi-kpi-lbl">Ryznar Index (RSI)</div>
+      <div class="lsi-kpi-val" id="res_rsi_val">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_rsi_status">-- scale vs corr</div>
+    </div>
+    <div class="lsi-kpi">
+      <div class="lsi-kpi-lbl">Larson-Skold Pitting Index</div>
+      <div class="lsi-kpi-val" id="res_li_val">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_li_status">-- pitting risk</div>
+    </div>
+  </div>
+
+  <div class="lsi-grid-3" style="margin-top: 1rem;">
+    <div class="lsi-kpi">
+      <div class="lsi-kpi-lbl">Saturation pH (pH_s)</div>
+      <div class="lsi-kpi-val" id="res_phs_val">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);">Equilibrium calcite pH</div>
+    </div>
+    <div class="lsi-kpi">
+      <div class="lsi-kpi-lbl">Puckorius Scaling Index (PSI)</div>
+      <div class="lsi-kpi-val" id="res_psi_val">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_psi_status">-- buffered index</div>
+    </div>
+    <div class="lsi-kpi">
+      <div class="lsi-kpi-lbl">Gypsum (CaSO4) Product</div>
+      <div class="lsi-kpi-val" id="res_caso4_prod">--</div>
+      <div style="font-size: 0.75rem; color: var(--text-muted);" id="res_caso4_status">-- limit: 5.0e6</div>
+    </div>
+  </div>
+</div>
+
+<div class="lsi-box">
+  <h3 style="margin-top: 0;">Interactive Water Chemistry Index & Scaling Regime Map</h3>
+  <div style="text-align: center; margin-bottom: 1rem;">
+    <canvas id="lsi_canvas" width="700" height="320" style="width: 100%; max-width: 700px; height: auto; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;"></canvas>
+  </div>
+
+  <h4 style="margin: 1rem 0 0.5rem 0;">CTI Water Quality Criteria & Scale/Corrosion Mapping</h4>
+  <table class="lsi-table">
+    <thead>
+      <tr>
+        <th>Water Quality Metric</th>
+        <th>Calculated Value</th>
+        <th>Recommended CTI Operating Range</th>
+        <th>System Tendency</th>
+        <th>Corrective Operational Action</th>
+      </tr>
+    </thead>
+    <tbody id="lsi_table_tbody">
+      <!-- Generated via JS -->
+    </tbody>
+  </table>
+
+  <div style="margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <button id="btn_lsi_copy" class="lsi-btn">
+      <span>📋 Copy Full Cooling Tower Water Chemistry Report</span>
+    </button>
+    <div id="lsi_status_badge" style="font-weight: 600; font-size: 0.9rem;"></div>
+  </div>
+</div>
+
+<div class="lsi-box">
+  <h3 style="margin-top: 0;">Mathematical Formulations & Chemical Equilibrium Derivations</h3>
+  
+  <p>The precipitation kinetics of calcium carbonate in industrial recirculating cooling water are governed by the carbonate-bicarbonate thermodynamic equilibrium per ASTM D3739 and CTI standard guidelines.</p>
+
+  <div class="formula-box">
+1. Saturation pH (pH_s) Derivation:
+   pH_s = (9.30 + A + B) - (C + D)
+   Where:
+     A = [ log10(TDS) - 1.0 ] / 10.0
+     B = -13.12 * log10( T_celsius + 273.15 ) + 34.55
+     C = log10( Calcium_Hardness_ppm ) - 0.40
+     D = log10( Total_M_Alkalinity_ppm )
+
+2. Langelier Saturation Index (LSI):
+   LSI = Measured_pH - pH_s
+   Interpretation:
+     LSI > +0.50 : Scale forming (calcium carbonate supersaturation)
+     0.0 to +0.50: Slightly scale forming (balanced protective film)
+     < 0.00      : Corrosive (calcium carbonate undersaturation)
+
+3. Ryznar Stability Index (RSI):
+   RSI = 2.0 * pH_s - Measured_pH
+   Interpretation:
+     RSI < 5.5   : Severe scaling
+     5.5 to 6.2  : Light scaling
+     6.2 to 6.8  : Balanced / non-aggressive
+     6.8 to 8.5  : Corrosive
+     RSI > 8.5   : Extremely aggressive corrosion
+
+4. Puckorius Scaling Index (PSI):
+   pH_eq = 1.465 * log10( Total_M_Alkalinity_ppm ) + 4.54
+   PSI   = 2.0 * pH_s - pH_eq
+
+5. Larson-Skold Pitting Index (LI):
+   epm_Cl  = ppm_Cl / 35.45
+   epm_SO4 = ppm_SO4 / 48.03
+   epm_Alk = ppm_Alk / 50.04
+   LI = ( epm_Cl + epm_SO4 ) / epm_Alk
+   LI > 1.2 indicates severe localized pitting risk on mild steel.
+  </div>
+
+  <p>Because calcite precipitation rate scales exponentially with surface temperature, calculating LSI only at the basin temperature creates a false sense of security. Hot heat exchanger tube wall temperatures must always be evaluated as the governing precipitation site.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #ef4444;">
+  <h4 style="color: #ef4444;">1. Evaluating LSI Only at Basin Temperature</h4>
+  <p>A cooling tower cold-water basin operating at 85&deg;F (29&deg;C) may show an ideal balanced LSI of +0.2. However, inside steam condensers or refining process exchangers, the metal tube skin temperature frequently reaches 135&deg;F to 160&deg;F. Due to retrograde solubility, the skin LSI spikes to +1.4, causing rapid calcite crystallization directly onto hot tube walls that cuts heat transfer efficiency by 40% within weeks.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #f59e0b;">
+  <h4 style="color: #f59e0b;">2. Over-Acidification Causing Runaway Pitting Corrosion</h4>
+  <p>To eliminate scale, operators frequently overdose sulfuric acid ($H_2SO_4$) to depress pH below 6.8. While this keeps calcium completely soluble, it strips the protective bicarbonate buffer and dumps heavy sulfate loads into the water. The Larson-Skold index surges past 2.5, creating an aggressive electrolyte that initiates catastrophic galvanic pitting and perforates carbon steel exchanger tubes.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #10b981;">
+  <h4 style="color: #10b981;">3. Exceeding the Gypsum ($CaSO_4$) Solubility Limit ($>5.0 	imes 10^6$)</h4>
+  <p>When feeding sulfuric acid into high-calcium water, the calcium sulfate ion product $[Ca] 	imes [SO_4]$ increases linearly with cycles of concentration. If this product exceeds $5.0 	imes 10^6$, insoluble gypsum ($CaSO_4 cdot 2H_2O$) precipitates. Unlike calcium carbonate, which dissolves readily during citric or sulfamic acid cleanings, gypsum scale is virtually impervious to chemical cleaning and requires destructive mechanical reaming.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #3b82f6;">
+  <h4 style="color: #3b82f6;">4. Chlorine Biocide Degradation of Polyphosphonate Inhibitors</h4>
+  <p>Modern alkaline cooling programs rely on organic phosphonate polymers (such as PBTC or HEDP) to stabilize supersaturated calcite up to LSI +2.0. If plant technicians overfeed sodium hypochlorite (chlorine bleach) without monitoring free residual halogen, the chlorine oxidizes the phosphonates into simple orthophosphates. The orthophosphate immediately reacts with calcium to form insoluble calcium phosphate sludge, causing instantaneous system fouling.</p>
+</div>
+
+<div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+  <h4 style="color: #8b5cf6;">5. Ignoring Chloride Accumulation on Stainless Steel Exchangers</h4>
+  <p>When cycling up cooling water to save blowdown, chloride concentrations ($Cl^-$) concentrate proportionally. Type 304 and 316 austenitic stainless steel tubes suffer rapid chloride stress corrosion cracking (CSCC) and severe crevice pitting when chloride levels exceed 200 ppm (for 304) or 500 ppm (for 316) at temperatures above 130&deg;F (54&deg;C). High-alloy duplex stainless or titanium must be specified if high-chloride cycles are maintained.</p>
+</div>
+
+<script>
+(() => {
+  const PRESETS = {
+    'balanced_tower': { ph: 8.20, temp: 85, skin: 135, ca: 350, alk: 280, tds: 1800, cl: 250, so4: 450, coc: 4.5 },
+    'hard_alkaline':  { ph: 8.60, temp: 85, skin: 145, ca: 650, alk: 480, tds: 2900, cl: 400, so4: 800, coc: 6.0 },
+    'acid_treated':   { ph: 7.20, temp: 85, skin: 130, ca: 350, alk: 90,  tds: 2200, cl: 250, so4: 1100, coc: 5.0 },
+    'soft_corrosive': { ph: 6.80, temp: 75, skin: 120, ca: 60,  alk: 45,  tds: 300,  cl: 40,  so4: 50,  coc: 2.0 }
+  };
+
+  function calcPhs(tds, tempF, ca, alk) {
+    const tempC = (tempF - 32.0) * (5.0 / 9.0);
+    const A = (Math.log10(Math.max(10, tds)) - 1.0) / 10.0;
+    const B = -13.12 * Math.log10(Math.max(1, tempC) + 273.15) + 34.55;
+    const C = Math.log10(Math.max(1, ca)) - 0.40;
+    const D = Math.log10(Math.max(1, alk));
+    return (9.30 + A + B) - (C + D);
+  }
+
+  function drawLsiCanvas(lsiBasin, lsiSkin, rsi, li) {
+    const canvas = document.getElementById('lsi_canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    // --- Left Side: LSI Saturation Spectrum ---
+    ctx.save();
+    ctx.translate(40, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Langelier Saturation Index (LSI) Spectrum', 10, 0);
+
+    // Spectrum bar from LSI -2.0 to +3.0
+    // Height 180
+    const barX = 60;
+    const barW = 30;
+    const barH = 180;
+
+    // Gradient fill: Blue (Corrosive) -> Green (Balanced) -> Red (Severe Scale)
+    const grad = ctx.createLinearGradient(0, 20 + barH, 0, 20);
+    grad.addColorStop(0.0, '#38bdf8'); // Corrosive bottom
+    grad.addColorStop(0.35, '#10b981'); // Balanced LSI 0 to 0.5
+    grad.addColorStop(0.65, '#f59e0b'); // Moderate scale
+    grad.addColorStop(1.0, '#ef4444'); // Severe scale top
+
+    ctx.fillStyle = grad;
+    ctx.fillRect(barX, 20, barW, barH);
+    ctx.strokeStyle = '#475569';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(barX, 20, barW, barH);
+
+    // Scale ticks
+    // LSI spans -2.0 (y = 200) to +3.0 (y = 20)
+    function lsiToY(val) {
+      const clamp = Math.max(-2.0, Math.min(3.0, val));
+      return 20 + barH - ((clamp + 2.0) / 5.0) * barH;
+    }
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('+3.0 (Severe Scale)', barX + 38, 28);
+    ctx.fillText('+1.0 (Scaling)', barX + 38, lsiToY(1.0) + 4);
+    ctx.fillText('+0.2 (Balanced Target)', barX + 38, lsiToY(0.2) + 4);
+    ctx.fillText('0.0 (Neutral)', barX + 38, lsiToY(0.0) + 4);
+    ctx.fillText('-1.0 (Corrosive)', barX + 38, lsiToY(-1.0) + 4);
+    ctx.fillText('-2.0 (Severe Attack)', barX + 38, lsiToY(-2.0));
+
+    // Marker Basin LSI
+    const yBasin = lsiToY(lsiBasin);
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(barX - 15, yBasin);
+    ctx.lineTo(barX + barW + 5, yBasin);
+    ctx.stroke();
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('Basin: ' + lsiBasin.toFixed(2), barX - 85, yBasin + 4);
+
+    // Marker Skin LSI
+    const ySkin = lsiToY(lsiSkin);
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(barX - 15, ySkin);
+    ctx.lineTo(barX + barW + 5, ySkin);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ef4444';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('Hot Tube: ' + lsiSkin.toFixed(2), barX - 95, ySkin - 4);
+
+    ctx.restore();
+
+    // --- Right Side: Ryznar & Larson-Skold Dual Matrix ---
+    ctx.save();
+    ctx.translate(350, 40);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('Ryznar Stability (RSI) & Larson Pitting Matrix', 10, 0);
+
+    // RSI Box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(20, 30, 280, 80);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(20, 30, 280, 80);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Ryznar Stability Index (RSI)', 30, 48);
+
+    let rsiColor = '#10b981';
+    let rsiLabel = 'Balanced / Non-Aggressive (6.2 - 6.8)';
+    if (rsi < 5.5) { rsiColor = '#ef4444'; rsiLabel = 'Heavy CaCO3 Scale (< 5.5)'; }
+    else if (rsi < 6.2) { rsiColor = '#f59e0b'; rsiLabel = 'Light Scale Formation (5.5 - 6.2)'; }
+    else if (rsi > 8.5) { rsiColor = '#ef4444'; rsiLabel = 'Severe Heavy Corrosion (> 8.5)'; }
+    else if (rsi > 6.8) { rsiColor = '#f59e0b'; rsiLabel = 'Corrosive Attack (6.8 - 8.5)'; }
+
+    ctx.fillStyle = rsiColor;
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText('RSI = ' + rsi.toFixed(2), 30, 75);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText(rsiLabel, 30, 95);
+
+    // Larson-Skold Box
+    ctx.fillStyle = 'rgba(30, 41, 59, 0.85)';
+    ctx.fillRect(20, 130, 280, 80);
+    ctx.strokeStyle = '#475569';
+    ctx.strokeRect(20, 130, 280, 80);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('Larson-Skold Pitting Index (LI = [Cl+SO4]/Alk)', 30, 148);
+
+    let liColor = '#10b981';
+    let liLabel = 'Low Pitting Tendency (< 0.8)';
+    if (li > 1.2) { liColor = '#ef4444'; liLabel = 'Severe High Pitting Corrosion (> 1.2)'; }
+    else if (li > 0.8) { liColor = '#f59e0b'; liLabel = 'Moderate Pitting Risk (0.8 - 1.2)'; }
+
+    ctx.fillStyle = liColor;
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillText('LI = ' + li.toFixed(2), 30, 175);
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText(liLabel, 30, 195);
+
+    ctx.restore();
+  }
+
+  function calcLsi() {
+    const pH = Math.max(4.0, parseFloat(document.getElementById('lsi_ph').value) || 8.20);
+    const tempF = Math.max(35, parseFloat(document.getElementById('lsi_temp_f').value) || 85);
+    const skinF = Math.max(tempF, parseFloat(document.getElementById('lsi_skin_f').value) || 135);
+    const ca = Math.max(5, parseFloat(document.getElementById('lsi_ca').value) || 350);
+    const alk = Math.max(5, parseFloat(document.getElementById('lsi_alk').value) || 280);
+    const tds = Math.max(20, parseFloat(document.getElementById('lsi_tds').value) || 1800);
+    const cl = Math.max(1, parseFloat(document.getElementById('lsi_cl').value) || 250);
+    const so4 = Math.max(1, parseFloat(document.getElementById('lsi_so4').value) || 450);
+    const coc = Math.max(1.0, parseFloat(document.getElementById('lsi_coc').value) || 4.5);
+    const inhibitor = document.getElementById('lsi_inhibitor').value;
+
+    // Saturation pH at basin:
+    const phs_basin = calcPhs(tds, tempF, ca, alk);
+    const lsi_basin = pH - phs_basin;
+
+    // Saturation pH at hot tube skin:
+    const phs_skin = calcPhs(tds, skinF, ca, alk);
+    const lsi_skin = pH - phs_skin;
+
+    // Ryznar Stability Index:
+    const rsi = 2.0 * phs_basin - pH;
+
+    // Puckorius Scaling Index:
+    const pHeq = 1.465 * Math.log10(Math.max(1, alk)) + 4.54;
+    const psi = 2.0 * phs_basin - pHeq;
+
+    // Larson-Skold Index:
+    // epm = ppm / eq_wt. Cl eq_wt = 35.45, SO4 eq_wt = 48.03, Alk eq_wt = 50.04
+    const epm_cl = cl / 35.45;
+    const epm_so4 = so4 / 48.03;
+    const epm_alk = alk / 50.04;
+    const li = (epm_cl + epm_so4) / Math.max(0.01, epm_alk);
+
+    // Calcium Sulfate (Gypsum) product:
+    const caso4_prod = ca * so4;
+    const isGypsumSafe = caso4_prod < 5000000;
+
+    // Max allowable LSI based on chemical inhibitor:
+    let maxSafeLsi = 0.50;
+    if (inhibitor === 'pma_hpa') maxSafeLsi = 2.20;
+    else if (inhibitor === 'standard_poly') maxSafeLsi = 1.20;
+
+    // LSI status evaluation:
+    let lsiText = 'BALANCED (Protective)';
+    let lsiColor = '#10b981';
+    if (lsi_basin > maxSafeLsi) {
+      lsiText = 'SEVERE SCALING';
+      lsiColor = '#ef4444';
+    } else if (lsi_basin > 0.50) {
+      lsiText = 'INHIBITOR ACTIVE';
+      lsiColor = '#f59e0b';
+    } else if (lsi_basin < -0.50) {
+      lsiText = 'CORROSIVE WATER';
+      lsiColor = '#ef4444';
+    }
+
+    // Skin LSI status:
+    let skinText = 'Tube Safe';
+    if (lsi_skin > maxSafeLsi) skinText = 'HOT TUBE SCALING!';
+    else if (lsi_skin > 0.8) skinText = 'Hot Tube Vulnerable';
+
+    // Update KPIs
+    document.getElementById('res_lsi_val').textContent = (lsi_basin >= 0 ? '+' : '') + lsi_basin.toFixed(2);
+    const elLsiStatus = document.getElementById('res_lsi_status');
+    elLsiStatus.textContent = lsiText;
+    elLsiStatus.style.color = lsiColor;
+
+    document.getElementById('res_lsi_skin').textContent = (lsi_skin >= 0 ? '+' : '') + lsi_skin.toFixed(2);
+    document.getElementById('res_lsi_skin_status').textContent = skinText + ' @ ' + skinF + '°F';
+
+    document.getElementById('res_rsi_val').textContent = rsi.toFixed(2);
+    const elRsiStatus = document.getElementById('res_rsi_status');
+    if (rsi < 5.5) { elRsiStatus.textContent = 'Heavy Scaling'; elRsiStatus.style.color = '#ef4444'; }
+    else if (rsi < 6.2) { elRsiStatus.textContent = 'Light Scale'; elRsiStatus.style.color = '#f59e0b'; }
+    else if (rsi > 8.0) { elRsiStatus.textContent = 'Corrosive'; elRsiStatus.style.color = '#ef4444'; }
+    else { elRsiStatus.textContent = 'Balanced / Stable'; elRsiStatus.style.color = '#10b981'; }
+
+    document.getElementById('res_li_val').textContent = li.toFixed(2);
+    const elLiStatus = document.getElementById('res_li_status');
+    if (li > 1.2) { elLiStatus.textContent = 'High Pitting Risk'; elLiStatus.style.color = '#ef4444'; }
+    else if (li > 0.8) { elLiStatus.textContent = 'Moderate Pitting'; elLiStatus.style.color = '#f59e0b'; }
+    else { elLiStatus.textContent = 'Low Pitting Risk'; elLiStatus.style.color = '#10b981'; }
+
+    document.getElementById('res_phs_val').textContent = phs_basin.toFixed(2) + ' (Skin: ' + phs_skin.toFixed(2) + ')';
+    document.getElementById('res_psi_val').textContent = psi.toFixed(2);
+    document.getElementById('res_psi_status').textContent = psi < 6.0 ? 'Scaling Tendency' : 'Stable / Dissolving';
+
+    document.getElementById('res_caso4_prod').textContent = (caso4_prod / 1e6).toFixed(2) + 'M';
+    const elGypsum = document.getElementById('res_caso4_status');
+    if (isGypsumSafe) {
+      elGypsum.textContent = '✓ Gypsum Safe (< 5.0M)';
+      elGypsum.style.color = '#10b981';
+    } else {
+      elGypsum.textContent = '⚠ GYPSUM PRECIPITATION!';
+      elGypsum.style.color = '#ef4444';
+    }
+
+    // Status Badge
+    const elBadge = document.getElementById('lsi_status_badge');
+    if (!isGypsumSafe) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; CRITICAL: CaSO4 product (' + (caso4_prod / 1e6).toFixed(1) + 'M) exceeds 5.0M limit. Insoluble gypsum scale will form! Increase blowdown.</span>';
+    } else if (lsi_skin > maxSafeLsi) {
+      elBadge.innerHTML = '<span style="color:#ef4444;">&#9888; EXCHANGER HAZARD: Hot tube LSI (' + lsi_skin.toFixed(2) + ') exceeds inhibitor threshold (' + maxSafeLsi.toFixed(1) + '). Tubes will foul.</span>';
+    } else if (li > 1.5) {
+      elBadge.innerHTML = '<span style="color:#f59e0b;">&#9888; CORROSION RISK: Larson-Skold index (' + li.toFixed(2) + ' > 1.2). High chloride/sulfate causing pitting attack on mild steel.</span>';
+    } else {
+      elBadge.innerHTML = '<span style="color:#10b981;">&#10003; OPTIMAL: Water chemistry within CTI balanced window. Non-scaling & non-corrosive.</span>';
+    }
+
+    // Table rows
+    const tableData = [
+      { metric: 'Langelier Saturation Index (Basin)', val: lsi_basin.toFixed(2), range: '0.0 to +0.50 (Untreated)', tend: lsiText, action: lsi_basin > maxSafeLsi ? 'Acid feed or raise blowdown' : 'Maintain current chemistry' },
+      { metric: 'Langelier Saturation Index (Hot Tube)', val: lsi_skin.toFixed(2), range: '< +1.2 to +2.0 (Inhibited)', tend: skinText, action: lsi_skin > maxSafeLsi ? 'Increase polymer dispersant dose' : 'Acceptable' },
+      { metric: 'Ryznar Stability Index (RSI)', val: rsi.toFixed(2), range: '6.2 to 6.8 (Neutral)', tend: rsiLabel.split('(')[0], action: rsi < 5.5 ? 'Lower pH / increase blowdown' : (rsi > 8.0 ? 'Add corrosion inhibitor' : 'None') },
+      { metric: 'Puckorius Scaling Index (PSI)', val: psi.toFixed(2), range: '6.0 to 7.0 (Stable)', tend: psi < 6.0 ? 'Scaling buffer' : 'Non-scaling', action: 'Monitor alkalinity buffering' },
+      { metric: 'Larson-Skold Pitting Ratio (LI)', val: li.toFixed(2), range: '< 0.8 (Low Pitting)', tend: liLabel.split('(')[0], action: li > 1.2 ? 'Reduce cycles or lower H2SO4 dose' : 'Normal' },
+      { metric: 'Calcium Sulfate Ion Product', val: (caso4_prod / 1e6).toFixed(2) + 'M', range: '< 5.0M ppm^2', tend: isGypsumSafe ? 'Soluble' : 'GYPSUM PRECIPITATING', action: isGypsumSafe ? 'Safe' : 'URGENT: Increase blowdown rate' }
+    ];
+
+    let trows = '';
+    tableData.forEach(r => {
+      trows += '<tr>' +
+        '<td><strong>' + r.metric + '</strong></td>' +
+        '<td style="font-family:var(--mono); font-weight:bold;">' + r.val + '</td>' +
+        '<td>' + r.range + '</td>' +
+        '<td>' + r.tend + '</td>' +
+        '<td style="font-size:0.8rem; color:var(--text-muted);">' + r.action + '</td>' +
+      '</tr>';
+    });
+    document.getElementById('lsi_table_tbody').innerHTML = trows;
+
+    // Draw Canvas
+    drawLsiCanvas(lsi_basin, lsi_skin, rsi, li);
+  }
+
+  const elPreset = document.getElementById('lsi_preset');
+  if (elPreset) {
+    elPreset.addEventListener('change', () => {
+      const p = PRESETS[elPreset.value];
+      if (p) {
+        document.getElementById('lsi_ph').value = p.ph;
+        document.getElementById('lsi_temp_f').value = p.temp;
+        document.getElementById('lsi_skin_f').value = p.skin;
+        document.getElementById('lsi_ca').value = p.ca;
+        document.getElementById('lsi_alk').value = p.alk;
+        document.getElementById('lsi_tds').value = p.tds;
+        document.getElementById('lsi_cl').value = p.cl;
+        document.getElementById('lsi_so4').value = p.so4;
+        document.getElementById('lsi_coc').value = p.coc;
+        calcLsi();
+      }
+    });
+  }
+
+  const inputs = [
+    'lsi_ph', 'lsi_temp_f', 'lsi_skin_f', 'lsi_ca', 'lsi_alk',
+    'lsi_tds', 'lsi_cl', 'lsi_so4', 'lsi_coc', 'lsi_inhibitor'
+  ];
+  inputs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcLsi();
+      });
+      el.addEventListener('change', () => {
+        if (elPreset && elPreset.value !== 'custom') {
+          elPreset.value = 'custom';
+        }
+        calcLsi();
+      });
+    }
+  });
+
+  const btnCopy = document.getElementById('btn_lsi_copy');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', () => {
+      const txt = [
+        '=======================================================',
+        'COOLING TOWER WATER SATURATION & STABILITY REPORT',
+        'Standards: ASTM D3739, CTI Guidelines',
+        '=======================================================',
+        'Bulk Water pH:                ' + document.getElementById('lsi_ph').value,
+        'Basin Water Temperature:      ' + document.getElementById('lsi_temp_f').value + ' deg F',
+        'Hot Tube Skin Temperature:    ' + document.getElementById('lsi_skin_f').value + ' deg F',
+        'Calcium Hardness:             ' + document.getElementById('lsi_ca').value + ' ppm as CaCO3',
+        'Total M-Alkalinity:           ' + document.getElementById('lsi_alk').value + ' ppm as CaCO3',
+        'Total Dissolved Solids (TDS): ' + document.getElementById('lsi_tds').value + ' ppm',
+        'Chloride Ion (Cl-):           ' + document.getElementById('lsi_cl').value + ' ppm',
+        'Sulfate Ion (SO4--):          ' + document.getElementById('lsi_so4').value + ' ppm',
+        'Cycles of Concentration:      ' + document.getElementById('lsi_coc').value,
+        '-------------------------------------------------------',
+        'CALCULATED WATER CHEMISTRY INDICES:',
+        'Langelier Index (Basin LSI):  ' + document.getElementById('res_lsi_val').textContent + ' [' + document.getElementById('res_lsi_status').textContent + ']',
+        'Hot Tube Skin LSI:            ' + document.getElementById('res_lsi_skin').textContent + ' [' + document.getElementById('res_lsi_skin_status').textContent + ']',
+        'Ryznar Stability Index (RSI): ' + document.getElementById('res_rsi_val').textContent + ' [' + document.getElementById('res_rsi_status').textContent + ']',
+        'Puckorius Scaling Index (PSI):' + document.getElementById('res_psi_val').textContent,
+        'Larson-Skold Pitting Index:   ' + document.getElementById('res_li_val').textContent + ' [' + document.getElementById('res_li_status').textContent + ']',
+        'Gypsum Product [Ca]*[SO4]:    ' + document.getElementById('res_caso4_prod').textContent + ' [' + document.getElementById('res_caso4_status').textContent + ']',
+        '======================================================='
+      ].join('\n');
+
+      navigator.clipboard.writeText(txt).then(() => {
+        const span = btnCopy.querySelector('span');
+        const orig = span.textContent;
+        span.textContent = '✓ Water Report Copied!';
+        setTimeout(() => { span.textContent = orig; }, 2500);
+      });
+    });
+  }
+
+  calcLsi();
+})();
+</script>
+`;
+
+    writeFileSync(join(calcDir, slug + '.html'), renderTradePage({
+      title,
+      metaDescription,
+      canonical: 'https://digitaltoolsshed.com/calc/' + slug + '.html',
+      content,
+      bodyContent: content,
+      faq
+    }));
+  })();
+
+
+
+console.log('  ✓ Built Trade & Construction Suite (195 calculators in /calc/)');
 }
 
