@@ -1542,6 +1542,1290 @@ export function buildTradeTools() {
 ]
   }));
 
+  
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 20. DEW POINT & PSYCHROMETRIC RELATIVE HUMIDITY CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const dewPointBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Dew Point Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Psychrometric Science</span>
+          <span class="badge badge-green">Magnus-Tetens Formula</span>
+          <span class="badge badge-blue">ASHRAE 55 Comfort Envelope</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Dew Point &amp; Psychrometric Humidity Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Compute exact dew point temperature, wet-bulb temperature, vapor pressure, absolute humidity, and human comfort indices from dry-bulb air temperature and relative humidity. Includes industrial coating condensation threshold and mold incubation diagnostics.
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Dry-Bulb Air Temperature:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="dp-temp" value="75" step="0.5" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcDewPoint()" />
+              <select id="dp-temp-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcDewPoint()">
+                <option value="F" selected>°F</option>
+                <option value="C">°C</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Relative Humidity (% RH):</label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="range" id="dp-rh-slider" min="5" max="100" value="60" step="1" style="flex: 1; cursor: pointer;" oninput="syncRhSlider(this.value)" />
+              <input type="number" id="dp-rh" value="60" min="1" max="100" step="1" style="width: 70px; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem; text-align: center;" oninput="syncRhInput(this.value)" />
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Surface Temperature (Optional):</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="dp-surf-temp" value="62" step="0.5" placeholder="e.g. wall/substrate" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcDewPoint()" />
+              <span id="dp-surf-unit-lbl" style="width: 40%; display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">°F</span>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Barometric Pressure:</label>
+            <select id="dp-pressure" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcDewPoint()">
+              <option value="1013.25" selected>Standard Sea Level (1013.25 hPa / 29.92 inHg)</option>
+              <option value="977.0">Denver / 1,000m Elevation (977 hPa)</option>
+              <option value="898.0">High Altitude / 2,000m Elevation (898 hPa)</option>
+              <option value="1025.0">High Pressure Winter Anticyclone (1025 hPa)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Dew Point Temperature</div>
+            <div id="dp-res-dp" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">60.3°F</div>
+            <div id="dp-res-dp-alt" style="font-size: 0.85rem; color: var(--text-muted);">15.7°C (Magnus-Tetens)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Wet-Bulb Temperature</div>
+            <div id="dp-res-wb" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">65.4°F</div>
+            <div id="dp-res-wb-alt" style="font-size: 0.85rem; color: var(--text-muted);">18.6°C (Stull Thermodynamic Eq)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Human Comfort Level</div>
+            <div id="dp-res-comfort" style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">Moderately Humid</div>
+            <div id="dp-res-comfort-sub" style="font-size: 0.85rem; color: var(--text-muted);">Comfortable for most people</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #6366f1;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Condensation &amp; Mold Status</div>
+            <div id="dp-res-cond-status" style="font-family: var(--mono); font-size: 1.3rem; font-weight: bold; color: #6366f1; margin-bottom: 0.2rem;">Safe (+1.7°F Margin)</div>
+            <div id="dp-res-cond-sub" style="font-size: 0.85rem; color: var(--text-muted);">No surface condensation</div>
+          </div>
+        </div>
+
+        <!-- MOISTURE METRICS STRIP -->
+        <div style="margin-top: 1.25rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div>Vapor Pressure (Pv): <strong id="dp-res-pv" style="color: var(--fg);">1.79 kPa</strong></div>
+          <div>Sat. Vapor Pressure (Pws): <strong id="dp-res-pws" style="color: var(--fg);">2.98 kPa</strong></div>
+          <div>Absolute Humidity: <strong id="dp-res-ah" style="color: #3b82f6;">13.3 g/m³</strong></div>
+          <div>Humidity Ratio: <strong id="dp-res-hr" style="color: var(--fg);">0.0112 kg/kg</strong></div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE PSYCHROMETRIC CHART SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          📊 Interactive Psychrometric State &amp; Condensation Envelope
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Plots Dry-Bulb Temperature against Moisture Density. Displays the 100% Relative Humidity Saturation Curve (blue boundary), ASHRAE 55 Human Thermal Comfort Zone (green zone), and the current atmospheric state dot with projection to the Dew Point.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="dp-psychro-svg" viewBox="0 0 800 280" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Psychrometric Derivations
+        </h3>
+        <div id="dp-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating psychrometric thermodynamic properties...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="dp-copy-btn" onclick="copyDewPointReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Psychrometric &amp; Dew Point Diagnostic
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Engineering Pitfalls in Dew Point &amp; Psychrometrics
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Industrial Coating &amp; Epoxy Blistering Trap (The 5°F Rule)</strong>
+            Applying epoxy floor coatings, marine enamels, or structural paints when the steel or concrete substrate temperature is within 5°F (2.8°C) of the ambient dew point guarantees coating failure. Microscopic, invisible moisture droplets condense onto the substrate ahead of the roller, causing pinhole blistering, flash rusting, and inter-coat delamination. ISO 8502-4 mandates a minimum 3°C (5°F) buffer above dew point.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Mold Germination at 70% Surface RH (The "No Liquid Water Needed" Fallacy)</strong>
+            Homeowners assume toxic mold (Stachybotrys, Aspergillus) requires visible pooling liquid condensation to grow. In reality, mold spores germinate and flourish whenever the localized relative humidity at a wall or ceiling surface reaches 70% to 80% for 48 consecutive hours, even if ambient room RH is a comfortable 50%. Cold structural corners drop surface temperature, locally spiking surface RH into the mold bloom zone.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. The Psychrometer Evaporative Stagnation Error</strong>
+            Using a sling psychrometer or wet-bulb wick sensor without adequate air velocity results in severe temperature over-reading. If airflow across the wetted wick is less than 3 to 5 meters per second (10 ft/s), an insulating micro-layer of saturated vapor stagnates around the bulb, halting evaporative cooling. Always maintain high airflow or use calibrated digital hygrometers.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. The Winter Heating Indoor Relative Humidity Collapse</strong>
+            Taking outdoor air at 25°F (-4°C) with 80% RH and heating it to 72°F (22°C) inside a building causes indoor relative humidity to violently collapse to under 18% RH. Because warm air has exponentially higher saturation capacity, heating cold outdoor air without humidification parches human mucous membranes, generates static electricity, and warps hardwood floors.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Vented Crawlspace Summer Condensation Inversion</strong>
+            Traditional building codes prescribed ventilating crawlspaces with outdoor summer air. However, when 90°F outdoor air with a 75°F dew point enters a cool, unconditioned 65°F earth-contact crawlspace, the air is cooled below its dew point. Gallons of liquid water condense onto wooden floor joists and fiberglass batt insulation, rotting subfloors from underneath. Modern building science requires sealed, conditioned crawlspaces.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function syncRhSlider(val) {
+        document.getElementById('dp-rh').value = val;
+        calcDewPoint();
+      }
+
+      function syncRhInput(val) {
+        var n = parseFloat(val);
+        if (!isNaN(n)) {
+          document.getElementById('dp-rh-slider').value = Math.min(100, Math.max(5, n));
+        }
+        calcDewPoint();
+      }
+
+      function calcDewPoint() {
+        var tRaw = parseFloat(document.getElementById('dp-temp').value) || 75;
+        var tUnit = document.getElementById('dp-temp-unit').value;
+        var rh = parseFloat(document.getElementById('dp-rh').value) || 60;
+        var surfRaw = parseFloat(document.getElementById('dp-surf-temp').value);
+        var pressureHpa = parseFloat(document.getElementById('dp-pressure').value) || 1013.25;
+
+        document.getElementById('dp-surf-unit-lbl').textContent = '°' + tUnit;
+
+        // Convert dry bulb to Celsius
+        var tc = tUnit === 'F' ? (tRaw - 32) * (5/9) : tRaw;
+        var tf = tUnit === 'F' ? tRaw : (tRaw * 9/5) + 32;
+
+        // Magnus-Tetens Coefficients
+        var a = 17.27;
+        var b = 237.7; // °C
+
+        var alpha = (a * tc) / (b + tc) + Math.log(rh / 100);
+        var tDewC = (b * alpha) / (a - alpha);
+        var tDewF = (tDewC * 9/5) + 32;
+
+        // Wet-Bulb Temperature (Stull Equation for Celsius)
+        // Tw = T * atan(0.151977 * (rh + 8.313659)^0.5) + atan(T + rh) - atan(rh - 1.676331) + 0.00391838 * rh^1.5 * atan(0.023101 * rh) - 4.686035
+        var twC = tc * Math.atan(0.151977 * Math.pow(rh + 8.313659, 0.5)) +
+                  Math.atan(tc + rh) -
+                  Math.atan(rh - 1.676331) +
+                  0.00391838 * Math.pow(rh, 1.5) * Math.atan(0.023101 * rh) - 4.686035;
+        var twF = (twC * 9/5) + 32;
+
+        // Vapor Pressures (Tetens formula in kPa)
+        var pws = 0.61078 * Math.exp((17.27 * tc) / (tc + 237.3)); // saturation
+        var pv = pws * (rh / 100); // actual
+
+        // Absolute Humidity (g/m3): AH = 216.7 * (Pv * 10) / (T + 273.15)
+        var ah = (2167 * pv) / (tc + 273.15);
+
+        // Humidity Ratio (kg water / kg dry air): W = 0.62198 * Pv / (P - Pv)
+        var pKpa = pressureHpa / 10;
+        var hr = (0.62198 * pv) / Math.max(0.1, pKpa - pv);
+
+        // Human Comfort Assessment (based on Dew Point °F)
+        var comfortText = 'Comfortable';
+        var comfortSub = 'Optimal indoor thermal condition';
+        var comfortColor = '#10b981';
+        if (tDewF < 50) {
+          comfortText = 'Dry / Crisp Air';
+          comfortSub = 'Low humidity, refreshing; may dry skin';
+          comfortColor = '#3b82f6';
+        } else if (tDewF >= 50 && tDewF < 55) {
+          comfortText = 'Pleasant & Ideal';
+          comfortSub = 'Most comfortable thermal range';
+          comfortColor = '#10b981';
+        } else if (tDewF >= 55 && tDewF < 60) {
+          comfortText = 'Comfortable';
+          comfortSub = 'Pleasant for most active people';
+          comfortColor = '#10b981';
+        } else if (tDewF >= 60 && tDewF < 65) {
+          comfortText = 'Noticeably Humid';
+          comfortSub = 'Sticky feeling begins outdoors';
+          comfortColor = '#f59e0b';
+        } else if (tDewF >= 65 && tDewF < 70) {
+          comfortText = 'Muggy & Uncomfortable';
+          comfortSub = 'Oppressive moisture; sweat evaporation slows';
+          comfortColor = '#f59e0b';
+        } else if (tDewF >= 70 && tDewF < 75) {
+          comfortText = 'Very Oppressive';
+          comfortSub = 'Severe tropical discomfort; heat hazard';
+          comfortColor = '#ef4444';
+        } else {
+          comfortText = 'Dangerously Humid';
+          comfortSub = 'Extreme health risk for exertional heat stroke';
+          comfortColor = '#ef4444';
+        }
+
+        // Condensation on Surface Check
+        var condStatus = 'Surface Temperature Unset';
+        var condSub = 'Enter substrate temp to check condensation';
+        var condColor = '#6366f1';
+        if (!isNaN(surfRaw)) {
+          var surfC = tUnit === 'F' ? (surfRaw - 32) * (5/9) : surfRaw;
+          var surfF = tUnit === 'F' ? surfRaw : (surfRaw * 9/5) + 32;
+          var margin = surfF - tDewF;
+
+          if (margin <= 0) {
+            condStatus = '⚠️ ACTIVE CONDENSATION!';
+            condSub = 'Surface is ' + Math.abs(margin).toFixed(1) + '°F BELOW dew point (Wet)';
+            condColor = '#ef4444';
+          } else if (margin < 5.0) {
+            condStatus = '⚠️ High Risk (<5°F Buffer)';
+            condSub = 'Fails ISO 8502-4 5°F coating buffer';
+            condColor = '#f59e0b';
+          } else {
+            condStatus = '✓ Safe (+' + margin.toFixed(1) + '°F Margin)';
+            condSub = 'Substrate is dry & above dew point';
+            condColor = '#10b981';
+          }
+        }
+
+        // Update KPIs
+        if (tUnit === 'F') {
+          document.getElementById('dp-res-dp').textContent = tDewF.toFixed(1) + '°F';
+          document.getElementById('dp-res-dp-alt').textContent = tDewC.toFixed(1) + '°C (Magnus-Tetens)';
+          document.getElementById('dp-res-wb').textContent = twF.toFixed(1) + '°F';
+          document.getElementById('dp-res-wb-alt').textContent = twC.toFixed(1) + '°C (Stull Thermodynamic)';
+        } else {
+          document.getElementById('dp-res-dp').textContent = tDewC.toFixed(1) + '°C';
+          document.getElementById('dp-res-dp-alt').textContent = tDewF.toFixed(1) + '°F (Magnus-Tetens)';
+          document.getElementById('dp-res-wb').textContent = twC.toFixed(1) + '°C';
+          document.getElementById('dp-res-wb-alt').textContent = twF.toFixed(1) + '°F (Stull Thermodynamic)';
+        }
+
+        var comEl = document.getElementById('dp-res-comfort');
+        comEl.textContent = comfortText;
+        comEl.style.color = comfortColor;
+        document.getElementById('dp-res-comfort-sub').textContent = comfortSub;
+
+        var condEl = document.getElementById('dp-res-cond-status');
+        condEl.textContent = condStatus;
+        condEl.style.color = condColor;
+        document.getElementById('dp-res-cond-sub').textContent = condSub;
+
+        document.getElementById('dp-res-pv').textContent = pv.toFixed(2) + ' kPa (' + (pv * 10).toFixed(1) + ' mbar)';
+        document.getElementById('dp-res-pws').textContent = pws.toFixed(2) + ' kPa';
+        document.getElementById('dp-res-ah').textContent = ah.toFixed(1) + ' g/m³';
+        document.getElementById('dp-res-hr').textContent = hr.toFixed(4) + ' kg/kg';
+
+        // Derivation Box
+        var dBox = document.getElementById('dp-derivation-box');
+        dBox.innerHTML = '<strong>1. Magnus-Tetens α Parameter:</strong> α = (17.27 × ' + tc.toFixed(1) + '°C) ÷ (237.7 + ' + tc.toFixed(1) + ') + ln(' + rh + ' / 100) = <strong>' + alpha.toFixed(4) + '</strong>.<br>' +
+          '<strong>2. Dew Point Solution:</strong> T_dew = (237.7 × ' + alpha.toFixed(4) + ') ÷ (17.27 - ' + alpha.toFixed(4) + ') = <strong>' + tDewC.toFixed(2) + '°C (' + tDewF.toFixed(1) + '°F)</strong>.<br>' +
+          '<strong>3. Saturation & Actual Vapor Pressure:</strong> P_ws = 0.61078 × exp((17.27 × ' + tc.toFixed(1) + ') ÷ (' + tc.toFixed(1) + ' + 237.3)) = ' + pws.toFixed(2) + ' kPa | P_v = ' + pws.toFixed(2) + ' × ' + (rh/100).toFixed(2) + ' = <strong>' + pv.toFixed(2) + ' kPa</strong>.<br>' +
+          '<strong>4. Absolute Moisture Concentration:</strong> AH = (2,167 × ' + pv.toFixed(2) + ' kPa) ÷ (' + tc.toFixed(1) + ' + 273.15) = <strong>' + ah.toFixed(2) + ' grams of water vapor per m³ of air</strong>.<br>' +
+          '<strong>5. Thermodynamic Wet-Bulb:</strong> Stull psychrometric formulation gives evaporative limit <strong>' + twC.toFixed(1) + '°C (' + twF.toFixed(1) + '°F)</strong>.';
+
+        // Render Psychrometric Chart SVG
+        renderPsychroSvg(tc, ah, tDewC, rh);
+      }
+
+      function renderPsychroSvg(tc, ah, tDewC, rh) {
+        var svg = document.getElementById('dp-psychro-svg');
+        if (!svg) return;
+
+        var w = 800, h = 280;
+        var padL = 60, padR = 40, padT = 30, padB = 40;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        // Range: Temperature 0°C to 45°C, Absolute Humidity 0 to 35 g/m3
+        var minT = 0, maxT = 45;
+        var minAh = 0, maxAh = 35;
+
+        function getX(t) { return padL + ((t - minT) / (maxT - minT)) * plotW; }
+        function getY(a) { return (padT + plotH) - ((a - minAh) / (maxAh - minAh)) * plotH; }
+
+        var svgHtml = '';
+
+        // Axes
+        svgHtml += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+
+        // 100% Saturation Curve (Dew Point boundary)
+        var satPts = [];
+        for (var t = minT; t <= maxT; t += 1) {
+          var pws_t = 0.61078 * Math.exp((17.27 * t) / (t + 237.3));
+          var ah_sat = (2167 * pws_t) / (t + 273.15);
+          satPts.push(getX(t).toFixed(1) + ',' + getY(Math.min(maxAh, ah_sat)).toFixed(1));
+        }
+
+        // Saturation area (Condensation Zone)
+        var satArea = 'M ' + getX(minT) + ' ' + (padT + plotH) + ' L ' + satPts.join(' L ') + ' L ' + getX(maxT) + ' ' + (padT + plotH) + ' Z';
+        svgHtml += '<path d="' + satArea + '" fill="rgba(59, 130, 246, 0.08)" stroke="#3b82f6" stroke-width="2.5" />';
+
+        // ASHRAE 55 Comfort Envelope (Roughly 20°C to 26°C and 4 g/m3 to 12 g/m3)
+        var cx1 = getX(20), cx2 = getX(26);
+        var cy1 = getY(12), cy2 = getY(4);
+        svgHtml += '<rect x="' + cx1 + '" y="' + cy1 + '" width="' + (cx2 - cx1) + '" height="' + (cy2 - cy1) + '" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3,3" rx="4" />';
+        svgHtml += '<text x="' + ((cx1+cx2)/2) + '" y="' + ((cy1+cy2)/2 + 4) + '" fill="#10b981" font-size="10" font-weight="bold" text-anchor="middle">ASHRAE Comfort Zone</text>';
+
+        // Current Operating Point
+        var curX = getX(Math.max(minT, Math.min(maxT, tc)));
+        var curY = getY(Math.max(minAh, Math.min(maxAh, ah)));
+
+        // Dew Point projection line horizontally to the saturation curve
+        var dewX = getX(Math.max(minT, Math.min(maxT, tDewC)));
+        svgHtml += '<line x1="' + curX + '" y1="' + curY + '" x2="' + dewX + '" y2="' + curY + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,4" />';
+        svgHtml += '<circle cx="' + dewX + '" cy="' + curY + '" r="5" fill="#3b82f6" />';
+        svgHtml += '<text x="' + (dewX - 8) + '" y="' + (curY - 8) + '" fill="#3b82f6" font-size="11" font-weight="bold" text-anchor="end">Dew Point (' + tDewC.toFixed(1) + '°C)</text>';
+
+        // Current air point
+        svgHtml += '<circle cx="' + curX + '" cy="' + curY + '" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2" />';
+        svgHtml += '<text x="' + (curX + 10) + '" y="' + (curY + 4) + '" fill="#ef4444" font-size="11" font-weight="bold">Current Air (' + tc.toFixed(1) + '°C, ' + rh + '% RH)</text>';
+
+        // Grid lines & labels
+        for (var gt = 0; gt <= 40; gt += 10) {
+          var gx = getX(gt);
+          svgHtml += '<line x1="' + gx + '" y1="' + (padT + plotH) + '" x2="' + gx + '" y2="' + (padT + plotH + 5) + '" stroke="var(--border)" stroke-width="1.5" />';
+          svgHtml += '<text x="' + gx + '" y="' + (padT + plotH + 18) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">' + gt + '°C</text>';
+        }
+
+        // Y-axis labels (AH)
+        for (var ga = 0; ga <= 30; ga += 10) {
+          var gy = getY(ga);
+          svgHtml += '<line x1="' + (padL - 5) + '" y1="' + gy + '" x2="' + padL + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1.5" />';
+          svgHtml += '<text x="' + (padL - 8) + '" y="' + (gy + 4) + '" fill="var(--text-muted)" font-size="11" text-anchor="end">' + ga + 'g</text>';
+        }
+
+        // Axis Titles
+        svgHtml += '<text x="' + (padL + plotW/2) + '" y="' + (h - 6) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">Dry-Bulb Air Temperature (°C)</text>';
+        svgHtml += '<text x="' + (padL + 10) + '" y="' + (padT + 15) + '" fill="#3b82f6" font-size="11" font-weight="bold">100% Saturation Curve (Condensation Limit)</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyDewPointReport(btn) {
+        var dp = document.getElementById('dp-res-dp').textContent;
+        var wb = document.getElementById('dp-res-wb').textContent;
+        var com = document.getElementById('dp-res-comfort').textContent;
+        var cond = document.getElementById('dp-res-cond-status').textContent;
+        var pv = document.getElementById('dp-res-pv').textContent;
+        var ah = document.getElementById('dp-res-ah').textContent;
+
+        var text = '🌡️ PSYCHROMETRIC & DEW POINT DIAGNOSTIC REPORT\n' +
+          '====================================================\n' +
+          '• Dew Point Temperature: ' + dp + '\n' +
+          '• Thermodynamic Wet-Bulb: ' + wb + '\n' +
+          '• Human Comfort Assessment: ' + com + '\n' +
+          '• Surface Condensation Status: ' + cond + '\n' +
+          '• Vapor Pressure (Pv): ' + pv + '\n' +
+          '• Absolute Humidity: ' + ah + '\n' +
+          '----------------------------------------------------\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/dew-point-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Psychrometric Diagnostic Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcDewPoint);
+      } else {
+        calcDewPoint();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'dew-point-calculator.html'), renderTradePage({
+    title: "Dew Point Calculator — Psychrometric Humidity, Wet-Bulb & Condensation | Digital Tools Shed",
+    metaDesc: "Calculate accurate dew point temperature, wet-bulb temperature, vapor pressure, absolute humidity, and mold risk with the Magnus-Tetens psychrometric formula.",
+    canonical: `${DOMAIN}/calc/dew-point-calculator`,
+    bodyContent: dewPointBody,
+    currentPath: '/calc/dew-point-calculator',
+    faq: [
+      {
+        "q": "What is the difference between Relative Humidity and Dew Point?",
+        "a": "Relative humidity (% RH) is relative to temperature—warm air can hold far more water vapor than cold air, so 60% RH at 90°F contains vastly more moisture than 60% RH at 40°F. Dew point is an absolute measure of atmospheric moisture: it represents the exact temperature to which air must be cooled for water vapor to condense into liquid dew."
+      },
+      {
+        "q": "What dew point temperature feels uncomfortable or humid to humans?",
+        "a": "Dew points under 55°F (13°C) feel crisp, dry, and comfortable. Between 55°F and 60°F, air feels pleasant. Between 60°F and 65°F, it starts feeling sticky. Above 65°F (18°C), air feels muggy and oppressive because sweat cannot evaporate easily. Dew points above 70°F (21°C) feel stifling and represent tropical heat stress."
+      },
+      {
+        "q": "How does the Magnus-Tetens formula calculate dew point?",
+        "a": "The Magnus-Tetens approximation computes dew point using saturation vapor pressure curves: α(T, RH) = (a·T)/(b + T) + ln(RH/100), then T_dew = (b·α)/(a - α), where a = 17.27 and b = 237.7°C. It is accurate to within 0.4°C across standard atmospheric temperatures between -40°C and 50°C."
+      },
+      {
+        "q": "What is the 5-degree rule for industrial painting and epoxy application?",
+        "a": "Per international standard ISO 8502-4 and SSPC guidelines, coating applicators must verify that the surface substrate temperature is at least 5°F (3°C) higher than the ambient dew point before applying paint, epoxy, or polyurea. If surface temperature touches the dew point, microscopic condensation creates adhesion failure and blistering."
+      },
+      {
+        "q": "Can mold grow if room relative humidity is 50%?",
+        "a": "Yes. While central room air may measure 50% RH, exterior walls, cold corners, and uninsulated window headers have colder surface temperatures. Because cold air holds less moisture, the localized relative humidity right against that cold surface can exceed 70% to 80%, triggering active mold spore germination without visible standing water."
+      }
+    ]
+  }));
+
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 21. CONCRETE FOOTING, SONOTUBE & PIER CALCULATOR
+  // ─────────────────────────────────────────────────────────────────────────────
+  const footingBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Concrete Footing Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Structural Engineering</span>
+          <span class="badge badge-green">IRC DCA6 Compliant</span>
+          <span class="badge badge-blue">Bell Base &amp; Rebar Takeoff</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Concrete Footing, Sonotube &amp; Pier Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Calculate concrete volume (cubic yards and feet), exact pre-mix bag counts (80lb, 60lb, 50lb), bell/flared footing pads, #4/#5 rebar linear feet, and crushed stone drainage gravel for deck piers, post holes, and foundation columns.
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Sonotube Pier Diameter:</label>
+            <select id="ftg-dia" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcFooting()">
+              <option value="8">8" (Light Post / Deck Pier — 0.35 cu ft/ft)</option>
+              <option value="10">10" (Standard Residential Deck Pier — 0.55 cu ft/ft)</option>
+              <option value="12" selected>12" (Heavy Deck / Structural Column — 0.79 cu ft/ft)</option>
+              <option value="14">14" (Commercial / High Snow Load — 1.07 cu ft/ft)</option>
+              <option value="16">16" (Heavy Pergola / Heavy Timber Post — 1.40 cu ft/ft)</option>
+              <option value="18">18" (Commercial Grade Pier — 1.77 cu ft/ft)</option>
+              <option value="24">24" (Foundation Grade Caisson — 3.14 cu ft/ft)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Pier Depth / Hole Depth (Inches):</label>
+            <input type="number" id="ftg-depth" value="42" min="12" max="144" step="6" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcFooting()" />
+            <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.25rem;">Must extend below local regional frost line</span>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Number of Piers / Holes:</label>
+            <input type="number" id="ftg-count" value="6" min="1" max="200" step="1" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcFooting()" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Flared Bell Footing Base:</label>
+            <select id="ftg-bell" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcFooting()">
+              <option value="none">Straight Pier (No Bell Footing)</option>
+              <option value="bell_20" selected>BigFoot / Flared Bell Base (20" Base × 10" H)</option>
+              <option value="bell_24">BigFoot / Flared Bell Base (24" Base × 12" H)</option>
+              <option value="bell_30">BigFoot Heavy Duty (30" Base × 14" H)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Waste &amp; Over-Excavation Factor:</label>
+            <select id="ftg-waste" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcFooting()">
+              <option value="5">5% (Exact Sonotube Cardboard Sleeves)</option>
+              <option value="10" selected>10% (Standard Waste Allowance)</option>
+              <option value="15">15% (Rough Dug Dirt Holes — No Sleeve)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Rebar Reinforcement per Pier:</label>
+            <select id="ftg-rebar" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcFooting()">
+              <option value="2">2 Vertical Bars (#4 - 1/2")</option>
+              <option value="3">3 Vertical Bars with Rings (#4 - 1/2")</option>
+              <option value="4" selected>4 Vertical Bars Rebar Cage (#4 - 1/2")</option>
+              <option value="0">None (Plain Unreinforced Concrete)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Price per 80lb Bag ($):</label>
+            <input type="number" id="ftg-bag-price" value="6.75" min="2" max="25" step="0.25" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcFooting()" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Ready-Mix Delivery Price ($/yd³):</label>
+            <input type="number" id="ftg-truck-price" value="165" min="100" max="300" step="5" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcFooting()" />
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Total Concrete Volume</div>
+            <div id="ftg-res-yds" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">1.16 yd³</div>
+            <div id="ftg-res-cuft" style="font-size: 0.85rem; color: var(--text-muted);">31.4 cu ft (0.89 m³)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Standard 80 lb Bags</div>
+            <div id="ftg-res-bags80" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">53 Bags</div>
+            <div id="ftg-res-bags-cost" style="font-size: 0.85rem; color: var(--text-muted);">Total: $358 (4,240 lbs payload)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Alternative Bag Counts</div>
+            <div id="ftg-res-alt-bags" style="font-family: var(--mono); font-size: 1.3rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">70 (60lb) | 84 (50lb)</div>
+            <div id="ftg-res-alt-sub" style="font-size: 0.85rem; color: var(--text-muted);">70 × 60-lb or 84 × 50-lb bags</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #6366f1;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">#4 Rebar Reinforcement</div>
+            <div id="ftg-res-rebar" style="font-family: var(--mono); font-size: 1.6rem; font-weight: bold; color: #6366f1; margin-bottom: 0.2rem;">72 Lin Ft</div>
+            <div id="ftg-res-rebar-sub" style="font-size: 0.85rem; color: var(--text-muted);">24 bars @ 36" (48.1 lbs steel)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE CUTAWAY SCHEMATIC SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          🏗️ Architectural Pier &amp; Frost Depth Cross-Section
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Shows structural details: grade line, local frost depth heave boundary, sonotube cylindrical tube, rebar reinforcement cage on 3" bottom chairs, flared bell footing pad, and compacted crushed stone drainage base.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="ftg-cross-svg" viewBox="0 0 800 320" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Structural Footing Derivations
+        </h3>
+        <div id="ftg-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating volumetric footing parameters...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="ftg-copy-btn" onclick="copyFootingReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Concrete Pier &amp; Footing Material Takeoff
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Structural Foundation Failures in Pier Footings
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Pouring Above the Regional Frost Line (Frost Heave Destruction)</strong>
+            Every municipal building code specifies an exact frost penetration depth (e.g. 36" in the Midwest, 48" to 60" in the Northeast). Digging a 30-inch hole in a 42-inch frost zone guarantees that frozen subsoil ice lenses will grip the bottom of the pier, exerting thousands of pounds of upward frost heave pressure that twists decks, pops doors, and cracks structural ledgers.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Sonotube Soil Friction Adfreezing (Rough Hole Heaving)</strong>
+            Pouring wet concrete directly into an unlined, augered dirt hole creates rough, jagged concrete edges. When surrounding soil freezes in winter, it \"adfreezes\" (bonds solidly) to these rough protrusions and jacks the entire concrete pier out of the earth as the soil expands. Using smooth waxed cardboard Sonotubes or polyethylene sleeves allows freezing soil to slip upward harmlessly around the tube.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Violating the 3-Inch Earth Concrete Clearance Code (Rebar Rot)</strong>
+            ACI 318 and IRC Section R404 mandate a minimum 3.0 inches (76 mm) of concrete cover between embedded steel rebar and any concrete poured against bare earth. Pushing rebar down into the dirt at the bottom of the hole exposes bare steel to groundwater. Moisture wicks into the rebar, causing iron oxide oxidation; rusting steel expands up to 600% in volume, exploding the concrete pier from the inside out.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Over-Watering the Mix to Facilitate Pouring Down Tubes</strong>
+            Because dumping stiff concrete down a narrow 8-inch or 10-inch tube is tedious, DIYers frequently flood the mix with extra water to make it soup. Adding just 1 extra gallon of water per bag reduces concrete compressive strength from 4,000 PSI down to less than 2,200 PSI, causes aggregate segregation, and leaves porous chalky concrete that disintegrates under winter freeze-thaw cycles.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Neglecting the Flared Bell Base on Weak Bearing Soils</strong>
+            A straight 10-inch cylindrical pier has a bearing area of only 0.54 square feet. On common residential clay/silt soils with 1,500 PSF allowable soil bearing pressure, that pier can support only 810 lbs before settling. Adding a 20-inch flared bell footing pad increases soil bearing surface area to 2.18 sq ft, increasing load capacity to 3,270 lbs per footing and preventing deck settling.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function calcFooting() {
+        var diaIn = parseFloat(document.getElementById('ftg-dia').value) || 12;
+        var depthIn = parseFloat(document.getElementById('ftg-depth').value) || 42;
+        var count = parseInt(document.getElementById('ftg-count').value) || 6;
+        var bellType = document.getElementById('ftg-bell').value;
+        var wastePct = parseFloat(document.getElementById('ftg-waste').value) || 10;
+        var rebarBars = parseInt(document.getElementById('ftg-rebar').value) || 4;
+        var bagPrice = parseFloat(document.getElementById('ftg-bag-price').value) || 6.75;
+        var truckPrice = parseFloat(document.getElementById('ftg-truck-price').value) || 165;
+
+        var wasteMult = 1 + (wastePct / 100);
+
+        // Cylinder volume: V = pi * r^2 * h
+        var rFt = (diaIn / 2) / 12;
+        var hFt = depthIn / 12;
+        var cylVolCuFt = Math.PI * Math.pow(rFt, 2) * hFt;
+
+        // Bell base volume
+        var bellVolCuFt = 0;
+        var bellBaseDiaIn = diaIn;
+        var bellHIn = 0;
+        if (bellType === 'bell_20') {
+          bellBaseDiaIn = 20; bellHIn = 10;
+        } else if (bellType === 'bell_24') {
+          bellBaseDiaIn = 24; bellHIn = 12;
+        } else if (bellType === 'bell_30') {
+          bellBaseDiaIn = 30; bellHIn = 14;
+        }
+
+        if (bellHIn > 0) {
+          // Truncated cone: V = (pi * h / 3) * (R1^2 + R1*R2 + R2^2)
+          var R1 = (bellBaseDiaIn / 2) / 12;
+          var R2 = (diaIn / 2) / 12;
+          var bellHFt = bellHIn / 12;
+          bellVolCuFt = (Math.PI * bellHFt / 3) * (Math.pow(R1, 2) + (R1 * R2) + Math.pow(R2, 2));
+        }
+
+        // Single Pier Volume
+        var singleCuFtNet = cylVolCuFt + bellVolCuFt;
+        var totalCuFtGross = singleCuFtNet * count * wasteMult;
+        var totalCuYds = totalCuFtGross / 27;
+        var totalCuMeters = totalCuFtGross * 0.0283168;
+
+        // Bag counts
+        // 80 lb bag = 0.60 cu ft
+        // 60 lb bag = 0.45 cu ft
+        // 50 lb bag = 0.375 cu ft
+        var bags80 = Math.ceil(totalCuFtGross / 0.60);
+        var bags60 = Math.ceil(totalCuFtGross / 0.45);
+        var bags50 = Math.ceil(totalCuFtGross / 0.375);
+
+        var totalBagCost = bags80 * bagPrice;
+        var truckCost = Math.max(1, totalCuYds) * truckPrice;
+
+        // Rebar calculations (#4 rebar is 0.668 lbs per linear foot)
+        var barLenIn = Math.max(12, depthIn - 6 + bellHIn);
+        var totalRebarFt = (barLenIn / 12) * rebarBars * count;
+        var totalRebarLbs = totalRebarFt * 0.668;
+
+        // Update KPIs
+        document.getElementById('ftg-res-yds').textContent = totalCuYds.toFixed(2) + ' yd³';
+        document.getElementById('ftg-res-cuft').textContent = totalCuFtGross.toFixed(1) + ' cu ft (' + totalCuMeters.toFixed(2) + ' m³)';
+
+        document.getElementById('ftg-res-bags80').textContent = bags80 + ' Bags';
+        document.getElementById('ftg-res-bags-cost').textContent = 'Total:  (15 calculators in /calc/)');
+}
+
+ + Math.round(totalBagCost).toLocaleString() + ' (' + (bags80 * 80).toLocaleString() + ' lbs payload)';
+
+        document.getElementById('ftg-res-alt-bags').textContent = bags60 + ' (60lb) | ' + bags50 + ' (50lb)';
+        document.getElementById('ftg-res-alt-sub').textContent = bags60 + ' × 60-lb or ' + bags50 + ' × 50-lb bags';
+
+        if (rebarBars > 0) {
+          document.getElementById('ftg-res-rebar').textContent = Math.round(totalRebarFt) + ' Lin Ft';
+          document.getElementById('ftg-res-rebar-sub').textContent = (rebarBars * count) + ' bars @ ' + barLenIn + '" (' + totalRebarLbs.toFixed(1) + ' lbs steel)';
+        } else {
+          document.getElementById('ftg-res-rebar').textContent = 'None';
+          document.getElementById('ftg-res-rebar-sub').textContent = 'Unreinforced mass concrete';
+        }
+
+        // Derivation Box
+        var dBox = document.getElementById('ftg-derivation-box');
+        dBox.innerHTML = '<strong>1. Pier Shaft Cylinder Volume:</strong> π × (' + rFt.toFixed(2) + ' ft)² × ' + hFt.toFixed(2) + ' ft = <strong>' + cylVolCuFt.toFixed(2) + ' cu ft</strong> per shaft.<br>' +
+          (bellHIn > 0 ? '<strong>2. Flared Bell Footing Volume:</strong> Truncated cone (' + bellBaseDiaIn + '" base × ' + bellHIn + '" H) = <strong>' + bellVolCuFt.toFixed(2) + ' cu ft</strong>.<br>' : '<strong>2. Footing Base:</strong> Straight cylindrical shaft without flared bell base.<br>') +
+          '<strong>3. Single Pier Volume:</strong> ' + cylVolCuFt.toFixed(2) + (bellHIn > 0 ? ' + ' + bellVolCuFt.toFixed(2) : '') + ' = <strong>' + singleCuFtNet.toFixed(2) + ' cu ft</strong>.<br>' +
+          '<strong>4. Aggregate Project Takeoff:</strong> ' + singleCuFtNet.toFixed(2) + ' cu ft × ' + count + ' piers × ' + wasteMult.toFixed(2) + ' waste factor = <strong>' + totalCuFtGross.toFixed(1) + ' cu ft (' + totalCuYds.toFixed(2) + ' cubic yards)</strong>.<br>' +
+          '<strong>5. Bagged Pre-Mix Economics:</strong> ' + totalCuFtGross.toFixed(1) + ' cu ft ÷ 0.60 cu ft/bag = <strong>' + bags80 + ' eighty-pound bags</strong> ( (15 calculators in /calc/)');
+}
+
+ + Math.round(totalBagCost) + ' vs ~ (15 calculators in /calc/)');
+}
+
+ + Math.round(truckCost) + ' ready-mix truck delivery).';
+
+        // Render Cutaway SVG
+        renderFootingCutawaySvg(diaIn, depthIn, bellBaseDiaIn, bellHIn, rebarBars);
+      }
+
+      function renderFootingCutawaySvg(diaIn, depthIn, bellDiaIn, bellHIn, rebarBars) {
+        var svg = document.getElementById('ftg-cross-svg');
+        if (!svg) return;
+
+        var w = 800, h = 320;
+        var groundY = 70;
+        var frostY = 160; // visual frost line
+
+        var pierCenterX = 400;
+        var pierW = Math.max(30, diaIn * 4.5);
+        var pierH = 170; // visual shaft height
+
+        var bellW = (bellDiaIn / diaIn) * pierW;
+        var bellVisualH = bellHIn > 0 ? 40 : 0;
+
+        var svgHtml = '';
+
+        // Ground / Soil background
+        svgHtml += '<rect x="60" y="' + groundY + '" width="680" height="220" fill="#78716c" opacity="0.15" />';
+        // Ground line
+        svgHtml += '<line x1="60" y1="' + groundY + '" x2="740" y2="' + groundY + '" stroke="#a8a29e" stroke-width="3" />';
+        svgHtml += '<text x="70" y="' + (groundY - 10) + '" fill="var(--fg)" font-size="12" font-weight="bold">Finished Grade Level (0.0")</text>';
+
+        // Regional Frost Depth Line
+        svgHtml += '<line x1="60" y1="' + frostY + '" x2="740" y2="' + frostY + '" stroke="#3b82f6" stroke-width="2" stroke-dasharray="6,4" />';
+        svgHtml += '<text x="70" y="' + (frostY - 6) + '" fill="#3b82f6" font-size="11" font-weight="bold">Regional Frost Depth Line (' + depthIn + '" Depth Required)</text>';
+
+        // Compacted Gravel Sub-base (4" pad)
+        var botY = groundY + pierH + bellVisualH;
+        svgHtml += '<rect x="' + (pierCenterX - bellW/2 - 20) + '" y="' + botY + '" width="' + (bellW + 40) + '" height="25" fill="#a8a29e" opacity="0.6" rx="2" />';
+        svgHtml += '<text x="' + pierCenterX + '" y="' + (botY + 17) + '" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">Compacted #57 Crushed Stone Base (4" Depth)</text>';
+
+        // Flared Bell Base (if active)
+        if (bellVisualH > 0) {
+          var bellPath = 'M ' + (pierCenterX - pierW/2) + ' ' + (groundY + pierH) +
+                         ' L ' + (pierCenterX + pierW/2) + ' ' + (groundY + pierH) +
+                         ' L ' + (pierCenterX + bellW/2) + ' ' + botY +
+                         ' L ' + (pierCenterX - bellW/2) + ' ' + botY + ' Z';
+          svgHtml += '<path d="' + bellPath + '" fill="#64748b" stroke="#334155" stroke-width="2" />';
+        }
+
+        // Sonotube Concrete Pier Shaft
+        svgHtml += '<rect x="' + (pierCenterX - pierW/2) + '" y="' + (groundY - 15) + '" width="' + pierW + '" height="' + (pierH + 15) + '" fill="#94a3b8" stroke="#334155" stroke-width="2" rx="2" />';
+        svgHtml += '<text x="' + pierCenterX + '" y="' + (groundY + pierH/2) + '" fill="#1e293b" font-size="13" font-weight="bold" text-anchor="middle">' + diaIn + '" Sonotube</text>';
+
+        // Rebar Cage
+        if (rebarBars > 0) {
+          var rebarInset = pierW * 0.25;
+          svgHtml += '<line x1="' + (pierCenterX - pierW/2 + rebarInset) + '" y1="' + (groundY - 5) + '" x2="' + (pierCenterX - pierW/2 + rebarInset) + '" y2="' + (botY - 10) + '" stroke="#ef4444" stroke-width="3" />';
+          svgHtml += '<line x1="' + (pierCenterX + pierW/2 - rebarInset) + '" y1="' + (groundY - 5) + '" x2="' + (pierCenterX + pierW/2 - rebarInset) + '" y2="' + (botY - 10) + '" stroke="#ef4444" stroke-width="3" />';
+          // Horizontal ties
+          for (var ty = groundY + 30; ty < botY - 15; ty += 40) {
+            svgHtml += '<line x1="' + (pierCenterX - pierW/2 + rebarInset) + '" y1="' + ty + '" x2="' + (pierCenterX + pierW/2 - rebarInset) + '" y2="' + ty + '" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="3,2" />';
+          }
+          svgHtml += '<text x="' + (pierCenterX + pierW/2 + 15) + '" y="' + (groundY + 40) + '" fill="#ef4444" font-size="11" font-weight="bold">#4 Rebar Cage (3" Earth Clearance)</text>';
+        }
+
+        // Hardware anchor at top
+        svgHtml += '<rect x="' + (pierCenterX - 8) + '" y="' + (groundY - 30) + '" width="16" height="20" fill="#f59e0b" stroke="#b45309" stroke-width="1.5" />';
+        svgHtml += '<text x="' + (pierCenterX + 16) + '" y="' + (groundY - 18) + '" fill="#f59e0b" font-size="10" font-weight="bold">Galvanized Post Base Anchor</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyFootingReport(btn) {
+        var yds = document.getElementById('ftg-res-yds').textContent;
+        var cuft = document.getElementById('ftg-res-cuft').textContent;
+        var b80 = document.getElementById('ftg-res-bags80').textContent;
+        var bCost = document.getElementById('ftg-res-bags-cost').textContent;
+        var alt = document.getElementById('ftg-res-alt-bags').textContent;
+        var rebar = document.getElementById('ftg-res-rebar').textContent;
+
+        var text = '🏗️ CONCRETE FOOTING & SONOTUBE MATERIAL TAKEOFF\n' +
+          '====================================================\n' +
+          '• Total Concrete Volume: ' + yds + ' (' + cuft + ')\n' +
+          '• Standard 80 lb Bags: ' + b80 + ' (' + bCost + ')\n' +
+          '• Alternative Bag Sizes: ' + alt + '\n' +
+          '• #4 Rebar Reinforcement: ' + rebar + '\n' +
+          '• Sub-Base: 4-inch compacted #57 crushed stone\n' +
+          '----------------------------------------------------\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/concrete-footing-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Footing Takeoff Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcFooting);
+      } else {
+        calcFooting();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'concrete-footing-calculator.html'), renderTradePage({
+    title: "Concrete Footing & Sonotube Calculator (Volume, 80lb Bags & Rebar) | Digital Tools Shed",
+    metaDesc: "Calculate concrete cubic yards, 80lb/60lb/50lb bag counts, BigFoot flared bell bases, and rebar reinforcement for deck piers, sonotubes, and post holes.",
+    canonical: `${DOMAIN}/calc/concrete-footing-calculator`,
+    bodyContent: footingBody,
+    currentPath: '/calc/concrete-footing-calculator',
+    faq: [
+      {
+        "q": "How deep must a deck concrete footing be dug?",
+        "a": "Building codes (IRC Section R403.1.4) require concrete footings to extend at least 12 inches below the local regional frost line depth to prevent frost heaving. Depending on geographic latitude, this ranges from 12 inches in Florida to 42-48 inches in the Midwest, and up to 60 inches in the northern United States and Canada."
+      },
+      {
+        "q": "How many 80-pound bags of concrete are needed for a 12-inch Sonotube 4 feet deep?",
+        "a": "A 12-inch diameter cylinder 4 feet (48 inches) deep has a net volume of 3.14 cubic feet. At 0.60 cubic feet per 80-pound bag, plus a standard 10% waste and hole over-excavation factor, this requires exactly 6 eighty-pound bags of concrete mix per hole."
+      },
+      {
+        "q": "What is the benefit of a flared bell footing base (such as BigFoot)?",
+        "a": "A flared bell base widens the footprint at the bottom of the excavation, spreading vertical column loads across a much larger soil surface area (e.g. 20 inches diameter instead of 10 inches). This increases soil bearing capacity from ~800 lbs to over 3,200 lbs and provides a mechanical anchor that resists upward frost heave uplift."
+      },
+      {
+        "q": "Why is smooth Sonotube cardboard preferred over pouring concrete directly into dirt?",
+        "a": "Pouring concrete directly into an unlined augered dirt hole leaves rough concrete edges. During winter, expanding frozen soil adfreezes (bonds) to the rough concrete protrusions and jacks the entire pier out of the ground. Smooth cardboard Sonotubes allow freezing soil to expand and slide upward harmlessly without gripping the pier."
+      },
+      {
+        "q": "When is ordering a ready-mix concrete truck cheaper than buying pre-mix bags?",
+        "a": "As a rule of thumb, projects requiring more than 1.5 to 2.0 cubic yards (approximately 70 to 90 eighty-pound bags) are cheaper and significantly faster with a ready-mix truck ($140 to $180/yd³). Hand-mixing 70+ bags takes several hours, risks physical exhaustion, and frequently causes weak cold joints between batches."
+      }
+    ]
+  }));
+
+
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 22. THERMAL CONDUCTIVITY & HEAT LOSS CALCULATOR (FOURIER'S LAW)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const thermalBody = `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Thermal Conductivity Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Building Science &amp; Thermodynamics</span>
+          <span class="badge badge-green">Fourier's Law of Conduction</span>
+          <span class="badge badge-blue">R-Value &amp; U-Factor Engine</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Thermal Conductivity &amp; Building Heat Loss Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Compute conductive heat transfer rates (Watts and BTU/hr), composite assembly thermal resistance ($R_{\\text{total}}$), overall heat transfer coefficients ($U$-factor), 24-hour kilowatt-hour losses, and heating fuel costs using Fourier's Law across single materials and multi-layer building envelopes.
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Wall / Envelope Assembly:</label>
+            <select id="tc-assembly" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="onTcAssemblyChange()">
+              <option value="wall_2x6" selected>Standard 2x6 Insulated Wall (R-20 Effective)</option>
+              <option value="wall_2x4">Standard 2x4 Insulated Wall (R-14 Effective)</option>
+              <option value="wall_continuous">Continuous Exterior Foam Wall (R-25 High-Perf)</option>
+              <option value="brick_cavity">Cavity Brick Veneer Wall (R-19)</option>
+              <option value="concrete_8">8" Solid Concrete Foundation Wall (R-1.2 Uninsulated)</option>
+              <option value="window_double">Double-Pane Low-E Window (U-0.28 / R-3.6)</option>
+              <option value="window_single">Single-Pane Glass Window (U-1.04 / R-0.96)</option>
+              <option value="custom">Custom Single Material (Manual k &amp; Thickness)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Surface Area (Square Feet):</label>
+            <input type="number" id="tc-area" value="500" min="1" step="25" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcThermal()" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Indoor Room Temperature (°F):</label>
+            <input type="number" id="tc-tin" value="70" step="1" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcThermal()" />
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Outdoor Winter Temperature (°F):</label>
+            <input type="number" id="tc-tout" value="20" step="1" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcThermal()" />
+          </div>
+        </div>
+
+        <div id="grp-tc-custom" style="display: none; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Thermal Conductivity k [W/(m·K)]:</label>
+            <input type="number" id="tc-custom-k" value="0.038" min="0.001" step="0.005" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcThermal()" />
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Material Thickness (Inches):</label>
+            <input type="number" id="tc-custom-thick" value="5.5" min="0.1" step="0.25" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcThermal()" />
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Heating Energy Cost ($ / kWh):</label>
+            <input type="number" id="tc-cost-kwh" value="0.18" min="0.05" max="0.60" step="0.01" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcThermal()" />
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Temperature Differential (ΔT):</label>
+            <div id="tc-delta-t-display" style="padding: 0.6rem; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem; font-weight: bold; color: #ef4444;">
+              50.0°F (27.8°C)
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #ef4444;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Heat Loss Rate (Q̇)</div>
+            <div id="tc-res-btu" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin-bottom: 0.2rem;">1,250 BTU/hr</div>
+            <div id="tc-res-watts" style="font-size: 0.85rem; color: var(--text-muted);">366 Watts continuous loss</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Thermal Resistance (R-Value)</div>
+            <div id="tc-res-rval" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">R-20.0</div>
+            <div id="tc-res-rsi" style="font-size: 0.85rem; color: var(--text-muted);">RSI 3.52 m²·K/W</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Overall Heat Transfer (U-Factor)</div>
+            <div id="tc-res-ufactor" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">U-0.050</div>
+            <div id="tc-res-u-metric" style="font-size: 0.85rem; color: var(--text-muted);">0.284 W/(m²·K)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Daily Heating Cost</div>
+            <div id="tc-res-cost" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">$1.58 / day</div>
+            <div id="tc-res-kwh-day" style="font-size: 0.85rem; color: var(--text-muted);">8.79 kWh/day (0.30 Therms)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE TEMPERATURE GRADIENT SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          🌡️ Multi-Layer Building Wall Temperature Gradient Profile
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Cross-section showing heat conduction through wall materials (Drywall → Cavity Insulation → OSB Sheathing → Siding). The temperature curve illustrates thermal drop across each layer and identifies the interstitial condensation boundary.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="tc-gradient-svg" viewBox="0 0 800 240" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Thermal Conduction Derivations
+        </h3>
+        <div id="tc-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating thermal flux metrics...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="tc-copy-btn" onclick="copyThermalReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Thermal Performance &amp; Heat Loss Report
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Costly Errors in Building Thermal Insulation
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Framing Thermal Bridging ("The R-19 Batt Myth")</strong>
+            Homeowners often assume a 2x6 wall insulated with R-19 fiberglass batts provides an R-19 wall. In reality, solid wood studs (R-1.25 per inch) comprise 23% to 27% of total wall area. Heat bypasses the fiberglass and conducts directly through the solid lumber framing studs. This \"thermal bridging\" degrades the effective overall wall performance from R-19 down to only <strong>R-13.8</strong> (a 27% efficiency penalty).
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Inverted Vapor Barrier Placement (Rotting Wall Cavities)</strong>
+            In cold northern climates (ASHRAE Zones 5–8), the interior air is warm and moist; vapor barriers must be placed on the <strong>warm interior side</strong> of the insulation. Installing polyethylene sheeting on the exterior cold side traps escaping moisture within the stud cavity, saturating wooden OSB sheathing and breeding toxic mold. In hot humid climates (Zone 1–2), the reverse applies.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Compressing Fiberglass Batts into Narrow Cavities</strong>
+            Fiberglass insulation derives its thermal resistance from billions of trapped, stagnant microscopic air pockets, NOT the glass fibers themselves. Forcing an R-30 batt (9.5\" thick) into a 2x6 stud cavity (5.5\" deep) crushes the air pockets, reducing the total R-value to only R-18. Never compress fibrous insulation to fit a undersized framing cavity.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Convective Air Leakage vs. Conductive Heat Loss Blindness</strong>
+            Conductive insulation (fiberglass or cellulose) does not stop air movement. A 1-square-inch unsealed gap around an electrical outlet or top plate can allow warm air leakage that carries <strong>100 times more thermal energy and moisture</strong> through a wall assembly than conductive diffusion through solid materials. Always air-seal before insulating.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Overlooking Air Film Boundary Resistances ($R_{si}$ and $R_{se}$)</strong>
+            On thin, low-resistance assemblies like single-pane glass windows or uninsulated sheet metal doors, the stagnant thin air film adhering to the indoor surface ($R_{si} \approx 0.68$) and outdoor wind film ($R_{se} \approx 0.17$) contribute over 70% of the assembly's total thermal resistance. High winds stripping the exterior air film cause dramatic spikes in heating loss.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var ASSEMBLIES = {
+        'wall_2x6': { rVal: 20.0, layers: [{name: 'Interior Air Film', r: 0.68}, {name: '1/2" Drywall', r: 0.45}, {name: 'R-20 2x6 Cavity Batt', r: 17.5}, {name: '1/2" OSB Sheathing', r: 0.62}, {name: 'Vinyl Siding', r: 0.61}, {name: 'Exterior Air Film', r: 0.17}] },
+        'wall_2x4': { rVal: 14.0, layers: [{name: 'Interior Air Film', r: 0.68}, {name: '1/2" Drywall', r: 0.45}, {name: 'R-13 2x4 Cavity Batt', r: 11.5}, {name: '1/2" OSB Sheathing', r: 0.62}, {name: 'Vinyl Siding', r: 0.61}, {name: 'Exterior Air Film', r: 0.17}] },
+        'wall_continuous': { rVal: 25.0, layers: [{name: 'Interior Air Film', r: 0.68}, {name: '1/2" Drywall', r: 0.45}, {name: 'R-15 Cavity Batt', r: 13.0}, {name: '1/2" OSB', r: 0.62}, {name: '2" Polyiso Continuous Foam', r: 10.0}, {name: 'Siding', r: 0.61}, {name: 'Exterior Film', r: 0.17}] },
+        'brick_cavity': { rVal: 19.0, layers: [{name: 'Interior Air Film', r: 0.68}, {name: '1/2" Drywall', r: 0.45}, {name: '2x4 Batt', r: 12.0}, {name: '1/2" Sheathing', r: 0.62}, {name: '1" Air Cavity', r: 1.0}, {name: '4" Brick Veneer', r: 0.80}, {name: 'Exterior Film', r: 0.17}] },
+        'concrete_8': { rVal: 1.25, layers: [{name: 'Interior Air Film', r: 0.68}, {name: '8" Solid Concrete', r: 0.40}, {name: 'Exterior Air Film', r: 0.17}] },
+        'window_double': { rVal: 3.57, layers: [{name: 'Interior Film', r: 0.68}, {name: 'Double Low-E Argon Glass', r: 2.72}, {name: 'Exterior Film', r: 0.17}] },
+        'window_single': { rVal: 0.96, layers: [{name: 'Interior Film', r: 0.68}, {name: 'Single 1/8" Glass', r: 0.11}, {name: 'Exterior Film', r: 0.17}] }
+      };
+
+      function onTcAssemblyChange() {
+        var val = document.getElementById('tc-assembly').value;
+        var customGrp = document.getElementById('grp-tc-custom');
+        if (val === 'custom') {
+          customGrp.style.display = 'grid';
+        } else {
+          customGrp.style.display = 'none';
+        }
+        calcThermal();
+      }
+
+      function calcThermal() {
+        var assemKey = document.getElementById('tc-assembly').value;
+        var areaSqFt = parseFloat(document.getElementById('tc-area').value) || 500;
+        var tIn = parseFloat(document.getElementById('tc-tin').value) || 70;
+        var tOut = parseFloat(document.getElementById('tc-tout').value) || 20;
+        var costKwh = parseFloat(document.getElementById('tc-cost-kwh').value) || 0.18;
+
+        var deltaT_F = Math.max(0, tIn - tOut);
+        var deltaT_C = deltaT_F * (5/9);
+        document.getElementById('tc-delta-t-display').textContent = deltaT_F.toFixed(1) + '°F (' + deltaT_C.toFixed(1) + '°C)';
+
+        var rVal = 20.0;
+        var activeLayers = [];
+
+        if (assemKey === 'custom') {
+          var k = parseFloat(document.getElementById('tc-custom-k').value) || 0.038;
+          var thickIn = parseFloat(document.getElementById('tc-custom-thick').value) || 5.5;
+          var thickM = (thickIn * 2.54) / 100;
+          var rsi = thickM / k; // m2*K / W
+          rVal = rsi * 5.67826; // imperial
+          activeLayers = [
+            { name: 'Interior Film', r: 0.68 },
+            { name: 'Custom Material (' + thickIn + '")', r: rVal },
+            { name: 'Exterior Film', r: 0.17 }
+          ];
+          rVal += 0.85; // include films
+        } else {
+          var assem = ASSEMBLIES[assemKey] || ASSEMBLIES['wall_2x6'];
+          rVal = assem.rVal;
+          activeLayers = assem.layers;
+        }
+
+        // U-Factor: U = 1 / R
+        var uFactor = rVal > 0 ? (1 / rVal) : 1;
+        var uMetric = uFactor * 5.67826; // W/(m2*K)
+        var rsi = rVal / 5.67826;
+
+        // Conductive Heat Loss Rate: Q_dot = U * A * deltaT [BTU/hr]
+        var qBtuHr = uFactor * areaSqFt * deltaT_F;
+        var qWatts = qBtuHr * 0.293071;
+
+        // Daily energy loss
+        var kwhDaily = (qWatts * 24) / 1000;
+        var thermsDaily = (qBtuHr * 24) / 100000;
+        var costDaily = kwhDaily * costKwh;
+
+        // Update KPIs
+        document.getElementById('tc-res-btu').textContent = Math.round(qBtuHr).toLocaleString() + ' BTU/hr';
+        document.getElementById('tc-res-watts').textContent = Math.round(qWatts).toLocaleString() + ' Watts (' + (qWatts/1000).toFixed(2) + ' kW continuous)';
+
+        document.getElementById('tc-res-rval').textContent = 'R-' + rVal.toFixed(1);
+        document.getElementById('tc-res-rsi').textContent = 'RSI ' + rsi.toFixed(2) + ' m²·K/W';
+
+        document.getElementById('tc-res-ufactor').textContent = 'U-' + uFactor.toFixed(3);
+        document.getElementById('tc-res-u-metric').textContent = uMetric.toFixed(3) + ' W/(m²·K)';
+
+        document.getElementById('tc-res-cost').textContent = ' (15 calculators in /calc/)');
+}
+
+ + costDaily.toFixed(2) + ' / day';
+        document.getElementById('tc-res-kwh-day').textContent = kwhDaily.toFixed(2) + ' kWh/day (' + thermsDaily.toFixed(2) + ' Therms)';
+
+        // Derivation Box
+        var dBox = document.getElementById('tc-derivation-box');
+        dBox.innerHTML = '<strong>1. Overall Heat Transfer Coefficient:</strong> U = 1 ÷ R-' + rVal.toFixed(1) + ' = <strong>U-' + uFactor.toFixed(4) + ' BTU/(hr·ft²·°F)</strong> [' + uMetric.toFixed(3) + ' W/(m²·K)].<br>' +
+          '<strong>2. Fourier Conductive Heat Rate:</strong> Q̇ = U × Area × ΔT = ' + uFactor.toFixed(4) + ' × ' + areaSqFt + ' ft² × ' + deltaT_F.toFixed(1) + '°F = <strong>' + Math.round(qBtuHr).toLocaleString() + ' BTU/hr</strong>.<br>' +
+          '<strong>3. Electrical Equivalent Wattage:</strong> ' + Math.round(qBtuHr).toLocaleString() + ' BTU/hr × 0.293071 = <strong>' + Math.round(qWatts).toLocaleString() + ' Watts</strong> continuous thermal transmission.<br>' +
+          '<strong>4. 24-Hour Energy Consumption:</strong> (' + Math.round(qWatts).toLocaleString() + ' W × 24 hrs) ÷ 1,000 = <strong>' + kwhDaily.toFixed(2) + ' kWh/day</strong> (' + thermsDaily.toFixed(2) + ' therms).<br>' +
+          '<strong>5. Economic Heating Cost:</strong> ' + kwhDaily.toFixed(2) + ' kWh/day ×  (15 calculators in /calc/)');
+}
+
+ + costKwh.toFixed(2) + '/kWh = <strong> (15 calculators in /calc/)');
+}
+
+ + costDaily.toFixed(2) + ' per day</strong> ( (15 calculators in /calc/)');
+}
+
+ + (costDaily * 30).toFixed(2) + ' / month).';
+
+        // Render Gradient SVG
+        renderThermalGradientSvg(tIn, tOut, rVal, activeLayers);
+      }
+
+      function renderThermalGradientSvg(tIn, tOut, rTotal, layers) {
+        var svg = document.getElementById('tc-gradient-svg');
+        if (!svg) return;
+
+        var w = 800, h = 240;
+        var padL = 70, padR = 70, padT = 30, padB = 40;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        var svgHtml = '';
+
+        // Draw Layer Boxes
+        var currentX = padL;
+        var currentT = tIn;
+        var deltaT = tIn - tOut;
+
+        var tempPts = [];
+        tempPts.push(currentX + ',' + ((padT + plotH) - ((currentT - tOut)/deltaT) * plotH));
+
+        var numLayers = layers.length;
+        var colWidth = plotW / numLayers;
+
+        var colors = ['#94a3b8', '#64748b', '#cbd5e1', '#e2e8f0', '#cbd5e1', '#94a3b8'];
+
+        layers.forEach(function(l, i) {
+          var layerX = padL + (i * colWidth);
+          var layerFraction = l.r / rTotal;
+          var tDrop = deltaT * layerFraction;
+          var nextT = currentT - tDrop;
+
+          // Box
+          var col = colors[i % colors.length];
+          svgHtml += '<rect x="' + layerX + '" y="' + padT + '" width="' + colWidth + '" height="' + plotH + '" fill="' + col + '" opacity="0.35" stroke="var(--border)" stroke-width="1" />';
+
+          // Text label
+          svgHtml += '<text x="' + (layerX + colWidth/2) + '" y="' + (padT + plotH + 20) + '" fill="var(--text-muted)" font-size="9" text-anchor="middle">' + l.name.slice(0, 14) + '</text>';
+
+          // Temperature line point
+          currentT = nextT;
+          var py = (padT + plotH) - ((currentT - tOut)/deltaT) * plotH;
+          tempPts.push((layerX + colWidth) + ',' + py);
+        });
+
+        // Temperature drop curve (Red to Blue gradient line)
+        svgHtml += '<path d="M ' + tempPts.join(' L ') + '" fill="none" stroke="#ef4444" stroke-width="3.5" />';
+
+        // End circles
+        var firstPt = tempPts[0].split(',');
+        var lastPt = tempPts[tempPts.length - 1].split(',');
+        svgHtml += '<circle cx="' + firstPt[0] + '" cy="' + firstPt[1] + '" r="5" fill="#ef4444" />';
+        svgHtml += '<text x="' + (parseFloat(firstPt[0]) - 8) + '" y="' + (parseFloat(firstPt[1]) + 4) + '" fill="#ef4444" font-size="12" font-weight="bold" text-anchor="end">' + tIn.toFixed(0) + '°F Inside</text>';
+
+        svgHtml += '<circle cx="' + lastPt[0] + '" cy="' + lastPt[1] + '" r="5" fill="#3b82f6" />';
+        svgHtml += '<text x="' + (parseFloat(lastPt[0]) + 8) + '" y="' + (parseFloat(lastPt[1]) + 4) + '" fill="#3b82f6" font-size="12" font-weight="bold">' + tOut.toFixed(0) + '°F Outside</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyThermalReport(btn) {
+        var btu = document.getElementById('tc-res-btu').textContent;
+        var watts = document.getElementById('tc-res-watts').textContent;
+        var rVal = document.getElementById('tc-res-rval').textContent;
+        var uFactor = document.getElementById('tc-res-ufactor').textContent;
+        var cost = document.getElementById('tc-res-cost').textContent;
+        var kwh = document.getElementById('tc-res-kwh-day').textContent;
+
+        var text = '🌡️ BUILDING THERMAL CONDUCTIVITY & HEAT LOSS REPORT\n' +
+          '====================================================\n' +
+          '• Heat Loss Rate: ' + btu + ' (' + watts + ')\n' +
+          '• Assembly Resistance: ' + rVal + '\n' +
+          '• Heat Transfer Coefficient: ' + uFactor + '\n' +
+          '• Daily Heating Energy: ' + kwh + '\n' +
+          '• Estimated Daily Cost: ' + cost + '\n' +
+          '----------------------------------------------------\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/thermal-conductivity-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Thermal Report Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcThermal);
+      } else {
+        calcThermal();
+      }
+    </script>
+  `;
+
+  writeFileSync(join(calcDir, 'thermal-conductivity-calculator.html'), renderTradePage({
+    title: "Thermal Conductivity & Heat Loss Calculator (Fourier's Law, R-Value & U-Factor) | Digital Tools Shed",
+    metaDesc: "Calculate thermal conductivity (k), conductive heat loss (Watts & BTU/hr), composite wall R-values, U-factor, and daily heating energy costs using Fourier's Law.",
+    canonical: `${DOMAIN}/calc/thermal-conductivity-calculator`,
+    bodyContent: thermalBody,
+    currentPath: '/calc/thermal-conductivity-calculator',
+    faq: [
+      {
+        "q": "What is Fourier's Law of Thermal Conduction?",
+        "a": "Fourier's Law states that the rate of conductive heat transfer (Q̇) through a material is directly proportional to the material's thermal conductivity (k), surface area (A), and temperature gradient (ΔT), and inversely proportional to thickness (d): Q̇ = (k · A · ΔT) / d."
+      },
+      {
+        "q": "What is the relationship between R-value and U-factor?",
+        "a": "U-factor and R-value are exact mathematical reciprocals: U = 1 / R and R = 1 / U. R-value measures thermal resistance (how much a material resists heat flow), whereas U-factor measures thermal transmittance (the rate at which heat flows through an assembly). Higher R-values and lower U-factors both denote superior insulation performance."
+      },
+      {
+        "q": "Why does thermal bridging reduce effective wall R-value by 25%?",
+        "a": "In standard stick-built construction, solid lumber 2x4 or 2x6 framing studs account for roughly 25% of total opaque wall surface area. Because solid softwood has an R-value of only ~R-1.25 per inch (R-6.8 for a 2x6), heat conducts rapidly through the wood studs around the cavity insulation. This thermal bridge reduces an R-20 nominal cavity down to approximately R-14 to R-15 effective performance."
+      },
+      {
+        "q": "How does continuous exterior insulation eliminate thermal bridging?",
+        "a": "Applying continuous rigid foam insulation (such as polyisocyanurate, XPS, or rockwool comfortboard) directly over the exterior sheathing creates an unbroken thermal blanket. It insulates the exterior faces of the wood studs, preventing cold thermal bridging and keeping the inner wall cavity warm enough to prevent condensation."
+      },
+      {
+        "q": "What is the difference between sensible heat conduction and convective air leakage?",
+        "a": "Conductive heat transfer occurs through molecular vibration within solid materials governed by Fourier's Law. Convective air leakage occurs when warm air physically blows through holes, cracks, and unsealed junctions. Building science research shows that air leakage can transport up to 100 times more thermal energy and moisture than conductive diffusion alone."
+      }
+    ]
+  }));
+
+
   console.log('  ✓ Built Trade & Construction Suite (15 calculators in /calc/)');
 }
 

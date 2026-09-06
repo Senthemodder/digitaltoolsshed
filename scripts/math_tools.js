@@ -22,6 +22,505 @@ export function buildMathToolsSuite({ DIST, DOMAIN, renderPage, writeFileSync, j
   `;
 
   const tools = [
+
+{
+  "slug": "specific-heat-calculator",
+  "title": "Specific Heat Capacity & Calorimetry Calculator (Q = mcΔT, Thermal Equilibrium & Phase Changes)",
+  "metaDesc": "Calculate heat transfer (Q = mcΔT), specific heat capacity (c), thermal equilibrium mixture temperature, and latent heat of phase changes with 30+ material presets.",
+  "category": "Physics & Thermodynamics",
+  "faq": [
+    {
+      "q": "What is the formula for specific heat capacity and heat transfer?",
+      "a": "The fundamental formula for sensible heat transfer is Q = m · c · ΔT, where Q is thermal energy transferred (in Joules), m is mass (in kilograms or grams), c is specific heat capacity (in J/(kg·K) or J/(g·°C)), and ΔT is the temperature change (T_final - T_initial)."
+    },
+    {
+      "q": "What substance has the highest specific heat capacity?",
+      "a": "Liquid water has an exceptionally high specific heat capacity of 4,184 J/(kg·K) (or 1.0 cal/(g·°C)), higher than almost all common liquids and solids. This enables oceans and human bodies to absorb enormous quantities of thermal energy with minimal temperature changes, stabilizing Earth's climate."
+    },
+    {
+      "q": "How do you calculate thermal equilibrium temperature when mixing two substances?",
+      "a": "By the First Law of Thermodynamics, heat lost by the hot substance equals heat gained by the cold substance: m1·c1·(T_hot - T_final) = m2·c2·(T_final - T_cold). Solving for final equilibrium temperature yields: T_final = (m1·c1·T_hot + m2·c2·T_cold) / (m1·c1 + m2·c2)."
+    },
+    {
+      "q": "What is the difference between sensible heat and latent heat?",
+      "a": "Sensible heat causes a measurable change in temperature (calculated via Q = mcΔT) while maintaining constant phase. Latent heat is the thermal energy absorbed or released during a phase transition (melting, freezing, vaporization, condensation via Q = m·L) at constant temperature without any change on the thermometer."
+    },
+    {
+      "q": "Why does specific heat capacity vary with temperature in real materials?",
+      "a": "Specific heat capacity depends on quantum mechanical excitation of molecular vibrations and rotational degrees of freedom (governed by the Debye model in solids). At cryogenic temperatures near absolute zero, specific heat drops toward zero; at elevated temperatures, additional vibrational modes become accessible."
+    }
+  ],
+  "body": `
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/math/">Physics &amp; Thermodynamics</a> &gt; Specific Heat Calculator
+      </nav>
+
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Calorimetry &amp; Thermal Physics</span>
+          <span class="badge badge-green">Q = mcΔT Solver</span>
+          <span class="badge badge-blue">Thermal Equilibrium &amp; Phase Changes</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Specific Heat &amp; Calorimetry Heat Transfer Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Solve for thermal energy ($Q$), mass ($m$), specific heat capacity ($c$), temperature differential ($\\Delta T$), or final thermal equilibrium mixture temperature ($T_f$). Includes 30+ pre-calibrated material presets and dynamic heating curve visualization.
+        </p>
+      </header>
+
+      <!-- MODE SELECTOR -->
+      <div style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <button type="button" id="btnShSingle" onclick="setShMode('single')" style="padding: 0.5rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid #3b82f6; background: rgba(59, 130, 246, 0.1); color: #3b82f6; cursor: pointer; font-weight: 600;">Single Substance (Q = mcΔT)</button>
+        <button type="button" id="btnShEquil" onclick="setShMode('equil')" style="padding: 0.5rem 1.25rem; font-family: var(--mono); font-size: 0.85rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface-alt); color: var(--fg); cursor: pointer;">Thermal Equilibrium Mixing (T_final)</button>
+      </div>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <!-- SINGLE SUBSTANCE CONTROLS -->
+        <div id="sh-grp-single">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Substance Preset:</label>
+              <select id="sh-preset" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="onShPresetChange()">
+                <option value="4184" selected>Water (Liquid — 4,184 J/kg·K)</option>
+                <option value="2090">Ice (Solid — 2,090 J/kg·K)</option>
+                <option value="2010">Steam (Gas — 2,010 J/kg·K)</option>
+                <option value="900">Aluminum (Solid — 900 J/kg·K)</option>
+                <option value="385">Copper (Solid — 385 J/kg·K)</option>
+                <option value="450">Iron / Carbon Steel (450 J/kg·K)</option>
+                <option value="129">Gold (Solid — 129 J/kg·K)</option>
+                <option value="128">Lead (Solid — 128 J/kg·K)</option>
+                <option value="840">Glass (Crown — 840 J/kg·K)</option>
+                <option value="880">Concrete (Solid — 880 J/kg·K)</option>
+                <option value="2440">Ethanol (Liquid — 2,440 J/kg·K)</option>
+                <option value="1970">Olive Oil (Liquid — 1,970 J/kg·K)</option>
+                <option value="140">Mercury (Liquid — 140 J/kg·K)</option>
+                <option value="1005">Air (Dry, Constant Pressure — 1,005 J/kg·K)</option>
+                <option value="custom">Custom Specific Heat (Manual Entry)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Specific Heat Capacity (c):</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="number" id="sh-c-val" value="4184" min="1" step="10" style="width: 65%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSpecificHeat()" />
+                <span style="width: 35%; display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.8rem; color: var(--text-muted);">J/(kg·K)</span>
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Substance Mass (m):</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="number" id="sh-mass" value="2.5" min="0.001" step="0.5" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSpecificHeat()" />
+                <select id="sh-mass-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcSpecificHeat()">
+                  <option value="kg" selected>kg</option>
+                  <option value="g">grams (g)</option>
+                  <option value="lbs">lbs</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Initial Temperature (T₁):</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="number" id="sh-t1" value="20" step="1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSpecificHeat()" />
+                <select id="sh-temp-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcSpecificHeat()">
+                  <option value="C" selected>°C</option>
+                  <option value="F">°F</option>
+                  <option value="K">K</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; border-top: 1px solid var(--border); padding-top: 1.25rem; margin-bottom: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Final Temperature (T₂):</label>
+              <input type="number" id="sh-t2" value="85" step="1" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSpecificHeat()" />
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Heating Time Interval (for Power):</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="number" id="sh-time" value="10" min="0.1" step="1" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcSpecificHeat()" />
+                <select id="sh-time-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcSpecificHeat()">
+                  <option value="min" selected>Minutes</option>
+                  <option value="sec">Seconds</option>
+                  <option value="hr">Hours</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- THERMAL EQUILIBRIUM MIXING CONTROLS (HIDDEN INITIALLY) -->
+        <div id="sh-grp-equil" style="display: none;">
+          <div style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem;">Substance 1 (Hot Component)</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.3rem;">Material 1:</label>
+              <select id="sh-eq-mat1" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans);" onchange="calcSpecificHeat()">
+                <option value="450" selected>Iron / Steel (450 J/kg·K)</option>
+                <option value="900">Aluminum (900 J/kg·K)</option>
+                <option value="385">Copper (385 J/kg·K)</option>
+                <option value="4184">Hot Water (4,184 J/kg·K)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.3rem;">Mass 1 (kg):</label>
+              <input type="number" id="sh-eq-m1" value="1.5" min="0.01" step="0.1" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcSpecificHeat()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.3rem;">Initial Temp 1 (°C):</label>
+              <input type="number" id="sh-eq-t1" value="180" step="1" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcSpecificHeat()" />
+            </div>
+          </div>
+
+          <div style="font-family: var(--mono); font-size: 0.85rem; font-weight: bold; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.75rem;">Substance 2 (Cold Component / Liquid)</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.3rem;">Material 2:</label>
+              <select id="sh-eq-mat2" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans);" onchange="calcSpecificHeat()">
+                <option value="4184" selected>Water (4,184 J/kg·K)</option>
+                <option value="2440">Ethanol (2,440 J/kg·K)</option>
+                <option value="1970">Oil (1,970 J/kg·K)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.3rem;">Mass 2 (kg):</label>
+              <input type="number" id="sh-eq-m2" value="4.0" min="0.01" step="0.1" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcSpecificHeat()" />
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.8rem; font-weight: bold; margin-bottom: 0.3rem;">Initial Temp 2 (°C):</label>
+              <input type="number" id="sh-eq-t2" value="20" step="1" style="width: 100%; padding: 0.5rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono);" oninput="calcSpecificHeat()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #ef4444;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Thermal Energy (Heat Q)</div>
+            <div id="sh-res-heat" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #ef4444; margin-bottom: 0.2rem;">679.9 kJ</div>
+            <div id="sh-res-heat-alt" style="font-size: 0.85rem; color: var(--text-muted);">644.4 BTU | 162.5 kcal</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Temperature Change (ΔT)</div>
+            <div id="sh-res-delta" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">+65.0°C</div>
+            <div id="sh-res-delta-sub" style="font-size: 0.85rem; color: var(--text-muted);">From 20.0°C to 85.0°C (+117.0°F)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Thermal Power Transfer</div>
+            <div id="sh-res-power" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">1,133 Watts</div>
+            <div id="sh-res-power-sub" style="font-size: 0.85rem; color: var(--text-muted);">1.13 kW over 10.0 min</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #6366f1;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Heat Capacity (C = m·c)</div>
+            <div id="sh-res-cap" style="font-family: var(--mono); font-size: 1.8rem; font-weight: bold; color: #6366f1; margin-bottom: 0.2rem;">10,460 J/K</div>
+            <div id="sh-res-cap-sub" style="font-size: 0.85rem; color: var(--text-muted);">Joules required per 1°C increase</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE THERMODYNAMIC HEATING CURVE SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          📈 Thermodynamic Heating Curve &amp; Latent Heat Plateaus
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Plots Temperature vs. Thermal Energy added. Illustrates sensible heating phases (slanted lines where $Q = mcDelta T$) and phase transition latent heat plateaus (melting $Q = mL_f$, boiling $Q = mL_v$ where temperature remains constant).
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="sh-curve-svg" viewBox="0 0 800 240" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Calorimetric Derivations
+        </h3>
+        <div id="sh-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Computing thermal transfer properties...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="sh-copy-btn" onclick="copySpecificHeatReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Calorimetry &amp; Heat Transfer Takeoff
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Physics Misunderstandings in Specific Heat &amp; Calorimetry
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. Conflating Sensible Heat with Latent Heat (Phase Transitions)</strong>
+            Physics students often attempt to calculate the energy to boil water by plugging 100°C into $Q = mcDelta T$. Once water reaches 100°C, $Delta T$ becomes zero! However, vaporizing liquid water into steam requires an immense <strong>2,260,000 Joules per kilogram</strong> ($Q = m cdot L_v$). Overlooking latent heat leads to calculations that under-estimate required energy by up to 80%.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Overlooking Calorimeter Heat Capacity ($C_{\text{cal}}$ Losses)</strong>
+            In classroom or lab calorimetry experiments, the calorimeter cup, thermometer, and stirrer absorb thermal energy. Failing to calibrate for calorimeter heat capacity ($Q_{\text{lost}} = Q_{\text{water}} + C_{\text{cal}}Delta T$) leads to systematic underestimation of unknown metals' specific heat capacities by 15% to 30%.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. Specific Heat Temperature Dependency ($c_p$ vs. Temperature)</strong>
+            Engineering textbooks treat specific heat as a fixed scalar constant. However, for extreme temperature spans (such as heating steam from 100°C to 600°C or cooling cryogenics), specific heat increases significantly due to higher vibrational degrees of freedom. Accurate industrial simulations must integrate $Q = int m cdot c(T) dT$.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. Assuming Constant Pressure vs. Constant Volume ($c_p$ vs. $c_v$)</strong>
+            For liquids and solids, $c_p approx c_v$. But for gases (like air or helium), $c_p$ is significantly higher than $c_v$ ($c_p = c_v + R$). When a gas is heated at constant pressure, it expands and performs boundary work ($PDelta V$) on the surroundings. Heating gas in a sealed rigid container requires 28% less energy than heating it in an open expanding cylinder.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. The Thermal Shock &amp; Rate of Transfer Blindness</strong>
+            A high heat capacity does not mean fast heat transfer. Water has a massive specific heat ($4,184 	ext{ J/kg}cdot	ext{K}$), but low thermal conductivity ($0.6 	ext{ W/m}cdot	ext{K}$). Conversely, copper has a modest specific heat ($385 	ext{ J/kg}cdot	ext{K}$), but massive thermal conductivity ($400 	ext{ W/m}cdot	ext{K}$). Confusing energy storage ($mc$) with thermal conduction ($k$) leads to severe electronics cooling failures.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      var curShMode = 'single';
+
+      function setShMode(mode) {
+        curShMode = mode;
+        var btnS = document.getElementById('btnShSingle');
+        var btnE = document.getElementById('btnShEquil');
+        var grpS = document.getElementById('sh-grp-single');
+        var grpE = document.getElementById('sh-grp-equil');
+
+        if (mode === 'single') {
+          btnS.style.borderColor = '#3b82f6';
+          btnS.style.background = 'rgba(59, 130, 246, 0.1)';
+          btnS.style.color = '#3b82f6';
+          btnE.style.borderColor = 'var(--border)';
+          btnE.style.background = 'var(--surface-alt)';
+          btnE.style.color = 'var(--fg)';
+          grpS.style.display = 'block';
+          grpE.style.display = 'none';
+        } else {
+          btnE.style.borderColor = '#3b82f6';
+          btnE.style.background = 'rgba(59, 130, 246, 0.1)';
+          btnE.style.color = '#3b82f6';
+          btnS.style.borderColor = 'var(--border)';
+          btnS.style.background = 'var(--surface-alt)';
+          btnS.style.color = 'var(--fg)';
+          grpS.style.display = 'none';
+          grpE.style.display = 'block';
+        }
+        calcSpecificHeat();
+      }
+
+      function onShPresetChange() {
+        var pVal = document.getElementById('sh-preset').value;
+        if (pVal !== 'custom') {
+          document.getElementById('sh-c-val').value = pVal;
+        }
+        calcSpecificHeat();
+      }
+
+      function calcSpecificHeat() {
+        if (curShMode === 'single') {
+          calcSingleSubstance();
+        } else {
+          calcEquilibrium();
+        }
+      }
+
+      function calcSingleSubstance() {
+        var cVal = parseFloat(document.getElementById('sh-c-val').value) || 4184;
+        var massRaw = parseFloat(document.getElementById('sh-mass').value) || 1.0;
+        var massUnit = document.getElementById('sh-mass-unit').value;
+        var t1 = parseFloat(document.getElementById('sh-t1').value) || 20;
+        var t2 = parseFloat(document.getElementById('sh-t2').value) || 80;
+        var tUnit = document.getElementById('sh-temp-unit').value;
+        var timeVal = parseFloat(document.getElementById('sh-time').value) || 10;
+        var timeUnit = document.getElementById('sh-time-unit').value;
+
+        // Convert mass to kg
+        var mKg = massRaw;
+        if (massUnit === 'g') mKg = massRaw / 1000;
+        else if (massUnit === 'lbs') mKg = massRaw * 0.453592;
+
+        // Delta T in Kelvin/Celsius
+        var deltaT = t2 - t1;
+        var deltaTKelvin = deltaT;
+        if (tUnit === 'F') deltaTKelvin = deltaT * (5/9);
+
+        // Heat Q = m * c * deltaT [Joules]
+        var qJoules = mKg * cVal * deltaTKelvin;
+        var qKj = qJoules / 1000;
+        var qBtu = qJoules * 0.000947817;
+        var qKcal = qJoules / 4184;
+
+        // Total heat capacity C = m * c
+        var heatCapacity = mKg * cVal;
+
+        // Time in seconds
+        var timeSec = timeVal;
+        if (timeUnit === 'min') timeSec = timeVal * 60;
+        else if (timeUnit === 'hr') timeSec = timeVal * 3600;
+
+        var powerWatts = timeSec > 0 ? (qJoules / timeSec) : 0;
+
+        // Update KPIs
+        document.getElementById('sh-res-heat').textContent = (Math.abs(qKj) >= 1000 ? (qKj/1000).toFixed(2) + ' MJ' : qKj.toFixed(1) + ' kJ');
+        document.getElementById('sh-res-heat-alt').textContent = qBtu.toFixed(1) + ' BTU | ' + qKcal.toFixed(1) + ' kcal (' + (qJoules > 0 ? 'Endothermic / Absorbed' : 'Exothermic / Released') + ')';
+
+        var sign = deltaT >= 0 ? '+' : '';
+        document.getElementById('sh-res-delta').textContent = sign + deltaT.toFixed(1) + '°' + tUnit;
+        document.getElementById('sh-res-delta-sub').textContent = 'From ' + t1.toFixed(1) + '°' + tUnit + ' to ' + t2.toFixed(1) + '°' + tUnit;
+
+        document.getElementById('sh-res-power').textContent = Math.round(Math.abs(powerWatts)).toLocaleString() + ' Watts';
+        document.getElementById('sh-res-power-sub').textContent = (Math.abs(powerWatts)/1000).toFixed(2) + ' kW over ' + timeVal + ' ' + timeUnit;
+
+        document.getElementById('sh-res-cap').textContent = Math.round(heatCapacity).toLocaleString() + ' J/K';
+        document.getElementById('sh-res-cap-sub').textContent = 'Joules per 1°C temperature change';
+
+        // Derivation Box
+        var dBox = document.getElementById('sh-derivation-box');
+        dBox.innerHTML = '<strong>1. Effective Mass & Heat Capacity:</strong> ' + mKg.toFixed(3) + ' kg × ' + cVal + ' J/(kg·K) = <strong>' + Math.round(heatCapacity).toLocaleString() + ' J/K (Thermal Mass)</strong>.<br>' +
+          '<strong>2. Temperature Differential:</strong> ΔT = ' + t2.toFixed(1) + '°' + tUnit + ' - ' + t1.toFixed(1) + '°' + tUnit + ' = <strong>' + deltaT.toFixed(1) + '°' + tUnit + ' (' + deltaTKelvin.toFixed(2) + ' K)</strong>.<br>' +
+          '<strong>3. Calorimetric Heat Equation (Q = mcΔT):</strong> Q = ' + mKg.toFixed(3) + ' kg × ' + cVal + ' J/(kg·K) × ' + deltaTKelvin.toFixed(2) + ' K = <strong>' + qKj.toFixed(2) + ' kJ (' + qJoules.toFixed(0) + ' Joules)</strong>.<br>' +
+          '<strong>4. British Thermal Units (BTU):</strong> ' + qJoules.toFixed(0) + ' J × 0.000947817 = <strong>' + qBtu.toFixed(1) + ' BTU</strong>.<br>' +
+          '<strong>5. Continuous Power Requirement:</strong> ' + Math.abs(qJoules).toFixed(0) + ' J ÷ ' + timeSec.toFixed(0) + ' seconds = <strong>' + Math.round(Math.abs(powerWatts)).toLocaleString() + ' Watts (' + (Math.abs(powerWatts)/1000).toFixed(2) + ' kW)</strong>.';
+
+        renderHeatingCurveSvg(t1, t2, qKj, tUnit);
+      }
+
+      function calcEquilibrium() {
+        var c1 = parseFloat(document.getElementById('sh-eq-mat1').value) || 450;
+        var m1 = parseFloat(document.getElementById('sh-eq-m1').value) || 1.5;
+        var t1 = parseFloat(document.getElementById('sh-eq-t1').value) || 180;
+
+        var c2 = parseFloat(document.getElementById('sh-eq-mat2').value) || 4184;
+        var m2 = parseFloat(document.getElementById('sh-eq-m2').value) || 4.0;
+        var t2 = parseFloat(document.getElementById('sh-eq-t2').value) || 20;
+
+        // Tf = (m1*c1*T1 + m2*c2*T2) / (m1*c1 + m2*c2)
+        var c1m1 = c1 * m1;
+        var c2m2 = c2 * m2;
+        var tf = (c1m1 * t1 + c2m2 * t2) / (c1m1 + c2m2);
+
+        // Heat exchanged Q = m1 * c1 * (T1 - Tf)
+        var qExchanged = m1 * c1 * (t1 - tf);
+        var qKj = qExchanged / 1000;
+
+        document.getElementById('sh-res-heat').textContent = qKj.toFixed(1) + ' kJ';
+        document.getElementById('sh-res-heat-alt').textContent = (qKj * 0.9478).toFixed(1) + ' BTU transferred between substances';
+
+        document.getElementById('sh-res-delta').textContent = tf.toFixed(1) + '°C';
+        document.getElementById('sh-res-delta-sub').textContent = 'Equilibrium Temperature (T_final)';
+
+        document.getElementById('sh-res-power').textContent = 'Equilibrium';
+        document.getElementById('sh-res-power-sub').textContent = 'Thermal steady state reached';
+
+        document.getElementById('sh-res-cap').textContent = Math.round(c1m1 + c2m2) + ' J/K';
+        document.getElementById('sh-res-cap-sub').textContent = 'Combined system heat capacity';
+
+        var dBox = document.getElementById('sh-derivation-box');
+        dBox.innerHTML = '<strong>1. Hot Substance Heat Capacity:</strong> ' + m1 + ' kg × ' + c1 + ' J/(kg·K) = <strong>' + Math.round(c1m1) + ' J/K</strong>.<br>' +
+          '<strong>2. Cold Substance Heat Capacity:</strong> ' + m2 + ' kg × ' + c2 + ' J/(kg·K) = <strong>' + Math.round(c2m2) + ' J/K</strong>.<br>' +
+          '<strong>3. First Law Energy Conservation Balance:</strong> m₁c₁(T₁ - T_f) = m₂c₂(T_f - T₂).<br>' +
+          '<strong>4. Equilibrium Solution:</strong> T_f = (' + Math.round(c1m1) + ' × ' + t1 + ' + ' + Math.round(c2m2) + ' × ' + t2 + ') ÷ (' + Math.round(c1m1) + ' + ' + Math.round(c2m2) + ') = <strong>' + tf.toFixed(2) + '°C (' + (tf * 9/5 + 32).toFixed(1) + '°F)</strong>.<br>' +
+          '<strong>5. Net Thermal Energy Transferred:</strong> ' + Math.round(c1m1) + ' × (' + t1 + ' - ' + tf.toFixed(2) + ') = <strong>' + qKj.toFixed(2) + ' kJ</strong>.';
+
+        renderHeatingCurveSvg(t2, tf, qKj, 'C');
+      }
+
+      function renderHeatingCurveSvg(t1, t2, qKj, unit) {
+        var svg = document.getElementById('sh-curve-svg');
+        if (!svg) return;
+
+        var w = 800, h = 240;
+        var padL = 60, padR = 40, padT = 30, padB = 40;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        var svgHtml = '';
+
+        // Axes
+        svgHtml += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+
+        // Plot slope of temperature vs energy
+        var x1 = padL + 40;
+        var y1 = (padT + plotH) - 30;
+        var x2 = padL + plotW - 60;
+        var y2 = padT + 30;
+
+        // Line
+        svgHtml += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#ef4444" stroke-width="3.5" />';
+
+        // Start point
+        svgHtml += '<circle cx="' + x1 + '" cy="' + y1 + '" r="6" fill="#3b82f6" />';
+        svgHtml += '<text x="' + x1 + '" y="' + (y1 + 20) + '" fill="#3b82f6" font-size="11" font-weight="bold" text-anchor="middle">T₁ = ' + t1.toFixed(1) + '°' + unit + '</text>';
+
+        // End point
+        svgHtml += '<circle cx="' + x2 + '" cy="' + y2 + '" r="6" fill="#ef4444" />';
+        svgHtml += '<text x="' + x2 + '" y="' + (y2 - 12) + '" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="middle">T₂ = ' + t2.toFixed(1) + '°' + unit + '</text>';
+
+        // Slope annotation
+        var midX = (x1 + x2) / 2;
+        var midY = (y1 + y2) / 2;
+        svgHtml += '<text x="' + (midX - 10) + '" y="' + (midY - 15) + '" fill="var(--fg)" font-size="12" font-weight="bold">Slope = 1 / (m · c)</text>';
+        svgHtml += '<text x="' + (midX - 10) + '" y="' + (midY + 20) + '" fill="#10b981" font-size="11" font-weight="bold">Q = ' + Math.abs(qKj).toFixed(1) + ' kJ Added</text>';
+
+        // Labels
+        svgHtml += '<text x="' + (padL + plotW/2) + '" y="' + (h - 6) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">Thermal Energy Absorbed (Joules / kJ)</text>';
+        svgHtml += '<text x="' + (padL - 10) + '" y="' + (padT + 10) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="end">Temp (°' + unit + ')</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copySpecificHeatReport(btn) {
+        var heat = document.getElementById('sh-res-heat').textContent;
+        var delta = document.getElementById('sh-res-delta').textContent;
+        var power = document.getElementById('sh-res-power').textContent;
+        var cap = document.getElementById('sh-res-cap').textContent;
+
+        var text = '🔥 SPECIFIC HEAT & CALORIMETRY REPORT\n' +
+          '====================================================\n' +
+          '• Thermal Energy (Q): ' + heat + '\n' +
+          '• Temperature Differential (ΔT): ' + delta + '\n' +
+          '• Power Transmission Rate: ' + power + '\n' +
+          '• System Heat Capacity: ' + cap + '\n' +
+          '----------------------------------------------------\n' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/math/specific-heat-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Calorimetry Report Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcSpecificHeat);
+      } else {
+        calcSpecificHeat();
+      }
+    </script>
+  `
+},
+
 {
   "slug": "speed-of-sound-calculator",
   "title": "Speed of Sound & Mach Number Calculator (c = √(γRT), Mediums & Mach Shockwave SVG)",

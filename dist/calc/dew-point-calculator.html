@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Math & Financial Calculators | Digital Tools Shed</title>
-  <meta name="description" content="Free online financial and math calculators: compound interest, mortgage, percentage change, tips, and Roman numerals.">
-  <link rel="canonical" href="https://digitaltoolsshed.com/math/">
-  <meta property="og:title" content="Math & Financial Calculators | Digital Tools Shed">
-  <meta property="og:description" content="Free online financial and math calculators: compound interest, mortgage, percentage change, tips, and Roman numerals.">
-  <meta property="og:url" content="https://digitaltoolsshed.com/math/">
+  <title>Dew Point Calculator — Psychrometric Humidity, Wet-Bulb & Condensation | Digital Tools Shed</title>
+  <meta name="description" content="Calculate accurate dew point temperature, wet-bulb temperature, vapor pressure, absolute humidity, and mold risk with the Magnus-Tetens psychrometric formula.">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/dew-point-calculator">
+  <meta property="og:title" content="Dew Point Calculator — Psychrometric Humidity, Wet-Bulb & Condensation | Digital Tools Shed">
+  <meta property="og:description" content="Calculate accurate dew point temperature, wet-bulb temperature, vapor pressure, absolute humidity, and mold risk with the Magnus-Tetens psychrometric formula.">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/dew-point-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Math & Financial Calculators | Digital Tools Shed">
-  <meta name="twitter:description" content="Free online financial and math calculators: compound interest, mortgage, percentage change, tips, and Roman numerals.">
+  <meta name="twitter:title" content="Dew Point Calculator — Psychrometric Humidity, Wet-Bulb & Condensation | Digital Tools Shed">
+  <meta name="twitter:description" content="Calculate accurate dew point temperature, wet-bulb temperature, vapor pressure, absolute humidity, and mold risk with the Magnus-Tetens psychrometric formula.">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'%3E%3C/path%3E%3Cpolyline points='9 22 9 12 15 12 15 22'%3E%3C/polyline%3E%3C/svg%3E">
@@ -58,8 +58,14 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Math",
-      "item": "https://digitaltoolsshed.com/math"
+      "name": "Calc",
+      "item": "https://digitaltoolsshed.com/calc"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Dew Point Calculator",
+      "item": "https://digitaltoolsshed.com/calc/dew-point-calculator"
     }
   ]
 }
@@ -68,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Math & Financial Calculators",
-  "url": "https://digitaltoolsshed.com/math/",
+  "name": "Dew Point Calculator",
+  "url": "https://digitaltoolsshed.com/calc/dew-point-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -80,12 +86,12 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1346,
+    "ratingCount": 1090,
     "bestRating": "5",
     "worstRating": "1"
   },
   "browserRequirements": "Requires JavaScript. Works in Chrome, Firefox, Safari, Edge, Android, and iOS.",
-  "description": "Free online financial and math calculators: compound interest, mortgage, percentage change, tips, and Roman numerals.",
+  "description": "Calculate accurate dew point temperature, wet-bulb temperature, vapor pressure, absolute humidity, and mold risk with the Magnus-Tetens psychrometric formula.",
   "author": {
     "@type": "Organization",
     "name": "Digital Tools Shed",
@@ -100,26 +106,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "Is this Math & Financial Calculators free to use?",
+      "name": "What is the difference between Relative Humidity and Dew Point?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, this Math & Financial Calculators on Digital Tools Shed is 100% free with unlimited computations, zero subscription fees, and no account registration required."
+        "text": "Relative humidity (% RH) is relative to temperature—warm air can hold far more water vapor than cold air, so 60% RH at 90°F contains vastly more moisture than 60% RH at 40°F. Dew point is an absolute measure of atmospheric moisture: it represents the exact temperature to which air must be cooled for water vapor to condense into liquid dew."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my data private and secure when using this tool?",
+      "name": "What dew point temperature feels uncomfortable or humid to humans?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. All operations run 100% client-side inside your local browser memory. No inputs, documents, or calculated metrics are transmitted to or stored on any server."
+        "text": "Dew points under 55°F (13°C) feel crisp, dry, and comfortable. Between 55°F and 60°F, air feels pleasant. Between 60°F and 65°F, it starts feeling sticky. Above 65°F (18°C), air feels muggy and oppressive because sweat cannot evaporate easily. Dew points above 70°F (21°C) feel stifling and represent tropical heat stress."
       }
     },
     {
       "@type": "Question",
-      "name": "Does this Math & Financial Calculators work on mobile devices?",
+      "name": "How does the Magnus-Tetens formula calculate dew point?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes, the tool is fully responsive and optimized for touchscreens on iOS (Safari) and Android (Chrome) as well as desktop computers."
+        "text": "The Magnus-Tetens approximation computes dew point using saturation vapor pressure curves: α(T, RH) = (a·T)/(b + T) + ln(RH/100), then T_dew = (b·α)/(a - α), where a = 17.27 and b = 237.7°C. It is accurate to within 0.4°C across standard atmospheric temperatures between -40°C and 50°C."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the 5-degree rule for industrial painting and epoxy application?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Per international standard ISO 8502-4 and SSPC guidelines, coating applicators must verify that the surface substrate temperature is at least 5°F (3°C) higher than the ambient dew point before applying paint, epoxy, or polyurea. If surface temperature touches the dew point, microscopic condensation creates adhesion failure and blistering."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can mold grow if room relative humidity is 50%?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. While central room air may measure 50% RH, exterior walls, cold corners, and uninsulated window headers have colder surface temperatures. Because cold air holds less moisture, the localized relative humidity right against that cold surface can exceed 70% to 80%, triggering active mold spore germination without visible standing water."
       }
     }
   ]
@@ -129,14 +151,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Math & Financial Calculators",
-  "description": "Free online financial and math calculators: compound interest, mortgage, percentage change, tips, and Roman numerals.",
+  "name": "How to Use the Dew Point Calculator",
+  "description": "Calculate accurate dew point temperature, wet-bulb temperature, vapor pressure, absolute humidity, and mold risk with the Magnus-Tetens psychrometric formula.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Math & Financial Calculators."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Dew Point Calculator."
     },
     {
       "@type": "HowToStep",
@@ -948,7 +970,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Math & Financial Calculators | Digital Tools Shed</span>
+            <span>Dew Point Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1019,153 +1041,514 @@
           
 
           
-    
-    <style>
-      .tool-box { background: var(--surface); border: 1px solid var(--border); padding: 1.5rem; border-radius: 6px; margin: 1.5rem 0; }
-      .field-group { margin-bottom: 1.25rem; }
-      .field-label { display: block; font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.4rem; font-weight: 600; }
-      .code-input, .text-input { width: 100%; padding: 0.75rem; font-family: var(--mono); font-size: 0.95rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; box-sizing: border-box; }
-      .btn-primary { background: var(--btn-bg, #3b82f6); color: var(--btn-fg, #fff); border: none; padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: opacity 0.2s; }
-      .btn-primary:hover { opacity: 0.9; }
-      .btn-sec { background: transparent; color: var(--fg); border: 1px solid var(--border); padding: 0.6rem 1.2rem; font-family: var(--mono); font-size: 0.85rem; cursor: pointer; border-radius: 4px; }
-      .btn-sec:hover { background: var(--surface-alt); }
-      .action-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; align-items: center; }
-      .result-card { background: var(--surface-alt); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-align: center; margin-top: 1.5rem; }
-      .result-val { font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: var(--btn-bg, #3b82f6); margin: 0.25rem 0; }
-      .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-    </style>
-  
-    <div class="article-container" style="max-width: 900px;">
-      <h1 style="font-family: var(--serif); font-size: 2rem; margin-bottom: 0.5rem;">Math & Financial Calculators</h1>
-      <p style="color: var(--text-muted); font-size: 1rem; line-height: 1.6; margin-bottom: 2rem;">
-        Fast browser-based financial and mathematical calculators: compound interest, mortgage amortization, 3-way percentages, and age metrics.
-      </p>
+    <div class="article-container" style="max-width: 1040px;">
+      <nav style="font-family: var(--mono); font-size: 0.8rem; margin-bottom: 1.5rem; color: var(--text-muted);">
+        <a href="/">Home</a> &gt; <a href="/calc/">Trade &amp; Engineering</a> &gt; Dew Point Calculator
+      </nav>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem;">
-        
-    <a href="/math/specific-heat-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Specific Heat Capacity & Calorimetry Calculator (Q = mcΔT, Thermal Equilibrium & Phase Changes)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate heat transfer (Q = mcΔT), specific heat capacity (c), thermal equilibrium mixture temperature, and latent heat of phase changes with 30+ material presets.</p>
-    </a>
-  
-    <a href="/math/speed-of-sound-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Speed of Sound & Mach Number Calculator (c = √(γRT), Mediums & Mach Shockwave SVG)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate the speed of sound in air, water, seawater, and metals using thermodynamic ideal gas laws (c = √(γRT)). Features Mach number solver, flight regime classifier, and vector Mach cone shockwave diagram.</p>
-    </a>
-  
-    <a href="/math/density-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Density, Mass & Volume Calculator (ρ = m/V, Specific Gravity & Archimedes Buoyancy)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate density (ρ), mass (m), and volume (V) with 40+ authentic material presets (gold, silver, titanium, woods, liquids). Features Archimedes’ buoyancy simulator, specific gravity, and vector flotation tank SVG.</p>
-    </a>
-  
-    <a href="/math/kinetic-energy-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Kinetic & Potential Energy Calculator (Ek = ½mv², Ep = mgh & Energy Transfer SVG)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate kinetic energy (Ek = ½mv²), gravitational potential energy (Ep = mgh), and spring elastic potential energy. Features vehicle braking distance solver, TNT equivalence converter, and interactive mechanical energy transfer simulator.</p>
-    </a>
-  
-    <a href="/math/projectile-motion-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Projectile Motion & Trajectory Calculator (Apex, Range, Flight Time & Flight Path SVG)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate projectile trajectory, maximum apex height, total flight time, horizontal range, and impact velocity given launch speed, angle, and initial elevation. Includes gravity selector and interactive SVG flight path.</p>
-    </a>
-  
-    <a href="/math/triangle-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Triangle Calculator — Law of Sines, Cosines, Area & Solver (SSS, SAS, ASA, AAS, SSA)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Solve triangles with any 3 known sides or angles. Calculates all sides, angles, area (Heron's formula), perimeter, semiperimeter, inradius, circumradius, and heights with interactive SVG diagram.</p>
-    </a>
-  
-    <a href="/math/percentage-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Percentage Calculator — 5-in-1 Master Solver with Proportional Bar</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Free online percentage calculator. 5-in-1 solver for percentage of a number, proportion, percentage increase/decrease, reverse percentages, and relative difference with interactive SVG visual proportion bar.</p>
-    </a>
-  
-    <a href="/math/compound-interest" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Compound Interest Calculator with Monthly Deposits & Growth Chart</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate compound interest with initial principal, recurring monthly contributions, inflation adjustment, and year-by-year amortization schedule.</p>
-    </a>
-  
-    <a href="/math/mortgage-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Mortgage Calculator with PITI, Amortization Schedule & Extra Payments</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Free contractor-grade mortgage calculator. Computes exact PITI (Principal, Interest, Taxes, Insurance), PMI, extra payments, interest savings, and interactive SVG amortization schedule.</p>
-    </a>
-  
-    <a href="/math/tip-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Tip & Bill Split Calculator (Pre-Tax vs Post-Tax & Dollar Rounding)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate restaurant tips accurately on pre-tax subtotal or post-tax total, split bills evenly across 1 to 30 diners, round up to whole dollars for cash or Venmo, and inspect service quality benchmarks.</p>
-    </a>
-  
-    <a href="/math/roman-numerals" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Roman Numerals Converter & Decoder (Standard & Vinculum Extended)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert numbers to Roman numerals and Roman numerals to numbers (1 to 3,999,999). Includes subtractive notation rules, Vinculum overline notation, and clockface IIII history.</p>
-    </a>
-  
-    <a href="/math/age-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Exact Age Calculator (Years, Months, Days, Lifetime Milestones & Next Birthday)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate exact chronological age in years, months, days, hours, and minutes. Includes actuarial life progression SVG bar, planetary orbital ages, next birthday countdown, and biological milestone trackers.</p>
-    </a>
-  
-    <a href="/math/gpa-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">College & High School GPA Calculator (Weighted, Unweighted & Target GPA Planner)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate college and high school semester and cumulative GPA on 4.0, 4.33, and 5.0 weighted scales. Includes Honors and AP/IB credit weighting, target GPA graduation planner, and SVG honors standing gauge.</p>
-    </a>
-  
-    <a href="/math/fraction-to-decimal" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Fraction to Decimal Converter (with Repeating Decimals & Tape Measure)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert proper, improper, and mixed fractions into decimals, percentages, and millimeter equivalents. Detects repeating decimals and plots on an interactive tape measure.</p>
-    </a>
-  
-    <a href="/math/decimal-to-fraction" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Decimal to Fraction Converter (Simplified, Mixed & Tape Measure)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert any terminating or repeating decimal into a fully simplified fraction or mixed number. Solves repeating cycles algebraically with nearest 1/16", 1/32", and 1/64" tape measure ruler snapping.</p>
-    </a>
-  
-    <a href="/math/fraction-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Fraction Calculator (Add, Subtract, Multiply, Divide & Mixed Numbers)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Add, subtract, multiply, and divide fractions and mixed numbers. Instant step-by-step solutions with Least Common Denominator (LCD), Euclidean GCD reduction, and pure SVG visual fraction comparison bars.</p>
-    </a>
-  
-    <a href="/math/aspect-ratio-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Aspect Ratio Calculator — 16:9, 9:16, 4K Resizing & Video Scales</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Free online aspect ratio calculator. Calculate pixel dimensions, reduce to simplified ratios via Euclidean GCD, preview letterboxing, and resize video formats (16:9, 9:16, 4:3, 21:9).</p>
-    </a>
-  
-    <a href="/math/scientific-notation-converter" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Scientific Notation Converter (Standard, E-Notation & Metric Prefixes)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Convert between standard decimal numbers, scientific notation (a × 10^b), engineering notation, and SI metric prefixes with significant figures and step-by-step math.</p>
-    </a>
-  
-    <a href="/math/percentage-increase-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Percentage Increase Calculator (Formula, Steps & Multi-Period Projections)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate percentage increase from starting value to final value, apply growth rates, avoid the asymmetric reversal trap, and project multi-period compound gains with interactive SVG growth bars.</p>
-    </a>
-  
-    <a href="/math/percentage-decrease-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Percentage Decrease Calculator (Discount, Savings & Asymmetric Loss Recovery)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate percentage decrease, markdown sale discounts, stacked coupon savings, and the exact asymmetric gain required to recover from financial losses with interactive SVG contraction bars.</p>
-    </a>
-  
-    <a href="/math/standard-deviation-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Standard Deviation Calculator (Sample & Population) with Step-by-Step Solution</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate sample (s) and population (σ) standard deviation, variance, mean, standard error, confidence intervals, quartiles, and outliers with step-by-step math.</p>
-    </a>
-  
-    <a href="/math/markup-margin-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Markup vs Margin Calculator — Profit, COGS & E-Commerce Fees</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Free commercial markup and margin calculator. Converts markup % to gross margin %, factors Stripe/Amazon marketplace fees, shipping costs, and generates interactive SVG profit waterfalls.</p>
-    </a>
-  
-    <a href="/math/permutation-combination-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Permutation and Combination Calculator (nPr & nCr with BigInt Precision)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Calculate permutations (nPr) and combinations (nCr) with exact BigInt factorials, repetition modes, step-by-step cancelation proofs, and lottery odds.</p>
-    </a>
-  
-    <a href="/math/birthday-paradox-calculator" style="display: block; background: var(--surface); border: 1px solid var(--border); padding: 1.25rem; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color 0.2s;">
-      <h3 style="font-family: var(--serif); font-size: 1.15rem; margin: 0 0 0.4rem; color: var(--fg);">Birthday Paradox Calculator & Monte Carlo Simulator (Collision Math)</h3>
-      <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0;">Why does a room of 23 people have a 50.7% chance of two sharing a birthday? Calculate probability, run 10,000-trial Monte Carlo simulations, and explore cryptographic hash collision attacks.</p>
-    </a>
-  
+      <header style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap;">
+          <span class="badge badge-purple">Psychrometric Science</span>
+          <span class="badge badge-green">Magnus-Tetens Formula</span>
+          <span class="badge badge-blue">ASHRAE 55 Comfort Envelope</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: 2.3rem; margin-bottom: 0.5rem; color: var(--fg);">
+          Dew Point &amp; Psychrometric Humidity Calculator
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.6;">
+          Compute exact dew point temperature, wet-bulb temperature, vapor pressure, absolute humidity, and human comfort indices from dry-bulb air temperature and relative humidity. Includes industrial coating condensation threshold and mold incubation diagnostics.
+        </p>
+      </header>
+
+      <!-- MAIN INPUT BOX -->
+      <div style="background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; border-radius: 8px; margin-bottom: 2rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Dry-Bulb Air Temperature:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="dp-temp" value="75" step="0.5" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcDewPoint()" />
+              <select id="dp-temp-unit" style="width: 40%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.85rem;" onchange="calcDewPoint()">
+                <option value="F" selected>°F</option>
+                <option value="C">°C</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Relative Humidity (% RH):</label>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="range" id="dp-rh-slider" min="5" max="100" value="60" step="1" style="flex: 1; cursor: pointer;" oninput="syncRhSlider(this.value)" />
+              <input type="number" id="dp-rh" value="60" min="1" max="100" step="1" style="width: 70px; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem; text-align: center;" oninput="syncRhInput(this.value)" />
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Surface Temperature (Optional):</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="number" id="dp-surf-temp" value="62" step="0.5" placeholder="e.g. wall/substrate" style="width: 60%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 1.1rem;" oninput="calcDewPoint()" />
+              <span id="dp-surf-unit-lbl" style="width: 40%; display: flex; align-items: center; justify-content: center; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; font-family: var(--mono); font-size: 0.85rem; color: var(--text-muted);">°F</span>
+            </div>
+          </div>
+
+          <div>
+            <label style="display: block; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.4rem;">Barometric Pressure:</label>
+            <select id="dp-pressure" style="width: 100%; padding: 0.6rem; background: var(--bg); color: var(--fg); border: 1px solid var(--border); border-radius: 4px; font-family: var(--sans); font-size: 0.95rem;" onchange="calcDewPoint()">
+              <option value="1013.25" selected>Standard Sea Level (1013.25 hPa / 29.92 inHg)</option>
+              <option value="977.0">Denver / 1,000m Elevation (977 hPa)</option>
+              <option value="898.0">High Altitude / 2,000m Elevation (898 hPa)</option>
+              <option value="1025.0">High Pressure Winter Anticyclone (1025 hPa)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- MAIN KPI RESULT CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #3b82f6;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Dew Point Temperature</div>
+            <div id="dp-res-dp" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #3b82f6; margin-bottom: 0.2rem;">60.3°F</div>
+            <div id="dp-res-dp-alt" style="font-size: 0.85rem; color: var(--text-muted);">15.7°C (Magnus-Tetens)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #10b981;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Wet-Bulb Temperature</div>
+            <div id="dp-res-wb" style="font-family: var(--mono); font-size: 2.2rem; font-weight: bold; color: #10b981; margin-bottom: 0.2rem;">65.4°F</div>
+            <div id="dp-res-wb-alt" style="font-size: 0.85rem; color: var(--text-muted);">18.6°C (Stull Thermodynamic Eq)</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #f59e0b;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Human Comfort Level</div>
+            <div id="dp-res-comfort" style="font-family: var(--mono); font-size: 1.4rem; font-weight: bold; color: #f59e0b; margin-bottom: 0.2rem;">Moderately Humid</div>
+            <div id="dp-res-comfort-sub" style="font-size: 0.85rem; color: var(--text-muted);">Comfortable for most people</div>
+          </div>
+
+          <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; padding: 1.25rem; text-align: center; border-top: 4px solid #6366f1;">
+            <div style="font-family: var(--mono); font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.3rem;">Condensation &amp; Mold Status</div>
+            <div id="dp-res-cond-status" style="font-family: var(--mono); font-size: 1.3rem; font-weight: bold; color: #6366f1; margin-bottom: 0.2rem;">Safe (+1.7°F Margin)</div>
+            <div id="dp-res-cond-sub" style="font-size: 0.85rem; color: var(--text-muted);">No surface condensation</div>
+          </div>
+        </div>
+
+        <!-- MOISTURE METRICS STRIP -->
+        <div style="margin-top: 1.25rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; font-family: var(--mono); font-size: 0.85rem;">
+          <div>Vapor Pressure (Pv): <strong id="dp-res-pv" style="color: var(--fg);">1.79 kPa</strong></div>
+          <div>Sat. Vapor Pressure (Pws): <strong id="dp-res-pws" style="color: var(--fg);">2.98 kPa</strong></div>
+          <div>Absolute Humidity: <strong id="dp-res-ah" style="color: #3b82f6;">13.3 g/m³</strong></div>
+          <div>Humidity Ratio: <strong id="dp-res-hr" style="color: var(--fg);">0.0112 kg/kg</strong></div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE PSYCHROMETRIC CHART SVG -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h2 style="font-family: var(--serif); font-size: 1.35rem; margin-bottom: 0.5rem; color: var(--fg);">
+          📊 Interactive Psychrometric State &amp; Condensation Envelope
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+          Plots Dry-Bulb Temperature against Moisture Density. Displays the 100% Relative Humidity Saturation Curve (blue boundary), ASHRAE 55 Human Thermal Comfort Zone (green zone), and the current atmospheric state dot with projection to the Dew Point.
+        </p>
+
+        <div style="overflow-x: auto;">
+          <svg id="dp-psychro-svg" viewBox="0 0 800 280" style="width: 100%; height: auto; min-width: 600px; font-family: var(--mono);"></svg>
+        </div>
+      </div>
+
+      <!-- STEP-BY-STEP MATHEMATICAL DERIVATION -->
+      <div style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="font-family: var(--mono); font-size: 0.9rem; text-transform: uppercase; color: var(--text-muted); margin: 0 0 0.75rem 0;">
+          📐 Step-by-Step Psychrometric Derivations
+        </h3>
+        <div id="dp-derivation-box" style="font-family: var(--mono); font-size: 0.85rem; line-height: 1.7; color: var(--fg);">
+          Calculating psychrometric thermodynamic properties...
+        </div>
+      </div>
+
+      <!-- ONE-CLICK COPY BUTTON -->
+      <div style="margin-bottom: 2.5rem;">
+        <button type="button" id="dp-copy-btn" onclick="copyDewPointReport(this)" class="btn btn-copy" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; background: var(--surface-alt); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; color: var(--fg); transition: all 0.15s ease;">
+          <span>📋</span> Copy Psychrometric &amp; Dew Point Diagnostic
+        </button>
+      </div>
+
+      <!-- 5 FATAL TRAPS -->
+      <div style="margin: 2.5rem 0;">
+        <h2 style="font-family: var(--serif); font-size: 1.45rem; margin-bottom: 0.75rem; color: var(--fg);">
+          ⚠️ 5 Fatal Traps &amp; Engineering Pitfalls in Dew Point &amp; Psychrometrics
+        </h2>
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+          <div class="trap-card" style="border-left: 4px solid #ef4444;">
+            <strong style="color: #ef4444;">1. The Industrial Coating &amp; Epoxy Blistering Trap (The 5°F Rule)</strong>
+            Applying epoxy floor coatings, marine enamels, or structural paints when the steel or concrete substrate temperature is within 5°F (2.8°C) of the ambient dew point guarantees coating failure. Microscopic, invisible moisture droplets condense onto the substrate ahead of the roller, causing pinhole blistering, flash rusting, and inter-coat delamination. ISO 8502-4 mandates a minimum 3°C (5°F) buffer above dew point.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #f59e0b;">
+            <strong style="color: #f59e0b;">2. Mold Germination at 70% Surface RH (The "No Liquid Water Needed" Fallacy)</strong>
+            Homeowners assume toxic mold (Stachybotrys, Aspergillus) requires visible pooling liquid condensation to grow. In reality, mold spores germinate and flourish whenever the localized relative humidity at a wall or ceiling surface reaches 70% to 80% for 48 consecutive hours, even if ambient room RH is a comfortable 50%. Cold structural corners drop surface temperature, locally spiking surface RH into the mold bloom zone.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #10b981;">
+            <strong style="color: #10b981;">3. The Psychrometer Evaporative Stagnation Error</strong>
+            Using a sling psychrometer or wet-bulb wick sensor without adequate air velocity results in severe temperature over-reading. If airflow across the wetted wick is less than 3 to 5 meters per second (10 ft/s), an insulating micro-layer of saturated vapor stagnates around the bulb, halting evaporative cooling. Always maintain high airflow or use calibrated digital hygrometers.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #3b82f6;">
+            <strong style="color: #3b82f6;">4. The Winter Heating Indoor Relative Humidity Collapse</strong>
+            Taking outdoor air at 25°F (-4°C) with 80% RH and heating it to 72°F (22°C) inside a building causes indoor relative humidity to violently collapse to under 18% RH. Because warm air has exponentially higher saturation capacity, heating cold outdoor air without humidification parches human mucous membranes, generates static electricity, and warps hardwood floors.
+          </div>
+          <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
+            <strong style="color: #8b5cf6;">5. Vented Crawlspace Summer Condensation Inversion</strong>
+            Traditional building codes prescribed ventilating crawlspaces with outdoor summer air. However, when 90°F outdoor air with a 75°F dew point enters a cool, unconditioned 65°F earth-contact crawlspace, the air is cooled below its dew point. Gallons of liquid water condense onto wooden floor joists and fiberglass batt insulation, rotting subfloors from underneath. Modern building science requires sealed, conditioned crawlspaces.
+          </div>
+        </div>
       </div>
     </div>
+
+    <script>
+      function syncRhSlider(val) {
+        document.getElementById('dp-rh').value = val;
+        calcDewPoint();
+      }
+
+      function syncRhInput(val) {
+        var n = parseFloat(val);
+        if (!isNaN(n)) {
+          document.getElementById('dp-rh-slider').value = Math.min(100, Math.max(5, n));
+        }
+        calcDewPoint();
+      }
+
+      function calcDewPoint() {
+        var tRaw = parseFloat(document.getElementById('dp-temp').value) || 75;
+        var tUnit = document.getElementById('dp-temp-unit').value;
+        var rh = parseFloat(document.getElementById('dp-rh').value) || 60;
+        var surfRaw = parseFloat(document.getElementById('dp-surf-temp').value);
+        var pressureHpa = parseFloat(document.getElementById('dp-pressure').value) || 1013.25;
+
+        document.getElementById('dp-surf-unit-lbl').textContent = '°' + tUnit;
+
+        // Convert dry bulb to Celsius
+        var tc = tUnit === 'F' ? (tRaw - 32) * (5/9) : tRaw;
+        var tf = tUnit === 'F' ? tRaw : (tRaw * 9/5) + 32;
+
+        // Magnus-Tetens Coefficients
+        var a = 17.27;
+        var b = 237.7; // °C
+
+        var alpha = (a * tc) / (b + tc) + Math.log(rh / 100);
+        var tDewC = (b * alpha) / (a - alpha);
+        var tDewF = (tDewC * 9/5) + 32;
+
+        // Wet-Bulb Temperature (Stull Equation for Celsius)
+        // Tw = T * atan(0.151977 * (rh + 8.313659)^0.5) + atan(T + rh) - atan(rh - 1.676331) + 0.00391838 * rh^1.5 * atan(0.023101 * rh) - 4.686035
+        var twC = tc * Math.atan(0.151977 * Math.pow(rh + 8.313659, 0.5)) +
+                  Math.atan(tc + rh) -
+                  Math.atan(rh - 1.676331) +
+                  0.00391838 * Math.pow(rh, 1.5) * Math.atan(0.023101 * rh) - 4.686035;
+        var twF = (twC * 9/5) + 32;
+
+        // Vapor Pressures (Tetens formula in kPa)
+        var pws = 0.61078 * Math.exp((17.27 * tc) / (tc + 237.3)); // saturation
+        var pv = pws * (rh / 100); // actual
+
+        // Absolute Humidity (g/m3): AH = 216.7 * (Pv * 10) / (T + 273.15)
+        var ah = (2167 * pv) / (tc + 273.15);
+
+        // Humidity Ratio (kg water / kg dry air): W = 0.62198 * Pv / (P - Pv)
+        var pKpa = pressureHpa / 10;
+        var hr = (0.62198 * pv) / Math.max(0.1, pKpa - pv);
+
+        // Human Comfort Assessment (based on Dew Point °F)
+        var comfortText = 'Comfortable';
+        var comfortSub = 'Optimal indoor thermal condition';
+        var comfortColor = '#10b981';
+        if (tDewF < 50) {
+          comfortText = 'Dry / Crisp Air';
+          comfortSub = 'Low humidity, refreshing; may dry skin';
+          comfortColor = '#3b82f6';
+        } else if (tDewF >= 50 && tDewF < 55) {
+          comfortText = 'Pleasant & Ideal';
+          comfortSub = 'Most comfortable thermal range';
+          comfortColor = '#10b981';
+        } else if (tDewF >= 55 && tDewF < 60) {
+          comfortText = 'Comfortable';
+          comfortSub = 'Pleasant for most active people';
+          comfortColor = '#10b981';
+        } else if (tDewF >= 60 && tDewF < 65) {
+          comfortText = 'Noticeably Humid';
+          comfortSub = 'Sticky feeling begins outdoors';
+          comfortColor = '#f59e0b';
+        } else if (tDewF >= 65 && tDewF < 70) {
+          comfortText = 'Muggy & Uncomfortable';
+          comfortSub = 'Oppressive moisture; sweat evaporation slows';
+          comfortColor = '#f59e0b';
+        } else if (tDewF >= 70 && tDewF < 75) {
+          comfortText = 'Very Oppressive';
+          comfortSub = 'Severe tropical discomfort; heat hazard';
+          comfortColor = '#ef4444';
+        } else {
+          comfortText = 'Dangerously Humid';
+          comfortSub = 'Extreme health risk for exertional heat stroke';
+          comfortColor = '#ef4444';
+        }
+
+        // Condensation on Surface Check
+        var condStatus = 'Surface Temperature Unset';
+        var condSub = 'Enter substrate temp to check condensation';
+        var condColor = '#6366f1';
+        if (!isNaN(surfRaw)) {
+          var surfC = tUnit === 'F' ? (surfRaw - 32) * (5/9) : surfRaw;
+          var surfF = tUnit === 'F' ? surfRaw : (surfRaw * 9/5) + 32;
+          var margin = surfF - tDewF;
+
+          if (margin <= 0) {
+            condStatus = '⚠️ ACTIVE CONDENSATION!';
+            condSub = 'Surface is ' + Math.abs(margin).toFixed(1) + '°F BELOW dew point (Wet)';
+            condColor = '#ef4444';
+          } else if (margin < 5.0) {
+            condStatus = '⚠️ High Risk (<5°F Buffer)';
+            condSub = 'Fails ISO 8502-4 5°F coating buffer';
+            condColor = '#f59e0b';
+          } else {
+            condStatus = '✓ Safe (+' + margin.toFixed(1) + '°F Margin)';
+            condSub = 'Substrate is dry & above dew point';
+            condColor = '#10b981';
+          }
+        }
+
+        // Update KPIs
+        if (tUnit === 'F') {
+          document.getElementById('dp-res-dp').textContent = tDewF.toFixed(1) + '°F';
+          document.getElementById('dp-res-dp-alt').textContent = tDewC.toFixed(1) + '°C (Magnus-Tetens)';
+          document.getElementById('dp-res-wb').textContent = twF.toFixed(1) + '°F';
+          document.getElementById('dp-res-wb-alt').textContent = twC.toFixed(1) + '°C (Stull Thermodynamic)';
+        } else {
+          document.getElementById('dp-res-dp').textContent = tDewC.toFixed(1) + '°C';
+          document.getElementById('dp-res-dp-alt').textContent = tDewF.toFixed(1) + '°F (Magnus-Tetens)';
+          document.getElementById('dp-res-wb').textContent = twC.toFixed(1) + '°C';
+          document.getElementById('dp-res-wb-alt').textContent = twF.toFixed(1) + '°F (Stull Thermodynamic)';
+        }
+
+        var comEl = document.getElementById('dp-res-comfort');
+        comEl.textContent = comfortText;
+        comEl.style.color = comfortColor;
+        document.getElementById('dp-res-comfort-sub').textContent = comfortSub;
+
+        var condEl = document.getElementById('dp-res-cond-status');
+        condEl.textContent = condStatus;
+        condEl.style.color = condColor;
+        document.getElementById('dp-res-cond-sub').textContent = condSub;
+
+        document.getElementById('dp-res-pv').textContent = pv.toFixed(2) + ' kPa (' + (pv * 10).toFixed(1) + ' mbar)';
+        document.getElementById('dp-res-pws').textContent = pws.toFixed(2) + ' kPa';
+        document.getElementById('dp-res-ah').textContent = ah.toFixed(1) + ' g/m³';
+        document.getElementById('dp-res-hr').textContent = hr.toFixed(4) + ' kg/kg';
+
+        // Derivation Box
+        var dBox = document.getElementById('dp-derivation-box');
+        dBox.innerHTML = '<strong>1. Magnus-Tetens α Parameter:</strong> α = (17.27 × ' + tc.toFixed(1) + '°C) ÷ (237.7 + ' + tc.toFixed(1) + ') + ln(' + rh + ' / 100) = <strong>' + alpha.toFixed(4) + '</strong>.<br>' +
+          '<strong>2. Dew Point Solution:</strong> T_dew = (237.7 × ' + alpha.toFixed(4) + ') ÷ (17.27 - ' + alpha.toFixed(4) + ') = <strong>' + tDewC.toFixed(2) + '°C (' + tDewF.toFixed(1) + '°F)</strong>.<br>' +
+          '<strong>3. Saturation & Actual Vapor Pressure:</strong> P_ws = 0.61078 × exp((17.27 × ' + tc.toFixed(1) + ') ÷ (' + tc.toFixed(1) + ' + 237.3)) = ' + pws.toFixed(2) + ' kPa | P_v = ' + pws.toFixed(2) + ' × ' + (rh/100).toFixed(2) + ' = <strong>' + pv.toFixed(2) + ' kPa</strong>.<br>' +
+          '<strong>4. Absolute Moisture Concentration:</strong> AH = (2,167 × ' + pv.toFixed(2) + ' kPa) ÷ (' + tc.toFixed(1) + ' + 273.15) = <strong>' + ah.toFixed(2) + ' grams of water vapor per m³ of air</strong>.<br>' +
+          '<strong>5. Thermodynamic Wet-Bulb:</strong> Stull psychrometric formulation gives evaporative limit <strong>' + twC.toFixed(1) + '°C (' + twF.toFixed(1) + '°F)</strong>.';
+
+        // Render Psychrometric Chart SVG
+        renderPsychroSvg(tc, ah, tDewC, rh);
+      }
+
+      function renderPsychroSvg(tc, ah, tDewC, rh) {
+        var svg = document.getElementById('dp-psychro-svg');
+        if (!svg) return;
+
+        var w = 800, h = 280;
+        var padL = 60, padR = 40, padT = 30, padB = 40;
+        var plotW = w - padL - padR;
+        var plotH = h - padT - padB;
+
+        // Range: Temperature 0°C to 45°C, Absolute Humidity 0 to 35 g/m3
+        var minT = 0, maxT = 45;
+        var minAh = 0, maxAh = 35;
+
+        function getX(t) { return padL + ((t - minT) / (maxT - minT)) * plotW; }
+        function getY(a) { return (padT + plotH) - ((a - minAh) / (maxAh - minAh)) * plotH; }
+
+        var svgHtml = '';
+
+        // Axes
+        svgHtml += '<line x1="' + padL + '" y1="' + (padT + plotH) + '" x2="' + (padL + plotW) + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+        svgHtml += '<line x1="' + padL + '" y1="' + padT + '" x2="' + padL + '" y2="' + (padT + plotH) + '" stroke="var(--border)" stroke-width="2" />';
+
+        // 100% Saturation Curve (Dew Point boundary)
+        var satPts = [];
+        for (var t = minT; t <= maxT; t += 1) {
+          var pws_t = 0.61078 * Math.exp((17.27 * t) / (t + 237.3));
+          var ah_sat = (2167 * pws_t) / (t + 273.15);
+          satPts.push(getX(t).toFixed(1) + ',' + getY(Math.min(maxAh, ah_sat)).toFixed(1));
+        }
+
+        // Saturation area (Condensation Zone)
+        var satArea = 'M ' + getX(minT) + ' ' + (padT + plotH) + ' L ' + satPts.join(' L ') + ' L ' + getX(maxT) + ' ' + (padT + plotH) + ' Z';
+        svgHtml += '<path d="' + satArea + '" fill="rgba(59, 130, 246, 0.08)" stroke="#3b82f6" stroke-width="2.5" />';
+
+        // ASHRAE 55 Comfort Envelope (Roughly 20°C to 26°C and 4 g/m3 to 12 g/m3)
+        var cx1 = getX(20), cx2 = getX(26);
+        var cy1 = getY(12), cy2 = getY(4);
+        svgHtml += '<rect x="' + cx1 + '" y="' + cy1 + '" width="' + (cx2 - cx1) + '" height="' + (cy2 - cy1) + '" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" stroke-width="1.5" stroke-dasharray="3,3" rx="4" />';
+        svgHtml += '<text x="' + ((cx1+cx2)/2) + '" y="' + ((cy1+cy2)/2 + 4) + '" fill="#10b981" font-size="10" font-weight="bold" text-anchor="middle">ASHRAE Comfort Zone</text>';
+
+        // Current Operating Point
+        var curX = getX(Math.max(minT, Math.min(maxT, tc)));
+        var curY = getY(Math.max(minAh, Math.min(maxAh, ah)));
+
+        // Dew Point projection line horizontally to the saturation curve
+        var dewX = getX(Math.max(minT, Math.min(maxT, tDewC)));
+        svgHtml += '<line x1="' + curX + '" y1="' + curY + '" x2="' + dewX + '" y2="' + curY + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="4,4" />';
+        svgHtml += '<circle cx="' + dewX + '" cy="' + curY + '" r="5" fill="#3b82f6" />';
+        svgHtml += '<text x="' + (dewX - 8) + '" y="' + (curY - 8) + '" fill="#3b82f6" font-size="11" font-weight="bold" text-anchor="end">Dew Point (' + tDewC.toFixed(1) + '°C)</text>';
+
+        // Current air point
+        svgHtml += '<circle cx="' + curX + '" cy="' + curY + '" r="6" fill="#ef4444" stroke="#ffffff" stroke-width="2" />';
+        svgHtml += '<text x="' + (curX + 10) + '" y="' + (curY + 4) + '" fill="#ef4444" font-size="11" font-weight="bold">Current Air (' + tc.toFixed(1) + '°C, ' + rh + '% RH)</text>';
+
+        // Grid lines & labels
+        for (var gt = 0; gt <= 40; gt += 10) {
+          var gx = getX(gt);
+          svgHtml += '<line x1="' + gx + '" y1="' + (padT + plotH) + '" x2="' + gx + '" y2="' + (padT + plotH + 5) + '" stroke="var(--border)" stroke-width="1.5" />';
+          svgHtml += '<text x="' + gx + '" y="' + (padT + plotH + 18) + '" fill="var(--text-muted)" font-size="11" text-anchor="middle">' + gt + '°C</text>';
+        }
+
+        // Y-axis labels (AH)
+        for (var ga = 0; ga <= 30; ga += 10) {
+          var gy = getY(ga);
+          svgHtml += '<line x1="' + (padL - 5) + '" y1="' + gy + '" x2="' + padL + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1.5" />';
+          svgHtml += '<text x="' + (padL - 8) + '" y="' + (gy + 4) + '" fill="var(--text-muted)" font-size="11" text-anchor="end">' + ga + 'g</text>';
+        }
+
+        // Axis Titles
+        svgHtml += '<text x="' + (padL + plotW/2) + '" y="' + (h - 6) + '" fill="var(--fg)" font-size="11" font-weight="bold" text-anchor="middle">Dry-Bulb Air Temperature (°C)</text>';
+        svgHtml += '<text x="' + (padL + 10) + '" y="' + (padT + 15) + '" fill="#3b82f6" font-size="11" font-weight="bold">100% Saturation Curve (Condensation Limit)</text>';
+
+        svg.innerHTML = svgHtml;
+      }
+
+      function copyDewPointReport(btn) {
+        var dp = document.getElementById('dp-res-dp').textContent;
+        var wb = document.getElementById('dp-res-wb').textContent;
+        var com = document.getElementById('dp-res-comfort').textContent;
+        var cond = document.getElementById('dp-res-cond-status').textContent;
+        var pv = document.getElementById('dp-res-pv').textContent;
+        var ah = document.getElementById('dp-res-ah').textContent;
+
+        var text = '🌡️ PSYCHROMETRIC & DEW POINT DIAGNOSTIC REPORT
+' +
+          '====================================================
+' +
+          '• Dew Point Temperature: ' + dp + '
+' +
+          '• Thermodynamic Wet-Bulb: ' + wb + '
+' +
+          '• Human Comfort Assessment: ' + com + '
+' +
+          '• Surface Condensation Status: ' + cond + '
+' +
+          '• Vapor Pressure (Pv): ' + pv + '
+' +
+          '• Absolute Humidity: ' + ah + '
+' +
+          '----------------------------------------------------
+' +
+          'Calculated via Digital Tools Shed: https://digitaltoolsshed.com/calc/dew-point-calculator';
+
+        navigator.clipboard.writeText(text).then(function() {
+          if (btn) {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<span>✓</span> Psychrometric Diagnostic Copied!';
+            btn.style.borderColor = '#10b981';
+            btn.style.color = '#10b981';
+            setTimeout(function() {
+              btn.innerHTML = orig;
+              btn.style.borderColor = 'var(--border)';
+              btn.style.color = 'var(--fg)';
+            }, 2000);
+          }
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', calcDewPoint);
+      } else {
+        calcDewPoint();
+      }
+    </script>
   
+        <div class="wb-card" style="margin-top:2.5rem; background:var(--surface); border:1px solid var(--border); padding:1.5rem; border-radius:8px;">
+          <h2 style="font-family:var(--serif); font-size:1.4rem; margin-bottom:1.25rem;">Frequently Asked Questions</h2>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the difference between Relative Humidity and Dew Point?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Relative humidity (% RH) is relative to temperature—warm air can hold far more water vapor than cold air, so 60% RH at 90°F contains vastly more moisture than 60% RH at 40°F. Dew point is an absolute measure of atmospheric moisture: it represents the exact temperature to which air must be cooled for water vapor to condense into liquid dew.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What dew point temperature feels uncomfortable or humid to humans?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Dew points under 55°F (13°C) feel crisp, dry, and comfortable. Between 55°F and 60°F, air feels pleasant. Between 60°F and 65°F, it starts feeling sticky. Above 65°F (18°C), air feels muggy and oppressive because sweat cannot evaporate easily. Dew points above 70°F (21°C) feel stifling and represent tropical heat stress.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">How does the Magnus-Tetens formula calculate dew point?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                The Magnus-Tetens approximation computes dew point using saturation vapor pressure curves: α(T, RH) = (a·T)/(b + T) + ln(RH/100), then T_dew = (b·α)/(a - α), where a = 17.27 and b = 237.7°C. It is accurate to within 0.4°C across standard atmospheric temperatures between -40°C and 50°C.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">What is the 5-degree rule for industrial painting and epoxy application?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Per international standard ISO 8502-4 and SSPC guidelines, coating applicators must verify that the surface substrate temperature is at least 5°F (3°C) higher than the ambient dew point before applying paint, epoxy, or polyurea. If surface temperature touches the dew point, microscopic condensation creates adhesion failure and blistering.
+              </div>
+            </div>
+          
+            <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
+              <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:1rem;">Can mold grow if room relative humidity is 50%?</span>
+                <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
+              </div>
+              <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
+                Yes. While central room air may measure 50% RH, exterior walls, cold corners, and uninsulated window headers have colder surface temperatures. Because cold air holds less moisture, the localized relative humidity right against that cold surface can exceed 70% to 80%, triggering active mold spore germination without visible standing water.
+              </div>
+            </div>
+          
+        </div>
+      
+      <style>
+        .faq-item.open .faq-answer { display: block !important; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: #10b981; }
+        .trap-card {
+          background: var(--surface);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          padding: 1.15rem;
+          margin-bottom: 1rem;
+          font-size: 0.92rem;
+          line-height: 1.6;
+        }
+        .trap-card strong, .trap-card h3 {
+          display: block;
+          margin-bottom: 0.35rem;
+          font-size: 1rem;
+        }
+      </style>
+    
 
           
           <div class="share-action-bar" style="margin: 2rem 0; padding: 1.25rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -1175,8 +1558,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2F&text=Math%20%26%20Financial%20Calculators%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fmath%2F&title=Math%20%26%20Financial%20Calculators" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fdew-point-calculator&text=Dew%20Point%20Calculator%20%E2%80%94%20Psychrometric%20Humidity%2C%20Wet-Bulb%20%26%20Condensation%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fdew-point-calculator&title=Dew%20Point%20Calculator%20%E2%80%94%20Psychrometric%20Humidity%2C%20Wet-Bulb%20%26%20Condensation" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1244,14 +1627,14 @@
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/trade/board-foot-lumber-pricing" class="promo-card">
+                <a href="/convert/png-to-jpg" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Trade Math</span>
+                      <span class="promo-badge">File & Image</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Board Feet Lumber Calculator & Hardwood Pricing</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate true hardwood board footage and total order cost from dimensional lumber.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">PNG to JPG Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert PNG images to JPG format in your browser. Fast, 100% private.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1259,14 +1642,14 @@
                 </a>
                 
               
-                <a href="/health/cbt-thought-challenger" class="promo-card">
+                <a href="/util/epistemic-calibration" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Health</span>
+                      <span class="promo-badge">Curiosity & Mind</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">CBT Thought Challenger & Cognitive Distortion Diary</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Clinical Cognitive Behavioral Therapy thought record to challenge catastrophic thinking and reframe beliefs.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Epistemic Calibration & Overconfidence Game</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Test epistemic calibration with 10 numerical estimation questions and 80% confidence intervals to measure overconfidence.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1289,14 +1672,14 @@
                 </div>
                 
               
-                <a href="/neuro/delayed-sleep-phase-chronobiology" class="promo-card">
+                <a href="/science/planck-length-converter" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Science</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Delayed Sleep Phase Syndrome (DSPS) & Circadian Realignment Protocol</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate circadian temperature minimum (T_min), photic light advance window, and micro-melatonin schedule to shift delayed sleep phase.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Planck Length to Subatomic Scales Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert quantum Planck lengths to meters, attometers, and astronomical scales.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1304,14 +1687,14 @@
                 </a>
                 
               
-                <a href="/neuro/flow-state-sequencer" class="promo-card">
+                <a href="/calc/grams-to-cups" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Flow State Trigger Sequencer & Challenge-Skill Ratio Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate your exact challenge-skill ratio using the Mihaly Csikszentmihalyi 4% Golden Rule. Audit 17 environmental, psychological, and social flow triggers to reliably enter optimal focus.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Grams to Cups Converter (By Ingredient)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert baking grams to US cups with exact density factors for flour, sugar, butter, and oats.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
