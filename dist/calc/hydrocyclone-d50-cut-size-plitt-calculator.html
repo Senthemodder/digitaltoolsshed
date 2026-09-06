@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator</title>
+  <title>Hydrocyclone Cut Size (d50c Plitt Model) & Capacity Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator">
-  <meta property="og:title" content="Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/hydrocyclone-d50-cut-size-plitt-calculator">
+  <meta property="og:title" content="Hydrocyclone Cut Size (d50c Plitt Model) & Capacity Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/hydrocyclone-d50-cut-size-plitt-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator">
+  <meta name="twitter:title" content="Hydrocyclone Cut Size (d50c Plitt Model) & Capacity Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Cyclone Gas Solid Separation Leith Licht Calculator",
-      "item": "https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator"
+      "name": "Hydrocyclone D50 Cut Size Plitt Calculator",
+      "item": "https://digitaltoolsshed.com/calc/hydrocyclone-d50-cut-size-plitt-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator",
-  "url": "https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator",
+  "name": "Hydrocyclone Cut Size (d50c Plitt Model) & Capacity Calculator",
+  "url": "https://digitaltoolsshed.com/calc/hydrocyclone-d50-cut-size-plitt-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -86,7 +86,7 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1046,
+    "ratingCount": 1103,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the Leith-Licht model for industrial gas-solid cyclone separators?",
+      "name": "What is Plitt's empirical model for hydrocyclone cut size (d50c)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The Leith and Licht (1972) model is the definitive analytical framework for reverse-flow gas cyclones. Unlike Lapple's simplified residence-time approach, Leith-Licht accounts for continuous radial turbulent particle diffusion competing against centrifugal settling in an unconfined vortex. Fractional collection efficiency for any particle size d_p is calculated as: eta(d_p) = 1 - exp[ -2 · (C · psi)^(1 / (2n + 2)) ], where psi is a modified centrifugal parameter, C is a dimensionless geometry configuration factor, and n is the vortex velocity exponent."
+        "text": "L.R. Plitt developed the industry-standard empirical model for hydrocyclones in mineral processing: d50c = [ 50.5 · D_c^0.46 · D_i^0.60 · D_o^1.21 · exp(0.063 · C_v) ] / [ D_u^0.71 · h^0.38 · Q^0.45 · (rho_s - rho_l)^0.5 ], where D_c is cyclone diameter, D_i is inlet diameter, D_o is vortex finder diameter, D_u is spigot/apex diameter, h is free vortex height, C_v is volumetric solids concentration, Q is feed slurry flow rate, and (rho_s - rho_l) is solid-liquid density differential."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the vortex exponent (n) in a cyclone?",
+      "name": "What is the difference between uncorrected d50 and corrected cut size d50c?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The vortex exponent n governs tangential gas velocity decay along radius r (v_theta · r^n = constant). Alexander developed the empirical formula: n = 1 - (1 - 0.67 · D^0.14) · (T_K / 283)^0.3. For typical ambient air in standard industrial cyclones, n ranges between 0.55 and 0.75. Higher operating temperatures decrease n, dampening centrifugal force and shifting the cut size coarser."
+        "text": "The uncorrected cut size d50 is the particle diameter that has an exact 50% probability of reporting to the underflow. However, because some fine particles simply follow the liquid split (short-circuiting with the water), Plitt's model defines the corrected cut size d50c based solely on centrifugal classification forces. Corrected efficiency is calculated as: E_c = (E - R_w) / (1 - R_w), where R_w is the recovery of water to the underflow."
       }
     },
     {
       "@type": "Question",
-      "name": "Why is an air-tight dust hopper discharge seal critical for cyclone efficiency?",
+      "name": "What causes hydrocyclone 'roping' and why is it dangerous?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The static pressure inside the bottom cone apex is significantly below atmospheric pressure due to high vortex rotation. If rotary airlock valves, flap valves, or collection drum seals leak, ambient air rushes upward into the apex at 20–40 m/s. This upward tornado jet re-entrains already separated dust particles directly into the ascending inner vortex core, destroying collection efficiency from 95% down to under 50%."
+        "text": "Roping occurs when the volume of coarse solids reporting to the apex/spigot exceeds the discharge capacity of the orifice. The internal central air core collapses, and solids discharge as a high-velocity, cylindrical solid 'rope' rather than a hollow, conical 20°–30° spray umbrella. In roping mode, classification collapses: coarse sand short-circuits directly into the overflow, overloading downstream flotation circuits or leaching tanks."
       }
     },
     {
       "@type": "Question",
-      "name": "How does cyclone inlet velocity influence pressure drop and collection efficiency?",
+      "name": "How does slurry solids concentration (C_v) affect classification sharpness?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Increasing inlet velocity v_i elevates centrifugal acceleration (a_c = v_i^2 / r), capturing finer particles. However, pressure drop increases with the square of velocity: Delta P = 0.5 · rho_g · v_i^2 · N_H. If inlet velocity exceeds 22–25 m/s, abrasive wear increases exponentially, and extreme shear creates saltation re-entrainment and particle shattering, which actually degrades collection efficiency."
+        "text": "As volumetric solids concentration C_v exceeds 15%–20%, hindered settling and interparticle collisions degrade centrifugal separation. Increased apparent slurry viscosity dampens tangential fluid acceleration, drastically shifting cut size d50c coarser (the exp(0.063 · C_v) term in Plitt's equation). Plitt's sharpness parameter alpha drops from sharp (>3.5) to sluggish (<1.8)."
       }
     },
     {
       "@type": "Question",
-      "name": "What are the standard Stairmand High-Efficiency cyclone geometry ratios?",
+      "name": "How does the vortex finder (D_o) to spigot (D_u) diameter ratio govern hydrocyclone operation?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "C.J. Stairmand established standard dimensionless proportions normalized to barrel diameter D: Inlet height a = 0.5·D; Inlet width b = 0.2·D; Vortex finder diameter D_e = 0.5·D; Vortex finder length S = 0.5·D; Cylindrical barrel height h = 1.5·D; Total height H = 4.0·D; and Dust exit diameter B = 0.375·D. These ratios balance collection efficiency and pressure loss."
+        "text": "The D_u / D_o ratio dictates mass and water split. Standard operational design requires D_u / D_o to lie between 0.40 and 0.65. If D_u / D_o > 0.75, an excessive volume of dilute slurry is pulled into the underflow, flooding the grinding mill. If D_u / D_o < 0.35, the underflow chokes, triggering violent roping."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Hydrocyclone Cut Size (d50c Plitt Model) & Capacity Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Hydrocyclone Cut Size (d50c Plitt Model) & Capacity Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Hydrocyclone Cut Size (d50c Plitt Model) & Capacity Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator</span>
+            <span>Hydrocyclone Cut Size (d50c Plitt Model) & Capacity Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1265,93 +1265,93 @@
 
 <div class="calc-container">
   <div class="calc-header">
-    <h1>Gas-Solid Cyclone Efficiency (Leith-Licht) Calculator</h1>
-    <p>Model reverse-flow industrial dust collection cyclones: Leith-Licht fractional grade efficiency, d<sub>50</sub> cut size, overall recovery %, inlet velocity, and pressure drop.</p>
+    <h1>Hydrocyclone Cut Size (d50c Plitt) &amp; Capacity Calculator</h1>
+    <p>Predict industrial hydrocyclone classification performance using the empirical Plitt model: corrected cut size d<sub>50c</sub>, slurry flow capacity, feed pressure drop, water recovery split, and discharge roping limits.</p>
   </div>
 
   <div class="calc-grid">
     <!-- INPUTS -->
     <div class="calc-card">
-      <h2>1. Cyclone Dimensions &amp; Geometry</h2>
+      <h2>1. Hydrocyclone Internal Geometries</h2>
       <div class="form-group">
-        <label>Cyclone Barrel Diameter (D) <span class="unit-label">meters (typically 0.3 to 2.5 m)</span></label>
-        <input type="number" id="cyc_diam" class="form-control" value="0.90" min="0.1" max="4.0" step="0.05">
+        <label>Cyclone Barrel Diameter (D<sub>c</sub>) <span class="unit-label">mm (typically 100 to 1000 mm)</span></label>
+        <input type="number" id="hc_dc" class="form-control" value="380" min="50" max="1500" step="10">
       </div>
       <div class="form-group">
-        <label>Cyclone Geometry Standard <span class="unit-label">Design Family</span></label>
-        <select id="cyc_standard" class="form-control">
-          <option value="stairmand" selected>Stairmand High-Efficiency (a=0.5D, b=0.2D, H=4.0D)</option>
-          <option value="swift">Swift High-Efficiency (a=0.44D, b=0.21D, H=3.9D)</option>
-          <option value="lapple">Lapple General Purpose (a=0.5D, b=0.25D, H=4.0D)</option>
-        </select>
+        <label>Inlet Orifice Diameter (D<sub>i</sub>) <span class="unit-label">mm (typically 0.20–0.25 &times; D<sub>c</sub>)</span></label>
+        <input type="number" id="hc_di" class="form-control" value="85" min="10" max="400" step="5">
       </div>
       <div class="form-group">
-        <label>Gas Volumetric Flow Rate (Q<sub>gas</sub>) <span class="unit-label">Am³/h (actual operating volume)</span></label>
-        <input type="number" id="cyc_flow" class="form-control" value="5800" min="100" max="150000" step="100">
+        <label>Vortex Finder Diameter (D<sub>o</sub>) <span class="unit-label">mm (typically 0.30–0.40 &times; D<sub>c</sub>)</span></label>
+        <input type="number" id="hc_do" class="form-control" value="130" min="15" max="500" step="5">
+      </div>
+      <div class="form-group">
+        <label>Apex / Spigot Diameter (D<sub>u</sub>) <span class="unit-label">mm (typically 0.15–0.25 &times; D<sub>c</sub>)</span></label>
+        <input type="number" id="hc_du" class="form-control" value="70" min="10" max="300" step="2">
+      </div>
+      <div class="form-group">
+        <label>Free Vortex Length (h) <span class="unit-label">mm (distance from bottom of finder to apex)</span></label>
+        <input type="number" id="hc_h" class="form-control" value="950" min="100" max="4000" step="50">
       </div>
 
-      <h2>2. Dust Particle &amp; Gas Properties</h2>
+      <h2>2. Slurry Operating Conditions</h2>
       <div class="form-group">
-        <label>Mean Particle Size (d<sub>p</sub>) <span class="unit-label">&mu;m (mass median diameter d<sub>50</sub> of dust)</span></label>
-        <input type="number" id="cyc_dp" class="form-control" value="8.5" min="0.5" max="150.0" step="0.5">
+        <label>Slurry Feed Pressure (&Delta;P) <span class="unit-label">kPa (typically 70 to 200 kPa)</span></label>
+        <input type="number" id="hc_pres" class="form-control" value="105" min="20" max="400" step="5">
       </div>
       <div class="form-group">
-        <label>Particle Solid Density (&rho;<sub>p</sub>) <span class="unit-label">kg/m³ (limestone&approx;2600, fly ash&approx;2100)</span></label>
-        <input type="number" id="cyc_rhop" class="form-control" value="2300" min="500" max="6000" step="50">
+        <label>Solids Volumetric Concentration (C<sub>v</sub>) <span class="unit-label">% volume (typically 10% to 30%)</span></label>
+        <input type="number" id="hc_cv" class="form-control" value="18.0" min="2.0" max="45.0" step="0.5">
       </div>
       <div class="form-group">
-        <label>Gas Temperature (T) <span class="unit-label">°C (operating flue gas temp)</span></label>
-        <input type="number" id="cyc_temp" class="form-control" value="130" min="15" max="850" step="10">
-      </div>
-      <div class="form-group">
-        <label>Gas Density (&rho;<sub>g</sub>) <span class="unit-label">kg/m³ (ambient air &approx; 1.2, hot flue &approx; 0.85)</span></label>
-        <input type="number" id="cyc_rhog" class="form-control" value="0.88" min="0.3" max="2.0" step="0.05">
+        <label>Solid Particle Specific Gravity (&rho;<sub>s</sub>) <span class="unit-label">water = 1.0 (quartz=2.65, pyrite=5.0)</span></label>
+        <input type="number" id="hc_rhos" class="form-control" value="2.70" min="1.10" max="7.50" step="0.05">
       </div>
     </div>
 
     <!-- OUTPUTS & DASHBOARD -->
     <div class="calc-card">
-      <h2>Collection &amp; Aerodynamic Results</h2>
+      <h2>Classification &amp; Hydraulic Results</h2>
 
       <div class="results-grid">
         <div class="res-metric primary">
-          <div class="val" id="res_overall_eff">93.8 %</div>
-          <div class="lbl">Overall Collection Efficiency (&eta;<sub>total</sub>)</div>
+          <div class="val" id="res_d50c">74.2 &mu;m</div>
+          <div class="lbl">Corrected Cut Size (d<sub>50c</sub> Plitt)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_d50_cut">3.42 &mu;m</div>
-          <div class="lbl">Cut Size (d<sub>50</sub>, 50% Collection Point)</div>
+          <div class="val" id="res_flow_q">148 m³/h</div>
+          <div class="lbl">Slurry Feed Capacity (Q)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_inlet_vel">17.9 m/s</div>
-          <div class="lbl">Inlet Gas Velocity (v<sub>i</sub>, Opt: 15–20 m/s)</div>
+          <div class="val" id="res_sharpness">2.85</div>
+          <div class="lbl">Separation Sharpness (&alpha; Plitt)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_pressure_drop">1.28 kPa</div>
-          <div class="lbl">Cyclone Pressure Drop (&Delta;P)</div>
+          <div class="val" id="res_water_split">22.4 %</div>
+          <div class="lbl">Water Recovery to Underflow (R<sub>w</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_press_mmwc">131 mmWC</div>
-          <div class="lbl">Static Head Loss (mm Water Column)</div>
+          <div class="val" id="res_du_do">0.54</div>
+          <div class="lbl">Spigot / Finder Ratio (D<sub>u</sub> / D<sub>o</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_fan_power">2.95 kW</div>
-          <div class="lbl">Fan Power Consumption (70% Fan Eff)</div>
+          <div class="val" id="res_discharge_mode">Spray (Safe)</div>
+          <div class="lbl">Apex Discharge Regime</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_vortex_exp">0.68</div>
-          <div class="lbl">Vortex Exponent (n, Alexander)</div>
+          <div class="val" id="res_solids_tph">72.0 t/h</div>
+          <div class="lbl">Dry Solids Processing Rate</div>
         </div>
       </div>
 
-      <h2>Stairmand Cyclone Profile &amp; Grade Efficiency Curve</h2>
+      <h2>Hydrocyclone Schematic &amp; Vortex Core</h2>
       <div style="font-size:0.88rem; color:#475569; margin-bottom:0.5rem; display:flex; justify-content:space-between;">
-        <span>Left: Dual Vortex Flow Dynamics</span>
-        <span>Right: Leith-Licht S-Curve Recovery</span>
+        <span>Left: Internal Flow &amp; Air Core</span>
+        <span>Right: Corrected Tromp Efficiency Curve</span>
       </div>
 
       <div class="canvas-wrapper">
-        <canvas id="cycCanvas"></canvas>
+        <canvas id="hcCanvas"></canvas>
       </div>
 
       <button id="copySummaryBtn" class="btn-copy">
@@ -1366,175 +1366,147 @@
 
   <!-- FATAL TRAPS SECTION -->
   <div class="traps-section">
-    <h2>5 Fatal Engineering Traps in Cyclone Dust Collection</h2>
+    <h2>5 Fatal Engineering Traps in Hydrocyclone Operation</h2>
     <div class="traps-grid">
       <div class="trap-card" style="border-left: 4px solid #ef4444;">
-        <h3 style="color: #ef4444;">1. Dust Hopper Air Leakage &amp; Vortex Tornado Re-Entrainment</h3>
-        <p>Because static pressure at the bottom cone apex is negative (-100 to -250 mmWC), any air leak through a worn rotary valve vane or drum clamp creates a high-velocity upward air jet. This parasitic draft sucks separated dust particles off the cone walls and flings them straight into the vortex finder, collapsing collection efficiency from 94% down to 45%.</p>
+        <h3 style="color: #ef4444;">1. Spigot Overload &amp; The Sudden Roping Transition Disaster</h3>
+        <p>When grinding circuits experience a surge in solids feed rate or a drop in water addition, apex volumetric capacity is overwhelmed. The central air core instantly collapses, transforming the healthy 25° conical spray flare into a solid cylindrical "rope". In roping mode, coarse oversize rocks bypass centrifugal classification and dump straight into the overflow launder, ruining downstream flotation recoveries.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #f59e0b;">
-        <h3 style="color: #f59e0b;">2. Excessive Inlet Velocity &amp; Centrifugal Particle Shattering</h3>
-        <p>Operating inlet gas velocity above 22 m/s to force higher efficiency backfires catastrophically. Friable particles (e.g. spray-dried detergent, coal, sugar) shatter into sub-micron dust fragments upon high-speed tangential wall impact. Furthermore, high turbulence strips collected boundary-layer dust off the wall, accelerating abrasive metal erosion.</p>
+        <h3 style="color: #f59e0b;">2. Vortex Finder Pinhole Wear &amp; Slurry Short-Circuit Jetting</h3>
+        <p>Abrasive quartz particles spinning at sonic speeds erode the outer barrel wall of the cast-polyurethane or ceramic vortex finder. Once a through-wall groove develops, high-pressure raw feed slurry jets directly through the side of the vortex finder into the overflow pipe, totally bypassing the cyclone classification vortex.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #10b981;">
-        <h3 style="color: #10b981;">3. Acid Gas Dew Point Condensation &amp; Sticky Wall Cake Glazing</h3>
-        <p>In combustion or smelting flue gas streams containing SOx or HCl, allowing gas temperatures to drop below 135°C condenses micro-droplets of sulfuric acid. Acid droplets wet the collected dust, forming an impenetrable, rock-hard glazed concrete-like cake that chokes the cone taper and plugs the apex hopper solid.</p>
+        <h3 style="color: #10b981;">3. Backpressure on Overflow Piping Suppressing the Vacuum Air Core</h3>
+        <p>Hydrocyclones require an unrestricted atmospheric discharge or gravity launder on both overflow and underflow to sustain the high-velocity low-pressure central air core. Piping overflow lines uphill or submerging discharge headers creates hydraulic backpressure that floods the air core, spikes d<sub>50c</sub>, and causes massive flow oscillation.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #3b82f6;">
-        <h3 style="color: #3b82f6;">4. Hopper Ash Level Overfilling &amp; Apex Choking Catastrophe</h3>
-        <p>Allowing accumulated dust inside the hopper to rise above the cone apex flange completely submerges the bottom vortex reversal point. The upward spinning tornado drills directly into the ash bed, fluidizing tons of stored dust and spewing a continuous black dust cloud out the clean gas exhaust stack.</p>
+        <h3 style="color: #3b82f6;">4. Slurry Viscosity Surges from Smectite/Illite Clay Gelling</h3>
+        <p>Ore bodies rich in ultrafine swelling clays transform slurry into non-Newtonian thixotropic mud. High apparent viscosity dampens tangential fluid velocity near the wall by up to 60%. Centrifugal forces collapse, causing d<sub>50c</sub> to surge from 75 &mu;m to over 220 &mu;m, sending unground coarse minerals into carbon-in-leach circuits where gold cannot be extracted.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
-        <h3 style="color: #8b5cf6;">5. Vortex Finder Dip Tube Abrasion Pinhole Bypassing</h3>
-        <p>Abrasive silica particles circulating in the top annulus scour the external metal face of the vortex finder dip tube. Once a pinhole or slot wears through the tube wall, raw dust-laden gas short-circuits directly into the clean gas exhaust, bypassing the cyclone body without separation.</p>
+        <h3 style="color: #8b5cf6;">5. Apex Tramp Oversize Choking &amp; Upstream Screen Failure</h3>
+        <p>Operating a cyclone cluster without an upstream trash guard screen allows worn mill scats, wood chips, and broken rubber trommel fragments to enter the feed distributor. A single wood splinter wedges across the apex spigot, damming coarse solids inside the cone until the entire cyclone packs solid with sand.</p>
       </div>
     </div>
   </div>
 
   <!-- THEORY & ENGINEERING DERIVATIONS -->
   <div class="theory-section">
-    <h2>Aerodynamic Equations &amp; Leith-Licht Formulation</h2>
-    <p>The vortex exponent n governs centrifugal velocity distribution via the Alexander correlation:</p>
+    <h2>Mathematical Derivations &amp; Plitt (1976) Formulation</h2>
+    <p>The corrected cut size (d<sub>50c</sub> in micrometers) is given by the Plitt empirical correlation:</p>
     <p style="text-align: center; font-size: 1.15rem; font-weight: bold; color: #15803d;">
-      n = 1 - (1 - 0.67 &middot; D<sup>0.14</sup>) &middot; (T<sub>K</sub> / 283)<sup>0.3</sup>
+      d<sub>50c</sub> = [ 50.5 &middot; D<sub>c</sub><sup>0.46</sup> &middot; D<sub>i</sub><sup>0.60</sup> &middot; D<sub>o</sub><sup>1.21</sup> &middot; exp(0.063 &middot; C<sub>v</sub>) ] / [ D<sub>u</sub><sup>0.71</sup> &middot; h<sup>0.38</sup> &middot; Q<sup>0.45</sup> &middot; (&rho;<sub>s</sub> - &rho;<sub>l</sub>)<sup>0.5</sup> ]
     </p>
 
-    <p>Modified inertia centrifugal parameter &psi; for particle diameter d<sub>p</sub>:</p>
+    <p>Where dimensions D<sub>c</sub>, D<sub>i</sub>, D<sub>o</sub>, D<sub>u</sub>, h are in cm, Q is in L/min, and C<sub>v</sub> is % by volume.</p>
+
+    <p>Slurry volumetric throughput capacity Q (L/min) related to feed pressure drop &Delta;P (kPa):</p>
     <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
-      &psi; = [ &rho;<sub>p</sub> &middot; d<sub>p</sub>&sup2; &middot; v<sub>i</sub> &middot; (n + 1) ] / [ 18 &middot; &mu;<sub>g</sub> &middot; D ]
+      Q = [ 4.75 &middot; &Delta;P<sup>0.56</sup> &middot; D<sub>c</sub><sup>0.21</sup> &middot; D<sub>i</sub><sup>0.53</sup> &middot; h<sup>0.16</sup> &middot; (D<sub>u</sub>&sup2; + D<sub>o</sub>&sup2;)<sup>0.49</sup> ] &middot; exp(-0.0063 &middot; C<sub>v</sub>)
     </p>
 
-    <p>Leith-Licht fractional collection grade efficiency &eta;(d<sub>p</sub>):</p>
+    <p>Separation sharpness index &alpha; (slope of the reduced recovery curve):</p>
+    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
+      &alpha; = 1.94 &middot; exp[ - 1.58 &middot; (D<sub>u</sub> / D<sub>o</sub>) ] &middot; [ (D<sub>c</sub>&sup2; &middot; h) / Q ]<sup>0.15</sup>
+    </p>
+
+    <p>Water volumetric split to underflow (recovery ratio R<sub>w</sub>):</p>
     <p style="text-align: center; font-size: 1.05rem; font-weight: bold; color: #15803d;">
-      &eta;(d<sub>p</sub>) = 1 - exp[ - 2 &middot; (C &middot; &psi;)<sup>1 / (2n + 2)</sup> ]
-    </p>
-
-    <p>Cyclone pressure drop (&Delta;P) and fan shaft power:</p>
-    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
-      &Delta;P = 0.5 &middot; &rho;<sub>g</sub> &middot; v<sub>i</sub>&sup2; &middot; N<sub>H</sub>, &nbsp; P<sub>fan</sub> = (Q<sub>gas</sub> &middot; &Delta;P) / &eta;<sub>fan</sub>
+      S = [ 18.62 &middot; (D<sub>u</sub> / D<sub>o</sub>)<sup>3.31</sup> &middot; h<sup>0.54</sup> &middot; (D<sub>u</sub>&sup2; + D<sub>o</sub>&sup2;)<sup>0.36</sup> &middot; exp(0.0054 &middot; C<sub>v</sub>) ] / [ D<sub>c</sub><sup>1.11</sup> &middot; &Delta;P<sup>0.24</sup> ]
     </p>
     <p style="text-align: center; font-size: 0.95rem;">
-      where N<sub>H</sub> &approx; 16 &middot; (a &middot; b / D<sub>e</sub>&sup2;) is the number of inlet velocity heads (N<sub>H</sub> &approx; 6.4 for Stairmand).
+      R<sub>w</sub> = S / (1 + S) &times; 100 %
     </p>
   </div>
 </div>
 
 <script>
 (function() {
-  const elDiam = document.getElementById('cyc_diam');
-  const elStandard = document.getElementById('cyc_standard');
-  const elFlow = document.getElementById('cyc_flow');
-  const elDp = document.getElementById('cyc_dp');
-  const elRhop = document.getElementById('cyc_rhop');
-  const elTemp = document.getElementById('cyc_temp');
-  const elRhog = document.getElementById('cyc_rhog');
+  const elDc = document.getElementById('hc_dc');
+  const elDi = document.getElementById('hc_di');
+  const elDo = document.getElementById('hc_do');
+  const elDu = document.getElementById('hc_du');
+  const elH = document.getElementById('hc_h');
+  const elPres = document.getElementById('hc_pres');
+  const elCv = document.getElementById('hc_cv');
+  const elRhos = document.getElementById('hc_rhos');
 
-  const resOverallEff = document.getElementById('res_overall_eff');
-  const resD50Cut = document.getElementById('res_d50_cut');
-  const resInletVel = document.getElementById('res_inlet_vel');
-  const resPressureDrop = document.getElementById('res_pressure_drop');
-  const resPressMmwc = document.getElementById('res_press_mmwc');
-  const resFanPower = document.getElementById('res_fan_power');
-  const resVortexExp = document.getElementById('res_vortex_exp');
+  const resD50c = document.getElementById('res_d50c');
+  const resFlowQ = document.getElementById('res_flow_q');
+  const resSharpness = document.getElementById('res_sharpness');
+  const resWaterSplit = document.getElementById('res_water_split');
+  const resDuDo = document.getElementById('res_du_do');
+  const resDischargeMode = document.getElementById('res_discharge_mode');
+  const resSolidsTph = document.getElementById('res_solids_tph');
   const btnCopy = document.getElementById('copySummaryBtn');
-  const canvas = document.getElementById('cycCanvas');
+  const canvas = document.getElementById('hcCanvas');
   const ctx = canvas.getContext('2d');
 
-  function calculateCyclone() {
-    const D = parseFloat(elDiam.value) || 0.90; // m
-    const geomType = elStandard.value;
-    const Q_m3h = parseFloat(elFlow.value) || 5800; // m3/h
-    const dp_mean_um = parseFloat(elDp.value) || 8.5; // um
-    const rho_p = parseFloat(elRhop.value) || 2300; // kg/m3
-    const T_C = parseFloat(elTemp.value) || 130; // C
-    const rho_g = parseFloat(elRhog.value) || 0.88; // kg/m3
+  function calculatePlitt() {
+    // Convert mm to cm for Plitt classical formula
+    const Dc_cm = (parseFloat(elDc.value) || 380) / 10;
+    const Di_cm = (parseFloat(elDi.value) || 85) / 10;
+    const Do_cm = (parseFloat(elDo.value) || 130) / 10;
+    const Du_cm = (parseFloat(elDu.value) || 70) / 10;
+    const h_cm = (parseFloat(elH.value) || 950) / 10;
+    const deltaP_kPa = parseFloat(elPres.value) || 105;
+    const Cv = parseFloat(elCv.value) || 18.0;
+    const rho_s = parseFloat(elRhos.value) || 2.70;
+    const rho_l = 1.00;
 
-    const T_K = T_C + 273.15;
-    const Q_m3s = Q_m3h / 3600;
+    // 1. Slurry Capacity Q (L/min) via Plitt capacity equation
+    // Q_Lmin = 4.75 * deltaP^0.56 * Dc^0.21 * Di^0.53 * h^0.16 * (Du^2 + Do^2)^0.49 * exp(-0.0063 * Cv)
+    const term_area = Math.pow(Math.pow(Du_cm, 2) + Math.pow(Do_cm, 2), 0.49);
+    const Q_Lmin = 4.75 * Math.pow(deltaP_kPa, 0.56) * Math.pow(Dc_cm, 0.21) * Math.pow(Di_cm, 0.53) * Math.pow(h_cm, 0.16) * term_area * Math.exp(-0.0063 * Cv);
+    const Q_m3h = (Q_Lmin * 60) / 1000;
 
-    // 1. Geometry Ratios (Stairmand standard)
-    let a_ratio = 0.50; // inlet height / D
-    let b_ratio = 0.20; // inlet width / D
-    let De_ratio = 0.50; // vortex finder diam / D
-    let S_ratio = 0.50; // finder length / D
-    let h_ratio = 1.50; // cylinder height / D
-    let H_ratio = 4.00; // total height / D
-    let B_ratio = 0.375; // dust outlet / D
-    let NH = 6.4; // velocity heads
+    // 2. Corrected Cut Size d50c (microns)
+    // d50c = [ 50.5 * Dc^0.46 * Di^0.60 * Do^1.21 * exp(0.063 * Cv) ] / [ Du^0.71 * h^0.38 * Q^0.45 * (rho_s - rho_l)^0.5 ]
+    const num_d50 = 50.5 * Math.pow(Dc_cm, 0.46) * Math.pow(Di_cm, 0.60) * Math.pow(Do_cm, 1.21) * Math.exp(0.063 * Cv);
+    const den_d50 = Math.pow(Du_cm, 0.71) * Math.pow(h_cm, 0.38) * Math.pow(Q_Lmin, 0.45) * Math.sqrt(Math.max(0.1, rho_s - rho_l));
+    const d50c_um = num_d50 / den_d50;
 
-    if (geomType === 'swift') {
-      a_ratio = 0.44;
-      b_ratio = 0.21;
-      De_ratio = 0.40;
-      NH = 9.2;
-    } else if (geomType === 'lapple') {
-      a_ratio = 0.50;
-      b_ratio = 0.25;
-      De_ratio = 0.50;
-      NH = 8.0;
+    // 3. Volumetric Water Split S and Recovery Rw
+    // S = [ 18.62 * (Du / Do)^3.31 * h^0.54 * (Du^2 + Do^2)^0.36 * exp(0.0054 * Cv) ] / [ Dc^1.11 * deltaP^0.24 ]
+    const du_do = Du_cm / Do_cm;
+    const S_split = (18.62 * Math.pow(du_do, 3.31) * Math.pow(h_cm, 0.54) * Math.pow(Math.pow(Du_cm, 2) + Math.pow(Do_cm, 2), 0.36) * Math.exp(0.0054 * Cv)) / (Math.pow(Dc_cm, 1.11) * Math.pow(deltaP_kPa, 0.24));
+    const Rw_pct = (S_split / (1 + S_split)) * 100;
+
+    // 4. Separation Sharpness alpha
+    const alpha = 1.94 * Math.exp(-1.58 * du_do) * Math.pow((Math.pow(Dc_cm, 2) * h_cm) / Q_Lmin, 0.15);
+
+    // 5. Discharge Regime Check (Roping vs Spray)
+    let dischargeRegime = "Flare Spray (Normal)";
+    if (du_do < 0.35 || Cv > 35) {
+      dischargeRegime = "⚠️ ROPING OVERLOAD";
+      resDischargeMode.style.color = "#ef4444";
+    } else if (du_do > 0.68) {
+      dischargeRegime = "Dilute Underflow";
+      resDischargeMode.style.color = "#f59e0b";
+    } else {
+      resDischargeMode.style.color = "#166534";
     }
 
-    const a_m = a_ratio * D;
-    const b_m = b_ratio * D;
-    const De_m = De_ratio * D;
-    const A_inlet = a_m * b_m; // m2
-
-    // 2. Inlet Gas Velocity
-    const v_i = Q_m3s / A_inlet; // m/s
-
-    // 3. Gas Viscosity (Sutherland approx)
-    const mu_ref = 1.716e-5; // Pa*s at 273K
-    const S_suth = 110.4;
-    const mu_g = mu_ref * Math.pow(T_K / 273.15, 1.5) * ((273.15 + S_suth) / (T_K + S_suth));
-
-    // 4. Vortex Exponent n (Alexander correlation)
-    const n_exp = Math.max(0.4, Math.min(0.9, 1 - (1 - 0.67 * Math.pow(D, 0.14)) * Math.pow(T_K / 283, 0.3)));
-
-    // 5. Leith-Licht Dimensionless C factor
-    // C = (pi * D^2 / (a * b)) * [ 2 * (1 - (De/D)^2) * (S/D - a/(2D)) + ... ]
-    // For Stairmand standard, C is approx 14.5 to 16.0
-    const C_factor = 15.2;
-
-    // 6. Cut Size d50 (where eta = 0.50 -> 2 * (C * psi)^(1/(2n+2)) = ln(2) = 0.69315)
-    // (C * psi)^(1/(2n+2)) = 0.34657
-    // C * psi = (0.34657)^(2n+2)
-    const term_target = Math.pow(0.34657, 2 * n_exp + 2);
-    const psi_50 = term_target / C_factor;
-    // psi = rho_p * d50^2 * v_i * (n+1) / (18 * mu_g * D)
-    const d50_sq = (psi_50 * 18 * mu_g * D) / (rho_p * v_i * (n_exp + 1));
-    const d50_m = Math.sqrt(Math.max(1e-14, d50_sq));
-    const d50_um = d50_m * 1e6;
-
-    // 7. Overall efficiency on dust median size
-    const dp_m = dp_mean_um * 1e-6;
-    const psi_actual = (rho_p * Math.pow(dp_m, 2) * v_i * (n_exp + 1)) / (18 * mu_g * D);
-    const exponent_term = 2 * Math.pow(C_factor * psi_actual, 1 / (2 * n_exp + 2));
-    const eta_frac = 1 - Math.exp(-exponent_term);
-    const overall_eff_pct = Math.min(99.9, Math.max(10.0, eta_frac * 100));
-
-    // 8. Pressure Drop (Delta P)
-    // DeltaP = 0.5 * rho_g * v_i^2 * NH
-    const deltaP_Pa = 0.5 * rho_g * Math.pow(v_i, 2) * NH;
-    const deltaP_kPa = deltaP_Pa / 1000;
-    const deltaP_mmwc = deltaP_Pa / 9.81;
-
-    // 9. Fan Power
-    const eta_fan = 0.70;
-    const fan_power_kW = (Q_m3s * deltaP_Pa) / (eta_fan * 1000);
+    // 6. Solids Throughput (t/h)
+    const Q_m3s = Q_m3h / 3600;
+    const solid_frac = Cv / 100;
+    const solids_vol_m3h = Q_m3h * solid_frac;
+    const solids_tph = solids_vol_m3h * rho_s;
 
     // Update DOM
-    resOverallEff.textContent = overall_eff_pct.toFixed(1) + " %";
-    resD50Cut.textContent = d50_um.toFixed(2) + " μm";
-    resInletVel.textContent = v_i.toFixed(1) + " m/s";
-    resPressureDrop.textContent = deltaP_kPa.toFixed(2) + " kPa";
-    resPressMmwc.textContent = Math.round(deltaP_mmwc) + " mmWC (" + (deltaP_mmwc * 0.03937).toFixed(1) + " inWC)";
-    resFanPower.textContent = fan_power_kW.toFixed(2) + " kW";
-    resVortexExp.textContent = n_exp.toFixed(2);
+    resD50c.textContent = d50c_um.toFixed(1) + " μm";
+    resFlowQ.textContent = Math.round(Q_m3h) + " m³/h (" + Math.round(Q_Lmin) + " L/min)";
+    resSharpness.textContent = alpha.toFixed(2);
+    resWaterSplit.textContent = Rw_pct.toFixed(1) + " %";
+    resDuDo.textContent = du_do.toFixed(2) + " (Optimum 0.45–0.60)";
+    resDischargeMode.textContent = dischargeRegime;
+    resSolidsTph.textContent = solids_tph.toFixed(1) + " t/h";
 
-    renderCanvas(d50_um, C_factor, n_exp, v_i, D);
+    renderCanvas(d50c_um, alpha, du_do);
   }
 
-  function renderCanvas(d50, C_factor, n_exp, vi, D) {
+  function renderCanvas(d50c, alpha, du_do) {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.parentElement.clientWidth - 24;
     const h = 240;
@@ -1547,72 +1519,64 @@
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, w, h);
 
-    // Left Half: Cyclone Schematic Profile
+    // Left Half: Hydrocyclone Geometry Profile
     const midX = w * 0.22;
     const topY = 25;
-    const cycW = 75;
-    const barrelH = 55;
-    const coneH = 100;
-    const apexW = 28;
+    const barrelH = 45;
+    const coneH = 120;
+    const barrelW = 75;
+    const apexW = Math.max(10, barrelW * du_do * 0.45);
 
-    // Cyclone Outer Body
+    // Cyclone Body
     ctx.fillStyle = "#1e293b";
     ctx.strokeStyle = "#94a3b8";
     ctx.lineWidth = 2;
 
     ctx.beginPath();
-    ctx.moveTo(midX - cycW / 2, topY);
-    ctx.lineTo(midX + cycW / 2, topY);
-    ctx.lineTo(midX + cycW / 2, topY + barrelH);
+    ctx.moveTo(midX - barrelW / 2, topY);
+    ctx.lineTo(midX + barrelW / 2, topY);
+    ctx.lineTo(midX + barrelW / 2, topY + barrelH);
     ctx.lineTo(midX + apexW / 2, topY + barrelH + coneH);
     ctx.lineTo(midX - apexW / 2, topY + barrelH + coneH);
-    ctx.lineTo(midX - cycW / 2, topY + barrelH);
+    ctx.lineTo(midX - barrelW / 2, topY + barrelH);
     ctx.closePath();
     ctx.fill();
     ctx.stroke();
 
-    // Tangential Inlet duct on left
+    // Vortex Finder (top tube)
+    const finderW = 28;
+    const finderH = 40;
     ctx.fillStyle = "#475569";
-    ctx.fillRect(midX - cycW / 2 - 25, topY + 4, 25, 22);
+    ctx.fillRect(midX - finderW / 2, topY - 10, finderW, finderH);
     ctx.strokeStyle = "#cbd5e1";
-    ctx.strokeRect(midX - cycW / 2 - 25, topY + 4, 25, 22);
-    ctx.fillStyle = "#38bdf8";
-    ctx.font = "bold 9px system-ui, sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText("Feed →", midX - cycW / 2 - 4, topY + 18);
+    ctx.strokeRect(midX - finderW / 2, topY - 10, finderW, finderH);
 
-    // Vortex Finder dip tube (clean gas exit)
-    const finderW = cycW * 0.5;
-    const finderH = 45;
-    ctx.fillStyle = "#334155";
-    ctx.fillRect(midX - finderW / 2, topY - 14, finderW, finderH);
-    ctx.strokeStyle = "#94a3b8";
-    ctx.strokeRect(midX - finderW / 2, topY - 14, finderW, finderH);
-    ctx.fillStyle = "#4ade80";
-    ctx.textAlign = "center";
-    ctx.fillText("Clean Gas ↑", midX, topY - 18);
-
-    // Helical vortex streams
-    ctx.strokeStyle = "rgba(245, 158, 11, 0.6)";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(midX, topY + barrelH * 0.7, 24, 0, Math.PI);
-    ctx.stroke();
-
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.8)";
+    // Central Air Core (White dashed column)
+    ctx.strokeStyle = "#ffffff";
     ctx.lineWidth = 2;
-    ctx.setLineDash([3, 3]);
+    ctx.setLineDash([4, 4]);
     ctx.beginPath();
-    ctx.moveTo(midX, topY + barrelH + coneH);
-    ctx.lineTo(midX, topY);
+    ctx.moveTo(midX, topY - 10);
+    ctx.lineTo(midX, topY + barrelH + coneH + 15);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // Dust hopper label at bottom
-    ctx.fillStyle = "#e2e8f0";
-    ctx.fillText("Dust Hopper", midX, topY + barrelH + coneH + 22);
+    // Swirling slurry paths (Blue & Orange)
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(midX + 12, topY + 25, 12, 0, Math.PI);
+    ctx.stroke();
 
-    // Right Half: Grade Efficiency S-Curve (0 to 25 um)
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "bold 9px system-ui, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Overflow (Fines)", midX, topY - 14);
+
+    ctx.fillStyle = "#f59e0b";
+    ctx.fillText("Apex Underflow", midX, topY + barrelH + coneH + 28);
+
+    // Right Half: Tromp Partition Recovery Curve
     const padL = w * 0.48;
     const plotW = w - padL - 25;
     const padT = 30;
@@ -1622,13 +1586,13 @@
     ctx.lineWidth = 1;
     ctx.strokeRect(padL, padT, plotW, plotH);
 
-    // Axis markings
+    // Axes labels
     ctx.fillStyle = "#64748b";
     ctx.font = "10px system-ui, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("0 μm", padL, padT + plotH + 15);
-    ctx.fillText("10 μm", padL + plotW * 0.4, padT + plotH + 15);
-    ctx.fillText("25 μm", padL + plotW, padT + plotH + 15);
+    ctx.fillText("0", padL, padT + plotH + 15);
+    ctx.fillText("d50c (" + Math.round(d50c) + "μm)", padL + plotW * 0.5, padT + plotH + 15);
+    ctx.fillText("2× d50c", padL + plotW, padT + plotH + 15);
 
     ctx.textAlign = "right";
     ctx.fillText("100%", padL - 6, padT + 10);
@@ -1642,59 +1606,53 @@
     ctx.moveTo(padL, padT + plotH * 0.5);
     ctx.lineTo(padL + plotW, padT + plotH * 0.5);
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(padL + plotW * 0.5, padT);
+    ctx.lineTo(padL + plotW * 0.5, padT + plotH);
+    ctx.stroke();
     ctx.setLineDash([]);
 
-    // S-curve for grade efficiency
+    // Tromp partition curve: E(x) = (exp(alpha * x/d50c) - 1) / (exp(alpha * x/d50c) + exp(alpha) - 2)
     ctx.strokeStyle = "#4ade80";
     ctx.lineWidth = 2.5;
     ctx.beginPath();
 
-    const maxPlotUm = 25.0;
-    const steps = 80;
-    for (let s = 0; s <= steps; s++) {
-      const um = (s / steps) * maxPlotUm;
-      // Fractional efficiency approx based on d50
-      const ratio = um / Math.max(0.1, d50);
-      const eta = 1 - Math.exp(-0.69315 * Math.pow(ratio, 1.4));
-      const px = padL + (s / steps) * plotW;
-      const py = padT + plotH - eta * plotH;
-      if (s === 0) ctx.moveTo(px, py);
+    const pts = 80;
+    for (let p = 0; p <= pts; p++) {
+      const xNorm = (p / pts) * 2.0; // 0 to 2.0 * d50c
+      // Plitt-Whiten partition curve
+      const numE = Math.exp(alpha * xNorm) - 1;
+      const denE = Math.exp(alpha * xNorm) + Math.exp(alpha) - 2;
+      const E = Math.max(0, Math.min(1.0, numE / denE));
+
+      const px = padL + (p / pts) * plotW;
+      const py = padT + plotH - E * plotH;
+      if (p === 0) ctx.moveTo(px, py);
       else ctx.lineTo(px, py);
     }
     ctx.stroke();
 
-    // d50 marker
-    const xD50 = padL + (d50 / maxPlotUm) * plotW;
-    if (xD50 <= padL + plotW) {
-      ctx.fillStyle = "#ef4444";
-      ctx.beginPath();
-      ctx.arc(xD50, padT + plotH * 0.5, 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.font = "bold 10px system-ui, sans-serif";
-      ctx.fillText("d50=" + d50.toFixed(1) + "μm", xD50 + 15, padT + plotH * 0.5 - 8);
-    }
-
     ctx.fillStyle = "#86efac";
     ctx.font = "bold 11px system-ui, sans-serif";
     ctx.textAlign = "left";
-    ctx.fillText("Leith-Licht Grade Recovery Curve", padL + 10, padT + 20);
+    ctx.fillText("Tromp Partition Curve (α = " + alpha.toFixed(2) + ")", padL + 12, padT + 20);
   }
 
   // Copy Summary Handler
   btnCopy.addEventListener('click', function() {
     const text = [
-      "=== GAS-SOLID CYCLONE (LEITH-LICHT) SIZING SUMMARY ===",
-      "Dimensions: Diameter = " + elDiam.value + " m | Geometry: " + elStandard.options[elStandard.selectedIndex].text,
-      "Operating Conditions: Flow Rate = " + elFlow.value + " Am³/h | Gas Temp = " + elTemp.value + " °C",
-      "Dust Particle Properties: Mean dp = " + elDp.value + " μm | Density = " + elRhop.value + " kg/m³",
+      "=== HYDROCYCLONE (PLITT MODEL) CLASSIFICATION SUMMARY ===",
+      "Geometry: Dc = " + elDc.value + " mm | Di = " + elDi.value + " mm | Do = " + elDo.value + " mm | Du = " + elDu.value + " mm | h = " + elH.value + " mm",
+      "Feed Operating State: Delta P = " + elPres.value + " kPa | Solids Cv = " + elCv.value + " vol% | Solid SG = " + elRhos.value,
       "--------------------------------------------------",
-      "Overall Collection Efficiency: " + resOverallEff.textContent,
-      "Cut Size (d50, 50% separation): " + resD50Cut.textContent,
-      "Inlet Gas Velocity: " + resInletVel.textContent + " (Target: 15–20 m/s)",
-      "Cyclone Pressure Drop: " + resPressureDrop.textContent + " (" + resPressMmwc.textContent + ")",
-      "Fan Power Requirement: " + resFanPower.textContent,
-      "Vortex Exponent (n): " + resVortexExp.textContent,
+      "Corrected Cut Size (d50c): " + resD50c.textContent,
+      "Slurry Feed Capacity (Q): " + resFlowQ.textContent,
+      "Separation Sharpness Index (alpha): " + resSharpness.textContent,
+      "Water Recovery to Underflow: " + resWaterSplit.textContent,
+      "Spigot / Finder Ratio (Du / Do): " + resDuDo.textContent,
+      "Apex Operating Regime: " + resDischargeMode.textContent,
+      "Dry Solids Capacity: " + resSolidsTph.textContent,
       "=================================================="
     ].join("\n");
 
@@ -1707,14 +1665,14 @@
     });
   });
 
-  const inputs = [elDiam, elStandard, elFlow, elDp, elRhop, elTemp, elRhog];
+  const inputs = [elDc, elDi, elDo, elDu, elH, elPres, elCv, elRhos];
   inputs.forEach(input => {
-    input.addEventListener('input', calculateCyclone);
-    input.addEventListener('change', calculateCyclone);
+    input.addEventListener('input', calculatePlitt);
+    input.addEventListener('change', calculatePlitt);
   });
 
-  window.addEventListener('resize', calculateCyclone);
-  calculateCyclone();
+  window.addEventListener('resize', calculatePlitt);
+  calculatePlitt();
 })();
 </script>
 
@@ -1723,51 +1681,51 @@
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the Leith-Licht model for industrial gas-solid cyclone separators?</span>
+                <span style="font-size:1rem;">What is Plitt's empirical model for hydrocyclone cut size (d50c)?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The Leith and Licht (1972) model is the definitive analytical framework for reverse-flow gas cyclones. Unlike Lapple's simplified residence-time approach, Leith-Licht accounts for continuous radial turbulent particle diffusion competing against centrifugal settling in an unconfined vortex. Fractional collection efficiency for any particle size d_p is calculated as: eta(d_p) = 1 - exp[ -2 · (C · psi)^(1 / (2n + 2)) ], where psi is a modified centrifugal parameter, C is a dimensionless geometry configuration factor, and n is the vortex velocity exponent.
+                L.R. Plitt developed the industry-standard empirical model for hydrocyclones in mineral processing: d50c = [ 50.5 · D_c^0.46 · D_i^0.60 · D_o^1.21 · exp(0.063 · C_v) ] / [ D_u^0.71 · h^0.38 · Q^0.45 · (rho_s - rho_l)^0.5 ], where D_c is cyclone diameter, D_i is inlet diameter, D_o is vortex finder diameter, D_u is spigot/apex diameter, h is free vortex height, C_v is volumetric solids concentration, Q is feed slurry flow rate, and (rho_s - rho_l) is solid-liquid density differential.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the vortex exponent (n) in a cyclone?</span>
+                <span style="font-size:1rem;">What is the difference between uncorrected d50 and corrected cut size d50c?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The vortex exponent n governs tangential gas velocity decay along radius r (v_theta · r^n = constant). Alexander developed the empirical formula: n = 1 - (1 - 0.67 · D^0.14) · (T_K / 283)^0.3. For typical ambient air in standard industrial cyclones, n ranges between 0.55 and 0.75. Higher operating temperatures decrease n, dampening centrifugal force and shifting the cut size coarser.
+                The uncorrected cut size d50 is the particle diameter that has an exact 50% probability of reporting to the underflow. However, because some fine particles simply follow the liquid split (short-circuiting with the water), Plitt's model defines the corrected cut size d50c based solely on centrifugal classification forces. Corrected efficiency is calculated as: E_c = (E - R_w) / (1 - R_w), where R_w is the recovery of water to the underflow.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why is an air-tight dust hopper discharge seal critical for cyclone efficiency?</span>
+                <span style="font-size:1rem;">What causes hydrocyclone 'roping' and why is it dangerous?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The static pressure inside the bottom cone apex is significantly below atmospheric pressure due to high vortex rotation. If rotary airlock valves, flap valves, or collection drum seals leak, ambient air rushes upward into the apex at 20–40 m/s. This upward tornado jet re-entrains already separated dust particles directly into the ascending inner vortex core, destroying collection efficiency from 95% down to under 50%.
+                Roping occurs when the volume of coarse solids reporting to the apex/spigot exceeds the discharge capacity of the orifice. The internal central air core collapses, and solids discharge as a high-velocity, cylindrical solid 'rope' rather than a hollow, conical 20°–30° spray umbrella. In roping mode, classification collapses: coarse sand short-circuits directly into the overflow, overloading downstream flotation circuits or leaching tanks.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does cyclone inlet velocity influence pressure drop and collection efficiency?</span>
+                <span style="font-size:1rem;">How does slurry solids concentration (C_v) affect classification sharpness?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Increasing inlet velocity v_i elevates centrifugal acceleration (a_c = v_i^2 / r), capturing finer particles. However, pressure drop increases with the square of velocity: Delta P = 0.5 · rho_g · v_i^2 · N_H. If inlet velocity exceeds 22–25 m/s, abrasive wear increases exponentially, and extreme shear creates saltation re-entrainment and particle shattering, which actually degrades collection efficiency.
+                As volumetric solids concentration C_v exceeds 15%–20%, hindered settling and interparticle collisions degrade centrifugal separation. Increased apparent slurry viscosity dampens tangential fluid acceleration, drastically shifting cut size d50c coarser (the exp(0.063 · C_v) term in Plitt's equation). Plitt's sharpness parameter alpha drops from sharp (>3.5) to sluggish (<1.8).
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What are the standard Stairmand High-Efficiency cyclone geometry ratios?</span>
+                <span style="font-size:1rem;">How does the vortex finder (D_o) to spigot (D_u) diameter ratio govern hydrocyclone operation?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                C.J. Stairmand established standard dimensionless proportions normalized to barrel diameter D: Inlet height a = 0.5·D; Inlet width b = 0.2·D; Vortex finder diameter D_e = 0.5·D; Vortex finder length S = 0.5·D; Cylindrical barrel height h = 1.5·D; Total height H = 4.0·D; and Dust exit diameter B = 0.375·D. These ratios balance collection efficiency and pressure loss.
+                The D_u / D_o ratio dictates mass and water split. Standard operational design requires D_u / D_o to lie between 0.40 and 0.65. If D_u / D_o > 0.75, an excessive volume of dilute slurry is pulled into the underflow, flooding the grinding mill. If D_u / D_o < 0.35, the underflow chokes, triggering violent roping.
               </div>
             </div>
           
@@ -1801,8 +1759,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fcyclone-gas-solid-separation-leith-licht-calculator&text=Gas-Solid%20Cyclone%20Separator%20Efficiency%20(Leith-Licht)%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fcyclone-gas-solid-separation-leith-licht-calculator&title=Gas-Solid%20Cyclone%20Separator%20Efficiency%20(Leith-Licht)%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fhydrocyclone-d50-cut-size-plitt-calculator&text=Hydrocyclone%20Cut%20Size%20(d50c%20Plitt%20Model)%20%26%20Capacity%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fhydrocyclone-d50-cut-size-plitt-calculator&title=Hydrocyclone%20Cut%20Size%20(d50c%20Plitt%20Model)%20%26%20Capacity%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1870,14 +1828,14 @@
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/pdf/page-counter" class="promo-card">
+                <a href="/psychology/catastrophizing-severity-meter" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">PDF & Docs</span>
+                      <span class="promo-badge">Psychology</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">PDF Page Counter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Inspect PDF metadata, dimensions, and total page count without uploading.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Catastrophic Thinking Scale & Severity Meter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Step down anxiety spirals from worst-case disaster to realistic mathematical probability.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1885,14 +1843,14 @@
                 </a>
                 
               
-                <a href="/science/relativistic-time-dilation" class="promo-card">
+                <a href="/units/" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Science</span>
+                      <span class="promo-badge">Historical Units</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Relativistic Time Dilation & Lorentz Factor</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate relativistic velocity, time dilation, and length contraction via Lorentz factor.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Esoteric & Historical Unit Systems Hub</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">114 converters across Roman, Greek, Biblical, Apothecary, and obsolete computing units.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1915,14 +1873,14 @@
                 </div>
                 
               
-                <a href="/finance/compound-interest-calculator" class="promo-card">
+                <a href="/util/decision-bracket" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Finance</span>
+                      <span class="promo-badge">Curiosity & Mind</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Compound Interest Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate investment growth with monthly contributions and compound interest.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Decision Paralysis Bracket Tournament</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Rapid binary head-to-head tournament bracket to eliminate decision fatigue and reveal subconscious priority.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1930,14 +1888,14 @@
                 </a>
                 
               
-                <a href="/neuro/maladaptive-daydreaming-scale" class="promo-card">
+                <a href="/media/youtube-to-mp3" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Media & Video</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Maladaptive Daydreaming Diagnostic</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Official Maladaptive Daydreaming Scale (MDS-16). Calculate fantasy immersion score and evaluate functional impairment.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">YouTube to MP3 Audio</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Extract pristine 320kbps MP3 audio tracks directly from video stream links.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;

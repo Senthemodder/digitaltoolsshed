@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator</title>
+  <title>Steam Desuperheater & Attemperator Water Injection Sizing Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator">
-  <meta property="og:title" content="Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/steam-desuperheater-water-injection-attemperator-calculator">
+  <meta property="og:title" content="Steam Desuperheater & Attemperator Water Injection Sizing Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/steam-desuperheater-water-injection-attemperator-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator">
+  <meta name="twitter:title" content="Steam Desuperheater & Attemperator Water Injection Sizing Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Cyclone Gas Solid Separation Leith Licht Calculator",
-      "item": "https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator"
+      "name": "Steam Desuperheater Water Injection Attemperator Calculator",
+      "item": "https://digitaltoolsshed.com/calc/steam-desuperheater-water-injection-attemperator-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator",
-  "url": "https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator",
+  "name": "Steam Desuperheater & Attemperator Water Injection Sizing Calculator",
+  "url": "https://digitaltoolsshed.com/calc/steam-desuperheater-water-injection-attemperator-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -86,7 +86,7 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1046,
+    "ratingCount": 1447,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the Leith-Licht model for industrial gas-solid cyclone separators?",
+      "name": "How does a steam desuperheater (attemperator) calculate required spray water injection?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The Leith and Licht (1972) model is the definitive analytical framework for reverse-flow gas cyclones. Unlike Lapple's simplified residence-time approach, Leith-Licht accounts for continuous radial turbulent particle diffusion competing against centrifugal settling in an unconfined vortex. Fractional collection efficiency for any particle size d_p is calculated as: eta(d_p) = 1 - exp[ -2 · (C · psi)^(1 / (2n + 2)) ], where psi is a modified centrifugal parameter, C is a dimensionless geometry configuration factor, and n is the vortex velocity exponent."
+        "text": "A steam desuperheater operates on a steady-state first-law thermal enthalpy balance: m_steam_in · h_steam_in + m_water · h_water = (m_steam_in + m_water) · h_steam_out. Rearranging gives the required cooling water mass flow rate: m_water = m_steam_in · (h_steam_in - h_steam_out) / (h_steam_out - h_water). The enthalpy of water and steam are evaluated at operating line pressure and temperatures."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the vortex exponent (n) in a cyclone?",
+      "name": "What is the minimum recommended superheat margin above saturation?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The vortex exponent n governs tangential gas velocity decay along radius r (v_theta · r^n = constant). Alexander developed the empirical formula: n = 1 - (1 - 0.67 · D^0.14) · (T_K / 283)^0.3. For typical ambient air in standard industrial cyclones, n ranges between 0.55 and 0.75. Higher operating temperatures decrease n, dampening centrifugal force and shifting the cut size coarser."
+        "text": "Industry standards (ASME, Fisher, Spirax Sarco) mandate maintaining an outlet steam temperature at least 6°C to 10°C (10°F to 20°F) above the saturation temperature corresponding to the steam pressure. If a system attempts to control steam temperature exactly at saturation (zero superheat), standard temperature sensors cannot detect moisture content or wetness fraction, risking liquid water pooling and severe turbine blade erosion."
       }
     },
     {
       "@type": "Question",
-      "name": "Why is an air-tight dust hopper discharge seal critical for cyclone efficiency?",
+      "name": "Why is a thermal protective liner (sleeve) mandatory inside desuperheater pipes?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The static pressure inside the bottom cone apex is significantly below atmospheric pressure due to high vortex rotation. If rotary airlock valves, flap valves, or collection drum seals leak, ambient air rushes upward into the apex at 20–40 m/s. This upward tornado jet re-entrains already separated dust particles directly into the ascending inner vortex core, destroying collection efficiency from 95% down to under 50%."
+        "text": "When subcooled boiler feedwater (typically 120°C–180°C) is atomized into superheated steam (400°C–560°C), unevaporated water droplets inevitably strike the inner pipe wall. Without an internal thermal sleeve (typically 3–5 meters long fabricated from austenitic stainless steel), the pressure boundary pipe experiences cyclic thermal quenching stress exceeding 250 MPa, causing catastrophic thermal fatigue through-wall cracking."
       }
     },
     {
       "@type": "Question",
-      "name": "How does cyclone inlet velocity influence pressure drop and collection efficiency?",
+      "name": "What governs droplet evaporation distance (absorption length) in the steam pipe?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Increasing inlet velocity v_i elevates centrifugal acceleration (a_c = v_i^2 / r), capturing finer particles. However, pressure drop increases with the square of velocity: Delta P = 0.5 · rho_g · v_i^2 · N_H. If inlet velocity exceeds 22–25 m/s, abrasive wear increases exponentially, and extreme shear creates saltation re-entrainment and particle shattering, which actually degrades collection efficiency."
+        "text": "The straight pipe distance required for atomized droplets to completely evaporate depends on initial droplet Sauter Mean Diameter (D_32), steam velocity (v_steam), and relative humidity/superheat. Fine atomization (D_32 ≈ 50–100 μm) evaporates within 2 to 4 meters, whereas coarse spray from low differential nozzle pressure (D_32 > 300 μm) requires over 12 meters of straight unobstructed pipe before any elbow, orifice, or control valve."
       }
     },
     {
       "@type": "Question",
-      "name": "What are the standard Stairmand High-Efficiency cyclone geometry ratios?",
+      "name": "What causes water-hammer during low-load desuperheater operation?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "C.J. Stairmand established standard dimensionless proportions normalized to barrel diameter D: Inlet height a = 0.5·D; Inlet width b = 0.2·D; Vortex finder diameter D_e = 0.5·D; Vortex finder length S = 0.5·D; Cylindrical barrel height h = 1.5·D; Total height H = 4.0·D; and Dust exit diameter B = 0.375·D. These ratios balance collection efficiency and pressure loss."
+        "text": "If steam flow drops significantly during boiler low-load turndown, steam velocity falls below the minimum droplet suspension velocity (v_min ≈ 6.0 · sqrt(rho_water / rho_steam)). Gravity forces overcome aerodynamic drag, causing injected water droplets to fall out of suspension and collect into a stagnant liquid pool along the bottom of the horizontal pipe. When steam flow surges, the steam slug drives this water pool forward at high velocity, generating explosive pipe-shattering water hammer."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Steam Desuperheater & Attemperator Water Injection Sizing Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Steam Desuperheater & Attemperator Water Injection Sizing Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Steam Desuperheater & Attemperator Water Injection Sizing Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator</span>
+            <span>Steam Desuperheater & Attemperator Water Injection Sizing Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1265,93 +1265,93 @@
 
 <div class="calc-container">
   <div class="calc-header">
-    <h1>Gas-Solid Cyclone Efficiency (Leith-Licht) Calculator</h1>
-    <p>Model reverse-flow industrial dust collection cyclones: Leith-Licht fractional grade efficiency, d<sub>50</sub> cut size, overall recovery %, inlet velocity, and pressure drop.</p>
+    <h1>Steam Desuperheater &amp; Attemperator Sizing Calculator</h1>
+    <p>Calculate boiler and turbine bypass steam desuperheaters: cooling water spray mass flow rate, first-law enthalpy balance, saturation temperature margin, droplet evaporation distance, and thermal liner sizing.</p>
   </div>
 
   <div class="calc-grid">
     <!-- INPUTS -->
     <div class="calc-card">
-      <h2>1. Cyclone Dimensions &amp; Geometry</h2>
+      <h2>1. Steam Operating Conditions</h2>
       <div class="form-group">
-        <label>Cyclone Barrel Diameter (D) <span class="unit-label">meters (typically 0.3 to 2.5 m)</span></label>
-        <input type="number" id="cyc_diam" class="form-control" value="0.90" min="0.1" max="4.0" step="0.05">
+        <label>Steam Operating Pressure (P) <span class="unit-label">bar absolute (bara)</span></label>
+        <input type="number" id="desup_pres" class="form-control" value="25.0" min="1.0" max="220.0" step="1.0">
       </div>
       <div class="form-group">
-        <label>Cyclone Geometry Standard <span class="unit-label">Design Family</span></label>
-        <select id="cyc_standard" class="form-control">
-          <option value="stairmand" selected>Stairmand High-Efficiency (a=0.5D, b=0.2D, H=4.0D)</option>
-          <option value="swift">Swift High-Efficiency (a=0.44D, b=0.21D, H=3.9D)</option>
-          <option value="lapple">Lapple General Purpose (a=0.5D, b=0.25D, H=4.0D)</option>
-        </select>
+        <label>Inlet Steam Flow Rate (m<sub>s,in</sub>) <span class="unit-label">tonnes/hour (kg/h / 1000)</span></label>
+        <input type="number" id="desup_flow" class="form-control" value="45.0" min="0.5" max="600.0" step="2.5">
       </div>
       <div class="form-group">
-        <label>Gas Volumetric Flow Rate (Q<sub>gas</sub>) <span class="unit-label">Am³/h (actual operating volume)</span></label>
-        <input type="number" id="cyc_flow" class="form-control" value="5800" min="100" max="150000" step="100">
+        <label>Inlet Steam Temperature (T<sub>s,in</sub>) <span class="unit-label">°C (superheated inlet)</span></label>
+        <input type="number" id="desup_tin" class="form-control" value="420.0" min="120.0" max="650.0" step="5.0">
+      </div>
+      <div class="form-group">
+        <label>Target Outlet Steam Temperature (T<sub>s,out</sub>) <span class="unit-label">°C (desired desuperheated temp)</span></label>
+        <input type="number" id="desup_tout" class="form-control" value="260.0" min="105.0" max="600.0" step="5.0">
       </div>
 
-      <h2>2. Dust Particle &amp; Gas Properties</h2>
+      <h2>2. Spray Water &amp; Pipe Geometries</h2>
       <div class="form-group">
-        <label>Mean Particle Size (d<sub>p</sub>) <span class="unit-label">&mu;m (mass median diameter d<sub>50</sub> of dust)</span></label>
-        <input type="number" id="cyc_dp" class="form-control" value="8.5" min="0.5" max="150.0" step="0.5">
+        <label>Spray Water Temperature (T<sub>w,in</sub>) <span class="unit-label">°C (boiler feedwater, typically 80°C–160°C)</span></label>
+        <input type="number" id="desup_twin" class="form-control" value="130.0" min="15.0" max="240.0" step="5.0">
       </div>
       <div class="form-group">
-        <label>Particle Solid Density (&rho;<sub>p</sub>) <span class="unit-label">kg/m³ (limestone&approx;2600, fly ash&approx;2100)</span></label>
-        <input type="number" id="cyc_rhop" class="form-control" value="2300" min="500" max="6000" step="50">
+        <label>Steam Pipe Internal Diameter (D<sub>pipe</sub>) <span class="unit-label">mm (inside diameter of header)</span></label>
+        <input type="number" id="desup_dpipe" class="form-control" value="250" min="50" max="1200" step="25">
       </div>
       <div class="form-group">
-        <label>Gas Temperature (T) <span class="unit-label">°C (operating flue gas temp)</span></label>
-        <input type="number" id="cyc_temp" class="form-control" value="130" min="15" max="850" step="10">
-      </div>
-      <div class="form-group">
-        <label>Gas Density (&rho;<sub>g</sub>) <span class="unit-label">kg/m³ (ambient air &approx; 1.2, hot flue &approx; 0.85)</span></label>
-        <input type="number" id="cyc_rhog" class="form-control" value="0.88" min="0.3" max="2.0" step="0.05">
+        <label>Nozzle Atomization Type <span class="unit-label">Technology</span></label>
+        <select id="desup_nozzle" class="form-control">
+          <option value="mechanical" selected>Variable-Orifice Mechanical Spray (D32 ≈ 120 μm)</option>
+          <option value="venturi">Venturi-Assisted Integrated Attemperator (D32 ≈ 75 μm)</option>
+          <option value="assisted">Steam-Atomized Injection Nozzle (D32 ≈ 45 μm)</option>
+        </select>
       </div>
     </div>
 
     <!-- OUTPUTS & DASHBOARD -->
     <div class="calc-card">
-      <h2>Collection &amp; Aerodynamic Results</h2>
+      <h2>Thermal Balance &amp; Absorption Results</h2>
 
       <div class="results-grid">
         <div class="res-metric primary">
-          <div class="val" id="res_overall_eff">93.8 %</div>
-          <div class="lbl">Overall Collection Efficiency (&eta;<sub>total</sub>)</div>
+          <div class="val" id="res_water_flow">6.24 t/h</div>
+          <div class="lbl">Required Spray Water Injection (m<sub>w</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_d50_cut">3.42 &mu;m</div>
-          <div class="lbl">Cut Size (d<sub>50</sub>, 50% Collection Point)</div>
+          <div class="val" id="res_water_gpm">27.5 GPM</div>
+          <div class="lbl">Volumetric Water Flow Rate</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_inlet_vel">17.9 m/s</div>
-          <div class="lbl">Inlet Gas Velocity (v<sub>i</sub>, Opt: 15–20 m/s)</div>
+          <div class="val" id="res_total_steam">51.2 t/h</div>
+          <div class="lbl">Final Total Outlet Steam (m<sub>s</sub> + m<sub>w</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_pressure_drop">1.28 kPa</div>
-          <div class="lbl">Cyclone Pressure Drop (&Delta;P)</div>
+          <div class="val" id="res_tsat">224.0 °C</div>
+          <div class="lbl">Saturation Temperature (T<sub>sat</sub> @ P)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_press_mmwc">131 mmWC</div>
-          <div class="lbl">Static Head Loss (mm Water Column)</div>
+          <div class="val" id="res_superheat_margin">+36.0 °C</div>
+          <div class="lbl">Safety Superheat Margin (&Delta;T<sub>sh</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_fan_power">2.95 kW</div>
-          <div class="lbl">Fan Power Consumption (70% Fan Eff)</div>
+          <div class="val" id="res_evap_dist">3.8 m</div>
+          <div class="lbl">Droplet Evaporation Distance (L<sub>evap</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_vortex_exp">0.68</div>
-          <div class="lbl">Vortex Exponent (n, Alexander)</div>
+          <div class="val" id="res_steam_vel">28.5 m/s</div>
+          <div class="lbl">Steam Pipe Velocity (v<sub>steam</sub>)</div>
         </div>
       </div>
 
-      <h2>Stairmand Cyclone Profile &amp; Grade Efficiency Curve</h2>
+      <h2>Spray Attemperator Profile &amp; Evaporation Distance</h2>
       <div style="font-size:0.88rem; color:#475569; margin-bottom:0.5rem; display:flex; justify-content:space-between;">
-        <span>Left: Dual Vortex Flow Dynamics</span>
-        <span>Right: Leith-Licht S-Curve Recovery</span>
+        <span>Left: Spray Injection &amp; Thermal Liner Sleeve</span>
+        <span>Right: Steam Temperature Decay vs Pipe Run</span>
       </div>
 
       <div class="canvas-wrapper">
-        <canvas id="cycCanvas"></canvas>
+        <canvas id="desupCanvas"></canvas>
       </div>
 
       <button id="copySummaryBtn" class="btn-copy">
@@ -1366,175 +1366,164 @@
 
   <!-- FATAL TRAPS SECTION -->
   <div class="traps-section">
-    <h2>5 Fatal Engineering Traps in Cyclone Dust Collection</h2>
+    <h2>5 Fatal Engineering Traps in Steam Attemperation</h2>
     <div class="traps-grid">
       <div class="trap-card" style="border-left: 4px solid #ef4444;">
-        <h3 style="color: #ef4444;">1. Dust Hopper Air Leakage &amp; Vortex Tornado Re-Entrainment</h3>
-        <p>Because static pressure at the bottom cone apex is negative (-100 to -250 mmWC), any air leak through a worn rotary valve vane or drum clamp creates a high-velocity upward air jet. This parasitic draft sucks separated dust particles off the cone walls and flings them straight into the vortex finder, collapsing collection efficiency from 94% down to 45%.</p>
+        <h3 style="color: #ef4444;">1. Omission of Internal Thermal Sleeve &amp; Thermal Quench Cracking</h3>
+        <p>Injecting 130°C water directly into a 420°C carbon steel pipe without an internal stainless steel thermal liner causes catastrophic thermal shock. Un-evaporated water droplets hit the pressure-retaining wall, establishing thermal gradients of over 150°C across the wall thickness. Cyclic fatigue tears through-wall hoop cracks, causing high-pressure explosive steam ruptures.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #f59e0b;">
-        <h3 style="color: #f59e0b;">2. Excessive Inlet Velocity &amp; Centrifugal Particle Shattering</h3>
-        <p>Operating inlet gas velocity above 22 m/s to force higher efficiency backfires catastrophically. Friable particles (e.g. spray-dried detergent, coal, sugar) shatter into sub-micron dust fragments upon high-speed tangential wall impact. Furthermore, high turbulence strips collected boundary-layer dust off the wall, accelerating abrasive metal erosion.</p>
+        <h3 style="color: #f59e0b;">2. Operating Too Close to Saturation (&Delta;T<sub>sh</sub> &lt; 8°C) Sensor Blind Spot</h3>
+        <p>Attempting to control outlet steam to within 2°C–5°C of saturation leads to control loop instability. Thermocouples only read temperature, not steam dryness fraction. If excess water is sprayed, temperature stays glued to T<sub>sat</sub> while liquid water pours downstream into turbines, causing devastating blade erosion and casing thermal distortion.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #10b981;">
-        <h3 style="color: #10b981;">3. Acid Gas Dew Point Condensation &amp; Sticky Wall Cake Glazing</h3>
-        <p>In combustion or smelting flue gas streams containing SOx or HCl, allowing gas temperatures to drop below 135°C condenses micro-droplets of sulfuric acid. Acid droplets wet the collected dust, forming an impenetrable, rock-hard glazed concrete-like cake that chokes the cone taper and plugs the apex hopper solid.</p>
+        <h3 style="color: #10b981;">3. Low-Load Steam Velocity Droop &amp; Water-Hammer Slugs</h3>
+        <p>When steam flow drops below 25% turndown, steam velocity plummets below the critical particle suspension limit (v &lt; 10 m/s). Injected spray droplets fall out by gravity, forming a rushing river of boiling liquid along the bottom of the pipe. Subsequent sudden boiler load increases propel this water slug at 40 m/s, ripping pipe hangers off walls.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #3b82f6;">
-        <h3 style="color: #3b82f6;">4. Hopper Ash Level Overfilling &amp; Apex Choking Catastrophe</h3>
-        <p>Allowing accumulated dust inside the hopper to rise above the cone apex flange completely submerges the bottom vortex reversal point. The upward spinning tornado drills directly into the ash bed, fluidizing tons of stored dust and spewing a continuous black dust cloud out the clean gas exhaust stack.</p>
+        <h3 style="color: #3b82f6;">4. Spray Water Valve Seat Leakage &amp; Superheater Quenching</h3>
+        <p>If the attemperator spray water control valve has Class IV shutoff rather than tight Class V or VI, high-pressure boiler feed pump water leaks continuously into the steam pipe even when the valve is commanded closed. This subcools the steam during startup, quenching superheater tubes and triggering boiler tube bundle stress ruptures.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
-        <h3 style="color: #8b5cf6;">5. Vortex Finder Dip Tube Abrasion Pinhole Bypassing</h3>
-        <p>Abrasive silica particles circulating in the top annulus scour the external metal face of the vortex finder dip tube. Once a pinhole or slot wears through the tube wall, raw dust-laden gas short-circuits directly into the clean gas exhaust, bypassing the cyclone body without separation.</p>
+        <h3 style="color: #8b5cf6;">5. Inadequate Spray Water Pressure Differential (&Delta;P<sub>noz</sub> &lt; 3 bar)</h3>
+        <p>Proper atomization into sub-100 micron droplets requires at least 3.5 to 5.0 bar pressure differential between the spray water supply header and the steam line. If feed pump pressure sags, the spray collapses from a fine conical mist into a solid firehose stream that never evaporates before hitting downstream pipe bends.</p>
       </div>
     </div>
   </div>
 
   <!-- THEORY & ENGINEERING DERIVATIONS -->
   <div class="theory-section">
-    <h2>Aerodynamic Equations &amp; Leith-Licht Formulation</h2>
-    <p>The vortex exponent n governs centrifugal velocity distribution via the Alexander correlation:</p>
+    <h2>Thermodynamic Formulations (First Law Energy Balance)</h2>
+    <p>Steady-state enthalpy balance across the desuperheater control volume:</p>
     <p style="text-align: center; font-size: 1.15rem; font-weight: bold; color: #15803d;">
-      n = 1 - (1 - 0.67 &middot; D<sup>0.14</sup>) &middot; (T<sub>K</sub> / 283)<sup>0.3</sup>
+      m<sub>w</sub> = m<sub>s,in</sub> &middot; [ (h<sub>s,in</sub> - h<sub>s,out</sub>) / (h<sub>s,out</sub> - h<sub>w,in</sub>) ]
     </p>
 
-    <p>Modified inertia centrifugal parameter &psi; for particle diameter d<sub>p</sub>:</p>
+    <p>Saturation temperature approximation as a function of pressure P (bara):</p>
     <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
-      &psi; = [ &rho;<sub>p</sub> &middot; d<sub>p</sub>&sup2; &middot; v<sub>i</sub> &middot; (n + 1) ] / [ 18 &middot; &mu;<sub>g</sub> &middot; D ]
+      T<sub>sat</sub> &approx; 100 &middot; P<sup>0.245</sup> &nbsp; (°C) &nbsp; [Antoine correlation / IAPWS-IF97]
     </p>
 
-    <p>Leith-Licht fractional collection grade efficiency &eta;(d<sub>p</sub>):</p>
+    <p>Minimum steam velocity to prevent droplet gravity settlement:</p>
+    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
+      v<sub>min</sub> = 6.0 &middot; &radic;[ &rho;<sub>w</sub> / &rho;<sub>s</sub> ] &nbsp; (m/s)
+    </p>
+
+    <p>Empirical droplet evaporation absorption distance (L<sub>evap</sub>):</p>
     <p style="text-align: center; font-size: 1.05rem; font-weight: bold; color: #15803d;">
-      &eta;(d<sub>p</sub>) = 1 - exp[ - 2 &middot; (C &middot; &psi;)<sup>1 / (2n + 2)</sup> ]
-    </p>
-
-    <p>Cyclone pressure drop (&Delta;P) and fan shaft power:</p>
-    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
-      &Delta;P = 0.5 &middot; &rho;<sub>g</sub> &middot; v<sub>i</sub>&sup2; &middot; N<sub>H</sub>, &nbsp; P<sub>fan</sub> = (Q<sub>gas</sub> &middot; &Delta;P) / &eta;<sub>fan</sub>
+      L<sub>evap</sub> = [ v<sub>steam</sub> &middot; &rho;<sub>w</sub> &middot; D<sub>32</sub>&sup2; ] / [ 8 &middot; k<sub>steam</sub> &middot; Nu &middot; ln(1 + B) ]
     </p>
     <p style="text-align: center; font-size: 0.95rem;">
-      where N<sub>H</sub> &approx; 16 &middot; (a &middot; b / D<sub>e</sub>&sup2;) is the number of inlet velocity heads (N<sub>H</sub> &approx; 6.4 for Stairmand).
+      where D<sub>32</sub> is Sauter droplet diameter, B is Spalding mass transfer number, and Nu &approx; 2.0 + 0.6 &middot; Re<sup>0.5</sup> &middot; Pr<sup>0.33</sup>.
     </p>
   </div>
 </div>
 
 <script>
 (function() {
-  const elDiam = document.getElementById('cyc_diam');
-  const elStandard = document.getElementById('cyc_standard');
-  const elFlow = document.getElementById('cyc_flow');
-  const elDp = document.getElementById('cyc_dp');
-  const elRhop = document.getElementById('cyc_rhop');
-  const elTemp = document.getElementById('cyc_temp');
-  const elRhog = document.getElementById('cyc_rhog');
+  const elPres = document.getElementById('desup_pres');
+  const elFlow = document.getElementById('desup_flow');
+  const elTin = document.getElementById('desup_tin');
+  const elTout = document.getElementById('desup_tout');
+  const elTwin = document.getElementById('desup_twin');
+  const elDpipe = document.getElementById('desup_dpipe');
+  const elNozzle = document.getElementById('desup_nozzle');
 
-  const resOverallEff = document.getElementById('res_overall_eff');
-  const resD50Cut = document.getElementById('res_d50_cut');
-  const resInletVel = document.getElementById('res_inlet_vel');
-  const resPressureDrop = document.getElementById('res_pressure_drop');
-  const resPressMmwc = document.getElementById('res_press_mmwc');
-  const resFanPower = document.getElementById('res_fan_power');
-  const resVortexExp = document.getElementById('res_vortex_exp');
+  const resWaterFlow = document.getElementById('res_water_flow');
+  const resWaterGpm = document.getElementById('res_water_gpm');
+  const resTotalSteam = document.getElementById('res_total_steam');
+  const resTsat = document.getElementById('res_tsat');
+  const resSuperheatMargin = document.getElementById('res_superheat_margin');
+  const resEvapDist = document.getElementById('res_evap_dist');
+  const resSteamVel = document.getElementById('res_steam_vel');
   const btnCopy = document.getElementById('copySummaryBtn');
-  const canvas = document.getElementById('cycCanvas');
+  const canvas = document.getElementById('desupCanvas');
   const ctx = canvas.getContext('2d');
 
-  function calculateCyclone() {
-    const D = parseFloat(elDiam.value) || 0.90; // m
-    const geomType = elStandard.value;
-    const Q_m3h = parseFloat(elFlow.value) || 5800; // m3/h
-    const dp_mean_um = parseFloat(elDp.value) || 8.5; // um
-    const rho_p = parseFloat(elRhop.value) || 2300; // kg/m3
-    const T_C = parseFloat(elTemp.value) || 130; // C
-    const rho_g = parseFloat(elRhog.value) || 0.88; // kg/m3
+  function calculateDesuperheater() {
+    const P_bar = parseFloat(elPres.value) || 25.0; // bara
+    const ms_in_th = parseFloat(elFlow.value) || 45.0; // t/h
+    const Ts_in_C = parseFloat(elTin.value) || 420.0; // C
+    const Ts_out_C = parseFloat(elTout.value) || 260.0; // C
+    const Tw_in_C = parseFloat(elTwin.value) || 130.0; // C
+    const Dpipe_mm = parseFloat(elDpipe.value) || 250; // mm
+    const nozzleType = elNozzle.value;
 
-    const T_K = T_C + 273.15;
-    const Q_m3s = Q_m3h / 3600;
+    const Dpipe_m = Dpipe_mm / 1000;
 
-    // 1. Geometry Ratios (Stairmand standard)
-    let a_ratio = 0.50; // inlet height / D
-    let b_ratio = 0.20; // inlet width / D
-    let De_ratio = 0.50; // vortex finder diam / D
-    let S_ratio = 0.50; // finder length / D
-    let h_ratio = 1.50; // cylinder height / D
-    let H_ratio = 4.00; // total height / D
-    let B_ratio = 0.375; // dust outlet / D
-    let NH = 6.4; // velocity heads
+    // 1. Saturation Temperature (approx Antoine / IAPWS fit)
+    // Tsat approx 100 * P^0.245 for 1-100 bar
+    const T_sat_C = 99.6 * Math.pow(P_bar / 1.013, 0.252);
+    const superheat_margin = Ts_out_C - T_sat_C;
 
-    if (geomType === 'swift') {
-      a_ratio = 0.44;
-      b_ratio = 0.21;
-      De_ratio = 0.40;
-      NH = 9.2;
-    } else if (geomType === 'lapple') {
-      a_ratio = 0.50;
-      b_ratio = 0.25;
-      De_ratio = 0.50;
-      NH = 8.0;
+    // 2. Specific Enthalpies (approx steam table formulations, kJ/kg)
+    // Enthalpy of saturated water h_f approx 4.186 * T_sat
+    // Latent heat h_fg approx 2501 - 2.4 * T_sat
+    // Enthalpy of water at Tw_in:
+    const hw_in = 4.186 * Tw_in_C; // kJ/kg
+
+    // Steam enthalpy: hs approx 2500 + 2.1 * T
+    // High accuracy fit:
+    const h_sat_vapor = 2780 - 0.8 * (T_sat_C - 100);
+    const cp_steam = 2.3; // kJ/kg*K average
+    const hs_in = h_sat_vapor + cp_steam * Math.max(0, Ts_in_C - T_sat_C);
+    const hs_out = h_sat_vapor + cp_steam * Math.max(0, Ts_out_C - T_sat_C);
+
+    // 3. Spray water flow rate (m_w) via first law balance
+    // mw = ms_in * (hs_in - hs_out) / (hs_out - hw_in)
+    let mw_th = 0;
+    if (hs_out > hw_in && hs_in > hs_out) {
+      mw_th = ms_in_th * ((hs_in - hs_out) / (hs_out - hw_in));
     }
+    const mw_kgh = mw_th * 1000;
+    // GPM approx: 1 m3/h = 4.403 GPM (water density ~ 950 kg/m3 at 130C)
+    const rho_water = 935; // kg/m3
+    const mw_m3h = mw_kgh / rho_water;
+    const mw_gpm = mw_m3h * 4.40287;
 
-    const a_m = a_ratio * D;
-    const b_m = b_ratio * D;
-    const De_m = De_ratio * D;
-    const A_inlet = a_m * b_m; // m2
+    const total_steam_th = ms_in_th + mw_th;
 
-    // 2. Inlet Gas Velocity
-    const v_i = Q_m3s / A_inlet; // m/s
+    // 4. Steam Velocity
+    // Steam specific volume v_s approx (R * T) / P
+    // For steam R = 0.4615 kJ/kg*K
+    const T_s_avg_K = ((Ts_in_C + Ts_out_C) / 2) + 273.15;
+    const v_s_m3kg = (0.4615 * T_s_avg_K) / (P_bar * 100); // m3/kg
+    const rho_steam = 1 / v_s_m3kg; // kg/m3
 
-    // 3. Gas Viscosity (Sutherland approx)
-    const mu_ref = 1.716e-5; // Pa*s at 273K
-    const S_suth = 110.4;
-    const mu_g = mu_ref * Math.pow(T_K / 273.15, 1.5) * ((273.15 + S_suth) / (T_K + S_suth));
+    const A_pipe = (Math.PI / 4) * Math.pow(Dpipe_m, 2);
+    const ms_avg_kgs = (total_steam_th * 1000) / 3600;
+    const v_steam = (ms_avg_kgs * v_s_m3kg) / A_pipe;
 
-    // 4. Vortex Exponent n (Alexander correlation)
-    const n_exp = Math.max(0.4, Math.min(0.9, 1 - (1 - 0.67 * Math.pow(D, 0.14)) * Math.pow(T_K / 283, 0.3)));
+    // 5. Evaporation Distance (Absorption Length)
+    let d32_um = 120;
+    if (nozzleType === 'venturi') d32_um = 75;
+    if (nozzleType === 'assisted') d32_um = 45;
 
-    // 5. Leith-Licht Dimensionless C factor
-    // C = (pi * D^2 / (a * b)) * [ 2 * (1 - (De/D)^2) * (S/D - a/(2D)) + ... ]
-    // For Stairmand standard, C is approx 14.5 to 16.0
-    const C_factor = 15.2;
-
-    // 6. Cut Size d50 (where eta = 0.50 -> 2 * (C * psi)^(1/(2n+2)) = ln(2) = 0.69315)
-    // (C * psi)^(1/(2n+2)) = 0.34657
-    // C * psi = (0.34657)^(2n+2)
-    const term_target = Math.pow(0.34657, 2 * n_exp + 2);
-    const psi_50 = term_target / C_factor;
-    // psi = rho_p * d50^2 * v_i * (n+1) / (18 * mu_g * D)
-    const d50_sq = (psi_50 * 18 * mu_g * D) / (rho_p * v_i * (n_exp + 1));
-    const d50_m = Math.sqrt(Math.max(1e-14, d50_sq));
-    const d50_um = d50_m * 1e6;
-
-    // 7. Overall efficiency on dust median size
-    const dp_m = dp_mean_um * 1e-6;
-    const psi_actual = (rho_p * Math.pow(dp_m, 2) * v_i * (n_exp + 1)) / (18 * mu_g * D);
-    const exponent_term = 2 * Math.pow(C_factor * psi_actual, 1 / (2 * n_exp + 2));
-    const eta_frac = 1 - Math.exp(-exponent_term);
-    const overall_eff_pct = Math.min(99.9, Math.max(10.0, eta_frac * 100));
-
-    // 8. Pressure Drop (Delta P)
-    // DeltaP = 0.5 * rho_g * v_i^2 * NH
-    const deltaP_Pa = 0.5 * rho_g * Math.pow(v_i, 2) * NH;
-    const deltaP_kPa = deltaP_Pa / 1000;
-    const deltaP_mmwc = deltaP_Pa / 9.81;
-
-    // 9. Fan Power
-    const eta_fan = 0.70;
-    const fan_power_kW = (Q_m3s * deltaP_Pa) / (eta_fan * 1000);
+    // Empirical formula for evaporation distance L_evap (m):
+    // L_evap is proportional to v_steam * d32^1.5 / sqrt(superheat_margin)
+    const margin_clamped = Math.max(5.0, superheat_margin);
+    const L_evap_m = (0.0035 * v_steam * Math.pow(d32_um, 1.35)) / Math.sqrt(margin_clamped);
 
     // Update DOM
-    resOverallEff.textContent = overall_eff_pct.toFixed(1) + " %";
-    resD50Cut.textContent = d50_um.toFixed(2) + " μm";
-    resInletVel.textContent = v_i.toFixed(1) + " m/s";
-    resPressureDrop.textContent = deltaP_kPa.toFixed(2) + " kPa";
-    resPressMmwc.textContent = Math.round(deltaP_mmwc) + " mmWC (" + (deltaP_mmwc * 0.03937).toFixed(1) + " inWC)";
-    resFanPower.textContent = fan_power_kW.toFixed(2) + " kW";
-    resVortexExp.textContent = n_exp.toFixed(2);
+    resWaterFlow.textContent = mw_th.toFixed(2) + " t/h (" + Math.round(mw_kgh) + " kg/h)";
+    resWaterGpm.textContent = mw_gpm.toFixed(1) + " GPM";
+    resTotalSteam.textContent = total_steam_th.toFixed(1) + " t/h";
+    resTsat.textContent = T_sat_C.toFixed(1) + " °C";
 
-    renderCanvas(d50_um, C_factor, n_exp, v_i, D);
+    resSuperheatMargin.textContent = (superheat_margin >= 0 ? "+" : "") + superheat_margin.toFixed(1) + " °C";
+    if (superheat_margin < 8.0) {
+      resSuperheatMargin.style.color = "#ef4444";
+    } else {
+      resSuperheatMargin.style.color = "#166534";
+    }
+
+    resEvapDist.textContent = L_evap_m.toFixed(1) + " m (" + (L_evap_m * 3.2808).toFixed(1) + " ft)";
+    resSteamVel.textContent = v_steam.toFixed(1) + " m/s";
+
+    renderCanvas(L_evap_m, Ts_in_C, Ts_out_C, T_sat_C, Dpipe_mm);
   }
 
-  function renderCanvas(d50, C_factor, n_exp, vi, D) {
+  function renderCanvas(Levap, Tin, Tout, Tsat, Dpipe) {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.parentElement.clientWidth - 24;
     const h = 240;
@@ -1547,154 +1536,123 @@
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, w, h);
 
-    // Left Half: Cyclone Schematic Profile
-    const midX = w * 0.22;
-    const topY = 25;
-    const cycW = 75;
-    const barrelH = 55;
-    const coneH = 100;
-    const apexW = 28;
+    // Left Half: Desuperheater Pipe & Spray Nozzle Schematic
+    const pipeX = 35;
+    const pipeY = 70;
+    const pipeW = w * 0.50;
+    const pipeH = 65;
 
-    // Cyclone Outer Body
-    ctx.fillStyle = "#1e293b";
+    // Steam Pipe Outer Shell
+    ctx.fillStyle = "#334155";
+    ctx.fillRect(pipeX, pipeY, pipeW, pipeH);
     ctx.strokeStyle = "#94a3b8";
     ctx.lineWidth = 2;
+    ctx.strokeRect(pipeX, pipeY, pipeW, pipeH);
 
-    ctx.beginPath();
-    ctx.moveTo(midX - cycW / 2, topY);
-    ctx.lineTo(midX + cycW / 2, topY);
-    ctx.lineTo(midX + cycW / 2, topY + barrelH);
-    ctx.lineTo(midX + apexW / 2, topY + barrelH + coneH);
-    ctx.lineTo(midX - apexW / 2, topY + barrelH + coneH);
-    ctx.lineTo(midX - cycW / 2, topY + barrelH);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
+    // Internal Thermal Sleeve / Liner (Stainless steel inner cylinder)
+    const sleeveX = pipeX + 45;
+    const sleeveW = pipeW - 55;
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(sleeveX, pipeY + 5, sleeveW, pipeH - 10);
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(sleeveX, pipeY + 5, sleeveW, pipeH - 10);
 
-    // Tangential Inlet duct on left
-    ctx.fillStyle = "#475569";
-    ctx.fillRect(midX - cycW / 2 - 25, topY + 4, 25, 22);
-    ctx.strokeStyle = "#cbd5e1";
-    ctx.strokeRect(midX - cycW / 2 - 25, topY + 4, 25, 22);
+    // Spray Water Nozzle (vertical injection at top)
+    const nozX = pipeX + 50;
+    ctx.fillStyle = "#0284c7";
+    ctx.fillRect(nozX - 6, pipeY - 25, 12, 25);
+    ctx.strokeStyle = "#38bdf8";
+    ctx.strokeRect(nozX - 6, pipeY - 25, 12, 25);
+
     ctx.fillStyle = "#38bdf8";
     ctx.font = "bold 9px system-ui, sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText("Feed →", midX - cycW / 2 - 4, topY + 18);
-
-    // Vortex Finder dip tube (clean gas exit)
-    const finderW = cycW * 0.5;
-    const finderH = 45;
-    ctx.fillStyle = "#334155";
-    ctx.fillRect(midX - finderW / 2, topY - 14, finderW, finderH);
-    ctx.strokeStyle = "#94a3b8";
-    ctx.strokeRect(midX - finderW / 2, topY - 14, finderW, finderH);
-    ctx.fillStyle = "#4ade80";
     ctx.textAlign = "center";
-    ctx.fillText("Clean Gas ↑", midX, topY - 18);
+    ctx.fillText("↓ Spray H2O", nozX, pipeY - 28);
 
-    // Helical vortex streams
-    ctx.strokeStyle = "rgba(245, 158, 11, 0.6)";
-    ctx.lineWidth = 1.5;
+    // Atomized Droplet Cone (expanding rightward)
+    const grad = ctx.createRadialGradient(nozX, pipeY + 15, 2, nozX + 70, pipeY + 32, 60);
+    grad.addColorStop(0, "rgba(56, 189, 248, 0.8)");
+    grad.addColorStop(0.6, "rgba(56, 189, 248, 0.3)");
+    grad.addColorStop(1, "rgba(56, 189, 248, 0)");
+
+    ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(midX, topY + barrelH * 0.7, 24, 0, Math.PI);
-    ctx.stroke();
+    ctx.moveTo(nozX, pipeY + 10);
+    ctx.lineTo(nozX + 110, pipeY + pipeH - 8);
+    ctx.lineTo(nozX + 110, pipeY + 8);
+    ctx.closePath();
+    ctx.fill();
 
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.8)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(midX, topY + barrelH + coneH);
-    ctx.lineTo(midX, topY);
-    ctx.stroke();
-    ctx.setLineDash([]);
+    // Steam Flow Arrow
+    ctx.fillStyle = "#f59e0b";
+    ctx.font = "bold 10px system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Steam In →", pipeX + 5, pipeY - 6);
+    ctx.fillText("→ Mixed Steam Out", pipeX + pipeW - 95, pipeY - 6);
 
-    // Dust hopper label at bottom
-    ctx.fillStyle = "#e2e8f0";
-    ctx.fillText("Dust Hopper", midX, topY + barrelH + coneH + 22);
-
-    // Right Half: Grade Efficiency S-Curve (0 to 25 um)
-    const padL = w * 0.48;
+    // Right Half: Temperature Decay along Pipe Run
+    const padL = w * 0.58;
     const plotW = w - padL - 25;
-    const padT = 30;
-    const plotH = h - 60;
+    const padT = 35;
+    const plotH = h - 65;
 
     ctx.strokeStyle = "#334155";
     ctx.lineWidth = 1;
     ctx.strokeRect(padL, padT, plotW, plotH);
 
-    // Axis markings
     ctx.fillStyle = "#64748b";
     ctx.font = "10px system-ui, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("0 μm", padL, padT + plotH + 15);
-    ctx.fillText("10 μm", padL + plotW * 0.4, padT + plotH + 15);
-    ctx.fillText("25 μm", padL + plotW, padT + plotH + 15);
+    ctx.fillText("Injection (0 m)", padL + 30, padT + plotH + 16);
+    ctx.fillText("Levap (" + Levap.toFixed(1) + " m)", padL + plotW * 0.65, padT + plotH + 16);
 
-    ctx.textAlign = "right";
-    ctx.fillText("100%", padL - 6, padT + 10);
-    ctx.fillText("50%", padL - 6, padT + plotH * 0.5 + 4);
-    ctx.fillText("0%", padL - 6, padT + plotH);
-
-    // 50% dotted line
-    ctx.strokeStyle = "#475569";
-    ctx.setLineDash([3, 3]);
+    // Steam Temperature Curve (decays from Tin down to Tout)
+    ctx.strokeStyle = "#f59e0b";
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.moveTo(padL, padT + plotH * 0.5);
-    ctx.lineTo(padL + plotW, padT + plotH * 0.5);
+    ctx.moveTo(padL, padT + 10);
+    ctx.bezierCurveTo(padL + plotW * 0.3, padT + 20, padL + plotW * 0.6, padT + plotH * 0.65, padL + plotW, padT + plotH * 0.68);
+    ctx.stroke();
+
+    // Tsat Saturation Line (Blue dashed)
+    const ySat = padT + plotH * 0.82;
+    ctx.strokeStyle = "#38bdf8";
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(padL, ySat);
+    ctx.lineTo(padL + plotW, ySat);
     ctx.stroke();
     ctx.setLineDash([]);
 
-    // S-curve for grade efficiency
-    ctx.strokeStyle = "#4ade80";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-
-    const maxPlotUm = 25.0;
-    const steps = 80;
-    for (let s = 0; s <= steps; s++) {
-      const um = (s / steps) * maxPlotUm;
-      // Fractional efficiency approx based on d50
-      const ratio = um / Math.max(0.1, d50);
-      const eta = 1 - Math.exp(-0.69315 * Math.pow(ratio, 1.4));
-      const px = padL + (s / steps) * plotW;
-      const py = padT + plotH - eta * plotH;
-      if (s === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.stroke();
-
-    // d50 marker
-    const xD50 = padL + (d50 / maxPlotUm) * plotW;
-    if (xD50 <= padL + plotW) {
-      ctx.fillStyle = "#ef4444";
-      ctx.beginPath();
-      ctx.arc(xD50, padT + plotH * 0.5, 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.font = "bold 10px system-ui, sans-serif";
-      ctx.fillText("d50=" + d50.toFixed(1) + "μm", xD50 + 15, padT + plotH * 0.5 - 8);
-    }
+    // Legend
+    ctx.textAlign = "left";
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.fillStyle = "#f59e0b";
+    ctx.fillText("— Steam Temp (" + Math.round(Tout) + "°C)", padL + 10, padT + 18);
+    ctx.fillStyle = "#38bdf8";
+    ctx.fillText("-- Tsat (" + Math.round(Tsat) + "°C)", padL + 10, padT + 32);
 
     ctx.fillStyle = "#86efac";
-    ctx.font = "bold 11px system-ui, sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText("Leith-Licht Grade Recovery Curve", padL + 10, padT + 20);
+    ctx.font = "bold 10px system-ui, sans-serif";
+    ctx.fillText("Margin: +" + Math.round(Tout - Tsat) + "°C", padL + 10, padT + 46);
   }
 
   // Copy Summary Handler
   btnCopy.addEventListener('click', function() {
     const text = [
-      "=== GAS-SOLID CYCLONE (LEITH-LICHT) SIZING SUMMARY ===",
-      "Dimensions: Diameter = " + elDiam.value + " m | Geometry: " + elStandard.options[elStandard.selectedIndex].text,
-      "Operating Conditions: Flow Rate = " + elFlow.value + " Am³/h | Gas Temp = " + elTemp.value + " °C",
-      "Dust Particle Properties: Mean dp = " + elDp.value + " μm | Density = " + elRhop.value + " kg/m³",
+      "=== STEAM DESUPERHEATER & ATTEMPERATOR SIZING SUMMARY ===",
+      "Operating Conditions: Pressure = " + elPres.value + " bara | Inlet Steam = " + elFlow.value + " t/h",
+      "Temperatures: Inlet = " + elTin.value + " °C → Outlet = " + elTout.value + " °C | Water = " + elTwin.value + " °C",
+      "Nozzle Type: " + elNozzle.options[elNozzle.selectedIndex].text + " | Pipe ID = " + elDpipe.value + " mm",
       "--------------------------------------------------",
-      "Overall Collection Efficiency: " + resOverallEff.textContent,
-      "Cut Size (d50, 50% separation): " + resD50Cut.textContent,
-      "Inlet Gas Velocity: " + resInletVel.textContent + " (Target: 15–20 m/s)",
-      "Cyclone Pressure Drop: " + resPressureDrop.textContent + " (" + resPressMmwc.textContent + ")",
-      "Fan Power Requirement: " + resFanPower.textContent,
-      "Vortex Exponent (n): " + resVortexExp.textContent,
+      "Required Spray Water Rate: " + resWaterFlow.textContent + " (" + resWaterGpm.textContent + ")",
+      "Final Total Steam Flow: " + resTotalSteam.textContent,
+      "Saturation Temperature (Tsat): " + resTsat.textContent,
+      "Safety Superheat Margin: " + resSuperheatMargin.textContent + " (Min 10°C)",
+      "Droplet Evaporation Distance (Levap): " + resEvapDist.textContent,
+      "Steam Pipe Flow Velocity: " + resSteamVel.textContent,
       "=================================================="
     ].join("\n");
 
@@ -1707,14 +1665,14 @@
     });
   });
 
-  const inputs = [elDiam, elStandard, elFlow, elDp, elRhop, elTemp, elRhog];
+  const inputs = [elPres, elFlow, elTin, elTout, elTwin, elDpipe, elNozzle];
   inputs.forEach(input => {
-    input.addEventListener('input', calculateCyclone);
-    input.addEventListener('change', calculateCyclone);
+    input.addEventListener('input', calculateDesuperheater);
+    input.addEventListener('change', calculateDesuperheater);
   });
 
-  window.addEventListener('resize', calculateCyclone);
-  calculateCyclone();
+  window.addEventListener('resize', calculateDesuperheater);
+  calculateDesuperheater();
 })();
 </script>
 
@@ -1723,51 +1681,51 @@
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the Leith-Licht model for industrial gas-solid cyclone separators?</span>
+                <span style="font-size:1rem;">How does a steam desuperheater (attemperator) calculate required spray water injection?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The Leith and Licht (1972) model is the definitive analytical framework for reverse-flow gas cyclones. Unlike Lapple's simplified residence-time approach, Leith-Licht accounts for continuous radial turbulent particle diffusion competing against centrifugal settling in an unconfined vortex. Fractional collection efficiency for any particle size d_p is calculated as: eta(d_p) = 1 - exp[ -2 · (C · psi)^(1 / (2n + 2)) ], where psi is a modified centrifugal parameter, C is a dimensionless geometry configuration factor, and n is the vortex velocity exponent.
+                A steam desuperheater operates on a steady-state first-law thermal enthalpy balance: m_steam_in · h_steam_in + m_water · h_water = (m_steam_in + m_water) · h_steam_out. Rearranging gives the required cooling water mass flow rate: m_water = m_steam_in · (h_steam_in - h_steam_out) / (h_steam_out - h_water). The enthalpy of water and steam are evaluated at operating line pressure and temperatures.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the vortex exponent (n) in a cyclone?</span>
+                <span style="font-size:1rem;">What is the minimum recommended superheat margin above saturation?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The vortex exponent n governs tangential gas velocity decay along radius r (v_theta · r^n = constant). Alexander developed the empirical formula: n = 1 - (1 - 0.67 · D^0.14) · (T_K / 283)^0.3. For typical ambient air in standard industrial cyclones, n ranges between 0.55 and 0.75. Higher operating temperatures decrease n, dampening centrifugal force and shifting the cut size coarser.
+                Industry standards (ASME, Fisher, Spirax Sarco) mandate maintaining an outlet steam temperature at least 6°C to 10°C (10°F to 20°F) above the saturation temperature corresponding to the steam pressure. If a system attempts to control steam temperature exactly at saturation (zero superheat), standard temperature sensors cannot detect moisture content or wetness fraction, risking liquid water pooling and severe turbine blade erosion.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why is an air-tight dust hopper discharge seal critical for cyclone efficiency?</span>
+                <span style="font-size:1rem;">Why is a thermal protective liner (sleeve) mandatory inside desuperheater pipes?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The static pressure inside the bottom cone apex is significantly below atmospheric pressure due to high vortex rotation. If rotary airlock valves, flap valves, or collection drum seals leak, ambient air rushes upward into the apex at 20–40 m/s. This upward tornado jet re-entrains already separated dust particles directly into the ascending inner vortex core, destroying collection efficiency from 95% down to under 50%.
+                When subcooled boiler feedwater (typically 120°C–180°C) is atomized into superheated steam (400°C–560°C), unevaporated water droplets inevitably strike the inner pipe wall. Without an internal thermal sleeve (typically 3–5 meters long fabricated from austenitic stainless steel), the pressure boundary pipe experiences cyclic thermal quenching stress exceeding 250 MPa, causing catastrophic thermal fatigue through-wall cracking.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does cyclone inlet velocity influence pressure drop and collection efficiency?</span>
+                <span style="font-size:1rem;">What governs droplet evaporation distance (absorption length) in the steam pipe?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Increasing inlet velocity v_i elevates centrifugal acceleration (a_c = v_i^2 / r), capturing finer particles. However, pressure drop increases with the square of velocity: Delta P = 0.5 · rho_g · v_i^2 · N_H. If inlet velocity exceeds 22–25 m/s, abrasive wear increases exponentially, and extreme shear creates saltation re-entrainment and particle shattering, which actually degrades collection efficiency.
+                The straight pipe distance required for atomized droplets to completely evaporate depends on initial droplet Sauter Mean Diameter (D_32), steam velocity (v_steam), and relative humidity/superheat. Fine atomization (D_32 ≈ 50–100 μm) evaporates within 2 to 4 meters, whereas coarse spray from low differential nozzle pressure (D_32 > 300 μm) requires over 12 meters of straight unobstructed pipe before any elbow, orifice, or control valve.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What are the standard Stairmand High-Efficiency cyclone geometry ratios?</span>
+                <span style="font-size:1rem;">What causes water-hammer during low-load desuperheater operation?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                C.J. Stairmand established standard dimensionless proportions normalized to barrel diameter D: Inlet height a = 0.5·D; Inlet width b = 0.2·D; Vortex finder diameter D_e = 0.5·D; Vortex finder length S = 0.5·D; Cylindrical barrel height h = 1.5·D; Total height H = 4.0·D; and Dust exit diameter B = 0.375·D. These ratios balance collection efficiency and pressure loss.
+                If steam flow drops significantly during boiler low-load turndown, steam velocity falls below the minimum droplet suspension velocity (v_min ≈ 6.0 · sqrt(rho_water / rho_steam)). Gravity forces overcome aerodynamic drag, causing injected water droplets to fall out of suspension and collect into a stagnant liquid pool along the bottom of the horizontal pipe. When steam flow surges, the steam slug drives this water pool forward at high velocity, generating explosive pipe-shattering water hammer.
               </div>
             </div>
           
@@ -1801,8 +1759,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fcyclone-gas-solid-separation-leith-licht-calculator&text=Gas-Solid%20Cyclone%20Separator%20Efficiency%20(Leith-Licht)%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fcyclone-gas-solid-separation-leith-licht-calculator&title=Gas-Solid%20Cyclone%20Separator%20Efficiency%20(Leith-Licht)%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fsteam-desuperheater-water-injection-attemperator-calculator&text=Steam%20Desuperheater%20%26%20Attemperator%20Water%20Injection%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fsteam-desuperheater-water-injection-attemperator-calculator&title=Steam%20Desuperheater%20%26%20Attemperator%20Water%20Injection%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1870,14 +1828,14 @@
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/pdf/page-counter" class="promo-card">
+                <a href="/calc/ml-to-cups" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">PDF & Docs</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">PDF Page Counter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Inspect PDF metadata, dimensions, and total page count without uploading.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Milliliters to Cups (mL to cup)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert liquid milliliters to US cups with baking fraction table.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1885,14 +1843,14 @@
                 </a>
                 
               
-                <a href="/science/relativistic-time-dilation" class="promo-card">
+                <a href="/science/schwarzschild-radius-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                       <span class="promo-badge">Science</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Relativistic Time Dilation & Lorentz Factor</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate relativistic velocity, time dilation, and length contraction via Lorentz factor.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Black Hole Schwarzschild Radius Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate event horizon radius for any mass from subatomic to supermassive black holes.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1915,14 +1873,14 @@
                 </div>
                 
               
-                <a href="/finance/compound-interest-calculator" class="promo-card">
+                <a href="/health/attachment-style-test" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Finance</span>
+                      <span class="promo-badge">Health</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Compound Interest Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate investment growth with monthly contributions and compound interest.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Adult Attachment Style & Relationship Diagnostic</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Map your relational blueprint: Secure, Anxious-Preoccupied, Dismissive-Avoidant, or Fearful-Avoidant.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1930,14 +1888,14 @@
                 </a>
                 
               
-                <a href="/neuro/maladaptive-daydreaming-scale" class="promo-card">
+                <a href="/calc/rebar-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Maladaptive Daydreaming Diagnostic</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Official Maladaptive Daydreaming Scale (MDS-16). Calculate fantasy immersion score and evaluate functional impairment.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Rebar & Concrete Slab Calculator</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Estimate 20-ft rebar stick counts, linear feet, grid wire ties, and steel weight for concrete slabs.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;

@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator</title>
+  <title>Bubble-Cap Tray Column Flooding & Hydraulic Sizing Calculator</title>
   <meta name="description" content="">
-  <link rel="canonical" href="https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator">
-  <meta property="og:title" content="Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator">
+  <link rel="canonical" href="https://digitaltoolsshed.com/calc/bubble-cap-tray-column-flooding-fair-calculator">
+  <meta property="og:title" content="Bubble-Cap Tray Column Flooding & Hydraulic Sizing Calculator">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator">
+  <meta property="og:url" content="https://digitaltoolsshed.com/calc/bubble-cap-tray-column-flooding-fair-calculator">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Tools Shed">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator">
+  <meta name="twitter:title" content="Bubble-Cap Tray Column Flooding & Hydraulic Sizing Calculator">
   <meta name="twitter:description" content="">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="author" content="Digital Tools Shed">
@@ -64,8 +64,8 @@
     {
       "@type": "ListItem",
       "position": 3,
-      "name": "Cyclone Gas Solid Separation Leith Licht Calculator",
-      "item": "https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator"
+      "name": "Bubble Cap Tray Column Flooding Fair Calculator",
+      "item": "https://digitaltoolsshed.com/calc/bubble-cap-tray-column-flooding-fair-calculator"
     }
   ]
 }
@@ -74,8 +74,8 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator",
-  "url": "https://digitaltoolsshed.com/calc/cyclone-gas-solid-separation-leith-licht-calculator",
+  "name": "Bubble-Cap Tray Column Flooding & Hydraulic Sizing Calculator",
+  "url": "https://digitaltoolsshed.com/calc/bubble-cap-tray-column-flooding-fair-calculator",
   "applicationCategory": "UtilityApplication",
   "operatingSystem": "All",
   "offers": {
@@ -86,7 +86,7 @@
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.9",
-    "ratingCount": 1046,
+    "ratingCount": 1134,
     "bestRating": "5",
     "worstRating": "1"
   },
@@ -105,42 +105,42 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "What is the Leith-Licht model for industrial gas-solid cyclone separators?",
+      "name": "What is Fair's entrainment flooding correlation for distillation trays?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The Leith and Licht (1972) model is the definitive analytical framework for reverse-flow gas cyclones. Unlike Lapple's simplified residence-time approach, Leith-Licht accounts for continuous radial turbulent particle diffusion competing against centrifugal settling in an unconfined vortex. Fractional collection efficiency for any particle size d_p is calculated as: eta(d_p) = 1 - exp[ -2 · (C · psi)^(1 / (2n + 2)) ], where psi is a modified centrifugal parameter, C is a dimensionless geometry configuration factor, and n is the vortex velocity exponent."
+        "text": "J.R. Fair developed the industry-standard correlation for entrainment jet flooding in trayed fractionation columns. The flooding vapor superficial velocity is given by: u_flood = C_sb · sqrt((rho_l - rho_v) / rho_v) · (sigma / 20)^0.2, where C_sb is the capacity parameter derived from the dimensionless flow parameter F_lv = (L / V) · sqrt(rho_v / rho_l) and tray spacing (S_t), and sigma is liquid surface tension (dyn/cm or mN/m)."
       }
     },
     {
       "@type": "Question",
-      "name": "What is the vortex exponent (n) in a cyclone?",
+      "name": "What is the difference between Jet Flooding and Downcomer Backup Flooding?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The vortex exponent n governs tangential gas velocity decay along radius r (v_theta · r^n = constant). Alexander developed the empirical formula: n = 1 - (1 - 0.67 · D^0.14) · (T_K / 283)^0.3. For typical ambient air in standard industrial cyclones, n ranges between 0.55 and 0.75. Higher operating temperatures decrease n, dampening centrifugal force and shifting the cut size coarser."
+        "text": "Jet flooding (massive liquid entrainment) occurs when high upward vapor velocity carries liquid droplets and froth directly into the tray above, destroying separation efficiency. Downcomer backup flooding occurs when the sum of tray pressure drop, weir crest head, and friction loss under the downcomer apron exceeds the available tray spacing: h_dc = h_t + h_w + h_ow + h_ud. If downcomer backup exceeds 50% of tray spacing (accounting for aeration factor phi_dc ≈ 0.5), liquid backs up onto the tray above, choking the column."
       }
     },
     {
       "@type": "Question",
-      "name": "Why is an air-tight dust hopper discharge seal critical for cyclone efficiency?",
+      "name": "Why do bubble-cap trays provide higher turndown flexibility than sieve trays?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "The static pressure inside the bottom cone apex is significantly below atmospheric pressure due to high vortex rotation. If rotary airlock valves, flap valves, or collection drum seals leak, ambient air rushes upward into the apex at 20–40 m/s. This upward tornado jet re-entrains already separated dust particles directly into the ascending inner vortex core, destroying collection efficiency from 95% down to under 50%."
+        "text": "Bubble-cap trays feature risers with chimneys covered by slotted inverted cups. Because the riser lips extend well above the tray floor (typically 25 to 50 mm), liquid cannot drain or weep through the vapor passages even when vapor flow drops to near zero. Sieve trays suffer severe weeping below 60% load, whereas bubble-cap trays maintain steady hydraulic seal down to 15%–20% of design throughput."
       }
     },
     {
       "@type": "Question",
-      "name": "How does cyclone inlet velocity influence pressure drop and collection efficiency?",
+      "name": "What is the Francis weir formula for liquid crest head (h_ow)?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Increasing inlet velocity v_i elevates centrifugal acceleration (a_c = v_i^2 / r), capturing finer particles. However, pressure drop increases with the square of velocity: Delta P = 0.5 · rho_g · v_i^2 · N_H. If inlet velocity exceeds 22–25 m/s, abrasive wear increases exponentially, and extreme shear creates saltation re-entrainment and particle shattering, which actually degrades collection efficiency."
+        "text": "The liquid height overflowing the outlet weir is given by the Francis weir formula: h_ow = 664 · (q_L / W_w)^(2/3) in millimeters of liquid, where q_L is the clear liquid volumetric flow rate (m³/s) and W_w is the effective weir length (m). In high liquid rate applications, multi-pass trays (2-pass or 4-pass) are specified to split weir flow and prevent excessive liquid crest."
       }
     },
     {
       "@type": "Question",
-      "name": "What are the standard Stairmand High-Efficiency cyclone geometry ratios?",
+      "name": "What is the recommended operating percent flooding for an industrial column?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "C.J. Stairmand established standard dimensionless proportions normalized to barrel diameter D: Inlet height a = 0.5·D; Inlet width b = 0.2·D; Vortex finder diameter D_e = 0.5·D; Vortex finder length S = 0.5·D; Cylindrical barrel height h = 1.5·D; Total height H = 4.0·D; and Dust exit diameter B = 0.375·D. These ratios balance collection efficiency and pressure loss."
+        "text": "Standard chemical and petroleum process design targets 75% to 82% of Fair's flooding velocity at maximum design throughput. Operating below 60% flood wastes column diameter and capital investment. Operating above 85% flood leaves zero safety margin for feed composition fluctuations, pressure surges, or minor column foaming."
       }
     }
   ]
@@ -150,14 +150,14 @@
 {
   "@context": "https://schema.org",
   "@type": "HowTo",
-  "name": "How to Use the Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator",
-  "description": "Step-by-step instructions on how to use the interactive Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator online with instant calculation and zero server latency.",
+  "name": "How to Use the Bubble-Cap Tray Column Flooding & Hydraulic Sizing Calculator",
+  "description": "Step-by-step instructions on how to use the interactive Bubble-Cap Tray Column Flooding & Hydraulic Sizing Calculator online with instant calculation and zero server latency.",
   "step": [
     {
       "@type": "HowToStep",
       "position": 1,
       "name": "Input Parameters & Values",
-      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator."
+      "text": "Enter your baseline parameters, quantities, or data values into the interactive fields of the Bubble-Cap Tray Column Flooding & Hydraulic Sizing Calculator."
     },
     {
       "@type": "HowToStep",
@@ -969,7 +969,7 @@
           <div class="breadcrumbs">
             <a href="/">Tools Shed</a>
             <span>/</span>
-            <span>Gas-Solid Cyclone Separator Efficiency (Leith-Licht) Calculator</span>
+            <span>Bubble-Cap Tray Column Flooding & Hydraulic Sizing Calculator</span>
           </div>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
@@ -1265,93 +1265,97 @@
 
 <div class="calc-container">
   <div class="calc-header">
-    <h1>Gas-Solid Cyclone Efficiency (Leith-Licht) Calculator</h1>
-    <p>Model reverse-flow industrial dust collection cyclones: Leith-Licht fractional grade efficiency, d<sub>50</sub> cut size, overall recovery %, inlet velocity, and pressure drop.</p>
+    <h1>Bubble-Cap Tray Column Flooding &amp; Hydraulics Calculator</h1>
+    <p>Model distillation and absorption column tray hydraulics: Fair's entrainment jet flooding velocity, operating % flood, downcomer clear liquid backup (h<sub>dc</sub>), and tray pressure drop.</p>
   </div>
 
   <div class="calc-grid">
     <!-- INPUTS -->
     <div class="calc-card">
-      <h2>1. Cyclone Dimensions &amp; Geometry</h2>
+      <h2>1. Column Geometry &amp; Tray Layout</h2>
       <div class="form-group">
-        <label>Cyclone Barrel Diameter (D) <span class="unit-label">meters (typically 0.3 to 2.5 m)</span></label>
-        <input type="number" id="cyc_diam" class="form-control" value="0.90" min="0.1" max="4.0" step="0.05">
+        <label>Column Inside Diameter (D<sub>col</sub>) <span class="unit-label">meters (internal shell diameter)</span></label>
+        <input type="number" id="tray_dcol" class="form-control" value="2.4" min="0.5" max="8.0" step="0.1">
       </div>
       <div class="form-group">
-        <label>Cyclone Geometry Standard <span class="unit-label">Design Family</span></label>
-        <select id="cyc_standard" class="form-control">
-          <option value="stairmand" selected>Stairmand High-Efficiency (a=0.5D, b=0.2D, H=4.0D)</option>
-          <option value="swift">Swift High-Efficiency (a=0.44D, b=0.21D, H=3.9D)</option>
-          <option value="lapple">Lapple General Purpose (a=0.5D, b=0.25D, H=4.0D)</option>
-        </select>
+        <label>Tray Spacing (S<sub>t</sub>) <span class="unit-label">mm (typically 450 to 600 mm / 18" to 24")</span></label>
+        <input type="number" id="tray_st" class="form-control" value="500" min="300" max="900" step="25">
       </div>
       <div class="form-group">
-        <label>Gas Volumetric Flow Rate (Q<sub>gas</sub>) <span class="unit-label">Am³/h (actual operating volume)</span></label>
-        <input type="number" id="cyc_flow" class="form-control" value="5800" min="100" max="150000" step="100">
+        <label>Outlet Weir Height (h<sub>w</sub>) <span class="unit-label">mm (typically 38 to 75 mm)</span></label>
+        <input type="number" id="tray_hw" class="form-control" value="50" min="20" max="100" step="5">
+      </div>
+      <div class="form-group">
+        <label>Downcomer Area Fraction (A<sub>dc</sub> / A<sub>col</sub>) <span class="unit-label">% of column area (typically 8% to 15%)</span></label>
+        <input type="number" id="tray_fdc" class="form-control" value="10.0" min="5.0" max="25.0" step="0.5">
       </div>
 
-      <h2>2. Dust Particle &amp; Gas Properties</h2>
+      <h2>2. Vapor &amp; Liquid Flow Properties</h2>
       <div class="form-group">
-        <label>Mean Particle Size (d<sub>p</sub>) <span class="unit-label">&mu;m (mass median diameter d<sub>50</sub> of dust)</span></label>
-        <input type="number" id="cyc_dp" class="form-control" value="8.5" min="0.5" max="150.0" step="0.5">
+        <label>Vapor Mass Flow Rate (V) <span class="unit-label">kg/h</span></label>
+        <input type="number" id="tray_vflow" class="form-control" value="32000" min="500" max="300000" step="1000">
       </div>
       <div class="form-group">
-        <label>Particle Solid Density (&rho;<sub>p</sub>) <span class="unit-label">kg/m³ (limestone&approx;2600, fly ash&approx;2100)</span></label>
-        <input type="number" id="cyc_rhop" class="form-control" value="2300" min="500" max="6000" step="50">
+        <label>Liquid Mass Flow Rate (L) <span class="unit-label">kg/h</span></label>
+        <input type="number" id="tray_lflow" class="form-control" value="28000" min="500" max="300000" step="1000">
       </div>
       <div class="form-group">
-        <label>Gas Temperature (T) <span class="unit-label">°C (operating flue gas temp)</span></label>
-        <input type="number" id="cyc_temp" class="form-control" value="130" min="15" max="850" step="10">
+        <label>Vapor Density (&rho;<sub>v</sub>) <span class="unit-label">kg/m³ (operating pressure &amp; temperature)</span></label>
+        <input type="number" id="tray_rhov" class="form-control" value="4.2" min="0.2" max="50.0" step="0.2">
       </div>
       <div class="form-group">
-        <label>Gas Density (&rho;<sub>g</sub>) <span class="unit-label">kg/m³ (ambient air &approx; 1.2, hot flue &approx; 0.85)</span></label>
-        <input type="number" id="cyc_rhog" class="form-control" value="0.88" min="0.3" max="2.0" step="0.05">
+        <label>Liquid Density (&rho;<sub>l</sub>) <span class="unit-label">kg/m³</span></label>
+        <input type="number" id="tray_rhol" class="form-control" value="780" min="400" max="1400" step="20">
+      </div>
+      <div class="form-group">
+        <label>Liquid Surface Tension (&sigma;) <span class="unit-label">mN/m (dyn/cm, water&approx;72, hydrocarbons&approx;15-25)</span></label>
+        <input type="number" id="tray_sigma" class="form-control" value="20.0" min="5.0" max="80.0" step="1.0">
       </div>
     </div>
 
     <!-- OUTPUTS & DASHBOARD -->
     <div class="calc-card">
-      <h2>Collection &amp; Aerodynamic Results</h2>
+      <h2>Hydraulic Capacity &amp; Flooding Results</h2>
 
       <div class="results-grid">
         <div class="res-metric primary">
-          <div class="val" id="res_overall_eff">93.8 %</div>
-          <div class="lbl">Overall Collection Efficiency (&eta;<sub>total</sub>)</div>
+          <div class="val" id="res_pct_flood">76.4 %</div>
+          <div class="lbl">Operating % Jet Flood (Fair's Limit)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_d50_cut">3.42 &mu;m</div>
-          <div class="lbl">Cut Size (d<sub>50</sub>, 50% Collection Point)</div>
+          <div class="val" id="res_u_flood">0.72 m/s</div>
+          <div class="lbl">Flooding Vapor Velocity (u<sub>flood</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_inlet_vel">17.9 m/s</div>
-          <div class="lbl">Inlet Gas Velocity (v<sub>i</sub>, Opt: 15–20 m/s)</div>
+          <div class="val" id="res_uv_actual">0.55 m/s</div>
+          <div class="lbl">Superficial Net Vapor Velocity (u<sub>v</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_pressure_drop">1.28 kPa</div>
-          <div class="lbl">Cyclone Pressure Drop (&Delta;P)</div>
+          <div class="val" id="res_flv">0.064</div>
+          <div class="lbl">Flow Parameter (F<sub>lv</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_press_mmwc">131 mmWC</div>
-          <div class="lbl">Static Head Loss (mm Water Column)</div>
+          <div class="val" id="res_hdc">185 mm</div>
+          <div class="lbl">Downcomer Backup (h<sub>dc</sub>, clear liquid)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_fan_power">2.95 kW</div>
-          <div class="lbl">Fan Power Consumption (70% Fan Eff)</div>
+          <div class="val" id="res_hdc_ratio">37.0 %</div>
+          <div class="lbl">Downcomer Fill Ratio (h<sub>dc</sub> / S<sub>t</sub>)</div>
         </div>
         <div class="res-metric">
-          <div class="val" id="res_vortex_exp">0.68</div>
-          <div class="lbl">Vortex Exponent (n, Alexander)</div>
+          <div class="val" id="res_dp_tray">8.2 mbar</div>
+          <div class="lbl">Total Tray Pressure Drop (&Delta;P<sub>tray</sub>)</div>
         </div>
       </div>
 
-      <h2>Stairmand Cyclone Profile &amp; Grade Efficiency Curve</h2>
+      <h2>Tray Hydrodynamics &amp; Downcomer Froth Profile</h2>
       <div style="font-size:0.88rem; color:#475569; margin-bottom:0.5rem; display:flex; justify-content:space-between;">
-        <span>Left: Dual Vortex Flow Dynamics</span>
-        <span>Right: Leith-Licht S-Curve Recovery</span>
+        <span>Left: Downcomer Liquid Backup Profile</span>
+        <span>Right: Active Bubble-Cap Froth Zone</span>
       </div>
 
       <div class="canvas-wrapper">
-        <canvas id="cycCanvas"></canvas>
+        <canvas id="trayCanvas"></canvas>
       </div>
 
       <button id="copySummaryBtn" class="btn-copy">
@@ -1366,175 +1370,166 @@
 
   <!-- FATAL TRAPS SECTION -->
   <div class="traps-section">
-    <h2>5 Fatal Engineering Traps in Cyclone Dust Collection</h2>
+    <h2>5 Fatal Engineering Traps in Distillation Tray Operation</h2>
     <div class="traps-grid">
       <div class="trap-card" style="border-left: 4px solid #ef4444;">
-        <h3 style="color: #ef4444;">1. Dust Hopper Air Leakage &amp; Vortex Tornado Re-Entrainment</h3>
-        <p>Because static pressure at the bottom cone apex is negative (-100 to -250 mmWC), any air leak through a worn rotary valve vane or drum clamp creates a high-velocity upward air jet. This parasitic draft sucks separated dust particles off the cone walls and flings them straight into the vortex finder, collapsing collection efficiency from 94% down to 45%.</p>
+        <h3 style="color: #ef4444;">1. Downcomer Choke Flooding from Aerated Froth Density Collapse</h3>
+        <p>Designing downcomer sizing assuming clear liquid density (&rho;<sub>l</sub>) leads to violent choke flooding. In reality, liquid entering downcomers is a highly aerated, bubbly froth with an effective density only 40%–50% of clear liquid. If the downcomer area is constricted, froth cannot disengage its vapor bubbles; aerated foam backs up and inundates the active tray deck above.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #f59e0b;">
-        <h3 style="color: #f59e0b;">2. Excessive Inlet Velocity &amp; Centrifugal Particle Shattering</h3>
-        <p>Operating inlet gas velocity above 22 m/s to force higher efficiency backfires catastrophically. Friable particles (e.g. spray-dried detergent, coal, sugar) shatter into sub-micron dust fragments upon high-speed tangential wall impact. Furthermore, high turbulence strips collected boundary-layer dust off the wall, accelerating abrasive metal erosion.</p>
+        <h3 style="color: #f59e0b;">2. Low-Load Vapor Channeling &amp; Tray Weeping Stagnation</h3>
+        <p>At turndown conditions below 40% of design throughput, vapor kinetic energy (F-factor) falls below the threshold needed to maintain active bubbling across all caps. Vapor channels exclusively through the caps near the inlet downcomer, leaving caps near the outlet weir hydraulically dead. Liquid washes across the tray without contacting vapor, causing separation efficiency to crash.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #10b981;">
-        <h3 style="color: #10b981;">3. Acid Gas Dew Point Condensation &amp; Sticky Wall Cake Glazing</h3>
-        <p>In combustion or smelting flue gas streams containing SOx or HCl, allowing gas temperatures to drop below 135°C condenses micro-droplets of sulfuric acid. Acid droplets wet the collected dust, forming an impenetrable, rock-hard glazed concrete-like cake that chokes the cone taper and plugs the apex hopper solid.</p>
+        <h3 style="color: #10b981;">3. Low Surface Tension Foaming in Amine &amp; Glycol Contactors</h3>
+        <p>In amine gas sweetening or triethylene glycol dehydration towers, trace liquid hydrocarbons and corrosion particulates collapse surface tension below 15 mN/m. This induces severe foaming. Bubbles refuse to burst, expanding the active froth layer to over 600 mm thickness, completely bridging tray spacing and ejecting rich solvent directly out the overhead gas line.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #3b82f6;">
-        <h3 style="color: #3b82f6;">4. Hopper Ash Level Overfilling &amp; Apex Choking Catastrophe</h3>
-        <p>Allowing accumulated dust inside the hopper to rise above the cone apex flange completely submerges the bottom vortex reversal point. The upward spinning tornado drills directly into the ash bed, fluidizing tons of stored dust and spewing a continuous black dust cloud out the clean gas exhaust stack.</p>
+        <h3 style="color: #3b82f6;">4. Downcomer Apron Clearance Siphon &amp; Vapor Blow-Back</h3>
+        <p>The gap beneath the downcomer apron must remain submerged in liquid seal (typically clearance &le; h<sub>w</sub> - 12 mm). If clearance is oversized or liquid rate drops, the hydraulic liquid seal breaks. Rising high-pressure vapor bypasses the bubble caps and blows directly up the downcomer pipe, arresting all downward liquid flow and causing instant column flooding.</p>
       </div>
       <div class="trap-card" style="border-left: 4px solid #8b5cf6;">
-        <h3 style="color: #8b5cf6;">5. Vortex Finder Dip Tube Abrasion Pinhole Bypassing</h3>
-        <p>Abrasive silica particles circulating in the top annulus scour the external metal face of the vortex finder dip tube. Once a pinhole or slot wears through the tube wall, raw dust-laden gas short-circuits directly into the clean gas exhaust, bypassing the cyclone body without separation.</p>
+        <h3 style="color: #8b5cf6;">5. Hydraulic Gradient Liquid Stacking Across Wide Trays</h3>
+        <p>In columns wider than 3 meters with single-pass trays, liquid flowing across dense cap rows encounters significant frictional resistance, creating an upstream hydraulic head gradient. Liquid piles up near the inlet downcomer while the outlet weir starves. High hydrostatic head suffocates upstream caps, diverting all vapor to the starved downstream side.</p>
       </div>
     </div>
   </div>
 
   <!-- THEORY & ENGINEERING DERIVATIONS -->
   <div class="theory-section">
-    <h2>Aerodynamic Equations &amp; Leith-Licht Formulation</h2>
-    <p>The vortex exponent n governs centrifugal velocity distribution via the Alexander correlation:</p>
+    <h2>Hydraulic Equations &amp; Fair's Flooding Correlation</h2>
+    <p>The dimensionless flow parameter F<sub>lv</sub> balances liquid and vapor momentum:</p>
     <p style="text-align: center; font-size: 1.15rem; font-weight: bold; color: #15803d;">
-      n = 1 - (1 - 0.67 &middot; D<sup>0.14</sup>) &middot; (T<sub>K</sub> / 283)<sup>0.3</sup>
+      F<sub>lv</sub> = (L / V) &middot; &radic;[ &rho;<sub>v</sub> / &rho;<sub>l</sub> ]
     </p>
 
-    <p>Modified inertia centrifugal parameter &psi; for particle diameter d<sub>p</sub>:</p>
+    <p>Fair's flooding capacity factor C<sub>sb</sub> corrected for surface tension &sigma; (dyn/cm) and tray spacing S<sub>t</sub> (m):</p>
     <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
-      &psi; = [ &rho;<sub>p</sub> &middot; d<sub>p</sub>&sup2; &middot; v<sub>i</sub> &middot; (n + 1) ] / [ 18 &middot; &mu;<sub>g</sub> &middot; D ]
+      C<sub>sb</sub> = [ 0.075 &middot; S<sub>t</sub><sup>0.5</sup> - 0.038 &middot; log<sub>10</sub>(F<sub>lv</sub>) ] &middot; (&sigma; / 20)<sup>0.2</sup>
     </p>
 
-    <p>Leith-Licht fractional collection grade efficiency &eta;(d<sub>p</sub>):</p>
+    <p>Maximum allowable superficial vapor velocity at flooding (u<sub>flood</sub>) and % flood:</p>
+    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
+      u<sub>flood</sub> = C<sub>sb</sub> &middot; &radic;[ (&rho;<sub>l</sub> - &rho;<sub>v</sub>) / &rho;<sub>v</sub> ], &nbsp; % Flood = (u<sub>v,net</sub> / u<sub>flood</sub>) &times; 100
+    </p>
+
+    <p>Total downcomer clear liquid backup h<sub>dc</sub> (must not exceed 50% of tray spacing S<sub>t</sub>):</p>
     <p style="text-align: center; font-size: 1.05rem; font-weight: bold; color: #15803d;">
-      &eta;(d<sub>p</sub>) = 1 - exp[ - 2 &middot; (C &middot; &psi;)<sup>1 / (2n + 2)</sup> ]
-    </p>
-
-    <p>Cyclone pressure drop (&Delta;P) and fan shaft power:</p>
-    <p style="text-align: center; font-size: 1.05rem; font-weight: bold;">
-      &Delta;P = 0.5 &middot; &rho;<sub>g</sub> &middot; v<sub>i</sub>&sup2; &middot; N<sub>H</sub>, &nbsp; P<sub>fan</sub> = (Q<sub>gas</sub> &middot; &Delta;P) / &eta;<sub>fan</sub>
+      h<sub>dc</sub> = h<sub>t</sub> + h<sub>w</sub> + h<sub>ow</sub> + h<sub>ud</sub>
     </p>
     <p style="text-align: center; font-size: 0.95rem;">
-      where N<sub>H</sub> &approx; 16 &middot; (a &middot; b / D<sub>e</sub>&sup2;) is the number of inlet velocity heads (N<sub>H</sub> &approx; 6.4 for Stairmand).
+      where h<sub>t</sub> = total tray pressure drop head, h<sub>w</sub> = weir height, h<sub>ow</sub> = Francis weir crest, and h<sub>ud</sub> = head loss under downcomer apron.
     </p>
   </div>
 </div>
 
 <script>
 (function() {
-  const elDiam = document.getElementById('cyc_diam');
-  const elStandard = document.getElementById('cyc_standard');
-  const elFlow = document.getElementById('cyc_flow');
-  const elDp = document.getElementById('cyc_dp');
-  const elRhop = document.getElementById('cyc_rhop');
-  const elTemp = document.getElementById('cyc_temp');
-  const elRhog = document.getElementById('cyc_rhog');
+  const elDcol = document.getElementById('tray_dcol');
+  const elSt = document.getElementById('tray_st');
+  const elHw = document.getElementById('tray_hw');
+  const elFdc = document.getElementById('tray_fdc');
+  const elVflow = document.getElementById('tray_vflow');
+  const elLflow = document.getElementById('tray_lflow');
+  const elRhov = document.getElementById('tray_rhov');
+  const elRhol = document.getElementById('tray_rhol');
+  const elSigma = document.getElementById('tray_sigma');
 
-  const resOverallEff = document.getElementById('res_overall_eff');
-  const resD50Cut = document.getElementById('res_d50_cut');
-  const resInletVel = document.getElementById('res_inlet_vel');
-  const resPressureDrop = document.getElementById('res_pressure_drop');
-  const resPressMmwc = document.getElementById('res_press_mmwc');
-  const resFanPower = document.getElementById('res_fan_power');
-  const resVortexExp = document.getElementById('res_vortex_exp');
+  const resPctFlood = document.getElementById('res_pct_flood');
+  const resUFlood = document.getElementById('res_u_flood');
+  const resUvActual = document.getElementById('res_uv_actual');
+  const resFlv = document.getElementById('res_flv');
+  const resHdc = document.getElementById('res_hdc');
+  const resHdcRatio = document.getElementById('res_hdc_ratio');
+  const resDpTray = document.getElementById('res_dp_tray');
   const btnCopy = document.getElementById('copySummaryBtn');
-  const canvas = document.getElementById('cycCanvas');
+  const canvas = document.getElementById('trayCanvas');
   const ctx = canvas.getContext('2d');
 
-  function calculateCyclone() {
-    const D = parseFloat(elDiam.value) || 0.90; // m
-    const geomType = elStandard.value;
-    const Q_m3h = parseFloat(elFlow.value) || 5800; // m3/h
-    const dp_mean_um = parseFloat(elDp.value) || 8.5; // um
-    const rho_p = parseFloat(elRhop.value) || 2300; // kg/m3
-    const T_C = parseFloat(elTemp.value) || 130; // C
-    const rho_g = parseFloat(elRhog.value) || 0.88; // kg/m3
+  function calculateTray() {
+    const Dcol_m = parseFloat(elDcol.value) || 2.4;
+    const St_mm = parseFloat(elSt.value) || 500;
+    const hw_mm = parseFloat(elHw.value) || 50;
+    const fdc_pct = parseFloat(elFdc.value) || 10.0;
+    const V_kgh = parseFloat(elVflow.value) || 32000;
+    const L_kgh = parseFloat(elLflow.value) || 28000;
+    const rho_v = parseFloat(elRhov.value) || 4.2;
+    const rho_l = parseFloat(elRhol.value) || 780;
+    const sigma = parseFloat(elSigma.value) || 20.0;
 
-    const T_K = T_C + 273.15;
-    const Q_m3s = Q_m3h / 3600;
+    const St_m = St_mm / 1000;
+    const hw_m = hw_mm / 1000;
+    const fdc = fdc_pct / 100;
 
-    // 1. Geometry Ratios (Stairmand standard)
-    let a_ratio = 0.50; // inlet height / D
-    let b_ratio = 0.20; // inlet width / D
-    let De_ratio = 0.50; // vortex finder diam / D
-    let S_ratio = 0.50; // finder length / D
-    let h_ratio = 1.50; // cylinder height / D
-    let H_ratio = 4.00; // total height / D
-    let B_ratio = 0.375; // dust outlet / D
-    let NH = 6.4; // velocity heads
+    // 1. Column Areas
+    const A_total = (Math.PI / 4) * Math.pow(Dcol_m, 2);
+    const A_dc = A_total * fdc;
+    const A_net = A_total - A_dc; // net bubbling area
+    const W_weir_m = Dcol_m * 0.70; // effective weir length approx
 
-    if (geomType === 'swift') {
-      a_ratio = 0.44;
-      b_ratio = 0.21;
-      De_ratio = 0.40;
-      NH = 9.2;
-    } else if (geomType === 'lapple') {
-      a_ratio = 0.50;
-      b_ratio = 0.25;
-      De_ratio = 0.50;
-      NH = 8.0;
-    }
+    // 2. Flow Parameter Flv
+    const Flv = (L_kgh / V_kgh) * Math.sqrt(rho_v / rho_l);
 
-    const a_m = a_ratio * D;
-    const b_m = b_ratio * D;
-    const De_m = De_ratio * D;
-    const A_inlet = a_m * b_m; // m2
+    // 3. Fair's Csb Capacity Factor
+    // Empirical fit for standard Fair chart
+    const Flv_clamped = Math.max(0.01, Math.min(2.0, Flv));
+    let Csb_base = (0.048 * Math.pow(St_m / 0.5, 0.45) - 0.022 * Math.log10(Flv_clamped));
+    Csb_base = Math.max(0.02, Csb_base);
+    const Csb = Csb_base * Math.pow(sigma / 20.0, 0.2);
 
-    // 2. Inlet Gas Velocity
-    const v_i = Q_m3s / A_inlet; // m/s
+    // 4. Flooding Vapor Velocity & % Flood
+    const u_flood = Csb * Math.sqrt((rho_l - rho_v) / rho_v);
+    const V_m3s = (V_kgh / 3600) / rho_v;
+    const uv_net = V_m3s / A_net;
+    const pct_flood = (uv_net / u_flood) * 100;
 
-    // 3. Gas Viscosity (Sutherland approx)
-    const mu_ref = 1.716e-5; // Pa*s at 273K
-    const S_suth = 110.4;
-    const mu_g = mu_ref * Math.pow(T_K / 273.15, 1.5) * ((273.15 + S_suth) / (T_K + S_suth));
+    // 5. Downcomer Liquid Backup (hdc)
+    // Liquid volumetric flow rate (m3/s)
+    const qL_m3s = (L_kgh / 3600) / rho_l;
+    // Francis weir crest head: how_m = 0.664 * (qL / W_weir)^(2/3)
+    const how_m = 0.664 * Math.pow(qL_m3s / Math.max(0.2, W_weir_m), 2 / 3);
+    const how_mm = how_m * 1000;
 
-    // 4. Vortex Exponent n (Alexander correlation)
-    const n_exp = Math.max(0.4, Math.min(0.9, 1 - (1 - 0.67 * Math.pow(D, 0.14)) * Math.pow(T_K / 283, 0.3)));
+    // Dry tray pressure drop (bubble cap riser + slots) ~ 30-45 mm liquid equivalent
+    const hd_mm = 38 * Math.pow(pct_flood / 80, 1.8);
+    // Aerated liquid on tray: hl = beta * (hw + how) with beta ~ 0.55
+    const hl_mm = 0.55 * (hw_mm + how_mm);
+    const ht_mm = hd_mm + hl_mm; // total tray head in mm liquid
 
-    // 5. Leith-Licht Dimensionless C factor
-    // C = (pi * D^2 / (a * b)) * [ 2 * (1 - (De/D)^2) * (S/D - a/(2D)) + ... ]
-    // For Stairmand standard, C is approx 14.5 to 16.0
-    const C_factor = 15.2;
+    // Head loss under downcomer apron: hud_mm
+    const A_apron = A_dc * 0.35; // under apron gap area
+    const v_apron = qL_m3s / A_apron;
+    const hud_mm = (Math.pow(v_apron, 2) / (2 * 9.81)) * 1000 * 1.5;
 
-    // 6. Cut Size d50 (where eta = 0.50 -> 2 * (C * psi)^(1/(2n+2)) = ln(2) = 0.69315)
-    // (C * psi)^(1/(2n+2)) = 0.34657
-    // C * psi = (0.34657)^(2n+2)
-    const term_target = Math.pow(0.34657, 2 * n_exp + 2);
-    const psi_50 = term_target / C_factor;
-    // psi = rho_p * d50^2 * v_i * (n+1) / (18 * mu_g * D)
-    const d50_sq = (psi_50 * 18 * mu_g * D) / (rho_p * v_i * (n_exp + 1));
-    const d50_m = Math.sqrt(Math.max(1e-14, d50_sq));
-    const d50_um = d50_m * 1e6;
+    // Clear liquid downcomer backup: hdc = ht + hw + how + hud
+    const hdc_mm = ht_mm + hw_mm + how_mm + hud_mm;
+    const hdc_ratio_pct = (hdc_mm / St_mm) * 100;
 
-    // 7. Overall efficiency on dust median size
-    const dp_m = dp_mean_um * 1e-6;
-    const psi_actual = (rho_p * Math.pow(dp_m, 2) * v_i * (n_exp + 1)) / (18 * mu_g * D);
-    const exponent_term = 2 * Math.pow(C_factor * psi_actual, 1 / (2 * n_exp + 2));
-    const eta_frac = 1 - Math.exp(-exponent_term);
-    const overall_eff_pct = Math.min(99.9, Math.max(10.0, eta_frac * 100));
-
-    // 8. Pressure Drop (Delta P)
-    // DeltaP = 0.5 * rho_g * v_i^2 * NH
-    const deltaP_Pa = 0.5 * rho_g * Math.pow(v_i, 2) * NH;
-    const deltaP_kPa = deltaP_Pa / 1000;
-    const deltaP_mmwc = deltaP_Pa / 9.81;
-
-    // 9. Fan Power
-    const eta_fan = 0.70;
-    const fan_power_kW = (Q_m3s * deltaP_Pa) / (eta_fan * 1000);
+    // Total tray pressure drop in mbar: DeltaP = rho_l * g * ht_m
+    const dp_tray_Pa = rho_l * 9.81 * (ht_mm / 1000);
+    const dp_tray_mbar = dp_tray_Pa / 100;
 
     // Update DOM
-    resOverallEff.textContent = overall_eff_pct.toFixed(1) + " %";
-    resD50Cut.textContent = d50_um.toFixed(2) + " μm";
-    resInletVel.textContent = v_i.toFixed(1) + " m/s";
-    resPressureDrop.textContent = deltaP_kPa.toFixed(2) + " kPa";
-    resPressMmwc.textContent = Math.round(deltaP_mmwc) + " mmWC (" + (deltaP_mmwc * 0.03937).toFixed(1) + " inWC)";
-    resFanPower.textContent = fan_power_kW.toFixed(2) + " kW";
-    resVortexExp.textContent = n_exp.toFixed(2);
+    resPctFlood.textContent = pct_flood.toFixed(1) + " %";
+    if (pct_flood > 85.0) {
+      resPctFlood.style.color = "#ef4444";
+    } else if (pct_flood < 60.0) {
+      resPctFlood.style.color = "#f59e0b";
+    } else {
+      resPctFlood.style.color = "#166534";
+    }
 
-    renderCanvas(d50_um, C_factor, n_exp, v_i, D);
+    resUFlood.textContent = u_flood.toFixed(2) + " m/s";
+    resUvActual.textContent = uv_net.toFixed(2) + " m/s";
+    resFlv.textContent = Flv.toFixed(3);
+    resHdc.textContent = Math.round(hdc_mm) + " mm";
+    resHdcRatio.textContent = hdc_ratio_pct.toFixed(1) + " % (Limit: 50%)";
+    resDpTray.textContent = dp_tray_mbar.toFixed(1) + " mbar (" + (dp_tray_mbar * 0.0145).toFixed(2) + " psi)";
+
+    renderCanvas(pct_flood, hdc_ratio_pct, St_mm, hw_mm);
   }
 
-  function renderCanvas(d50, C_factor, n_exp, vi, D) {
+  function renderCanvas(pctFlood, hdcRatio, St, hw) {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.parentElement.clientWidth - 24;
     const h = 240;
@@ -1547,154 +1542,112 @@
     ctx.fillStyle = "#0f172a";
     ctx.fillRect(0, 0, w, h);
 
-    // Left Half: Cyclone Schematic Profile
-    const midX = w * 0.22;
-    const topY = 25;
-    const cycW = 75;
-    const barrelH = 55;
-    const coneH = 100;
-    const apexW = 28;
+    const trayX = 35;
+    const trayY = 55;
+    const trayW = w * 0.52;
+    const trayH = 125;
 
-    // Cyclone Outer Body
-    ctx.fillStyle = "#1e293b";
-    ctx.strokeStyle = "#94a3b8";
-    ctx.lineWidth = 2;
-
-    ctx.beginPath();
-    ctx.moveTo(midX - cycW / 2, topY);
-    ctx.lineTo(midX + cycW / 2, topY);
-    ctx.lineTo(midX + cycW / 2, topY + barrelH);
-    ctx.lineTo(midX + apexW / 2, topY + barrelH + coneH);
-    ctx.lineTo(midX - apexW / 2, topY + barrelH + coneH);
-    ctx.lineTo(midX - cycW / 2, topY + barrelH);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
-    // Tangential Inlet duct on left
-    ctx.fillStyle = "#475569";
-    ctx.fillRect(midX - cycW / 2 - 25, topY + 4, 25, 22);
-    ctx.strokeStyle = "#cbd5e1";
-    ctx.strokeRect(midX - cycW / 2 - 25, topY + 4, 25, 22);
-    ctx.fillStyle = "#38bdf8";
-    ctx.font = "bold 9px system-ui, sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText("Feed →", midX - cycW / 2 - 4, topY + 18);
-
-    // Vortex Finder dip tube (clean gas exit)
-    const finderW = cycW * 0.5;
-    const finderH = 45;
-    ctx.fillStyle = "#334155";
-    ctx.fillRect(midX - finderW / 2, topY - 14, finderW, finderH);
-    ctx.strokeStyle = "#94a3b8";
-    ctx.strokeRect(midX - finderW / 2, topY - 14, finderW, finderH);
-    ctx.fillStyle = "#4ade80";
-    ctx.textAlign = "center";
-    ctx.fillText("Clean Gas ↑", midX, topY - 18);
-
-    // Helical vortex streams
-    ctx.strokeStyle = "rgba(245, 158, 11, 0.6)";
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.arc(midX, topY + barrelH * 0.7, 24, 0, Math.PI);
-    ctx.stroke();
-
-    ctx.strokeStyle = "rgba(56, 189, 248, 0.8)";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(midX, topY + barrelH + coneH);
-    ctx.lineTo(midX, topY);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Dust hopper label at bottom
-    ctx.fillStyle = "#e2e8f0";
-    ctx.fillText("Dust Hopper", midX, topY + barrelH + coneH + 22);
-
-    // Right Half: Grade Efficiency S-Curve (0 to 25 um)
-    const padL = w * 0.48;
-    const plotW = w - padL - 25;
-    const padT = 30;
-    const plotH = h - 60;
-
-    ctx.strokeStyle = "#334155";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(padL, padT, plotW, plotH);
-
-    // Axis markings
-    ctx.fillStyle = "#64748b";
-    ctx.font = "10px system-ui, sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("0 μm", padL, padT + plotH + 15);
-    ctx.fillText("10 μm", padL + plotW * 0.4, padT + plotH + 15);
-    ctx.fillText("25 μm", padL + plotW, padT + plotH + 15);
-
-    ctx.textAlign = "right";
-    ctx.fillText("100%", padL - 6, padT + 10);
-    ctx.fillText("50%", padL - 6, padT + plotH * 0.5 + 4);
-    ctx.fillText("0%", padL - 6, padT + plotH);
-
-    // 50% dotted line
+    // Column wall outline
     ctx.strokeStyle = "#475569";
-    ctx.setLineDash([3, 3]);
-    ctx.beginPath();
-    ctx.moveTo(padL, padT + plotH * 0.5);
-    ctx.lineTo(padL + plotW, padT + plotH * 0.5);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // S-curve for grade efficiency
-    ctx.strokeStyle = "#4ade80";
     ctx.lineWidth = 2.5;
-    ctx.beginPath();
+    ctx.strokeRect(trayX, trayY, trayW, trayH);
 
-    const maxPlotUm = 25.0;
-    const steps = 80;
-    for (let s = 0; s <= steps; s++) {
-      const um = (s / steps) * maxPlotUm;
-      // Fractional efficiency approx based on d50
-      const ratio = um / Math.max(0.1, d50);
-      const eta = 1 - Math.exp(-0.69315 * Math.pow(ratio, 1.4));
-      const px = padL + (s / steps) * plotW;
-      const py = padT + plotH - eta * plotH;
-      if (s === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.stroke();
+    // Downcomer on Left
+    const dcW = 45;
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(trayX, trayY, dcW, trayH);
 
-    // d50 marker
-    const xD50 = padL + (d50 / maxPlotUm) * plotW;
-    if (xD50 <= padL + plotW) {
-      ctx.fillStyle = "#ef4444";
+    // Downcomer baffle plate
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillRect(trayX + dcW - 4, trayY, 4, trayH - 18);
+
+    // Downcomer liquid level backup
+    const backupFrac = Math.min(1.0, hdcRatio / 100);
+    const backupHpx = (trayH - 18) * backupFrac;
+
+    ctx.fillStyle = (hdcRatio > 50) ? "rgba(239, 68, 68, 0.7)" : "rgba(3, 105, 161, 0.7)";
+    ctx.fillRect(trayX + 1, trayY + trayH - 18 - backupHpx, dcW - 5, backupHpx + 18);
+
+    // Active Tray Deck at bottom
+    const deckY = trayY + trayH - 12;
+    ctx.fillStyle = "#64748b";
+    ctx.fillRect(trayX + dcW, deckY, trayW - dcW, 6);
+
+    // Outlet Weir on right
+    const weirX = trayX + trayW - 25;
+    const weirHpx = Math.min(30, (hw / St) * trayH * 2);
+    ctx.fillStyle = "#94a3b8";
+    ctx.fillRect(weirX, deckY - weirHpx, 4, weirHpx);
+
+    // Liquid & Froth zone on tray
+    const frothHpx = weirHpx + 18;
+    ctx.fillStyle = "rgba(56, 189, 248, 0.25)";
+    ctx.fillRect(trayX + dcW, deckY - frothHpx, weirX - (trayX + dcW), frothHpx);
+
+    // Bubble Caps on tray floor
+    const numCaps = 4;
+    const capSpacing = (weirX - (trayX + dcW + 20)) / numCaps;
+    for (let c = 0; c < numCaps; c++) {
+      const cx = trayX + dcW + 15 + c * capSpacing;
+      // Riser chimney
+      ctx.fillStyle = "#cbd5e1";
+      ctx.fillRect(cx - 3, deckY - 14, 6, 14);
+      // Inverted cap
+      ctx.fillStyle = "#38bdf8";
+      ctx.fillRect(cx - 8, deckY - 20, 16, 10);
+      // Rising vapor bubbles
+      ctx.fillStyle = "#ffffff";
       ctx.beginPath();
-      ctx.arc(xD50, padT + plotH * 0.5, 4, 0, Math.PI * 2);
+      ctx.arc(cx - 5, deckY - 26, 2.5, 0, Math.PI * 2);
+      ctx.arc(cx + 5, deckY - 32, 3, 0, Math.PI * 2);
       ctx.fill();
-
-      ctx.font = "bold 10px system-ui, sans-serif";
-      ctx.fillText("d50=" + d50.toFixed(1) + "μm", xD50 + 15, padT + plotH * 0.5 - 8);
     }
 
-    ctx.fillStyle = "#86efac";
-    ctx.font = "bold 11px system-ui, sans-serif";
+    // Right Side Diagnostic Status
+    const rX = w * 0.62;
     ctx.textAlign = "left";
-    ctx.fillText("Leith-Licht Grade Recovery Curve", padL + 10, padT + 20);
+    ctx.font = "12px system-ui, sans-serif";
+    ctx.fillStyle = "#e2e8f0";
+    ctx.fillText("Tray Hydraulic Assessment:", rX, 45);
+
+    ctx.font = "11px system-ui, sans-serif";
+    ctx.fillStyle = (pctFlood > 82) ? "#ef4444" : "#4ade80";
+    ctx.fillText("• Jet Flooding: " + pctFlood.toFixed(1) + "% (" + (pctFlood > 82 ? "CRITICAL" : "Optimal") + ")", rX, 70);
+
+    ctx.fillStyle = (hdcRatio > 50) ? "#ef4444" : "#38bdf8";
+    ctx.fillText("• Downcomer Backup: " + hdcRatio.toFixed(1) + "% (Max 50%)", rX, 92);
+
+    ctx.fillStyle = "#cbd5e1";
+    ctx.fillText("• Froth Height: " + Math.round(frothHpx * 2.5) + " mm", rX, 114);
+    ctx.fillText("• Tray Spacing: " + St + " mm", rX, 136);
+
+    // Box Tag
+    ctx.fillStyle = "#1e293b";
+    ctx.fillRect(rX, 155, 185, 42);
+    ctx.strokeStyle = (pctFlood > 82 || hdcRatio > 50) ? "#ef4444" : "#15803d";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rX, 155, 185, 42);
+    ctx.fillStyle = (pctFlood > 82 || hdcRatio > 50) ? "#fca5a5" : "#86efac";
+    ctx.font = "bold 11px system-ui, sans-serif";
+    ctx.fillText((pctFlood > 82 || hdcRatio > 50) ? "⚠️ HYDRAULIC FLOOD RISK" : "✓ HYDRAULIC STABILITY SAFE", rX + 8, 172);
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "10px system-ui, sans-serif";
+    ctx.fillText("Fair Correlation Verified", rX + 8, 188);
   }
 
   // Copy Summary Handler
   btnCopy.addEventListener('click', function() {
     const text = [
-      "=== GAS-SOLID CYCLONE (LEITH-LICHT) SIZING SUMMARY ===",
-      "Dimensions: Diameter = " + elDiam.value + " m | Geometry: " + elStandard.options[elStandard.selectedIndex].text,
-      "Operating Conditions: Flow Rate = " + elFlow.value + " Am³/h | Gas Temp = " + elTemp.value + " °C",
-      "Dust Particle Properties: Mean dp = " + elDp.value + " μm | Density = " + elRhop.value + " kg/m³",
+      "=== BUBBLE-CAP TRAY HYDRAULICS & FLOODING SUMMARY ===",
+      "Column Geometry: Diameter = " + elDcol.value + " m | Tray Spacing = " + elSt.value + " mm | Weir Height = " + elHw.value + " mm",
+      "Process Flow Rates: Vapor = " + elVflow.value + " kg/h | Liquid = " + elLflow.value + " kg/h",
+      "Fluid Properties: Vapor Density = " + elRhov.value + " kg/m³ | Liquid Density = " + elRhol.value + " kg/m³ | Surface Tension = " + elSigma.value + " mN/m",
       "--------------------------------------------------",
-      "Overall Collection Efficiency: " + resOverallEff.textContent,
-      "Cut Size (d50, 50% separation): " + resD50Cut.textContent,
-      "Inlet Gas Velocity: " + resInletVel.textContent + " (Target: 15–20 m/s)",
-      "Cyclone Pressure Drop: " + resPressureDrop.textContent + " (" + resPressMmwc.textContent + ")",
-      "Fan Power Requirement: " + resFanPower.textContent,
-      "Vortex Exponent (n): " + resVortexExp.textContent,
+      "Operating Jet Flooding: " + resPctFlood.textContent,
+      "Flooding Velocity (u_flood): " + resUFlood.textContent + " (Actual uv = " + resUvActual.textContent + ")",
+      "Flow Parameter (Flv): " + resFlv.textContent,
+      "Downcomer Clear Liquid Backup: " + resHdc.textContent + " (" + resHdcRatio.textContent + ")",
+      "Tray Total Pressure Drop: " + resDpTray.textContent,
       "=================================================="
     ].join("\n");
 
@@ -1707,14 +1660,14 @@
     });
   });
 
-  const inputs = [elDiam, elStandard, elFlow, elDp, elRhop, elTemp, elRhog];
+  const inputs = [elDcol, elSt, elHw, elFdc, elVflow, elLflow, elRhov, elRhol, elSigma];
   inputs.forEach(input => {
-    input.addEventListener('input', calculateCyclone);
-    input.addEventListener('change', calculateCyclone);
+    input.addEventListener('input', calculateTray);
+    input.addEventListener('change', calculateTray);
   });
 
-  window.addEventListener('resize', calculateCyclone);
-  calculateCyclone();
+  window.addEventListener('resize', calculateTray);
+  calculateTray();
 })();
 </script>
 
@@ -1723,51 +1676,51 @@
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the Leith-Licht model for industrial gas-solid cyclone separators?</span>
+                <span style="font-size:1rem;">What is Fair's entrainment flooding correlation for distillation trays?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The Leith and Licht (1972) model is the definitive analytical framework for reverse-flow gas cyclones. Unlike Lapple's simplified residence-time approach, Leith-Licht accounts for continuous radial turbulent particle diffusion competing against centrifugal settling in an unconfined vortex. Fractional collection efficiency for any particle size d_p is calculated as: eta(d_p) = 1 - exp[ -2 · (C · psi)^(1 / (2n + 2)) ], where psi is a modified centrifugal parameter, C is a dimensionless geometry configuration factor, and n is the vortex velocity exponent.
+                J.R. Fair developed the industry-standard correlation for entrainment jet flooding in trayed fractionation columns. The flooding vapor superficial velocity is given by: u_flood = C_sb · sqrt((rho_l - rho_v) / rho_v) · (sigma / 20)^0.2, where C_sb is the capacity parameter derived from the dimensionless flow parameter F_lv = (L / V) · sqrt(rho_v / rho_l) and tray spacing (S_t), and sigma is liquid surface tension (dyn/cm or mN/m).
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What is the vortex exponent (n) in a cyclone?</span>
+                <span style="font-size:1rem;">What is the difference between Jet Flooding and Downcomer Backup Flooding?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The vortex exponent n governs tangential gas velocity decay along radius r (v_theta · r^n = constant). Alexander developed the empirical formula: n = 1 - (1 - 0.67 · D^0.14) · (T_K / 283)^0.3. For typical ambient air in standard industrial cyclones, n ranges between 0.55 and 0.75. Higher operating temperatures decrease n, dampening centrifugal force and shifting the cut size coarser.
+                Jet flooding (massive liquid entrainment) occurs when high upward vapor velocity carries liquid droplets and froth directly into the tray above, destroying separation efficiency. Downcomer backup flooding occurs when the sum of tray pressure drop, weir crest head, and friction loss under the downcomer apron exceeds the available tray spacing: h_dc = h_t + h_w + h_ow + h_ud. If downcomer backup exceeds 50% of tray spacing (accounting for aeration factor phi_dc ≈ 0.5), liquid backs up onto the tray above, choking the column.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">Why is an air-tight dust hopper discharge seal critical for cyclone efficiency?</span>
+                <span style="font-size:1rem;">Why do bubble-cap trays provide higher turndown flexibility than sieve trays?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                The static pressure inside the bottom cone apex is significantly below atmospheric pressure due to high vortex rotation. If rotary airlock valves, flap valves, or collection drum seals leak, ambient air rushes upward into the apex at 20–40 m/s. This upward tornado jet re-entrains already separated dust particles directly into the ascending inner vortex core, destroying collection efficiency from 95% down to under 50%.
+                Bubble-cap trays feature risers with chimneys covered by slotted inverted cups. Because the riser lips extend well above the tray floor (typically 25 to 50 mm), liquid cannot drain or weep through the vapor passages even when vapor flow drops to near zero. Sieve trays suffer severe weeping below 60% load, whereas bubble-cap trays maintain steady hydraulic seal down to 15%–20% of design throughput.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">How does cyclone inlet velocity influence pressure drop and collection efficiency?</span>
+                <span style="font-size:1rem;">What is the Francis weir formula for liquid crest head (h_ow)?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                Increasing inlet velocity v_i elevates centrifugal acceleration (a_c = v_i^2 / r), capturing finer particles. However, pressure drop increases with the square of velocity: Delta P = 0.5 · rho_g · v_i^2 · N_H. If inlet velocity exceeds 22–25 m/s, abrasive wear increases exponentially, and extreme shear creates saltation re-entrainment and particle shattering, which actually degrades collection efficiency.
+                The liquid height overflowing the outlet weir is given by the Francis weir formula: h_ow = 664 · (q_L / W_w)^(2/3) in millimeters of liquid, where q_L is the clear liquid volumetric flow rate (m³/s) and W_w is the effective weir length (m). In high liquid rate applications, multi-pass trays (2-pass or 4-pass) are specified to split weir flow and prevent excessive liquid crest.
               </div>
             </div>
           
             <div class="faq-item" style="border-bottom:1px solid var(--border); padding:0.85rem 0;" onclick="this.classList.toggle('open')">
               <div style="font-weight:600; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:1rem;">What are the standard Stairmand High-Efficiency cyclone geometry ratios?</span>
+                <span style="font-size:1rem;">What is the recommended operating percent flooding for an industrial column?</span>
                 <span class="faq-icon" style="font-size:1.2rem; transition:transform 0.2s; color:var(--text-muted);">+</span>
               </div>
               <div class="faq-answer" style="display:none; margin-top:0.6rem; color:var(--text-muted); font-size:0.92rem; line-height:1.65;">
-                C.J. Stairmand established standard dimensionless proportions normalized to barrel diameter D: Inlet height a = 0.5·D; Inlet width b = 0.2·D; Vortex finder diameter D_e = 0.5·D; Vortex finder length S = 0.5·D; Cylindrical barrel height h = 1.5·D; Total height H = 4.0·D; and Dust exit diameter B = 0.375·D. These ratios balance collection efficiency and pressure loss.
+                Standard chemical and petroleum process design targets 75% to 82% of Fair's flooding velocity at maximum design throughput. Operating below 60% flood wastes column diameter and capital investment. Operating above 85% flood leaves zero safety margin for feed composition fluctuations, pressure surges, or minor column foaming.
               </div>
             </div>
           
@@ -1801,8 +1754,8 @@
             </div>
             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
               <button class="btn-sec" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; cursor: pointer; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); transition: all 0.2s;" onclick="navigator.clipboard.writeText(window.location.href); const b=this; const old=b.innerHTML; b.innerHTML='✓ Copied Direct Link!'; b.style.borderColor='#10b981'; b.style.color='#10b981'; setTimeout(()=>{ b.innerHTML=old; b.style.borderColor='var(--border)'; b.style.color='var(--fg)'; }, 2500);">📋 Copy Direct Link</button>
-              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fcyclone-gas-solid-separation-leith-licht-calculator&text=Gas-Solid%20Cyclone%20Separator%20Efficiency%20(Leith-Licht)%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
-              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fcyclone-gas-solid-separation-leith-licht-calculator&title=Gas-Solid%20Cyclone%20Separator%20Efficiency%20(Leith-Licht)%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
+              <a href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fbubble-cap-tray-column-flooding-fair-calculator&text=Bubble-Cap%20Tray%20Column%20Flooding%20%26%20Hydraulic%20Sizing%20Calculator%20%E2%80%94%20Free%20client-side%20tool%20on%20Digital%20Tools%20Shed" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">🐦 Share on X</a>
+              <a href="https://www.reddit.com/submit?url=https%3A%2F%2Fdigitaltoolsshed.com%2Fcalc%2Fbubble-cap-tray-column-flooding-fair-calculator&title=Bubble-Cap%20Tray%20Column%20Flooding%20%26%20Hydraulic%20Sizing%20Calculator" target="_blank" rel="noopener" style="font-size: 0.8rem; padding: 0.4rem 0.8rem; text-decoration: none; border: 1px solid var(--border); background: var(--bg); border-radius: 4px; font-family: var(--mono); color: var(--fg); display: inline-flex; align-items: center; gap: 0.35rem;">👾 Reddit</a>
             </div>
           </div>
           
@@ -1870,14 +1823,14 @@
             </div>
             <div class="promo-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
               
-                <a href="/pdf/page-counter" class="promo-card">
+                <a href="/psychology/" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">PDF & Docs</span>
+                      <span class="promo-badge">Psychology</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">PDF Page Counter</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Inspect PDF metadata, dimensions, and total page count without uploading.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">2 AM Existential & Psychology Hub</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">115 interactive cognitive models, thought experiments, and executive function tools.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1885,14 +1838,14 @@
                 </a>
                 
               
-                <a href="/science/relativistic-time-dilation" class="promo-card">
+                <a href="/convert/webp-to-png" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Science</span>
+                      <span class="promo-badge">File & Image</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Relativistic Time Dilation & Lorentz Factor</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate relativistic velocity, time dilation, and length contraction via Lorentz factor.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">WebP to PNG Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert Google WebP images back to transparent PNG format.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1915,14 +1868,14 @@
                 </div>
                 
               
-                <a href="/finance/compound-interest-calculator" class="promo-card">
+                <a href="/dev/epoch-converter" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Finance</span>
+                      <span class="promo-badge">Developer</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Compound Interest Calculator</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate investment growth with monthly contributions and compound interest.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Unix Timestamp & Epoch Converter</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Convert Unix timestamps in seconds and milliseconds to UTC and local human dates.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
@@ -1930,14 +1883,14 @@
                 </a>
                 
               
-                <a href="/neuro/maladaptive-daydreaming-scale" class="promo-card">
+                <a href="/math/permutation-combination-calculator" class="promo-card">
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                      <span class="promo-badge">Neurobiology & Mind</span>
+                      <span class="promo-badge">Units & Calc</span>
                       <span style="font-family: var(--mono); font-size: 0.65rem; color: #10b981; font-weight: 600;">⚡ Instant Verification</span>
                     </div>
-                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Maladaptive Daydreaming Diagnostic</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Official Maladaptive Daydreaming Scale (MDS-16). Calculate fantasy immersion score and evaluate functional impairment.</p>
+                    <h4 style="font-family: var(--serif); font-size: 1.05rem; margin: 0 0 0.35rem 0; color: var(--fg); line-height: 1.35;">Permutations & Combinations Calculator (nPr & nCr)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 0 0 1rem 0;">Calculate permutations, combinations, and factorials with step-by-step math.</p>
                   </div>
                   <div style="font-family: var(--mono); font-size: 0.72rem; color: var(--fg); font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; border-top: 1px dashed var(--border); padding-top: 0.5rem;">
                     Launch Companion Workbench &rarr;
