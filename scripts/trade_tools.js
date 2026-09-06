@@ -78839,6 +78839,2471 @@ writeFileSync(join(calcDir, 'spiral-plate-heat-exchanger-sizing-calculator.html'
 }));
 
 
-console.log('  ✓ Built Trade & Construction Suite (103 calculators in /calc/)');
+// ==========================================
+// TOOL AO1: Industrial Rotary Kiln Drive Power, Bed Retention Time & Thermal Expansion Calculator (Peray & USBM)
+// ==========================================
+const toolAO1Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">Peray's Formula &bull; US Bureau of Mines &bull; ISO Cement & Minerals Standards</div>
+    <h1>Industrial Rotary Kiln Drive Power & Retention Time Calculator</h1>
+    <p class="text-muted">Calculate solids residence time, volumetric percent bed loading, drive motor horsepower, thermal expansion growth, and riding ring tire creep for direct-fired industrial rotary kilns (cement clinker, lime calcination, mineral processing, waste incineration) per Peray's methodology and the US Bureau of Mines cylinder formulas.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="ao1-unit-metric" onclick="setAO1Unit('metric')">Metric Units (m, tonnes/h, kW, mm)</button>
+    <button type="button" class="unit-toggle-btn" id="ao1-unit-imperial" onclick="setAO1Unit('imperial')">Imperial Units (ft, STPH, HP, in)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Kiln Dimensions & Operation -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Kiln Dimensions & Slope</h3>
+
+      <div class="input-group">
+        <label for="ao1-diameter" id="ao1-label-diameter">Shell Inside Diameter ($D_i$, inside refractory) (m):</label>
+        <input type="number" id="ao1-diameter" value="4.2" step="0.1" min="1.0" max="8.0" oninput="calcAO1()">
+        <span class="text-muted" id="ao1-hint-diameter">Inside brick face diameter (shell OD minus $2 \times$ brick thickness)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao1-length" id="ao1-label-length">Kiln Effective Length ($L$) (m):</label>
+        <input type="number" id="ao1-length" value="65.0" step="1.0" min="10.0" max="250.0" oninput="calcAO1()">
+        <span class="text-muted">Distance between feed hood seal and discharge burner nose</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao1-slope">Kiln Inclination Slope ($S$) (% or degrees):</label>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <input type="number" id="ao1-slope-pct" value="3.5" step="0.1" min="1.0" max="6.0" placeholder="% Slope" oninput="syncAO1Slope('pct')">
+          <input type="number" id="ao1-slope-deg" value="2.00" step="0.05" min="0.5" max="3.5" placeholder="Degrees" oninput="syncAO1Slope('deg')">
+        </div>
+        <span class="text-muted">Standard cement/lime kilns operate between 2.5% and 4.0% slope</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao1-rpm">Rotational Speed ($N$) (RPM):</label>
+        <input type="number" id="ao1-rpm" value="2.8" step="0.1" min="0.5" max="5.5" oninput="calcAO1()">
+        <span class="text-muted">Typical operating range: 1.5 to 4.5 RPM</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao1-shell-thk" id="ao1-label-shell-thk">Steel Shell Plate Thickness ($t_s$) (mm):</label>
+        <input type="number" id="ao1-shell-thk" value="32" step="2" min="15" max="100" oninput="calcAO1()">
+        <span class="text-muted">Structural carbon steel shell plate thickness</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Material & Thermal Conditions -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Feed Material & Thermal Profiles</h3>
+
+      <div class="input-group">
+        <label for="ao1-feed-rate" id="ao1-label-feed">Solids Feed Rate ($Q_{mass}$) (tonnes/h):</label>
+        <input type="number" id="ao1-feed-rate" value="120" step="5" min="5" max="1000" oninput="calcAO1()">
+        <span class="text-muted">Raw meal or solids mass throughput rate</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao1-bulk-density" id="ao1-label-density">Material Bulk Density ($\rho_{bulk}$) (kg/m³):</label>
+        <input type="number" id="ao1-bulk-density" value="1350" step="50" min="500" max="3000" oninput="calcAO1()">
+        <span class="text-muted">Clinker: ~1350 kg/m³, Quicklime: ~950 kg/m³, Minerals: 1500-2200 kg/m³</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao1-repose">Material Dynamic Angle of Repose ($\theta_{rep}$) (deg):</label>
+        <input type="number" id="ao1-repose" value="38" step="1" min="25" max="50" oninput="calcAO1()">
+        <span class="text-muted">Determines internal material lift and rolling friction center of gravity</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao1-temp-shell">Average Shell Operating Temperature ($T_{shell}$) (°C):</label>
+        <input type="number" id="ao1-temp-shell" value="310" step="10" min="100" max="480" oninput="calcAO1()">
+        <span class="text-muted">External steel shell thermometer scan average (burning zone hotspot monitor)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao1-temp-ambient">Ambient Installation Temperature ($T_{amb}$) (°C):</label>
+        <input type="number" id="ao1-temp-ambient" value="20" step="5" min="-20" max="45" oninput="calcAO1()">
+        <span class="text-muted">Baseline installation/cold alignment reference temperature</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Rotary Kiln Process & Mechanical Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Retention / Residence Time</span>
+        <div id="ao1-res-retention" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- min</div>
+        <span class="text-muted" id="ao1-sub-retention" style="font-size:0.75rem;">USBM & Peray Model</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Volumetric Bed Loading</span>
+        <div id="ao1-res-loading" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">-- %</div>
+        <span class="text-muted" id="ao1-sub-loading" style="font-size:0.75rem;">Target: 8% to 15%</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Required Drive Motor Power</span>
+        <div id="ao1-res-power" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">-- kW</div>
+        <span class="text-muted" id="ao1-sub-power" style="font-size:0.75rem;">Includes 1.35 service factor</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Shell Axial Thermal Expansion</span>
+        <div id="ao1-res-expansion" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">-- mm</div>
+        <span class="text-muted" id="ao1-sub-expansion" style="font-size:0.75rem;">$\Delta L = L \alpha \Delta T$</span>
+      </div>
+    </div>
+
+    <!-- Interactive Mechanical Kiln Schematic SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Dynamic Mechanical Kinematics & Bed Profile</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live SVG Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="ao1-svg" viewBox="0 0 800 240" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Engineering Sizing & Mechanical Stress Metrics</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Recommended Design Threshold</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Material Axial Travel Velocity</td>
+              <td style="padding: 8px;">$v_m = L / t$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao1-res-vm">--</td>
+              <td style="padding: 8px; color: #10b981;">0.8 to 2.2 m/min (2.6 - 7.2 ft/min)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Kiln In-Bed Material Holdup Mass</td>
+              <td style="padding: 8px;">$M_{holdup} = Q_{mass} \times (t / 60)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao1-res-holdup">--</td>
+              <td style="padding: 8px; color: #10b981;">Refractory structural deadweight check</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Torque to Lift Off-Center Bed</td>
+              <td style="padding: 8px;">$T_{bed} = M_{holdup} g \cdot r_{bed} \sin(\theta)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao1-res-torque">--</td>
+              <td style="padding: 8px; color: #10b981;">Primary drive reducer rating baseline</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Mechanical Roller Friction Loss Power</td>
+              <td style="padding: 8px;">$P_{fric} = f_{roll} \cdot W_{total} \cdot v_{tire}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao1-res-pfric">--</td>
+              <td style="padding: 8px; color: #10b981;">~15% - 25% of gross motor consumption</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Riding Ring Tire Relative Creep</td>
+              <td style="padding: 8px;">$C_{tire} = \pi (D_{tire} - D_{shell})$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao1-res-creep">--</td>
+              <td style="padding: 8px; color: #10b981;">6 to 15 mm/rev (prevents shell constriction)</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Hydraulic Thrust Roller Axial Force</td>
+              <td style="padding: 8px;">$F_{thrust} = W_{total} \cdot \sin(\alpha_{deg})$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao1-res-thrust">--</td>
+              <td style="padding: 8px; color: #10b981;">Guide roller bearing rated thrust capacity</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="ao1-copy-btn" onclick="copyAO1Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Rotary Kiln Mechanical & Process Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Comprehensive Mathematical Derivation & Engineering Physics</h3>
+    <p>A rotary kiln operates as a dynamic tilted heat-transfer reactor where countercurrent combustion gas dries, calcines, and sinters a moving bed of non-Newtonian granular solids. The mechanical power, volumetric bed loading, and residence time are governed by classical thermodynamic and mechanical equations:</p>
+
+    <h4>1. Solids Residence / Retention Time (US Bureau of Mines & Peray Model)</h4>
+    <p>The total time ($t$, in minutes) required for granular material to travel from the feed inlet to the discharge nose is formulated empirically by the US Bureau of Mines and refined by Peray:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$t = \frac{K_{flow} \cdot L}{D_i \cdot N \cdot S}$$
+    </div>
+    <p>Where:</p>
+    <ul>
+      <li>$L$ = Effective length of the kiln inside seals ($m$ or $ft$)</li>
+      <li>$D_i$ = Internal clear diameter inside refractory brickwork ($m$ or $ft$)</li>
+      <li>$N$ = Kiln rotational rotational speed ($RPM$)</li>
+      <li>$S$ = Slope of the kiln inclination ($m/m$ or $ft/ft$). For percentage slope, $S = \% / 100$.</li>
+      <li>$K_{flow}$ = Constancy factor ($0.19$ for metric units where $D, L$ in meters, or $1.77$ for imperial units where $D, L$ in feet).</li>
+    </ul>
+
+    <h4>2. Bed Volumetric Loading Ratio ($\eta_{bed}$)</h4>
+    <p>The volumetric filling degree of the cylinder cross-section directly dictates heat transfer efficiency and prevents catastrophic ring damming:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\% \text{ Loading} = \frac{Q_{mass} / \rho_{bulk}}{\frac{\pi}{4} D_i^2 \cdot (L / t) \cdot 60} \times 100$$
+    </div>
+    <p>Direct-fired cement kilns operate safely between $8\%$ and $15\%$ filling. Exceeding $18\%$ results in uncalcined meal flushing, core sintering bypass, and refractory thermal shock.</p>
+
+    <h4>3. Drive Motor Power Consumption ($P_{drive}$)</h4>
+    <p>The mechanical power required to turn the kiln consists of two primary loads: lifting the off-center material bed continuously against gravity, and overcoming rolling contact friction across all support tyre riding rings:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$P_{bed} = \frac{M_{holdup} \cdot g \cdot r_{bed} \cdot \sin(\theta_{rep}) \cdot (2 \pi N / 60)}{1000} \quad [\text{kW}]$$
+      $$P_{friction} = \frac{f_{roll} \cdot W_{total} \cdot (\pi D_{tire} N / 60)}{1000} \quad [\text{kW}]$$
+      $$P_{motor} = \frac{P_{bed} + P_{friction}}{\eta_{gear}} \times SF_{safety}$$
+    </div>
+    <p>Where $\eta_{gear} \approx 0.88 - 0.92$ (pinion girth gear and helical speed reducer efficiency), and $SF_{safety} \approx 1.35$ accounts for starting cold torque and ring build-up surges.</p>
+
+    <h4>4. Free Thermal Expansion Growth ($\Delta L$)</h4>
+    <p>Operating carbon steel shells reach steady-state temperatures of $280^\circ\text{C}$ to $420^\circ\text{C}$. Longitudinal thermal growth must be accommodated by floating support tyres and thrust roller travel:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$\Delta L = L_{cold} \cdot \alpha_{steel} \cdot (T_{shell} - T_{ambient})$$
+    </div>
+    <p>Where $\alpha_{steel} \approx 1.2 \times 10^{-5}\ \text{m}/(\text{m}\cdot^\circ\text{C})$. A 70-meter kiln will expand over $240\ \text{mm}$ (9.5 inches) axially from cold alignment to full clinkering operation.</p>
+  </div>
+
+  <!-- 5 Fatal Industry Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Failure Modes in Rotary Kilns</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Shell Pinching & Plastic Necking from Insufficient Tyre Creep Clearance</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Support tyres (riding rings) are mounted loose over shell filler bars with an engineered diametral gap to allow the hotter shell to expand faster than the massive tyre forging. If the gap is shimmed too tightly ($creep < 4\ \text{mm/rev}$), the expanding shell clamps into the tyre ring during hot operation. The resulting thermal constriction stress causes severe plastic necking, tyre bore galling, and catastrophic shell fatigue cracking at the tyre boundary.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Hydraulic Thrust Roller Overload & Skew Misalignment</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Rotary kilns are tilted downhill (typically 2.5% to 4.0%), creating an immense axial downhill gravitational component ($W \sin \alpha$). While modern systems use hydraulic thrust rollers to float the kiln up and down across its tyre faces, operators frequently over-skew support carrying rollers to artificially 'screw' the kiln uphill. Excessive roller skewing creates high axial scuffing friction, destroying bronze thrust bearings and spalling roller contact surfaces.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Refractory Brick Crushing from Shell Ovality Distortion</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Because a rotary kiln is a flexible hollow cylinder supported on discrete 2-roller piers, gravity deflects the circular shell cross-section into an ellipse at each tyre station. This dynamic cyclic deflection (ovality) flexes the refractory brick arch rings $N$ times per minute. If shell stiffness is degraded or tyre clearance is excessive ($ovality > 0.4\% D$), the cyclic pinching crunches brick edges, ejecting key bricks and exposing bare carbon steel to $1450^\circ\text{C}$ flame.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Catastrophic Meal Flushing / Surging from Low Bed Viscosity</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">When raw feed incorporates high alkali or sulfur recirculating cycles, a low-melting-point liquid eutectic forms in the calcining zone. If kiln rotational speed is held constant while bed slope or gas velocities fluctuate, this fluid meal lose its granular angle of repose and suddenly floods forward like water ('meal rush'). This overfills the burning zone, extinguishes burner flame, chokes the clinker cooler, and causes massive pressure spikes.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Thermal Bowing (Banana Kiln) During Emergency Unscheduled Stops</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">If power trips or the drive motor faults while the kiln is hot, stopping rotation immediately allows the hot material bed ($1000^\circ\text{C}+$) to heat only the bottom half of the stationary shell, while ambient air cools the top half. The differential thermal expansion curves the shell into an upward arch ('banana kiln'). Restarting a bowed kiln causes immense girth gear meshing bind and can permanently bend the shell or crack the foundations.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let ao1Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAO1Unit = function(unit) {
+    if (ao1Unit === unit) return;
+    ao1Unit = unit;
+    document.getElementById('ao1-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('ao1-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    // Update labels and convert input values
+    const dInput = document.getElementById('ao1-diameter');
+    const lInput = document.getElementById('ao1-length');
+    const fInput = document.getElementById('ao1-feed-rate');
+    const rhoInput = document.getElementById('ao1-bulk-density');
+    const thkInput = document.getElementById('ao1-shell-thk');
+
+    if (unit === 'imperial') {
+      document.getElementById('ao1-label-diameter').innerText = 'Shell Inside Diameter (Di, inside refractory) (ft):';
+      document.getElementById('ao1-label-length').innerText = 'Kiln Effective Length (L) (ft):';
+      document.getElementById('ao1-label-feed').innerText = 'Solids Feed Rate (Qmass) (Short Tons/hr):';
+      document.getElementById('ao1-label-density').innerText = 'Material Bulk Density (ρbulk) (lb/ft³):';
+      document.getElementById('ao1-label-shell-thk').innerText = 'Steel Shell Plate Thickness (ts) (in):';
+      
+      dInput.value = (parseFloat(dInput.value) * 3.28084).toFixed(1);
+      lInput.value = (parseFloat(lInput.value) * 3.28084).toFixed(0);
+      fInput.value = (parseFloat(fInput.value) * 1.10231).toFixed(0);
+      rhoInput.value = (parseFloat(rhoInput.value) * 0.062428).toFixed(1);
+      thkInput.value = (parseFloat(thkInput.value) / 25.4).toFixed(2);
+    } else {
+      document.getElementById('ao1-label-diameter').innerText = 'Shell Inside Diameter (Di, inside refractory) (m):';
+      document.getElementById('ao1-label-length').innerText = 'Kiln Effective Length (L) (m):';
+      document.getElementById('ao1-label-feed').innerText = 'Solids Feed Rate (Qmass) (tonnes/h):';
+      document.getElementById('ao1-label-density').innerText = 'Material Bulk Density (ρbulk) (kg/m³):';
+      document.getElementById('ao1-label-shell-thk').innerText = 'Steel Shell Plate Thickness (ts) (mm):';
+      
+      dInput.value = (parseFloat(dInput.value) / 3.28084).toFixed(1);
+      lInput.value = (parseFloat(lInput.value) / 3.28084).toFixed(1);
+      fInput.value = (parseFloat(fInput.value) / 1.10231).toFixed(0);
+      rhoInput.value = (parseFloat(rhoInput.value) / 0.062428).toFixed(0);
+      thkInput.value = (parseFloat(thkInput.value) * 25.4).toFixed(0);
+    }
+    calcAO1();
+  };
+
+  window.syncAO1Slope = function(source) {
+    const sPct = document.getElementById('ao1-slope-pct');
+    const sDeg = document.getElementById('ao1-slope-deg');
+    if (source === 'pct') {
+      const pct = parseFloat(sPct.value) || 0;
+      sDeg.value = (Math.atan(pct / 100) * 180 / Math.PI).toFixed(2);
+    } else {
+      const deg = parseFloat(sDeg.value) || 0;
+      sPct.value = (Math.tan(deg * Math.PI / 180) * 100).toFixed(2);
+    }
+    calcAO1();
+  };
+
+  window.calcAO1 = function() {
+    let D = parseFloat(document.getElementById('ao1-diameter').value) || 4.2;
+    let L = parseFloat(document.getElementById('ao1-length').value) || 65.0;
+    let slopePct = parseFloat(document.getElementById('ao1-slope-pct').value) || 3.5;
+    let N = parseFloat(document.getElementById('ao1-rpm').value) || 2.8;
+    let thk = parseFloat(document.getElementById('ao1-shell-thk').value) || 32;
+    let Qmass = parseFloat(document.getElementById('ao1-feed-rate').value) || 120;
+    let rho = parseFloat(document.getElementById('ao1-bulk-density').value) || 1350;
+    let repose = parseFloat(document.getElementById('ao1-repose').value) || 38;
+    let Tshell = parseFloat(document.getElementById('ao1-temp-shell').value) || 310;
+    let Tamb = parseFloat(document.getElementById('ao1-temp-ambient').value) || 20;
+
+    // Convert internally to Metric (m, tonnes/h, kg/m³, mm, °C) for unified physical math
+    let D_m = ao1Unit === 'imperial' ? D / 3.28084 : D;
+    let L_m = ao1Unit === 'imperial' ? L / 3.28084 : L;
+    let Q_tph = ao1Unit === 'imperial' ? Qmass / 1.10231 : Qmass;
+    let rho_kgm3 = ao1Unit === 'imperial' ? rho / 0.062428 : rho;
+    let thk_mm = ao1Unit === 'imperial' ? thk * 25.4 : thk;
+
+    // Slope as fraction (m/m)
+    let S = slopePct / 100;
+    if (S <= 0) S = 0.01;
+
+    // 1. Retention Time t via Peray & USBM: t = 0.19 * L / (D * N * S)
+    let t_min = (0.19 * L_m) / (D_m * N * S);
+
+    // 2. Material Axial Velocity: vm = L / t (m/min)
+    let vm_m_min = L_m / t_min;
+
+    // 3. In-Bed Material Holdup Mass: M_holdup = Q_mass * (t / 60) (tonnes)
+    let M_holdup_tonnes = Q_tph * (t_min / 60);
+    let M_holdup_kg = M_holdup_tonnes * 1000;
+
+    // 4. Volumetric Percent Bed Loading
+    let V_kiln = (Math.PI / 4) * Math.pow(D_m, 2) * L_m; // total internal volume (m³)
+    let V_bed = M_holdup_kg / rho_kgm3; // material volume (m³)
+    let pct_loading = (V_bed / V_kiln) * 100;
+
+    // 5. Motor Power Calculation
+    // Bed lift torque: center of mass of bed radius r_bed ~ 0.35 * D_m
+    let r_bed = 0.35 * (D_m / 2);
+    let theta_rad = repose * Math.PI / 180;
+    let T_bed_Nm = M_holdup_kg * 9.81 * r_bed * Math.sin(theta_rad);
+    let omega = (2 * Math.PI * N) / 60; // rad/s
+    let P_bed_kW = (T_bed_Nm * omega) / 1000;
+
+    // Rolling friction & mechanical deadweight
+    // Estimated shell + brick + tyre deadweight ~ 1.8x shell weight
+    let D_shell_m = D_m + 0.4; // approx refractory + shell
+    let shell_mass_kg = Math.PI * D_shell_m * L_m * (thk_mm / 1000) * 7850;
+    let total_mass_kg = shell_mass_kg * 2.8 + M_holdup_kg; // including refractory & tyres
+    let f_roll = 0.035; // coefficient of rolling friction on support rollers
+    let v_tire = Math.PI * (D_shell_m * 1.25) * (N / 60);
+    let P_fric_kW = (f_roll * (total_mass_kg * 9.81) * v_tire) / 1000;
+
+    let P_shaft_kW = P_bed_kW + P_fric_kW;
+    let P_motor_kW = (P_shaft_kW / 0.88) * 1.35; // gear efficiency 88%, service factor 1.35
+    let P_motor_HP = P_motor_kW * 1.34102;
+
+    // 6. Axial Thermal Expansion: delta L = L * alpha * delta T
+    let alpha_steel = 1.2e-5; // m/(m °C)
+    let delta_T = Math.max(0, Tshell - Tamb);
+    let delta_L_mm = L_m * 1000 * alpha_steel * delta_T;
+    let delta_L_in = delta_L_mm / 25.4;
+
+    // 7. Riding Ring Creep
+    // Standard recommended creep: 8 to 14 mm/rev
+    let est_creep_mm = Math.max(4, 12 - (delta_T / 50));
+
+    // 8. Downhill Axial Thrust Force: F_thrust = W_total * sin(alpha)
+    let alpha_rad = Math.atan(S);
+    let F_thrust_kN = (total_mass_kg * 9.81 * Math.sin(alpha_rad)) / 1000;
+    let F_thrust_kips = F_thrust_kN * 0.224809;
+
+    // Display primary results
+    document.getElementById('ao1-res-retention').innerText = t_min.toFixed(1) + ' min';
+    document.getElementById('ao1-res-loading').innerText = pct_loading.toFixed(1) + ' %';
+    
+    if (ao1Unit === 'imperial') {
+      document.getElementById('ao1-res-power').innerText = P_motor_HP.toFixed(0) + ' HP';
+      document.getElementById('ao1-sub-power').innerText = '(' + P_motor_kW.toFixed(0) + ' kW shaft equiv)';
+      document.getElementById('ao1-res-expansion').innerText = delta_L_in.toFixed(2) + ' in';
+      document.getElementById('ao1-sub-expansion').innerText = '(' + delta_L_mm.toFixed(1) + ' mm total)';
+
+      document.getElementById('ao1-res-vm').innerText = (vm_m_min * 3.28084).toFixed(1) + ' ft/min';
+      document.getElementById('ao1-res-holdup').innerText = (M_holdup_tonnes * 1.10231).toFixed(1) + ' ST';
+      document.getElementById('ao1-res-torque').innerText = (T_bed_Nm * 0.737562).toLocaleString('en-US', {maximumFractionDigits:0}) + ' lbf-ft';
+      document.getElementById('ao1-res-pfric').innerText = (P_fric_kW * 1.34102).toFixed(1) + ' HP';
+      document.getElementById('ao1-res-creep').innerText = (est_creep_mm / 25.4).toFixed(3) + ' in/rev';
+      document.getElementById('ao1-res-thrust').innerText = F_thrust_kips.toFixed(1) + ' kips';
+    } else {
+      document.getElementById('ao1-res-power').innerText = P_motor_kW.toFixed(0) + ' kW';
+      document.getElementById('ao1-sub-power').innerText = '(' + P_motor_HP.toFixed(0) + ' HP NEMA equiv)';
+      document.getElementById('ao1-res-expansion').innerText = delta_L_mm.toFixed(1) + ' mm';
+      document.getElementById('ao1-sub-expansion').innerText = '(' + delta_L_in.toFixed(2) + ' in total)';
+
+      document.getElementById('ao1-res-vm').innerText = vm_m_min.toFixed(2) + ' m/min';
+      document.getElementById('ao1-res-holdup').innerText = M_holdup_tonnes.toFixed(1) + ' tonnes';
+      document.getElementById('ao1-res-torque').innerText = T_bed_Nm.toLocaleString('en-US', {maximumFractionDigits:0}) + ' N·m';
+      document.getElementById('ao1-res-pfric').innerText = P_fric_kW.toFixed(1) + ' kW';
+      document.getElementById('ao1-res-creep').innerText = est_creep_mm.toFixed(1) + ' mm/rev';
+      document.getElementById('ao1-res-thrust').innerText = F_thrust_kN.toFixed(1) + ' kN';
+    }
+
+    // Dynamic SVG Generation
+    renderAO1Svg(D_m, L_m, S, N, pct_loading, repose, Tshell);
+  };
+
+  function renderAO1Svg(D_m, L_m, S, N, pct_loading, repose, Tshell) {
+    const svg = document.getElementById('ao1-svg');
+    if (!svg) return;
+
+    let visualTilt = Math.min(6, Math.max(1.5, S * 100 * 0.8));
+    let cx = 400;
+    let cy = 115;
+    let kLen = 620;
+    let kHeight = 44;
+    let shellColor = Tshell > 380 ? '#ef4444' : (Tshell > 300 ? '#f59e0b' : '#64748b');
+
+    let svgParts = [
+      '<line x1="50" y1="210" x2="750" y2="210" stroke="#334155" stroke-width="2" stroke-dasharray="4,4" />',
+      '<text x="50" y="228" fill="#64748b" font-size="11">Grade Line / Alignment Foundation Baseline</text>',
+      '<polygon points="170,210 185,155 225,155 240,210" fill="#1e293b" stroke="#475569" stroke-width="1.5" />',
+      '<circle cx="195" cy="150" r="9" fill="#94a3b8" stroke="#334155" />',
+      '<circle cx="215" cy="150" r="9" fill="#94a3b8" stroke="#334155" />',
+      '<polygon points="560,210 575,128 615,128 630,210" fill="#1e293b" stroke="#475569" stroke-width="1.5" />',
+      '<circle cx="585" cy="123" r="9" fill="#94a3b8" stroke="#334155" />',
+      '<circle cx="605" cy="123" r="9" fill="#94a3b8" stroke="#334155" />',
+      '<rect x="550" y="112" width="12" height="22" fill="#3b82f6" rx="2" />',
+      '<text x="505" y="105" fill="#3b82f6" font-size="10" font-weight="600">Thrust Guide</text>',
+      '<g transform="rotate(-' + visualTilt + ' ' + cx + ' ' + cy + ')">',
+      '  <rect x="90" y="93" width="' + kLen + '" height="' + kHeight + '" fill="' + shellColor + '" rx="4" stroke="#94a3b8" stroke-width="2" />',
+      '  <path d="M 92,126 Q 400,128 708,126 L 708,137 L 92,137 Z" fill="#d97706" opacity="0.85" />',
+      '  <rect x="360" y="87" width="22" height="56" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5" />',
+      '  <line x1="365" y1="87" x2="365" y2="143" stroke="#f59e0b" stroke-width="1" />',
+      '  <line x1="371" y1="87" x2="371" y2="143" stroke="#f59e0b" stroke-width="1" />',
+      '  <line x1="377" y1="87" x2="377" y2="143" stroke="#f59e0b" stroke-width="1" />',
+      '  <rect x="195" y="89" width="18" height="52" fill="#475569" stroke="#cbd5e1" stroke-width="1.5" rx="1" />',
+      '  <rect x="585" y="89" width="18" height="52" fill="#475569" stroke="#cbd5e1" stroke-width="1.5" rx="1" />',
+      '  <path d="M 90,115 C 60,110 50,115 20,115 C 50,122 60,120 90,115 Z" fill="#ef4444" opacity="0.9" />',
+      '  <path d="M 90,115 C 70,112 60,115 35,115 C 60,118 70,117 90,115 Z" fill="#fbbf24" />',
+      '  <line x1="680" y1="80" x2="600" y2="80" stroke="#10b981" stroke-width="2" />',
+      '  <text x="640" y="72" fill="#10b981" font-size="11" text-anchor="middle" font-weight="600">Feed Flow (vm)</text>',
+      '</g>',
+      '<text x="730" y="55" fill="#94a3b8" font-size="11">Feed Inlet (Cold End)</text>',
+      '<line x1="725" y1="62" x2="705" y2="85" stroke="#94a3b8" stroke-width="1" />',
+      '<text x="25" y="90" fill="#f8fafc" font-size="11" font-weight="600">Discharge Clinker / Firing Hood</text>',
+      '<line x1="75" y1="95" x2="95" y2="115" stroke="#ef4444" stroke-width="1" />',
+      '<text x="400" y="28" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">Industrial Rotary Kiln: ' + D_m.toFixed(1) + 'm ID × ' + L_m.toFixed(0) + 'm Long @ ' + (S*100).toFixed(1) + '% Slope (' + N.toFixed(1) + ' RPM)</text>',
+      '<text x="400" y="44" fill="#38bdf8" font-size="11" text-anchor="middle">Bed Fill: ' + pct_loading.toFixed(1) + '% | Shell Surface Temp: ' + Tshell + '°C | Drive Girth Gear Speed: ' + N.toFixed(1) + ' RPM</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAO1Diagnostics = function() {
+    let t = document.getElementById('ao1-res-retention').innerText;
+    let l = document.getElementById('ao1-res-loading').innerText;
+    let p = document.getElementById('ao1-res-power').innerText;
+    let exp = document.getElementById('ao1-res-expansion').innerText;
+    let vm = document.getElementById('ao1-res-vm').innerText;
+    let m = document.getElementById('ao1-res-holdup').innerText;
+    let torq = document.getElementById('ao1-res-torque').innerText;
+    let crp = document.getElementById('ao1-res-creep').innerText;
+    let th = document.getElementById('ao1-res-thrust').innerText;
+
+    let text = [
+      '=== INDUSTRIAL ROTARY KILN MECHANICAL & PROCESS AUDIT ===',
+      'Standard: Peray Cement Clinker Model & US Bureau of Mines Cylinder Formula',
+      '-------------------------------------------------------',
+      'Solids Retention / Residence Time: ' + t,
+      'Volumetric Bed Loading Ratio:    ' + l,
+      'Total Required Drive Power:      ' + p,
+      'Shell Axial Thermal Expansion:   ' + exp,
+      'Material Axial Travel Velocity:  ' + vm,
+      'In-Bed Material Holdup Mass:     ' + m,
+      'Bed Gravity Lift Torque:         ' + torq,
+      'Estimated Riding Ring Creep:     ' + crp,
+      'Downhill Hydraulic Thrust Load:  ' + th,
+      '-------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/rotary-kiln-thermal-expansion-drive-power-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('ao1-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Kiln Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAO1();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'rotary-kiln-thermal-expansion-drive-power-calculator.html'), renderTradePage({
+  title: 'Rotary Kiln Drive Power & Retention Time Calculator | Peray Model',
+  metaDescription: 'Calculate rotary kiln residence time, volumetric bed loading, motor horsepower, thermal expansion, and tyre creep per Peray and US Bureau of Mines standards.',
+  canonical: 'https://digitaltoolsshed.com/calc/rotary-kiln-thermal-expansion-drive-power-calculator.html',
+  content: toolAO1Html,
+  faq: [
+    {
+      q: 'How is solids retention time calculated in an industrial rotary kiln?',
+      a: 'Solids residence time is calculated using the US Bureau of Mines formula refined by Peray: t = (0.19 * L) / (D * N * S), where L is kiln length, D is inside diameter within the refractory lining, N is rotational speed in RPM, and S is slope (m/m). It accounts for the cascading rolling motion of granular beds down the inclined rotating cylinder.'
+    },
+    {
+      q: 'What is the optimal volumetric bed loading in a cement or lime kiln?',
+      a: 'Direct-fired rotary kilns typically operate at 8% to 15% volumetric loading. Bed loading below 7% severely degrades radiant heat absorption from combustion gases, while loading above 16% risks uncalcined material surging, incomplete core sintering, and refractory brick mechanical crushing.'
+    },
+    {
+      q: 'What causes shell pinching and why is riding ring tire creep critical?',
+      a: 'Support tyres are mounted with a clearance gap over shell filler bars because the thin steel shell reaches 300°C to 400°C much faster than the thick forged tyre. As the kiln turns, the relative slip between tyre and shell is measured as creep (typically 8 to 15 mm per revolution). If the gap is too tight, the expanding shell pinches into the tyre bore, causing severe plastic necking and shell cracking.'
+    },
+    {
+      q: 'How does thermal expansion affect rotary kiln thrust rollers?',
+      a: 'A 60 to 100-meter carbon steel kiln shell expands 200 mm to 350 mm axially between cold installation and operating temperature (ΔL = L * α * ΔT). Support piers and hydraulic thrust roller guide mechanisms must allow controlled uphill and downhill float to distribute contact wear evenly across roller and tyre faces without inducing axial scuffing.'
+    },
+    {
+      q: 'Why does an emergency kiln stop risk creating a "banana kiln"?',
+      a: 'When an operating kiln trips while loaded, hot material (1000°C+) settles in the bottom quadrant of the shell while the top half cools against ambient air. The hotter bottom expands longitudinally while the cooler top contracts, bending the shell into an upward arch (thermal bowing or "banana"). Kilns must be kept on auxiliary barring drive rotation during shutdowns to cool uniformly.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AO2: Subsea Offshore Pipeline On-Bottom Stability & Concrete Coating Calculator (DNV-RP-F109)
+// ==========================================
+const toolAO2Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">DNV-RP-F109 &bull; API RP 1111 &bull; Morison Hydrodynamic Theory</div>
+    <h1>Subsea Pipeline On-Bottom Stability & Concrete Coating Calculator</h1>
+    <p class="text-muted">Calculate submerged weight balance, wave-current seabed orbital velocities, hydrodynamic Morison drag and lift forces, and required concrete weight coating (CWC) thickness for offshore submarine pipelines per DNV-RP-F109 and API RP 1111 absolute lateral stability criteria.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="ao2-unit-metric" onclick="setAO2Unit('metric')">Metric Units (mm, m, kg/m³, kN/m)</button>
+    <button type="button" class="unit-toggle-btn" id="ao2-unit-imperial" onclick="setAO2Unit('imperial')">Imperial Units (in, ft, lb/ft³, lbf/ft)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Pipe Geometry & Coatings -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Pipe Geometry & Coating System</h3>
+
+      <div class="input-group">
+        <label for="ao2-pipe-od" id="ao2-label-pipe-od">Steel Pipe Nominal Outer Diameter ($D_o$) (mm):</label>
+        <input type="number" id="ao2-pipe-od" value="508" step="10" min="100" max="1500" oninput="calcAO2()">
+        <span class="text-muted">Common: 323.9mm (12"), 406.4mm (16"), 508mm (20"), 610mm (24"), 762mm (30")</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-pipe-wt" id="ao2-label-pipe-wt">Pipe Wall Thickness ($t_w$) (mm):</label>
+        <input type="number" id="ao2-pipe-wt" value="19.1" step="0.5" min="6.0" max="60.0" oninput="calcAO2()">
+        <span class="text-muted">High-pressure offshore line pipe (API 5L X65 / X70)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-corr-thk" id="ao2-label-corr-thk">Corrosion Coating Thickness ($t_{corr}$) (mm):</label>
+        <input type="number" id="ao2-corr-thk" value="3.5" step="0.5" min="1.0" max="15.0" oninput="calcAO2()">
+        <span class="text-muted">Fusion Bonded Epoxy (FBE) or 3-Layer Polypropylene (3LPP) ($\rho \approx 950$ kg/m³)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-conc-thk" id="ao2-label-conc-thk">Concrete Weight Coating (CWC) ($t_c$) (mm):</label>
+        <input type="number" id="ao2-conc-thk" value="50" step="5" min="0" max="160" oninput="calcAO2()">
+        <span class="text-muted">Heavy ballast concrete coating applied over anti-corrosion barrier</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-conc-density" id="ao2-label-conc-density">Concrete Dry Density ($\rho_{conc}$) (kg/m³):</label>
+        <input type="number" id="ao2-conc-density" value="3040" step="50" min="2200" max="3500" oninput="calcAO2()">
+        <span class="text-muted">Standard aggregate: 2250-2400 kg/m³, Magnetite/Iron-ore aggregate: 3000-3400 kg/m³</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-contents">Internal Contents Condition:</label>
+        <select id="ao2-contents" onchange="calcAO2()">
+          <option value="empty">Empty / Gas Installation (Gas Air-Filled, 1.2 kg/m³)</option>
+          <option value="flooded">Flooded Hydrotest (Seawater, 1025 kg/m³)</option>
+          <option value="gas_op">Operational Natural Gas (Dense Phase, 95 kg/m³)</option>
+          <option value="oil_op" selected>Operational Crude Oil (850 kg/m³)</option>
+        </select>
+        <span class="text-muted">Empty/installation represents worst-case minimum downward weight</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Marine Hydrodynamics & Seabed Soil -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Hydrodynamics & Seabed Geotechnics</h3>
+
+      <div class="input-group">
+        <label for="ao2-water-depth" id="ao2-label-depth">Water Depth at Seabed ($d$) (m):</label>
+        <input type="number" id="ao2-water-depth" value="45" step="5" min="5" max="500" oninput="calcAO2()">
+        <span class="text-muted">Shallow depths experience severe bottom wave orbital velocities</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-wave-hs" id="ao2-label-wave-hs">Significant Design Wave Height ($H_s$) (m):</label>
+        <input type="number" id="ao2-wave-hs" value="6.5" step="0.5" min="0.5" max="25.0" oninput="calcAO2()">
+        <span class="text-muted">100-year return period storm sea state</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-wave-tp">Peak Wave Period ($T_p$) (s):</label>
+        <input type="number" id="ao2-wave-tp" value="11.5" step="0.5" min="4.0" max="22.0" oninput="calcAO2()">
+        <span class="text-muted">Long swell periods penetrate deeply to the seabed</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-current-vel" id="ao2-label-current">Steady Bottom Current Velocity ($V_c$) (m/s):</label>
+        <input type="number" id="ao2-current-vel" value="0.75" step="0.05" min="0.0" max="3.5" oninput="calcAO2()">
+        <span class="text-muted">Tidal + wind-driven steady current velocity at pipe reference height</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao2-soil-type">Seabed Soil Geotechnical Classification:</label>
+        <select id="ao2-soil-type" onchange="syncAO2Soil()">
+          <option value="dense_sand" selected>Dense Sand / Gravel (μ = 0.65, strong passive berm)</option>
+          <option value="loose_sand">Medium / Loose Sand (μ = 0.50, moderate penetration)</option>
+          <option value="stiff_clay">Stiff Cohesive Clay (μ = 0.40, adhesion resistance)</option>
+          <option value="soft_clay">Soft Marine Clay / Silt (μ = 0.28, low shear)</option>
+          <option value="rock">Smooth Bedrock (μ = 0.35, zero penetration)</option>
+        </select>
+        <span class="text-muted" id="ao2-soil-hint">Lateral Coulomb friction coefficient: μ = 0.65</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Subsea Pipeline Stability Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Submerged Net Weight</span>
+        <div id="ao2-res-wsub" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">-- N/m</div>
+        <span class="text-muted" id="ao2-sub-wsub" style="font-size:0.75rem;">Downward ballast weight</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Pipeline Specific Gravity</span>
+        <div id="ao2-res-sg" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ao2-sub-sg" style="font-size:0.75rem;">Wdry / Buoyancy (Min: 1.15)</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Total Peak Hydrodynamic Force</span>
+        <div id="ao2-res-fhydro" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">-- N/m</div>
+        <span class="text-muted" id="ao2-sub-fhydro" style="font-size:0.75rem;">Drag + Inertia (FD + FI)</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Lateral Stability Factor (FS)</span>
+        <div id="ao2-res-fs" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ao2-sub-fs" style="font-size:0.75rem;">Target: ≥ 1.10 - 1.25</span>
+      </div>
+    </div>
+
+    <!-- Interactive Subsea Pipeline Cross-Section SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Subsea Pipeline Cross-Section, Coating Layers & Hydrodynamic Boundary Forces</h4>
+        <span class="badge" style="background: rgba(59, 130, 246, 0.15); color: #3b82f6; font-size: 0.75rem;">Live DNV-RP-F109 Vector Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="ao2-svg" viewBox="0 0 800 280" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Technical Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Hydrodynamic & Coating Layer Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Governing Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">DNV-RP-F109 Criterion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Overall Coated Outer Diameter</td>
+              <td style="padding: 8px;">$D_{total} = D_o + 2(t_{corr} + t_c)$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao2-res-dtotal">--</td>
+              <td style="padding: 8px; color: #10b981;">Total hydrodynamic frontal area</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Bare Steel Line Pipe Mass</td>
+              <td style="padding: 8px;">$m_{steel} = \pi (D_o - t_w) t_w \rho_{steel}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao2-res-msteel">--</td>
+              <td style="padding: 8px; color: #10b981;">$\rho_{steel} = 7850$ kg/m³</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Concrete Weight Coating (CWC) Mass</td>
+              <td style="padding: 8px;">$m_{conc} = \pi (D_{corr} + t_c) t_c \rho_c$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao2-res-mconc">--</td>
+              <td style="padding: 8px; color: #10b981;">Heavy aggregate ballast mass</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Seawater Buoyancy Lift Force</td>
+              <td style="padding: 8px;">$B_{sw} = \frac{\pi}{4} D_{total}^2 \rho_{sw} g$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao2-res-buoy">--</td>
+              <td style="padding: 8px; color: #10b981;">$\rho_{sw} = 1025$ kg/m³</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Seabed Wave Orbital Velocity</td>
+              <td style="padding: 8px;">$U_b = \frac{\pi H_s}{T_p \sinh(k d)}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao2-res-ub">--</td>
+              <td style="padding: 8px; color: #10b981;">Airy linear wave boundary attenuation</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Peak Vertical Lift Force</td>
+              <td style="padding: 8px;">$F_L = \frac{1}{2} C_L \rho_{sw} D_{total} U_{peak}^2$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao2-res-flift">--</td>
+              <td style="padding: 8px; color: #10b981;">Reduces soil normal contact load</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Net Normal Bed Reaction Load</td>
+              <td style="padding: 8px;">$W_{net} = W_{sub} - F_L$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao2-res-wnet">--</td>
+              <td style="padding: 8px; color: #10b981;">Must remain $> 0$ (No floatation)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="ao2-copy-btn" onclick="copyAO2Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy DNV-RP-F109 Subsea Stability Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Governing DNV-RP-F109 Hydrodynamics & Geotechnical Mechanics</h3>
+    <p>A submarine pipeline laid un-trenched on the seabed must resist hydrodynamic action from ocean waves and bottom currents. Instability results in lateral sweeping, fatigue spanning, or rupture against seabed obstructions. Stability is governed by DNV-RP-F109 (On-Bottom Stability Design of Submarine Pipelines):</p>
+
+    <h4>1. Seabed Wave Kinematics (Airy Linear Wave Attenuation)</h4>
+    <p>Deep-water surface storm waves decay exponentially with water depth ($d$). The horizontal wave-induced water particle velocity amplitude at the seabed ($U_b$) is formulated as:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$U_b = \frac{\pi \cdot H_s}{T_p \cdot \sinh(k \cdot d)}$$
+    </div>
+    <p>Where the wave number $k = 2\pi / L_w$ is solved iteratively via the wave dispersion relationship $\omega^2 = g k \tanh(k d)$. The peak combined flow velocity at the pipeline crest is $U_{peak} = U_b + V_c$.</p>
+
+    <h4>2. Hydrodynamic Forces via Generalized Morison Equation</h4>
+    <p>The total horizontal oscillatory hydrodynamic force ($F_H$) acting per meter of pipe consists of velocity drag ($F_D$) and acceleration inertia ($F_I$):</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$F_D = \frac{1}{2} C_D \rho_{sw} D_{total} U_{peak}^2 \quad [\text{N/m}]$$
+      $$F_I = \frac{\pi}{4} C_M \rho_{sw} D_{total}^2 \left( \frac{2 \pi U_b}{T_p} \right) \quad [\text{N/m}]$$
+      $$F_L = \frac{1}{2} C_L \rho_{sw} D_{total} U_{peak}^2 \quad [\text{N/m}]$$
+    </div>
+    <p>Per DNV-RP-F109 Section 3, for a cylinder resting directly on an impermeable seabed, boundary layer proximity inflates drag and creates a net upward lift: $C_D \approx 0.70 - 1.05$, $C_M \approx 2.00 - 3.29$, and $C_L \approx 0.80 - 1.10$.</p>
+
+    <h4>3. Submerged Weight Balance & Vertical Stability</h4>
+    <p>The submerged weight per unit length ($W_{sub}$) is the algebraic sum of all component weights minus buoyant seawater displacement:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$W_{sub} = (m_{steel} + m_{corr} + m_{conc} + m_{contents}) \cdot g - \frac{\pi}{4} D_{total}^2 \rho_{sw} g$$
+    </div>
+    <p>The pipe specific gravity relative to displaced seawater ($SG = W_{dry} / B_{sw}$) must strictly exceed $1.15$ for gas pipelines and $1.25$ for installation/empty conditions to prevent flotation or liquefaction sinking.</p>
+
+    <h4>4. DNV Absolute Lateral Stability Criterion</h4>
+    <p>Under the peak design sea state, lateral soil friction and passive berm penetration resistance ($F_{res}$) must overcome the peak vector sum of horizontal hydrodynamic loads ($F_{drag} + F_{inertia}$):</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$FS_{lateral} = \frac{\mu_{soil} \cdot (W_{sub} - F_L) + F_{passive}}{F_D + F_I} \ge 1.10$$
+    </div>
+    <p>Notice that the hydrodynamic lift force ($F_L$) acts upward, reducing the effective normal contact force between the pipeline and the seabed. If $F_L > W_{sub}$, the pipe momentarily floats off the seabed, reducing soil friction to zero and resulting in rapid lateral sweep.</p>
+  </div>
+
+  <!-- 5 Fatal Offshore Engineering Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Industry Pitfalls & Failure Modes in Subsea Pipelines</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Neglecting Hydrodynamic Lift Force ($F_L$) in Submerged Weight Sizing</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Because fluid velocity accelerates dramatically over the top crown of a seabed-resting pipe compared to the stagnant stagnation zone beneath it, Bernoulli suction generates massive upward vertical lift ($C_L \approx 0.9$). Junior engineers often check only horizontal drag against static submerged weight ($W_{sub}$), ignoring that lift can negate 40% to 70% of the pipe's downward contact weight, dropping actual soil friction below required resistance and causing unexpected catastrophic lateral sweeping during first-year winter storms.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Cyclic Seabed Liquefaction & Flotation in Silty Marine Soils</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">During sustained storm sea states, cyclic wave pressure fluctuations transmit pore pressure pulses into fine sand and silty seabed deposits. If pore pressure equals overburden pressure, the soil liquefies into a dense heavy slurry ($\rho_{slurry} \approx 1800 - 2000\ \text{kg/m}^3$). A pipeline with $SG = 1.25$ in clean seawater ($1025\ \text{kg/m}^3$) becomes instantly buoyant in liquefied silt, floating upward to the surface or breaking field joints under severe vertical bending moments.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Assuming Zero-Penetration Friction on Cohesive Marine Clays</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Applying standard dry Mohr-Coulomb friction ($\mu = 0.50$) to soft cohesive marine clays is fatal. Highly plastic marine clays experience water entrainment and remolding under pipe lay-down impact, reducing immediate interface friction to as low as $\mu = 0.20 - 0.28$. Stability design in clay requires geotechnical consolidation time-history analysis to account for pipe embedment depth ($z_p / D$) and lateral passive soil resistance berm buildup.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Concrete Weight Coating (CWC) Spalling & Field Joint Failures During S-Lay</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Increasing concrete thickness to achieve high stability factors creates immense bending stiffness disparities along the pipe string. As the pipe traverses the lay-barge stinger roller supports into deep water, extreme overbend strains can crack and spall the brittle concrete coating. Missing concrete sections create localized negative buoyancy, exposing bare anti-corrosion coating to seabed abrasion and destabilizing the line.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Unconservative Vector Collinearity Assumptions Between Waves and Currents</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Assuming that storm waves and tidal currents always align collinearly (same direction) can lead to gross underestimation of total drag. When bottom current runs parallel to the pipe while wave orbital velocity strikes perpendicularly, the 3D boundary layer shear stress vector creates helical vortex shedding that dramatically increases effective drag coefficients ($C_D$) compared to 2D orthogonal flow assumptions.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let ao2Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAO2Unit = function(unit) {
+    if (ao2Unit === unit) return;
+    ao2Unit = unit;
+    document.getElementById('ao2-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('ao2-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const pod = document.getElementById('ao2-pipe-od');
+    const pwt = document.getElementById('ao2-pipe-wt');
+    const corr = document.getElementById('ao2-corr-thk');
+    const conc = document.getElementById('ao2-conc-thk');
+    const cden = document.getElementById('ao2-conc-density');
+    const depth = document.getElementById('ao2-water-depth');
+    const hs = document.getElementById('ao2-wave-hs');
+    const vc = document.getElementById('ao2-current-vel');
+
+    if (unit === 'imperial') {
+      document.getElementById('ao2-label-pipe-od').innerText = 'Steel Pipe Nominal Outer Diameter (Do) (in):';
+      document.getElementById('ao2-label-pipe-wt').innerText = 'Pipe Wall Thickness (tw) (in):';
+      document.getElementById('ao2-label-corr-thk').innerText = 'Corrosion Coating Thickness (tcorr) (in):';
+      document.getElementById('ao2-label-conc-thk').innerText = 'Concrete Weight Coating (CWC) (tc) (in):';
+      document.getElementById('ao2-label-conc-density').innerText = 'Concrete Dry Density (ρconc) (lb/ft³):';
+      document.getElementById('ao2-label-depth').innerText = 'Water Depth at Seabed (d) (ft):';
+      document.getElementById('ao2-label-wave-hs').innerText = 'Significant Design Wave Height (Hs) (ft):';
+      document.getElementById('ao2-label-current').innerText = 'Steady Bottom Current Velocity (Vc) (ft/s):';
+
+      pod.value = (parseFloat(pod.value) / 25.4).toFixed(2);
+      pwt.value = (parseFloat(pwt.value) / 25.4).toFixed(3);
+      corr.value = (parseFloat(corr.value) / 25.4).toFixed(3);
+      conc.value = (parseFloat(conc.value) / 25.4).toFixed(2);
+      cden.value = (parseFloat(cden.value) * 0.062428).toFixed(1);
+      depth.value = (parseFloat(depth.value) * 3.28084).toFixed(0);
+      hs.value = (parseFloat(hs.value) * 3.28084).toFixed(1);
+      vc.value = (parseFloat(vc.value) * 3.28084).toFixed(2);
+    } else {
+      document.getElementById('ao2-label-pipe-od').innerText = 'Steel Pipe Nominal Outer Diameter (Do) (mm):';
+      document.getElementById('ao2-label-pipe-wt').innerText = 'Pipe Wall Thickness (tw) (mm):';
+      document.getElementById('ao2-label-corr-thk').innerText = 'Corrosion Coating Thickness (tcorr) (mm):';
+      document.getElementById('ao2-label-conc-thk').innerText = 'Concrete Weight Coating (CWC) (tc) (mm):';
+      document.getElementById('ao2-label-conc-density').innerText = 'Concrete Dry Density (ρconc) (kg/m³):';
+      document.getElementById('ao2-label-depth').innerText = 'Water Depth at Seabed (d) (m):';
+      document.getElementById('ao2-label-wave-hs').innerText = 'Significant Design Wave Height (Hs) (m):';
+      document.getElementById('ao2-label-current').innerText = 'Steady Bottom Current Velocity (Vc) (m/s):';
+
+      pod.value = (parseFloat(pod.value) * 25.4).toFixed(0);
+      pwt.value = (parseFloat(pwt.value) * 25.4).toFixed(1);
+      corr.value = (parseFloat(corr.value) * 25.4).toFixed(1);
+      conc.value = (parseFloat(conc.value) * 25.4).toFixed(0);
+      cden.value = (parseFloat(cden.value) / 0.062428).toFixed(0);
+      depth.value = (parseFloat(depth.value) / 3.28084).toFixed(0);
+      hs.value = (parseFloat(hs.value) / 3.28084).toFixed(1);
+      vc.value = (parseFloat(vc.value) / 3.28084).toFixed(2);
+    }
+    calcAO2();
+  };
+
+  window.syncAO2Soil = function() {
+    const soil = document.getElementById('ao2-soil-type').value;
+    const hint = document.getElementById('ao2-soil-hint');
+    if (soil === 'dense_sand') hint.innerText = 'Lateral Coulomb friction coefficient: μ = 0.65 (High passive berm)';
+    else if (soil === 'loose_sand') hint.innerText = 'Lateral Coulomb friction coefficient: μ = 0.50 (Moderate passive berm)';
+    else if (soil === 'stiff_clay') hint.innerText = 'Lateral Coulomb friction coefficient: μ = 0.40 (Adhesive resistance)';
+    else if (soil === 'soft_clay') hint.innerText = 'Lateral Coulomb friction coefficient: μ = 0.28 (Low shear, delayed consolidation)';
+    else if (soil === 'rock') hint.innerText = 'Lateral Coulomb friction coefficient: μ = 0.35 (Zero penetration berm)';
+    calcAO2();
+  };
+
+  window.calcAO2 = function() {
+    let Do = parseFloat(document.getElementById('ao2-pipe-od').value) || 508;
+    let tw = parseFloat(document.getElementById('ao2-pipe-wt').value) || 19.1;
+    let tcorr = parseFloat(document.getElementById('ao2-corr-thk').value) || 3.5;
+    let tc = parseFloat(document.getElementById('ao2-conc-thk').value) || 50;
+    let rhoconc = parseFloat(document.getElementById('ao2-conc-density').value) || 3040;
+    let depth = parseFloat(document.getElementById('ao2-water-depth').value) || 45;
+    let Hs = parseFloat(document.getElementById('ao2-wave-hs').value) || 6.5;
+    let Tp = parseFloat(document.getElementById('ao2-wave-tp').value) || 11.5;
+    let Vc = parseFloat(document.getElementById('ao2-current-vel').value) || 0.75;
+    let contents = document.getElementById('ao2-contents').value;
+    let soil = document.getElementById('ao2-soil-type').value;
+
+    // Convert inputs to SI metric (m, kg/m³, m/s)
+    let Do_m = ao2Unit === 'imperial' ? (Do * 25.4) / 1000 : Do / 1000;
+    let tw_m = ao2Unit === 'imperial' ? (tw * 25.4) / 1000 : tw / 1000;
+    let tcorr_m = ao2Unit === 'imperial' ? (tcorr * 25.4) / 1000 : tcorr / 1000;
+    let tc_m = ao2Unit === 'imperial' ? (tc * 25.4) / 1000 : tc / 1000;
+    let rhoconc_kg = ao2Unit === 'imperial' ? rhoconc / 0.062428 : rhoconc;
+    let depth_m = ao2Unit === 'imperial' ? depth / 3.28084 : depth;
+    let Hs_m = ao2Unit === 'imperial' ? Hs / 3.28084 : Hs;
+    let Vc_m = ao2Unit === 'imperial' ? Vc / 3.28084 : Vc;
+
+    let rho_sw = 1025; // kg/m³
+    let rho_steel = 7850; // kg/m³
+    let rho_corr = 950; // kg/m³
+
+    let rho_cont = 850;
+    if (contents === 'empty') rho_cont = 1.2;
+    else if (contents === 'flooded') rho_cont = 1025;
+    else if (contents === 'gas_op') rho_cont = 95;
+
+    // Outer diameters of layers
+    let D_steel_m = Do_m;
+    let Di_m = Math.max(0.01, D_steel_m - 2 * tw_m);
+    let D_corr_m = D_steel_m + 2 * tcorr_m;
+    let D_total_m = D_corr_m + 2 * tc_m;
+
+    // Cross-sectional areas
+    let A_steel = (Math.PI / 4) * (Math.pow(D_steel_m, 2) - Math.pow(Di_m, 2));
+    let A_int = (Math.PI / 4) * Math.pow(Di_m, 2);
+    let A_corr = (Math.PI / 4) * (Math.pow(D_corr_m, 2) - Math.pow(D_steel_m, 2));
+    let A_conc = (Math.PI / 4) * (Math.pow(D_total_m, 2) - Math.pow(D_corr_m, 2));
+    let A_total = (Math.PI / 4) * Math.pow(D_total_m, 2);
+
+    // Component masses per unit length (kg/m)
+    let m_steel = A_steel * rho_steel;
+    let m_corr = A_corr * rho_corr;
+    let m_conc = A_conc * rhoconc_kg;
+    let m_cont = A_int * rho_cont;
+    let m_dry = m_steel + m_corr + m_conc + m_cont;
+
+    // Buoyancy per meter (N/m)
+    let B_sw_N = A_total * rho_sw * 9.80665;
+
+    // Submerged weight per meter (N/m)
+    let W_dry_N = m_dry * 9.80665;
+    let W_sub_N = W_dry_N - B_sw_N;
+
+    // Specific Gravity relative to displaced seawater
+    let SG = W_dry_N / B_sw_N;
+
+    // Wave Kinematics at seabed via Airy wave theory
+    // Approximation for wavelength Lw = 1.56 * Tp^2, then dispersion check
+    let L0 = 1.5613 * Math.pow(Tp, 2);
+    let k = (2 * Math.PI) / L0;
+    // Iterative refinement of k*d for shallow/intermediate water
+    for (let i = 0; i < 5; i++) {
+      let f = 9.80665 * k * Math.tanh(k * depth_m) - Math.pow((2 * Math.PI) / Tp, 2);
+      let df = 9.80665 * (Math.tanh(k * depth_m) + k * depth_m * Math.pow(1 / Math.cosh(k * depth_m), 2));
+      k = Math.max(0.0001, k - f / df);
+    }
+    let kd = k * depth_m;
+    let sinh_kd = Math.sinh(kd);
+    let Ub = (Math.PI * Hs_m) / (Tp * sinh_kd);
+    if (isNaN(Ub) || Ub < 0.001) Ub = 0.001;
+
+    // Peak combined velocity at pipe
+    let U_peak = Ub + Vc_m;
+
+    // Hydrodynamic Morison Coefficients per DNV-RP-F109
+    let CD = 0.90;
+    let CM = 2.50;
+    let CL = 0.85;
+
+    // Hydrodynamic Forces (N/m)
+    let FD_N = 0.5 * CD * rho_sw * D_total_m * Math.pow(U_peak, 2);
+    let a_peak = (2 * Math.PI * Ub) / Tp;
+    let FI_N = (Math.PI / 4) * CM * rho_sw * Math.pow(D_total_m, 2) * a_peak;
+    let FL_N = 0.5 * CL * rho_sw * D_total_m * Math.pow(U_peak, 2);
+
+    let FH_total_N = FD_N + FI_N;
+
+    // Net vertical downward load on seabed
+    let W_net_N = Math.max(0, W_sub_N - FL_N);
+
+    // Soil Resistance
+    let mu_soil = 0.65;
+    let F_passive_ratio = 0.15;
+    if (soil === 'dense_sand') { mu_soil = 0.65; F_passive_ratio = 0.20; }
+    else if (soil === 'loose_sand') { mu_soil = 0.50; F_passive_ratio = 0.12; }
+    else if (soil === 'stiff_clay') { mu_soil = 0.40; F_passive_ratio = 0.10; }
+    else if (soil === 'soft_clay') { mu_soil = 0.28; F_passive_ratio = 0.05; }
+    else if (soil === 'rock') { mu_soil = 0.35; F_passive_ratio = 0.0; }
+
+    let F_res_N = (mu_soil * W_net_N) + (F_passive_ratio * W_sub_N);
+
+    // Lateral Factor of Safety (FS)
+    let FS = FH_total_N > 0 ? F_res_N / FH_total_N : 99.9;
+    if (W_sub_N <= FL_N) FS = 0.0; // Floated off bed!
+
+    // Primary UI Output Updates
+    if (ao2Unit === 'imperial') {
+      let W_sub_lbf = W_sub_N * 0.0685217;
+      let FH_lbf = FH_total_N * 0.0685217;
+
+      document.getElementById('ao2-res-wsub').innerText = W_sub_lbf.toFixed(1) + ' lbf/ft';
+      document.getElementById('ao2-sub-wsub').innerText = '(' + (W_sub_N / 1000).toFixed(2) + ' kN/m equiv)';
+      document.getElementById('ao2-res-sg').innerText = SG.toFixed(2);
+      document.getElementById('ao2-sub-sg').innerText = SG >= 1.15 ? '✓ Safe (> 1.15 Target)' : '⚠️ Low Float Risk';
+      document.getElementById('ao2-res-fhydro').innerText = FH_lbf.toFixed(1) + ' lbf/ft';
+      document.getElementById('ao2-sub-fhydro').innerText = 'Drag: ' + (FD_N * 0.0685217).toFixed(1) + ' | Inertia: ' + (FI_N * 0.0685217).toFixed(1);
+
+      document.getElementById('ao2-res-fs').innerText = FS.toFixed(2);
+      document.getElementById('ao2-sub-fs').innerText = FS >= 1.10 ? '✓ DNV Stable (≥ 1.10)' : '❌ Unstable Sweep Risk';
+
+      document.getElementById('ao2-res-dtotal').innerText = (D_total_m * 39.3701).toFixed(2) + ' in';
+      document.getElementById('ao2-res-msteel').innerText = (m_steel * 0.671969).toFixed(1) + ' lb/ft';
+      document.getElementById('ao2-res-mconc').innerText = (m_conc * 0.671969).toFixed(1) + ' lb/ft';
+      document.getElementById('ao2-res-buoy').innerText = (B_sw_N * 0.0685217).toFixed(1) + ' lbf/ft';
+      document.getElementById('ao2-res-ub').innerText = (Ub * 3.28084).toFixed(2) + ' ft/s';
+      document.getElementById('ao2-res-flift').innerText = (FL_N * 0.0685217).toFixed(1) + ' lbf/ft';
+      document.getElementById('ao2-res-wnet').innerText = (W_net_N * 0.0685217).toFixed(1) + ' lbf/ft';
+    } else {
+      document.getElementById('ao2-res-wsub').innerText = (W_sub_N / 1000).toFixed(2) + ' kN/m';
+      document.getElementById('ao2-sub-wsub').innerText = '(' + W_sub_N.toFixed(0) + ' N/m)';
+      document.getElementById('ao2-res-sg').innerText = SG.toFixed(2);
+      document.getElementById('ao2-sub-sg').innerText = SG >= 1.15 ? '✓ Safe (> 1.15 Target)' : '⚠️ Low Float Risk';
+      document.getElementById('ao2-res-fhydro').innerText = (FH_total_N / 1000).toFixed(2) + ' kN/m';
+      document.getElementById('ao2-sub-fhydro').innerText = 'Drag: ' + (FD_N/1000).toFixed(2) + ' | Inertia: ' + (FI_N/1000).toFixed(2) + ' kN/m';
+
+      document.getElementById('ao2-res-fs').innerText = FS.toFixed(2);
+      document.getElementById('ao2-sub-fs').innerText = FS >= 1.10 ? '✓ DNV Stable (≥ 1.10)' : '❌ Unstable Sweep Risk';
+
+      document.getElementById('ao2-res-dtotal').innerText = (D_total_m * 1000).toFixed(1) + ' mm';
+      document.getElementById('ao2-res-msteel').innerText = m_steel.toFixed(1) + ' kg/m';
+      document.getElementById('ao2-res-mconc').innerText = m_conc.toFixed(1) + ' kg/m';
+      document.getElementById('ao2-res-buoy').innerText = (B_sw_N / 1000).toFixed(2) + ' kN/m';
+      document.getElementById('ao2-res-ub').innerText = Ub.toFixed(2) + ' m/s';
+      document.getElementById('ao2-res-flift').innerText = (FL_N / 1000).toFixed(2) + ' kN/m';
+      document.getElementById('ao2-res-wnet').innerText = (W_net_N / 1000).toFixed(2) + ' kN/m';
+    }
+
+    // Dynamic SVG Simulation
+    renderAO2Svg(D_total_m, Do_m, W_sub_N, FL_N, FH_total_N, FS, soil, Ub, Vc_m);
+  };
+
+  function renderAO2Svg(D_total_m, Do_m, W_sub_N, FL_N, FH_total_N, FS, soil, Ub, Vc_m) {
+    const svg = document.getElementById('ao2-svg');
+    if (!svg) return;
+
+    let pipeCx = 400;
+    let pipeCy = 145;
+    let rOuter = 55;
+    let rCorr = 46;
+    let rSteel = 43;
+    let rInt = 34;
+
+    let fsColor = FS >= 1.10 ? '#10b981' : '#ef4444';
+
+    let svgParts = [
+      '<!-- Seabed Soil Block -->',
+      '<rect x="50" y="200" width="700" height="70" fill="#292524" stroke="#44403c" stroke-width="1.5" />',
+      '<line x1="50" y1="200" x2="750" y2="200" stroke="#78716c" stroke-width="2" />',
+      '<text x="60" y="220" fill="#a8a29e" font-size="11">Seabed Soil: ' + soil.replace('_', ' ').toUpperCase() + '</text>',
+      
+      '<!-- Soil Passive Berm (Downstream resistance) -->',
+      '<polygon points="450,200 480,185 500,200" fill="#57534e" opacity="0.8" />',
+      '<text x="505" y="195" fill="#a8a29e" font-size="10">Passive Berm</text>',
+
+      '<!-- Hydrodynamic Wave & Current Flow Velocity Gradient Arrows (Left to Right) -->',
+      '<line x1="120" y1="90" x2="280" y2="90" stroke="#38bdf8" stroke-width="2" />',
+      '<polygon points="280,87 292,90 280,93" fill="#38bdf8" />',
+      '<text x="120" y="82" fill="#38bdf8" font-size="10">Current + Wave Crest (Upeak = ' + (Ub + Vc_m).toFixed(2) + ' m/s)</text>',
+
+      '<line x1="150" y1="130" x2="270" y2="130" stroke="#38bdf8" stroke-width="1.5" />',
+      '<polygon points="270,128 280,130 270,132" fill="#38bdf8" />',
+
+      '<line x1="180" y1="170" x2="260" y2="170" stroke="#38bdf8" stroke-width="1.2" />',
+      '<polygon points="260,168 270,170 260,172" fill="#38bdf8" />',
+
+      '<!-- Multilayer Pipe Cross-Section -->',
+      '<!-- Concrete Weight Coating (CWC) Outer Ring -->',
+      '<circle cx="' + pipeCx + '" cy="' + pipeCy + '" r="' + rOuter + '" fill="#78716c" stroke="#d6d3d1" stroke-width="2" />',
+      
+      '<!-- Corrosion Coating (3LPP / FBE) -->',
+      '<circle cx="' + pipeCx + '" cy="' + pipeCy + '" r="' + rCorr + '" fill="#0284c7" stroke="#38bdf8" stroke-width="1" />',
+      
+      '<!-- Steel Line Pipe Wall -->',
+      '<circle cx="' + pipeCx + '" cy="' + pipeCy + '" r="' + rSteel + '" fill="#334155" stroke="#94a3b8" stroke-width="1.5" />',
+      
+      '<!-- Internal Fluid Contents -->',
+      '<circle cx="' + pipeCx + '" cy="' + pipeCy + '" r="' + rInt + '" fill="#b45309" opacity="0.9" />',
+      '<text x="' + pipeCx + '" y="' + (pipeCy + 4) + '" fill="#fef08a" font-size="10" font-weight="600" text-anchor="middle">Fluid</text>',
+
+      '<!-- Force Vectors -->',
+      '<!-- Upward Lift Force (FL) -->',
+      '<line x1="' + pipeCx + '" y1="' + (pipeCy - rOuter) + '" x2="' + pipeCx + '" y2="' + (pipeCy - rOuter - 40) + '" stroke="#ef4444" stroke-width="2.5" />',
+      '<polygon points="' + (pipeCx - 4) + ',' + (pipeCy - rOuter - 40) + ' ' + pipeCx + ',' + (pipeCy - rOuter - 50) + ' ' + (pipeCx + 4) + ',' + (pipeCy - rOuter - 40) + '" fill="#ef4444" />',
+      '<text x="' + (pipeCx + 8) + '" y="' + (pipeCy - rOuter - 38) + '" fill="#ef4444" font-size="11" font-weight="700">Lift FL (' + (FL_N/1000).toFixed(1) + ' kN/m)</text>',
+
+      '<!-- Downward Submerged Weight (Wsub) -->',
+      '<line x1="' + (pipeCx - 18) + '" y1="' + pipeCy + '" x2="' + (pipeCx - 18) + '" y2="' + (pipeCy + 60) + '" stroke="#10b981" stroke-width="2.5" />',
+      '<polygon points="' + (pipeCx - 22) + ',' + (pipeCy + 60) + ' ' + (pipeCx - 18) + ',' + (pipeCy + 70) + ' ' + (pipeCx - 14) + ',' + (pipeCy + 60) + '" fill="#10b981" />',
+      '<text x="' + (pipeCx - 105) + '" y="' + (pipeCy + 55) + '" fill="#10b981" font-size="11" font-weight="700">Wsub (' + (W_sub_N/1000).toFixed(1) + ' kN/m)</text>',
+
+      '<!-- Horizontal Drag + Inertia Force (FH) -->',
+      '<line x1="' + (pipeCx + rOuter) + '" y1="' + pipeCy + '" x2="' + (pipeCx + rOuter + 55) + '" y2="' + pipeCy + '" stroke="#f59e0b" stroke-width="2.5" />',
+      '<polygon points="' + (pipeCx + rOuter + 55) + ',' + (pipeCy - 4) + ' ' + (pipeCx + rOuter + 65) + ',' + pipeCy + ' ' + (pipeCx + rOuter + 55) + ',' + (pipeCy + 4) + '" fill="#f59e0b" />',
+      '<text x="' + (pipeCx + rOuter + 8) + '" y="' + (pipeCy - 8) + '" fill="#f59e0b" font-size="11" font-weight="700">FD + FI (' + (FH_total_N/1000).toFixed(1) + ' kN/m)</text>',
+
+      '<!-- Status Banner -->',
+      '<rect x="230" y="10" width="340" height="30" fill="#0f172a" rx="4" stroke="' + fsColor + '" stroke-width="1.5" />',
+      '<text x="400" y="30" fill="' + fsColor + '" font-size="12" font-weight="700" text-anchor="middle">DNV-RP-F109 LATERAL FACTOR OF SAFETY: ' + FS.toFixed(2) + ' (' + (FS >= 1.10 ? 'PASS' : 'FAIL - EXTEND CWC') + ')</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAO2Diagnostics = function() {
+    let w = document.getElementById('ao2-res-wsub').innerText;
+    let sg = document.getElementById('ao2-res-sg').innerText;
+    let f = document.getElementById('ao2-res-fhydro').innerText;
+    let fs = document.getElementById('ao2-res-fs').innerText;
+    let d = document.getElementById('ao2-res-dtotal').innerText;
+    let ms = document.getElementById('ao2-res-msteel').innerText;
+    let mc = document.getElementById('ao2-res-mconc').innerText;
+    let b = document.getElementById('ao2-res-buoy').innerText;
+    let ub = document.getElementById('ao2-res-ub').innerText;
+    let fl = document.getElementById('ao2-res-flift').innerText;
+    let wn = document.getElementById('ao2-res-wnet').innerText;
+
+    let text = [
+      '=== DNV-RP-F109 SUBSEA PIPELINE ON-BOTTOM STABILITY AUDIT ===',
+      'Standard: DNV-RP-F109 / API RP 1111 / Morison Hydrodynamic Theory',
+      '------------------------------------------------------------',
+      'Submerged Net Weight (Wsub):     ' + w,
+      'Pipeline Specific Gravity (SG):  ' + sg,
+      'Peak Hydrodynamic Force (FD+FI): ' + f,
+      'Lateral Factor of Safety (FS):   ' + fs,
+      'Coated Outer Diameter (Dtotal):  ' + d,
+      'Steel Pipe Unit Mass:            ' + ms,
+      'Concrete Weight Coating Mass:    ' + mc,
+      'Seawater Buoyant Force:          ' + b,
+      'Seabed Wave Orbital Velocity:    ' + ub,
+      'Vertical Lift Force (FL):        ' + fl,
+      'Effective Downward Normal Load:  ' + wn,
+      '------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/subsea-pipeline-bottom-stability-dnv-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('ao2-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Subsea Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAO2();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'subsea-pipeline-bottom-stability-dnv-calculator.html'), renderTradePage({
+  title: 'Subsea Pipeline On-Bottom Stability Calculator | DNV-RP-F109',
+  metaDescription: 'Calculate offshore pipeline submerged weight, hydrodynamic wave-current Morison drag and lift forces, and required concrete weight coating thickness per DNV-RP-F109.',
+  canonical: 'https://digitaltoolsshed.com/calc/subsea-pipeline-bottom-stability-dnv-calculator.html',
+  content: toolAO2Html,
+  faq: [
+    {
+      q: 'What is DNV-RP-F109 and what stability criteria does it enforce?',
+      a: 'DNV-RP-F109 (On-Bottom Stability Design of Submarine Pipelines) provides international engineering guidelines to ensure un-trenched offshore pipelines remain stationary under extreme 100-year storm wave and current forces. It specifies absolute lateral static stability (FS ≥ 1.10) where peak hydrodynamic drag and inertia forces cannot exceed seabed Coulomb soil friction plus passive soil berm resistance.'
+    },
+    {
+      q: 'Why is hydrodynamic vertical lift force so critical in pipeline stability?',
+      a: 'As ocean currents and wave orbital velocities accelerate over the crest of a pipeline resting on the seabed, local low pressure develops over the top surface (Bernoulli effect), creating a massive upward lift force (FL = 0.5 * CL * ρ * D * U²). Lift directly reduces the effective downward weight pressing into the seabed, stripping away 30% to 60% of available soil friction.'
+    },
+    {
+      q: 'What is Concrete Weight Coating (CWC) and what density is used?',
+      a: 'Concrete Weight Coating is an external protective ballast layer applied over the corrosion coating (such as 3LPP or FBE). Standard aggregate concrete provides densities of 2,250 to 2,400 kg/m³, while heavy iron-ore aggregate (magnetite or hematite) achieves densities up to 3,040 to 3,450 kg/m³, maximizing submerged weight while keeping outer diameter and hydrodynamic drag minimal.'
+    },
+    {
+      q: 'How does water depth affect seabed wave orbital velocity?',
+      a: 'Surface storm waves decay exponentially with depth according to Airy linear wave theory (Ub = πHs / (Tp * sinh(kd))). In deep water (depth > half wavelength), wave orbital motion attenuates to zero at the seabed. In shallow waters (< 50 meters), long-period swell waves reach the bottom with tremendous kinetic energy, requiring significantly thicker concrete coating.'
+    },
+    {
+      q: 'What is seabed liquefaction and how does it endanger subsea pipelines?',
+      a: 'Under cyclic wave pressure fluctuations during major storms, pore water pressure inside fine sands and silts builds until effective stress drops to zero, turning the seabed into a fluid slurry. If a pipeline has a specific gravity (SG) lower than the slurry density (~1.8 to 2.0), it floats to the seabed surface or breaks under vertical bending moments.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AO3: Natural Gas Pipeline Linepack & Transient Storage Capacity Calculator (AGA-8 & Panhandle B)
+// ==========================================
+const toolAO3Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">AGA Report No. 8 &bull; Panhandle B Flow Equation &bull; GPSA Engineering Data Book</div>
+    <h1>Natural Gas Pipeline Linepack & Storage Capacity Calculator</h1>
+    <p class="text-muted">Calculate total linepack inventory, usable draftable buffer volume, real gas compressibility factor ($Z$), and transmission flow throughput for high-pressure natural gas pipelines per AGA Report No. 8 and Panhandle B flow formulations.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="ao3-unit-metric" onclick="setAO3Unit('metric')">Metric Units (mm, km, bar, 10⁶ Sm³/d)</button>
+    <button type="button" class="unit-toggle-btn" id="ao3-unit-imperial" onclick="setAO3Unit('imperial')">Imperial Units (in, mi, psig, MMSCFD)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Pipeline Geometry & Pressures -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Pipeline Dimensions & Pressures</h3>
+
+      <div class="input-group">
+        <label for="ao3-pipe-id" id="ao3-label-pipe-id">Pipeline Inside Diameter ($D_i$) (mm):</label>
+        <input type="number" id="ao3-pipe-id" value="736.6" step="10" min="100" max="1500" oninput="calcAO3()">
+        <span class="text-muted">Common: 590mm (24"), 736.6mm (30"), 889mm (36"), 1041mm (42"), 1193mm (48")</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao3-pipe-len" id="ao3-label-pipe-len">Pipeline Segment Length ($L$) (km):</label>
+        <input type="number" id="ao3-pipe-len" value="120" step="5" min="1" max="1500" oninput="calcAO3()">
+        <span class="text-muted">Distance between compressor stations or delivery points</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao3-p-inlet" id="ao3-label-p-inlet">Inlet Discharge Pressure ($P_1$) (bar gauge):</label>
+        <input type="number" id="ao3-p-inlet" value="82.0" step="1.0" min="10.0" max="250.0" oninput="calcAO3()">
+        <span class="text-muted">Compressor station discharge pressure (typically below MAOP)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao3-p-outlet" id="ao3-label-p-outlet">Outlet Receiving Pressure ($P_2$) (bar gauge):</label>
+        <input type="number" id="ao3-p-outlet" value="52.0" step="1.0" min="5.0" max="200.0" oninput="calcAO3()">
+        <span class="text-muted">Pressure at delivery point or downstream compressor suction</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao3-p-min" id="ao3-label-p-min">Minimum Contract Delivery Pressure ($P_{min}$) (bar gauge):</label>
+        <input type="number" id="ao3-p-min" value="38.0" step="1.0" min="2.0" max="100.0" oninput="calcAO3()">
+        <span class="text-muted">Firm contractual city-gate or industrial delivery floor pressure</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Gas Properties & Operating Conditions -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Gas Chemistry & Operating State</h3>
+
+      <div class="input-group">
+        <label for="ao3-gas-sg">Gas Specific Gravity ($SG$ relative to air):</label>
+        <input type="number" id="ao3-gas-sg" value="0.60" step="0.01" min="0.55" max="0.85" oninput="calcAO3()">
+        <span class="text-muted">Dry pipeline-quality natural gas: 0.58 - 0.65 (Methane ~0.554)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao3-gas-temp" id="ao3-label-gas-temp">Average Gas Temperature ($T_{avg}$) (°C):</label>
+        <input type="number" id="ao3-gas-temp" value="18.0" step="1.0" min="-10.0" max="65.0" oninput="calcAO3()">
+        <span class="text-muted">Buried pipe equilibrium ground temperature</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao3-efficiency">Pipeline Panhandle Flow Efficiency ($E$):</label>
+        <input type="number" id="ao3-efficiency" value="0.92" step="0.01" min="0.70" max="1.00" oninput="calcAO3()">
+        <span class="text-muted">Clean modern line: 0.92 - 0.96; older/partially fouled line: 0.82 - 0.88</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao3-offtake-rate" id="ao3-label-offtake">Customer Net Peak Offtake Rate ($Q_{draw}$):</label>
+        <input type="number" id="ao3-offtake-rate" value="18.5" step="0.5" min="0.5" max="100.0" oninput="calcAO3()">
+        <span class="text-muted" id="ao3-hint-offtake">Daily withdrawal rate in 10⁶ Sm³/day (used for buffer cushion hours)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao3-ghv" id="ao3-label-ghv">Gross Heating Value (GHV) (MJ/Sm³):</label>
+        <input type="number" id="ao3-ghv" value="38.5" step="0.5" min="30.0" max="45.0" oninput="calcAO3()">
+        <span class="text-muted">Imperial equivalent: ~1,030 Btu/SCF</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Gas Transmission & Linepack Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Total Linepack Inventory</span>
+        <div id="ao3-res-pack-total" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ao3-sub-pack-total" style="font-size:0.75rem;">Standard base conditions</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Draftable Buffer Linepack</span>
+        <div id="ao3-res-pack-draft" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ao3-sub-pack-draft" style="font-size:0.75rem;">Above minimum Pmin</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Panhandle Flow Throughput</span>
+        <div id="ao3-res-flow" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ao3-sub-flow" style="font-size:0.75rem;">Steady-state delivery rate</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Supply Cushion Duration</span>
+        <div id="ao3-res-cushion-time" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">-- hrs</div>
+        <span class="text-muted" id="ao3-sub-cushion" style="font-size:0.75rem;">If upstream feed isolated</span>
+      </div>
+    </div>
+
+    <!-- Interactive Hydraulic Gradient & Linepack SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Pipeline Hydraulic Gradient Profile & Transient Draft Storage Buffer</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live Panhandle & AGA-8 Profile</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="ao3-svg" viewBox="0 0 800 260" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Thermodynamic & Gas Inventory Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Governing Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Operational Design Guidance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Weighted Effective Average Pressure</td>
+              <td style="padding: 8px;">$P_{avg} = \frac{2}{3} [P_1 + P_2 - \frac{P_1 P_2}{P_1 + P_2}]$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao3-res-pavg">--</td>
+              <td style="padding: 8px; color: #10b981;">Correct non-linear expansion average</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Real Gas Compressibility Factor ($Z$)</td>
+              <td style="padding: 8px;">$Z(P_{avg}, T_{avg}, SG)$ via AGA-8 / CNGA</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao3-res-z">--</td>
+              <td style="padding: 8px; color: #10b981;">Deviates significantly from $1.0$ at $>50$ bar</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Pipeline Geometric Internal Volume</td>
+              <td style="padding: 8px;">$V_g = \frac{\pi}{4} D_i^2 L$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao3-res-vg">--</td>
+              <td style="padding: 8px; color: #10b981;">Physical pipe containment volume</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Base Inactive Cushion Pack</td>
+              <td style="padding: 8px;">$V_{cushion} = V_{total} - V_{draft}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao3-res-cushion">--</td>
+              <td style="padding: 8px; color: #10b981;">Permanent inventory required to sustain $P_{min}$</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Gas Expansion Pressure Ratio</td>
+              <td style="padding: 8px;">$R_p = P_{avg} / P_b$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao3-res-pratio">--</td>
+              <td style="padding: 8px; color: #10b981;">Standard atmospheric compression ratio</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Thermal Energy Stored in Linepack</td>
+              <td style="padding: 8px;">$E_{pack} = V_{LP} \times GHV$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao3-res-energy">--</td>
+              <td style="padding: 8px; color: #10b981;">Grid energy storage equivalent</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="ao3-copy-btn" onclick="copyAO3Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Natural Gas Linepack & Capacity Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Comprehensive Mathematical Derivation & Fluid Dynamics</h3>
+    <p>Natural gas pipelines serve dual functions: transmitting bulk energy over continental distances and functioning as massive pressurized surge gas-holders (linepack storage). Calculating true linepack requires rigorous non-linear integration of compressible gas hydraulics and real-gas thermodynamic state equations:</p>
+
+    <h4>1. True Weighted Effective Average Pressure ($P_{avg}$)</h4>
+    <p>Because gas expands as its pressure declines along the pipeline, the pressure gradient $P(x)$ is not a straight line, but a parabolic curve governed by the steady-state mechanical energy equation $P(x) = \sqrt{P_1^2 - (P_1^2 - P_2^2) \frac{x}{L}}$. Integrating pressure along the pipe length yields the famous 2/3 weighted formula:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$P_{avg} = \frac{1}{L} \int_0^L P(x) dx = \frac{2}{3} \left[ P_1 + P_2 - \frac{P_1 \cdot P_2}{P_1 + P_2} \right]$$
+    </div>
+    <p>Using the naive arithmetic average $(P_1 + P_2) / 2$ overstates linepack by up to 10% to 15%, causing dangerous overestimation of commercial reserve storage.</p>
+
+    <h4>2. Real Gas Compressibility Factor ($Z$) via AGA-8 / CNGA</h4>
+    <p>At typical transmission pressures (50 to 120 bar / 700 to 1800 psi), intermolecular forces cause natural gas to compress significantly more than an ideal gas ($Z < 1.0$, typically $Z \approx 0.80 - 0.88$). Under the California Natural Gas Association (CNGA) formulation validated against AGA Report No. 8:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$Z = 1 - \frac{3.53 \cdot P_{avg,abs}}{10^{3.825 \cdot SG}} + 0.227 \left( \frac{P_{avg,abs}}{10^{3.825 \cdot SG}} \right)^2$$
+    </div>
+    <p>Where $P_{avg,abs}$ is expressed in psia, and temperature corrections follow standard virial polynomial expansions.</p>
+
+    <h4>3. Standard Linepack Inventory Formula</h4>
+    <p>Converting the physical geometric volume of the steel pipe ($V_g = \frac{\pi}{4} D_i^2 L$) into equivalent volume at standard base conditions ($P_b = 1.01325\ \text{bar} / 14.73\ \text{psia}, T_b = 15.56^\circ\text{C} / 520^\circ\text{R}$):</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$V_{LP} = V_g \cdot \left( \frac{P_{avg}}{P_b} \right) \cdot \left( \frac{T_b}{T_{avg}} \right) \cdot \left( \frac{1}{Z_{avg}} \right)$$
+    </div>
+
+    <h4>4. Transmission Flow Capacity via Panhandle B Flow Equation</h4>
+    <p>For large-diameter, high-Reynolds-number cross-country natural gas transmission lines ($Re > 4 \times 10^6$), the Panhandle B equation accurately predicts steady-state mass throughput without empirical Moody friction charts:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$Q = 737 \cdot E \cdot \left(\frac{T_b}{P_b}\right)^{1.02} \cdot \left[ \frac{P_1^2 - P_2^2}{SG^{0.961} \cdot T_{avg} \cdot L \cdot Z_{avg}} \right]^{0.51} \cdot D_i^{2.53}$$
+    </div>
+    <p>Where $E$ is pipeline operating efficiency ($0.92 - 0.95$), $D_i$ is pipe inside diameter (inches), $L$ is length (miles), and $Q$ is standard cubic feet per day (SCFD).</p>
+  </div>
+
+  <!-- 5 Fatal Industry Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Failure Modes in Pipeline Linepack</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Using Arithmetic Average Pressure $(P_1 + P_2)/2$ Overstating Deliverable Reserves</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Because pressure loss in gas pipelines scales with the square of velocity and density ($dP/dx \propto 1/P$), pressure drops far more steeply near the downstream outlet than near the inlet. The true weighted average pressure $P_{avg} = \frac{2}{3}(P_1 + P_2 - \frac{P_1 P_2}{P_1 + P_2})$ is always significantly lower than the arithmetic mean. Gas dispatchers using simple averages overstate emergency linepack reserves by 8% to 14%, leading to unexpected low-pressure contract curtailments during winter freeze events.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Ignoring Real Gas Compressibility ($Z < 1.0$) at High Operating Pressures</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Assuming ideal gas behavior ($Z = 1.0$) at modern transmission pressures (80 to 120 bar) is a massive mistake. At 90 bar, methane has a compressibility factor of approximately $Z \approx 0.82$. Because density is inversely proportional to $Z$ ($\rho = P / [Z R T]$), the pipe actually contains ~22% MORE standard gas volume than the ideal gas law indicates. Failing to use AGA-8 leads to severe custody transfer imbalances and incorrect pack/draft tracking.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Severe Joule-Thomson Chilling During Rapid Linepack Depletion</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">When an emergency power outage or upstream supply loss forces operators to draft linepack rapidly, gas expands through downstream pressure-reducing stations under high differential pressures. Natural gas exhibits a strong Joule-Thomson cooling coefficient ($\sim 0.4^\circ\text{C}$ to $0.6^\circ\text{C}$ temperature drop per bar of depressurization). Rapid drafting can freeze control valves, shatter carbon steel below its ductile-to-brittle transition temperature (DBTT), and form catastrophic solid methane hydrates.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Violating Contractual City-Gate Minimum Delivery Pressure ($P_{min}$)</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Not all linepack is usable. Only the 'draftable linepack'—the volume stored above the minimum receiving contract pressure required by local distribution gas utilities and combined-cycle power turbines—can ever be withdrawn. Treating total linepack as available storage leads operators to run pipelines down to levels where city gates trip on low inlet pressure, cutting off heat to thousands of homes.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Acoustic Resonance & Linepack Packing Lag Following Compressor Trips</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Because pressure changes propagate through natural gas only at the local sonic velocity ($c \approx 380 - 430\ \text{m/s}$), pressure waves require 5 to 10 minutes per 100 miles of pipe to communicate demand changes. Packing a pipeline from an upstream compressor station does not increase downstream delivery pressure immediately. Operators who misjudge this acoustic transit lag frequently over-pressurize the inlet or starve downstream power plants.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let ao3Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAO3Unit = function(unit) {
+    if (ao3Unit === unit) return;
+    ao3Unit = unit;
+    document.getElementById('ao3-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('ao3-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const pid = document.getElementById('ao3-pipe-id');
+    const plen = document.getElementById('ao3-pipe-len');
+    const pin = document.getElementById('ao3-p-inlet');
+    const pout = document.getElementById('ao3-p-outlet');
+    const pmin = document.getElementById('ao3-p-min');
+    const temp = document.getElementById('ao3-gas-temp');
+    const offtake = document.getElementById('ao3-offtake-rate');
+    const ghv = document.getElementById('ao3-ghv');
+
+    if (unit === 'imperial') {
+      document.getElementById('ao3-label-pipe-id').innerText = 'Pipeline Inside Diameter (Di) (in):';
+      document.getElementById('ao3-label-pipe-len').innerText = 'Pipeline Segment Length (L) (miles):';
+      document.getElementById('ao3-label-p-inlet').innerText = 'Inlet Discharge Pressure (P1) (psig):';
+      document.getElementById('ao3-label-p-outlet').innerText = 'Outlet Receiving Pressure (P2) (psig):';
+      document.getElementById('ao3-label-p-min').innerText = 'Minimum Contract Delivery Pressure (Pmin) (psig):';
+      document.getElementById('ao3-label-gas-temp').innerText = 'Average Gas Temperature (Tavg) (°F):';
+      document.getElementById('ao3-label-offtake').innerText = 'Customer Net Peak Offtake Rate (Qdraw) (MMSCFD):';
+      document.getElementById('ao3-hint-offtake').innerText = 'Daily withdrawal rate in MMSCFD (used for buffer cushion hours)';
+      document.getElementById('ao3-label-ghv').innerText = 'Gross Heating Value (GHV) (Btu/SCF):';
+
+      pid.value = (parseFloat(pid.value) / 25.4).toFixed(2);
+      plen.value = (parseFloat(plen.value) * 0.621371).toFixed(1);
+      pin.value = (parseFloat(pin.value) * 14.5038).toFixed(0);
+      pout.value = (parseFloat(pout.value) * 14.5038).toFixed(0);
+      pmin.value = (parseFloat(pmin.value) * 14.5038).toFixed(0);
+      temp.value = ((parseFloat(temp.value) * 9/5) + 32).toFixed(1);
+      offtake.value = (parseFloat(offtake.value) * 35.3147).toFixed(1);
+      ghv.value = (parseFloat(ghv.value) * 26.8392).toFixed(0);
+    } else {
+      document.getElementById('ao3-label-pipe-id').innerText = 'Pipeline Inside Diameter (Di) (mm):';
+      document.getElementById('ao3-label-pipe-len').innerText = 'Pipeline Segment Length (L) (km):';
+      document.getElementById('ao3-label-p-inlet').innerText = 'Inlet Discharge Pressure (P1) (bar gauge):';
+      document.getElementById('ao3-label-p-outlet').innerText = 'Outlet Receiving Pressure (P2) (bar gauge):';
+      document.getElementById('ao3-label-p-min').innerText = 'Minimum Contract Delivery Pressure (Pmin) (bar gauge):';
+      document.getElementById('ao3-label-gas-temp').innerText = 'Average Gas Temperature (Tavg) (°C):';
+      document.getElementById('ao3-label-offtake').innerText = 'Customer Net Peak Offtake Rate (Qdraw) (10⁶ Sm³/day):';
+      document.getElementById('ao3-hint-offtake').innerText = 'Daily withdrawal rate in 10⁶ Sm³/day (used for buffer cushion hours)';
+      document.getElementById('ao3-label-ghv').innerText = 'Gross Heating Value (GHV) (MJ/Sm³):';
+
+      pid.value = (parseFloat(pid.value) * 25.4).toFixed(1);
+      plen.value = (parseFloat(plen.value) / 0.621371).toFixed(0);
+      pin.value = (parseFloat(pin.value) / 14.5038).toFixed(1);
+      pout.value = (parseFloat(pout.value) / 14.5038).toFixed(1);
+      pmin.value = (parseFloat(pmin.value) / 14.5038).toFixed(1);
+      temp.value = (((parseFloat(temp.value) - 32) * 5/9)).toFixed(1);
+      offtake.value = (parseFloat(offtake.value) / 35.3147).toFixed(1);
+      ghv.value = (parseFloat(ghv.value) / 26.8392).toFixed(1);
+    }
+    calcAO3();
+  };
+
+  window.calcAO3 = function() {
+    let Di_in = 29.0;
+    let L_mi = 74.56;
+    let P1_psig = 1189.0;
+    let P2_psig = 754.0;
+    let Pmin_psig = 551.0;
+    let SG = parseFloat(document.getElementById('ao3-gas-sg').value) || 0.60;
+    let T_F = 64.4;
+    let E = parseFloat(document.getElementById('ao3-efficiency').value) || 0.92;
+    let Qdraw_input = parseFloat(document.getElementById('ao3-offtake-rate').value) || 18.5;
+    let GHV_input = parseFloat(document.getElementById('ao3-ghv').value) || 38.5;
+
+    if (ao3Unit === 'imperial') {
+      Di_in = parseFloat(document.getElementById('ao3-pipe-id').value) || 29.0;
+      L_mi = parseFloat(document.getElementById('ao3-pipe-len').value) || 74.56;
+      P1_psig = parseFloat(document.getElementById('ao3-p-inlet').value) || 1189.0;
+      P2_psig = parseFloat(document.getElementById('ao3-p-outlet').value) || 754.0;
+      Pmin_psig = parseFloat(document.getElementById('ao3-p-min').value) || 551.0;
+      T_F = parseFloat(document.getElementById('ao3-gas-temp').value) || 64.4;
+    } else {
+      let Di_mm = parseFloat(document.getElementById('ao3-pipe-id').value) || 736.6;
+      let L_km = parseFloat(document.getElementById('ao3-pipe-len').value) || 120.0;
+      let P1_bar = parseFloat(document.getElementById('ao3-p-inlet').value) || 82.0;
+      let P2_bar = parseFloat(document.getElementById('ao3-p-outlet').value) || 52.0;
+      let Pmin_bar = parseFloat(document.getElementById('ao3-p-min').value) || 38.0;
+      let T_C = parseFloat(document.getElementById('ao3-gas-temp').value) || 18.0;
+
+      Di_in = Di_mm / 25.4;
+      L_mi = L_km * 0.621371;
+      P1_psig = P1_bar * 14.5038;
+      P2_psig = P2_bar * 14.5038;
+      Pmin_psig = Pmin_bar * 14.5038;
+      T_F = (T_C * 9/5) + 32;
+    }
+
+    // Absolute pressures in psia
+    let Patm = 14.696;
+    let P1_psia = P1_psig + Patm;
+    let P2_psia = P2_psig + Patm;
+    let Pmin_psia = Pmin_psig + Patm;
+
+    // Safety checks
+    if (P2_psia >= P1_psia) P2_psia = P1_psia - 1.0;
+    if (Pmin_psia >= P2_psia) Pmin_psia = P2_psia - 1.0;
+
+    // 1. Effective Average Pressure via 2/3 rule
+    let Pavg_psia = (2/3) * (P1_psia + P2_psia - ((P1_psia * P2_psia) / (P1_psia + P2_psia)));
+    let Pavg_bar = Pavg_psia / 14.5038;
+
+    // 2. Real Gas Compressibility Factor Z via CNGA / AGA-8 approximation
+    // Z = 1 - 3.53 * Pavg / 10^(3.825 * SG) + 0.227 * (Pavg / 10^(3.825 * SG))^2
+    let denom = Math.pow(10, 3.825 * SG);
+    let term = Pavg_psia / denom;
+    let Z_avg = 1.0 - (3.53 * term) + (0.227 * Math.pow(term, 2));
+    if (Z_avg < 0.60) Z_avg = 0.60;
+    if (Z_avg > 1.05) Z_avg = 1.00;
+
+    // Compressibility at Pmin
+    let term_min = Pmin_psia / denom;
+    let Z_min = 1.0 - (3.53 * term_min) + (0.227 * Math.pow(term_min, 2));
+
+    // 3. Pipe Geometric Internal Volume Vg
+    let Di_ft = Di_in / 12.0;
+    let L_ft = L_mi * 5280.0;
+    let Vg_cuft = (Math.PI / 4) * Math.pow(Di_ft, 2) * L_ft; // physical cubic feet
+    let Vg_m3 = Vg_cuft * 0.0283168;
+
+    // Standard Base Conditions
+    let Pb_psia = 14.73; // standard atmospheric psia
+    let Tb_R = 519.67; // 60 deg F in Rankine
+    let Tavg_R = T_F + 459.67;
+
+    // 4. Linepack Total Volume at standard conditions (SCF)
+    let V_LP_SCF = Vg_cuft * (Pavg_psia / Pb_psia) * (Tb_R / (Tavg_R * Z_avg));
+    let V_LP_MMSCF = V_LP_SCF / 1e6;
+    let V_LP_MSm3 = V_LP_SCF / 35.3147e6; // Million standard m³
+
+    // 5. Cushion Pack at Minimum Contract Pressure Pmin
+    let V_cushion_SCF = Vg_cuft * (Pmin_psia / Pb_psia) * (Tb_R / (Tavg_R * Z_min));
+    let V_cushion_MMSCF = V_cushion_SCF / 1e6;
+    let V_cushion_MSm3 = V_cushion_SCF / 35.3147e6;
+
+    // 6. Usable Draftable Linepack
+    let V_draft_MMSCF = Math.max(0, V_LP_MMSCF - V_cushion_MMSCF);
+    let V_draft_MSm3 = Math.max(0, V_LP_MSm3 - V_cushion_MSm3);
+
+    // 7. Panhandle B Flow Throughput Equation (SCFD)
+    // Q = 737 * E * (Tb / Pb)^1.02 * [ (P1^2 - P2^2) / (SG^0.961 * Tavg * L * Zavg) ]^0.51 * Di^2.53
+    let term1 = Math.pow(Tb_R / Pb_psia, 1.02);
+    let deltaP2 = Math.max(1.0, Math.pow(P1_psia, 2) - Math.pow(P2_psia, 2));
+    let term2 = deltaP2 / (Math.pow(SG, 0.961) * Tavg_R * L_mi * Z_avg);
+    let Q_SCFD = 737 * E * term1 * Math.pow(term2, 0.51) * Math.pow(Di_in, 2.53);
+    let Q_MMSCFD = Q_SCFD / 1e6;
+    let Q_MSm3D = Q_SCFD / 35.3147e6;
+
+    // 8. Supply Cushion Duration (hours)
+    let Qdraw_MMSCFD = ao3Unit === 'imperial' ? Qdraw_input : Qdraw_input * 35.3147;
+    let hours_cushion = Qdraw_MMSCFD > 0 ? (V_draft_MMSCF / Qdraw_MMSCFD) * 24 : 999;
+
+    // 9. Thermal Energy Stored
+    let energy_MMBtu = 0;
+    let energy_TJ = 0;
+    if (ao3Unit === 'imperial') {
+      energy_MMBtu = V_LP_SCF * (GHV_input / 1e6);
+      energy_TJ = energy_MMBtu * 0.00105506;
+    } else {
+      energy_TJ = (V_LP_MSm3 * 1e6) * GHV_input / 1e6; // Sm³ * MJ/Sm³ -> MJ / 1e6 = TJ
+      energy_MMBtu = energy_TJ / 0.00105506;
+    }
+
+    // UI Updates
+    if (ao3Unit === 'imperial') {
+      document.getElementById('ao3-res-pack-total').innerText = V_LP_MMSCF.toFixed(1) + ' MMSCF';
+      document.getElementById('ao3-sub-pack-total').innerText = '(' + V_LP_MSm3.toFixed(2) + ' 10⁶ Sm³ equiv)';
+      document.getElementById('ao3-res-pack-draft').innerText = V_draft_MMSCF.toFixed(1) + ' MMSCF';
+      document.getElementById('ao3-sub-pack-draft').innerText = ((V_draft_MMSCF / V_LP_MMSCF) * 100).toFixed(1) + '% of inventory';
+      document.getElementById('ao3-res-flow').innerText = Q_MMSCFD.toFixed(1) + ' MMSCFD';
+      document.getElementById('ao3-sub-flow').innerText = 'Panhandle B Steady Delivery';
+      document.getElementById('ao3-res-cushion-time').innerText = hours_cushion.toFixed(1) + ' hrs';
+      document.getElementById('ao3-sub-cushion').innerText = 'At ' + Qdraw_input.toFixed(1) + ' MMSCFD draw';
+
+      document.getElementById('ao3-res-pavg').innerText = Pavg_psia.toFixed(1) + ' psia (' + (Pavg_psia - Patm).toFixed(1) + ' psig)';
+      document.getElementById('ao3-res-z').innerText = Z_avg.toFixed(4);
+      document.getElementById('ao3-res-vg').innerText = Vg_cuft.toLocaleString('en-US', {maximumFractionDigits:0}) + ' ft³';
+      document.getElementById('ao3-res-cushion').innerText = V_cushion_MMSCF.toFixed(1) + ' MMSCF';
+      document.getElementById('ao3-res-pratio').innerText = (Pavg_psia / Pb_psia).toFixed(1) + ' : 1';
+      document.getElementById('ao3-res-energy').innerText = energy_MMBtu.toLocaleString('en-US', {maximumFractionDigits:0}) + ' MMBtu';
+    } else {
+      document.getElementById('ao3-res-pack-total').innerText = V_LP_MSm3.toFixed(2) + ' 10⁶ Sm³';
+      document.getElementById('ao3-sub-pack-total').innerText = '(' + V_LP_MMSCF.toFixed(1) + ' MMSCF equiv)';
+      document.getElementById('ao3-res-pack-draft').innerText = V_draft_MSm3.toFixed(2) + ' 10⁶ Sm³';
+      document.getElementById('ao3-sub-pack-draft').innerText = ((V_draft_MSm3 / V_LP_MSm3) * 100).toFixed(1) + '% of inventory';
+      document.getElementById('ao3-res-flow').innerText = Q_MSm3D.toFixed(2) + ' 10⁶ Sm³/d';
+      document.getElementById('ao3-sub-flow').innerText = 'Panhandle B Steady Delivery';
+      document.getElementById('ao3-res-cushion-time').innerText = hours_cushion.toFixed(1) + ' hrs';
+      document.getElementById('ao3-sub-cushion').innerText = 'At ' + Qdraw_input.toFixed(1) + ' 10⁶ Sm³/d draw';
+
+      document.getElementById('ao3-res-pavg').innerText = Pavg_bar.toFixed(1) + ' bar abs (' + (Pavg_bar - 1.013).toFixed(1) + ' barg)';
+      document.getElementById('ao3-res-z').innerText = Z_avg.toFixed(4);
+      document.getElementById('ao3-res-vg').innerText = Vg_m3.toLocaleString('en-US', {maximumFractionDigits:0}) + ' m³';
+      document.getElementById('ao3-res-cushion').innerText = V_cushion_MSm3.toFixed(2) + ' 10⁶ Sm³';
+      document.getElementById('ao3-res-pratio').innerText = (Pavg_psia / Pb_psia).toFixed(1) + ' : 1';
+      document.getElementById('ao3-res-energy').innerText = energy_TJ.toLocaleString('en-US', {maximumFractionDigits:0}) + ' TJ';
+    }
+
+    // Dynamic SVG Generation
+    renderAO3Svg(P1_psia, P2_psia, Pmin_psia, Pavg_psia, L_mi, V_draft_MMSCF, V_cushion_MMSCF);
+  };
+
+  function renderAO3Svg(P1_psia, P2_psia, Pmin_psia, Pavg_psia, L_mi, V_draft_MMSCF, V_cushion_MMSCF) {
+    const svg = document.getElementById('ao3-svg');
+    if (!svg) return;
+
+    let x0 = 90;
+    let x1 = 710;
+    let yBase = 220;
+    let yTop = 50;
+
+    // Scaling pressure to y: Pmax ~ 1500 psia, Pmin ~ 0
+    let scaleP = function(p) {
+      let norm = (p - 300) / 1100;
+      norm = Math.max(0, Math.min(1, norm));
+      return yBase - norm * (yBase - yTop);
+    };
+
+    let yP1 = scaleP(P1_psia);
+    let yP2 = scaleP(P2_psia);
+    let yPmin = scaleP(Pmin_psia);
+    let yPavg = scaleP(Pavg_psia);
+
+    // Parabolic profile points for P(x) = sqrt(P1^2 - (P1^2 - P2^2) * x/L)
+    let pathD = 'M ' + x0 + ',' + yP1;
+    let pathFill = 'M ' + x0 + ',' + yP1;
+    let pts = 12;
+    for (let i = 1; i <= pts; i++) {
+      let frac = i / pts;
+      let currPx2 = Math.pow(P1_psia, 2) - (Math.pow(P1_psia, 2) - Math.pow(P2_psia, 2)) * frac;
+      let currP = Math.sqrt(Math.max(0, currPx2));
+      let cx = x0 + frac * (x1 - x0);
+      let cy = scaleP(currP);
+      pathD += ' L ' + cx.toFixed(1) + ',' + cy.toFixed(1);
+      pathFill += ' L ' + cx.toFixed(1) + ',' + cy.toFixed(1);
+    }
+    pathFill += ' L ' + x1 + ',' + yPmin + ' L ' + x0 + ',' + yPmin + ' Z';
+
+    let svgParts = [
+      '<!-- Grid axes and baseline -->',
+      '<line x1="' + x0 + '" y1="' + yBase + '" x2="' + x1 + '" y2="' + yBase + '" stroke="#475569" stroke-width="2" />',
+      '<line x1="' + x0 + '" y1="' + (yBase + 5) + '" x2="' + x0 + '" y2="' + (yTop - 10) + '" stroke="#475569" stroke-width="1.5" />',
+      '<text x="' + x0 + '" y="' + (yBase + 20) + '" fill="#94a3b8" font-size="11" text-anchor="middle">Inlet (0 km)</text>',
+      '<text x="' + x1 + '" y="' + (yBase + 20) + '" fill="#94a3b8" font-size="11" text-anchor="middle">Delivery (' + (L_mi * 1.60934).toFixed(0) + ' km)</text>',
+
+      '<!-- Draftable Linepack Shaded Region (Above Pmin) -->',
+      '<path d="' + pathFill + '" fill="#10b981" opacity="0.25" />',
+
+      '<!-- Minimum Contract Pressure Floor Line (Pmin) -->',
+      '<line x1="' + x0 + '" y1="' + yPmin + '" x2="' + x1 + '" y2="' + yPmin + '" stroke="#ef4444" stroke-width="2" stroke-dasharray="6,4" />',
+      '<text x="' + (x1 + 8) + '" y="' + (yPmin + 4) + '" fill="#ef4444" font-size="10" font-weight="600">Pmin Floor</text>',
+
+      '<!-- Weighted Average Pressure Line (Pavg) -->',
+      '<line x1="' + x0 + '" y1="' + yPavg + '" x2="' + x1 + '" y2="' + yPavg + '" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3" />',
+      '<text x="' + (x0 - 8) + '" y="' + (yPavg + 4) + '" fill="#38bdf8" font-size="10" font-weight="600" text-anchor="end">Pavg (2/3 Rule)</text>',
+
+      '<!-- Parabolic Hydraulic Gradient Curve P(x) -->',
+      '<path d="' + pathD + '" fill="none" stroke="#10b981" stroke-width="3" />',
+
+      '<!-- Inlet Station Marker -->',
+      '<circle cx="' + x0 + '" cy="' + yP1 + '" r="6" fill="#10b981" stroke="#f8fafc" stroke-width="2" />',
+      '<text x="' + (x0 + 10) + '" y="' + (yP1 - 8) + '" fill="#f8fafc" font-size="11" font-weight="700">P1 = ' + (P1_psia / 14.5038).toFixed(1) + ' bar</text>',
+
+      '<!-- Outlet Delivery Station Marker -->',
+      '<circle cx="' + x1 + '" cy="' + yP2 + '" r="6" fill="#f59e0b" stroke="#f8fafc" stroke-width="2" />',
+      '<text x="' + (x1 - 10) + '" y="' + (yP2 - 8) + '" fill="#f59e0b" font-size="11" font-weight="700" text-anchor="end">P2 = ' + (P2_psia / 14.5038).toFixed(1) + ' bar</text>',
+
+      '<!-- Shaded Area Annotations -->',
+      '<text x="' + ((x0 + x1)/2) + '" y="' + ((yPavg + yPmin)/2 + 4) + '" fill="#10b981" font-size="12" font-weight="700" text-anchor="middle">ACTIVE DRAFTABLE BUFFER</text>',
+      '<text x="' + ((x0 + x1)/2) + '" y="' + ((yPmin + yBase)/2 + 4) + '" fill="#64748b" font-size="11" text-anchor="middle">Base Inactive Cushion Pack</text>',
+
+      '<!-- Header Label -->',
+      '<text x="400" y="25" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="middle">Non-Linear Gas Pressure Hydraulic Gradient & Draft Storage Profile</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAO3Diagnostics = function() {
+    let tot = document.getElementById('ao3-res-pack-total').innerText;
+    let drf = document.getElementById('ao3-res-pack-draft').innerText;
+    let flw = document.getElementById('ao3-res-flow').innerText;
+    let csh = document.getElementById('ao3-res-cushion-time').innerText;
+    let pav = document.getElementById('ao3-res-pavg').innerText;
+    let z = document.getElementById('ao3-res-z').innerText;
+    let vg = document.getElementById('ao3-res-vg').innerText;
+    let cpk = document.getElementById('ao3-res-cushion').innerText;
+    let nrg = document.getElementById('ao3-res-energy').innerText;
+
+    let text = [
+      '=== NATURAL GAS PIPELINE LINEPACK & CAPACITY AUDIT ===',
+      'Standard: AGA Report No. 8 & Panhandle B Compressible Flow Formulation',
+      '-----------------------------------------------------------------',
+      'Total Linepack Inventory:       ' + tot,
+      'Draftable Usable Cushion:       ' + drf,
+      'Panhandle B Flow Throughput:    ' + flw,
+      'Supply Cushion Autonomy:        ' + csh,
+      'Effective Weighted Pressure:    ' + pav,
+      'Real Gas Compressibility (Z):   ' + z,
+      'Geometric Pipe Volume:          ' + vg,
+      'Base Inactive Cushion Pack:     ' + cpk,
+      'Thermal Energy Stored:          ' + nrg,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/gas-pipeline-linepack-capacity-panhandle-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('ao3-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Linepack Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAO3();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'gas-pipeline-linepack-capacity-panhandle-calculator.html'), renderTradePage({
+  title: 'Gas Pipeline Linepack & Capacity Calculator | Panhandle B & AGA-8',
+  metaDescription: 'Calculate natural gas pipeline linepack inventory, usable draftable buffer volume, real gas Z-factor, and Panhandle B transmission capacity per AGA-8.',
+  canonical: 'https://digitaltoolsshed.com/calc/gas-pipeline-linepack-capacity-panhandle-calculator.html',
+  content: toolAO3Html,
+  faq: [
+    {
+      q: 'What is pipeline linepack and how is it used as gas storage?',
+      a: 'Linepack is the total volume of natural gas compressed and contained inside an operating pipeline network at standard conditions. Because gas is highly compressible, operators can increase pipeline pressure during off-peak hours (packing) and draw down pressure during morning and evening consumption peaks (drafting), utilizing the steel pipeline as an intraday storage gas-holder without surface tanks.'
+    },
+    {
+      q: 'Why must the 2/3 weighted average pressure formula be used instead of an arithmetic average?',
+      a: 'Because gas density decreases as it moves downstream, velocity accelerates and friction loss steepens parabolically toward the pipe outlet (dP/dx ∝ 1/P). Integrating this non-linear pressure profile yields Pavg = 2/3 [P1 + P2 - (P1*P2)/(P1+P2)]. The simple arithmetic average (P1+P2)/2 overpredicts true average pressure and overestimates available linepack storage by 8% to 15%.'
+    },
+    {
+      q: 'How does real gas compressibility (Z-factor) affect linepack calculations?',
+      a: 'At high transmission pressures (60 to 120 bar), intermolecular attraction causes natural gas to compress into a smaller volume than an ideal gas (Z < 1.0, typically 0.80 to 0.88). Because linepack volume is inversely proportional to Z (V = Vg * [P/Pb] * [Tb/T] * [1/Z]), accounting for real gas behavior per AGA-8 reveals up to 20% more stored gas mass than ideal gas equations predict.'
+    },
+    {
+      q: 'What is the difference between total linepack and draftable linepack?',
+      a: 'Total linepack is all the gas mass inside the pipe. Draftable (usable) linepack is only the incremental gas that can be withdrawn while keeping downstream delivery pressure above the customer contract minimum (Pmin). The remaining volume below Pmin is permanent inactive cushion pack required to maintain physical transmission pressure.'
+    },
+    {
+      q: 'What is the Panhandle B equation and when is it applied?',
+      a: 'The Panhandle B equation is an industry-standard empirical flow formula developed for large-diameter, high-pressure natural gas transmission lines operating at high Reynolds numbers (4 to 40 million). It incorporates a Reynolds number exponent of 0.0196 and pipeline efficiency factor (E ≈ 0.92 to 0.95) to predict throughput without requiring iterative Darcy-Weisbach Colebrook friction factor solutions.'
+    }
+  ]
+}));
+
+
+// ==========================================
+// TOOL AO4: Tower Crane Free-Standing Foundation Stability & Overturning Moment Calculator (ASCE 7-22 & EN 14439)
+// ==========================================
+const toolAO4Html = `
+<div class="calc-card">
+  <div class="calc-header">
+    <div class="badge">ASCE 7-22 &bull; EN 14439 &bull; DIN 15018 / FEM 1.001 &bull; ACI 318</div>
+    <h1>Tower Crane Foundation Stability & Overturning Moment Calculator</h1>
+    <p class="text-muted">Calculate foundation overturning safety factors, Meyerhof soil bearing pressures ($q_{max}, q_{min}$), footing heel uplift contact ratios, and base sliding resistance for free-standing tower crane gravity pads under in-service operating and out-of-service hurricane storm wind conditions.</p>
+  </div>
+
+  <!-- Metric / Imperial Toggle -->
+  <div class="unit-toggle-row">
+    <button type="button" class="unit-toggle-btn active" id="ao4-unit-metric" onclick="setAO4Unit('metric')">Metric Units (m, kN, kNm, kPa)</button>
+    <button type="button" class="unit-toggle-btn" id="ao4-unit-imperial" onclick="setAO4Unit('imperial')">Imperial Units (ft, kips, kip-ft, ksf)</button>
+  </div>
+
+  <div class="calc-grid">
+    <!-- Column 1: Foundation Pad & Soil Parameters -->
+    <div class="calc-col">
+      <h3 class="section-title">1. Concrete Footing & Soil Geotechnics</h3>
+
+      <div class="input-group">
+        <label for="ao4-pad-width" id="ao4-label-pad-width">Square Foundation Pad Width ($B = L$) (m):</label>
+        <input type="number" id="ao4-pad-width" value="6.5" step="0.25" min="3.0" max="15.0" oninput="calcAO4()">
+        <span class="text-muted">Standard free-standing pads: 5.0m to 8.5m square</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao4-pad-depth" id="ao4-label-pad-depth">Footing Pad Thickness ($h_{pad}$) (m):</label>
+        <input type="number" id="ao4-pad-depth" value="1.30" step="0.05" min="0.60" max="3.00" oninput="calcAO4()">
+        <span class="text-muted">Concrete gravity pad depth (resists punching shear)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao4-soil-cover" id="ao4-label-soil-cover">Soil Overburden Surcharge Depth ($h_{soil}$) (m):</label>
+        <input type="number" id="ao4-soil-cover" value="0.50" step="0.1" min="0.0" max="4.0" oninput="calcAO4()">
+        <span class="text-muted">Compacted backfill over top of footing slab</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao4-allow-bearing" id="ao4-label-bearing">Allowable Soil Bearing Capacity ($q_{allow}$) (kPa):</label>
+        <input type="number" id="ao4-allow-bearing" value="250" step="10" min="50" max="1000" oninput="calcAO4()">
+        <span class="text-muted">Geotechnical engineer net allowable bearing capacity ($1\ \text{ksf} \approx 47.9\ \text{kPa}$)</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao4-soil-friction">Soil-Concrete Friction Coefficient ($\mu_{soil}$):</label>
+        <input type="number" id="ao4-soil-friction" value="0.45" step="0.05" min="0.25" max="0.70" oninput="calcAO4()">
+        <span class="text-muted">Gravel/Sand: 0.45 - 0.55; Stiff Clay: 0.30 - 0.40; Silt: 0.25 - 0.35</span>
+      </div>
+    </div>
+
+    <!-- Column 2: Crane Mast Loads & Wind Conditions -->
+    <div class="calc-col">
+      <h3 class="section-title">2. Crane Loads & Environmental Cases</h3>
+
+      <div class="input-group">
+        <label for="ao4-load-case">Governing Design Load Case:</label>
+        <select id="ao4-load-case" onchange="syncAO4LoadCase()">
+          <option value="in_service">Case I: In-Service Operating (Max Hook Load + Operating Wind)</option>
+          <option value="out_service" selected>Case II: Out-of-Service Storm (Survival Hurricane Wind + Free Slew)</option>
+        </select>
+        <span class="text-muted">Storm wind moments typically govern free-standing stability</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao4-crane-vert" id="ao4-label-crane-vert">Total Crane Dead Weight ($V_{crane}$) (kN):</label>
+        <input type="number" id="ao4-crane-vert" value="480" step="20" min="100" max="3000" oninput="calcAO4()">
+        <span class="text-muted">Mast, jib, counter-jib, counterweights, and slewing unit</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao4-overturn-moment" id="ao4-label-moment">Overturning Moment at Mast Base ($M_{crane}$) (kNm):</label>
+        <input type="number" id="ao4-overturn-moment" value="3850" step="50" min="500" max="25000" oninput="calcAO4()">
+        <span class="text-muted">From crane manufacturer technical manual foundation load charts</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao4-base-shear" id="ao4-label-shear">Horizontal Base Shear Force ($H_{base}$) (kN):</label>
+        <input type="number" id="ao4-base-shear" value="115" step="5" min="10" max="1000" oninput="calcAO4()">
+        <span class="text-muted">Horizontal wind and dynamic slewing shear force</span>
+      </div>
+
+      <div class="input-group">
+        <label for="ao4-water-table">Groundwater Table Location:</label>
+        <select id="ao4-water-table" onchange="calcAO4()">
+          <option value="dry" selected>Dry Soil (Well below footing base)</option>
+          <option value="submerged">High Water Table (Buoyancy reduces effective footing weight)</option>
+        </select>
+        <span class="text-muted">High water table strips ~58% of concrete effective downward weight</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Primary Output Displays -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">3. Foundation Stability & Soil Pressure Diagnostics</h3>
+    <div class="grid-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-bottom: 20px;">
+      <div class="card card-green text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Overturning Factor of Safety</span>
+        <div id="ao4-res-fs-overturn" style="font-size: 1.7rem; font-weight: 700; color: #10b981; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ao4-sub-fs-overturn" style="font-size:0.75rem;">Target: ≥ 1.30 Storm / ≥ 1.50 Oper</span>
+      </div>
+
+      <div class="card card-blue text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Peak Soil Bearing Pressure ($q_{max}$)</span>
+        <div id="ao4-res-qmax" style="font-size: 1.7rem; font-weight: 700; color: #3b82f6; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ao4-sub-qmax" style="font-size:0.75rem;">vs Allowable Capacity</span>
+      </div>
+
+      <div class="card card-amber text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Bearing Contact Ratio</span>
+        <div id="ao4-res-contact" style="font-size: 1.7rem; font-weight: 700; color: #f59e0b; margin: 4px 0;">-- %</div>
+        <span class="text-muted" id="ao4-sub-contact" style="font-size:0.75rem;">Effective compressed area</span>
+      </div>
+
+      <div class="card card-purple text-center">
+        <span class="text-muted" style="font-size:0.85rem;">Horizontal Sliding Safety Factor</span>
+        <div id="ao4-res-fs-slide" style="font-size: 1.7rem; font-weight: 700; color: #8b5cf6; margin: 4px 0;">--</div>
+        <span class="text-muted" id="ao4-sub-slide" style="font-size:0.75rem;">Target: ≥ 1.50</span>
+      </div>
+    </div>
+
+    <!-- Interactive Tower Crane Foundation Schematic SVG -->
+    <div class="card" style="background: var(--surface, #1e293b); border: 1px solid var(--border, #334155); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h4 style="margin: 0; font-size: 0.95rem; color: var(--text-heading, #f8fafc);">Tower Crane Foundation Free-Body Diagram & Soil Pressure Distribution Block</h4>
+        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.75rem;">Live Meyerhof Stress Simulation</span>
+      </div>
+      <div style="width: 100%; overflow-x: auto; text-align: center;">
+        <svg id="ao4-svg" viewBox="0 0 800 270" style="max-width: 100%; height: auto; font-family: ui-monospace, monospace;"></svg>
+      </div>
+    </div>
+
+    <!-- Secondary Tabular Breakdown -->
+    <div class="card" style="margin-bottom: 20px;">
+      <h4 style="margin-top:0; font-size: 1.05rem;">Structural & Geotechnical Stability Metric Breakdown</h4>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border, #334155); text-align: left;">
+              <th style="padding: 8px;">Parameter Description</th>
+              <th style="padding: 8px;">Symbol / Governing Formula</th>
+              <th style="padding: 8px;">Calculated Value</th>
+              <th style="padding: 8px;">Standard Design Criterion</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Total Vertical Downward Load</td>
+              <td style="padding: 8px;">$V_{total} = V_{crane} + W_{pad} + W_{soil}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao4-res-vtotal">--</td>
+              <td style="padding: 8px; color: #10b981;">Stabilizing deadweight</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Total Overturning Moment at Base</td>
+              <td style="padding: 8px;">$M_{base} = M_{crane} + H_{base} \times h_{pad}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao4-res-mbase">--</td>
+              <td style="padding: 8px; color: #10b981;">Overturning moment at pad bottom</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Load Eccentricity</td>
+              <td style="padding: 8px;">$e = M_{base} / V_{total}$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao4-res-ecc">--</td>
+              <td style="padding: 8px; color: #10b981;">Kern Limit: $e \le B/6$ (No uplift)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Concrete Footing Self-Weight</td>
+              <td style="padding: 8px;">$W_{pad} = B^2 \cdot h_{pad} \cdot \rho_c \cdot g$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao4-res-wpad">--</td>
+              <td style="padding: 8px; color: #10b981;">$\rho_{conc} = 2400$ kg/m³ (150 pcf)</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border, #334155);">
+              <td style="padding: 8px;">Minimum Pad Soil Contact Pressure</td>
+              <td style="padding: 8px;">$q_{min}$ (Heel tension check)</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao4-res-qmin">--</td>
+              <td style="padding: 8px; color: #10b981;">$q_{min} \ge 0$ (No soil tension capacity)</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px;">Minimum Width to Eliminate Uplift</td>
+              <td style="padding: 8px;">$B_{kern} = 6 \times e$</td>
+              <td style="padding: 8px; font-weight: 600;" id="ao4-res-bkern">--</td>
+              <td style="padding: 8px; color: #10b981;">Footing dimension for 100% bearing</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Diagnostic Copy Action -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <button type="button" class="btn btn-primary" id="ao4-copy-btn" onclick="copyAO4Diagnostics()" style="padding: 10px 24px; font-size: 0.95rem; cursor: pointer;">
+        📋 Copy Tower Crane Foundation Stability Audit
+      </button>
+    </div>
+  </div>
+
+  <!-- Mathematical Derivation Section -->
+  <div class="calc-card" style="margin-top: 24px; border-left: 4px solid var(--primary, #3b82f6);">
+    <h3 style="margin-top: 0;">Governing Geotechnical & Structural Mechanics (EN 14439 & ASCE 7-22)</h3>
+    <p>A free-standing tower crane relies exclusively on its massive reinforced concrete foundation pad to prevent structural toppling under extreme hurricane wind shear and operational hoisting moments. The foundation stability is analyzed under EN 14439, DIN 15018, and standard soil mechanics:</p>
+
+    <h4>1. Total Stabilizing Vertical Gravity Load ($V_{total}$)</h4>
+    <p>The total downward force resisting overturning combines the crane assembly weight, the concrete footing self-weight, and any compacted soil backfill surcharge:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$V_{total} = V_{crane} + (B \cdot L \cdot h_{pad} \cdot \rho_{eff,c} \cdot g) + (B \cdot L \cdot h_{soil} \cdot \rho_{eff,s} \cdot g)$$
+    </div>
+    <p>When the groundwater table rises above the foundation base, effective buoyant unit weights must be used ($\gamma' = \gamma_{sat} - \gamma_w$), reducing the stabilizing effect of concrete by up to 58%.</p>
+
+    <h4>2. Base Overturning Moment & Eccentricity ($e$)</h4>
+    <p>The total overturning moment evaluated at the foundation underside includes the moment transmitted by the mast plus the additional P-delta effect of horizontal base shear acting through the pad thickness:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$M_{base} = M_{crane} + H_{base} \cdot h_{pad}$$
+      $$e = \frac{M_{base}}{V_{total}}$$
+    </div>
+
+    <h4>3. Soil Bearing Pressure Distribution (Meyerhof / Middle-Third Kern Check)</h4>
+    <p>Because soil possesses zero tensile capacity, the pressure distribution under the footing depends strictly on whether the resultant load falls within the kern of the foundation ($e \le B/6$):</p>
+    <ul>
+      <li><strong>Case A: No Uplift ($e \le B/6$):</strong> The entire footing remains in compression with a trapezoidal pressure block:
+        <div style="background: rgba(0,0,0,0.25); padding: 10px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 6px 0;">
+          $$q_{max} = \frac{V_{total}}{B \cdot L} \left( 1 + \frac{6e}{B} \right), \quad q_{min} = \frac{V_{total}}{B \cdot L} \left( 1 - \frac{6e}{B} \right)$$
+        </div>
+      </li>
+      <li><strong>Case B: Partial Uplift ($e > B/6$):</strong> The heel lifts off the soil, leaving only a triangular compression block over an effective contact length $B' = 3(B/2 - e)$:
+        <div style="background: rgba(0,0,0,0.25); padding: 10px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 6px 0;">
+          $$q_{max} = \frac{2 \cdot V_{total}}{3 \cdot L \cdot (B/2 - e)}, \quad q_{min} = 0$$
+          $$\% \text{ Contact Area} = \frac{3(B/2 - e)}{B} \times 100\%$$
+        </div>
+      </li>
+    </ul>
+
+    <h4>4. Overturning Factor of Safety ($FS_{overturn}$)</h4>
+    <p>Per EN 14439, the ratio of the restoring moment about the toe to the overturning moment must satisfy strict statutory minimums:</p>
+    <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; font-family: ui-monospace, monospace; margin: 8px 0;">
+      $$FS_{overturn} = \frac{M_{restoring}}{M_{base}} = \frac{V_{total} \cdot (B / 2)}{M_{base}}$$
+    </div>
+    <p>Required design thresholds: $FS_{overturn} \ge 1.50$ for in-service operations, and $FS_{overturn} \ge 1.30$ for extreme out-of-service 100-year storm conditions with free weathervaning slewing.</p>
+  </div>
+
+  <!-- 5 Fatal Crane Foundation Pitfalls Alert Cards -->
+  <div style="margin-top: 24px;">
+    <h3 class="section-title">5 Fatal Engineering Pitfalls & Catastrophes in Crane Foundations</h3>
+
+    <div class="trap-card" style="border-left: 4px solid #ef4444; background: rgba(239, 68, 68, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #ef4444; font-size: 0.95rem;">1. Locking the Slewing Brake During Storms (Weathervaning Prohibition)</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Tower cranes are engineered to 'weathervane' when left out-of-service, allowing the long jib to swing freely with the wind like an arrow vane, presenting minimal cross-sectional drag. If an operator mistakenly engages the slewing pin or parking brake before a storm, gale winds strike the 60-meter jib perpendicular to its broadside. This multiplies base overturning moments by 300% to 450%, routinely causing catastrophic foundation pull-out or mast collapse.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #f59e0b; background: rgba(245, 158, 11, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #f59e0b; font-size: 0.95rem;">2. Neglecting Groundwater Table Buoyancy on Footing Self-Weight</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">A $7.0\text{m} \times 7.0\text{m} \times 1.4\text{m}$ concrete pad weighs approximately $1,650\ \text{kN}$ in dry air. However, if excavation during the wet season causes the water table to submerge the footing, Archimedes buoyancy strips away $673\ \text{kN}$ of downward stabilizing deadweight (41% reduction). Overlooking buoyancy in geotechnical stability calculations creates an immediate overturning hazard under moderate gusts.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #10b981; background: rgba(16, 185, 129, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #10b981; font-size: 0.95rem;">3. Ignoring Diagonal Corner Overturning in Square Pads</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Wind can blow from any 360° azimuth. When extreme wind aligns along the 45° diagonal axis of a square footing, the effective resisting lever arm decreases from $B/2$ to $B / (2 \sqrt{2}) \approx 0.354 B$, while corner soil bearing stress skyrockets because the triangular contact area tapers to a sharp point. Overturning safety factors drop by 15% to 25% along diagonal axes compared to orthogonal checks.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #3b82f6; background: rgba(59, 130, 246, 0.08); padding: 14px; border-radius: 6px; margin-bottom: 12px;">
+      <strong style="color: #3b82f6; font-size: 0.95rem;">4. Differential Soil Settlement Causing Mast Plumbness P-Delta Runaway</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Even if maximum soil bearing pressure ($q_{max}$) is nominally below allowable capacity, high eccentricity concentrates immense stress on one side of the pad. Under cyclic loading, soft soils experience progressive plastic deformation, tilting the foundation pad by just 1.0 degree. At the top of a 50-meter crane mast, a 1.0° tilt shifts the heavy slewing unit and counterweights by nearly 1.0 meter laterally, inducing massive un-designed P-delta bending moments.</p>
+    </div>
+
+    <div class="trap-card" style="border-left: 4px solid #8b5cf6; background: rgba(139, 92, 246, 0.08); padding: 14px; border-radius: 6px;">
+      <strong style="color: #8b5cf6; font-size: 0.95rem;">5. Improper Rebar Hook Anchorage for Mast Anchor Stools</strong>
+      <p style="margin: 4px 0 0 0; font-size: 0.88rem;">Modern tower cranes are anchored directly into the pad using four cast-in reusable anchor stools or high-tensile tie rods. The tensile pullout force on the windward mast legs frequently exceeds 800 to 1,500 kN. If the anchor leg rebar dowels lack 90° hook development or fail to engage the bottom reinforcement mat, catastrophic concrete cone blowout occurs long before the pad itself overturns.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  let ao4Unit = 'metric'; // 'metric' or 'imperial'
+
+  window.setAO4Unit = function(unit) {
+    if (ao4Unit === unit) return;
+    ao4Unit = unit;
+    document.getElementById('ao4-unit-metric').classList.toggle('active', unit === 'metric');
+    document.getElementById('ao4-unit-imperial').classList.toggle('active', unit === 'imperial');
+
+    const bInput = document.getElementById('ao4-pad-width');
+    const hInput = document.getElementById('ao4-pad-depth');
+    const sInput = document.getElementById('ao4-soil-cover');
+    const qInput = document.getElementById('ao4-allow-bearing');
+    const vInput = document.getElementById('ao4-crane-vert');
+    const mInput = document.getElementById('ao4-overturn-moment');
+    const hBaseInput = document.getElementById('ao4-base-shear');
+
+    if (unit === 'imperial') {
+      document.getElementById('ao4-label-pad-width').innerText = 'Square Foundation Pad Width (B = L) (ft):';
+      document.getElementById('ao4-label-pad-depth').innerText = 'Footing Pad Thickness (hpad) (ft):';
+      document.getElementById('ao4-label-soil-cover').innerText = 'Soil Overburden Surcharge Depth (hsoil) (ft):';
+      document.getElementById('ao4-label-bearing').innerText = 'Allowable Soil Bearing Capacity (qallow) (ksf):';
+      document.getElementById('ao4-label-crane-vert').innerText = 'Total Crane Dead Weight (Vcrane) (kips):';
+      document.getElementById('ao4-label-moment').innerText = 'Overturning Moment at Mast Base (Mcrane) (kip-ft):';
+      document.getElementById('ao4-label-shear').innerText = 'Horizontal Base Shear Force (Hbase) (kips):';
+
+      bInput.value = (parseFloat(bInput.value) * 3.28084).toFixed(1);
+      hInput.value = (parseFloat(hInput.value) * 3.28084).toFixed(2);
+      sInput.value = (parseFloat(sInput.value) * 3.28084).toFixed(1);
+      qInput.value = (parseFloat(qInput.value) * 0.0208854).toFixed(2);
+      vInput.value = (parseFloat(vInput.value) * 0.224809).toFixed(1);
+      mInput.value = (parseFloat(mInput.value) * 0.737562).toFixed(0);
+      hBaseInput.value = (parseFloat(hBaseInput.value) * 0.224809).toFixed(1);
+    } else {
+      document.getElementById('ao4-label-pad-width').innerText = 'Square Foundation Pad Width (B = L) (m):';
+      document.getElementById('ao4-label-pad-depth').innerText = 'Footing Pad Thickness (hpad) (m):';
+      document.getElementById('ao4-label-soil-cover').innerText = 'Soil Overburden Surcharge Depth (hsoil) (m):';
+      document.getElementById('ao4-label-bearing').innerText = 'Allowable Soil Bearing Capacity (qallow) (kPa):';
+      document.getElementById('ao4-label-crane-vert').innerText = 'Total Crane Dead Weight (Vcrane) (kN):';
+      document.getElementById('ao4-label-moment').innerText = 'Overturning Moment at Mast Base (Mcrane) (kNm):';
+      document.getElementById('ao4-label-shear').innerText = 'Horizontal Base Shear Force (Hbase) (kN):';
+
+      bInput.value = (parseFloat(bInput.value) / 3.28084).toFixed(2);
+      hInput.value = (parseFloat(hInput.value) / 3.28084).toFixed(2);
+      sInput.value = (parseFloat(sInput.value) / 3.28084).toFixed(1);
+      qInput.value = (parseFloat(qInput.value) / 0.0208854).toFixed(0);
+      vInput.value = (parseFloat(vInput.value) / 0.224809).toFixed(0);
+      mInput.value = (parseFloat(mInput.value) / 0.737562).toFixed(0);
+      hBaseInput.value = (parseFloat(hBaseInput.value) / 0.224809).toFixed(0);
+    }
+    calcAO4();
+  };
+
+  window.syncAO4LoadCase = function() {
+    const lcase = document.getElementById('ao4-load-case').value;
+    const mInput = document.getElementById('ao4-overturn-moment');
+    const hInput = document.getElementById('ao4-base-shear');
+
+    if (lcase === 'in_service') {
+      if (ao4Unit === 'imperial') {
+        mInput.value = '1850';
+        hInput.value = '15.5';
+      } else {
+        mInput.value = '2500';
+        hInput.value = '70';
+      }
+    } else {
+      if (ao4Unit === 'imperial') {
+        mInput.value = '2840';
+        hInput.value = '25.8';
+      } else {
+        mInput.value = '3850';
+        hInput.value = '115';
+      }
+    }
+    calcAO4();
+  };
+
+  window.calcAO4 = function() {
+    let B_val = parseFloat(document.getElementById('ao4-pad-width').value) || 6.5;
+    let h_pad_val = parseFloat(document.getElementById('ao4-pad-depth').value) || 1.30;
+    let h_soil_val = parseFloat(document.getElementById('ao4-soil-cover').value) || 0.50;
+    let q_allow_val = parseFloat(document.getElementById('ao4-allow-bearing').value) || 250;
+    let mu_soil = parseFloat(document.getElementById('ao4-soil-friction').value) || 0.45;
+    let V_crane_val = parseFloat(document.getElementById('ao4-crane-vert').value) || 480;
+    let M_crane_val = parseFloat(document.getElementById('ao4-overturn-moment').value) || 3850;
+    let H_base_val = parseFloat(document.getElementById('ao4-base-shear').value) || 115;
+    let water_table = document.getElementById('ao4-water-table').value;
+    let load_case = document.getElementById('ao4-load-case').value;
+
+    // Convert internally to SI Metric (m, kN, kNm, kPa)
+    let B_m = ao4Unit === 'imperial' ? B_val / 3.28084 : B_val;
+    let h_pad_m = ao4Unit === 'imperial' ? h_pad_val / 3.28084 : h_pad_val;
+    let h_soil_m = ao4Unit === 'imperial' ? h_soil_val / 3.28084 : h_soil_val;
+    let q_allow_kPa = ao4Unit === 'imperial' ? q_allow_val / 0.0208854 : q_allow_val;
+    let V_crane_kN = ao4Unit === 'imperial' ? V_crane_val / 0.224809 : V_crane_val;
+    let M_crane_kNm = ao4Unit === 'imperial' ? M_crane_val / 0.737562 : M_crane_val;
+    let H_base_kN = ao4Unit === 'imperial' ? H_base_val / 0.224809 : H_base_val;
+
+    // Densities (kN/m³)
+    let gamma_conc = 24.0; // 2400 kg/m³ * 9.81 / 1000
+    let gamma_soil = 18.0; // 1800 kg/m³ * 9.81 / 1000
+
+    if (water_table === 'submerged') {
+      gamma_conc = 14.0; // submerged buoyant concrete weight
+      gamma_soil = 9.0;
+    }
+
+    // 1. Footing Deadweight and Surcharge
+    let A_pad_m2 = Math.pow(B_m, 2);
+    let W_pad_kN = A_pad_m2 * h_pad_m * gamma_conc;
+    let W_soil_kN = A_pad_m2 * h_soil_m * gamma_soil;
+
+    // Total Downward Vertical Load
+    let V_total_kN = V_crane_kN + W_pad_kN + W_soil_kN;
+
+    // 2. Overturning Moment at base of pad
+    let M_base_kNm = M_crane_kNm + (H_base_kN * h_pad_m);
+
+    // 3. Eccentricity
+    let e_m = V_total_kN > 0 ? M_base_kNm / V_total_kN : 999;
+    let e_ratio = e_m / B_m;
+
+    // 4. Overturning Safety Factor (FS_overturn)
+    let M_restoring_kNm = V_total_kN * (B_m / 2.0);
+    let FS_overturn = M_base_kNm > 0 ? M_restoring_kNm / M_base_kNm : 99.9;
+
+    // 5. Sliding Safety Factor
+    let F_slide_res_kN = mu_soil * V_total_kN;
+    let FS_slide = H_base_kN > 0 ? F_slide_res_kN / H_base_kN : 99.9;
+
+    // 6. Soil Bearing Pressure Distribution (Meyerhof / Kern Analysis)
+    let q_max_kPa = 0;
+    let q_min_kPa = 0;
+    let contact_pct = 100.0;
+
+    let kern_limit = B_m / 6.0;
+    if (e_m <= kern_limit) {
+      // Case A: Trapezoidal compression across entire pad
+      q_max_kPa = (V_total_kN / A_pad_m2) * (1.0 + (6.0 * e_m / B_m));
+      q_min_kPa = (V_total_kN / A_pad_m2) * (1.0 - (6.0 * e_m / B_m));
+      contact_pct = 100.0;
+    } else {
+      // Case B: Partial uplift (heel tension = 0)
+      let B_prime = 3.0 * (B_m / 2.0 - e_m);
+      if (B_prime > 0) {
+        q_max_kPa = (2.0 * V_total_kN) / (3.0 * B_m * (B_m / 2.0 - e_m));
+        q_min_kPa = 0.0;
+        contact_pct = Math.max(0, Math.min(100, (B_prime / B_m) * 100));
+      } else {
+        q_max_kPa = 9999;
+        contact_pct = 0;
+      }
+    }
+
+    let B_kern_req_m = 6.0 * e_m;
+
+    // Thresholds
+    let target_fs_overturn = load_case === 'in_service' ? 1.50 : 1.30;
+    let is_overturn_safe = FS_overturn >= target_fs_overturn;
+    let is_bearing_safe = q_max_kPa <= q_allow_kPa;
+    let is_slide_safe = FS_slide >= 1.50;
+
+    // UI Updates
+    document.getElementById('ao4-res-fs-overturn').innerText = FS_overturn.toFixed(2);
+    document.getElementById('ao4-sub-fs-overturn').innerText = is_overturn_safe ? ('✓ Safe (≥ ' + target_fs_overturn.toFixed(2) + ' Target)') : '❌ Overturning Hazard';
+
+    document.getElementById('ao4-res-contact').innerText = contact_pct.toFixed(1) + ' %';
+    document.getElementById('ao4-sub-contact').innerText = contact_pct >= 75 ? '✓ Ample Base Contact' : (contact_pct >= 50 ? '⚠️ Moderate Heel Uplift' : '❌ Severe Separation');
+
+    document.getElementById('ao4-res-fs-slide').innerText = FS_slide.toFixed(2);
+    document.getElementById('ao4-sub-slide').innerText = is_slide_safe ? '✓ Sliding Safe (≥ 1.50)' : '❌ High Sliding Risk';
+
+    if (ao4Unit === 'imperial') {
+      let q_max_ksf = q_max_kPa * 0.0208854;
+      let q_min_ksf = q_min_kPa * 0.0208854;
+      let q_allow_ksf = q_allow_kPa * 0.0208854;
+
+      document.getElementById('ao4-res-qmax').innerText = q_max_ksf.toFixed(2) + ' ksf';
+      document.getElementById('ao4-sub-qmax').innerText = is_bearing_safe ? ('✓ Within Allowable (' + q_allow_ksf.toFixed(2) + ' ksf)') : ('❌ Exceeds Allowable (' + q_allow_ksf.toFixed(2) + ' ksf)');
+
+      document.getElementById('ao4-res-vtotal').innerText = (V_total_kN * 0.224809).toFixed(1) + ' kips';
+      document.getElementById('ao4-res-mbase').innerText = (M_base_kNm * 0.737562).toLocaleString('en-US', {maximumFractionDigits:0}) + ' kip-ft';
+      document.getElementById('ao4-res-ecc').innerText = (e_m * 3.28084).toFixed(2) + ' ft (e/B = ' + (e_ratio * 100).toFixed(1) + '%)';
+      document.getElementById('ao4-res-wpad').innerText = (W_pad_kN * 0.224809).toFixed(1) + ' kips';
+      document.getElementById('ao4-res-qmin').innerText = q_min_ksf.toFixed(2) + ' ksf';
+      document.getElementById('ao4-res-bkern').innerText = (B_kern_req_m * 3.28084).toFixed(1) + ' ft';
+    } else {
+      document.getElementById('ao4-res-qmax').innerText = q_max_kPa.toFixed(1) + ' kPa';
+      document.getElementById('ao4-sub-qmax').innerText = is_bearing_safe ? ('✓ Within Allowable (' + q_allow_kPa.toFixed(0) + ' kPa)') : ('❌ Exceeds Allowable (' + q_allow_kPa.toFixed(0) + ' kPa)');
+
+      document.getElementById('ao4-res-vtotal').innerText = V_total_kN.toFixed(0) + ' kN';
+      document.getElementById('ao4-res-mbase').innerText = M_base_kNm.toFixed(0) + ' kNm';
+      document.getElementById('ao4-res-ecc').innerText = e_m.toFixed(2) + ' m (e/B = ' + (e_ratio * 100).toFixed(1) + '%)';
+      document.getElementById('ao4-res-wpad').innerText = W_pad_kN.toFixed(0) + ' kN';
+      document.getElementById('ao4-res-qmin').innerText = q_min_kPa.toFixed(1) + ' kPa';
+      document.getElementById('ao4-res-bkern').innerText = B_kern_req_m.toFixed(2) + ' m';
+    }
+
+    // Dynamic SVG Generation
+    renderAO4Svg(B_m, h_pad_m, e_m, contact_pct, q_max_kPa, q_min_kPa, FS_overturn, is_overturn_safe);
+  };
+
+  function renderAO4Svg(B_m, h_pad_m, e_m, contact_pct, q_max_kPa, q_min_kPa, FS_overturn, is_overturn_safe) {
+    const svg = document.getElementById('ao4-svg');
+    if (!svg) return;
+
+    let padX = 220;
+    let padY = 130;
+    let padW = 360;
+    let padH = 50;
+
+    let mastX = padX + padW / 2 - 25;
+    let mastW = 50;
+
+    let statusColor = is_overturn_safe ? '#10b981' : '#ef4444';
+
+    let effectiveW = padW * (contact_pct / 100);
+    let contactStartX = padX + padW - effectiveW;
+
+    let svgParts = [
+      '<!-- Ground baseline -->',
+      '<line x1="80" y1="130" x2="720" y2="130" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4,4" />',
+      '<text x="90" y="122" fill="#94a3b8" font-size="10">Ground / Grade Line</text>',
+
+      '<!-- Concrete Foundation Pad -->',
+      '<rect x="' + padX + '" y="' + padY + '" width="' + padW + '" height="' + padH + '" fill="#334155" stroke="#94a3b8" stroke-width="2" rx="2" />',
+      '<text x="' + (padX + padW / 2) + '" y="' + (padY + padH / 2 + 5) + '" fill="#f8fafc" font-size="12" font-weight="700" text-anchor="middle">Concrete Gravity Pad (' + B_m.toFixed(1) + 'm × ' + B_m.toFixed(1) + 'm)</text>',
+
+      '<!-- Tower Crane Mast Structure -->',
+      '<rect x="' + mastX + '" y="30" width="' + mastW + '" height="100" fill="none" stroke="#f59e0b" stroke-width="2.5" />',
+      '<line x1="' + mastX + '" y1="30" x2="' + (mastX + mastW) + '" y2="60" stroke="#f59e0b" stroke-width="1.5" />',
+      '<line x1="' + (mastX + mastW) + '" y1="60" x2="' + mastX + '" y2="90" stroke="#f59e0b" stroke-width="1.5" />',
+      '<line x1="' + mastX + '" y1="90" x2="' + (mastX + mastW) + '" y2="120" stroke="#f59e0b" stroke-width="1.5" />',
+      '<line x1="' + (mastX + mastW) + '" y1="30" x2="' + mastX + '" y2="60" stroke="#f59e0b" stroke-width="1.5" />',
+      '<line x1="' + mastX + '" y1="60" x2="' + (mastX + mastW) + '" y2="90" stroke="#f59e0b" stroke-width="1.5" />',
+      '<line x1="' + (mastX + mastW) + '" y1="90" x2="' + mastX + '" y2="120" stroke="#f59e0b" stroke-width="1.5" />',
+
+      '<!-- Anchor Stools / Fixing Angles -->',
+      '<rect x="' + (mastX - 4) + '" y="125" width="10" height="12" fill="#ef4444" />',
+      '<rect x="' + (mastX + mastW - 6) + '" y="125" width="10" height="12" fill="#ef4444" />',
+
+      '<!-- Overturning Moment Arc & Arrow -->',
+      '<path d="M 440,55 A 40,40 0 0,1 475,95" fill="none" stroke="#38bdf8" stroke-width="3" />',
+      '<polygon points="475,95 470,85 482,88" fill="#38bdf8" />',
+      '<text x="490" y="80" fill="#38bdf8" font-size="11" font-weight="700">Mbase</text>',
+
+      '<!-- Horizontal Shear Load Vector -->',
+      '<line x1="330" y1="35" x2="385" y2="35" stroke="#ef4444" stroke-width="2.5" />',
+      '<polygon points="385,31 395,35 385,39" fill="#ef4444" />',
+      '<text x="335" y="27" fill="#ef4444" font-size="11" font-weight="700">Hbase (Shear)</text>',
+
+      '<!-- Vertical Gravity Load Vector (Vtotal) -->',
+      '<line x1="' + (padX + padW / 2) + '" y1="10" x2="' + (padX + padW / 2) + '" y2="50" stroke="#10b981" stroke-width="2.5" />',
+      '<polygon points="' + (padX + padW / 2 - 4) + ',50 ' + (padX + padW / 2) + ',60 ' + (padX + padW / 2 + 4) + ',50" fill="#10b981" />',
+      '<text x="' + (padX + padW / 2 + 8) + '" y="25" fill="#10b981" font-size="11" font-weight="700">Vtotal</text>',
+
+      '<!-- Soil Pressure Distribution Block Beneath Pad -->',
+      '<!-- Trapezoidal or Triangular Pressure Polygon -->',
+      '<polygon points="' + contactStartX + ',180 ' + (padX + padW) + ',180 ' + (padX + padW) + ',235 ' + contactStartX + ',' + (q_min_kPa > 0 ? '200' : '180') + '" fill="#3b82f6" opacity="0.35" stroke="#3b82f6" stroke-width="2" />',
+
+      '<!-- Heel Uplift Gap (if partial contact) -->',
+      contact_pct < 99 ? ('<line x1="' + padX + '" y1="180" x2="' + contactStartX + '" y2="180" stroke="#ef4444" stroke-width="2" stroke-dasharray="3,3" />' +
+      '<text x="' + ((padX + contactStartX)/2) + '" y="196" fill="#ef4444" font-size="10" text-anchor="middle">Heel Uplift Gap (' + (100 - contact_pct).toFixed(0) + '%)</text>') : '',
+
+      '<!-- Pressure Labels -->',
+      '<text x="' + (padX + padW + 10) + '" y="235" fill="#38bdf8" font-size="11" font-weight="700">qmax = ' + q_max_kPa.toFixed(0) + ' kPa</text>',
+      q_min_kPa > 0 ? ('<text x="' + (contactStartX - 10) + '" y="200" fill="#38bdf8" font-size="11" font-weight="700" text-anchor="end">qmin = ' + q_min_kPa.toFixed(0) + ' kPa</text>') : '',
+
+      '<!-- Resultant Eccentricity Position -->',
+      '<line x1="' + (padX + padW/2 + e_m * 20) + '" y1="165" x2="' + (padX + padW/2 + e_m * 20) + '" y2="195" stroke="#f59e0b" stroke-width="2" />',
+      '<text x="' + (padX + padW/2 + e_m * 20) + '" y="160" fill="#f59e0b" font-size="10" font-weight="600" text-anchor="middle">e = ' + e_m.toFixed(2) + 'm</text>',
+
+      '<!-- Top Status Badge -->',
+      '<rect x="250" y="240" width="300" height="26" fill="#0f172a" rx="4" stroke="' + statusColor + '" stroke-width="1.5" />',
+      '<text x="400" y="257" fill="' + statusColor + '" font-size="11" font-weight="700" text-anchor="middle">OVERTURNING FS: ' + FS_overturn.toFixed(2) + ' (' + (is_overturn_safe ? 'STABLE' : 'UNSTABLE TO OVERTURNING') + ')</text>'
+    ];
+
+    svg.innerHTML = svgParts.join('');
+  }
+
+  window.copyAO4Diagnostics = function() {
+    let fs = document.getElementById('ao4-res-fs-overturn').innerText;
+    let qm = document.getElementById('ao4-res-qmax').innerText;
+    let con = document.getElementById('ao4-res-contact').innerText;
+    let sld = document.getElementById('ao4-res-fs-slide').innerText;
+    let vt = document.getElementById('ao4-res-vtotal').innerText;
+    let mb = document.getElementById('ao4-res-mbase').innerText;
+    let ecc = document.getElementById('ao4-res-ecc').innerText;
+    let wp = document.getElementById('ao4-res-wpad').innerText;
+    let qmin = document.getElementById('ao4-res-qmin').innerText;
+    let bk = document.getElementById('ao4-res-bkern').innerText;
+
+    let text = [
+      '=== TOWER CRANE FOUNDATION STABILITY & OVERTURNING AUDIT ===',
+      'Standard: EN 14439 / ASCE 7-22 / DIN 15018 / Meyerhof Geotechnical Method',
+      '-----------------------------------------------------------------',
+      'Overturning Factor of Safety:    ' + fs,
+      'Peak Soil Bearing Pressure:      ' + qm,
+      'Footing Base Contact Ratio:      ' + con,
+      'Horizontal Sliding Safety:       ' + sld,
+      'Total Stabilizing Downward Load: ' + vt,
+      'Base Overturning Moment:         ' + mb,
+      'Load Eccentricity (e):           ' + ecc,
+      'Foundation Pad Self-Weight:      ' + wp,
+      'Minimum Heel Soil Pressure:      ' + qmin,
+      'Width to Eliminate Uplift:       ' + bk,
+      '-----------------------------------------------------------------',
+      'Report generated by Digital Tools Shed (https://digitaltoolsshed.com/calc/tower-crane-foundation-overturning-asce7-calculator.html)'
+    ].join('\n');
+
+    navigator.clipboard.writeText(text).then(function() {
+      const btn = document.getElementById('ao4-copy-btn');
+      const originalText = btn.innerText;
+      btn.innerText = '✓ Crane Audit Copied to Clipboard!';
+      btn.style.background = '#10b981';
+      setTimeout(function() {
+        btn.innerText = originalText;
+        btn.style.background = '';
+      }, 2500);
+    });
+  };
+
+  calcAO4();
+})();
+</script>
+`;
+
+writeFileSync(join(calcDir, 'tower-crane-foundation-overturning-asce7-calculator.html'), renderTradePage({
+  title: 'Tower Crane Foundation Stability Calculator | ASCE 7-22 & EN 14439',
+  metaDescription: 'Calculate free-standing tower crane foundation stability, overturning factor of safety, Meyerhof soil bearing pressure, and heel uplift per EN 14439 & ASCE 7-22.',
+  canonical: 'https://digitaltoolsshed.com/calc/tower-crane-foundation-overturning-asce7-calculator.html',
+  content: toolAO4Html,
+  faq: [
+    {
+      q: 'What safety factor against overturning is required for a free-standing tower crane?',
+      a: 'Under EN 14439 and DIN 15018 / FEM 1.001, a free-standing tower crane gravity foundation must achieve an overturning factor of safety (FS = Mrestoring / Moverturning) of at least 1.50 under in-service operating conditions (rated hook load plus maximum operating wind speed), and at least 1.30 under extreme out-of-service hurricane storm wind conditions with the slewing brake released for free weathervaning.'
+    },
+    {
+      q: 'What is the difference between Case A (trapezoidal) and Case B (triangular) soil bearing pressure?',
+      a: 'When load eccentricity is within the foundation kern (e ≤ B/6), the entire bottom of the concrete pad remains compressed against the soil in a trapezoidal stress distribution. When e > B/6, the windward heel of the footing lifts off the soil (heel uplift), creating a triangular compression block over an effective contact length B\x27 = 3(B/2 - e) where soil tension is zero.'
+    },
+    {
+      q: 'Why is weathervaning mandatory for out-of-service tower cranes during storms?',
+      a: 'Weathervaning allows the crane\x27s jib to freely rotate 360° like a weather vane, aligning parallel to incoming gale winds to minimize aerodynamic drag. If the slew brake is locked, hurricane winds striking the broadside of the jib increase horizontal base shear and overturning moment by up to 300% to 450%, causing instantaneous foundation toppling.'
+    },
+    {
+      q: 'How does the groundwater table affect crane gravity foundation stability?',
+      a: 'Concrete has a dry unit weight of ~24 kN/m³ (150 lb/ft³). When groundwater rises and submerges the foundation pad, buoyant upward pressure strips away the unit weight of water (9.81 kN/m³), reducing the effective stabilizing weight of the concrete by ~41% (to ~14.19 kN/m³). Overlooking high water tables is one of the most common causes of crane foundation failures.'
+    },
+    {
+      q: 'Why must diagonal corner overturning be analyzed for square foundations?',
+      a: 'Wind can strike from any azimuth. When extreme wind acts along the 45° diagonal axis of a square pad, the resisting moment arm to the toe decreases by a factor of 1/√2 (~29% reduction in stabilizing lever arm), while corner soil pressure spikes because the resisting footprint narrows to a point. Foundations safe orthogonally can fail when checked diagonally.'
+    }
+  ]
+}));
+
+
+console.log('  ✓ Built Trade & Construction Suite (107 calculators in /calc/)');
 }
 
